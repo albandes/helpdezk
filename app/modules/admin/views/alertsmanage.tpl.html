@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>{$pagetitle}</title>
+
+		{literal}
+
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/flexigrid.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/flexigrid/flexigrid.css" />
+		{/literal}
+
+	</head>
+	<body>
+		<table id="flexigrid2"></table>
+		{literal}
+		<script  src="{/literal}{$path}{literal}/includes/classes/ajax/alerts_list.js"></script>
+		{/literal}
+		<div class="pop">
+			{include file="alertsinsert.tpl.html"}
+		</div>
+	</body>
+</html>

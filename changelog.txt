@@ -1,0 +1,204 @@
+[Version 1.0.2] - 10/24/2014
+Fixed bug: Description more than 4000 lines not write in db [Oracle]
+Fixed bug: Note repass more than 4000 lines not write in db [Oracle]
+Fixed bug: Pagination in the operator grid [Oracle]
+Fixed bug: repass requests [Oracle]
+Fixed bug: Warnings Module [Oracle]
+Fixed bug: Upload logo
+Add functionality: Domain name in pop server configuration
+Fix bug: Insert person.
+relatório de solicitações trabalhadas
+Add Knowledge Base
+Add port in smtp server configuration
+Fix bug in send e-amil by Gmail
+Fix bug:  Upload in Download Record [Oracle]
+Add session validate in dashboard and not close de dashboard screen
+Fix bug in Request Record closed and repassed
+[Version 1.0.1] - 09/09/2014
+Added Oracle database
+Changes in the configuration file.
+New features in the register of holiday.
+Possibility of registration  additional information when to terminate the request.
+Added Report of Requests Additional Information.
+Added button in the principal screen for the user with permition to access administrative area
+Fixed email template.
+Fixed bugs in LDAP/AD autentication.
+Fixed bugs in the program to import users .
+Developed REST API to mobile aplications.
+Added reason field when the  expiration date of request is changed.
+Added program to register  the  work hours.
+Adjustments to the system functionality.
+Added possibility to see the users phone number in the request.
+Added possibility to open requests by email.
+Added "auto refresh" in grids.
+Added feature that allow to save the show or hide certain columns in grids. .
+Added feature that allow to save the size of the columns in the grid. 
+Added feature that allows recording in the session the  columns order  of the attendants.
+
+[Version 1.0.0] - 02/12/2014
+Fix bug (Sql Injection on login page)
+Stable Version
+
+[Version 0.0.17] - 01/18/2014
+Integration with LDAP/ MS AD
+New open request screen.
+Select the area default  in request screen.
+Set default priority bug to save.
+New reports
+
+[Version 0.0.16] - 11/11/2013
+Fixed bug in login screen module warnings
+Functionality session time added
+Check if the group already exists when you enter a new
+Check if the department already exists when you enter a new
+Do not show buttons to save and forward the query screen when the request is for approval
+Adjust the search by description and added new fields in the search
+
+[Version 0.0.15] - 10/17/2013
+Set some FKs in the database.
+Added filter in repass modal.
+Possibility to increase / decrease font in reports.
+Fixed bug in department listing in the register of individuals.
+Added functionality to enable fields "Equipment" in opening requests.
+Putting the pointing solution when open request has already solved.
+Set bug in name of who created the request.
+Added functionality to allow for the reopening request for user.
+Inserted warnings module .
+fixed bug when checking  VIP users.
+Adjust the order of the groups in the insertion / editing services.
+Fix bug when editing email templates.
+Added features in the possibility of changing the name of the user who sends mail system.
+Fixed bug to only get emails from users who are active in the group.
+Fix bug in the registration program.
+Added the possibility of auxiliary attendant to insert a note.
+Fixed bug when opening request and forward.
+Fixed bug when rejecting the request, it is now placed the name of the person who rejected as responsible.	
+Adjustment in access permissions in the admin panel.
+Saving exchange status in the log table.
+Fixed bug in approving requests.
+Option "only my" on screen "in compliance" checked by default.
+Possibility to add the request to Google Calendar.
+Inserted back button in the change password modal.
+
+[Version 0.0.14] - 07/04/2013
+Fixed bug in adding a new file in module downloads
+Fixed bug when creating appointment placing request as closed.
+Created the possibility to view, delete, and add users to groups in person through the grid.
+Included the option of searching by the user who created the call.
+Redone evaluation module and included the option of enabling option which come as standard.
+Included new feature: Group transfer.
+Fixed bug that took matter and description of the wrong place when opening the screen being called a request.
+Included the possibility of attendant change status when in status "in service" status for the same group of "in service".
+Added module: Query requests.
+Developed new login screen.
+Fixed bug in search of groups and people.
+Adjust the height of the grid on the screen and my service requests.
+Added functionality: Auxiliary Operator.
+Set in sending email and show up there again pointing and who can view it.
+Validate the session for AJAX requests.
+Adjusted notifications and buttons that are displayed on the screen of the operator request.
+Added functionality: Operator approver.
+Adjusted bug in access to programs.
+Performance tuning on requests from users.
+Retrieved warning when editing the permission type.
+Enable the operator to enter appointment without description.
+Report: User satisfaction.
+Report: Summary  by department.
+Report: Summary  by operator.
+Report: Rejected requests.
+Report: Requests by department
+Adjust line break in exported reports (pdf).
+Adjust the return of modal requests.
+Fixed bug to check possibility of opening when request was not in the home screen.
+Fixed bug in loading the list of services.
+Added fields in report requests.
+Do not show notes when closed, canceled, rejected and pending approval.
+
+[Version 0.0.13] - 03/08/2013
+
+Add at system's configuration the possibility of don't allow opening new request if the user has requests waiting for approval.
+Fixed the bug at counting status in the initial screens for users.
+Rebuild all the modal of administrative section, removing all pop-ups.
+Add option for recovering password.
+
+[Version 0.0.12] - 01/29/2013
+
+Added the possibility for users to attach files at the notes.
+Fixed the bug at send e-mail when adding notes.
+Routine for recovery lost password by users.
+Implemented javascript methods to insert notifications of success, fail and information. 
+
+
+[Version 0.0.11] - 12/27/2012
+
+Available the Pipegrep Class documentation at the directory phpdocs/ .
+Added the file phpdoc.xml, used to create the documentation.
+Adjustment in the clock of inserting note.
+Fixed the bug of non showing attachments in notes for users.
+Fixed the method for downloading attachments in the notes and requests.
+Fixed the requests buttons enable, disable.  
+
+[Version 0.0.10] - 12/20/2012
+
+Bug fixed in the assortment by kind of people, companies, downloads version column, priority order column, icon and answer at avaliation of service column, companies and departments cloumn and type column at opening motif.
+Menus adjustment and images optimization.
+Header rebuild.
+Placed the pop-up of edition in the refresh information button at user profile.  
+Adjust modal search users, list by the first letter.
+Adjust admin's menu, be mark when click on it.
+Fixed report of people and report of requests. 
+Possibility to change the status grouping that are not patterns. Defining in which group it will be visualized.
+Adding validation for admin visualize all the requests.
+
+[Version 0.0.9]
+
+Add report of people. 
+Add report of requests.
+Change in the sent e-mails log: it was added the description of the operation
+Sending e-mail for atendence or group of atndence when a request is transfered.
+
+[Version 0.0.8] - 11/27/2012
+
+Bug corrected when transferring request.
+Bug corrected at the approval of requests which was not open by the user.
+Path corrected when HelpDEZk is install at the web server root: It wasn�t working with Internet Explorer.
+
+[Version 0.0.7] - 10/18/2012
+
+Added evaluation features;
+When creating a request it sohws a screen with the number of the generated 
+request and a link to open a new request;
+It was included a control system for when the session expirers ;
+It was fixed some research bugs in some grids ;
+It was optimize query search to grid requests ;
+The transfer request when creating it has been corrected ;
+
+[Version 0.0.6] - 09/14/2012
+
+Installer improvements.
+Check for HelpDEZk available updates.
+Added POP authentication support.
+Added new customizations on System Features menu:
+- Fields for POP authentication data.
+- Fields for email configuration (for email alerts).
+
+
+[Version 0.0.5] - 09/06/2012
+
+chronometer for entering time expended in task now working
+fixed some css errors
+
+[Version 0.0.4] - 09/05/2012
+
+Request searching improved.
+Sorting filters improved.
+"i want my group to keep viewing this request" now working.
+Download class added in the attachments area.
+Attachment button fixed in chrome.
+
+[Version 0.0.3] - 09/03/2012
+
+Root user without department was fixed. 
+Grid sorting was fixed. 
+Added GPL License especifications.
+

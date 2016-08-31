@@ -1,0 +1,13 @@
+{
+"categories" :
+  {
+  "category": [
+    {
+      "id":1,
+      "title" : "Charts",
+      "amount" : 1,
+      "url" : "{../../../includes/classes/dashboardplugin/demo/jsonfeed/category_charts_widgets.json"
+    }
+  ]
+  }
+}

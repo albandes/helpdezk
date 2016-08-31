@@ -1,0 +1,234 @@
+
+<form action="javascript:;" method="post" name="form2" id="formPersonEdit" class="juridical">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Person_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<div id="formjuridical">
+	
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="namejuridical">{$smarty.config.Name}:</label>
+							</li>
+							<li class="field">
+								<input name="namejuridical" id="namejuridical" type="text" maxlength="150" class="w240" value="{$name}"/>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="cnpj">{$smarty.config.EIN_CNPJ}:</label>
+							</li>
+							<li class="field">
+								<input name="cnpj" id="cnpj" type="text" class="mask" data-format="{$ein_mask}" size="20" maxlength="150" value="{$ein_cnpj}"/>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="email">{$smarty.config.email}:</label>
+							</li>
+							<li class="field">
+                                <!--
+								<input name="email" id="email" type="text" maxlength="150" class="w240" value="{$email}"/>
+								-->
+                                <textarea type="text" name="email" id="email" ROWS=6 COLS=40 class="w240" >{$email}</textarea>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="type_company">{$smarty.config.Type}:</label>
+							</li>
+							<li class="field">
+								<select name="type_company" id="type_company" class="w240">
+						            <option value="">{$smarty.config.Select_acess_level}</option>
+						            {html_options values=$levelids output=$levelvals selected = $typeperson }
+						        </select>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="phone">{$smarty.config.Phone}:</label>
+							</li>
+							<li class="field mr15">
+								<input name="phone" id="phone" type="text" class="mask w128" data-format="(99)9999-9999?99" maxlength="15" value="{$phone}"/>
+							</li>
+							<li class="info wAuto">
+								<label for="branch">{$smarty.config.Branch}:</label>
+							</li>
+							<li class="field">
+								<input name="branch" id="branch" type="text" maxlength="5" class="w40" value="{$branch}"/>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="fax">Fax:</label>
+							</li>
+							<li class="field">
+								<input name="fax" id="fax" class="mask w128" data-format="(99)9999-9999?99" type="text" maxlength="15" value="{$fax}"/>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="cperson">{$smarty.config.Contact_person}:</label>
+							</li>
+							<li class="field">
+								<input name="cperson" id="cperson" type="text" maxlength="50" class="mt15 w240" value="{$contact}"/>
+							</li>
+						</ul>
+					</li>
+					
+				</ul>
+				
+				
+			
+			    <div class="formAdress">
+			    	
+			    	<ul class="lstForm clearfix">
+						<li>
+							<ul>
+								<li class="info">
+									<label for="country">{$smarty.config.Country}:</label>
+								</li>
+								<li class="field">
+									<select name="country" class="w240 country" id="country">
+										<option value='1'>{$smarty.config.Select}</option>
+					                    {html_options values=$countryids output=$countryvals selected=$country }
+					                </select>
+								</li>
+							</ul>
+						</li>
+
+
+                        <li>
+                            <ul>
+                                <li class="info">
+                                    <label >{$smarty.config.State}:</label>
+                                </li>
+                                <li class="field ">
+                                    <select class="w240 mr5 state" name="state" id="state">
+                                        <option value="">{$smarty.config.ERP_Choose_costcenter}</option>
+                                        {html_options values=$stateids output=$statevals selected=$state}
+                                    </select>
+                                </li>
+                                <li>
+                                    <a href="#modalPersonAddState" class="lnk-tp1 openModal" title="{$smarty.config.Add_State}">{$smarty.config.Add_State}</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <ul>
+                                <li class="info">
+                                    <label >{$smarty.config.City}:</label>
+                                </li>
+                                <li class="field ">
+                                    <select class="w240 mr5 city" name="city" id="city">
+                                        {html_options values=$cityids output=$cityvals selected=$city}
+                                    </select>
+                                </li>
+                                <li>
+                                    <a href="#modalPersonAddCity" class="lnk-tp1 openModal" title="{$smarty.config.Add_City}">{$smarty.config.Add_City}</a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+
+						<li>
+							<ul>
+								<li class="info">
+									<label for="neighborhood">{$smarty.config.Neighborhood}:</label>
+								</li>
+								<li class="field mr15">
+									<input name="neighborhood" id="neighborhood" type="text" class="w100" maxlength="40" value="{$neighborhood}"/>
+								</li>
+								<li class="info wAuto">
+									<label for="zipcode">{$smarty.config.Zipcode}:</label>
+								</li>
+								<li class="field">
+									<input name="zipcode" id="zipcode" type="text" class="w80" maxlength="12" value="{$zipcode}"/>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<ul>
+								<li class="info">
+									<label for="type_street">{$smarty.config.Type_adress}:</label>
+								</li>
+								<li class="field mr15">
+									<select name="type_street" class="campo w70" id="type_street">
+					                    {html_options values=$typestreetids output=$typestreetvals selected = $idtypestreet }
+					                </select>
+								</li>
+								<li class="info wAuto">
+									<label for="address">{$smarty.config.Adress}:</label>
+								</li>
+								<li class="field ui-widget">
+									<input name="address" id="address" type="text" class="campo w111" maxlength="200" value="{$street}"/>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<ul>
+								<li class="info">
+									<label for="number">{$smarty.config.Number}:</label>
+								</li>
+								<li class="field mr15">
+									<input name="number" id="number" type="text" class="w50" maxlength="40" value="{$number}"/>
+								</li>
+								<li class="info wAuto">
+									<label for="complement">{$smarty.config.Complement}:</label>
+								</li>
+								<li class="field">
+									<input name="complement" id="complement" type="text" class="w74" maxlength="40" value="{$complement}"/>
+								</li>
+							</ul>
+						</li>
+					</ul>
+			    	        
+				</div>
+			    
+			    
+			    <ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="obs">{$smarty.config.Observation}:</label>
+							</li>
+							<li class="field">
+								<textarea name="obs" id="obs" class="w240">{$obs}</textarea>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input name="id" id="id" type="hidden" value="{$id}" />
+					<input type='submit' name="submit" id="btnEnviarDownloadsEditJuridical" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

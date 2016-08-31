@@ -1,0 +1,13 @@
+#for html, php
+AddDefaultCharset UTF-8
+#for css, js
+AddType 'text/css; charset=UTF-8' css
+AddType 'application/x-javascript; charset=UTF-8' js
+# MVC
+RewriteEngine on
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/app/reports
+RewriteCond %{REQUEST_URI} !^/app/reports/erp
+RewriteCond %{REQUEST_URI} !^/index\.php$
+RewriteRule ^(.*)$ index.php?url=$1

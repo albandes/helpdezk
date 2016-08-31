@@ -1,0 +1,67 @@
+{literal}
+<script type="text/javascript" language="javascript">
+    $(document.getElementById('rejectRequest')).click(function(){
+    	var $self = $(this),
+    		code = $("#code_request").val(),
+        	idperson = $("#idperson").val(),
+        	reason = $("#reasontxt").val(),
+        	typeincharge = $("#typeincharge").val(),
+        	incharge = $("#incharge").val();        
+        	
+        $self.attr('disabled','disabled');
+        	
+        if (reason == '' || reason == 0){
+            alert("{/literal}{$smarty.config.Alert_choose_reason}{literal}"); 
+            return false;
+        }
+        $.post("{/literal}{$path}{literal}/helpdezk/operator/rejectrequest", 
+        {code: code, person: idperson, reason: reason, typeincharge: typeincharge, incharge: incharge},
+        function(resp){
+            if (resp != false){
+                objDefault.notificationReload("success",aLang['Reject_sucess'].replace (/\"/g, ""),"modalReject");                
+            }
+            else{
+            	objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalReject");                        
+            }
+        }).complete(function(){
+        	$self.removeAttr('disabled');
+        });
+    })
+    
+</script>
+{/literal}
+
+<div id="modalReject" class="window" style="width:500px;">
+    <form action="javascript:;" method="post">
+        <div class="modalHeader">
+			<h2>{$smarty.config.Reason}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+			    <ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="reasontxt">{$smarty.config.Reason}:</label>
+							</li>
+							<li class="field">
+								<textarea name="reasontxt" id="reasontxt" ></textarea>
+							</li>
+						</ul>
+					</li>
+				</ul>	
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">						
+						<input type='submit' name="submit"  class="btnOrange tp1" id="rejectRequest" value="{$smarty.config.Reject_btn}"/>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+

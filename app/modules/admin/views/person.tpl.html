@@ -1,0 +1,150 @@
+
+{literal}
+
+
+<script  src="{/literal}{$path}{literal}/includes/classes/ajax/person_list.js"></script>
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jquery-autocomplete/jquery.autocomplete.css" />
+<script type='text/javascript' src='{/literal}{$path}{literal}/includes/classes/jquery-autocomplete/jquery.autocomplete.js'></script>
+<script>	
+	
+	/////////////////////////////////////////////// ---- INI ---- ////////////////////////////////////////////////////
+	
+
+	
+	/////////////////////////////////////////////// ---- FIM ---- ////////////////////////////////////////////////////
+</script>
+{/literal}
+
+<table id="flexigrid2"></table>
+
+
+<div id="modalPersonInsert" class="window" style="width:520px;"><!-- --></div>
+
+<div id="modalPersonEdit" class="window" style="width:520px;"><!-- --></div>
+
+<div id="modalAttendantGroup" class="window" style="width:470px;"><!-- --></div>
+
+<div id="modalPersonAddState" class="window" style="width:500px;">
+	<form action="javascript:;" method="post" id="formPersonAddState">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Person_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="newstatefield">{$smarty.config.State}:</label>
+							</li>
+							<li class="field">
+								<input name="newstatefield" id="newstatefield" type="text" class="campo" size="18" maxlength="40" />
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="abbr">{$smarty.config.Abbreviation}:</label>
+							</li>
+							<li class="field">
+								<input name="abbr" id="abbr" type="text" class="campo" size="2" maxlength="3" />
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="javascript:;" class="backModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+						<input type='submit' name="submit" id="btnAddNewState" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="modalPersonAddCity" class="window" style="width:500px;">
+	<form action="javascript:;" method="post" id="formPersonAddCity">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Person_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="newcityfield">{$smarty.config.City}:</label>
+							</li>
+							<li class="field">
+								<input name="newcityfield" id="newcityfield" type="text" class="campo" size="18" maxlength="40" />
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="javascript:;" class="backModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+						<input type='submit' name="submit" id="btnAddNewCity" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="modalPersonAddLocation" class="window" style="width:500px;">
+	<form action="javascript:;" method="post" id="formPersonAddLocation">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Location_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="name_location">{$smarty.config.Location}:</label>
+							</li>
+							<li class="field">
+								<input type="text" id="name_location" class="w240" name="name_location"/>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="javascript:;" class="backModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+						<input type='submit' name="submit" id="btnAddNewLocation" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="modalPersonDisable" class="window" style="width:400px;"><!-- --></div>
+
+<div id="modalPersonActive" class="window" style="width:400px;"><!-- --></div>
+
+<div id="modalAlterPassword" class="window" style="width:500px;"><!-- --></div>

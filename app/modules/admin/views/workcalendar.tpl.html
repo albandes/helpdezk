@@ -1,0 +1,223 @@
+{literal}
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery.timeentry/jquery.timeentry.min.js"></script>
+<script>
+	$(document).ready(function() {	
+		if($(window).height()-95 > 318)	
+			$("#content").css("min-height",$(window).height()-95);
+    	{/literal}
+    	{if $hour_format|strstr:"%p"}
+    	{literal}
+			$('.formatTime').timeEntry({show24Hours: false, ampmPrefix: ' ', spinnerImage:''});
+		{/literal} 
+		{else}
+		{literal}
+			$('.formatTime').timeEntry({show24Hours: true, ampmPrefix: ' ', spinnerImage:''});
+		{/literal}
+		{/if}
+    	{literal}
+    	$(".copyall").click(function(){
+    		$(".tbWorkDay tbody tr").each(function(i){
+    			if(i == 0){
+    				valTime = new Array();
+    				$(this).find("input[type=text]").each(function(i){
+    					valTime[i] = this.value;
+	    			})
+    			}else{
+    				$(this).find("input[type=text]").each(function(i){
+    					$(this).val(valTime[i]);
+	    			})
+    			}
+    		})
+    	});
+    	$(document.getElementById("formWorkCalendar")).submit(function(){
+			var $self = $(this),
+			$btn = $self.find(document.getElementById('btnSaveWorkCalendar'));
+			$.ajax({
+				type: "POST",
+				url: "workcalendar/save",
+				data: $(this).serialize(),
+				error: function (ret) {
+					objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalInfo");
+					objModal.openModal("modalInfo");
+				},
+				success: function(ret) {
+					if(ret)
+						objDefault.notification("success",aLang['Edit_sucess'].replace (/\"/g, ""),"modalInfo");					
+					else
+						objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalInfo");
+					objModal.openModal("modalInfo");
+				},
+				beforeSend: function(){
+					objDefault.buttonAction($btn,'disabled');
+				},
+				complete: function(){
+					objDefault.buttonAction($btn,'enabled');
+				}
+			});
+    	})
+ 	});
+</script>
+{/literal}
+
+<div class="flexigrid">
+	<div class="mDiv"><div class="ftitle"> :: {$smarty.config.pgr_work_calendar}</div></div>
+</div>
+
+<form action="javascript:;" method="post" id="formWorkCalendar" class="mt20">
+	<table class="tbReports tbWorkDay ml20 mb15" cellpadding="0" cellspacing="0">
+		<colgroup>
+			<col width="100">
+			<col width="100">
+			<col width="180">
+			<col width="180">	
+			<col width="180">
+		</colgroup>
+		<thead>
+			<tr>
+				<th align="center">{$smarty.config.Business_day}</th>
+				<th align="center">{$smarty.config.Weekday}</th>
+				<th>{$smarty.config.Time_Morning}</th>
+				<th>{$smarty.config.Time_Afternoon}</th>
+				<th><!-- --></th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr class="odd">
+				<td colspan="5" align="right">
+					<input type='submit' name="submit" id="btnSaveWorkCalendar" class="btnOrange tp1 mtb10 mr15" value="{$smarty.config.Save}" />
+				</td>
+			</tr>
+		</tfoot>
+		<tbody>			
+			<tr>
+				<td align="center">
+					<input type="checkbox" value="1" name="day[0]" {if $calendar[0].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Sunday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[0].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[0].end_morning}"/>
+				</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[0].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[0].end_afternoon}"/>
+				</td>
+				<td>
+					<a href="javascript:;" class="copyall" title="{$smarty.config.Replicate_time}">{$smarty.config.Replicate_time}</a>
+				</td>
+			</tr>
+			<tr class="odd">
+				<td align="center">
+					<input type="checkbox" value="1" name="day[1]" {if $calendar[1].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Monday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[1].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[1].end_morning}"/>
+				</td>
+				<td colspan="2">
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[1].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[1].end_afternoon}"/>
+				</td>
+			</tr>
+			<tr>
+				<td align="center">
+					<input type="checkbox" value="1" name="day[2]" {if $calendar[2].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Tuesday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[2].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[2].end_morning}"/>
+				</td>
+				<td colspan="2">
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[2].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[2].end_afternoon}"/>
+				</td>
+			</tr>
+			<tr class="odd">
+				<td align="center">
+					<input type="checkbox" value="1" name="day[3]" {if $calendar[3].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Wednesday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[3].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[3].end_morning}"/>
+				</td>
+				<td colspan="2">
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[3].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[3].end_afternoon}"/>
+				</td>
+			</tr>
+			<tr>
+				<td align="center">
+					<input type="checkbox" value="1" name="day[4]" {if $calendar[4].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Thursday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[4].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[4].end_morning}"/>
+				</td>
+				<td colspan="2">
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[4].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[4].end_afternoon}"/>
+				</td>
+			</tr>
+			<tr class="odd">
+				<td align="center">
+					<input type="checkbox" value="1" name="day[5]" {if $calendar[5].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Friday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[5].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[5].end_morning}"/>
+				</td>
+				<td colspan="2">
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[5].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[5].end_afternoon}"/>
+				</td>
+			</tr>
+			<tr>
+				<td align="center">
+					<input type="checkbox" value="1" name="day[6]" {if $calendar[6].business_day == 1}checked="checked"{/if} />
+				</td>
+				<td align="center">{$smarty.config.Saturday}</td>
+				<td>
+					{$smarty.config.of}
+					<input type="text" name="morning[]" class="formatTime" value="{$calendar[6].begin_morning}"/>
+					{$smarty.config.to2}
+					<input type="text" name="morning2[]" class="formatTime" value="{$calendar[6].end_morning}"/>
+				</td>
+				<td colspan="2">
+					{$smarty.config.of}
+					<input type="text" name="afternoon[]" class="formatTime" value="{$calendar[6].begin_afternoon}"/>
+					{$smarty.config.to2}
+					<input type="text" name="afternoon2[]" class="formatTime" value="{$calendar[6].end_afternoon}"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>

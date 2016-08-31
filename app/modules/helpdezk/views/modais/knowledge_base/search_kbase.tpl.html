@@ -1,0 +1,24 @@
+<div id="modalSearchKBase" class="window" style="width:900px;">
+	{literal}
+	<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-treeview/jquery.treeview.js"></script>
+	<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-treeview/jquery.treeview.async.kbase.js"></script>
+	<script  src="{/literal}{$path}{literal}/includes/classes/ajax/knowledgebase_viewrequest.js"></script>
+	{/literal}
+    <div class="modalHeader">
+		<h2>{$smarty.config.pgr_knowledge_base}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<div class="fl" style="width: 15%;">
+				<ul id="klbCategories" class="textomenu">
+
+				</ul>
+			</div>
+			<div class="fl" style="width: 85%;">
+				<table id="flexigrid2"><!-- --></table>
+			</div>
+
+		</div>
+	</div>
+</div>

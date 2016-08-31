@@ -1,0 +1,30 @@
+PHP AdSense Account Library changelog
+
+Version 0.2 (Mar 12, 2009)
+
+Alexander Makarov (Feb 25, 2009)
+-Added get_report_id_from_name() method to deal with report id changes.
+-Added API documentation.
+
+Alexander Makarov (Feb 10, 2009)
+-Fixed cookies file deletion problem.
+-Added log_out() method. Useful when you need to query two and more accounts.
+-Added get_report_as_csv() method.
+-Removed trailing ?> not to have accidental symbols in output.
+
+Alex Polski (Feb 10, 2009)
+-Using sys_get_temp_dir function instead of '/tmp' string.
+-Added sys_get_temp_dir function for the proper work in PHP4.
+
+***
+
+Version 0.1.1 (Feb 25, 2009)
+
+Alex Polski (Feb 25, 2009)
+-Fixed sign in checking in connect() method (issue 1 and 2).
+
+***
+
+Version 0.1 (Feb 05, 2009)
+
+Initial release.

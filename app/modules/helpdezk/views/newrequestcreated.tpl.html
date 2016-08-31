@@ -1,0 +1,32 @@
+{literal}
+<script>
+    function end(){
+        ocultar('pop');
+        //$("#form1").reset();
+        //clear_form_elements("#form1");
+        $('#flexigrid2').flexReload();
+        refresh();
+    }
+</script>
+{/literal}
+<div id='smallHeader' style="margin-top:0px;  z-index: 99; position:relative;">
+	<p>
+		<span class="texto" style="margin-top:12px; margin-left: 10px;">::&nbsp;{$smarty.config.Request_insert}</span><a
+		href="#" id='buttonClose' onclick="ocultar('pop');"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0"
+		/></a>
+	</p>
+</div>
+<div style="height: 400px; text-align: center">
+    <div class="texto_14" style="margin-left:-150px; padding:25px; position:relative; left:50%; width:300px; background-color: #F7F7F7; border: 1px solid #CCC; top:20%;">
+    {$smarty.config.Alert_inserted_request}<br/><br/>
+    
+    {if $typelink == 1}
+    	<a href='#' class='subject' onclick="$('#content2').load('user/viewrequest/id/{$code}'); ocultar('pop');">{$code}</a><br/><br/>
+    {else}
+    	<a href='#' class='subject' onclick="$('#content2').load('operator/viewrequest/id/{$code}'); ocultar('pop');">{$code}</a><br/><br/>
+    {/if}
+    
+    <a href='#' class='subject' onclick="$('#pop').load('operator/insertForm')">Abrir novo chamado</a> |     
+    <a href='#' class='subject' onclick="end()">Fechar</a>
+    </div>
+</div>

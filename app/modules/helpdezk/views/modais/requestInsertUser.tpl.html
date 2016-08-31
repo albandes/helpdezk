@@ -1,0 +1,331 @@
+<div class="modalHeader">
+	<h2>{$smarty.config.Request_insert}</h2>
+	<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+</div>
+<div class="modalContent">
+	<div class="clearfix">
+		<form name="formNewRequest" id="formNewRequest" method="post" enctype="multipart/form-data" action="javascript:;">
+			{literal}			
+			<script>
+				for(var i in CKEDITOR.instances) {
+					CKEDITOR.instances[i].destroy(true); 
+				}				
+	            
+	            var $formNewRequest = $(document.getElementById("formNewRequest"));
+	            var objService = {
+						changeArea: function(){
+							var $valarea = $formNewRequest.find("#idarea").val(),
+			            		$type = $formNewRequest.find("#idtype"),
+			            		$item = $formNewRequest.find("#iditem"),
+			            		$service = $formNewRequest.find("#idservice"),
+			            		$reason = $formNewRequest.find("#idreason");
+			            	$type.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			            	$item.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			            	$service.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			            	$reason.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');	            	
+			            	$.post(path+"/helpdezk/operator/type",{area: $valarea},
+			                function(valor){
+			                    $type.html(valor);
+			                    return objService.changeItem();
+			                })
+						},
+						changeItem: function(){
+							var $item = $formNewRequest.find("#iditem"),
+			            		$valtype = $formNewRequest.find("#idtype").val(),
+			            		$service = $formNewRequest.find("#idservice"),
+			            		$reason = $formNewRequest.find("#idreason");
+			            	$item.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			            	$service.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			            	$reason.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>'); 
+			                $.post(path+"/helpdezk/operator/item",{type: $valtype},
+			                function(valor){
+			                    $item.html(valor);
+			                    return objService.changeService();
+			                })
+						},
+						changeService: function(){
+							var $service = $formNewRequest.find("#idservice"),
+			            		$valitem = $formNewRequest.find("#iditem").val(),
+			            		$reason = $formNewRequest.find("#idreason");
+							$service.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+							$reason.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+		                	$.post(path+"/helpdezk/operator/service",{item: $valitem},
+		                	function(valor){
+		                    	$service.html(valor);
+		                    	return objService.changeReason();
+		                	})
+						},
+						changeReason: function(){
+							var $reason = $formNewRequest.find("#idreason"),
+			            		$valservice = $formNewRequest.find("#idservice").val();							
+							$reason.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+		                	$.post(path+"/helpdezk/operator/reason",{service: $valservice},
+		                	function(valor){
+		                    	$reason.html(valor);
+		                	})
+						}
+					}
+	            
+	            $("#formNewRequest")
+					.off(".contentloaded")
+					.on("change.contentloaded", "#idarea", objService.changeArea)
+					.on("change.contentloaded", "#idtype", objService.changeItem)
+					.on("change.contentloaded", "#iditem", objService.changeService)
+					.on("change.contentloaded", "#idservice", objService.changeReason);
+	          
+	            if($formNewRequest.find("#idarea").val() != 0){
+	            	objService.changeArea();
+	            }
+	            
+	            var ponto = '.';
+				var timeout = false;
+				function animaPonto() {
+					timeout = setTimeout('animaPonto()', 350);
+					document.getElementById('pisca').innerHTML = ponto;
+					if( ponto == '...' ) {
+						ponto = '.';
+					} else {
+						ponto += '.';
+					}
+				}
+	            
+	            $("#formNewRequest").validate({
+	        		ignore: "input:hidden:not(input:hidden.required)",
+	        		wrapper: "li class='error'",            		
+	        		errorPlacement: function(error, element) {
+						error.appendTo(element.parent().parent());
+					},
+				  	rules: {
+				  		person: "required",
+				  		idarea: "required",
+				  		idtype: "required",
+				  		iditem: "required",
+				  		idservice: "required",
+				  		subject: "required",
+				  		description: {
+				  			required: function(textarea){
+								CKEDITOR.instances[textarea.id].updateElement(); // update textarea
+								var editorcontent = textarea.value.replace(/<[^>]*>/gi, ''); // strip tags
+								return editorcontent.length === 0;
+				  			}
+				  		} 
+				 	}
+				});
+				
+	            $(document.getElementById("btnRegisterRequest")).click(function(e){
+					e.preventDefault();
+					if($("#formNewRequest").valid()){
+						var formReq = document.formNewRequest;
+						animaPonto();
+						objModal.openModal("modalSavingRequest");
+						$.post(path+'/helpdezk/requestInsertOperator/saverequestuser', {
+							idperson: 		formReq.idperson.value,
+							idjuridical: 	formReq.idjuridical.value,
+							serial_number: 	formReq.serial_number.value,
+							os_number: 		formReq.os_number.value,
+		                    tag: 			formReq.tag.value,
+		                    area: 			formReq.idarea.value,
+		                    type: 			formReq.idtype.value,
+		                    item:			formReq.iditem.value,
+		                    service:		formReq.idservice.value,
+		                    reason:			formReq.idreason.value,
+		                    subject: 		formReq.subject.value,
+		                    description: 	CKEDITOR.instances['description'].getData()
+		                }, function(resposta) {
+		                    if (resposta != false) { //SUCCESS
+		                        var modalReturnRequest = $(document.getElementById("modalReturnRequest"));
+						        objDefault.maskLoaderShow();
+						        modalReturnRequest.load(path+'/helpdezk/requestInsertOperator/modalReturnRequest/code/'+resposta, function(){
+						        	objModal.openModal("modalReturnRequest");
+						        	objDefault.maskLoaderHide();
+						        });
+		                    }
+		                    else { //ERROR		                        
+								objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalNewRequest");
+		                    }
+		                    clearTimeout(timeout);
+		                });
+					}
+	            });
+	           
+			</script>
+			{/literal}
+			
+			<div class="boxLeft">
+				<div class="boxInfo">			
+					<ul class="lstForm lstNewRequest clearfix">
+						<li>
+							<ul>
+								<li class="info">
+									<label for="person" title="{$smarty.config.User}">{$smarty.config.User}:</label>
+								</li>
+								<li class="field">
+									<input name="person" id="person" type="text" value="{$name_person}" style="width: 178px;" readonly="readonly" />
+								</li>
+							</ul>
+						</li>
+						<li>
+							<ul>
+								<li class="info">
+									<label for="idarea" title="{$smarty.config.Area}">{$smarty.config.Area}:</label>
+								</li>
+								<li class="field">
+									<select name="idarea" id="idarea" class="w180">
+				                        <option value="">{$smarty.config.Select} </option>
+				                        {html_options values=$areaids output=$areavals selected=$area_default}
+				                    </select>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<ul>
+								<li class="info">
+									<label for="idtype" title="{$smarty.config.Type}">{$smarty.config.Type}:</label>
+								</li>
+								<li class="field">
+									<select name="idtype" id="idtype" class="w180">
+				                        <option value="">{$smarty.config.Select} </option>
+				                    </select>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<ul>
+								<li class="info">
+									<label for="iditem" title="{$smarty.config.Item}">{$smarty.config.Item}:</label>
+								</li>
+								<li class="field">
+									<select name="iditem" id="iditem" class="w180">
+				                        <option value="">{$smarty.config.Select}</option>
+				                    </select>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<ul>
+								<li class="info">
+									<label for="idservice" title="{$smarty.config.Service}">{$smarty.config.Service}:</label>
+								</li>
+								<li class="field">
+									<select name="idservice" id="idservice" class="w180">
+				                        <option value="">{$smarty.config.Select}</option>
+				                    </select>
+								</li>
+							</ul>
+						</li>
+						{if $reason_and_type != 1}
+						<li>
+							<ul>
+								<li class="info">
+									<label for="idreason" title="{$smarty.config.Reason}">{$smarty.config.Reason}:</label>
+								</li>
+								<li class="field">
+									<select name="idreason" id="idreason" class="w180">
+				                        <option value="">{$smarty.config.Select}</option>
+				                        {html_options values=$modulesids output=$modulesvals}
+				                    </select>
+								</li>
+							</ul>
+						</li>						
+						{/if}
+					</ul>		
+				</div>
+				<div class="boxAttac">
+					<fieldset>
+					    <legend class="pt10">{$smarty.config.Attachments}</legend>
+					    <input name="COD_ANEXO" type="hidden" id="COD_ANEXO"/>
+					    <iframe src="{$path}/helpdezk/manageattachments/" name="ianexo" id="ianexo" width="258" height="132" frameborder="0" scrolling="no"></iframe>
+					</fieldset>
+				</div>
+				
+			</div>			
+			<div class="boxCenter">
+				<ul class="lstForm lstNewRequest clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="subject" title="{$smarty.config.Subject}">{$smarty.config.Subject}:</label>
+							</li>	
+							<li class="field">
+								<input type="text" style="width: 383px;" name="subject" id="subject" />
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="description" title="{$smarty.config.Description}">{$smarty.config.Description}:</label>
+							</li>					
+							<li class="field">
+								<textarea id="description" class="ckeditor" data-width="385" data-height="245" data-toolbar="SOLICITA" name="description"  wrap="virtual"></textarea>
+							</li>
+						</ul>
+					</li>					
+				</ul>
+			</div>
+			
+			<div class="boxRight">
+				
+				{if $equipment == 1}
+					<div class="boxEquip mb10">
+						<fieldset>
+						    <legend class="pt0 pb0">{$smarty.config.Equipment}</legend>
+						    <ul class="lstForm lstNewRequest clearfix mt10">
+								<li>
+									<ul>
+										<li class="info">
+											<label for="tag" title="{$smarty.config.Tag}">{$smarty.config.Tag_min}:</label>
+										</li>
+										<li class="field">
+											<input type="text" class="w180" name="tag" id="tag" />
+										</li>
+									</ul>
+								</li>
+								<li>
+									<ul>
+										<li class="info">
+											<label for="os_number" title="{$smarty.config.Service_order_number}">{$smarty.config.Service_order_number_min}:</label>
+										</li>
+										<li class="field">
+											<input type="text" class="w180" name="os_number" id="os_number" />
+										</li>
+									</ul>
+								</li>
+								<li>
+									<ul>
+										<li class="info">
+											<label for="serial_number" title="{$smarty.config.Serial_number}">{$smarty.config.Serial_number}:</label>
+										</li>
+										<li class="field">
+											<input type="text" class="w180" name="serial_number" id="serial_number" />
+										</li>
+									</ul>
+								</li>
+						    </ul>
+						</fieldset>
+					</div>
+				{else}
+					<input type="hidden" name="tag" id="tag" />
+					<input type="hidden" name="os_number" id="os_number" />
+					<input type="hidden" name="serial_number" id="serial_number" />
+				{/if}
+				
+				<div class="boxAction mt0">
+		            <div class="boxButtons">
+			            <button class="btn-green" id="btnRegisterRequest">
+		                    <span>{$smarty.config.Register_btn} {$smarty.config.Request}</span>
+		                </button>		
+		            </div>
+				</div>				
+			</div>
+			
+			<input type="hidden" name="idperson" id="idperson" value="{$id_person}"/>
+			<input type="hidden" name="idjuridical" id="idjuridical" value="{$id_company}"/>
+			<input type="hidden" name="timerClock" id="timerClock" value="{$timer}"/>
+			{if $reason_and_type == 1}
+	            <input type="hidden" name="idway" id="idway" value="NULL"/>
+	            <input type="hidden" name="idreason" id="idreason" value="NULL"/>
+	        {/if}
+        </form>
+	</div>
+</div>

@@ -1,0 +1,401 @@
+{literal}
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/steel/steel.css" />
+<link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/reduce-spacing.css" />
+<script type="text/javascript" language="javascript">
+        
+        $(".dt_formart").mask("99/99/9999");
+        $(".time_format").mask("99:99");
+        
+        $('#add_dep').click(function(){
+            var $cmbDependence  = $(document.getElementById('cmbDependence')),
+                $cmbDependence2 = $(document.getElementById('cmbDependence2')),
+                $selected         = $cmbDependence.find("option:selected"),
+                $val            = $cmbDependence.val(),
+                $txt            = $selected.text();
+                
+                if($val){
+                    $cmbDependence2.append("<option value='"+$val+"'>"+$txt+"</option>")
+                    $selected.remove();
+                }
+        });
+        
+        $('#rem_dep').click(function(){
+            var $cmbDependence  = $(document.getElementById('cmbDependence')),
+                $cmbDependence2 = $(document.getElementById('cmbDependence2')),
+                $selected         = $cmbDependence2.find("option:selected"),
+                $val            = $cmbDependence2.val(),
+                $txt            = $selected.text();
+                if($val){
+                    $cmbDependence.append("<option value='"+$val+"'>"+$txt+"</option>")
+                    $selected.remove();
+                }
+        });
+        
+        function show_interno(controller){ 
+            $('#searchuser').load(controller, function(){
+                $('#searchuser').show();
+            });   
+        }
+        
+    
+	function close() {
+		document.getElementById('status').style.display = 'none';
+	}
+
+	function MM_openBrWindow(theURL, winName, features) {//v2.0
+		window.open(theURL, winName, features);
+	}
+
+	// Quando o formulario for enviado, essa funcao eh chamada
+	function send() {
+            
+            var prj_name         = $("input[name=txtProjName]"),
+                prj_name_min     = $("input[name=txtProjNameMin]"),
+                prj_person       = $("input[name=person]"),
+                prj_person_id    = $("input[name=idperson]"),
+                prj_juridical_id = $("input[name=idjuridical]"),
+                prj_company      = $("select[name=txtCompany]"),
+                prj_group        = $("select[name=txtGroup]"),
+                prj_url          = $("input[name=txtUrl]"),
+                prj_description  = $("textarea[name=txtDescription]"),
+                prj_dtstart      = $("input[name=txtDtStart]"),
+                prj_dtend        = $("input[name=txtDtEnd]"),
+                prj_hourstart    = $("input[name=txtHourStart]"),
+                prj_hourend      = $("input[name=txtHourEnd]"),
+                prj_type         = $("select[name=txtProjectType]"),
+                prj_perc         = $("select[name=txtPerc]"),
+                prj_active       = $("input[name=chkActive]"),
+                prj_status     	 = $("select[name=txtPrStatus]"),
+                prj_priority   	 = $("select[name=txtPriority]"),
+                prj_dependences  = $("select[name=cmbDependence2]");              
+              
+              	arrDependences = new Array();
+              	prj_dependences.find("option").each(function(i){
+              		arrDependences[i] = $(this).val();
+              	})
+              	
+                if(!prj_name.val()){
+                    alert("Selecione o nome do projeto.");
+                    prj_name.focus();
+                    return false;
+                }
+                else if(!prj_group.val()){
+                    alert("Selecione o grupo do projeto.");
+                    prj_group.focus();
+                }
+                else if(!prj_dtend.val()){
+                    alert("Selecione a data final do projeto.");
+                    prj_dtend.focus();
+                }
+                else if(!prj_hourend.val()){
+                    alert("Selecione a hora final do projeto.");
+                    prj_hourend.focus();
+                }
+                else if(!prj_type.val()){
+                    alert("Selecione o tipo do projeto.");
+                    prj_type.focus();
+                }
+                else if(!prj_status.val()){
+                    alert("Selecione o status do projeto.");
+                    prj_status.focus();
+                }
+                else if(!prj_priority.val()){
+                    alert("Selecione a prioridade do projeto.");
+                    prj_priority.focus();
+                }else{
+                
+		// Fazemos a requis�o ajax com o arquivo envia.php e enviamos os valores de cada campo atrav�s do m�todo POST
+                    $.post('projects/projectsave', {
+                            prj_name         : prj_name.val(),
+                            prj_name_min     : prj_name_min.val(),
+                            prj_person       : prj_person.val(),
+                            prj_person_id    : prj_person_id.val(),
+                            prj_juridical_id : prj_juridical_id.val(),
+                            prj_company      : prj_company.val(),
+                            prj_group        : prj_group.val(),
+                            prj_url          : prj_url.val(),
+                            prj_description  : prj_description.val(),
+                            prj_dtstart      : prj_dtstart.val(),
+                            prj_dtend        : prj_dtend.val(),
+                            prj_hourstart    : prj_hourstart.val(),
+                            prj_hourend      : prj_hourend.val(),
+                            prj_type         : prj_type.val(),
+                            prj_perc         : prj_perc.val(),
+                            prj_active       : prj_active.val(),
+                            prj_status       : prj_status.val(),
+                            prj_priority     : prj_priority.val(),
+                            prj_dependences	 : arrDependences
+                    }, function(resposta) {
+                    	console.log(resposta);
+                            if (resposta != false) {
+                                    
+                                    alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+                                    //$("#pop").hide();
+                                    $("#flexigrid2").flexReload();
+                            }
+                            // Se resposta for false, ou seja, n�o ocorreu nenhum erro
+                            else {
+                                    // Exibe mensagem de erro
+                                    alert("{/literal}{$smarty.config.Alert_failure}{literal}!");
+                            }
+                    });
+                }
+	}
+</script>
+<style>
+    .titulo{
+        width:100px;
+    }
+    .campo{
+        width:240px;
+    }
+</style>
+    
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">::{$smarty.config.Project_insert}</span><a href="#" id='buttonClose' onclick=" $('#status').fadeOut(200); $('#pop').fadeOut(400);"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<body>
+	<form name="form1" id="form1" method="post" action="">
+		<br />
+                <div class="box-tp2">
+                    <div class="titulo">
+                            {$smarty.config.Project_name}:
+                    </div>
+                    <div class="campos">
+                            <input name="txtProjName" type="text" class="campo"  maxlength="150" />
+                    </div>
+                    <div class="clr"><!--  --></div>
+
+                    <div class="titulo">
+                            {$smarty.config.Project_name_red}:
+                    </div>
+                    <div class="campos">
+                            <input name="txtProjNameMin" type="text" class="campo" maxlength="150" />
+                    </div>
+                    <div class="clr"><!--  --></div>
+
+                    <div class="titulo">
+                            {$smarty.config.User}:
+                    </div>
+                    <div class="campos">
+                        <input type="text" class="campo" name="person" id="person" value="{$person}" readonly="readonly" style="width:214px;"/>
+			<input type="hidden" name="idperson" id="idperson" value="{$SES_COD_USUARIO}"/>
+			<input type="hidden" name="idjuridical" id="idjuridical" value="{$SES_COD_JURIDICAL}"/>    
+                        <img style="top: 4px; margin-left:4px; position:relative; cursor: pointer; {$displayalt}" title="{$smarty.config.Search_user_img_alt}" onclick="show_interno('requestsearchuser/'); //makeRequest('requestsearchuser/','searchuser')" src="{$path}/app/themes/{$theme}/images/btn_lupa.gif" border="0" />
+                    </div>
+
+                    <div class="clr"><!--  --></div>
+
+                    <div class="titulo">
+                            {$smarty.config.Company}:
+                    </div>
+                    <div class="campos">
+                        <select name="txtCompany" class="cmb-tp2">
+                            {html_options values=$companiesVal output=$companies}
+                        </select>    
+                    </div>
+                    
+                    <div class="clr"><!--  --></div>
+                    <div class="titulo">
+                            {$smarty.config.Group}:
+                    </div>
+                    <div class="campos">
+                        <select name="txtGroup" class="cmb-tp2">
+                            <option value=""></option>
+                            {html_options values=$groupVal output=$group}
+                        </select>  
+                    </div>
+
+                    <div class="clr"><!--  --></div>     
+                    <div class="titulo">
+                            {$smarty.config.URL}:
+                    </div>
+                    <div class="campos">
+                            <input name="txtUrl" type="text" class="campo" maxlength="150" />
+                    </div>
+                </div>
+                
+                <div class="box-tp2">                    
+                    <div class="titulo">
+                            {$smarty.config.Initial_date}:
+                    </div>
+                    <div class="campos">
+                            <input name="txtDtStart" type="text" id="txtDtStart" class="campo dt_formart" style="width:60px;" maxlength="150" />
+                            <img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" align="absmiddle" id="f_txtDtStart" style="cursor: pointer; " title="Escolha a Data"/>
+                            {literal}
+                            <script>
+                                var lang = '{/literal}{$lang}{literal}';
+                                    if(lang == 'pt_BR'){
+                                        var format = '%d/%m/%Y';
+                                    }
+                                    else{
+                                        var format = '%m/%d/%Y';
+                                    }
+
+                                    Calendar.setup({
+                                            inputField : "txtDtStart",
+                                            trigger : "f_txtDtStart",
+                                            onSelect : function() {
+                                                    this.hide()
+                                            },
+                                            showTime : 12,
+                                            align : "B3/2",
+                                            dateFormat : format,
+                                            showTime : false,
+                                            fdow : 0,
+                                            bottomBar : false
+                                    });
+                            </script>
+                            {/literal}
+                    </div>
+                    <div   style="float:left;">
+                        <div class="titulo" style="width:60px;">
+                                {$smarty.config.Finish_date}:
+                        </div>
+                        <div class="campos">
+                                <input name="txtDtEnd" type="text" id="txtDtEnd" class="campo dt_formart" style="width:60px;" maxlength="150" />
+                                <img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" align="absmiddle" id="f_txtDtEnd" style="cursor: pointer; " title="Escolha a Data"/>
+                                {literal}
+                                <script>
+                                    var lang = '{/literal}{$lang}{literal}';
+                                        if(lang == 'pt_BR'){
+                                            var format = '%d/%m/%Y';
+                                        }
+                                        else{
+                                            var format = '%m/%d/%Y';
+                                        }
+
+                                        Calendar.setup({
+                                                inputField : "txtDtEnd",
+                                                trigger : "f_txtDtEnd",
+                                                onSelect : function() {
+                                                        this.hide()
+                                                },
+                                                showTime : 12,
+                                                align : "B3/2",
+                                                dateFormat : format,
+                                                showTime : false,
+                                                fdow : 0,
+                                                bottomBar : false
+                                        });
+                                </script>
+                                {/literal}
+                        </div>
+                    </div>
+                    <div class="clr"><!--  --></div>
+
+                    <div class="titulo">
+                            {$smarty.config.Initial_hour}:
+                    </div>
+                    <div class="campos">
+                            <input name="txtHourStart" type="text" class="campo time_format" style="width:60px;" maxlength="150" />
+                    </div>
+                    <div   style="float:left;">
+                        <div class="titulo" style="width:60px;">
+                                {$smarty.config.Finish_hour}:
+                        </div>
+                        <div class="campos">
+                                <input name="txtHourEnd" type="text" class="campo time_format" style="width:60px;" maxlength="150" />
+                        </div>
+                    </div>
+                    
+                    <div class="clr"><!--  --></div>
+                    <div class="titulo">
+                            {$smarty.config.Project_type}:
+                    </div>
+                    <div class="campos">
+                        <select name="txtProjectType" class="cmb-tp2" style="width: 214px;">
+                            <option value=""></option>
+                            {html_options values=$typeVal output=$type}
+                        </select>    
+                        <a href="#"><img src="{$path}/app/themes/{$theme}/images/ico_add_category.png" height="15" border="0" width="15" alt="Adicionar Tipo Projeto"/></a>
+                    </div>
+                    
+                    <div class="clr"><!--  --></div>
+                    <div class="titulo">
+                            {$smarty.config.Percentual}:
+                    </div>
+                    <div class="campos">
+                        <select name="txtPerc" class="cmb-tp2" style="width: 70px;">
+                            {html_options values=$percentualVal output=$percentual}
+                        </select>
+                    </div>
+                    
+                    <div class="clr"><!--  --></div>
+                    <div class="titulo">
+                            {$smarty.config.Project_status}:
+                    </div>
+                    <div class="campos">
+                        <select name="txtPrStatus" class="cmb-tp2" style="width: 70px;">
+                            <option value=""></option>
+                            {html_options values=$statusVal output=$status}
+                        </select>
+                    </div>
+                    
+                    <div class="titulo no-clr" style="width:80px;">
+                            {$smarty.config.Priority}:
+                    </div>
+                    <div class="campos">
+                        <select name="txtPriority" class="cmb-tp2" style="width: 70px;">
+                            <option value=""></option>
+                            {html_options values=$priorityVal output=$priority}
+                        </select>
+                    </div>
+                    
+                    <div class="clr"><!--  --></div>
+                    <div class="titulo">
+                            {$smarty.config.Active}:
+                    </div>
+                    <div class="campos">
+                        <input name="chkActive" id="active" value="1" type="checkbox" class="campo" style="width:auto;"/><label for="active">{$smarty.config.Yes}</label>
+                    </div>
+                </div>
+
+                <div class="box-tp3">
+                    <div class="titulo">
+                        {$smarty.config.Description}:
+                    </div>
+                    <div class="campos">
+                        <textarea class="campo" cols="53" rows="2" style="width:620px; height:70px;" name="txtDescription"></textarea>
+                    </div>
+                </div>
+
+                <div class="box-tp3 clr">
+
+                    <div class="box-tp2">
+                        <div class="titulo">
+                            {$smarty.config.Dependencies}:
+                        </div>
+                        <div class="campos">
+                            <select class=" block mb5 cmb-tp2" name="cmbDependence" style="width:250px; height:80px;" size="2" id="cmbDependence" >
+                                {html_options values=$dependenciesVal output=$dependencies}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="box-tp2">
+                        <div class="titulo">
+                            <span class="block">{$smarty.config.Dependencies}:</span>
+                            <div class="arrowDep">
+                                <input name="add_dep" type="BUTTON" class="btn_cadastrar" id="add_dep" value=" >> " style="float:right;" />
+                                <input name="rem_dep" type="BUTTON" class="btn_cadastrar mr5" id="rem_dep" value=" << " style="float:right;"/>
+                            </div>
+                        </div>
+                        <div class="campos">
+                            <select class="text" style="width:250px; height:80px;" name="cmbDependence2" id="cmbDependence2" size="2">
+                            </select>                       
+                        </div> 
+                    </div>
+                </div>
+                
+                   
+                
+		<div id="buttonCadastrar">
+			<input type='submit' name="submit" class="btn_cadastrar" value="{$smarty.config.Record_btn}" onclick="send(); return false;"/>
+		</div>
+		<div id="status" style="display: none; text-align: center; margin-bottom: 15px;" class="textoRodape"></div>
+	</form>
+</body>

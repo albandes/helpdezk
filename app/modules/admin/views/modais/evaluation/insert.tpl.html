@@ -1,0 +1,101 @@
+<form action="javascript:;" method="post" id="formEvaluationInsert" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Evaluation_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="question">{$smarty.config.Question}:</label>
+						</li>
+						<li class="field ">
+							<select class="w240" name="question" id="question">
+								<option value="">{$smarty.config.Select_question}</option>
+								{html_options values=$questionids output=$questionvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="name">{$smarty.config.Name}:</label>
+						</li>
+						<li class="field ">
+							<input name="name" id="name" type="text" class="w240" maxlength="150" />
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label>{$smarty.config.Icon}:</label>
+						</li>
+						<li class="field mr15">
+							<input type="radio" name="txtIcons" id="txtLista" value="txtLista"/>
+            				<label for="txtLista">Listar Icones</label>
+						</li>
+						<li>
+							<input type="radio" name="txtIcons" id="txtNew" value="txtNew"/>
+            				<label for ="txtNew">Novo Ícone</label>
+						</li>
+					</ul>
+				</li>
+				
+				<li class="txtNew none_i">
+					<ul>
+						<li class="info">
+							<label>{$smarty.config.File}:</label>
+						</li>
+						<li class="field ">
+							<iframe src="evaluation/upload" name="ianexo" id="ianexo" width="300" height="21" frameborder="0" scrolling="no"></iframe>
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li class="txtLista none_i">
+					<ul>
+						<li class="info">
+							<label>Icones:</label>
+						</li>
+						<li class="field">
+							<div class="listSelectIcon">
+								<select class="w240" name="lstIcon" id="lstIcon">
+									<option value="">{$smarty.config.Select}</option>
+									{html_options values=$iconids output=$iconvals}
+								</select>
+								<div class="layer"></div>
+							</div>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkEval">{$smarty.config.Checked}:</label>
+						</li>
+						<li class="field ">
+							<label><input name="chkEval" id="chkEval" type="checkbox" value="1" /> {$smarty.config.Yes}</label>
+						</li>
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnSendEvaluation" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

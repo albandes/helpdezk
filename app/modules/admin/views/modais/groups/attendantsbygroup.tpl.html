@@ -1,0 +1,27 @@
+<form action="javascript:;" method="post" id="formGroupsInsert" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Attendants_by_group}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="groups2">{$smarty.config.Show_attendants_title}:</label>
+						</li>
+						<li class="field ">
+							<select class="w200 mt15" name="groups" id="loadAttendants">
+						        <option value="0">{$smarty.config.Select_group}</option>
+						        {html_options values=$groupsids output=$groupsvals selected=$company}
+						    </select>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<div class="loader"><!-- --></div>
+			<div class="attendants none"><!-- --></div>
+		</div>
+	</div>
+</form>

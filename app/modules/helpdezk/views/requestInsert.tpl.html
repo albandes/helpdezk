@@ -1,0 +1,880 @@
+<html>
+    <head>
+        <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+        <title>{$pagetitle}</title>
+        {if $SES_COD_TIPO  == "1"  || $SES_COD_TIPO  == "5" }
+        {literal}
+        <script>
+            getElementById('linkSearchUser').style.display='none';
+        </script>
+        {/literal}
+        {/if}
+
+        {literal}
+        <script>
+            
+            var timer = "{/literal}{$timer}{literal}"; 
+            $(document).ready(function() {
+
+                if (timer == 1){
+                    $('#open_time').countdown({since: 0, compact: true, format: 'HMS', description: ''})
+                    document.getElementById("ico_timer").src =  "{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/ico_timer_on.gif"   
+                    setTimeout( function() {
+                        $('#attachments').load('manageattachments/')
+                    }, 1000);
+                    setTimeout( function() {
+                        reloadtypes() 
+                    }, 1500);
+                    document.form1.subject.focus(); 
+    
+       
+                    $('#ico_timer').toggle(function() {
+                        document.getElementById("ico_timer").src = "{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/ico_timer.gif"            
+                        $('#open_time').countdown('pause')
+                    }, 
+                
+                
+                    function() { 
+                        document.getElementById("ico_timer").src = "{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/ico_timer_on.gif"            
+                        $('#open_time').countdown('resume')
+                    } 
+                ); 
+                }
+                
+                else{
+                    $('#open_time').countdown({since:0 ,compact: true, format: 'HMS', description: ''})
+                    $('#open_time').countdown('pause')
+                    document.getElementById("ico_timer").src = "{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/ico_timer.gif"
+                    $('#attachments').load('manageattachments/');
+                    reloadtypes();
+                    
+                    $('#ico_timer').toggle(function() {
+                        document.getElementById("ico_timer").src = "{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/ico_timer_on.gif"            
+                        $('#open_time').countdown('resume')
+                    }, 
+                
+                
+                    function() { 
+                        document.getElementById("ico_timer").src = "{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/ico_timer.gif"            
+                        $('#open_time').countdown('pause')
+                    } 
+                ); 
+                }
+            });
+            function change(val){
+                $("select[name=idtype]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                var val = $("#idarea").val();
+                $.post("{/literal}{$path}{literal}/helpdezk/operator/type",
+                {area: val},
+                function(valor){
+                    $("select[name=idtype]").html(valor);
+                    return reloadItens();
+                }
+            )
+            }
+            //reloadtypes é usado somente 1 vez no load da pagina, depois os tipos são mudados pelo onchange da area
+            function  reloadtypes(){
+                $("select[name=idtype]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                $.post("{/literal}{$path}{literal}/helpdezk/operator/type", 
+                {area:$('#idarea').val()},
+                function(valor){
+                    $("select[name=idtype]").html(valor);
+                    return reloadItens();
+                }
+            )
+            }
+         
+            function reloadItens() {
+                $("select[name=iditem]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                $.post("{/literal}{$path}{literal}/helpdezk/operator/item", 
+                {type:$('#idtype').val()},
+                function(valor){
+                    $("select[name=iditem]").html(valor);
+                    return reloadServices();
+                }
+            )
+            }
+   
+            function reloadServices() {
+                $("select[name=idservice]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                $.post("{/literal}{$path}{literal}/helpdezk/operator/service", 
+                {item:$('#iditem').val()},
+                function(valor){
+                    $("select[name=idservice]").html(valor);
+                    return reloadReasons();
+                }
+            )
+            }
+    
+            function reloadReasons() {
+                $("select[name=idreason]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                $.post("{/literal}{$path}{literal}/helpdezk/operator/reason", 
+                {service:$('#idservice').val()},
+                function(valor2){
+                    $("select[name=idreason]").html(valor2);
+                }
+            )
+            }
+    
+            function ControlaEquipamento(e){
+                if (e.value) {
+                    var local = '../modulos/patrimonio/patrimonio_consulta.php?'+e.name+'='+e.value;
+                    i_busca_patrimonio.location = local;
+                }				
+                return true;
+            }
+            
+            function finishRequest(){
+                
+                trocadisplay();
+                pathform = document.form1;
+                //por algum motivo precisamos usar o caminho antes de testar o if, se  naõ ele faz reload do site, entao jogamos na variavel pra funcionar o resto 
+                var benzadesetedias=ianexo.document.formAt.COD_ANEXO[0];
+                if (ianexo.document.formAt.COD_ANEXO[0]){   
+                    anexo = ianexo.document.formAt.COD_ANEXO; 
+                    for (i=0; i < anexo.length; i++){
+                        if (i==0){
+                            pathform.COD_ANEXO.value = anexo[i].value;
+                        } else {
+                            pathform.COD_ANEXO.value = pathform.COD_ANEXO.value+","+anexo[i].value;
+                        }			
+                    }
+                }
+                // Colocamos os valores de cada campo em uma variavel para facilitar a manipulacao
+                var person = $("#form1").find("#person").val();
+                var idperson = $("#form1").find("#idperson").val();
+                var idjuridical = $("#form1").find("#idjuridical").val();
+                var idproperty = $("#form1").find("#idproperty").val();
+                var serial_number = $("#form1").find("#serial_number").val();
+				var os_number = $("#form1").find("#os_number").val();
+                var source = $("#form1").find("#idsource").val();
+                var chatid = $("#form1").find("#chatid").val();
+                var status = $("#form1").find("#idstatus").val();
+                var tag = $("#form1").find("#tag").val();
+                var date = $("#form1").find("#date").val();
+                var time = $("#form1").find("#time").val();   
+                var area = $("#form1").find("#idarea").val();
+                var type = $("#form1").find("#idtype").val();
+                var item = $("#form1").find("#iditem").val();
+                var service = $("#form1").find("#idservice").val();
+                var reason = $("#form1").find("#idreason").val();
+                if(reason == 0){
+                    reason = 'NULL';
+                }
+                var way = $("#form1").find("#idway").val();
+                var subject = $("#form1").find("#subject").val();     
+                var description = CKEDITOR.instances['description'].getData();
+                var solution = CKEDITOR.instances['solution'].getData();
+                var periods = $("#form1").find('#open_time').countdown('getTimes'); 
+                var open_time = (parseInt(periods[4])*60) + (parseFloat(periods[5])) + (parseFloat(periods[6])/60); 
+                var cod_anexo = $("#form1").find('#COD_ANEXO').val();
+        
+                
+                
+                if (solution == ''){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_solution}{literal}!");
+                    pathform.solution.focus();
+                    return false;
+                }
+                //alert(cod_anexo);
+            
+                //inicio das validacoes
+                if(person =='' || person == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_person}{literal}!");
+                    pathform.person.focus();
+                    return false;
+                }
+                if(source =='' || source == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_source}{literal}!");
+                    return false;
+                }
+                if(date ==''){
+                    if("{/literal}{$usertype}{literal}"==2){
+                        date="{/literal}{$smarty.now|date_format:'%d/%m/%Y'}{literal}";
+                    }else{
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Alert_empty_date}{literal}");
+                        pathform.date.focus();
+                        return false;
+                    }
+                }
+                if(date <10){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_wrong_date}{literal}");
+                    pathform.date.focus();
+                    return false;
+                }
+                if(time ==''){
+                    if("{/literal}{$usertype}{literal}"==2){                
+                        time="{/literal}{$smarty.now|date_format:'%H:%M'}{literal}";            
+                    }else{
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Alert_empty_time}{literal}");
+                        pathform.time.focus();
+                        return false;
+                    }
+                }
+                if(time <5){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_wrong_time}{literal}");
+                    pathform.time.focus();
+                    return false;
+                }
+                if(area =='' || area == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_area}{literal}");
+                    return false;
+                }
+                if(type =='' || type == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_type}{literal}");
+                    return false;
+                }
+                if(item =='' || item == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_item}{literal}");
+                    return false;
+                }
+                if(service =='' || service == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_service}{literal}");
+                    return false;
+                }
+                //if(way =='' || way == 0){
+                //    alert("{/literal}{$smarty.config.Alert_choose_way}{literal}");
+                //    return false;
+                //}
+                if(subject =='' || subject == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_subject}{literal}");
+                    return false;
+                }
+                if(description =='' || description == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_description}{literal}");
+                    return false;
+                }
+            
+                //fim das validações
+                // Exibe mensagem de carregamento
+                $("#status").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' border='0' alt='{/literal}{$smarty.config.Send_img_alt}{literal}'/>");
+                // Fazemos a requisao ajax com o modulo e enviamos os valores de cada campo atraves do metodo POST
+            
+                $.post('{/literal}{$path}{literal}/helpdezk/operator/finishrequest', {idperson: idperson, idjuridical: idjuridical, idproperty: idproperty, serial_number: serial_number, os_number: os_number, source: source, 
+                    chatid: chatid, status: status, tag: tag, date: date, time: time, area: area, type: type, item:item, service:service, 
+                    reason:reason, way:way, subject: subject, description: description, DES_APONTAMENTO: solution, open_time: open_time, COD_ANEXO: cod_anexo
+                }, function(resposta) {
+                    if (resposta != false) {
+                        $("#pop").stop().animate({"opacity": "1"}, "slow");
+                        $("#form1").reset();
+                        clear_form_elements("#form1");
+                        $('#pop').load('operator/newrequestcreated/code/'+resposta);
+                    }
+                    // Se resposta for false, ou seja, nao ocorreu nenhum erro
+                    else {
+                        trocadisplay()
+                        alert("{/literal}{$smarty.config.Error}{literal}!")
+                    }
+                });
+            }
+            function repassReq(){
+                $("#pop_repass2").fadeIn();
+            }
+            function repassRequest(){
+                pathform = document.form1;
+                //por algum motivo precisamos usar o caminho antes de testar o if, se  naõ ele faz reload do site, entao jogamos na variavel pra funcionar o resto 
+                var benzadesetedias=ianexo.document.formAt.COD_ANEXO[0];
+                if (ianexo.document.formAt.COD_ANEXO[0]){   
+                    anexo = ianexo.document.formAt.COD_ANEXO; 
+                    for (i=0; i < anexo.length; i++){
+                        if (i==0){
+                            pathform.COD_ANEXO.value = anexo[i].value;
+                        } else {
+                            pathform.COD_ANEXO.value = pathform.COD_ANEXO.value+","+anexo[i].value;
+                        }			
+                    }
+                }
+                // Colocamos os valores de cada campo em uma variavel para facilitar a manipulacao
+                var person = $("#form1").find("#person").val();
+                var idperson = $("#form1").find("#idperson").val();
+                var idjuridical = $("#form1").find("#idjuridical").val();
+                var idproperty = $("#form1").find("#idproperty").val();
+                var serial_number = $("#form1").find("#serial_number").val();
+				var os_number = $("#form1").find("#os_number").val();
+                var source = $("#form1").find("#idsource").val();
+                var chatid = $("#form1").find("#chatid").val();
+                var status = $("#form1").find("#idstatus").val();
+                var tag = $("#form1").find("#tag").val();
+                var date = $("#form1").find("#date").val();
+                var time = $("#form1").find("#time").val();   
+                var area = $("#form1").find("#idarea").val();
+                var type = $("#form1").find("#idtype").val();
+                var item = $("#form1").find("#iditem").val();
+                var service = $("#form1").find("#idservice").val();
+                var reason = $("#form1").find("#idreason").val();                
+                var repassto = $("#form1").find("#idrepass").val();
+                var viewrepass = $("#form1").find("#viewrepass").val();
+                var typerepass = $("#form1").find("#typerepass").val();
+                if(reason == 0){
+                    reason = 'NULL';
+                }
+                var way = $("#form1").find("#idway").val();
+                var subject = $("#form1").find("#subject").val();     
+                var description = CKEDITOR.instances['description'].getData();
+                var periods = $("#form1").find('#open_time').countdown('getTimes'); 
+                var open_time = (parseInt(periods[4])*60) + (parseFloat(periods[5])) + (parseFloat(periods[6])/60); 
+                var cod_anexo = $("#form1").find('#COD_ANEXO').val();
+        
+                            
+                //inicio das validacoes
+                if(person =='' || person == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_person}{literal}!");
+                    pathform.person.focus();
+                    return false;
+                }
+                if(source =='' || source == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_source}{literal}!");
+                    return false;
+                }
+                if(date ==''){
+                    if("{/literal}{$usertype}{literal}"==2){
+                        date="{/literal}{$smarty.now|date_format:'%d/%m/%Y'}{literal}";
+                    }else{
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Alert_empty_date}{literal}");
+                        pathform.date.focus();
+                        return false;
+                    }
+                }
+                if(date <10){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_wrong_date}{literal}");
+                    pathform.date.focus();
+                    return false;
+                }
+                if(time ==''){
+                    if("{/literal}{$usertype}{literal}"==2){                
+                        time="{/literal}{$smarty.now|date_format:'%H:%M'}{literal}";            
+                    }else{
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Alert_empty_time}{literal}");
+                        pathform.time.focus();
+                        return false;
+                    }
+                }
+                if(time <5){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_wrong_time}{literal}");
+                    pathform.time.focus();
+                    return false;
+                }
+                if(area =='' || area == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_area}{literal}");
+                    return false;
+                }
+                if(type =='' || type == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_type}{literal}");
+                    return false;
+                }
+                if(item =='' || item == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_item}{literal}");
+                    return false;
+                }
+                if(service =='' || service == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_service}{literal}");
+                    return false;
+                }
+                //if(way =='' || way == 0){
+                //    alert("{/literal}{$smarty.config.Alert_choose_way}{literal}");
+                //    return false;
+                //}
+                if(subject =='' || subject == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_subject}{literal}");
+                    return false;
+                }
+                if(description =='' || description == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_description}{literal}");
+                    return false;
+                }
+                if(repassto =='' || repassto == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_no_repass}{literal}");
+                    return false;
+                }
+                if(viewrepass =='' || viewrepass == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_error}{literal}");
+                    return false;
+                }
+                if(typerepass =='' || typerepass == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_error}{literal}");
+                    return false;
+                }
+                //fim das validações
+                // Exibe mensagem de carregamento
+                $("#status").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' border='0' alt='{/literal}{$smarty.config.Send_img_alt}{literal}'/>");
+                // Fazemos a requisao ajax com o modulo e enviamos os valores de cada campo atraves do metodo POST
+            
+                $.post('{/literal}{$path}{literal}/helpdezk/operator/openrepassed', {idperson: idperson, idjuridical: idjuridical, idproperty: idproperty, serial_number: serial_number, os_number: os_number, source: source, 
+                    chatid: chatid, status: status, tag: tag, date: date, time: time, area: area, type: type, item:item, service:service, 
+                    reason:reason, way:way, subject: subject, description: description, open_time: open_time, COD_ANEXO: cod_anexo, repassto: repassto, viewrepass: viewrepass, typerepass: typerepass
+                }, function(resposta) {
+                    if (resposta != false) {
+                        $("#pop").stop().animate({"opacity": "1"}, "slow");
+                        $("#form1").reset();
+                        clear_form_elements("#form1");
+                        $('#pop').load('operator/newrequestcreated/code/'+resposta);
+                    }
+                    // Se resposta for false, ou seja, nao ocorreu nenhum erro
+                    else {
+                        trocadisplay()
+                        alert("{/literal}{$smarty.config.Error}{literal}!")
+                                    
+                    }
+                });
+            }
+            function trocadisplay(){
+                $("#gifImage").toggle();
+                $("#boxRequest").toggle();
+            }
+            // inicio da gravacao dos dados submetidos
+            function registrar() {
+            
+                trocadisplay();
+                //reduzimos o caminho do form em uma variavel
+                pathform = document.form1;
+                //por algum motivo precisamos usar o caminho antes de testar o if, se  naõ ele faz reload do site, entao jogamos na variavel pra funcionar o resto 
+                var benzadesetedias=ianexo.document.formAt.COD_ANEXO[0];
+                if (ianexo.document.formAt.COD_ANEXO[0]){   
+                    anexo = ianexo.document.formAt.COD_ANEXO; 
+                    for (i=0; i < anexo.length; i++){
+                        if (i==0){
+                            pathform.COD_ANEXO.value = anexo[i].value;
+                        } else {
+                            pathform.COD_ANEXO.value = pathform.COD_ANEXO.value+","+anexo[i].value;
+                        }			
+                    }
+                }
+                // Colocamos os valores de cada campo em uma variavel para facilitar a manipulacao
+                var person = $("#form1").find("#person").val();
+                var idperson = $("#form1").find("#idperson").val();
+                var idjuridical = $("#form1").find("#idjuridical").val();
+                var idproperty = $("#form1").find("#idproperty").val();
+                var serial_number = $("#form1").find("#serial_number").val();
+				var os_number = $("#form1").find("#os_number").val();
+                var source = $("#form1").find("#idsource").val();
+                var chatid = $("#form1").find("#chatid").val();
+                var status = $("#form1").find("#idstatus").val();
+                var tag = $("#form1").find("#tag").val();
+                var date = $("#form1").find("#date").val();
+                var time = $("#form1").find("#time").val();   
+                var area = $("#form1").find("#idarea").val();
+                var type = $("#form1").find("#idtype").val();
+                var item = $("#form1").find("#iditem").val();
+                var service = $("#form1").find("#idservice").val();
+                var reason = $("#form1").find("#idreason").val();
+                if(reason == 0){
+                    reason = 'NULL';
+                }
+                var way = $("#form1").find("#idway").val();
+                var subject = $("#form1").find("#subject").val();     
+                var description = CKEDITOR.instances['description'].getData();
+                var solution = CKEDITOR.instances['solution'].getData();
+                var periods = $("#form1").find('#open_time').countdown('getTimes'); 
+                var open_time = (parseInt(periods[4])*60) + (parseFloat(periods[5])) + (parseFloat(periods[6])/60); 
+                var cod_anexo = $("#form1").find('#COD_ANEXO').val();
+        
+                
+                //alert(cod_anexo);
+            
+                //inicio das validacoes
+                if(person =='' || person == 0){
+                    trocadisplay( function(){
+                        alert("{/literal}{$smarty.config.Alert_empty_person}{literal}!");
+                    });
+                    pathform.person.focus();
+                    return false;
+                }
+                if(source =='' || source == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_source}{literal}!");
+                    return false;
+                }
+                if(date ==''){
+                    if("{/literal}{$usertype}{literal}"==2){
+                        date="{/literal}{$smarty.now|date_format:'%d/%m/%Y'}{literal}";
+                    }else{
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Alert_empty_date}{literal}");
+                        pathform.date.focus();
+                        return false;
+                    }
+                }
+                if(date <10){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_wrong_date}{literal}");
+                    pathform.date.focus();
+                    return false;
+                }
+                if(time ==''){
+                    if("{/literal}{$usertype}{literal}"==2){                
+                        time="{/literal}{$smarty.now|date_format:'%H:%M'}{literal}";            
+                    }else{
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Alert_empty_time}{literal}");
+                        pathform.time.focus();
+                        return false;
+                    }
+                }
+                if(time <5){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_wrong_time}{literal}");
+                    pathform.time.focus();
+                    return false;
+                }
+                if(area =='' || area == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_area}{literal}");
+                    return false;
+                }
+                if(type =='' || type == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_type}{literal}");
+                    return false;
+                }
+                if(item =='' || item == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_item}{literal}");
+                    return false;
+                }
+                if(service =='' || service == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_choose_service}{literal}");
+                    return false;
+                }
+                //if(way =='' || way == 0){
+                //    alert("{/literal}{$smarty.config.Alert_choose_way}{literal}");
+                //    return false;
+                //}
+                if(subject =='' || subject == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_subject}{literal}");
+                    return false;
+                }
+                if(description =='' || description == 0){
+                    trocadisplay();
+                    alert("{/literal}{$smarty.config.Alert_empty_description}{literal}");
+                    return false;
+                }
+            
+                //fim das validações
+                // Exibe mensagem de carregamento
+                $("#status").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' border='0' alt='{/literal}{$smarty.config.Send_img_alt}{literal}'/>");
+                // Fazemos a requisao ajax com o modulo e enviamos os valores de cada campo atraves do metodo POST
+            
+                $.post('{/literal}{$path}{literal}/helpdezk/operator/saverequest', {idperson: idperson, idjuridical: idjuridical, idproperty: idproperty, serial_number: serial_number, os_number: os_number, source: source, 
+                    chatid: chatid, status: status, tag: tag, date: date, time: time, area: area, type: type, item:item, service:service, 
+                    reason:reason, way:way, subject: subject, description: description, solution: solution, open_time: open_time, COD_ANEXO: cod_anexo
+                }, function(resposta) {
+                    if (resposta != false) {
+                        $("#pop").stop().animate({"opacity": "1"}, "slow");
+                        $("#form1").reset();
+                        clear_form_elements("#form1");
+                        $('#pop').load('operator/newrequestcreated/code/'+resposta);
+                        
+                    }
+                    // Se resposta for false, ou seja, nao ocorreu nenhum erro
+                    else {
+                        trocadisplay();
+                        alert("{/literal}{$smarty.config.Error}{literal}!")
+                                    
+                    }
+                });
+            };
+            function close(){
+                document.getElementById('status').style.display='none';        
+            }
+    
+            $(window).unload( function () {  
+                var editor="";
+                var editor2="";       
+                document.getElementById("pop").innerHTML=""; 
+                document.getElementById("searchuser").innerHTML="";         
+            } );
+    
+            $("#date").mask("?99/99/9999");
+            $("#time").mask("99:99");
+    
+            function clear_form_elements(ele) {
+                $(ele).find(':input').each(function() {
+                    switch(this.type) {
+                        case 'password':
+                        case 'select-multiple':
+                        case 'select-one':
+                        case 'text':
+                        case 'textarea':
+                            $(this).val('');
+                            break;
+                        case 'checkbox':
+                        case 'radio':
+                            this.checked = false;
+                    }
+                });
+            }
+    
+            function show_interno(controller){ 
+                $('#searchuser').load(controller, function(){
+                    $('#searchuser').show();
+                });   
+            }
+    
+            function refresh(){
+                $('#flexigrid2').flexReload();
+            }
+    
+            jQuery.fn.reset = function () {
+                $(this).each (function() { this.reset(); });
+            }
+    
+        </script>
+        {/literal}
+        <!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+    <div id='smallHeader' style="width: 100%">
+        <span class="texto" style="margin-top:12px; margin-left: 10px;">::&nbsp;{$smarty.config.Request_insert}</span><a href="#" id='buttonClose' onclick="ocultar('pop');"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif"/></a>
+</div>  
+<form name="form1" id="form1" method="post" enctype="multipart/form-data" action="">
+    <div id="boxRequest">
+        <div id="boxLeft">
+            <div id="box1">
+                <div class="titulo"> {$smarty.config.User}:</div>
+                <div class="campos">
+                    <input type="text" class="campo" name="person" id="person" value="{$person}" style="width:150px;" {$readonly}/>
+                           <input type="hidden" name="idperson" id="idperson" value="{$SES_COD_USUARIO}"/>
+                    <input type="hidden" name="idjuridical" id="idjuridical" value="{$SES_COD_JURIDICAL}"/>
+                    <img style="top: 4px; margin-left:4px; position:relative; cursor: pointer; {$displayalt}" title="{$smarty.config.Search_user_img_alt}" onclick="show_interno('requestsearchuser/'); //makeRequest('requestsearchuser/','searchuser')" src="{$path}/app/themes/{$theme}/images/btn_lupa.gif" border="0" />
+                </div>                    
+
+                <div class="titulo" {$display1}> {$smarty.config.Source}: </div>
+                <div class="campos">
+                    <select class="campo" name="idsource" id="idsource" {$display1}>
+                            <option value="0">{$smarty.config.Select_source}</option>
+                        {html_options values=$sourceids output=$sourcevals selected=$source_default}
+                    </select>
+                </div>                    
+
+                <div class="titulo" {$display1}>{$smarty.config.Date}:</div>
+                <div class="campos" {$display1}>
+                     <input name="date" id="date" type="text" class="campo"   maxlength="10" style="width:78px;" value="{$smarty.now|date_format:'%d/%m/%Y'}"  />
+                    <input name="time" id="time" type="text" class="campo"   maxlength="5" style="width:44px;" value="{$time}" />
+                    <img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" align="absmiddle" id="f_date" style="cursor: pointer; " title="{$smarty.config.Choose_date}"/> 
+                    {literal}
+                    <script type="text/javascript">
+                                
+                        var lang = '{/literal}{$lang}{literal}';
+                        if(lang == 'pt_BR'){
+                            var format = '%d/%m/%Y';
+                        }
+                        else{
+                            var format = '%m/%d/%Y';
+                        }
+                        
+                        function updateFields(cal) {                         
+                            document.getElementById("time").value = cal.getTime();                          
+                        };
+                        Calendar.setup({
+                            inputField : "date",
+                            trigger    : "f_date",
+                            onSelect   : function() { this.hide() },
+                            showTime   : 12,
+                            align          :    "B3/2", 
+                            dateFormat : format,
+                            showTime   : false,
+                            fdow	   : 0,
+                            bottomBar  : false
+                        });
+                    </script> 
+                    {/literal}
+                </div>
+
+                <div class="titulo"> {$smarty.config.Area}: </div>
+                <div class="campos">
+                    <select class="campo" name="idarea" id="idarea" onchange="change();">
+                        <option value="0">{$smarty.config.Select} </option>
+                        {html_options values=$areaids output=$areavals selected=$area_default}
+                    </select>
+                </div>
+
+                <div class="titulo"> {$smarty.config.Type}: </div>
+                <div class="campos">
+                    <select class="campo"  name="idtype" id="idtype" onchange="reloadItens();">
+                        <option value="0">{$smarty.config.Select} </option>
+                    </select>
+
+                </div>
+
+                <div class="titulo"> {$smarty.config.Item}: </div>
+                <div class="campos">
+                    <select class="campo" name="iditem" id="iditem" onchange="reloadServices();">
+                        <option value="0">{$smarty.config.Select}</option>
+                    </select>
+                </div>
+
+                <div class="titulo"> {$smarty.config.Service}: </div>
+                <div class="campos">
+                    <select class="campo" name="idservice" id="idservice" onchange="reloadReasons();">
+                        <option value="0">{$smarty.config.Select}</option>
+                    </select>
+                </div>
+                {if !$hide}
+                <div class="titulo"> {$smarty.config.Reason}: </div>
+                <div class="campos">
+                    <select class="campo" name="idreason" id="idreason">
+                        <option value="0">{$smarty.config.Select}</option>
+                        {html_options values=$modulesids output=$modulesvals}
+                    </select>
+                </div>
+
+                <div id="camposti">
+                    <div class="titulo" {$display1} >{$smarty.config.Att_way}: </div>
+                    <div class="campos">
+                        <select class="campo" name="idway" id="idway"  style="{$displayalt}">
+                            <option value="0">{$smarty.config.Select}</option>
+                            {html_options values=$wayids output=$wayvals selected=$waydefault}
+                        </select>
+                    </div>               
+                </div>
+                {else}
+                    <input type="hidden" name="idway" id="idway" value="NULL"/>
+                    <input type="hidden" name="idreason" id="idreason" value="NULL"/>
+                {/if}
+            </div>
+            <div id="box2" {$equipment}>
+                <div class="titulo">{$smarty.config.Equipment}:</div> 
+                <div class="titulo">{$smarty.config.Tag}:</div>
+                <div class="campos">
+                    <input type="text" class="campo" name="tag" id="tag" />
+                </div>        
+
+                <div class="titulo">{$smarty.config.Service_order_number}:</div>
+                <div class="campos mt20">
+                    <input type="text" class="campo" name="os_number" id="os_number" />
+                    
+                </div>    
+
+                <div class="titulo">{$smarty.config.Serial_number}:</div>
+                <div class="campos">
+                    <input type="text" class="campo" name="serial_number" id="serial_number" />
+                </div>    
+            </div>
+            <div id="box3" {$box3height}>
+                 <div class="titulo">{$smarty.config.Attachments}:</div> 
+                <input name="COD_ANEXO" type="hidden" id="COD_ANEXO"/>
+                <iframe src="{$path}/helpdezk/manageattachments/" name="ianexo" id="ianexo" width="258" height="132" frameborder="0" scrolling="no">
+                </iframe>
+            </div>
+        </div>
+        <div id="box4" style="{$box4height}">
+            <div class="titulo alignLeft">{$smarty.config.Subject}:</div>
+            <div class="campos clr">
+                <input type="text" class="campo" name="subject" id="subject" style="width:405px" maxlength="100"/>
+            </div>
+            <br style="clear:both;"/>
+            <div class="titulo alignLeft">{$smarty.config.Description}:</div>
+            <div class="fl">
+                <textarea id="description" name="description" style="width: 225px; height: 140px" wrap="virtual"></textarea>
+                {literal}
+                <script type="text/javascript" language="javascript">
+                    if(CKEDITOR.instances['description'])
+                        delete CKEDITOR.instances['description'];
+                    var editor = CKEDITOR.replace( 'description',
+                    {
+                        toolbar : 'SOLICITA',
+                        skin: 'kama',
+                        width : 405,
+                        height : 180,
+                        toolbarCanCollapse : false,
+                        resize_enabled : false					
+                    });				
+                </script>	
+                {/literal}
+            </div>                
+            <div class="titulo alignLeft" {$display1}>{$smarty.config.Solution}:</div>
+            <div class="fl" {$display1}>
+                 <textarea class="campo" name="solution" id="solution" style="width: 225px; height: 140px" ></textarea>
+                {literal}
+                <script type="text/javascript" language="javascript">
+                    if(CKEDITOR.instances['solution'])
+                        delete CKEDITOR.instances['solution'];
+                    var editor2 = CKEDITOR.replace( 'solution',
+                    {
+                        toolbar : 'SOLICITA',
+                        skin: 'kama',
+                        width : 405,
+                        height : 136,
+                        toolbarCanCollapse : false,
+                        resize_enabled : false					
+                    });				
+                </script>	
+                {/literal}
+            </div>
+        </div>
+        <div id="box5" {$box5height}>   
+             <div class="boxTimer" style="{$displayalt}">
+                <span class="titulo alignLeft"> {$smarty.config.Attend_time}:</span>
+                <!--<input name="open_time" type="text" class="campo" id="open_time" style="width: 80px;" size="10" readonly="readonly"/> -->
+                <div id="open_time" class="fl"></div>
+                <span class="txtTimer">{$smarty.config.Timer}</span>
+                <img  id="ico_timer" title="{$smarty.config.Timer_alt}"/>
+            </div>
+
+            <div id="buttonCadastrar">
+                <input name="TEMPO_ATENDIMENTO" type="hidden" value="0"/> 
+                <input name="idstatus" type="hidden" id="idstatus" value="1"/> 
+                <input name="idrepass" type="hidden" id="idrepass"/> 
+                <input name="typerepass" type="hidden" id="typerepass"/>                
+                <input name="viewrepass" type="hidden" id="viewrepass"/>
+                
+                <button onclick="$('#idstatus').val('1'); registrar(); return false;" class="btn-green" style="margin-top: 50px;">
+                    <span>{$smarty.config.Register_btn} 
+                        {$smarty.config.Request}
+                    </span>
+                </button>
+
+                <button class="btn-blue" style="{$displayalt}" onclick="repassReq(); return false;">   
+                    <span>{$smarty.config.Repass_btn} {$smarty.config.Request}</span>
+                </button>
+
+                <button class="btn-red" style="{$displayalt}" onclick="finishRequest(); return false;">
+                    <span>{$smarty.config.Finish_btn} {$smarty.config.Request}</span>
+                </button>
+                <input name="open_time_value" type="hidden" value="0"/>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <br/>  
+</form>
+    </body>
+</html>
+
+
+<div id="searchuser" style="display:none;">
+</div>
+<div id="status" style="display:none;"></div>
+<div id='gifImage' style="width:32px; left:50%; margin-top: 200px; height:575px; display:none; clear:both; margin-left:-16px; position:absolute;"><img src="{$path}/app/themes/{$theme}/images/loading_laranja.gif" border='0' width='31' height='31' title="{$smarty.config.loading}"/></div>
+<div id="pop_repass2" class="pop-tp2 w650">
+    {include file="openRepass.tpl.html"}
+</div>
+</html>

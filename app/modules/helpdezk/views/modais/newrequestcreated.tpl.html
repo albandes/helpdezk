@@ -1,0 +1,37 @@
+{literal}
+<script>
+$(".subject").click(function(){
+	objModal.closeModal();
+});
+</script>
+{/literal}
+<form action="javascript:;" method="post">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Request_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">			
+			<div class='notification success mt10 mb10'>
+				<p>
+					{$smarty.config.Alert_inserted_request}
+					{if $typelink == 1}
+				    	<a href='#/user/viewrequest/id/{$code}' class='subject'>{$code}</a>				    
+				    {else}
+				    	<a href='#/operator/viewrequest/id/{$code}' class='subject'>{$code}</a>
+				    {/if} 
+				</p>
+			</div>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<a href="javascript:;" onclick="requestInsert(); return false;" class="btnOrange tp1" title="{$smarty.config.Open_new_request}">{$smarty.config.Open_new_request}</a>
+					<a href="javascript:;" class="closeModal btnOrange tp1" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

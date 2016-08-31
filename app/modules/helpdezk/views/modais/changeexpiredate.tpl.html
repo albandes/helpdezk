@@ -1,0 +1,139 @@
+{literal}
+<script>
+    $(document).ready(function() {
+    	{/literal}
+    	{if $hour_format|strstr:"%p"}
+    	{literal}
+			$('#timeChangeExpire').timeEntry({show24Hours: false, ampmPrefix: ' ', spinnerImage:''});
+		{/literal} 
+		{else}
+		{literal}
+			$('#timeChangeExpire').timeEntry({show24Hours: true, ampmPrefix: ' ', spinnerImage:''});
+		{/literal}
+		{/if}
+    	{literal}
+
+    	$("#changeExpireDateForm").validate({
+        		wrapper: "li class='error'",            		
+        		errorPlacement: function(error, element) {
+					error.appendTo(element.parent().parent());
+				},
+			  	rules: {
+			  		dateChangeExpire: {
+			  			required: true,
+			  			hdDate: true
+			  		},
+			  		timeChangeExpire: {
+			  			required: true
+			  		}
+			 	}
+			});
+
+    	$(document.getElementById("changeExpireDateForm")).submit(function(){
+    		var $self = $(this),
+				$btn = $self.find(document.getElementById('btnChangeExpireDate')),
+				code = $self.find("#codeRequestExpire").val();
+    			
+    		objDefault.buttonAction($btn,'disabled');
+            $.post('{/literal}{$path}{literal}/helpdezk/operator/changeExpireDate', 
+            $self.serialize()
+            , function(resposta2) {
+                if (resposta2 != false) {
+                	for(var i in CKEDITOR.instances) {
+						CKEDITOR.instances[i].destroy(true); 
+					}
+                    $("#content2").load('operator/viewrequest/id/'+code,function(){
+                    	objDefault.notification("success",aLang['Expire_date_sucess'].replace (/\"/g, ""),"modalChangeExpireDate");
+                		objModal.openModal("modalChangeExpireDate",1);
+                    });
+                }
+                else {
+                	objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalChangeExpireDate");
+                	objModal.openModal("modalChangeExpireDate");
+                }
+            }).complete(function(){
+            	objDefault.buttonAction($btn,'enabled');
+            });
+    	})
+
+    });
+</script>
+{/literal}
+<div id="modalChangeExpireDate" class="window" style="width:500px;">
+    <form action="javascript:;" id="changeExpireDateForm" method="post">
+        <div class="modalHeader">
+			<h2>{$smarty.config.Change_date}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix mt10" id="groupsAssume">					
+					<li>
+						<ul>
+							<li class="info">
+								{$smarty.config.Current_date}:
+							</li>
+							<li class="field">
+								{$expire_date}
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="dateChangeExpire">{$smarty.config.New_date}:</label>
+							</li>
+							<li class="field">
+								<input name="dateChangeExpire" id="dateChangeExpire" type="text" class="w70 mask" data-format="99/99/9999" maxlength="10" />
+								<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" align="absmiddle" class="calendar" id="f_holiday_date"  title="Escolha a Data"/>
+							</li>
+						</ul>
+					</li>
+
+					<li>
+						<ul>
+							<li class="info">
+								{$smarty.config.Current_time}:
+							</li>
+							<li class="field">
+								{$expire_hour}
+							</li>
+						</ul>
+					</li>
+
+					<li>
+						<ul>
+							<li class="info">
+								<label for="timeChangeExpire">{$smarty.config.New_time}:</label>
+							</li>
+							<li class="field">
+								<input name="timeChangeExpire" id="timeChangeExpire" type="text" style="width:50px;"/>
+							</li>
+						</ul>
+					</li>
+
+					<li>
+						<ul>
+							<li class="info">
+								<label for="reasonChangeExpire">{$smarty.config.Reason}:</label>
+							</li>
+							<li class="field">
+								<textarea name="reasonChangeExpire" id="reasonChangeExpire"></textarea>
+							</li>
+						</ul>
+					</li>
+				</ul>				
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">	
+						<input name="codeRequestExpire" id="codeRequestExpire" type="hidden" value="{$request_code}" />
+						<input type='submit' name="submit"  class="btnOrange tp1" id="btnChangeExpireDate" value="{$smarty.config.Save}"/>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>

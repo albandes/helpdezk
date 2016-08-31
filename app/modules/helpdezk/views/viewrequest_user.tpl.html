@@ -1,0 +1,415 @@
+        {literal}
+        <script>
+            
+			$(document).ready(function() {
+            	for(var i in CKEDITOR.instances) {
+					CKEDITOR.instances[i].destroy(true); 
+				}
+            	objDefault.init();
+            	
+            	{/literal}
+	            {if $displaynote == 1 }
+	            {literal}
+		        	$(document.getElementById('addnote')).click(function(){
+		        		
+		        		pathform = document.AuxAttach;
+		                //por algum motivo precisamos usar o caminho antes de testar o if, se  naõ ele faz reload do site, entao jogamos na variavel pra funcionar o resto 
+		                var benzadesetedias2=noteanexo.document.formNAt.COD_NOTE_ATT2.value;
+		                
+		                if (noteanexo.document.formNAt.COD_NOTE_ATT2){   
+		                    pathform.COD_NOTE_ATT.value = noteanexo.document.formNAt.COD_NOTE_ATT2.value;                     
+		                }
+		                
+		                var idanexo = $("#COD_NOTE_ATT").val();
+		                if(idanexo<1)
+		                    idanexo = 'NULL';
+		        		
+		        		var $self = $(this),
+		                	code = $("#code_request").val(),
+		                	idperson = $("#idperson").val(),
+		                	note = CKEDITOR.instances['note'].getData();
+		                
+		                if(note == '' || note == 0){
+		                    alert("{/literal}{$smarty.config.Alert_empty_note}{literal}!");
+		                    return false;
+		                }
+		                
+		                objDefault.buttonAction($self,'disabled');
+		                $.post("{/literal}{$path}{literal}/helpdezk/user/addnote", 
+		                {code: code, person: idperson, note: note, idanexo:idanexo},
+		                function(resp){
+		                    if (resp != false && resp==='OK'){
+			                    $('#content2').load(path+'/helpdezk/user/viewrequest/id/'+code,function(){
+			                    	objDefault.notification("success",aLang['Alert_note_sucess'].replace (/\"/g, ""),"modalInfo");
+			                    	objModal.openModal("modalInfo");
+			                    });
+			                    return false;
+			                }
+			                else{
+			                	objDefault.notification("error",aLang['Error_insert_note'].replace (/\"/g, ""),"modalInfo");
+			                    objModal.openModal("modalInfo");
+			                }
+		                }).complete(function(){
+		                	objDefault.buttonAction($self,'enabled');
+		                });
+			            
+		        	})            	
+            	{/literal}
+	            {/if}
+	            {if $displaycancel == 1 }
+	            {literal}
+	            	$(document.getElementById('cancel')).click(function(){
+		                var $self = $(this),
+		                	code = $("#code_request").val(),
+		                	idperson = $("#idperson").val();
+		                objDefault.buttonAction($self,'disabled');
+		                $.post("{/literal}{$path}{literal}/helpdezk/user/cancelrequest", 
+		                {code: code, person: idperson},
+		                function(resp){
+		                    if (resp != false){
+		                        $("#content2").load('user/viewrequest/id/'+code,function(){
+		                        	objDefault.notification("success",aLang['Alert_sucess_cancel'].replace (/\"/g, ""),"modalInfo");
+	                        		objModal.openModal("modalInfo");
+		                        });
+		                    }
+		                    else{
+		                        objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalInfo");
+	                        	objModal.openModal("modalInfo");
+		                    }
+		                }).complete(function(){
+		                	objDefault.buttonAction($self,'enabled');
+		                });
+	            	});            	
+            	{/literal}
+	            {/if}
+	            {if $displayreopen == 1 }
+	            {literal}
+	            	$(document.getElementById('reopen')).click(function(){
+						var $self = $(this),
+		                	code = $("#code_request").val(),
+		                	idperson = $("#idperson").val();
+		                objDefault.buttonAction($self,'disabled');
+		                $.post("{/literal}{$path}{literal}/helpdezk/operator/reopenrequest", 
+		                {code: code, person: idperson},
+		                function(resp){
+		                    if (resp != false){
+		                        $("#content2").load('user/viewrequest/id/'+code,function(){
+		                        	objDefault.notification("success",aLang['Alert_sucess_reopen'].replace (/\"/g, ""),"modalInfo");
+	                        		objModal.openModal("modalInfo");
+		                        });
+		                    }
+		                    else{
+		                        objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalInfo");
+	                        	objModal.openModal("modalInfo");
+		                    }
+		                }).complete(function(){
+		                	objDefault.buttonAction($self,'enabled');
+		                });
+	            	});
+            	{/literal}
+	            {/if}
+	            {if $displayevaluate == 1 }
+	            {literal}
+	            	$("input[name=approve]").click(function(){
+	            		var value = this.value,
+	            			$approveobs = $(document.getElementById("approveobs")),
+	            			$evaluation = $(document.getElementById("evaluation"));
+	            		if(value == "A"){
+	            			$approveobs.hide();
+	            			$evaluation.show();
+	            		}else if(value == "N"){
+	            			$approveobs.css('display','block');
+	            			$evaluation.hide();
+	            		}else if(value == "O"){
+	            			$approveobs.css('display','block');
+	            			$evaluation.show();
+	            		}
+	            	});
+					
+					$(document.getElementById('formEvaluate')).live("submit",function(){
+						var $btn = $(document.getElementById("approve")); 
+						
+						$.ajax({
+							type: "POST",
+							url: "{/literal}{$path}{literal}/helpdezk/user/evaluate",
+							data: $(this).serialize(),
+							success: function(ret) {
+								location.href = path+"/helpdezk/user";
+							},
+							beforeSend: function(){
+								objDefault.buttonAction($btn,'disabled');
+							},
+							complete: function(){
+								objDefault.buttonAction($btn,'enabled');
+							}
+						});	
+						return false;
+					});
+					
+         		{/literal}
+	            {/if}
+	            {literal}
+				/* under construction */	
+				$(document.getElementById('btnPrintRequest')).click(function(){
+					//alert('clicou');
+					var $self = $(this),
+						code = $("#code_request").val();				
+					window.open(path + "/app/reports/relPrintRequest.php?code_request=" + code, "_blank");		
+				});
+				/* end under construction  */
+	            
+         		$(document.getElementById('refresh')).click(function(){
+         			objDefault.maskLoaderShow();
+		        	$('#noteanexo').val(''); 
+		        	for(var i in CKEDITOR.instances) {
+						CKEDITOR.instances[i].destroy(true); 
+					}
+		        	$('#content2').load(path+'/helpdezk/user/viewrequest/id/{/literal}{$request_code}{literal}',function(){
+		        		objDefault.maskLoaderHideAll();
+		        	});
+		        })
+         	});
+         	
+         	function deleteNote(note, idrequest, typeperson){
+	            var idnote = note;
+	            var idreq = idrequest;
+	            var type = typeperson;
+	            objDefault.maskLoaderShow();
+	            $.post('user/deletenote', {
+	                idnote : idnote
+	            }, function(resposta) {
+	                if (resposta != false) {
+	                    for(var i in CKEDITOR.instances) {
+							CKEDITOR.instances[i].destroy(true); 
+						}
+	                    $("#content2").load(path+'/helpdezk/user/viewrequest/id/'+idreq,function(){
+	                    	objDefault.notification("success",aLang['Alert_deleted_note'].replace (/\"/g, ""),"modalInfo");
+	                		objModal.openModal("modalInfo");
+	                    });
+	                    
+	                }
+	                else {
+	                    objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalInfo");
+	                    objModal.openModal("modalInfo");
+	                }
+	            }).complete(function(){
+	            	objDefault.maskLoaderHideAll();
+	            });
+	        }
+         	
+        </script>
+        {/literal}
+        <input name="idperson" type="hidden" id="idperson" value="{$idperson}" />
+
+        <div class="fl w550">
+            <div class="titulo" class="texto">{$smarty.config.Request_code}:</div>
+            <div class="campos"><span style="font-weight: bold;">{$request_code}</span> </div><a href="javascript:;" id="refresh"><img style="margin-top: 4px; margin-left:3px;" src="{$path}/app/themes/{$theme}/images/load.png" border='0' title="{$smarty.config.reload_request}"/></a>
+            <div class="clr"><!--  --></div>
+
+            <input type="hidden" id="code_request" name="code_request" value="{$request_code}"/>
+            <div class="titulo">{$smarty.config.Request_owner}:</div>
+            <div class="campos">{$owner} ({$company}) &nbsp;</div> <div style="margin-top: 3px; float: left;"><a href="mailto:{$email}"><img src="{$path}/app/themes/{$theme}/images/email.png" height="20px" width="20px"/></a></div>
+            <div class="clr"><!--  --></div>
+
+            <div class="titulo" style="clear: both;">{$smarty.config.Department}:</div>
+            <div class="campos">{$department}</div>
+            <div class="clr"><!--  --></div>
+
+            <div class="titulo"> {$smarty.config.Area}: </div>
+            <div class="campos">
+                <select class="campo" name="area" id="area" disabled="disabled">
+                    <option value="0">{$smarty.config.Select} </option>
+                    {html_options values=$areaids output=$areavals selected=$idarea}
+                </select>
+            </div>
+
+            <div class="titulo"> {$smarty.config.Type}: </div>
+            <div class="campos">
+                <select class="campo" name="type-view" id="type-view" disabled="disabled">
+                    <option value="0">{$smarty.config.Select} </option>
+                    {html_options values=$typeids output=$typevals selected=$idtype}
+                </select>
+            </div>
+
+            <div class="titulo"> {$smarty.config.Item}: </div>
+            <div class="campos">
+                <select class="campo" name="item" id="item" disabled="disabled">
+                    <option value="0">{$smarty.config.Select} </option>
+                    {html_options values=$itemids output=$itemvals selected=$iditem}
+                </select>
+            </div>
+
+            <div class="titulo"> {$smarty.config.Service}: </div>
+            <div class="campos">
+                <select class="campo" name="service" id="service" disabled="disabled">
+                    <option value="0">{$smarty.config.Select} </option>
+                    {html_options values=$serviceids output=$servicevals selected=$idservice}
+                </select>
+            </div>
+
+            <div class="titulo"> {$smarty.config.Reason}: </div>
+            <div class="campos">
+                <select class="campo" name="reason" id="reason" disabled="disabled">
+                    <option value="0">{$smarty.config.Select} </option>
+                    {html_options values=$reasonids output=$reasonvals selected=$idreason}
+                </select>
+            </div>
+			{if $numusersaux > 0}
+		    <div class="titulo"> {$smarty.config.btn_ope_aux}: </div>
+		    <div class="campos">
+		        <ul class="lstOpeAux">
+				{foreach from=$usersaux item=foo}
+				    <li>{$foo}</li>
+				{/foreach}
+				</ul>
+		    </div>
+		    {/if}
+        </div>
+        <div class="fl w550">
+            <div class="titulo">{$smarty.config.Opened_by}:</div>
+            <div class="campos">{$creator}</div>
+            <div class="clr"><!--  --></div>
+
+            <div class="titulo" >{$smarty.config.Source}:</div>
+            <div class="campos">{$source}</div>
+            <div class="clr"><!--  --></div>
+
+            <div class="titulo">{$smarty.config.status}:</div>
+            <div class="campos">{$status}</div>
+            <div class="clr"><!--  --></div>
+
+            <div class="titulo">{$smarty.config.Opening_date}:</div>
+            <div class="campos">{$entry}</div>
+            <div class="clr"><!--  --></div>
+
+        <div class="titulo"> {$smarty.config.Priority}: </div>
+        <div class="campos">
+            <select class="campo" name="priority" id="priority" disabled="disabled">
+                <option value="0">{$smarty.config.Select} </option>
+                {html_options values=$priorityids output=$priorityvals selected=$idpriority}
+            </select>
+        </div>
+        <div class="clr"><!--  --></div>
+
+        <div class="titulo">{$smarty.config.Att_way}: </div>
+        <div class="campos">
+            <select class="campo" name="way" id="way" disabled="disabled">
+                <option value="0">{$smarty.config.Select}</option>
+                {html_options values=$wayids output=$wayvals selected=$idway}
+            </select>
+        </div>
+
+        <div class="titulo"> {$smarty.config.Var_incharge}: </div>
+        <div class="campos"> {$inchargename} </div>
+
+        <div class="clr"><!--  --></div>
+	<!-- Equipment -->
+	{if $have_equipment }
+			<div class="titulo">{$smarty.config.Tag}:</div>
+			<div class="campos"> {$label}              </div>        
+			<div class="titulo">{$smarty.config.Service_order_number}:</div>
+			<div class="campos">{$os_number} </div>    
+			<div class="titulo">{$smarty.config.Serial_number}:</div>
+			<div class="campos">{$serial_number}</div>    
+	{/if}	
+	<!-- 		   -->
+        <input type="hidden" id="expdateorig" name="expdateorig" value ="{$expire_date}" {$expiry_view}/>
+               <input type="hidden" id="exphourorig" name="exphourorig" value ="{$expire_hour}" {$expiry_view}/>
+               <div class="titulo" {$expiry_view}> {$smarty.config.Expire_date}: </div>
+        <div class="campos" {$expiry_view}><input type="text" id="expdate" name="expdate" value="{$expire_date}" size="8" maxlength="10" {$calreadonly}/> <input type="text" id="exphour" name="exphour" value="{$expire_hour}" size="3" maxlength="5" {$calreadonly}/> {$hour_label}  {$calendar}{literal}{/literal}</div>
+    </div>
+
+    <div class="clr"><!--  --></div>
+    <div class="titulo"> {$smarty.config.Subject}: </div>
+    <div class="campos">
+        <input type="text" id="subject" name="subject" value="{$subject}" style="width: 960px;" class="campo" readonly="readonly" />
+    </div>
+
+    <div class="titulo"> {$smarty.config.Description}: </div>
+    <div class="campos mb10">
+        <textarea id="descriptionRequest" name="descriptionRequest" class="ckeditor" data-width="960" data-height="220" data-readonly="true" data-toolbar="SOLICITA_DET" wrap="virtual">{$description}</textarea>
+    </div>
+    {if $hasattach == 1}
+    	<div class="titulo" {$hasattach}> {$smarty.config.Attachments}: </div>
+    	<div class="campos" id="campoattachs" {$hasattach}>{$attach1}</div>
+	{/if}
+	
+	{if $displayprint != 0 || $displayreopen != 0 || $displaycancel != 0 ||  $displayevaluate != 0}
+	    <div class="notes mt10">      
+			<div class="fl"> 
+		        {if $displayreopen == 1}
+		        	<a href="javascript:;" id="reopen" class="{$displayreopenclass} btnOrange tp1 fl" style="{$displayreopen}">{$smarty.config.btn_reopen}</a>
+		        {/if}
+		        {if $displaycancel == 1}
+		        	<a href="javascript:;" id="cancel" class="btnOrange tp1 fl" style="{$displaycancel}">{$smarty.config.Cancel_btn}</a>        
+		        {/if}
+		        {if $displayevaluate == 1}
+			        <div class="ml10">
+			        	<form name="formEvaluate" id="formEvaluate">
+				            <p><strong>{$smarty.config.Approve_text}</strong></p>
+				            <div class="mtb10">
+			                    <label>
+			                        <input type="radio" name="approve" value="A" checked="checked" /> 
+			                		{$smarty.config.Approve_yes} 
+			                    </label>
+			                    <label>
+			                		<input type="radio" name="approve" value="N" /> 
+			                		{$smarty.config.Approve_no} 
+			                    </label>
+			                    <label>
+			                        <input type="radio" name="approve" value="O" /> 
+			                		{$smarty.config.Approve_obs}
+			                    </label>
+		                    </div>
+							<textarea id="approveobs" name="approveobs" rows="6" cols="55" class="none mtb10"></textarea>
+		                
+			                <div id="evaluation">
+			                    {$evaluationform}
+			                </div>
+		                	
+		                	<input type="hidden" name="code_request" value="{$request_code}"/>
+		                	<input type="hidden" name="numQuest" value="{$numQuest}"/>	                	
+		                	<input type="submit" name="approve" id="approve" class="btnOrange tp1 ml0" value="{$smarty.config.Approve_btn}"/>
+		                	
+		                </form>
+			        </div>
+		        {/if}
+	        </div>
+	        <div class="fl">
+		        {if $displayprint == 1}
+					<a href="javascript:;" id="btnPrintRequest" class="btn-print-tp2 fl" title="{$smarty.config.Print}">{$smarty.config.Print}</a>
+		        {/if}
+	        </div>
+	    </div>
+	{/if}
+    
+    <div class="clr"><!--  --></div>
+    
+	{if $displaynote == 1}
+	    <div class="texto notes">  
+	        <span class="ml10">{$smarty.config.Insert_note}</span>
+	    </div>
+	    <div class="ml10">
+	        <div class="clr"><!--  --></div>
+	        <textarea id="note" class="ckeditor" data-height="150" data-width="643" rows="4" cols="78" class="fl"></textarea>
+	    </div>
+	    <div id="boxAttch" style="margin-left: -80px;">
+	        <div class="titulo">{$smarty.config.Attachments}:</div> 
+	        <form name="AuxAttach"  action="" method="post" accept-charset=utf-8 >
+	            <input name="COD_NOTE_ATT" type="hidden" id="COD_NOTE_ATT"/>
+	        </form>
+	        <iframe src="operator/managenoteattachments/" name="noteanexo" id="noteanexo" width="800" height="40" frameborder="0" scrolling="no">
+	        </iframe>
+	    </div>
+	    <div class="notes mt10">
+	    	<input type="button" id="addnote" class="btnOrange tp1" value="{$smarty.config.btn_add_note}"/>
+	    </div>
+     {/if}
+	
+	<div class="notes mb0">
+		<strong class="ml10">{$smarty.config.Added_notes}</strong>
+	</div>
+	<div class="clr"><!--  --></div>
+	<div id="notetable">
+		{$notetable}
+	</div>

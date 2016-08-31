@@ -1,0 +1,25 @@
+{
+"categories" :
+  {
+  "category": [
+    {
+      "id":1,
+      "title" : "Helpdezk",
+      "amount" : 2,
+      "url" : "{../../../includes/classes/dashboardplugin/demo/jsonfeed/category1_widgets.json"
+    },
+    {
+      "id":2,
+      "title" : "Geral",
+      "amount": 1,
+      "url" : "{../../../includes/classes/dashboardplugin/demo/jsonfeed/category2_widgets.json"
+    },
+    {
+      "id":3,
+      "title" : "Diversos",
+      "amount": 2,
+      "url" : "{../../../includes/classes/dashboardplugin/demo/jsonfeed/category_diversos.json"
+    }
+  ]
+  }
+}

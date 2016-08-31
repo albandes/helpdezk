@@ -1,0 +1,26 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{$pagetitle}</title>
+        <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+        <div id='smallHeader' style="margin-top:0px;  z-index: 99;">
+
+            <p><span class="texto" style="margin-b:20px; margin-left: 10px;">::&nbsp;{$smarty.config.Edit_user_info}</span><a href="#" id='buttonClose' onclick="ocultar('pop2');"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0"/></a></p>
+        </div> 
+        <div class="texto" style="margin-left: 5px; font-size: 12px;">{$smarty.config.Welcome} {$user_name},</div>
+        <br/>
+        <div class="texto" style="margin-left: 5px; font-size: 12px;">{$smarty.config.User_info}:</div>
+        <br/>
+        <div class="texto" style="margin-left: 5px; font-size: 12px;">{$smarty.config.email}: {$email}</div>
+        <div class="texto" style="margin-left: 5px; font-size: 12px;">{$smarty.config.Phone}/{$smarty.config.Branch}: {$phone}</div>
+        <div class="texto" style="margin-left: 5px; font-size: 12px;">{$company}</div>
+        <div class="texto" style="margin-left: 5px; font-size: 12px;">{$department}</div>
+        <br/>
+    </body>
+</html>

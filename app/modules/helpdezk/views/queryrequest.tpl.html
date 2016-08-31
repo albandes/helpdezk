@@ -1,0 +1,42 @@
+{literal}
+<script>	
+	$(function(){
+		$("#queryRequest").submit(function(){
+			var $self = $(this),
+				$code = $self.find("#coderequest").val();			
+			$('#resultQuery').empty();
+			objDefault.maskLoaderShow();
+			$('#resultQuery').load('operator/queryviewrequest/id/'+$code,function(){
+				objDefault.maskLoaderHideAll();
+			});
+			return false;
+		});
+	})
+</script>
+{/literal}
+
+<div class="clearfix mt20 ml20">
+	{if $typeperson == 1 || $typeperson == 3}	
+	<form method="post" name="queryRequest" id="queryRequest">
+		<ul class="lstForm clearfix">
+			<li>
+				<ul>
+					<li class="info wAuto">
+						<label for="coderequest">{$smarty.config.Request_number}:</label>
+					</li>
+					<li class="field">
+						<input name="coderequest" id="coderequest" type="text" class="w200" maxlength="12" />						
+						<input type="submit" class="btnOrange tp1 min" value="{$smarty.config.Search}"/>
+					</li>
+				</ul>
+			</li>
+		</ul>	
+	</form>
+	{else}
+		<p><strong>{$smarty.config.Alert_no_permission}</strong></p>
+	{/if}
+	
+	
+</div>
+
+<div id="resultQuery"></div>

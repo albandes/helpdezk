@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{$pagetitle}</title>
+        <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+        {literal}
+        <link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jquery-autocomplete/jquery.autocomplete.css" />
+        <script type='text/javascript' src='{/literal}{$path}{literal}/includes/classes/jquery-autocomplete/jquery.autocomplete.js'></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-maskedinput/jquery.maskedinput-1.2.1.pack.js"></script>
+        <script type="text/javascript">                        
+            $2 = jQuery.noConflict();
+            $(document).ready(function() {
+                
+                $2.getJSON("person/streets/", function(data) {
+                    ruas = [];
+                    idruas = [];
+                    i=0;
+                    $.each(data, function(key, val) {
+                        ruas[i] = val.name;
+                        idruas[i] = val.id;
+                        i = i + 1;
+                    });
+                });
+                                
+                function formatItem(row) {
+                    return row[0] + " (<strong>id: " + row[1] + "</strong>)";
+                }
+                function formatResult(row) {
+                    return row[0].replace(/(<.+?>)/gi, '');
+                }
+                                
+            });
+
+            function autostreet() {
+                $("#address").autocomplete(ruas);
+            }
+            
+            function autoneighborhood() {
+                $("#neighborhood").autocomplete(neighborhoods);
+            }
+
+            function carregaFormLevel(sel) {
+                var value = sel.options[sel.selectedIndex].value;
+                if (value == 1 || value == 3) {
+
+                    $('#acess_level_user').css({
+                        'display' : 'none'
+                    });
+                    $('#acess_level_operator').css({
+                        'display' : 'block'
+                    });
+                    //$('#pop').animate({'height':'450px'});
+                }
+                if (value == 2) {
+
+                    $('#acess_level_operator').css({
+                        'display' : 'none'
+                    });
+                    $('#acess_level_user').css({
+                        'display' : 'block'
+                    });
+                    //no futuro tera os campos adicionais
+                    //$('#pop').animate({'margin-left':'-300px','width':'720px'});
+                    //$('#additional_fields').css({'display':'block'});
+                }
+            }
+
+            function showFormAdress() {
+                $("#formAdress").slideToggle("slow");
+            }
+
+
+            $("#juridical").click(function() {
+                var valu = $("input[@name='juridical']:checked").val();
+                $("#naturalform").slideUp('fast');
+                $("#show-form").load('person/formjuridical', function() {
+                    $("#show-form").slideDown('slow');
+                });
+            });
+            $("#natural").click(function() {
+                var valu = $("input[@name='natural']:checked").val();
+                $("#juridicalform").slideUp('fast');
+                $("#show-form").load('person/formnatural', function() {
+                    $("#show-form").slideDown('slow');
+                });
+            });
+            function change(val, state) {
+                $("select[name=state]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                var val = $("#country").val();
+                $.post("{/literal}{$path}{literal}/admin/person/state", {
+                    country : val,
+                    state: state
+                }, function(valor) {
+                    $("select[name=state]").html(valor);
+                })
+            }
+            
+            function departments(val) {
+                $("select[name=department]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                var val = $("#company").val();
+                $.post("{/literal}{$path}{literal}/admin/person/department", {
+                    company : val
+                }, function(valor) {
+                    $("select[name=department]").html(valor);
+                })
+            }
+
+            function returncities(val) {
+                $("select[name=city]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                $.post("{/literal}{$path}{literal}/admin/person/city", {
+                    state : $('#state').val(),
+                    city: val
+                }, function(valor) {
+                    $("select[name=city]").html(valor);
+                })
+            }
+
+            function returnneighborhood() {
+                var valor = $('#city').val();
+                $2.getJSON("person/neighborhoods/idcity/"+valor, function(data) {  
+                    neighborhoods = [];
+                    idneighborhoods = [];
+                    i=0;
+                    $.each(data, function(key, val) {
+                        neighborhoods[i] = val.name;
+                        idneighborhoods[i] = val.id;
+                        i = i + 1;
+                    });
+                });
+            }
+
+            function addlocation() {
+                $('#addlocation').toggle();
+            }
+
+            function closelocation() {
+                $('#addlocation').fadeOut(400);
+                $('#name_location').val('');
+            }
+                        
+            // Quando o formul�rio for enviado, essa fun��o � chamada
+            function sendLocation() {
+                // Colocamos os valores de cada campo em uma v�riavel para facilitar a manipula��o
+                var name = $("#name_location").val();                                
+                pathform = document.formLocation;
+                if (name == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_location}{literal}");
+                    pathform.name_location.focus();
+                    return false;
+                }
+                // Exibe mensagem de carregamento
+                $("#addlocation").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' alt='{/literal}{$smarty.config.Send_img_alt}{literal}' style='margin-left:40%; margin-top:40%;'/>");
+                // Fazemos a requicao ajax com o arquivo envia.php e enviamos os valores de cada campo atraves do metodo POST
+                $.post('person/insertLocation', {
+                    name : name
+                }, function(resposta) {
+                    // Quando terminada a requisicao
+                    // Exibe a div status
+                    //$("#status").slideDown();
+                    // Se a resposta � um erro
+                    if (resposta != false) {
+
+                        alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+                        $("#addlocation").hide();
+                                                
+                    }
+                    // Se resposta for false, ou seja, nao ocorreu nenhum erro
+                    else {
+                        // Exibe mensagem de sucesso
+                        //$("#status").slideDown();
+                        alert(resposta);
+                        $("#addlocation").html("{/literal}{$smarty.config.Alert_failure}{literal}!");
+                        //$("#name").val("");
+                    }
+                });
+            }
+            
+            function checkLogin(){
+                var login = $("#login").val();
+                $.post('person/checklogin', {
+                    login : login
+                }, function(resposta) {
+                    if(resposta == false){
+                        $("#loginmessage").fadeIn();
+                        $("#login").css('background-color', '#FF9900');
+                        $("#error").val('YES');
+                        pathform.login.focus();
+                        return false
+                    }
+                    else{
+                        $("#loginmessage").fadeOut();
+                        $("#login").css('background-color', '#FFF');
+                        $("#error").val('NO');
+                    }
+                });
+            }
+            
+            function sendNatural(){
+             
+                pathform = document.form1;
+                var error = $("#error").val();
+                if (error != "NO"){
+                    alert("{/literal}{$smarty.config.Login_exists}{literal}");
+                    pathform.login.focus();
+                    return false;
+                }
+                var login = $("#login").val();
+                var password = $("#password").val();
+                var cpassword = $("#cpassword").val();
+                var namenatural = $("#namenatural").val();
+                var email = $("#email").val();
+                var company = $("#company").val();
+                var department = $("#department").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                var city = $("#city").val();
+                var dtbirth = $("#dtbirth").val();
+                var i, access, string_array;
+                string_array = dtbirth;
+                dtbirth = string_array.split('/');
+                if("{/literal}{$lang}{literal}" == 'en_US'){
+                    dtbirth = dtbirth[2]+'-'+dtbirth[0]+'-'+dtbirth[1];
+                    var clear = '999999999';
+                }
+                else{
+                    dtbirth = dtbirth[2]+'-'+dtbirth[1]+'-'+dtbirth[0];
+                    var clear = '99999999999';
+                }
+                
+                var gender = $("input:radio[name='gender']:checked").val();
+                var neighborhood = $("#neighborhood").val();
+                if (neighborhood == ''){
+                    neighborhood = 'Choose';
+                } 
+                var zipcode = $("#zipcode").val();
+                var typestreet = $("#type_street").val();
+                var address = $("#address").val();
+                if (address == ''){
+                    address = 'Choose';
+                } 
+                var number = $("#number").val();
+                var complement = $("#complement").val();
+                var typeuser = $("#type_user").val();
+                var location = $("#location").val();
+                if (company == '' || company == 0) {
+                    alert("{/literal}{$smarty.config.Alert_choose_company}{literal}!");
+                    return false;
+                }
+                if (typeuser == '' || typeuser == 0) {
+                    alert("{/literal}{$smarty.config.Alert_choose_typeuser}{literal}!");
+                    return false;
+                }
+                if (department == 0 ) {
+                    alert("{/literal}{$smarty.config.Alert_choose_department}{literal}!");
+                    return false;
+                }
+                if (login == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_login}{literal}");
+                    pathform.login.focus();
+                    return false;
+                }
+                if (password == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_password}{literal}");
+                    pathform.password.focus();
+                    return false;
+                }
+                if (namenatural == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_name}{literal}");
+                    pathform.namenatural.focus();
+                    return false;
+                }
+                if (email == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_email}{literal}");
+                    pathform.email.focus();
+                    return false;
+                }
+                if ($("#vip").is(":checked")) {
+                    var vip = 'Y';
+                } else {
+                    var vip = 'N';
+                }
+                
+                if ($("#filladress").is(":checked")) {
+                    var filladress = 'Y';
+                } else {
+                    var filladress = 'N';
+                }
+                
+                
+                if(cpassword != password){
+                    alert("{/literal}{$smarty.config.Alert_different_passwords}{literal}");
+                    return false;
+                }
+                
+                $("#phone").unmask();
+                $("#phone").mask("9999999999?99");
+                var phone = $("#phone").val();
+                var branch = $("#branch").val();
+                $("#mobile").unmask();
+                $("#mobile").mask("9999999999?99");                
+                var mobile = $("#mobile").val();
+                var costcenter = $("#costcenter").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                
+                $("#cpf").unmask();
+                $("#cpf").mask(clear);
+                var cpf = $("#cpf").val();
+                
+                $.post("{/literal}{$path}{literal}/admin/person/insertNatural", {
+                    login: login,
+                    password: password,
+                    name: namenatural,
+                    email: email,
+                    company: company,
+                    department: department,
+                    phone: phone,
+                    branch: branch,
+                    mobile: mobile,
+                    costcenter: costcenter,
+                    country: country,
+                    state: state,
+                    cpf: cpf,
+                    country: country,
+                    state: state,
+                    city: city,
+                    neighborhood: neighborhood,
+                    zipcode: zipcode,
+                    typestreet: typestreet,
+                    address: address,
+                    number: number,
+                    complement: complement,
+                    typeuser: typeuser,
+                    location: location,
+                    vip: vip,
+                    filladdress: filladress,
+                    dtbirth: dtbirth,
+                    gender: gender
+                }, function(resp) {
+                    if (resp != false) {
+                        alert("{/literal}{$smarty.config.Alert_person_inserted}{literal}");  
+                        closepop();
+                        $('#flexigrid2').flexReload();
+                    } else {
+                        alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                    }
+                });
+                
+            } 
+            
+            function cleanDepartment(){
+                var department = $("#department").val();
+                if(department == '{/literal}{$smarty.config.Default_department_value}{literal}'){
+                    $("#department").val('');
+                }
+            }
+            
+            function newStateForm(){
+                var country = $("#country").val()
+                if (country == 1 || country == 0 ) {
+                    alert("{/literal}{$smarty.config.Select_country_first}{literal}!");
+                    return false;
+                }
+                $("#newstate").slideDown();
+            }
+            function addState(){
+                var country = $("#country").val()
+                if (country == 1 || country == 0 ) {
+                    alert("{/literal}{$smarty.config.Select_country_first}{literal}!");
+                    return false;
+                }
+                var newstate = $("#newstatefield").val();
+                var abbr = $("#abbr").val();
+                $.post('person/insertState', {
+                    name : newstate,
+                    country : country,
+                    abbr: abbr
+                }, function(resposta) {
+                    if (resposta != false) {
+                        change(country, resposta);
+                        $("#newstate").slideUp();
+                    } else {
+                        alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                    }
+                });
+            }
+            
+            function newCityForm(){
+                var state = $("#state").val()
+                if (state == 1 || state == 0 ) {
+                    alert("{/literal}{$smarty.config.Select_state_first}{literal}!");
+                    return false;
+                }
+                $("#newcity").slideDown();
+            }
+            function addCity(){
+                var state = $("#state").val()
+                if (state == 1 || state == 0 ) {
+                    alert("{/literal}{$smarty.config.Select_state_first}{literal}!");
+                    return false;
+                }
+                var newcity = $("#newcityfield").val();
+                $.post('person/insertCity', {
+                    name : newcity,
+                    state : state
+                }, function(resposta) {
+                    if (resposta != false) {
+                        returncities(resposta);
+                        $("#newcity").slideUp();
+                    } else {
+                        alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                    }
+                });
+            }
+            
+            function sendJuridical(){
+                pathform = document.form1;
+                var namejuridical = $("#namejuridical").val();
+                var email = $("#email").val();
+                var department = $("#department").val();
+                var branch = $("#branch").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                var city = $("#city").val();
+                var priority = $("#priority").val();
+                var typeuser = $("#type_company").val();
+                var neighborhood = $("#neighborhood").val();
+                if (neighborhood == ''){
+                    neighborhood = 'Choose';
+                } 
+                if("{/literal}{$lang}{literal}" == 'en_US'){
+                    var clear = '999999999';
+                }
+                else{
+                    var clear = '99999999999999';
+                }
+                var zipcode = $("#zipcode").val();
+                var typestreet = $("#type_street").val();
+                var address = $("#address").val();
+                if (address == ''){
+                    address = 'Choose';
+                } 
+                var number = $("#number").val();
+                var complement = $("#complement").val();
+                if (department == 1 || department == 0 || department == '{/literal}{$smarty.config.Default_department_value}{literal}' ) {
+                    alert("{/literal}{$smarty.config.Alert_choose_department}{literal}!");
+                    return false;
+                }
+                if (namejuridical == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_name}{literal}");
+                    pathform.namejuridical.focus();
+                    return false;
+                }
+                
+                if (email == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_email}{literal}");
+                    pathform.email.focus();
+                    return false;
+                }
+                
+                if ($("#filladress").is(":checked")) {
+                    var filladress = 'Y';
+                } else {
+                    var filladress = 'N';
+                }
+                
+                $("#phone").unmask();
+                $("#phone").mask("9999999999?99");
+                var phone = $("#phone").val();
+                $("#fax").unmask();
+                $("#fax").mask("9999999999?99");                
+                var fax = $("#fax").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                $("#cnpj").unmask();
+                $("#cnpj").mask(clear);
+                var cnpj = $("#cnpj").val();
+                var observation = $("#obs").val();
+                var contact = $("#cperson").val();
+                $.post("{/literal}{$path}{literal}/admin/person/insertJuridical", {
+                    name: namejuridical,
+                    email: email,
+                    department: department,
+                    phone: phone,
+                    priority: priority,
+                    branch: branch,
+                    fax: fax,
+                    country: country,
+                    state: state,
+                    cnpj: cnpj,
+                    country: country,
+                    city: city,
+                    neighborhood: neighborhood,
+                    zipcode: zipcode,
+                    typestreet: typestreet,
+                    address: address,
+                    number: number,
+                    complement: complement,
+                    filladdress: filladress,
+                    typeuser: typeuser,
+                    observation: observation,
+                    contact: contact
+                }, function(resp) {
+                    if (resp != false) {
+                        alert("{/literal}{$smarty.config.Alert_person_inserted}{literal}");
+                        closepop();
+                        $("#flexigrid2").flexReload();
+                    } else {
+                        alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                    }
+                });
+            }
+        </script>
+        {/literal}
+    </head>
+    <div id='smallHeader' style="margin-top:0px;">
+        <span class="texto" style="margin-left: 10px;">::&nbsp;{$smarty.config.Person_insert} </span><a href="#" id='buttonClose' onclick="closepop(); return false;"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+    </div>
+    <body>
+        <form name="form1" id="form1" method="post" action="" onsubmit="checkLogin();">
+            <br />
+            <div class="titulo-tp2">
+                {$smarty.config.Category}:
+            </div>
+            <div class="campos" style="padding-top: 3px;">
+                <input name="category" id="juridical" value="juridical" type="radio"/>
+                <label for="juridical">{$smarty.config.juridical}</label>
+                <input name="category" id="natural" type="radio" value="natural"/>
+                <label for ="natural">{$smarty.config.natural}</label>
+            </div>
+
+            <br/>
+            <br style="clear: both;" />
+            <div style="margin-top: -5px;">
+                <div id="show-form" style="display:none; z-index:11;background-color:#eee;"></div>
+                <div id="show-form2"></div>
+            </div>
+            <br/>           
+        </form>
+
+
+
+
+        <div id="addlocation" style="display:none; background-color:#eee; position:absolute; left:20%; top:10%; width: 300px; height: 300px; border: 1px solid #000;">
+            <div id='smallHeader' style="margin-top:0px;">
+                <span style="margin-left: 10px; height:30px;  display:block;" class="texto" >::&nbsp;{$smarty.config.Location_insert}</span><a href="#" id='buttonClose' onclick="closelocation(); return false;"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+            </div>
+            <br/>
+            <form name="formLocation" id="formLocation" method="post" action="">
+                <div style="border: 1px solid #BBB; padding:5px;">
+                    <div id="titulo" class="texto" style="width:60px;  margin-top:0;">
+                        {$smarty.config.Location}:
+                    </div>
+                    <input type="text" id="name_location" class="campo" style="width:160px;" name="name_location"/>
+                    <input type="submit" name="submit" class="action orange" value="{$smarty.config.Record_btn}" onclick="sendLocation();"/>
+                    <div id="titulo" class="texto" style="margin-top:8px;">
+                        {$smarty.config.Locations_recorded}:
+                    </div>
+                    <br/>
+                    <div id="campos">
+                        <select name="location" class="campo" id="location" size="10" style="width:283px;">
+                            <option value="0">{$smarty.config.Select_location}</option>
+                            {html_options values=$locationids output=$locationvals selected = $level }
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </body>
+</html>

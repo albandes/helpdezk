@@ -1,0 +1,21 @@
+<HEADER>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+
+</HEADER>
+{literal}
+<script type="text/javascript">	
+	$(document).ready(function() {
+		AtualizaZabbix();
+	});
+	function AtualizaZabbix()
+	{
+		$('#inf_zabbix').empty().html("<img src=\"{/literal}{$url}{literal}\" style=\"width: 100%;\"/>") ;
+	}	
+	setInterval('AtualizaZabbix()', {/literal}{$refresh}{literal}); 
+</script>
+
+{/literal}	
+<div id="inf_zabbix"></div>
+
+

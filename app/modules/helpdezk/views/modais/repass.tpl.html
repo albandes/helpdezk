@@ -1,0 +1,314 @@
+{literal}
+<script type="text/javascript">
+    function grpRep(){
+        $("#colrepass").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("#colabilities").html("");
+        $("a.groptions").show();
+        var type = $('input:radio[name=typerep]:checked').val();
+        $.post('operator/grouprep', {type: type}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colrepass").html(response1);
+            }
+        });
+    }
+    function opRep(){ 
+        $("#colrepass").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("#colabilities").html("");
+        $("a.groptions").show();
+        var type = $('input:radio[name=typerep]:checked').val();
+        $.post('operator/operatorrep', {type: type}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colrepass").html(response1);
+            }
+        });
+    }
+    function partRep(){
+        $("#colrepass").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("a.groptions").css({'display': 'none'});
+        $("#colabilities").html("");
+        var type = $('input:radio[name=typerep]:checked').val();
+        $.post('operator/partrep', {type: type}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colrepass").html(response1);
+            }
+        });
+    }
+    
+    
+    $(document.getElementById('repassSend')).click(function(){
+    	var $self = $(this),
+			type = $('input:radio[name=typerep]:checked').val();
+				
+        if(typeof(type) =="undefined"){
+            alert("{/literal}{$smarty.config.Alert_type_repass}{literal}");
+            return false;
+        }
+        var view = $('input:radio[name=repoptns]:checked').val();
+        if(typeof(view) =="undefined"){
+            alert("{/literal}{$smarty.config.Alert_follow_repass}{literal}");
+            return false;
+        }
+        
+        idgrouptrack = 0;
+        
+        {/literal}
+        	{if $typeincharge == "P"}
+        {literal}
+	        if(view == "G"){
+	        	idgrouptrack = $("#nameGroup").val();
+	        }
+        {/literal}
+        	{/if}
+        {literal}
+        
+        var new_rep = $("#replist").val();
+        
+        if(!new_rep){
+            alert("{/literal}{$smarty.config.Alert_in_charge_repass}{literal}");
+            return false;
+        }
+        var code_request = $("#code_req").val(),
+        	incharge = $("#incharge").val();
+        //alert("type:"+type+" REP:"+rep+"CODE:"+code+"VIEW:"+view);
+        objDefault.buttonAction($self,'disabled');
+        $.post('operator/repassRequest', 
+        	{
+        		type: type, 
+        		repassto: new_rep,
+        		code_request: code_request, 
+        		view: view, 
+        		idgrouptrack: idgrouptrack,
+        		incharge: incharge
+        	}, 
+        function(response1) {
+            //alert("type:"+type+" REP:"+rep+"CODE:"+code+"VIEW:"+view);
+            if(response1 == false){
+                objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalRepass");
+            }
+            else{
+            	window.location = "operator";
+                //objDefault.notificationReload("success",aLang['Alert_sucess_repass'].replace (/\"/g, ""),"modalRepass");
+            }
+        }).complete(function(){
+        	objDefault.buttonAction($self,'enabled');
+        });
+    })
+    
+    
+    {/literal}
+    	{if $typeincharge == "P"}
+    {literal}
+	    $("#radiosTypeTrack").find("input[type=radio]").click(function(){
+			var $gope = $(document.getElementById("groupsOp")), 
+				val = this.value;
+			if(val == "G"){
+				$gope.removeClass("none");
+			}else{
+				$gope.addClass("none");
+			}
+		})
+	{/literal}
+    	{/if}
+    {literal}
+	
+    function grpdata(){
+        $("a.aboptions").css({'background-color': '#eee','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.aboptions:hover").css({'background-color': '#999999','color': '#000','border': '1px #000 solid','text-decoration': 'underline'});
+        $("a.groptions").css({'background-color': '#999999','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions:hover").css({'background-color': '#999999','color': '#000','border': '1px #000 solid','text-decoration': 'none'});
+        $("#colabilities").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        var type = $('input:radio[name=typerep]:checked').val();
+        var rep = $("#replist").val();
+        $.post('operator/grouplist', {type: type, rep: rep}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colabilities").html(response1);
+            }
+        });
+    }
+    function perdata(){
+        $("a.aboptions").css({'background-color': '#999999','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions").css({'background-color': '#eee','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions:hover").css({'background-color': '#eee','color': '#000','border': '1px #000 solid','text-decoration': 'none'});
+        $("#colabilities").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        var type = $('input:radio[name=typerep]:checked').val();
+        var rep = $("#replist").val();
+        $.post('operator/abilitieslist', {type: type, rep: rep}, function(response1){
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colabilities").html(response1);
+            }
+        });
+    }
+    function getAbilities(){
+        $("#colabilities").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("a.aboptions").css({'background-color': '#999999','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions").css({'background-color': '#eee','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        var type = $('input:radio[name=typerep]:checked').val();
+        var rep = $("#replist").val();
+        $.post('operator/abilitieslist', {type: type, rep: rep}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colabilities").html(response1);
+            }
+        });
+    }
+    
+    $("#btnFilter").click(function(){
+    	filter();	
+    })
+    
+    $("#txtFilter").keyup(function(e){
+    	if(e.keyCode == 13){
+    		filter();
+    	}
+    })
+    
+    function filter(){
+    	var $search = document.getElementById("txtFilter").value,
+    		valType = $("input[name=typerep]:checked").val();
+    	if($search.length){
+    		if(valType == "operator"){
+	    		$("#colrepass").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+		        $("#colabilities").html("");
+		        $("a.groptions").show();
+		        $.post('operator/operatorrep', {filter: $search}, function(response1) {
+		            if(response1 == false){
+		                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+		            }
+		            else{
+		                $("#colrepass").html(response1);
+		            }
+		        });
+    		}
+    		if(valType == "group"){
+    			$("#colrepass").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+		        $("#colabilities").html("");
+		        $("a.groptions").show();
+		        $.post('operator/grouprep', {filter: $search}, function(response1) {
+		            if(response1 == false){
+		                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+		            }
+		            else{
+		                $("#colrepass").html(response1);
+		            }
+		        });
+    		}
+    	}else{
+    		if(valType == "operator"){
+    			opRep();
+    		}
+    		if(valType == "group"){
+    			grpRep();
+    		}
+    	}
+    }
+</script>
+{/literal}
+
+<div id="modalRepass" class="window" style="width:670px;">
+    <form action="javascript:;" method="post">
+        <div class="modalHeader">
+			<h2>{$smarty.config.Repass_btn}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+			    
+			    <div id="repassRequest" class="p10">
+				    <div id="titlerep" class="texto">{$smarty.config.Repass_request_to}:</div>
+
+				    <div class="fl">
+				        <div class="mb10 radiorep">
+				            <label for="cmbGroup">
+				                <input type="radio" id="cmbGroup" name="typerep" value="group" onchange="grpRep();" checked="checked"/> 
+				                {$smarty.config.Group}
+				            </label>
+				            <label for="cmbOperator">
+				                <input type="radio" id="cmbOperator" value="operator" name="typerep" onchange="opRep();"/>
+				                {$smarty.config.Operator}
+				            </label>
+				            <label for="cmbPartner" class="none">
+				                <input type="radio" id="cmbPartner" value="partner" name="typerep" onchange="partRep();"/>
+				                {$smarty.config.Partner}
+				            </label>
+				        </div>
+						
+						<input type="text" name="txtFilter" id="txtFilter" style="width: 313px;" />
+						<button class="btn_cadastrar" id="btnFilter">{$smarty.config.Filter}</button>
+				        
+				        <div id="colrepass" style="width:350px; height:181px; margin-top:3px; border: 1px solid #000;">
+				            {$repgrouplist}
+				        </div>
+				    </div>
+				
+				    <div class="fl">
+				        <div id="repbuttons">
+				            <a href="#" class="aboptions" onclick="perdata(); return false;">Abilities</a>
+				            <a href="#" class="groptions" onclick="grpdata(); return false;">Groups</a>
+				        </div>
+				        <div id="colabilities" style="width:266px; height:202px; border: 1px solid #000;"></div>
+				    </div>
+				
+				    <div class="radioGroup" id="radiosTypeTrack">
+				        <label for="repoptns1">
+				            <input type="radio" name="repoptns" id="repoptns1" value="G" {$checkedassume} />{$smarty.config.Group_still_viewing} 
+				        </label>
+				        {if $typeincharge == "P"}
+							<ul class="lstForm clearfix mt10 {if !$checkedassume} none {/if}" id="groupsOp">
+								<li>
+									<ul>
+										<li class="info wAuto ml20">
+											<label for="nameGroup">{$smarty.config.Group}:</label>
+										</li>
+										<li class="field">
+											<select name="nameGroup" id="nameGroup" class="w200">
+												{html_options values=$grpids output=$grpvals}
+											</select>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						{/if}				        
+				        <label for="repoptns2">
+				            <input type="radio" value="P" name="repoptns" id="repoptns2"/>{$smarty.config.Still_viewing}
+				        </label>
+				        <label for="repoptns3">
+				            <input type="radio" value="N" name="repoptns" id="repoptns3"/>{$smarty.config.Stop_viewing}
+				        </label>
+				    </div>
+				
+				    <input type="hidden" name="code_req" id="code_req" value="{$request_code}" />    
+				</div>
+			    		
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">			
+						<input type='submit' name="submit" class="btnOrange tp1" value="{$smarty.config.Repass_btn}" id="repassSend" />			
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+
+

@@ -1,0 +1,296 @@
+{literal} 
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-maskedinput/jquery.maskedinput-1.2.1.pack.js"></script>
+<script>
+    $("#cpf").mask('{/literal}{$mask}{literal}');
+    $("#phone").mask('(99)9999-9999?99');    
+    $("#mobile").mask('(99)9999-9999?99');
+    $("#dtbirth").mask('99/99/9999');
+</script>
+{/literal}
+
+<div id="naturalform" >
+    <div class="titulo-tp2">
+        Login:
+    </div>
+    <div class="campos">
+        <input name="login" id="login" type="text" class="campo" size="20" maxlength="40" onchange="checkLogin();"/>
+    </div>
+    <div id="loginmessage" name="loginmessage" style="display: none;">
+        <span class="text">{$smarty.config.Login_exists}</span>
+            <img src="{$path}/app/themes/{$theme}/images/warning.png" height="15" width="15"/>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Password}:
+    </div>
+    <div class="campos">
+        <input name="password" id="password" type="password" class="campo" size="20" maxlength="20"/>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Confirm_password}:
+    </div>
+    <div class="campos">
+        <input name="cpassword" id="cpassword" type="password" class="campo" size="20" maxlength="20"/>
+    </div>
+	<!-- -->
+    <div class="campos">
+        <select name="company" class="campo" id="company" style="width:100px;" onchange="departments();">
+            <option value="0">{$smarty.config.Select_company}</option>
+            {html_options values=$juridicalids output=$juridicalvals selected = $juridical }
+        </select>
+    </div>
+	<!-- -->
+    <div class="titulo-tp2">
+        {$smarty.config.Name}:
+    </div>
+    <div class="campos">
+        <input name="namenatural" id="namenatural" type="text" class="campo" style="width:255px;" maxlength="150"/>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.cpf}:
+    </div>
+    <div class="campos">
+        <input name="cpf" id="cpf" type="text" class="campo" size="15" maxlength="14"/>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Gender}:
+    </div>
+    <div class="campos">
+        <input name="gender" id="male" type="radio" value="M"/><label for="male"> {$smarty.config.Male}</label>
+        <input name="gender" id="female" type="radio" value="F"/><label for="female"> {$smarty.config.Female}</label>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Birth_date}:
+    </div>
+    <div class="campos">
+        <input name="dtbirth" id="dtbirth" type="text" class="campo" size="10" maxlength="10"/>
+    </div>
+
+    <div class="titulo-tp2">
+        E-mail:
+    </div>
+    <div class="campos">
+        <input name="email" id="email" type="text" class="campo" style="width:255px;" maxlength="150" />
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Company}:
+    </div>
+    <div class="campos">
+        <select name="company" class="campo" id="company" style="width:150px;" onchange="departments();">
+            <option value="0">{$smarty.config.Select_company}</option>
+            {html_options values=$juridicalids output=$juridicalvals selected = $juridical }
+        </select>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Department}:
+    </div>
+    <div class="campos">
+        <select class="campo" name="department" id="department" style="width:150px;">
+            <option value="0">{$smarty.config.Select_department}</option>
+            {html_options values=$departmentids output=$departmentvals selected = $department }
+        </select>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Phone}:
+    </div>
+    <div class="campos">
+        <input name="phone" id="phone" type="text" class="campo" size="15" maxlength="15" />
+    </div>
+    <div class="titulo-tp2 no-clr" style="width:70px;">
+        {$smarty.config.Branch}:
+    </div>
+    <div class="campos">
+        <input name="branch" id="branch" type="text" class="campo" style="width: 50px" maxlength="5" />
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Mobile_phone}:
+    </div>
+    <div class="campos">
+        <input name="mobile" id="mobile" type="text" class="campo" size="15" maxlength="15" />
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.VIP_user}:
+    </div>
+    <div class="campos" style="padding-top: 4px;">
+        <input name="vip" id="vip" type="checkbox"/><label for="vip">{$smarty.config.Yes}</label>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Acess_level}:
+    </div>
+    <div class="campos">
+        <select name="type_user" class="campo" id="type_user" style="width:150px;" onChange="carregaFormLevel(this);">
+            <option value="0">{$smarty.config.Select_acess_level}</option>
+            {html_options values=$levelids output=$levelvals selected = $level }
+        </select>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Fill_adress}
+    </div>
+    <div class="campos">
+        <input name="filladress" id="filladress" type="checkbox" onChange="showFormAdress()"  style="margin-top: 4px;"/><label for="filladress" style="line-height:-4px;">{$smarty.config.Fill}</label>
+        
+    </div>
+
+    <br style="clear: both; "/>
+    <div style="margin-top: -3px; clear:both;">
+        <div id="formAdress" style=" display:none; ">
+            <div class="titulo-tp2">
+                {$smarty.config.Country}:
+            </div>
+            <div class="campos">
+                <select name="country" class="campo" id="country" style="width:300px;"  onchange="change();">
+                    {html_options values=$countryids output=$countryvals selected = 1 }
+                </select>
+            </div>
+            <div class="titulo-tp2">
+                {$smarty.config.State}:
+            </div>
+            <div class="campos">
+                <select name="state" class="campo" id="state" style="width:300px;" onchange="returncities();">
+                    <option value="1">{$smarty.config.Select_country_first} </option>
+                </select>
+            </div>
+
+            <div>
+                <div class="fl">
+                    <img src="{$path}/app/themes/{$theme}/images/ico_add_category.png" width="18" height="18" border="0" style="cursor: pointer; padding-top: 4px; margin-left: 2px;" onclick="newStateForm(); return false;"/>
+                </div>
+                
+                <div id="newstate" style="display: none;" class="fl clr">
+                    <div class="titulo"></div>
+                    <div class="campos">
+                        <div class="texto">
+                            {$smarty.config.State}:
+                            <input name="newstatefield" id="newstatefield" type="text" class="campo" size="18" maxlength="40" />
+                        </div>
+                    </div>
+                    <div class="titulo"></div>
+                    <div class="campos">
+                        <div class="texto">
+                            {$smarty.config.Abbreviation}:
+                            <input name="abbr" id="abbr" type="text" class="campo" size="2" maxlength="3" />
+                            <input type="button" class="btn_cadastrar" onclick="addState()" value="{$smarty.config.Ok_btn}" />
+                            <input type="button" class="btn_cadastrar" onclick="$('#newstate').fadeOut();" value="{$smarty.config.Cancel_btn}"/>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="titulo-tp2">
+                    {$smarty.config.City}:
+                </div>
+                <div class="campos">
+                    <select name="city" class="campo" id="city" style="width:300px;" onchange="returnneighborhood();">
+                        <option value="1">{$smarty.config.Select_state_first} </option>
+                    </select>
+                </div>
+                <div>
+                    <div class="fl">
+                        <img src="{$path}/app/themes/{$theme}/images/ico_add_category.png" width="18" height="18" border="0" style="cursor: pointer; padding-top: 4px; margin-left: 2px;" onclick="newCityForm(); return false;"/>
+                    </div>
+                    
+                    <div id="newcity" style="display: none;" class="fl clr">
+                        <div class="titulo"></div>
+                        <div class="campos" >
+                            <div class="texto">
+                                {$smarty.config.City}:
+                                <input name="newcityfield" id="newcityfield" type="text" class="campo" size="18" maxlength="40" />
+                                <input type="button" class="btn_cadastrar" onclick="addCity()" value="{$smarty.config.Ok_btn}" />
+                                <input type="button" class="btn_cadastrar" onclick="$('#newcity').fadeOut();" value="{$smarty.config.Cancel_btn}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="titulo-tp2">
+                        {$smarty.config.Neighborhood}:
+                    </div>
+                    <div class="campos">
+                        <input name="neighborhood" id="neighborhood" type="text" style="width: 100px;" maxlength="40" onfocus="autoneighborhood();"/>
+                    </div>
+                    <div class="titulo-tp2 no-clr" style="width: 70px;">
+                        {$smarty.config.Zipcode}:
+                    </div>
+                    <div class="campos">
+                        <input name="zipcode" id="zipcode" type="text" style="width: 80px;" maxlength="12"/>
+                    </div>
+                    <div class="titulo-tp2">
+                        {$smarty.config.Type_adress}:
+                    </div>
+                    <div class="campos">
+                        <select name="type_street" class="campo" id="type_street" style="width:70px;">
+                            {html_options values=$typestreetids output=$typestreetvals selected = $typestreet }
+                        </select>
+                    </div>
+                    <div class="titulo-tp2 no-clr" style="width: 70px;">
+                        {$smarty.config.Adress}:
+                    </div>
+                    <div class="campos ui-widget">
+                        <input name="address" id="address" type="text" class="campo" size="30" maxlength="200" onfocus="autostreet();"/>
+                    </div>
+                    <div class="titulo-tp2">
+                        {$smarty.config.Number}:
+                    </div>
+                    <div class="campos">
+                        <input name="number" id="number" type="text" style="width: 50px;" maxlength="40"/>
+                    </div>
+                    <div class="titulo-tp2 no-clr">
+                        {$smarty.config.Complement}:
+                    </div>
+                    <div class="campos">
+                        <input name="complement" id="complement" type="text" style="width: 80px;" maxlength="40"/>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div id="acess_level_user" style="display:none; ">
+                <div class="titulo-tp2">
+                    {$smarty.config.Location}:
+                </div>
+                <div class="campos">
+                    <select name="location" class="campo" id="location" style="width:150px;">
+                        <option value="0">{$smarty.config.Select_location}</option>
+                        {html_options values=$locationids output=$locationvals selected = $level }
+                    </select>
+                </div>
+                <div class="fl">
+                    <img src="{$path}/app/themes/{$theme}/images/ico_add_category.png" width="18" height="18" border="0" style="cursor: pointer; padding-top: 4px; margin-left: 2px;" onclick="addlocation(); return false;"/>
+                </div>
+            </div>
+
+            <div id="acess_level_operator" style="display:none; ">
+                <div class="titulo-tp2">
+                    {$smarty.config.Time_value}:
+                </div>
+                <div class="campos">
+                    <input name="time_value" id="time_value" type="text" class="campo" size="8" maxlength="40"/>
+                </div>
+                <div class="titulo-tp2">
+                    {$smarty.config.Overtime}:
+                </div>
+                <div class="campos">
+                    <input name="overtime" id="overtime" type="text" class="campo" size="8" maxlength="40"/>
+                </div>
+            </div>
+        </div>
+        <div id="buttonCadastrar">
+            <input type='submit' class="btn_cadastrar action orange" name="submit" onclick="sendNatural(); return false;" value="{$smarty.config.Record_btn}" />
+        </div>
+        <input type="hidden" id="error" name="error" value="NO">
+        <!--- esta sessao sera usada no futuro pros campos adicionais de cadastro de usuario - Deivisson 03/06/12
+        <div id="additional_fields" style="display:none; width:300px; height:380px;  top: 60px; left:400px; position:absolute; border:1px solid #AAA;">
+               <div id="titulo" class="texto_12" >
+                       {$smarty.config.Additional_fields}:
+               </div>
+               <br style="clear: both;"/>
+              
+               {section name=additional loop=$additionalfields}
+               <div id="titulo" class="texto" style="background-color:#CFCFCF;">
+                       {$additionalfields[additional]}:
+               </div>
+               <div id="campos" style="background-color:#CFCFCF;">
+                       <input name="additional{$cont}" id="additional{$cont}" type="text" class="campo" size="15" maxlength="40"/>
+               </div>
+               <br style="clear: both;"/>
+               {/section}
+               
+        </div>
+        --->

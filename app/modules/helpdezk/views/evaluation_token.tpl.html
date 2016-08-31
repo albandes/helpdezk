@@ -1,0 +1,190 @@
+<!--[if lt IE 7 ]> <html class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html> <!--<![endif]-->
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" href="{$path}/app/themes/{$theme}/loginv2.css" />
+		<link rel="stylesheet" type="text/css" href="{$path}/includes/css/structure.css" />
+             
+		<title>{$pagetitle}</title>
+		{literal}
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+		
+		<script src="{/literal}{$path}{literal}/includes/classes/ajax/flex_lang.js"></script>
+		<script>
+			var default_lang = "{/literal}{$lang_default}{literal}",
+				path = "{/literal}{$path}{literal}";
+			var hdk_url = "{/literal}{$hdk_url}{literal}";	
+		
+			$(document).ready(function() {
+				$.post('home/check_release', function(data) {
+					if(data){
+						$.get('../version.txt', 
+							function(localversion) {
+								$.getJSON("http://helpdezk.org/releases/checkversion.php?jsoncallback=?",
+									{ 
+										client_version: localversion,
+										client_server_ip: '{/literal}{php} echo $_SERVER["SERVER_ADDR"] ;{/php}{literal}',
+										client_server_name: '{/literal}{php} echo $_SERVER["SERVER_NAME"] ;{/php}{literal}',
+										client_hdk_url: hdk_url
+									},
+									function(json)
+									{
+										if(json['return'] != 'updated') {
+										   $.post('home/current_release', { release: json['return'] } );
+										}	                                               
+									}
+								);
+						});
+					}
+				});
+				
+				
+				$("input[name=approve]").click(function(){
+            		var value = this.value,
+            			$approveobs = $(document.getElementById("approveobs")),
+            			$evaluation = $(document.getElementById("evaluation"));
+            		if(value == "A"){
+            			$approveobs.hide();
+            			$evaluation.show();
+            		}else if(value == "N"){
+            			$approveobs.css('display','block');
+            			$evaluation.hide();
+            		}else if(value == "O"){
+            			$approveobs.css('display','block');
+            			$evaluation.show();
+            		}
+            	});
+            	
+            	
+            	$(document.getElementById('formEvaluate')).submit(function(){
+					var $btn = $(document.getElementById("approve")); 
+						$.ajax({
+						type: "POST",
+						url: "{/literal}{$path}{literal}/helpdezk/evaluate/send",
+						data: $(this).serialize(),
+						success: function(ret) {
+							var $boxEvaluate = $(document.getElementById("boxEvaluate"));
+							$boxEvaluate.empty();
+							$boxEvaluate.append("<p>"+aLang['Evaluation_token_msg'].replace (/\"/g, "")+"</p>");							
+						},
+						beforeSend: function(){
+							$btn.attr('disabled','disabled');
+						},
+						complete: function(){
+							$btn.attr('disabled','');
+						}
+					});	
+					return false;
+				});
+            	
+			})
+			
+		</script>
+		
+		
+		<style>
+			.lstEval li{
+				float: left;
+				margin-right: 15px;
+			}
+			
+		</style>
+		
+		{/literal}
+
+	</head>
+	<body>
+        
+        <div id="header">
+        	<div class="wrapper">
+        		<div class="box-01">
+				     <div class="box-02">
+				          <div class="box-03">
+				               <img src="{$path}/app/uploads/logos/{$loginlogo}" />
+				          </div>
+				     </div>
+				</div>
+        	</div>
+        </div>
+        
+        <div class="wrapper content">
+        	
+        	<div class="boxAvisos effect2 w100p">
+        		<div class="title">
+        			{$smarty.config.Evaluation2}
+        		</div>
+        		<div id="boxEvaluate">
+	        		{if $error}
+	        			<p>{$error}</p>
+	        		{else}
+	        			
+	        		
+	        		<div class="fl w450">
+	        			
+	        			<form name="formEvaluate" id="formEvaluate" method="post">
+				            <p><strong>{$smarty.config.Approve_text}</strong></p>
+				            <div class="mtb10">
+			                    <label>
+			                        <input type="radio" name="approve" value="A" checked="checked" /> 
+			                		{$smarty.config.Approve_yes} 
+			                    </label>
+			                    <label>
+			                		<input type="radio" name="approve" value="N" /> 
+			                		{$smarty.config.Approve_no} 
+			                    </label>
+			                    <label>
+			                        <input type="radio" name="approve" value="O" /> 
+			                		{$smarty.config.Approve_obs}
+			                    </label>
+		                    </div>
+							<textarea id="approveobs" name="approveobs" rows="6" cols="55" class="none mtb10"></textarea>
+		                
+			                <div id="evaluation">
+			                    {$evaluationform}
+			                </div>
+		                	
+		                	<input type="hidden" name="code_request" value="{$code_request}"/>
+		                	<input type="hidden" name="numQuest" value="{$numQuest}"/>
+		                	<input type="hidden" name="token" value="{$token}"/>
+		                	<input type="submit" name="approve" id="approve" class="btnOrange tp1 ml0" value="{$smarty.config.Approve_btn}"/>
+		                	
+		                </form>
+	        		
+	        		</div>
+	        		<div class="fl ml20 w500">
+	        			<p><strong>{$smarty.config.Request_code}:</strong> {$code_request}</p>
+	        			<p><strong>{$smarty.config.Operator}:</strong> {$operator}</p>        			
+	        			<p><strong>{$smarty.config.Subject}:</strong> {$subject}</p>        			 
+	        		</div>
+	        		{/if}
+        		
+        		</div>
+        	</div>
+        	
+        </div>
+        
+        <div id="footer">
+        	<div class="wrapper">
+        		<div class="box-01 site">
+				     <div class="box-02">
+				          <div class="box-03">
+				               <a class="lnkHD" href="{$urlsite}" target="_blank">{$site}</a>
+				          </div>
+				     </div>
+				</div>
+				
+				<div class="box-01 version">
+				     <div class="box-02">
+				          <div class="box-03">
+				               <span class="version">{$version}</span>
+				          </div>
+				     </div>
+				</div>
+				
+        	</div>
+        </div>
+    </body>
+</html>

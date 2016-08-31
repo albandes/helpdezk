@@ -1,0 +1,48 @@
+{literal}
+<link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/style.css" />
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" language="javascript">
+	function send() {
+		var name = $("#name6").val();
+                var id = $("#id").val();
+		
+
+		if (name == '') {
+			alert('{/literal}{$smarty.config.Alert_empty_type1}{literal}');
+			return false;
+		}
+
+		$.post('{/literal}{$path}{literal}/admin/services/editarea', {
+			name : name,
+                        id:id			
+		}, function(resp) {
+
+			if (resp != false) {
+				alert('{/literal}{$smarty.config.Edit_sucess}{literal}');
+				window.opener.$("#content").load('services');
+				self.close();
+			} else {
+				alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+			}
+		});
+	}
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">::&nbsp;{$smarty.config.Area_edit} </span>
+</div>
+<form name="form6" id="form5" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Name}:
+	</div>
+	<div class="campos">
+		<input name="name6" id="name6" value ="{$name}" type="text" size="40" maxlength="150" />
+	</div>
+        <input id="id" name="id" value="{$id}" type="hidden" />
+	<div id="buttonCadastrar">
+		<input type='submit' name="submit"  class="btn_cadastrar" onclick="send(); return false;"  value="{$smarty.config.Edit_btn}"/>
+	</div>
+	<input type="hidden" value="{$id}" name ="idserv" id="idserv"/>
+</form>

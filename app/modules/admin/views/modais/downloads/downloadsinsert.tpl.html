@@ -1,0 +1,137 @@
+<form action="javascript:;" method="post" id="formDownloadInsert">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Downloads_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="title">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field">
+							<input name="title" id="title" type="text" class="campo" size="48" maxlength="25" /> (max 25)
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="date">{$smarty.config.Date}:</label>
+						</li>
+						<li class="field">
+							<input name="date" id="date" type="text" class="w70 mask" data-format="99/99/9999" maxlength="10" />
+							<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" align="absmiddle" class="calendar" id="f_downloads_date" title="Escolha a Data"/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="categories">{$smarty.config.Category}:</label>
+						</li>
+						<li class="field">
+							<select name="categories" id="categories" class="mr5">
+					            <option value="">{$smarty.config.Select_category}</option>
+					            {html_options values=$categoryids output=$categoryvals}
+					        </select>
+						</li>
+						<li>
+							<a href="#modalDownloadInsertCategory" class="openModal lnk-tp1">{$smarty.config.Add_category}</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="version">{$smarty.config.Version}:</label>
+						</li>
+						<li class="field">
+							<input name="version" id="version" type="text" class="campo" size="7" maxlength="7" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="shortdesc">{$smarty.config.Short_description}:</label>
+						</li>
+						<li class="field">
+							<textarea class="text" cols="53" rows="2" id="shortdesc" class="campo" style="width:399px; height:80px;" name="shortdesc"></textarea>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="downdescription">{$smarty.config.Install_instructions}:</label>
+						</li>
+						<li class="field">
+							<textarea id="downdescription" class="ckeditor" data-width="400" data-height="120" data-toolbar="SOLICITA" name="downdescription"  wrap="virtual"></textarea>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="computer">Local Arquivo:</label>
+						</li>
+						<li class="field mr15">
+							<input type="radio" name="local" id="computer" value="C" /> <label for="computer">Computador</label>
+						</li>
+						<li class="field">
+							<input type="radio" name="local" id="url" value="U"/> <label for="url">URL</label>
+						</li>						
+					</ul>
+				</li>
+				
+				<li class="nivel1 none fileComputer">
+					<ul>
+						<li class="info wAuto">
+							<label for="ianexo">{$smarty.config.File}:</label>
+						</li>
+						<li class="field">
+							<iframe src="downloads/upload/id/null" name="ianexo" id="ianexo" height="21" frameborder="0" scrolling="no"></iframe>
+						</li>
+					</ul>
+				</li>
+				
+				<li class="nivel1 none fileURL">
+					<ul>
+						<li class="info wAuto">
+							<label for="link">URL:</label>
+						</li>
+						<li class="field">
+							<input type="text" name="url" id="link" />
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="restricted">{$smarty.config.Restricted}:</label>
+						</li>
+						<li class="field">
+							<input name="restricted" id="restricted" type="checkbox" value="Y"/> [?]
+						</li>
+					</ul>
+				</li>
+				
+			</ul>
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnEnviarDownloadsInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

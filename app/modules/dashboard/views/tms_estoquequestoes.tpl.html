@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript">	
+		{literal}
+			$(document).ready(function() {
+				AtualizaEstoqueQuestoes() ;
+			});
+			
+			function AtualizaEstoqueQuestoes()
+			{
+				var options = {
+					lines: { show: true , fill: true },
+					points: { show: false },
+					 xaxis: {
+							mode: "time",
+							timeformat: "%d",
+							minTickSize: [1, "day"],
+							twelveHourClock: true,
+							ticks: 20
+							},
+					grid: { borderWidth: 1	,hoverable: false, clickable: false },
+					legend: {
+							show: true,
+							noColumns: 1,
+							position: 'nw', //"ne" or "nw" or "se" or "sw"
+							backgroundOpacity: 0.3
+							},
+					colors: ["#afd8f8", "#cb4b4b", "#edc240","#4da74d", "#9440ed"]
+				};		
+								
+				var myDataSets;
+				//alert('a');
+					
+				$.getJSON("{/literal}{$path}{literal}/dashboard/tms_estoquequestoes/json/idwidget/{/literal}{$idwidget}{literal}", function (data) {
+					myDataSets = data;
+					$.plot("#estoque_questoes", myDataSets, options);
+				});	 			
+			}
+
+			setInterval('AtualizaEstoqueQuestoes()', 3600000);
+				
+	
+		{/literal}
+
+		</script>
+    </head>
+    <body>
+			
+		<div id="estoque_questoes" style="width:100%;height:200px;font-size:small;"></div>
+	</body>
+</html>

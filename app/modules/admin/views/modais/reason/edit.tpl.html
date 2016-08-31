@@ -1,0 +1,56 @@
+<form action="javascript:;" method="post" id="formReasonEdit" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Reason_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="reasonEdit">{$smarty.config.Reason}:</label>
+						</li>
+						<li class="field ">
+							<input name="reason" id="reasonEdit" type="text" class="w240"maxlength="120" value="{$reason}" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="serviceEdit">{$smarty.config.Service}:</label>
+						</li>
+						<li class="field ">
+							<select class="w240" name="service" id="serviceEdit">
+								<option value="">{$smarty.config.Select}</option>
+								{html_options values=$typeids output=$typevals selected = $type}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="availableEdit">{$smarty.config.Available}:</label>
+						</li>
+						<li class="field ">
+							<input name="available" type="checkbox" id="availableEdit" {if $available == "A"} checked="checked" {/if} value="A"> 
+							<label for="availableEdit">{$smarty.config.Available_text}</label>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" id="id" name="id" value="{$id}"/>
+					<input type='submit' name="submit" id="btnSendReasonEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

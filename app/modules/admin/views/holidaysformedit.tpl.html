@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>{$pagetitle}</title>
+        {literal}
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-maskedinput/jquery.maskedinput-1.2.1.pack.js"></script> 
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/js/jscal2.js"></script> 
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/js/lang/{/literal}{$lang}{literal}.js"></script>
+        <link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/style.css" />
+        <link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/jscal2.css" /> 
+        <link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/border-radius.css" /> 
+        <link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/steel/steel.css" /> 
+        <link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/reduce-spacing.css" />
+        <script type="text/javascript" language="javascript">
+
+            function send() {
+                var date = $("#holiday_date").val();
+                var description = $("#holiday_description").val();
+                var id = $("#id").val();
+                pathform = document.form1;
+                if( date=='' || date < 10){
+                    alert("{/literal}{$smarty.config.Alert_empty_date}{literal}");
+                    pathform.holiday_date.focus();
+                    return false;
+                }
+                if(description==''){
+                    alert("{/literal}{$smarty.config.Alert_empty_description}{literal}");
+                    pathform.holiday_description.focus();
+                    return false;
+                }
+		
+                $.post('{/literal}{$path}{literal}/admin/holidays/edit', {date: date, description: description, id: id}, function(resp) {
+                
+                    if (resp != false) {
+                        alert("{/literal}{$smarty.config.Edit_sucess}{literal}");
+                        window.opener.$("#content").load('holidays');
+                        self.close();
+                    } 
+                    else {
+                        alert("{/literal}{$smarty.config.Edit_failure}{literal}");   
+                    }
+                });
+            }
+        </script>
+        {/literal}
+    </head>
+    <body>
+        <!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+        <div id='smallHeader' style="margin-top:0px;">
+            <span class="texto" style="margin-top:16px; margin-left: 10px;">:: {$smarty.config.Holiday_edit} </span>
+        </div>    
+        <form name="form1" id="form1" method="post" action="">
+            <br />
+            <div class="titulo">{$smarty.config.Holiday_des}:</div>
+            <div class="campos">
+                <input name="holiday_description" id="holiday_description" type="text" value ="{$description}" size="40" maxlength="150" onclick="close();"/>
+            </div>
+            <br style="clear: both;"/>
+            <div class="titulo"> {$smarty.config.Date}: </div>
+            <div class="campos">
+                <input name="holiday_date" id="holiday_date" value="{$date}" type="text" tabindex="13" size="10" maxlength="10" /> 
+                <img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" align="absmiddle" id="f_holiday_date" style="cursor: pointer; " title="Escolha a Data"/> 
+                {literal}
+                <script>
+                    var lang = '{/literal}{$lang}{literal}';
+                    if(lang == 'pt_BR'){
+                        var format = '%d/%m/%Y';
+                    }
+                    else{
+                        var format = '%m/%d/%Y';
+                    }                        
+                        
+                    Calendar.setup({
+                        inputField : "holiday_date",
+                        trigger    : "f_holiday_date",
+                        onSelect   : function() { this.hide() },
+                        showTime   : 12,
+                        align      : "B3/2", 
+                        dateFormat : format,
+                        showTime   : false,
+                        fdow	   : 0,
+                        bottomBar  : false
+                    });
+                </script>
+                {/literal}
+            </div>
+            <input type="hidden" value="{$id}" name ="id" id="id"/>
+            <div id="buttonCadastrar"><input type='submit' name="submit"  class="btn_cadastrar" onclick="send(); return false;" value="{$smarty.config.Edit_btn}" /></div>
+            <br/>
+        </form>
+    </body>
+</html>

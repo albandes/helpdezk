@@ -1,0 +1,118 @@
+{literal}
+<link rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/css3-buttons.css" type="text/css"  media="screen" />
+<!-- Using TipTip jQuery plugin for the tooltips -->
+<link rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/tiptip.css" type="text/css"  media="screen"/>
+<script src="{/literal}{$path}{literal}/includes/classes/tiptip/jquery.tiptip.js"></script>
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+
+<style>
+	#titulo {
+		width: 45px;
+		float: left;
+		color: #0066cc;
+		margin-left: 10px;
+		margin-top: 5px;
+	}
+	#titulo1 {
+		width: 300px;
+		font-size: 16px;
+		color: #0066cc;
+		margin-left: 13%;
+		margin-top: 5px;
+	}
+	#campos {
+		float: left;
+		margin-left: 2px;
+		margin-top: 5px;
+	}
+	#buttonCadastrar {
+		width: 100%;
+		margin-left: 15%;
+	}
+	#tab {
+		margin-left: 10%;
+	}
+</style>
+
+<script type="text/javascript" language="javascript">
+	/** Opens the window that shows registered people calling the action example/people, when user clicks show records button.
+	 * @name show
+	 */
+	function show() {
+		window.open('{/literal}{$path}{literal}/admin/example/people', '', 'height = 350 width = 300');
+	}
+
+	/** validates the form's fields, sends data to be inserted by jQuery's post to example/insert, when user clicks insert
+	 *  @name check
+	 */
+	function check() {
+		var description = $("#name").val();
+		var age = $("#age").val();
+		pathform = document.form1;
+		if (description == '') {
+			alert('Please, enter a name');
+			pathform.name.focus();
+			return false;
+		}
+		if (age == '') {
+			alert('Please, enter an age');
+			pathform.name.focus();
+			return false;
+		}
+
+		$.post('{/literal}{$path}{literal}/admin/example/insert', {
+			name : description,
+			age : age
+		}, function(response) {
+
+			if (response != false) {
+				/**
+				 * alerts the success message from the action example/insert
+				 */
+				alert(response);
+			} else {
+				/**
+				 * if return is false, shows an error message.
+				 */
+				alert("Can't be inserted");
+			}
+		});
+	}
+
+</script>
+{/literal}
+<div>
+	<br />
+	<div id="titulo1" class="texto">
+		People Insert:
+	</div>
+	<form name="form1" id="form1" method="post" action="">
+		<br />
+		<div id="titulo" class="texto">
+			Name:
+		</div>
+		<div id="campos">
+			<input name="name" id="name" type="text" class="campo" size="40" maxlength="150" />
+		</div>
+		<br style="clear: both;" />
+		<div id="titulo" class="texto">
+			Age:
+		</div>
+		<div id="campos">
+			<input name="age" id="age" type="text" class="campo" size="3" maxlength="3" />
+		</div>
+		<br />
+		<br/>
+		<div id="buttonCadastrar">
+			<input type='submit' class="btn_cadastrar" name="submit" value="Insert" onclick="check(); return false;" />
+		</div>
+		<br/>
+	</form>
+</div>
+<div id="tab">
+	<button onclick="show(); return false;" class="blue action" >
+		<span class="label">Show Records</span>
+	</button>
+</div>
+</body>
+</html>

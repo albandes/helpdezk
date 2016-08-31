@@ -1,0 +1,64 @@
+{literal}
+
+<script>
+	$(function(){		
+		$("#groupsRepass").change(function(){
+			var $self = $(this),
+				val = this.value,
+				$lstCompany = $(document.getElementById('lstCompany'));
+			$lstCompany.empty();
+	        if(val == 0){
+				objModal.refreshPosition("modalRepassGroups");
+			}else{
+				$lstCompany.append("<div class='loader block'><!-- --></div>");
+		        $lstCompany.load("groups/getCompaniesRepass/idgroup/"+val, function(){
+		        	objModal.refreshPosition("modalRepassGroups");
+		        });
+			}
+		})
+		
+		
+	})
+	
+</script>
+
+{/literal}
+<form action="javascript:;" method="post" id="formRepassGroups" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Set_repass_groups}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info w150">
+							<label for="service">{$smarty.config.Group}:</label>
+						</li>
+						<li class="field">
+							<select name='groupsRepass' id='groupsRepass' class='w200'>
+								<option value="0">{$smarty.config.Select}</option>
+			            		{html_options values=$groupsids output=$groupsvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			
+			<div id="lstCompany" style="width: 100%; max-height: 300px; overflow: auto;">
+				
+			</div>
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnSendGroupsRepass" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

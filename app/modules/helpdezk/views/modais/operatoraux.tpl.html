@@ -1,0 +1,111 @@
+{literal}
+	<script>
+		// Combo Operator
+		var $browser = $(document.getElementById("browser")).find("tbody"),
+			$lstViewOpe = $('.lstOpeAux');
+		$('#ComboOpeAux').change(function() {
+			var $self = $(this);
+            $.post("{/literal}{$path}{literal}/helpdezk/operator/jsonOperatorAux",
+                {
+					code_request: $('input#request').val(),
+					id_person: $(this).val()
+				},
+                function(resul){
+					 $browser.empty();
+					 $lstViewOpe.empty();
+					 $.each(resul, function(i,result){
+						$browser.append("<tr><td>"+result.name+"</td><td><a href='javascript:;' class='btnDelete-tp1' onclick='delOpeAux("+result.idperson+");'>Delete</a></td></tr>");
+						$lstViewOpe.append("<li>"+result.name+"</li>");
+		            });
+                },"json"
+            ).complete(function(){
+            	$self.find(":checked").remove();
+            })
+			
+		});
+		function reloadComboOpeAux() {
+            $("select[name=ComboOpeAux]").html('<option value="0" >{/literal}{$smarty.config.Loading}{literal}</option>');
+            $.post("{/literal}{$path}{literal}/helpdezk/operator/comboOpeAux", 
+	            {code_request:$('input#request').val()},
+	            function(valor){
+					sHtml = '<option value="0" >{/literal}{$smarty.config.Select_operator}{literal}</option>'+valor ;
+	                $("select[name=ComboOpeAux]").html(sHtml);
+	            }
+	        )
+        }
+		function delOpeAux(id) {
+            $.post("{/literal}{$path}{literal}/helpdezk/operator/deleteOpeAux", 
+	            {
+					code_request: $('input#request').val(),
+					id_person: id 
+				},
+	            function(valor){
+					reloadLstOpeAux();
+					reloadComboOpeAux();
+	            }
+	        )
+		}
+		function reloadLstOpeAux() 
+		{
+            $.post("{/literal}{$path}{literal}/helpdezk/operator/lstOperatorAux",
+                { code_request: $('input#request').val() },
+                function(resul){
+					 $browser.empty();
+					 $lstViewOpe.empty();
+					 $.each(resul, function(i,result){
+						$browser.append("<tr><td>"+result.name+"</td><td><a href='javascript:;' class='btnDelete-tp1' onclick='delOpeAux("+result.idperson+");'>Delete</a></td></tr>");
+		            	$lstViewOpe.append("<li>"+result.name+"</li>");
+		            });
+                },"json"
+            )
+		}
+		
+	</script> 
+{/literal}
+<form action="javascript:;" method="post" id="formOpeAux" name="form1">
+	<!-- Value of code_request -->
+	<input type="hidden" id="request" name="zyx" value="{$code_request}" />
+	<!-- --------------------- -->
+    <div class="modalHeader">
+		<h2>{$smarty.config.auxiliary_operator_include}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="ComboOpeAux">{$smarty.config.Operator}:</label>
+						</li>
+						<li class="field ">
+							<select name="ComboOpeAux" id="ComboOpeAux" class="w240">
+								<option value="0">{$smarty.config.Select_operator}</option>
+								{html_options values=$operatorids output=$operatorsvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			
+			<div id="lstAreas" class="mb15" style="width: 100%; max-height: 300px; overflow: auto;">
+				<table id='browser' class='tab-services pop' width='100%' border='0' cellpadding='0' cellspacing='0'>
+					<colgroup>
+						<col width='90%'/>
+						<col width='5%'/>				
+					</colgroup>
+					<tbody>
+						{foreach from=$mylist key=k item=i}
+							<tr> 
+								<td>{$i}</td>
+								<td><a href='javascript:;' class='btnDelete-tp1'onclick="delOpeAux({$k});">Delete</a></td>
+							</tr>
+						{/foreach}
+					</tbody>
+				</table>				
+			</div>
+			
+		</div>
+	</div>
+
+</form>

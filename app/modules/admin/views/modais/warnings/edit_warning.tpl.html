@@ -1,0 +1,112 @@
+<form action="javascript:;" method="post" id="formTopicEdit">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Warning_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbTopicEdit">{$smarty.config.Topic}:</label>
+						</li>
+						<li class="field">
+							<select class="w240" name="cmbTopicEdit" id="cmbTopicEdit">
+								<option value="">{$smarty.config.Select}</option>
+								{html_options values=$topicids output=$topicvals selected=$idtopic}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtTitleEdit">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field">
+							<input name="txtTitleEdit" id="txtTitleEdit" type="text" value="{$title_warning}" class="w240" maxlength="100" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtDescriptionEdit">{$smarty.config.Description}:</label>
+						</li>
+						<li class="field">
+							<textarea class="w240" rows="4" id="txtDescriptionEdit" name="txtDescriptionEdit">{$description}</textarea>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="validDateEdit">{$smarty.config.Valid}:</label>
+						</li>
+						<li class="field">
+							<input type="text" id="validDateEdit" class="mask" data-format="99/99/9999" name="validDateEdit" value="{$datestart}" style="width:60px;" maxlength="10"> 
+   							<input type="text" id="validHourEdit" style="width:30px;" class="mask" data-format="99:99" name="validHourEdit" value="{$timestart}"  maxlength="5"> 
+							<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" class="calendar" data-prev="validDateEdit" id="f_date_edit" style="cursor: pointer; " title="Escolha a data">
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkUntilClosedEdit">{$smarty.config.Valid_until}:</label>
+						</li>
+						<li class="field">
+							<div id="boxEndValidEdit" class="fl {if $until == 'S'} none {/if}">
+								<input type="text" id="validEndDateEdit" class="mask" data-format="99/99/9999" name="validEndDateEdit" value="{$dateend}" style="width:60px;" maxlength="10"> 
+   								<input type="text" id="validEndHourEdit" style="width:30px;" class="mask" data-format="99:99" name="validEndHourEdit" value="{$timeend}"  maxlength="5"> 
+								<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" class="calendar" data-prev="validEndDateEdit" align="absmiddle" id="f_end_date" style="cursor: pointer; " title="Escolha a data">
+							</div>
+							<label class="fl {if $until == 'N'}ml20{/if}">
+								<input type="checkbox" id="chkUntilClosedEdit" name="chkUntilClosedEdit" {if $until == "S"} checked="checked"{/if} value="S"/>
+								{$smarty.config.Until_closed}
+							</label>
+						</li>
+					</ul>
+				</li>				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkSendEmailEdit">{$smarty.config.Send_email}:</label>
+						</li>
+						<li class="field">
+							<label>
+								<input name="chkSendEmailEdit" id="chkSendEmailEdit" type="checkbox" value="S" {if $sendemail == 'S'} checked="checked" {/if}/>
+								{$smarty.config.Send_alerts_email}
+							</label>
+						</li>
+					</ul>
+				</li>				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkShowAlertEdit">{$smarty.config.Show_in}:</label>
+						</li>
+						<li class="field">
+							<select name="chkShowAlertEdit" id="chkShowAlertEdit" class="w240" {if $total > 0} disabled="disabled" {/if}>
+								<option value="1" {if $showin == 1} selected="selected" {/if} >Home</option>
+								<option value="2" {if $showin == 2} selected="selected" {/if} >Login</option>
+								<option value="3" {if $showin == 3} selected="selected" {/if} >{$smarty.config.Both}</option>
+							</select>
+						</li>
+					</ul>
+				</li>
+			</ul>			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">				
+					<input type="hidden" name="id"value="{$id}" />
+					<input type='submit' name="submit" id="btnSendWarningEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

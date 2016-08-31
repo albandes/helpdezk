@@ -1,0 +1,164 @@
+<form action="javascript:;" method="post" id="formDownloadEdit">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Downloads_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="titleEdit">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field">
+							<input name="title" id="titleEdit" type="text" class="campo" size="48" maxlength="25" value="{$title}"/> (max 25)
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="dateEdit">{$smarty.config.Date}:</label>
+						</li>
+						<li class="field">
+							<input name="date" id="dateEdit" type="text" class="w70 mask" data-format="99/99/9999" value="{$date_down}" maxlength="10" />
+							<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" align="absmiddle" class="calendar" id="f_downloads_date_edit" title="Escolha a Data"/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="categoriesEdit">{$smarty.config.Category}:</label>
+						</li>
+						<li class="field">
+							<select name="categories" id="categoriesEdit" class="mr5">
+					            <option value="">{$smarty.config.Select_category}</option>
+					            {html_options values=$categoryids output=$categoryvals selected=$category}
+					        </select>
+						</li>
+						<li>
+							<a href="#modalDownloadInsertCategory" class="openModal lnk-tp1">{$smarty.config.Add_category}</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="versionEdit">{$smarty.config.Version}:</label>
+						</li>
+						<li class="field">
+							<input name="version" id="versionEdit" type="text" class="campo" value="{$version}" size="7" maxlength="7" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="shortdescEdit">{$smarty.config.Short_description}:</label>
+						</li>
+						<li class="field">
+							<textarea class="text" cols="53" rows="2" id="shortdescEdit" class="campo" style="width:399px; height:80px;" name="shortdesc">{$short_desc}</textarea>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="downdescriptionEdit">{$smarty.config.Install_instructions}:</label>
+						</li>
+						<li class="field">
+							<textarea id="downdescriptionEdit" class="ckeditor" data-width="400" data-height="120" data-toolbar="SOLICITA" name="downdescription"  wrap="virtual">{$instruction}</textarea>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="computerEdit">Local Arquivo:</label>
+						</li>
+						<li class="field mr15">
+							{if $filename}
+							<input type="radio" name="local" id="computerEdit" value="C" checked="checked" /> <label for="computerEdit">Computador</label>
+							{else}
+							<input type="radio" name="local" id="computerEdit" value="C" /> <label for="computerEdit">Computador</label>
+							{/if}							
+						</li>
+						<li class="field">
+							{if $url}
+							<input type="radio" name="local" id="urlEdit" value="U" checked="checked"/> <label for="urlEdit">URL</label>
+							{else}
+							<input type="radio" name="local" id="urlEdit" value="U"/> <label for="urlEdit">URL</label>
+							{/if}
+						</li>						
+					</ul>
+				</li>
+				
+				{if $filename}
+				<li class="nivel1 fileComputer">
+					<ul>
+						<li class="info wAuto">
+							<label for="ianexo">{$smarty.config.File}:</label>
+						</li>
+						<li class="field">
+							{$downloadname} - <a href="javascript:;" id="removeFile" class="rmv" data-id="{$id}">X</a>
+						</li>
+					</ul>
+				</li>
+				{else}
+				<li class="nivel1 none fileComputer">
+					<ul>
+						<li class="info wAuto">
+							<label for="ianexo">{$smarty.config.File}:</label>
+						</li>
+						<li class="field">
+							<iframe src="downloads/upload/id/{$id}" name="ianexo" id="ianexo" height="21" frameborder="0" scrolling="no"></iframe>
+						</li>
+					</ul>
+				</li>
+				{/if}
+					
+				
+				{if $url}
+				<li class="nivel1 fileURL">
+				{else}
+				<li class="nivel1 none fileURL">
+				{/if}
+					<ul>
+						<li class="info wAuto">
+							<label for="link">URL:</label>
+						</li>
+						<li class="field">
+							<input type="text" name="url" id="linkEdit" value="{$url}" />
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="restricted">{$smarty.config.Restricted}:</label>
+						</li>
+						<li class="field">
+							<input name="restricted" id="restricted" type="checkbox" {$restricted} value="Y"/> [?]
+						</li>
+					</ul>
+				</li>
+				
+			</ul>
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" value="{$id}" name="id"/>
+					<input type='submit' name="submit" id="btnEnviarDownloadsEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

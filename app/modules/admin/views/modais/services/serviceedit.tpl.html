@@ -1,0 +1,108 @@
+<form action="javascript:;" method="post" id="formServiceEdit" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Service_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="serviceNameEdit">{$smarty.config.Service_name}:</label>
+						</li>
+						<li class="field ">
+							<input name="serviceName" id="serviceNameEdit" type="text" class="w240" maxlength="150" value="{$name}" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="serviceGroupEdit">{$smarty.config.Group}:</label>
+						</li>
+						<li class="field ">
+							<select name="serviceGroup" id="serviceGroupEdit" class="w240">
+								<option value="">{$smarty.config.Select_group}</option>
+								{html_options values=$groupscp output=$groupsvals selected=$group}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="servicePriorityEdit">{$smarty.config.Priority}:</label>
+						</li>
+						<li class="field ">
+							<select name="servicePriority" id="servicePriorityEdit" class="w240">
+								<option value="">{$smarty.config.Select_priority}</option>
+								{html_options values=$prioritycp output=$priorityval selected=$priority}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="">{$smarty.config.Attendance_time}:</label>
+						</li>
+						<li class="field mt15">
+							<input name="limit_days" type="text" value="{$days}" id="limit_days"  style="width:25px" value="0" maxlength="2" />
+							&nbsp;{$smarty.config.Days} &nbsp;{$smarty.config.and}&nbsp;
+							<input name="limit_time" type="text" value="{$time}" id="limit_time"  style="width:25px" value="0" maxlength="2"/>
+							<input type="radio" name="time" id="time1" value="H" {if $ihm == "H"} checked="checked" {/if} />
+							&nbsp;<label for="time1">{$smarty.config.Hours}</label>
+							<input type="radio" name="time" id="time2" value="M" {if $ihm == "M"} checked="checked" {/if}/>
+							&nbsp;<label for="time2">{$smarty.config.Minutes}</label>
+							
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="availableServiceEdit">{$smarty.config.Available}:</label>
+						</li>
+						<li class="field w300">
+							<input name="availableService" type="checkbox" id="availableServiceEdit" {if $available == "A"} checked="checked" {/if} value="A"/>
+							<label for="availableServiceEdit">{$smarty.config.Available_text}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="defaultServiceEdit">{$smarty.config.Default}:</label>
+						</li>
+						<li class="field w300">
+							<input name="defaultService" type="checkbox" id="defaultServiceEdit" value="1" {if $default == "1"} checked="checked"{/if}/>
+							<label for="defaultServiceEdit">{$smarty.config.Default_text}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="classificationServiceEdit">{$smarty.config.Classification}:</label>
+						</li>
+						<li class="field w300">
+							<input name="classificationService" type="checkbox" id="classificationServiceEdit" value="1" {if $classify == "1"} checked="checked"{/if}/>
+							<label for="classificationServiceEdit">{$smarty.config.Classification_text}</label>
+						</li>
+					</ul>
+				</li>
+			</ul>			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" id="id" name="id" value="{$id}"/>
+					<input type='submit' name="submit" id="btnSendServiceEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

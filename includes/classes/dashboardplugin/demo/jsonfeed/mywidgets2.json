@@ -1,0 +1,22 @@
+{
+"result" :
+  {
+  "layout": "layout2",
+  "data" : [
+    {
+      "title" : "Widget 4",
+      "id" : "widget4",
+      "column" : "first",
+      "open" : true,
+      "url" : "../../../includes/classes/dashboardplugin/demo/widgets/widget4.html"
+    },
+    {
+      "title" : "Widget 5",
+      "id" : "widget5",
+      "column" : "second",
+      "url" : "../../../includes/classes/dashboardplugin/demo/widgets/widget5.html",
+      "open" : true
+    }
+  ]
+  }
+}

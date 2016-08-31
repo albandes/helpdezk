@@ -1,0 +1,75 @@
+<h1>Dashboard 1</h1>
+
+<script>
+$(document).ready(function() {
+
+  var dashboard1 = $('#dashboard1').dashboard({
+    layoutClass:'layout',
+    json_data : {
+      url: "jsonfeed/mywidgets.json"
+    },
+    addWidgetSettings: {
+      widgetDirectoryUrl:"jsonfeed/widgetcategories.json"
+    },
+    layouts :
+      [
+        { title: "Layout1",
+          id: "layout1",
+          image: "layouts/layout1.png",
+          classname: 'layout-a'
+        },
+        { title: "Layout2",
+          id: "layout2",
+          image: "layouts/layout2.png",
+          classname: 'layout-aa'
+        },
+        { title: "Layout3",
+          id: "layout3",
+          image: "layouts/layout3.png",
+          classname: 'layout-ba'
+        },
+        { title: "Layout4",
+          id: "layout4",
+          image: "layouts/layout4.png",
+          classname: 'layout-ab'
+        },
+        { title: "Layout5",
+          id: "layout5",
+          image: "layouts/layout5.png",
+          classname: 'layout-aaa'
+        }
+      ]
+
+  }); // end dashboard call
+
+
+  var startId = 100;
+
+  // binding for a widgets is added to the dashboard
+  dashboard1.element.live('dashboardAddWidget',function(e, obj){
+    var widget = obj.widget;
+
+    dashboard1.addWidget({
+      "id":startId++,
+      "title":widget.title,
+      "url":widget.url,
+      "metadata":widget.metadata
+      }, dashboard1.element.find('.column:first'));
+  });
+
+
+  dashboard1.init();
+  dashboardManager.addDashboard(dashboard1);
+
+});
+
+</script>
+
+<div id="dashboard1" class="dashboard">
+  <!-- this HTML covers all layouts. The 5 different layouts are handled by setting another layout classname -->
+  <div class="layout">
+    <div class="column first column-first"></div>
+    <div class="column second column-second"></div>
+    <div class="column third column-third"></div>
+  </div>
+</div>

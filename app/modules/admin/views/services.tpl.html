@@ -1,0 +1,47 @@
+{literal}
+<script  src="{/literal}{$path}{literal}/includes/classes/ajax/services.js"></script>
+{/literal}
+
+
+
+<div class="flexigrid">
+	<div class="mDiv"><div class="ftitle"> :: {$smarty.config.pgr_services}</div></div>
+	
+	<div class="tDiv bb1">
+		<div class="tDiv2">
+			<div class="fbutton">
+				<div id="btn1">
+					<span class="add" style="padding-left: 20px;" id="insertArea">{$smarty.config.Area_insert}</span>
+				</div>
+			</div>
+			<div class="btnseparator"></div>
+			<div class="fbutton">
+				<div id="btn2">
+					<span class="add" style="padding-left: 20px;" id="insertType">{$smarty.config.Type_insert}</span>
+				</div>
+			</div>
+			<div class="btnseparator"></div>
+			<div class="fbutton">
+				<div id="btn2">
+					<span class="approve" style="padding-left: 20px;" id="insertConfApproval">{$smarty.config.conf_approvals}</span>
+				</div>
+			</div>
+			<div class="btnseparator"></div>
+		</div>
+	</div>
+</div>
+
+<div id="type">
+    {$lista}
+</div>
+<div id="items"></div>
+<div id="services"></div>
+<div id="modalServicesInsertArea" class="window" style="width:462px;"><!-- --></div>
+<div id="modalServicesEditArea" class="window" style="width:462px;"><!-- --></div>
+<div id="modalServicesInsertType" class="window" style="width:470px;"><!-- --></div>
+<div id="modalServicesEditType" class="window" style="width:470px;"><!-- --></div>
+<div id="modalServicesInsertItem" class="window" style="width:470px;"><!-- --></div>
+<div id="modalServicesEditItem" class="window" style="width:470px;"><!-- --></div>
+<div id="modalServicesInsertService" class="window" style="width:470px;"><!-- --></div>
+<div id="modalServicesEditService" class="window" style="width:470px;"><!-- --></div>
+<div id="modalConfApproval" class="window" style="width:740px;"><!-- --></div>

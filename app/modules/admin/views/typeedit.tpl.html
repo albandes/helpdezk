@@ -1,0 +1,110 @@
+{literal}
+<link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/style.css" />
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" language="javascript">
+	function send() {
+		var name5 = $("#name4").val();
+		var area = $("#area").val();
+		var id = $("#idserv").val();
+
+		if ($("#default1").is(":checked")) {
+			var vardefault = '1';
+		} else {
+			var vardefault = '0';
+		}
+		var iditem2 = $("#iditem2").val();
+
+		if ($("#available1").is(":checked")) {
+			var availableitem = 'A';
+		} else {
+			var availableitem = 'N';
+		}
+		if ($("#classify1").is(":checked")) {
+			var classifyitem = '1';
+		} else {
+			var classifyitem = '0';
+		}
+
+		if (name5 == '') {
+			alert('{/literal}{$smarty.config.Alert_empty_type1}{literal}');
+			return false;
+		}
+
+		if (area == '' || area == 0) {
+			alert('{/literal}{$smarty.config.Alert_empty_area}{literal}!');
+			return false;
+		}
+
+		$.post('{/literal}{$path}{literal}/admin/services/edittype', {
+			name : name5,
+			area : area,
+			vardefault : vardefault,
+			status : availableitem,
+			classify : classifyitem,
+			id : id
+		}, function(resp) {
+
+			if (resp != false) {
+				alert('{/literal}{$smarty.config.Edit_sucess}{literal}');
+				window.opener.$("#content").load('services');
+				self.close();
+			} else {
+				alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+			}
+		});
+	}
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">::&nbsp;{$smarty.config.Type_edit} </span>
+</div>
+<form name="form6" id="form5" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Type_name}:
+	</div>
+	<div class="campos">
+		<input name="name4" id="name4" value ="{$name}" type="text" size="40" maxlength="150" />
+	</div>
+	<div class="titulo">
+		{$smarty.config.Area}:
+	</div>
+	<div class="campos">
+		<select name="area" id="area">
+			<option value="0">{$smarty.config.Select_Area}</option>
+			{html_options values=$areaids output=$areavals selected=$area}
+		</select>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Available}:
+	</div>
+	<div class="campos">
+		<input name="available1" type="checkbox" id="available1" {if $available == "A"} checked {else} "" {/if}>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Available_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Default}:
+	</div>
+	<div class="campos">
+		<input name="default1" type="checkbox" id="default1" {if $default == "1"} checked {else} "" {/if}>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Default_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Classification}:
+	</div>
+	<div class="campos">
+		<input name="classify1" type="checkbox" id="classify1" {if $classify == "1"} checked {else} "" {/if}>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Classification_text}</strong>
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' name="submit"  class="btn_cadastrar" onclick="send(); return false;"  value="{$smarty.config.Edit_btn}"/>
+	</div>
+	<input type="hidden" value="{$id}" name ="idserv" id="idserv"/>
+</form>

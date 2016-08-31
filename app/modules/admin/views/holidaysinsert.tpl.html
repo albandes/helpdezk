@@ -1,0 +1,111 @@
+{literal}
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/steel/steel.css" />
+<link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/css/reduce-spacing.css" />
+<script type="text/javascript" language="javascript">
+	$(document).ready(function() {
+		$("#holiday_date").mask("99/99/9999");
+	});
+
+	function close() {
+		document.getElementById('status').style.display = 'none';
+	}
+
+	function send() {
+		// Quando o formulario for enviado, essa funcao e chamada
+		// Colocamos os valores de cada campo em uma variavel para facilitar a manipulacao
+		var date = $("#holiday_date").val();
+		var description = $("#holiday_description").val();
+		pathform = document.form1;
+		if (date == '' || date < 10) {
+			alert("teste");
+			pathform.holiday_date.focus();
+			return false;
+		}
+		if (description == '') {
+			alert("{/literal}{$smarty.config.Alert_empty_description}{literal}");
+			pathform.holiday_description.focus();
+			return false;
+		}
+
+		// Exibe mensagem de carregamento
+		$("#status").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' alt='{/literal}{$smarty.config.Send_img_alt}{literal}' />");
+		// Fazemos a requisao ajax com o modulo e enviamos os valores de cada campo atraves do metodo POST
+		$.post('holidays/insert', {
+			holiday_description : description,
+			holiday_date : date
+		}, function(resposta) {
+			// Quando terminada a requisicao
+			// Exibe a div status
+			$("#status").slideDown();
+			// Se a resposta e um erro
+			if (resposta != false) {
+
+				alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+				$("#pop").hide();
+				$("#content").load('holidays');
+			}
+			// Se resposta for false, ou seja, n�o ocorreu nenhum erro
+			else {
+				// Exibe mensagem de sucesso
+				$("#status").slideDown();
+				$("#status").html("{/literal}{$smarty.config.Alert_failure}{literal}!");
+				$("#name").val("");
+			}
+		});
+	}
+
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">:: {$smarty.config.Holiday_insert} </span><a href="#" id='buttonClose' onclick=" $('#status').fadeOut(200); $('#pop').fadeOut(400);"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<form name="form1" id="form1" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Holiday_des}:
+	</div>
+	<div class="campos">
+		<input name="holiday_description" id="holiday_description" type="text" class="campo" id="holiday_description" size="40" maxlength="150" onclick="close();" />
+	</div>
+	<br />
+	<div class="titulo">
+		{$smarty.config.Date}:
+	</div>
+	<div class="campos">
+		<input name="holiday_date" id="holiday_date" type="text" class="campo" id="holiday_date" tabindex="13" size="10" maxlength="10" />
+		<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" align="absmiddle" id="f_holiday_date" style="cursor: pointer; " title="Escolha a Data"/>
+		{literal}
+		<script>
+                    var lang = '{/literal}{$lang}{literal}';
+                        if(lang == 'pt_BR'){
+                            var format = '%d/%m/%Y';
+                        }
+                        else{
+                            var format = '%m/%d/%Y';
+                        }
+                        
+			Calendar.setup({
+				inputField : "holiday_date",
+				trigger : "f_holiday_date",
+				onSelect : function() {
+					this.hide()
+				},
+				showTime : 12,
+				align : "B3/2",
+				dateFormat : format,
+				showTime : false,
+				fdow : 0,
+				bottomBar : false
+			});
+		</script>
+		{/literal}
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' name="submit"  class="btn_cadastrar" value="{$smarty.config.Record_btn}" onclick="send(); return false;"/>
+	</div>
+	<br/>
+	<div id="status" style="display: none; text-align: center;  margin-bottom: 15px;" class="textoRodape"></div>
+</form>

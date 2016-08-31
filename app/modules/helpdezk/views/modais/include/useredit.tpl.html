@@ -1,0 +1,612 @@
+{literal}
+<script type="text/javascript">
+$(document).ready(function(){
+
+	var objPerson = {					
+			showAddress: function(){
+				$(document.getElementById('modalPersonEdit')).find('.formAdress').toggle();
+				$("#address").autocomplete(ruas);
+			},
+			changeCountry: function(){
+				var $self = $(this),
+	        		val = this.value,
+	        		$state = $(document.getElementById("state")).parents('li'),
+	        		$city =  $(document.getElementById("city")).parents('li');
+	        	if(val == 1){
+	        		$state.slideUp();
+	        		$city.slideUp();
+	        	}
+	        	else{
+		        	$(document.getElementById("state")).html('<option value="0">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			        $state.slideDown();
+			        $city.slideUp();
+			        $.post("../admin/person/state", {
+			            country : val
+			        }, function(valor) {
+			            $("select[name=state]").html(valor);
+			            
+			        })
+	        	}
+			},
+			changeState: function(){
+				var $self = $(this),
+	        		val = this.value,
+	        		$city =  $(document.getElementById("city")).parents('li');
+	        	if(val == 1){
+	        		$city.slideUp();
+	        	}
+	        	else{
+	        		$city.slideDown();
+		        	$(document.getElementById("city")).html('<option value="0">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+			        $.post("../admin/person/city", {
+			            state : val
+			        }, function(valor) {
+			            $("select[name=city]").html(valor);
+			        })
+	        	}
+			},
+	
+			change: function(val, state){
+		        $("select[name=state]").html('<option value="0">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+		        var val = $("#country").val();
+		        $.post("../admin/person/state", {
+		            country : val,
+		            state: state
+		        }, function(valor) {
+		        	var $city =  $(document.getElementById("city")).parents('li');
+		        	
+		            $("select[name=state]").html(valor);
+		            $city.slideDown();
+		            $city.find("select").html("<option value='0'>"+aLang['No_result'].replace (/\"/g, "")+"</option>");
+		            
+		        })
+			},
+			returncities: function(val){
+				$("select[name=city]").html('<option value="0">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
+		        $.post("../admin/person/city", {
+		            state : $('#state').val(),
+		            city: val
+		        }, function(valor) {
+		            $("select[name=city]").html(valor);
+		        })
+			},
+			changeCity: function(){
+	    		$.getJSON("../admin/person/neighborhoods/idcity/"+this.value, function(data) {  
+	            	neighborhoods = [];
+	                idneighborhoods = [];
+	                i=0;
+	                
+	                $.each(data, function(key, val) {
+	                    neighborhoods[i] = val.name;
+	                    idneighborhoods[i] = val.id;
+	                    i = i + 1;
+	                });	                    
+	                $("#neighborhood").autocomplete(neighborhoods);           
+	            });
+	        },
+	        sendFormEdit: function(){
+	        	sendNaturalEdit($(this));
+	        },
+	        changePassword: function(){
+	        	
+	        	
+	            var modalActive = $(document.getElementById(objModal.getActive())),
+	            	modalPassword = $(document.getElementById("modalAlterPassword"));
+	            
+	            objDefault.maskLoaderShow();
+	         
+	            modalPassword.load("../admin/person/modalPasswordUser/", function(){
+	            	$("#formAlterPassword").validate({
+		        		wrapper: "li class='error'",            		
+		        		errorPlacement: function(error, element) {
+							error.appendTo(element.parent().parent());
+						},
+					  	rules: {
+					  		password: {
+					  			required: true
+					  		},
+						    cpassword: {
+						      equalTo: "#password"
+						    }
+					 	}
+					});
+	            	
+	            	objModal.openModal("modalAlterPassword");
+	            	objDefault.maskLoaderHide();
+	            })
+	        	
+	        	
+	        },
+	        changePasswordRequired: function(){
+	        	
+	        	
+	            var modalPassword = $(document.getElementById("modalAlterPassword"));
+	            
+	            objDefault.maskLoaderShow();
+	         
+	            modalPassword.load("../admin/person/modalPasswordUser/", function(){
+	            	$("#formAlterPassword").validate({
+		        		wrapper: "li class='error'",            		
+		        		errorPlacement: function(error, element) {
+							error.appendTo(element.parent().parent());
+						},
+					  	rules: {
+					  		password: {
+					  			required: true
+					  		},
+						    cpassword: {
+						      equalTo: "#password"
+						    }
+					 	}
+					});
+	            	
+	            	modalPassword.addClass("noHideMask");
+	            	modalPassword.find("a[href='#modalPersonEdit']").remove();
+	            	modalPassword.find(".btnCloseModal").addClass("none_i");
+	            	objModal.openModal("modalAlterPassword");
+	            	objDefault.maskLoaderHide();
+	            })
+	        	
+	        	
+	        }
+		}
+		
+		{/literal}
+		{if $changepass == 1}
+		{literal}
+		
+		objPerson.changePasswordRequired();
+		
+		{/literal}
+		{/if}
+		{literal}
+		
+		$("#site")
+			.off(".contentloaded")
+			.on("change.contentloaded", "#country", objPerson.changeCountry) //TROCA PAÍS
+			.on("change.contentloaded", "#state", objPerson.changeState)  //TROCA ESTADO
+			.on("change.contentloaded", "#city", objPerson.changeCity)
+			.on("submit.contentloaded", "#formPersonEdit", objPerson.sendFormEdit)
+			.on("click.contentloaded", ".changePassword", objPerson.changePassword);
+	
+		$(document.getElementById('modalPersonAddState')).find('form').live("submit",function(){
+	    	var $self = $(this),
+	    		$country = $("#country").val(),
+	    		$newstate = $self.find("#newstatefield").val(),
+	    		$abbr = $self.find("#abbr").val(),
+	    		$btn = $self.find(document.getElementById('btnAddNewState'));	
+	    		
+	    	objDefault.buttonAction($btn,'disabled');
+	    	$.post('../admin/person/insertState', {
+	            name : $newstate,
+	            country : $country,
+	            abbr: $abbr
+	        }, function(resposta) {
+	            if(resposta){
+	            	objPerson.change($country, resposta);
+	            	$self[0].reset();
+	            	objModal.openModal(objModal.getActive());
+	            }else{
+	            	objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalPersonAddState");
+	            }                
+	        }).complete(function(){
+	        	objDefault.buttonAction($btn,'enabled');
+	        });
+	    })
+	    
+	    
+	    $(document.getElementById('modalPersonAddCity')).find('form').live("submit",function(){
+	    	var $self = $(this),
+	    		$state = $(document.getElementById('state')).val(),
+	    		$newcity = $self.find("#newcityfield").val(),
+	    		$btn = $self.find(document.getElementById('btnAddNewCity'));	
+	    	
+	    	
+	    	objDefault.buttonAction($btn,'disabled');
+	    	$.post('../admin/person/insertCity', {
+	            name : $newcity,
+	            state : $state
+	        }, function(resposta) {
+	            if(resposta){
+	            	objPerson.returncities(resposta);
+	            	$self[0].reset();
+	            	objModal.openModal(objModal.getActive());
+	            }else{
+	            	objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalPersonAddState");
+	            }                
+	        }).complete(function(){
+	        	objDefault.buttonAction($btn,'enabled');
+	        });
+	    })
+		
+		
+		$(document.getElementById('modalPersonAddLocation')).find('form').live("submit",function(){
+	    	var $self = $(this),
+	    		$name = $self.find("#name_location").val(),
+	    		$btn = $self.find(document.getElementById('btnAddNewLocation'));	
+	    	objDefault.buttonAction($btn,'disabled');
+	    	$.post('../admin/person/insertLocation', {
+	            name : $name
+	        }, function(resposta) {
+	            if(resposta){
+	            	
+	            	var $location = $(document.getElementById(objModal.getActive())).find("select[name=location]");
+		            $.post("person/getLocation", {}, function(valor) {
+		                $location.html(valor);
+		            }).complete(function(){
+		            	$location.find("option[value="+resposta+"]").attr("selected","selected");
+		            	$self[0].reset();
+	            		objModal.openModal(objModal.getActive());
+		            })
+	            }else{
+	            	objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalPersonAddState");
+	            }                
+	        }).complete(function(){
+	        	objDefault.buttonAction($btn,'enabled');
+	        });
+	    })
+		
+		$(document.getElementById('modalAlterPassword')).find('form').live("submit",function(){
+			var $self = $(this),
+				$btn = $self.find(document.getElementById('btnSavePassword'));
+			
+			$.ajax({
+				type: "POST",
+				url: "../admin/person/changePasswordUser",
+				data: $(this).serialize(),
+				dataType : "json",
+				error: function (ret) {
+					objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalAlterPassword");
+				},
+				success: function(ret) {
+					if(ret.result == 1 && ret.msg == "OK"){
+						objDefault.notificationNoRemove("success",aLang['Edit_sucess'].replace (/\"/g, ""),"modalAlterPassword");
+						
+						$(document.getElementById('modalAlterPassword')).removeClass("noHideMask");
+	            		$(document.getElementById('modalAlterPassword')).find(".btnCloseModal").removeClass("none_i");
+						
+						$btn.remove();
+					}else if(ret.result == 1 && ret.msg != "OK"){
+						objDefault.notification("error",ret.msg,"modalAlterPassword");
+					}
+					else
+						objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalAlterPassword");
+				},
+				beforeSend: function(){
+					objDefault.buttonAction($btn,'disabled');
+				},
+				complete: function(){
+					objDefault.buttonAction($btn,'enabled');
+				}
+			});	
+		});
+
+})
+
+function sendNaturalEdit(self){
+	var $btn = self.find(document.getElementById('btnSendPersonEditNatural')),
+    pathform = document.form1;
+    var id = self.find("#id").val();
+    var login = self.find("#login").val();    
+    var namenatural = self.find("#namenatural").val();
+    var email = self.find("#email").val();
+    var company = self.find("#company").val();
+    var department = self.find("#department").val();
+    var phone = self.find("#phone").val();
+    var branch = self.find("#branch").val();
+    var mobile = self.find("#mobile").val();
+    var costcenter = self.find("#costcenter").val();
+    var cpf = self.find("#cpf").val();
+    var country = self.find("#country").val();
+    var state = self.find("#state").val();
+	var city = self.find("#city").val();
+    
+    if(country > 1){
+    	var $ulState = self.find("#state").parent().parent();
+    	var $ulCity = self.find("#city").parent().parent();
+    	
+    	if(state <= 1){
+    		if($ulState.find(".error").length == 0)
+    			$ulState.append('<li class="error"><label class="error">'+aLang['Required_field'].replace (/\"/g, "")+'</label></li>');
+    		else
+    			$ulState.find(".error").show();
+    		return false;
+    	}    	
+    	$ulState.find(".error").hide();
+    	
+    	if(city <= 1){
+	    	if($ulCity.find(".error").length == 0)
+    			$ulCity.append('<li class="error"><label class="error">'+aLang['Required_field'].replace (/\"/g, "")+'</label></li>');
+    		else
+    			$ulCity.find(".error").show();
+    		return false;
+	    }
+	    $ulCity.find(".error").hide();
+    }
+    
+    var dtbirth = self.find("#dtbirth").val();
+    var i, access, string_array;
+    string_array = dtbirth;
+    dtbirth = string_array.split('/');
+    if(default_lang == 'en_US'){
+        dtbirth = dtbirth[2]+'-'+dtbirth[0]+'-'+dtbirth[1];
+        var clear = '999999999';
+    }
+    else{
+        dtbirth = dtbirth[2]+'-'+dtbirth[1]+'-'+dtbirth[0];
+        var clear = '99999999999';
+    }
+    var gender = self.find("input:radio[name='gender']:checked").val();
+    var neighborhood = self.find("#neighborhood").val();
+    if (neighborhood == ''){
+        neighborhood = 'Choose';
+    } 
+    var zipcode = self.find("#zipcode").val();
+    var typestreet = self.find("#type_street").val();
+    var address = self.find("#address").val();
+    if (address == ''){
+        address = 'Choose';
+    } 
+    var number = self.find("#number").val();
+    var complement = self.find("#complement").val();
+    var typeuser = self.find("#type_user").val();
+    var location = self.find("#location").val();
+    var time_value = self.find("#time_value").val();
+    var overtime = self.find("#overtime").val();
+  
+    if (self.find("#vip").is(":checked")) {
+        var vip = 'Y';
+    } else {
+        var vip = 'N';
+    }
+    
+    if (self.find("#filladress").is(":checked")) {
+        var filladress = 'Y';
+    } else {
+        var filladress = 'N';
+    }
+    
+    self.find("#phone").unmask();
+    self.find("#phone").mask("9999999999?99");
+    var phone = self.find("#phone").val();
+    var branch = self.find("#branch").val();
+    self.find("#mobile").unmask();
+    self.find("#mobile").mask("9999999999?99");                
+    var mobile = self.find("#mobile").val();
+    var costcenter = self.find("#costcenter").val();
+    
+    self.find("#cpf").unmask();
+    self.find("#cpf").mask(clear);
+    var cpf = self.find("#cpf").val();
+    objDefault.buttonAction($btn,'disabled');
+    $.post("../admin/person/editNaturalUser", {
+        login: login,
+        name: namenatural,
+        email: email,
+        company: company,
+        department: department,
+        phone: phone,
+        branch: branch,
+        mobile: mobile,
+        costcenter: costcenter,
+        country: country,
+        state: state,
+        cpf: cpf,
+        country: country,
+        state: state,
+        city: city,
+        neighborhood: neighborhood,
+        zipcode: zipcode,
+        typestreet: typestreet,
+        address: address,
+        number: number,
+        complement: complement,
+        typeuser: typeuser,
+        location: location,
+        vip: vip,
+        filladdress: filladress,
+        dtbirth: dtbirth,
+        gender: gender,
+        time_value: time_value,
+        overtime: overtime,
+        id: id
+    }, function(resp) {
+        if (resp != false) {
+            objDefault.notification("success",aLang['Edit_sucess'].replace (/\"/g, ""),"modalPersonEdit");  
+            $('#flexigrid2').flexReload();
+        } else {
+        	objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalPersonEdit");
+        }
+    }).complete(function(){
+    	objDefault.buttonAction($btn,'enabled');
+    });
+    
+} 
+
+</script>
+{/literal}
+<div id="modaAlertApprove" class="window">
+    <form action="javascript:;" method="post">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Notification}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<div class="notification info mb0">
+					<p>{$smarty.config.Alert_approve}</p>
+				</div>
+				<input type="hidden" value="{$id}" name="id"/>
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<input type='submit' name="submit" onClick="approve();" class="btnOrange tp1 closeModal" value="{$smarty.config.Yes}" />
+						<a href="javascript:;" class="closeModal btnOrange tp1">{$smarty.config.Cancel_btn}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="modalRequestApprove" class="window" style="width: 470px;">
+    <form action="javascript:;" method="post">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Notification}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<div class="notification error mb0">
+					<p class="mt10">{$smarty.config.Request_approve}</p>
+				</div>
+				<input type="hidden" value="{$id}" name="id"/>
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<input type='submit' name="submit" onClick="approve();" class="btnOrange tp1 closeModal" value="{$smarty.config.Yes}" />
+						<a href="javascript:;" class="closeModal btnOrange tp1">{$smarty.config.Cancel_btn}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+
+<div id="modalInfo" class="window" style="width:400px;">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Notification}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent"><!-- --></div>
+</div>
+
+
+<div id="modalPersonEdit" class="window" style="width:520px;"><!-- --></div>
+<div id="modalAlterPassword" class="window" style="width:500px;"><!-- --></div>
+
+<div id="modalPersonAddState" class="window" style="width:500px;">
+	<form action="javascript:;" method="post" id="formPersonAddState">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Person_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="newstatefield">{$smarty.config.State}:</label>
+							</li>
+							<li class="field">
+								<input name="newstatefield" id="newstatefield" type="text" class="campo" size="18" maxlength="40" />
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="abbr">{$smarty.config.Abbreviation}:</label>
+							</li>
+							<li class="field">
+								<input name="abbr" id="abbr" type="text" class="campo" size="2" maxlength="3" />
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="javascript:;" class="backModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+						<input type='submit' name="submit" id="btnAddNewState" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="modalPersonAddCity" class="window" style="width:500px;">
+	<form action="javascript:;" method="post" id="formPersonAddCity">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Person_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="newcityfield">{$smarty.config.City}:</label>
+							</li>
+							<li class="field">
+								<input name="newcityfield" id="newcityfield" type="text" class="campo" size="18" maxlength="40" />
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="javascript:;" class="backModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+						<input type='submit' name="submit" id="btnAddNewCity" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="modalPersonAddLocation" class="window" style="width:500px;">
+	<form action="javascript:;" method="post" id="formPersonAddLocation">
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Location_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="name_location">{$smarty.config.Location}:</label>
+							</li>
+							<li class="field">
+								<input type="text" id="name_location" class="w240" name="name_location"/>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="javascript:;" class="backModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+						<input type='submit' name="submit" id="btnAddNewLocation" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>

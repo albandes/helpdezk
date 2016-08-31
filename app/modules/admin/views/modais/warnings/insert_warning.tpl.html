@@ -1,0 +1,119 @@
+<form action="javascript:;" method="post" id="formTopicInsert">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Warning_new}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbTopic">{$smarty.config.Topic}:</label>
+						</li>
+						<li class="field">
+							<select class="w240" name="cmbTopic" id="cmbTopic">
+								<option value="">{$smarty.config.Select}</option>
+								{html_options values=$topicids output=$topicvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtTitle">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field">
+							<input name="txtTitle" id="txtTitle" type="text" class="w240" maxlength="100" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtDescription">{$smarty.config.Description}:</label>
+						</li>
+						<li class="field">
+							<textarea class="w240" rows="4" id="txtDescription" name="txtDescription"></textarea>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="validDate">{$smarty.config.Valid}:</label>
+						</li>
+						<li class="field">
+							<input type="text" id="validDate" class="mask" data-format="99/99/9999" name="validDate" value="{$date}" style="width:60px;" maxlength="10"> 
+   							<input type="text" id="validHour" style="width:30px;" class="mask" data-format="99:99" name="validHour" value="{$time}"  maxlength="5"> 
+							<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" align="absmiddle" class="calendar" id="f_date" data-prev="validDate" title="Escolha a Data"/>
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkUntilClosed">{$smarty.config.Valid_until}:</label>
+						</li>
+						<li class="field">
+							<div id="boxEndValid" class="fl none">
+								<input type="text" id="validEndDate" class="mask" data-format="99/99/9999" name="validEndDate" value="" style="width:60px;" maxlength="10"> 
+   								<input type="text" id="validEndHour" style="width:30px;" class="mask" data-format="99:99" name="validEndHour" value=""  maxlength="5"> 
+								<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" width="20" height="15" class="calendar" data-prev="validEndDate" align="absmiddle" id="f_end_date" style="cursor: pointer; " title="Escolha a data">
+							</div>
+							<label class="fl">
+								<input type="checkbox" id="chkUntilClosed" name="chkUntilClosed" checked="checked" value="S"/>
+								{$smarty.config.Until_closed}
+							</label>
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkSendEmail">{$smarty.config.Send_email}:</label>
+						</li>
+						<li class="field">
+							<label>
+								<input name="chkSendEmail" id="chkSendEmail" type="checkbox" value="S"/>
+								{$smarty.config.Send_alerts_email}
+							</label>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkShowAlert">{$smarty.config.Show_in}:</label>
+						</li>
+						<li class="field">
+							<select name="chkShowAlert" id="chkShowAlert" class="w240">
+								<option value="1">Home</option>
+								<option value="2">Login</option>
+								<option value="3">{$smarty.config.Both}</option>
+							</select>
+						</li>
+					</ul>
+				</li>
+
+					
+			</ul>			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">				
+					<input type='submit' name="submit" id="btnSendWarningInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

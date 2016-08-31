@@ -1,0 +1,174 @@
+<form action="javascript:;" method="post" id="formTopicInsert">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Warning_new_topic}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtTitle">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field">
+							<input name="txtTitle" id="txtTitle" type="text" class="w200" maxlength="100" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbClosed">{$smarty.config.Validity_Standard}:</label>
+						</li>
+						<li class="field">
+							<input type="radio" name="validity" id="cmbClosed" value="1" checked="checked"/>
+							<label for="cmbClosed">{$smarty.config.Until_closed}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="field nivel1">
+							<input type="radio" id="cmbHours" name="validity" value="2"/>
+							<input type="text" name="txtHours" class="w20" />
+							<label for="cmbHours">{$smarty.config.Hours}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="field nivel1">
+							<input type="radio" id="cmdDays" name="validity" value="3"/>
+							<input type="text" name="txtDays" class="w20" />
+							<label for="cmdDays">{$smarty.config.Days}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkSendEmail">{$smarty.config.Send_email}:</label>
+						</li>
+						<li class="field">
+							<label>
+								<input name="chkSendEmail" id="chkSendEmail" type="checkbox" value="S"/>
+								{$smarty.config.Send_alerts_topic_email}
+							</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label>{$smarty.config.Available_for}:</label>
+						</li>
+						<li class="field">
+							<label>
+								<strong>{$smarty.config.Operator}:</strong> ({$smarty.config.By_group})
+								<input type="radio" name="avaibleOperator" value="1" checked="checked"/>
+								{$smarty.config.all}
+							</label>
+							<label class="ml10">
+								<input type="radio" name="avaibleOperator" value="2"/>
+								{$smarty.config.Select}
+							</label>
+						</li>
+					</ul>
+				</li>
+				<li class="none lstGroups">
+					<div style="max-height: 300px;overflow-y: auto;width: 485px;"> 
+						<table class="tab-services" style="width: 100%; border: none;" border="0" cellpadding="0" cellspacing="0">
+				        	<colgroup>
+				        		<col width="23"/>
+								<col width="180"/>
+								<col width="23"/>
+								<col width="180"/>
+				        	</colgroup>
+				            <tbody>
+				            	{foreach from=$groups key=myId item=i}
+									{if $myId % 2 == 0}
+										<tr>
+									{/if}
+										
+										<td class="pr0">
+						            		<input name="selectGroup[]" type="checkbox" value="{$i.id}" id="{$i.id}InsertG" />
+						            	</td>
+						            	<td>
+						            		<label for='{$i.id}InsertG'>{$i.name}</label>
+						            	</td>
+									
+									{if $myId % 2 != 0}
+										</tr>
+									{/if}
+									{if $groupslength == $myId && $myId % 2 == 0 }
+										</tr>
+								  	{/if}
+								{/foreach}
+				            </tbody>
+		            	</table>
+	            	</div>
+				</li>				
+				
+				<li>
+					<ul>
+						<li class="field nivel1">
+							<label>
+								<strong>{$smarty.config.User}:</strong> ({$smarty.config.By_company})
+								<input type="radio" name="avaibleUser" value="1" checked="checked"/>
+								{$smarty.config.all}
+							</label>
+							<label class="ml10">
+								<input type="radio" name="avaibleUser" value="2"/>
+								{$smarty.config.Select}
+							</label>
+						</li>
+					</ul>
+				</li>
+				
+				<li class="none lstCompany">
+					<div style="max-height: 300px;overflow-y: auto;width: 485px;"> 
+						<table class="tab-services" style="width: 100%; border: none;" border="0" cellpadding="0" cellspacing="0">
+				        	<colgroup>
+				        		<col width="23"/>
+								<col width="180"/>
+								<col width="23"/>
+								<col width="180"/>
+				        	</colgroup>
+				            <tbody>
+				            	{foreach from=$company key=myId item=i}
+									{if $myId % 2 == 0}
+										<tr>
+									{/if}
+										
+										<td class="pr0">
+						            		<input name="selectCompany[]" type="checkbox" value="{$i.id}" id="{$i.id}InsertC" />
+						            	</td>
+						            	<td>
+						            		<label for='{$i.id}InsertC'>{$i.name}</label>
+						            	</td>
+									
+									{if $myId % 2 != 0}
+										</tr>
+									{/if}
+									{if $companylength == $myId && $myId % 2 == 0 }
+										</tr>
+								  	{/if}
+								{/foreach}
+				            </tbody>
+		            	</table>
+	            	</div>
+				</li>
+			</ul>			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">				
+					<input type='submit' name="submit" id="btnSendTopicInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

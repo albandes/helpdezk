@@ -1,0 +1,110 @@
+<form action="javascript:;" method="post" id="formEditArticle" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Article_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">	
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbCategoryEdit">{$smarty.config.Parent_Category}:</label>
+						</li>
+						<li class="field">
+							<select class="w240" name="cmbCategory" id="cmbCategoryEdit">
+								<option value="">{$smarty.config.Select}</option>
+								{foreach from=$categories item=category}
+									{if $category.id == $idcategory}
+										<option value="{$category.id}" selected="selected">{$category.name}</option>
+									{else}
+										<option value="{$category.id}">{$category.name}</option>
+									{/if}									
+								{/foreach}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtTitleEdit">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field ">
+							<input type="text" name="txtTitle" id="txtTitleEdit" class="w240" value="{$title}"/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkFAQEdit">{$smarty.config.Faq_available}:</label>
+						</li>
+						<li class="field ">
+							<input type="checkbox" name="chkFAQ" id="chkFAQEdit" value="1" {if $faq == 1} checked="checked" {/if} />							
+						</li>
+					</ul>
+				</li>
+
+				{if $idattachment && $real_filename}
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtFile">{$smarty.config.File}:</label>
+						</li>
+						<li class="field">
+							{$real_filename} - 
+							<a href="javascript:;" class="removeFile lnk-tp2" data-id="{$idattachment}" >
+								{$smarty.config.Remove}
+							</a>
+						</li>
+					</ul>
+				</li>
+				{else}
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtFile">{$smarty.config.File}:</label>
+						</li>
+						<li class="field ">
+							<iframe src="knowledgebase/upload/id/null" name="ianexo" id="ianexo" height="22" frameborder="0" scrolling="no"></iframe>
+						</li>
+					</ul>
+				</li>
+				{/if}
+				
+
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtDescProEdit">{$smarty.config.Problem_description}:</label>
+						</li>
+						<li class="field ">
+							<textarea id="txtDescProEdit" name="txtDescPro" class="ckeditor" data-width="430" data-height="70" data-toolbar="SOLICITA_DET">{$problem}</textarea>							
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtSolProEdit">{$smarty.config.Problem_solution}:</label>
+						</li>
+						<li class="field ">
+							<textarea id="txtSolProEdit" name="txtSolPro" class="ckeditor" data-width="430" data-height="140" data-toolbar="SOLICITA">{$solution}</textarea>							
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" value="{$idbase}" name="idbase" id="idArticleEdit" />
+					<input type='submit' name="submit" id="btnEditArticle" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

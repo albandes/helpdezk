@@ -1,0 +1,285 @@
+{literal}
+<script src="{/literal}{$path}{literal}/includes/classes/ajax/flex_lang.js"></script>
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/js/admin/relRequestsGroup.js"></script>
+{/literal}
+
+<div class="reports">
+    <h2>{$smarty.config.pgr_request_group}:</h2>
+	<div class="clearfix">	
+		<form method="post" action="javascript:;" id="formSearch">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtSeparator">{$smarty.config.From}:</label>
+						</li>
+						<li class="field">
+							<input name="fromdate" id="fromdate" type="text" maxlength="10" class="w70 mask" data-format="99/99/9999" />
+                			<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" class="calendar" align="absmiddle" id="f_fromdate" style="cursor: pointer; "/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtSeparator">{$smarty.config.To}:</label>
+						</li>
+						<li class="field">
+							<input name="todate" id="todate" type="text" maxlength="10" class="w70 mask" data-format="99/99/9999"/>
+                			<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" align="absmiddle" class="calendar" id="f_todate" style="cursor: pointer; "/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbCompany">{$smarty.config.Company}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbCompany" class="w240" id="cmbCompany">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$corpsids output=$corpsvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtStatus">{$smarty.config.status}:</label>
+						</li>
+						<li class="field">
+							<select name="status" class="w240" id="txtStatus">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$statusids output=$statusvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtPriority">{$smarty.config.Priority}:</label>
+						</li>
+						<li class="field">
+							<select name="txtPriority" class="w240" id="txtPriority">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$priorityids output=$priorityvals}
+							</select>
+						</li>
+					</ul>
+				</li>				
+				<!--<li>
+					<ul>
+						<li class="info">
+							<label for="cmbOperator">{$smarty.config.Operator}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbOperator" class="w240" id="cmbOperator">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$operatorids output=$operatorvals}
+							</select>
+						</li>
+					</ul>
+				</li>-->
+				<!--<li>
+					<ul>
+						<li class="info">
+							<label for="cmbTerm">{$smarty.config.Term}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbTerm" class="w240" id="cmbTerm">
+								<option value=""> {$smarty.config.Select} </option>								
+								<option value="1"> {$smarty.config.Within} </option>
+								<option value="2"> {$smarty.config.Out_time} </option>
+							</select>
+						</li>
+					</ul>
+				</li>-->
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtowner">{$smarty.config.Request_owner}:</label>
+						</li>
+						<li class="field">
+							<select name="txtowner" class="w240" id="txtowner">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$personids output=$personvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbType">{$smarty.config.Type}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbType" class="w240" id="cmbType">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$typesids output=$typesvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbItem">{$smarty.config.Item}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbItem" class="w240" id="cmbItem">
+								<option value=""> {$smarty.config.Alert_choose_type} </option>
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbService">{$smarty.config.Service}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbService" class="w240" id="cmbService">
+								<option value=""> {$smarty.config.Alert_choose_item} </option>
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+										
+			</ul>
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="submit" value="{$smarty.config.Search}" class="btnOrange tp1"/>
+				</li>
+			</ul>
+		</form>
+	</div>
+	<div class="loader clearfix alignCenter none">
+		<img src="{$path}/app/themes/{$theme}/images/loading_laranja.gif"/>         
+    </div>
+</div>      
+<div id="boxRetorno" class="ml10 mb10 none" style="width: 900px;">
+	{literal}
+	<script>
+		
+	</script>
+	{/literal}
+    <ul class="lst-si">
+    	<li>
+    		<a href="javascript:;" class="btn-font-less">Menos</a>
+    	</li>
+    	<li>
+    		<a href="javascript:;" class="btn-font-more">Mais</a>
+    	</li>
+    	<li>
+    		<a href="#modalSalvar" class="btn-save openModal" title="{$smarty.config.Save}">{$smarty.config.Save}</a>
+    	</li>
+    	<li>
+    		<a href="#modalImpressao" class="btn-print openModal print" rel="boxImpressao" title="{$smarty.config.Print}">{$smarty.config.Print}</a>
+    	</li>
+    </ul>
+    <div id="boxImpressao">
+        <table class="tbReports clr" cellpadding="0" cellspacing="0">
+        	<colgroup>
+        		<col width="100">
+        		<col width="120">
+        		<col width="140">
+				<col width="250">
+				<col width="80">
+				<col width="70">
+				<col width="70">
+				<col width="50">
+        	</colgroup>
+        	<thead>
+        		<th>{$smarty.config.Code}</th>
+        		<th>{$smarty.config.Request_owner}</th>
+        		<th>{$smarty.config.Company}</th>
+        		<th>{$smarty.config.Subject}</th>
+        		<th>{$smarty.config.Opening_date}</th>
+        		<th>{$smarty.config.Priority}</th>
+        		<th>{$smarty.config.status}</th>
+        		<th>{$smarty.config.Repassed}</th>
+        	</thead>
+        	<tbody>
+        		<!-- -->
+        	</tbody>
+        </table>    
+    </div> 
+</div>
+
+<!-- MODAIS -->
+<div id="modalImpressao" class="window modalPrint" style="width:900px;">
+	<a href="javascript:;" onclick="window.print(); return false;" class="btnPrintModal" title="{$smarty.config.Print}"><span>{$smarty.config.Print}</span></a>
+    <div class="modalPrintHeader">
+    	<img src="{$path}/app/uploads/logos/{$reportslogo}" height="{$reportsheight}px" width="{$reportswidth}px" id="logo" />
+		<div class="ttl">
+			<h2>{$smarty.config.Person_report}</h2>
+			<span class="date"><!-- --></span>
+		</div>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalPrintContent">
+		<!-- -->
+	</div>
+</div>
+
+<div id="modalSalvar" class="window" style="width:530px;">
+    <form action="javascript:;" method="post">
+        <div class="modalHeader">
+			<h2>{$smarty.config.Person_report}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<p>{$smarty.config.Choose_format}</p>
+				<ul class="lstTypeFile clearfix">
+					<li>
+						<input type="radio" name="tpFile" id="filePDF" value="PDF" checked="checked" />
+						<label for="filePDF">
+							<span class="filePDF">{$smarty.config.File_PDF}</span>
+						</label>
+					</li>
+					<li>
+						<input type="radio" name="tpFile" id="fileXLS" value="XLS"/>
+						<label for="fileXLS">
+							<span class="fileXLS">{$smarty.config.File_XLS}</span>
+						</label>
+					</li>
+					<li>
+						<input type="radio" name="tpFile" id="fileCSV" value="CSV"/>
+						<label for="fileCSV">
+							<span class="fileCSV">{$smarty.config.File_CSV}</span>
+						</label>
+					</li>
+				</ul>
+				<ul class="lstForm clearfix mt15 none" id="lstSeparator">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="txtSeparator">{$smarty.config.Delimiter}:</label>
+							</li>
+							<li class="field"><input type="text" value="," maxlength="1" name="txtSeparator" id="txtSeparator" style="width: 30px;"/></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<input type="submit" value="{$smarty.config.Export}" class="btnOrange tp1"/>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+<!-- END MODAIS -->

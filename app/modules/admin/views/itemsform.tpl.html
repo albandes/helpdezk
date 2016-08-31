@@ -1,0 +1,99 @@
+{literal}
+<script type="text/javascript" language="javascript">
+	function send() {
+		// Colocamos os valores de cada campo em uma v�riavel para facilitar a manipula��o
+		$("#status").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' alt='{/literal}{$smarty.config.Send_img_alt}{literal}' />");
+		var name = $("#nameitem").val();
+		if ($("#defaultitem").is(":checked")) {
+			var vardefault = '1';
+		} else {
+			var vardefault = '0';
+		}
+		var idtype2 = $("#idtype2").val();
+
+		if ($("#availableitem").is(":checked")) {
+			var availableitem = 'A';
+		} else {
+			var availableitem = 'N';
+		}
+		if ($("#classifyitem").is(":checked")) {
+			var classifyitem = '1';
+		} else {
+			var classifyitem = '0';
+		}
+		pathform = document.form1;
+		if (name == '') {
+			alert("{/literal}{$smarty.config.Alert_empty_item}{literal}");
+			pathform.nameitem.focus();
+			return false;
+		}
+
+		// Exibe mensagem de carregamento
+		// Fazemos a requis�o ajax com o arquivo envia.php e enviamos os valores de cada campo atrav�s do m�todo POST
+		$.post('services/iteminsert', {
+			name : name,
+			vardefault : vardefault,
+			availableitem : availableitem,
+			classifyitem : classifyitem,
+			idtype2 : idtype2
+		}, function(resposta) {
+			// Quando terminada a requisi��o
+
+			if (resposta != false) {
+				// Exibe o erro na div
+				alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+                                $("#pop").hide();
+				carrega1(idtype2);
+
+			}
+			// Se resposta for false, ou seja, n�o ocorreu nenhum erro
+			else {
+				alert("{/literal}{$smarty.config.Alert_group_record}{literal}");
+			}
+		});
+	}
+</script>
+{/literal}
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">:: {$smarty.config.Item_insert} </span><a href="#" id='buttonClose' onclick=" $('#pop').fadeOut(400);"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<form name="form1" id="form1" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Item_name}:
+	</div>
+	<div class="campos">
+		<input name="nameitem" id="nameitem" type="text" class="campo" size="40" maxlength="150" />
+	</div>	
+	<div class="titulo">
+		{$smarty.config.Available}:
+	</div>
+	<div class="campos">
+		<input name="availableitem" type="checkbox" id="availableitem" checked>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Available_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Default}:
+	</div>
+	<div class="campos">
+		<input name="defaultitem" type="checkbox" id="defaultitem">
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Default_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Classification}:
+	</div>
+	<div class="campos">
+		<input name="classifyitem" type="checkbox" id="classifyitem">
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Classification_text}</strong>
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' class="btn_cadastrar" name="submit" onclick="send(); return false;" value="{$smarty.config.Record_btn}" />
+	</div>
+	<br/>
+	<div id="status" style="display: none; text-align: center; margin-bottom: 15px;" class="textoRodape"></div>

@@ -1,0 +1,278 @@
+{if $typeperson == 1}
+{literal}
+<script>
+	$(function(){
+        objDefault.init();
+		$(document.getElementById('btnPrintRequest')).click(function(){
+        	var $self = $(this),
+        		code = $(document.getElementById('code_request')).val();				
+			window.open(path + "/app/reports/relPrintRequest.php?code_request=" + code, "_blank");		
+		});
+		
+		$(document.getElementById('savechanges')).click(function(){
+        	var $self = $(this),
+        		code = $(document.getElementById('code_request')).val(),
+            	type = $(document.getElementById('type-view')).val(),
+            	item = $(document.getElementById('item')).val(),
+            	service = $(document.getElementById('service')).val(),
+            	reason = $(document.getElementById('reason')).val(),
+            	way = $(document.getElementById('way')).val(),
+            	priority = $(document.getElementById('priority')).val();
+            
+        
+            //inicio das validacoes
+            if(area =='' || area == 0){
+                alert("{/literal}{$smarty.config.Alert_choose_area}{literal}");
+                return false;
+            }
+            if(type =='' || type == 0){
+                alert("{/literal}{$smarty.config.Alert_choose_type}{literal}");
+                return false;
+            }
+            if(item =='' || item == 0){
+                alert("{/literal}{$smarty.config.Alert_choose_item}{literal}");
+                return false;
+            }
+            if(service =='' || service == 0){
+                alert("{/literal}{$smarty.config.Alert_choose_service}{literal}");
+                return false;
+            }          
+            if(reason == 0){
+                reason = 'NULL';
+            }
+            if(way == 0){
+                way = 'NULL';
+            }
+            objDefault.buttonAction($self,'disabled');
+            $.post('{/literal}{$path}{literal}/helpdezk/operator/editrequest', {
+            	code:code, 
+            	type: type,
+            	item:item, 
+            	service:service, 
+                reason:reason, 
+                way:way, 
+                priority:priority
+            }, function(resposta3) {
+      
+                if (resposta3 != false) {
+                    //alert(resposta3);
+                    for(var i in CKEDITOR.instances) {
+						CKEDITOR.instances[i].destroy(true); 
+					}
+                    $('#resultQuery').load(path+'/helpdezk/operator/queryviewrequest/id/'+code,function(){
+                    	objDefault.notification("success",aLang['Save_changes_sucess'].replace (/\"/g, ""),"modalInfo");
+                    	objModal.openModal("modalInfo");
+                    });
+                }
+                // Se resposta for false, ou seja, nao ocorreu nenhum erro
+                else {
+                	objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalInfo");
+                    objModal.openModal("modalInfo");                                    
+                }
+            })
+            .complete(function(){
+            	objDefault.buttonAction($self,'enabled');
+            });
+        })
+	})
+	
+	function change(val){
+        $("select[name=type]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+        var val = $("#area").val();
+        $.post("{/literal}{$path}{literal}/helpdezk/operator/type",
+            {area: val},
+            function(valor){
+                $("select[name=type-view]").html(valor);
+                return reloadItens();
+            }
+        )
+    }
+     
+    function reloadItens() {
+        $("select[name=item]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+        $.post("{/literal}{$path}{literal}/helpdezk/operator/item", 
+            {type:$('#type-view').val()},
+            function(valor){
+                $("select[name=item]").html(valor);
+				return reloadServices();
+			}
+		)
+	}
+   
+	function reloadServices() {
+		$("select[name=service]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+        $.post("{/literal}{$path}{literal}/helpdezk/operator/service", 
+            {item:$('#item').val()},
+            function(valor){
+                $("select[name=service]").html(valor);
+                return reloadReasons();
+            }
+        )
+    }
+
+    function reloadReasons() {
+        $("select[name=reason]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+        $.post("{/literal}{$path}{literal}/helpdezk/operator/reason", 
+            {type:$('#service').val()},
+            function(valor2){
+                $("select[name=reason]").html(valor2);
+            }
+        )
+    }
+	
+</script>
+{/literal}
+{/if}
+<input name="idperson" type="hidden" id="idperson" value="{$idperson}" />
+<input name="incharge" type="hidden" id="incharge" value="{$incharge}" />
+
+<div class="fl w550">
+    <div class="titulo" class="texto">{$smarty.config.Request_code}:</div>
+    <div class="campos"><span style="font-weight: bold;">{$request_code}</span> </div>
+    <div class="clr"><!--  --></div>
+
+    <input type="hidden" id="code_request" name="code_request" value="{$request_code}"/>
+    <div class="titulo">{$smarty.config.Request_owner}:</div>
+    <div class="campos">{$owner} ({$company}) &nbsp;</div> <div style="margin-top: 3px; float: left;"><a href="mailto:{$email}"><img src="{$path}/app/themes/{$theme}/images/email.png" height="20px" width="20px"/></a></div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo" style="clear: both;">{$smarty.config.Department}:</div>
+    <div class="campos">{$department}</div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo"> {$smarty.config.Area}: </div>
+    <div class="campos">
+        <select class="campo" name="area" id="area" onchange="change();" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select} </option>
+            {html_options values=$areaids output=$areavals selected=$idarea}
+        </select>
+    </div>
+
+    <div class="titulo"> {$smarty.config.Type}: </div>
+    <div class="campos">
+        <select class="campo" name="type-view" id="type-view" onchange="reloadItens();" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select} </option>
+            {html_options values=$typeids output=$typevals selected=$idtype}
+        </select>
+    </div>
+
+    <div class="titulo"> {$smarty.config.Item}: </div>
+    <div class="campos">
+        <select class="campo" name="item" id="item" onchange="reloadServices();" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select} </option>
+            {html_options values=$itemids output=$itemvals selected=$iditem}
+        </select>
+    </div>
+
+    <div class="titulo"> {$smarty.config.Service}: </div>
+    <div class="campos">
+        <select class="campo" name="service" id="service" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select} </option>
+            {html_options values=$serviceids output=$servicevals selected=$idservice}
+        </select>
+    </div>
+
+    <div class="titulo"> {$smarty.config.Reason}: </div>
+    <div class="campos">
+        <select class="campo" name="reason" id="reason" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select} </option>
+            {html_options values=$reasonids output=$reasonvals selected=$idreason}
+        </select>
+    </div>
+    {if $numusersaux > 0}
+    <div class="titulo"> {$smarty.config.btn_ope_aux}: </div>
+    <div class="campos">
+        <ul class="lstOpeAux">
+		{foreach from=$usersaux item=foo}
+		    <li>{$foo}</li>
+		{/foreach}
+		</ul>
+    </div>
+    {/if}
+</div>
+<div class="fl w550">
+    <div class="titulo">{$smarty.config.Opened_by}:</div>
+    <div class="campos">{$creator}</div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo" >{$smarty.config.Source}:</div>
+    <div class="campos">{$source}</div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo">{$smarty.config.status}:</div>
+    <div class="campos">{$status}</div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo">{$smarty.config.Opening_date}:</div>
+    <div class="campos">{$entry}</div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo"> {$smarty.config.Priority}: </div>
+    <div class="campos">
+        <select class="campo" name="priority" id="priority" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select} </option>
+            {html_options values=$priorityids output=$priorityvals selected=$idpriority}
+        </select>
+    </div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo">{$smarty.config.Att_way}: </div>
+    <div class="campos">
+        <select class="campo" name="way" id="way" {if $typeperson != 1}disabled="disabled"{/if}>
+            <option value="0">{$smarty.config.Select}</option>
+            {html_options values=$wayids output=$wayvals selected=$idway}
+        </select>
+    </div>
+    <div class="clr"><!--  --></div>
+
+    <div class="titulo"> {$smarty.config.Var_incharge}: </div>
+    <div class="campos"> {$inchargename} </div>
+
+	<div class="titulo"> {$smarty.config.Expire_date}: </div>
+    <div class="campos"> 
+        {$expire_date} {$expire_hour}
+        {if $show_btn_change_expire == 1}
+            <a href='#modalChangeExpireDate' class='openModal btnOrange tp1 min'> {$smarty.config.Change_date} </a>
+        {/if}
+    </div>
+</div>
+
+<div class="clr"><!--  --></div>
+<div class="titulo"> {$smarty.config.Subject}: </div>
+<div class="campos w80p">{$subject}</div>
+
+<div class="titulo"> {$smarty.config.Description}: </div>
+<div class="campos w80p">{$description}</div>
+<div class="titulo" {$hasattach}> {$smarty.config.Attachments}: </div>
+<div class="campos" id="campoattachs" {$hasattach}>{$attach1}</div>
+
+		
+<div class="clr"><!--  --></div>
+{if $typeperson == 1}
+	<div class="notes mt10">
+	{if $typeperson == 1 and $approving != 1}
+		<div class="fl">	
+			<input type="button" id="savechanges" class="btnOrange tp1" value="{$smarty.config.btn_save_changes}"/>
+			<a href="#modalRepass" class="openModal btnOrange tp1">{$smarty.config.btn_repass}</a>	
+		</div>
+	{/if}
+		<div class="fl">
+			<a href="javascript:;" id="btnPrintRequest" class="btn-print-tp2 fl" title="{$smarty.config.Print}">{$smarty.config.Print}</a>
+		</div>
+	</div>
+{/if}
+<div class="notes mb0">
+	<strong class="ml10">{$smarty.config.Added_notes}</strong>
+</div>
+<div class="clr"><!--  --></div>
+<div id="notetable">
+	{$notetable}
+</div>
+
+<!-- INCLUDES MODAIS -->
+{if $typeperson == 1 and $approving != 1}
+{include file="modais/repass.tpl.html"}
+{/if}
+{include file="modais/include/useredit.tpl.html"}
+{include file="modais/changeexpiredate.tpl.html"}
+<!-- END INCLUDES MODAIS -->

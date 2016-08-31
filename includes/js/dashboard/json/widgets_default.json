@@ -1,0 +1,16 @@
+{
+"result" :
+  {
+  "layout": "layout2",
+  "data" : [
+			{
+			  "title" : "Documentation",
+			  "id" : "widget1",
+			  "column" : "first",
+			  "editurl" : "../includes/classes/dashboardplugin/demo/widgets/editwidget1.html",
+			  "open" : true,
+			  "url" : "../includes/classes/dashboardplugin/demo/widgets/widget1.html"
+			}
+ 		  ]
+  }
+}

@@ -1,0 +1,63 @@
+{literal}
+<script type="text/javascript" language="javascript">
+        function close() {
+		document.getElementById('status3').style.display = 'none';
+	}
+
+	function valida2() {
+		// Colocamos os valores de cada campo em uma v�riavel para facilitar a manipula��o
+		var name3 = $("#name3").val();
+
+		pathform = document.form3;
+		if (name3 == '') {
+			alert("{/literal}{$smarty.config.Alert_empty_area}{literal}");
+			pathform.name3.focus();
+			return false;
+		}
+
+		// Fazemos a requis�o ajax com o arquivo envia.php e enviamos os valores de cada campo atrav�s do m�todo POST
+		$.post('services/areaInsert', {
+			name : name3
+		}, function(respost) {
+
+			if (respost != false) {
+
+				alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+                                $("#content").load('services');
+			}
+			// Se resposta for false, ou seja, n�o ocorreu nenhum erro
+			else {
+				// Exibe mensagem de sucesso
+				$("#status").slideDown();
+				$("#status").html("{/literal}{$smarty.config.Alert_failure}{literal}!");
+				$("#name").val("");
+			}
+		});
+
+	}
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">::{$smarty.config.Area_insert} </span><a href="#" id='buttonClose' onclick="$('#pop3').fadeOut(400); close();"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<form name="form3" id="form3" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Area_name}:
+	</div>
+	<div class="campos">
+		<input name="name3" id="name3" type="text" size="40" maxlength="150" />
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' name="submit"  class="btn_cadastrar"  value="{$smarty.config.Record_btn}" onclick="valida2(); return false;"/>
+	</div>
+	<br/>
+	<div id="areas" class="fl" style="margin-left: 13px; margin-bottom: 15px; width: 420px; height: 300px; border: 1px #ccc solid; overflow: auto;">
+		{$areas}
+	</div>
+	<br/>
+        <br/>
+	<br/>
+	<br/>
+</form>

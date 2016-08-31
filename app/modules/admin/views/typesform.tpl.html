@@ -1,0 +1,126 @@
+{literal}
+<link rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/style.css" type="text/css"  media="screen" />
+<script type="text/javascript" language="javascript">
+	$(document).ready(function() {
+		$("#status4").hide();
+	});
+
+	function close() {
+		document.getElementById('status4').style.display = 'none';
+	}
+
+	function valida4() {
+		// Colocamos os valores de cada campo em uma v�riavel para facilitar a manipula��o
+		$("#status4").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' alt='{/literal}{$smarty.config.Send_img_alt}{literal}' />");
+		var name4 = $("#name4").val();
+		var area = $("#area").val();
+
+		if ($("#default1").is(":checked")) {
+			var vardefault = '1';
+		} else {
+			var vardefault = '0';
+		}
+		var iditem2 = $("#iditem2").val();
+
+		if ($("#available1").is(":checked")) {
+			var availableitem = 'A';
+		} else {
+			var availableitem = 'N';
+		}
+		if ($("#classify1").is(":checked")) {
+			var classifyitem = '1';
+		} else {
+			var classifyitem = '0';
+		}
+
+		pathform = document.form4;
+		if (name4 == '') {
+			alert("{/literal}{$smarty.config.Alert_empty_type}{literal}");
+			pathform.name4.focus();
+			return false;
+		}
+
+		if (area == '' || area == 0) {
+			alert("{/literal}{$smarty.config.Select_area}{literal}");
+			return false;
+		}
+
+		// Fazemos a requis�o ajax com o arquivo envia.php e enviamos os valores de cada campo atrav�s do m�todo POST
+		$.post('services/typeInsert', {
+			name : name4,
+			area : area,
+			vardefault : vardefault,
+			status : availableitem,
+			classify : classifyitem
+		}, function(respo) {
+
+			if (respo != false) {
+
+				alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+
+                                $("#pop4").hide();
+				$("#content").load('services');
+			}
+			// Se resposta for false, ou seja, n�o ocorreu nenhum erro
+			else {
+				// Exibe mensagem de sucesso
+				alert("{/literal}{$smarty.config.Alert_failure}{literal}!");
+				$("#name").val("");
+			}
+		})
+	}
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">:: {$smarty.config.Type_insert} </span><a href="#" id='buttonClose' onclick="$('#pop4').fadeOut(400); close();"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<form name="form4" id="form4" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Type_name}:
+	</div>
+	<div class="campos">
+		<input name="name4" id="name4" type="text" size="40" maxlength="150" />
+	</div>	
+	<div class="titulo">
+		{$smarty.config.Area}:
+	</div>
+	<div class="campos">
+		<select name="area" id="area">
+			<option value="0">{$smarty.config.Select_area}</option>
+			{html_options values=$areaids output=$areavals}
+		</select>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Available}:
+	</div>
+	<div class="campos">
+		<input name="available1" type="checkbox" id="available1" checked>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Available_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Default}:
+	</div>
+	<div class="campos">
+		<input name="default1" type="checkbox" id="default1">
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Default_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Classification}:
+	</div>
+	<div class="campos">
+		<input name="classify1" type="checkbox" id="classify1">
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Classification_text}</strong>
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' name="submit"  class="btn_cadastrar"  value="{$smarty.config.Record_btn}" onclick="valida4(); return false;"/>
+	</div>
+	<div id="status4" style="text-align: center;  margin-bottom: 15px;" class="textoRodape"></div>
+</form>

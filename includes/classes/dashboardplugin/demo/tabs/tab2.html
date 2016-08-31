@@ -1,0 +1,44 @@
+<h1>Dashboard 2</h1>
+
+<script>
+$(document).ready(function() {
+
+  var dashboard2 = $('#dashboard2').dashboard({
+    layoutClass:'layout',
+    json_data : {
+      url: "jsonfeed/mywidgets2.json"
+    },
+    addWidgetSettings: {
+      widgetDirectoryUrl:"jsonfeed/widgetcategories.json"
+    },
+    layouts :
+      [
+        { title: "Layout1",
+          id: "layout1",
+          image: "layouts/layout1.png",
+          classname: 'layout-a'
+        },
+        { title: "Layout2",
+          id: "layout2",
+          image: "layouts/layout2.png",
+          classname: 'layout-aa'
+        }
+      ]
+
+  }); // end dashboard call
+
+  dashboard2.init();
+  dashboardManager.addDashboard(dashboard2);
+
+});
+
+</script>
+
+<div id="dashboard2" class="dashboard">
+  <!-- this HTML covers all layouts. The 5 different layouts are handled by setting another layout classname -->
+  <div class="layout">
+    <div class="column first column-first"></div>
+    <div class="column second column-second"></div>
+    <div class="column third column-third"></div>
+  </div>
+</div>

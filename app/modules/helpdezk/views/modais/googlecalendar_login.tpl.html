@@ -1,0 +1,93 @@
+{literal}
+	<script>
+		$(document).ready(function() {
+			objDefault.init();
+			$('#loader_login').hide() ;
+			$(document.getElementById('btnSendGoogleAuth')).click(function(){
+				//$('#login_password').hide() ;
+				//$('#loader_login').show() ;
+				var $self = $(this);
+				objDefault.buttonAction($self,'disabled');
+				$.post("{/literal}{$path}{literal}/helpdezk/operator/modalGoogleCalendar", 
+					{
+						GoogleType: 'Auth', 
+						login:$('input#login').val(),
+						password:$('input#password').val()
+					}
+					,
+					function(data){
+						if(!data.error){
+							var modalGoogleCalendar = $(document.getElementById("modalGoogleCalendar"));
+					        objDefault.maskLoaderShow();
+					        modalGoogleCalendar.load("{/literal}{$path}{literal}/helpdezk/operator/modalGoogleCalendar/GoogleType/complete", 
+							function(){
+					        	objDefault.init();
+					        	objModal.openModal("modalGoogleCalendar");
+					        	objDefault.maskLoaderHide();
+					        })
+						} else {
+							objDefault.notification("error",aLang['Google_Failure'].replace(/\"/g, "") + ": "+ data.error,"modalGoogleCalendar");
+						}
+							
+					}, 
+					"json"
+				).complete(function(){
+					objDefault.buttonAction($self,'enabled');
+				})
+			});
+			
+		});
+	</script>  	
+{/literal}
+
+<form id="form_calendar_login" action="javascript:;" method="post">
+	
+    <div class="modalHeader">
+		<h2>Google Calendar</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	
+	<div class="modalContent" >
+		<div class="clearfix">
+			<div id="loader_login" class="loader"> </div>
+			<div id="login_password">
+				<ul class="lstForm clearfix">
+					<!-- Login -->
+					<li>
+						<ul>
+							<li class="info">
+								<label for="login">{$smarty.config.Login}:</label>
+							</li>
+							<li class="field">					
+								<input name="login" id="login" type="text" class="w240"  maxlength="40" value="{$login}"/>
+							</li>
+						</ul>
+					</li>
+					<!--       -->
+					<!-- Password -->
+					<li>
+						<ul>
+							<li class="info">  
+								<label for="password">{$smarty.config.Password}:</label>
+							</li>
+							<li class="field">					
+								<input name="password" id="password" type="password" class="w240" maxlength="40" value="{$password}"/>
+							</li>
+						</ul>
+					</li>
+					<!--         -->
+				</ul>	
+				<div class="modalFooter">
+					<div class="clearfix">
+						<ul class="lst-btn">
+							<li class="last">
+								<input type='submit' name="submit" id="btnSendGoogleAuth" class="btnOrange tp1" value="{$smarty.config.Send}" />
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>		
+		
+		</div>
+	</div>
+</form>

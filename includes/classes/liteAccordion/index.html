@@ -1,0 +1,436 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>liteAccordion - a horizontal accordion plugin for jQuery</title>
+        <style>
+            /* css for this page */
+            body { font: 14px/24px 'Helvetica Neue', Arial, sans-serif; color: #333; width: 960px; margin: 30px auto 60px; background: #eee }
+            body > h2 { margin: 30px 0 15px; text-shadow: 1px 1px 0 white; border-bottom: 2px solid #333; padding-bottom: 5px }
+            h1 { text-align: center; margin-bottom: 30px; text-shadow: 1px 1px 0 white }
+            strong + p { margin-top: 0 }
+            dt { font-weight: bold }
+            dd { margin: 0 }
+            figure { display: block; width: 100%; height: 100%; margin: 0 }
+            figcaption { padding: 10px 15px; position: absolute; bottom: 20px; right: 30px; z-index: 3; background: black; background: rgba(0,0,0,0.7); color: white;
+                -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px }   
+        </style>
+
+        <!-- liteAccordion css -->
+        <link href="css/liteaccordion.css" rel="stylesheet" />
+
+        <!-- syntax highlighter -->
+        <link href="http://alexgorbatchev.com.s3.amazonaws.com/pub/sh/3.0.83/styles/shCore.css" rel="stylesheet" />
+        <link href="http://alexgorbatchev.com.s3.amazonaws.com/pub/sh/3.0.83/styles/shThemeDefault.css" rel="stylesheet" />         
+
+        <!-- jQuery -->        
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+        <!-- easing -->
+        <script src="js/jquery.easing.1.3.js"></script>
+
+        <!-- liteAccordion js -->
+        <script src="js/liteaccordion.jquery.js"></script>
+
+        <!--[if lt IE 9]>
+            <script>
+                document.createElement('figure');
+                document.createElement('figcaption');           
+            </script>
+        <![endif]-->         
+    </head>
+    <body>
+
+        <h1>liteAccordion - a horizontal accordion plugin for jQuery</h1>
+        <div id="one">
+            <ol>
+                <li>
+                    <h2><span>Slide One</span></h2>
+                    <div>
+                        <figure>
+                            <img src="img-demo/1.jpg" alt="image" />
+                            <figcaption>Assassini!</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Two</span></h2>
+                    <div>
+                        <figure>
+                            <img src="img-demo/2.jpg" alt="image" />
+                            <figcaption>Couldn't find an image of a Khajit thief! Fail!</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Three</span></h2>
+                    <div>
+                        <figure>
+                            <img src="img-demo/3.jpg" alt="image" />
+                            <figcaption>That's one angry looking red dude.</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Four</span></h2>
+                    <div>
+                        <figure>
+                            <img src="img-demo/4.jpg" width="768" alt="image" />
+                            <figcaption>Was fun for a couple of hours or so...</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Five</span></h2>
+                    <div>
+                        <figure>
+                            <img src="img-demo/5.jpg" alt="image" />
+                            <figcaption>Not as good as Hot Pursuit.</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ol>
+            <noscript>
+                <p>Please enable JavaScript to get the full experience.</p>
+            </noscript>
+        </div>
+
+        <h2>Download</h2>
+        <p>More details and download <a href="http://nicolahibbert.com/liteaccordion-v2">here</a></p>
+
+        <h2>FAQ</h2>
+        <dl>
+            <dt>Q. Why is this plugin called 'liteAccordion'?</dt>
+            <dd>A. It is called liteAccordion because the minified JS source only weighs 4kb.  If you gzip the minified JS, you can get the file size down to 1.6kb!</dd>
+            <dt>Q. What can I use it for?</dt>
+            <dd>A. Anything you like! Text, images, video - anything you can put in a div, you can put in a slide.</dd>
+            <dt>Q. But my page isn't 960px wide...</dt>
+            <dd>A. Not a problem. The plugin has a range of options, and I've tried to use relative measurements in the css so that the styles scale.</dd>
+            <dt>Q. What themes are available?</dt>
+            <dd>A. Originally, liteAccordion had two themes - 'basic' and 'dark'.  In version 2, two more themes were added - 'light and stitch'.  These themes are based on Orman Clark's work over at <a href="http://www.premiumpixels.com/stitched-fabric-accordion/">Premium Pixels</a>.  Well worth checking out if you need some design inspiration.</dd>
+            <dt>Q. Does it work in...</dt>
+            <dd>A. It's been tested on the latest versions of Firefox, Chrome, Safari and Opera on both OSX and W7.  It has also been tested on IE7, IE8 &amp; IE9 on W7.  Unfortunately IE6 is not supported - you will need to provide your own css if you plan to support IE6.</dd>
+            <dt>Q. Sounds good! Can I use it for commercial projects?</dt>
+            <dd>A. liteAccordion is free to use for commercial and personal projects.  As long as you're not trying to sell this plugin 'as is', feel free to do with it as you please.</dd>
+        </dl>
+        <p>If you find any bugs, please <a href="https://github.com/nikki/liteAccordion/issues">file a ticket on Github</a> and I'll fix it as soon as possible.  Thanks!</p>
+
+        <h2>New in 2.0! (16/11/11)</h2>
+        <strong>Methods:</strong>
+        <p>liteAccordion now has play, stop, trigger next slide, trigger previous slide, destroy and debug methods.</p>
+
+        <strong>Mouseover activation</strong>
+        <p>Slides can now be activated onmouseover.</p>
+
+        <strong>Custom easing</strong>
+        <p>The plugin now supports custom easing functions (easeOutBounce is one of my favourites :)) using George McGinley Smith's jQuery Easing plugin.  If you're not planning on making use of this (i.e. if you're using the linear or swing easing types), you don't need to include jquery.easing.1.3.js in your page.</p>
+
+        <strong>Linkable slides</strong>
+        <p>You can now link to individual slides by assigning a name to a slide in your html, and setting the 'linkable' option to true.</p>
+
+        <strong>Two new themes</strong>
+        <p>v2 features two new themes: the 'light' theme, and the 'stitch' theme.  The light theme is very similar to the 'dark' theme, but with inverted colours.  The stitch theme is based on Orman Clark's awesome work (again :p) over on <a href="http://www.premiumpixels.com/freebies/stitched-fabric-accordion/" target="_blank">Premium Pixels</a>.</p>
+
+        <strong>Demo suite available</strong>
+        <p>During development, I created a tool to let me try out different combinations of settings without reloading the page.  Try it out for yourself <a href="http://nicolahibbert.com/demo/liteAccordion/demo-suite.html">here</a>.</p>
+
+        <h2>New in 1.1! (23/03/11)</h2>
+        <p>In version 1.1, a pause on hover function was added to the plugin.</p>
+
+        <h2>Basic Implementation</h2>
+        <p>1. Include jQuery, the liteAccordion CSS and the liteAccordion JavaScript files in your page:</p>
+        <pre class="brush: xml">
+            &lt;head&gt;
+                &lt;link rel="stylesheet" href="liteAccordion.css"&gt;
+            &lt;/head&gt;
+            &lt;body&gt;
+                ... <!-- Before the closing body tag -->
+                &lt;script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"&gt;&lt;/script&gt;
+                &lt;script src="liteaccordion.jquery.js"&gt;&lt;/script&gt;
+            &lt;/body&gt;</pre>
+        <p>2. Insert the basic liteAccordion markup into your page:</p>
+        <pre class="brush: xml">
+        <div>
+            <ol>
+                <li>
+                    <h2><span>Slide One</span></h2>
+                    <div></div>
+                </li>
+                <li>
+                    <h2><span>Slide Two</span></h2>
+                    <div></div>
+                </li>
+                <li>
+                    <h2><span>Slide Three</span></h2>
+                    <div></div>
+                </li>
+                <li>
+                    <h2><span>Slide Four</span></h2>
+                    <div></div>
+                </li>
+                <li>
+                    <h2><span>Slide Five</span></h2>
+                    <div></div>
+                </li>
+            </ol>
+            <noscript>
+                <p>Please enable JavaScript to get the full experience.</p>
+            </noscript>
+        </div></pre>
+        <p>3. Call the plugin</p>
+        <pre class="brush: xml">
+            &lt;script&gt;
+                $('#yourdiv').liteAccordion();
+            &lt;/script&gt;</pre>
+
+        <h2>Basic Example</h2>
+        <p>This is a demonstration of the default implementation, but with some text content added to the slides.</p>
+        <div id="two">
+            <ol>
+                <li>
+                    <h2><span>Slide One</span></h2>
+                    <div>
+                        <h3>This is Slide One.</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                            magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                            consequat. <a href="#">Link somewhere</a>
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Two</span></h2>
+                    <div>
+                        <h3>This is Slide Two.</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                            magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi. <br /><a href="#">Link somewhere</a>
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Three</span></h2>
+                    <div>
+                        <h3>This is Slide Three.</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                            magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                            consequat. <a href="#">Link somewhere</a>
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Four</span></h2>
+                    <div>
+                        <h3>This is Slide Four.</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                            magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi. <br /><a href="#">Link somewhere</a>
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Five</span></h2>
+                    <div>
+                        <h3>This is Slide Five.</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                            magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                            consequat. <a href="#">Link somewhere</a>
+                        </p>
+                    </div>
+                </li>
+            </ol>
+            <noscript>
+                <p>Please enable JavaScript to get the full experience.</p>
+            </noscript>
+        </div>
+
+        <h2>Options</h2>
+        <p>These are the default settings for the liteAccordion plugin:</p>
+        <pre class="brush: js">         
+            containerWidth : 960,                   // fixed (px)  
+            containerHeight : 320,                  // fixed (px)  
+            headerWidth: 48,                        // fixed (px)  
+
+            activateOn : 'click',                   // click or mouseover  
+            firstSlide : 1,                         // displays slide (n) on page load  
+            slideSpeed : 800,                       // slide animation speed  
+            onTriggerSlide : function() {},         // callback on slide activate  
+            onSlideAnimComplete : function() {},    // callback on slide anim complete  
+
+            autoPlay : false,                       // automatically cycle through slides  
+            pauseOnHover : false,                   // pause on hover  
+            cycleSpeed : 6000,                      // time between slide cycles  
+            easing : 'swing',                       // custom easing function  
+
+            theme : 'basic',                        // basic, dark, light, or stitch  
+            rounded : false,                        // square or rounded corners  
+            enumerateSlides : false,                // put numbers on slides  
+            linkable : false                        // link slides via hash</pre>
+
+        <p>Simply pass options into the liteAccordion function with an object literal, for example, below is the code for the accordion at the top of the page.</p>
+        <pre class="brush: js">
+            $('#one').liteAccordion({
+                    onTriggerSlide : function() {
+                        this.find('figcaption').fadeOut();
+                    },
+                    onSlideAnimComplete : function() {    
+                        this.find('figcaption').fadeIn();
+                    },
+                    autoPlay : true,
+                    pauseOnHover : true,
+                    theme : 'stitch',
+                    rounded : true,
+                    enumerateSlides : true                  
+            }).find('figcaption:first').show();
+        </pre>
+
+        <h2>Methods</h2>
+        <p>These are the methods for the liteAccordion plugin:</p>
+        <pre class="brush: js">         
+            play                                    // trigger autoPlay on a stopped accordion
+            stop                                    // stop an accordion playing
+            next                                    // trigger the next slide
+            prev                                    // trigger the previous slide
+            destroy                                 // remove the accordion, destroying all event handlers and styles
+            debug                                   // returns a debug object</pre>
+
+        <p>All of these methods are chainable (i.e. they return the original DOM object) with the exception of the debug method. To call a method, use:</p>
+
+        <pre class="brush: js">$('#yourdiv').liteAccordion('play');</pre>
+
+        <p>To chain methods:</p>
+
+        <pre class="brush: js">$('#yourdiv').liteAccordion('next').liteAccordion('next');</pre>
+
+        <h2>More Examples</h2>
+        <div id="three">
+            <ol>
+                <li name="ezio">
+                    <h2><span>Slide One</span></h2>
+                    <div>
+                        <img src="img-demo/1.jpg" alt="image" />
+                    </div>
+                </li>
+                <li name="imperial">
+                    <h2><span>Slide Two</span></h2>
+                    <div>
+                        <img src="img-demo/2.jpg" alt="image" />
+                    </div>
+                </li>
+                <li name="zelda">
+                    <h2><span>Slide Three</span></h2>
+                    <div>
+                        <img src="img-demo/3.jpg" alt="image" />
+                    </div>
+                </li>
+                <li name="man-down">
+                    <h2><span>Slide Four</span></h2>
+                    <div>
+                        <img src="img-demo/4.jpg" width="768" alt="image" />
+                    </div>
+                </li>
+                <li name="crash">
+                    <h2><span>Slide Five</span></h2>
+                    <div>
+                        <img src="img-demo/5.jpg" alt="image" />
+                    </div>
+                </li>
+            </ol>
+            <noscript>
+                <p>Please enable JavaScript to get the full experience.</p>
+            </noscript>
+        </div>
+        <p>Links:
+            <a href="#ezio">ezio</a>
+            <a href="#imperial">imperial</a>
+            <a href="#zelda">zelda</a>
+            <a href="#man-down">man down!</a>
+            <a href="#crash">crashy crashy</a>
+        </p>
+        <pre class="brush: js">$('#yourdiv').liteAccordion({ 
+    theme : 'dark', 
+    rounded : true, 
+    enumerateSlides : true, 
+    firstSlide : 2,
+    linkable : true,
+    easing: 'easeInOutQuart'
+});</pre>
+
+        <div id="four">
+            <ol>
+                <li>
+                    <h2><span>Slide One</span></h2>
+                    <div>
+                        <img src="img-demo/1.jpg" alt="image" />
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Two</span></h2>
+                    <div>
+                        <img src="img-demo/2.jpg" alt="image" />
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Three</span></h2>
+                    <div>
+                        <img src="img-demo/3.jpg" alt="image" />
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Four</span></h2>
+                    <div>
+                        <img src="img-demo/4.jpg" width="768" alt="image" />
+                    </div>
+                </li>
+                <li>
+                    <h2><span>Slide Five</span></h2>
+                    <div>
+                        <img src="img-demo/5.jpg" alt="image" />
+                    </div>
+                </li>
+            </ol>
+            <noscript>
+                <p>Please enable JavaScript to get the full experience.</p>
+            </noscript>
+        </div>
+        <pre class="brush: js">$('#yourdiv').liteAccordion({ 
+    theme : 'light',
+    firstSlide : 3,
+    easing: 'easeOutBounce',
+    activateOn: 'mouseover'
+});</pre>
+
+        <h2>Licence</h2>
+        <p>liteAccordion is released under the MIT licence.</p>
+
+        <h2>Attribution</h2>
+        <p>Themes are based on some lovely freebie designs by Orman Clark.  Thanks Orman!</p>
+
+        <!-- liteAccordion demos -->
+        <script>
+            (function($) {
+                // demos
+                $('#one').liteAccordion({
+                        onTriggerSlide : function() {
+                            this.find('figcaption').fadeOut();
+                        },
+                        onSlideAnimComplete : function() {    
+                            this.find('figcaption').fadeIn();
+                        },
+                        autoPlay : true,
+                        pauseOnHover : true,
+                        theme : 'stitch',
+                        rounded : true,
+                        enumerateSlides : true                  
+                }).find('figcaption:first').show();
+                $('#two').liteAccordion();
+                $('#three').liteAccordion({ theme : 'dark', rounded : true, enumerateSlides : true, firstSlide : 2, linkable : true, easing: 'easeInOutQuart' });
+                $('#four').liteAccordion({ theme : 'light', firstSlide : 3, easing: 'easeOutBounce', activateOn: 'mouseover' });
+            })(jQuery);  
+        </script>
+
+        <!-- syntax highlighter -->
+        <script src="http://nicolahibbert.com/demo/liteAccordion/js/shCore.js"></script>
+        <script src="http://alexgorbatchev.com.s3.amazonaws.com/pub/sh/3.0.83/scripts/shBrushXml.js"></script>
+        <script src="http://alexgorbatchev.com.s3.amazonaws.com/pub/sh/3.0.83/scripts/shBrushJScript.js"></script>
+        <script>SyntaxHighlighter.all();</script> 
+
+    </body>
+</html>

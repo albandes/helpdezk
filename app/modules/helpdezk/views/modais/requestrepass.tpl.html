@@ -1,0 +1,347 @@
+{literal}
+<script type="text/javascript">
+    $("#btnFilter").live("click",function(){
+    	filter();
+    })
+    
+    $("#txtFilter").live("keyup",function(e){
+    	if(e.keyCode == 13){
+    		filter();
+    	}
+    })
+    
+    function filter(){
+    	var $search = document.getElementById("txtFilter").value,
+    		valType = $("input[name=typerep]:checked").val(),
+    		$replist = $(document.getElementById("replist")),
+    		$tabAbiGrp = $(document.getElementById("tabAbiGrp")).find("tbody");
+    	
+    	if(valType){
+    		$replist.empty();
+	    	$replist.append("<option value=''>"+aLang['Loading'].replace (/\"/g, "")+" </option>");
+	    	$tabAbiGrp.empty();
+    		$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Select_group_operator'].replace (/\"/g, "")+"</strong></td></tr>");
+    		if(valType == "operator"){
+	    		$.post('requestInsertOperator/operatorList',{filter: $search}, function(data) {
+	    			$replist.empty();
+		           	$.each(data, function(i,result){
+		           		$replist.append("<option value='"+result.id+"'>"+result.name+" </option>");
+		            });
+		        },"json");
+		    }
+    		if(valType == "group"){
+    			$.post('requestInsertOperator/groupList',{filter: $search}, function(data) {
+	    			$replist.empty();
+		           	$.each(data, function(i,result){
+						$replist.append("<option value='"+result.id+"'>("+result.level+") "+result.name+" </option>");
+		            });
+		        },"json");
+    		}
+    	}
+    }
+	
+	$("#replist").live("change",function(){
+		//btnAbilities btnGroups	
+		var valType = $("input[name=typerep]:checked").val();
+		if(valType){
+			if(!$(document.getElementById("btnAbilities")).hasClass("off")){
+				objAbiGrp.getAbilities();
+			}
+			else if(!$(document.getElementById("btnGroups")).hasClass("off")){
+				objAbiGrp.getGroups();
+		}
+		}
+	})
+	
+	var objAbiGrp = {
+		getAbilities: function(){
+			var valType = $("input[name=typerep]:checked").val(),
+				rep = document.getElementById("replist").value,
+				$tabAbiGrp = $(document.getElementById("tabAbiGrp")).find("tbody");
+				$tabAbiGrp.empty();
+				$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Loading'].replace (/\"/g, "")+"</strong></td></tr>");
+				$.post('requestInsertOperator/abilitiesList', {type: valType, rep: rep}, function(data){
+		            $tabAbiGrp.empty();
+		            $tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Related_abilities'].replace (/\"/g, "")+"</strong></td></tr>");
+		           	if(data){
+		           		$.each(data, function(i,result){
+							$tabAbiGrp.append("<tr><td>"+result.service+"</td></tr>");
+			            });
+		           	}else{
+		           		$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['No_abilities'].replace (/\"/g, "")+"</strong></td></tr>");
+		           	}
+		        },"json");
+		},
+		getGroups: function(){
+			var valType = $("input[name=typerep]:checked").val(),
+				rep = document.getElementById("replist").value,
+				$tabAbiGrp = $(document.getElementById("tabAbiGrp")).find("tbody");
+				$tabAbiGrp.empty();
+				$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Loading'].replace (/\"/g, "")+"</strong></td></tr>");
+				$.post('requestInsertOperator/groupsList', {type: valType, rep: rep}, function(data){
+		            $tabAbiGrp.empty();
+		            if(valType == "operator")
+		            	$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Operator_groups'].replace (/\"/g, "")+"</strong></td></tr>");
+		            else
+		            	$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Group_operators'].replace (/\"/g, "")+"</strong></td></tr>");
+		           	
+		           	if(data){
+		           		$.each(data, function(i,result){
+							$tabAbiGrp.append("<tr><td>"+result.name+"</td></tr>");
+			            });
+		           	}else{
+		           		$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['No_data'].replace (/\"/g, "")+"</strong></td></tr>");
+		           	}
+		        },"json");
+		}
+	}
+    
+    $("input[name=typerep]").live("click",function(){
+    	var $replist = $(document.getElementById("replist")),
+    		$tabAbiGrp = $(document.getElementById("tabAbiGrp")).find("tbody");
+    	$replist.empty();
+    	$replist.append("<option value=''>"+aLang['Loading'].replace (/\"/g, "")+" </option>");
+    	$tabAbiGrp.empty();
+    	$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Select_group_operator'].replace (/\"/g, "")+"</strong></td></tr>");
+    	if(this.value == "group"){
+    		$.post('requestInsertOperator/groupList', function(data) {
+    			$replist.empty();
+	           	$.each(data, function(i,result){
+					$replist.append("<option value='"+result.id+"'>("+result.level+") "+result.name+" </option>");
+	            });
+	        },"json");
+    	}else{
+    		$.post('requestInsertOperator/operatorList', function(data) {
+    			$replist.empty();
+	           	$.each(data, function(i,result){
+	           		$replist.append("<option value='"+result.id+"'>"+result.name+" </option>");
+	            });
+	        },"json");
+    	}
+    });
+    
+    //btnAbilities btnGroups
+    $("#btnAbilities").live("click",function(){
+    	var $replist = $(document.getElementById("replist")),
+    		$tabAbiGrp = $(document.getElementById("tabAbiGrp")).find("tbody");
+    	if($(this).hasClass("off")){
+    		$tabAbiGrp.empty();
+    		$(this).removeClass("off");
+    		$(document.getElementById("btnGroups")).addClass("off");
+    		if($replist.val()){
+    			objAbiGrp.getAbilities();
+    		}else{
+    			$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Select_group_operator'].replace (/\"/g, "")+"</strong></td></tr>");
+    		}
+    	}
+    	
+    });
+    
+    $("#btnGroups").live("click",function(){
+    	var $replist = $(document.getElementById("replist")),
+    		$tabAbiGrp = $(document.getElementById("tabAbiGrp")).find("tbody");
+    	if($(this).hasClass("off")){
+    		$tabAbiGrp.empty();
+    		$(this).removeClass("off");
+    		$(document.getElementById("btnAbilities")).addClass("off");
+    		if($replist.val()){
+    			objAbiGrp.getGroups();
+    		}else{
+    			$tabAbiGrp.append("<tr><td align='center'><strong>"+aLang['Select_group_operator'].replace (/\"/g, "")+"</strong></td></tr>");
+    		}
+    	}
+    });
+    
+    
+    
+    $("#btnRepassRequestSend").live("click",function(e){
+		e.preventDefault();		
+		$("#formRepassRequest").validate({
+    		wrapper: "li class='error ml0'",
+    		errorPlacement: function(error, element) {
+				if(element.val() == "group")
+					error.appendTo(element.parent().parent().parent());
+				else
+					error.appendTo(element.parent().parent());
+			},
+		  	rules: {
+		  		replist: "required",
+		  		repoptns: "required",
+		  		typerep: "required"
+		 	}
+		});
+		
+		
+		
+		if($("#formNewRequest").valid() && $("#formRepassRequest").valid()){
+			
+			var formReq 	= document.formNewRequest,
+				formRepass 	= document.formRepassRequest,
+				periods 	= $(document.getElementById("open_time")).countdown('getTimes'), 
+        		open_time 	= (parseInt(periods[4])*60) + (parseFloat(periods[5])) + (parseFloat(periods[6])/60);
+
+			animaPonto();
+			objModal.openModal("modalSavingRequest");
+			
+			$.post(path+'/helpdezk/requestInsertOperator/openrepassed', {
+				idperson: 		formReq.idperson.value,
+				idjuridical: 	formReq.idjuridical.value,
+				serial_number: 	formReq.serial_number.value,
+				os_number: 		formReq.os_number.value,
+				source: 		formReq.idsource.value,
+                tag: 			formReq.tag.value,
+                date: 			formReq.date.value,
+                time: 			formReq.time.value,
+                area: 			formReq.idarea.value,
+                type: 			formReq.idtype.value,
+                item:			formReq.iditem.value,
+                service:		formReq.idservice.value,
+                reason:			formReq.idreason.value,
+                way:			formReq.idway.value,
+                subject: 		formReq.subject.value,
+                description: 	CKEDITOR.instances['description'].getData(),
+                solution: 		CKEDITOR.instances['solution'].getData(),
+                open_time: 		open_time,
+                repassto: 		formRepass.replist.value,
+                viewrepass: 	$('input[name="repoptns"]:checked').val(),
+                typerepass:		$('input[name="typerep"]:checked').val()
+            }, function(resposta) {
+                if (resposta != false) { //SUCCESS
+                    var modalReturnRequest = $(document.getElementById("modalReturnRequest"));
+			        objDefault.maskLoaderShow();
+			        modalReturnRequest.load(path+'/helpdezk/requestInsertOperator/modalReturnRequest/code/'+resposta, function(){
+			        	objModal.openModal("modalReturnRequest");
+			        	objDefault.maskLoaderHide();
+			        });
+                }
+                else { //ERROR		                        
+					objDefault.notification("error",aLang['Error'].replace (/\"/g, ""),"modalNewRequest");
+                }
+                clearTimeout(timeout);
+            });
+		}
+    });
+    
+    
+</script>
+{/literal}
+
+<div id="modalNewRequestRepass" class="window noHideMask" style="width:670px;">
+    <form action="javascript:;" method="post" id="formRepassRequest" name="formRepassRequest">
+        <div class="modalHeader">
+			<h2>{$smarty.config.Repass_btn} {$smarty.config.Request}</h2>
+			<a href="javascript:;" class="closeModalEver btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info wAuto">
+								<label for="person" title="{$smarty.config.Repass_request_to}">{$smarty.config.Repass_request_to}:</label>
+							</li>
+							<li class="field mr15">
+								<label for="cmbGroup">
+					                <input type="radio" id="cmbGroup" name="typerep" value="group"/> 
+					                {$smarty.config.Group}
+					            </label>
+							</li>
+							<li class="field">
+								<label for="cmbOperator">
+					                <input type="radio" id="cmbOperator" value="operator" name="typerep"/>
+					                {$smarty.config.Operator}
+					            </label>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<div class="boxRepass">
+					<div class="boxRepass1 fl">
+						<ul class="lstForm clearfix">
+							<li>
+								<ul>							
+									<li class="field">
+										<input type="text" name="txtFilter" id="txtFilter" style="width: 226px;" />
+									</li>
+									<li class="field">
+										<button class="btnOrange tp1 min" id="btnFilter">{$smarty.config.Filter}</button>
+									</li>
+								</ul>
+							</li>
+							<li>
+								<ul>							
+									<li class="field">
+										<select name="replist" class="selectList" id="replist" size="10">
+											<option value="">{$smarty.config.Select_group_or_operator}</option>
+										</select>
+									</li>									
+								</ul>
+							</li>
+						</ul>
+					</div>
+					<div class="boxRepass2 fr">						
+						<ul class="lstForm clearfix fr">
+							<li>
+								<ul> 
+									<li class="field">
+										<a href="javascript:;" class="btnOrange tp1 min" id="btnAbilities">{$smarty.config.Abilities}</a>
+				            			<a href="javascript:;" class="btnOrange tp1 min off" id="btnGroups">{$smarty.config.Groups}</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+						
+				        <div class="overflowTabAbGp">
+					        <table class="tab-services pop b0" id="tabAbiGrp">
+					        	<tbody>
+					        		<tr>
+					        			<td align="center"><strong>{$smarty.config.Select_group_operator}</strong></td>
+					        		</tr>					        		
+					        	</tbody>
+					        </table>
+				        </div>
+					</div>					
+				</div>
+				
+				<ul class="lstForm clearfix">					
+					<li>
+						<ul>
+							<li class="field">
+								<label>
+									<input type="radio" value="P" name="repoptns" id="repoptns2" class="mr5"/>
+									{$smarty.config.Still_viewing}
+								</label>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="field">
+								<label>
+									<input type="radio" value="N" name="repoptns" id="repoptns3" class="mr5"/>
+									{$smarty.config.Stop_viewing}
+								</label>
+							</li>
+						</ul>
+					</li>
+				</ul>	
+				<input type="hidden" name="code_req" id="code_req" value="{$request_code}" />    
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<a href="#modalNewRequest" class="openModal btnOrange tp1">{$smarty.config.Back_btn}</a>
+					</li>
+					<li class="last">			
+						<a href="javascript:;" class=" btnOrange tp1" id="btnRepassRequestSend">{$smarty.config.Repass_btn}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+
+
+

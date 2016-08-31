@@ -1,0 +1,63 @@
+{literal}
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/accordion/jquery.ui.widget.js" ></script>
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/accordion/jquery.ui.accordion.js" ></script>
+<script type="text/javascript">
+	function edit(id) {
+		var id = id;
+		var idprogram = $("#idprogram").val();
+		if (document.getElementById(id).checked) {
+			var check = "Y";
+			$.post('typepersonpermission/grantpermission', {
+				id : id,
+				check : check,
+				idprogram : idprogram
+			}, function(response) {
+
+				if (response != false) {
+					
+				} else {
+					alert("{/literal}{$smarty.config.Permission_error}{literal}");
+				}
+			});
+		} else {
+			var check = "N";
+			$.post('typepersonpermission/revokepermission', {
+				id : id,
+				check : check,
+				idprogram : idprogram
+			}, function(response) {
+
+				if (response != false) {
+					
+				} else {
+					alert("{/literal}{$smarty.config.Permission_error}{literal}");
+				}
+			});
+		}
+	}
+
+	$(function() {
+		$("#accordion").accordion({
+			active : false,
+			collapsible : true
+		});
+	});
+</script>
+{/literal}
+<BR/>
+<div style="text-align:left; margin-left: 5px; color:#000; font-size:12px; text-decoration:none; font-family:Arial, Helvetica, sans-serif;">
+	Permissions by User's Type
+</div>
+
+<BR/>
+<div class="box-tp1">
+	<div id="accordion">
+		{$lista}
+	</div>
+	<div id="button" class="fr">
+		<input type="button" value="Voltar" onclick="$('#content').load('typepersonpermission');">
+		<br/>
+	</div>
+	<input type="hidden" name="idprogram" id="idprogram" value="{$idprogram}"/>
+</div>

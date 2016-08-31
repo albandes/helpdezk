@@ -1,0 +1,57 @@
+<script type="text/javascript" src="/parracho/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/parracho/includes/classes/uploadify-v2.1.4/swfobject.js"></script>
+<script type="text/javascript" src="/parracho/includes/classes/uploadify-v2.1.4/jquery.uploadify.v2.1.4.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$('#file_upload').uploadify({
+			'uploader' : '/parracho/includes/classes/uploadify-v2.1.4/uploadify.swf',
+			'script' : '/parracho/includes/classes/uploadify-v2.1.4/uploadify.php',
+			'cancelImg' : '/parracho/includes/classes/uploadify-v2.1.4/cancel.png',
+			'folder' : 'parracho/app/uploads/helpdezk/attachments/',
+			'removeCompleted' : true,
+			'sizeLimit' : 102400
+		});
+	}); 
+</script>
+<style type="text/css">
+	#demo {
+		border: 1px solid #E2E2E2;
+		padding: 20px;
+	}
+	#basic-demo .uploadifyQueueItem {
+		background-color: #F5F5F5;
+		border: 2px solid #E5E5E5;
+		font: 11px Verdana, Geneva, sans-serif;
+		margin-top: 5px;
+		padding: 10px;
+		width: 260px;
+	}
+	#basic-demo .uploadifyError {
+		background-color: #FDE5DD !important;
+		border: 2px solid #FBCBBC !important;
+	}
+	#basic-demo .uploadifyQueueItem .cancel {
+
+	}
+	#basic-demo .uploadifyQueue .completed {
+		background-color: #E5E5E5;
+	}
+	#basic-demo .uploadifyProgress {
+		background-color: #E5E5E5;
+		margin-top: 10px;
+		width: 100%;
+	}
+	#basic-demo .uploadifyProgressBar {
+		background-color: #0099FF;
+		height: 3px;
+		width: 1px;
+	}
+</style>
+<div id="basic-demo" class="demo" style="clear:both;">
+	<div class="demo-box">
+		<input id="file_upload" type="file" name="Filedata" />
+		<p>
+			<a href="javascript:$('#file_upload').uploadifyUpload()">Upload Files</a>
+		</p>
+	</div>
+</div>

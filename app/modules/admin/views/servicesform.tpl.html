@@ -1,0 +1,165 @@
+{literal}
+<script type="text/javascript" language="javascript">
+	$(document).ready(function() {
+		$("#status").hide();
+	});
+
+	function close() {
+		document.getElementById('status').style.display = 'none';
+	}
+
+	function valida() {
+		$("#status2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' alt={/literal}{$smarty.config.Send_img_alt}{literal}' />");
+		var name2 = $("#name2").val();
+		var days = $("#limit_days").val();
+		var group = $("#group").val();
+		var priority = $("#priority").val();
+		var limit_time = $("#limit_time").val();
+		if ($("#time2").is(":checked")) {
+			var time = $("#time2").val();
+		} else {
+			var time = $("#time1").val();
+		}
+		if ($("#default").is(":checked")) {
+			var vardefault = '1';
+		} else {
+			var vardefault = '0';
+		}
+		var iditem2 = $("#iditem2").val();
+
+		if ($("#available").is(":checked")) {
+			var availableitem = 'A';
+		} else {
+			var availableitem = 'N';
+		}
+		if ($("#classify").is(":checked")) {
+			var classifyitem = '1';
+		} else {
+			var classifyitem = '0';
+		}
+		pathform = document.form2;
+		if (name2 == '') {
+			alert("{/literal}{$smarty.config.Alert_empty_service}{literal}");
+			pathform.name2.focus();
+			return false;
+		}
+		if (group == '' || group == 0) {
+			alert("{/literal}{$smarty.config.Select_group}{literal}!");
+			return false;
+		}
+		if (priority == '' || priority == 0) {
+			alert("{/literal}{$smarty.config.Select_priority}{literal}!");
+			return false;
+		}
+
+		// Fazemos a requis�o ajax com o arquivo envia.php e enviamos os valores de cada campo atrav�s do m�todo POST
+		$.post('services/serviceInsert', {
+			name2 : name2,
+			vardefault : vardefault,
+			availableitem : availableitem,
+			classifyitem : classifyitem,
+			iditem2 : iditem2,
+			priority : priority,
+			group : group,
+			time : time,
+			days : days,
+			limit_time : limit_time
+		}, function(response) {
+
+			// Quando terminada a requisi��o
+			// Exibe a div status
+			$("#status2").slideDown();
+			// Se a resposta � um erro
+
+			if (response != false) {
+				// Exibe o erro na div
+
+				alert("{/literal}{$smarty.config.Alert_inserted}{literal}!");
+                                $("#pop2").hide();
+				carrega2(iditem2);
+			}
+			// Se resposta for false, ou seja, n�o ocorreu nenhum erro
+			else {
+				// Exibe mensagem de sucesso
+				alert("{/literal}{$smarty.config.Error}{literal}");
+			}
+		});
+
+	}
+
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">:: {$smarty.config.Service_insert} </span><a href="#" id='buttonClose' onclick="$('#pop2').fadeOut(400); close();"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<form name="form2" id="form2" method="post" action="">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Service_name}:
+	</div>
+	<div class="campos">
+		<input name="name2" id="name2" type="text" class="campo" size="40" maxlength="150" />
+	</div>
+	<div class="titulo">
+		{$smarty.config.Group}:
+	</div>
+	<div class="campos">
+		<select class="campo" name="group" id="group">
+			<option value="0">{$smarty.config.Select_group}:</option>
+			{html_options values=$groupscp output=$groupsvals}
+		</select>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Priority}:
+	</div>
+	<div class="campos">
+		<select class="campo" name="priority" id="priority">
+			<option value="0">{$smarty.config.Select_priority}</option>
+			{html_options values=$prioritycp output=$priorityval}
+		</select>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Attendance_time}:
+	</div>
+	<div class="legenda mt15" class="texto-regular">
+		<input name="limit_days" type="text" class="campo" id="limit_days"  style="width:25px" value="0" maxlength="2" />
+		&nbsp;{$smarty.config.Days} &nbsp;{$smarty.config.and}&nbsp;
+		<input name="limit_time" type="text" class="campo" id="limit_time"  style="width:25px" value="0" maxlength="2"/>
+		&nbsp;<label for="time1">{$smarty.config.Hours}</label>
+		<input type="radio" name="time" id="time1" value="H" checked />
+		&nbsp;<label for="time2">{$smarty.config.Minutes}</label>
+		<input type="radio" name="time" id="time2" value="M" />
+	</div>
+	<div class="titulo" class="texto">
+		{$smarty.config.Available}:
+	</div>
+	<div class="campos">
+		<input name="available" type="checkbox" id="available" checked/>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Available_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Default}:
+	</div>
+	<div class="campos">
+		<input name="default" type="checkbox" id="default"/>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Default_text}</strong>
+	</div>
+	<div class="titulo">
+		{$smarty.config.Classification}:
+	</div>
+	<div class="campos">
+		<input name="classify" type="checkbox" id="classify"/>
+	</div>
+	<div class="legenda">
+		<strong>{$smarty.config.Classification_text}</strong>
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' name="submit"  class="btn_cadastrar" onclick="valida(); return false" value="{$smarty.config.Record_btn}" />
+	</div>
+	<div id="status2" style="text-align: center;  margin-bottom: 15px;" class="textoRodape"></div>
+</form>

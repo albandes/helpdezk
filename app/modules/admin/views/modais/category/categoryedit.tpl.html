@@ -1,0 +1,32 @@
+<form action="javascript:;" method="post" id="formCategoryEdit">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Category_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="nameEdit">{$smarty.config.Category_name}:</label>
+						</li>
+						<li class="field">
+							<input name="nameEdit" id="nameEdit" type="text" class="w200" maxlength="30" value="{$name}"/>
+						</li>
+					</ul>
+				</li>
+			</ul>			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" name="id_category" value="{$id}"/>
+					<input type='submit' name="submit" id="btnSendCategoryEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

@@ -1,0 +1,35 @@
+{
+"categories" :
+  {
+  "category": [
+    {
+      "id":1,
+      "title" : "Helpdezk",
+      "amount" : 3,
+      "url" : "{../../../app/modules/dashboard/jsonfeed/category1_widgets.json"
+    }
+	,
+    {
+      "id":2,
+      "title" : "Geral",
+      "amount": 2,
+      "url" : "{../../../app/modules/dashboard/jsonfeed/category2_widgets.json"
+    }
+	,
+    {
+      "id":3,
+      "title" : "Diversos",
+      "amount": 5,
+      "url" : "{../../../app/modules/dashboard/jsonfeed/category_diversos.json"
+    }
+	, 
+    {
+      "id":4,
+      "title" : "Mario Quintana",
+      "amount": 2,
+      "url" : "{../../../app/modules/dashboard/jsonfeed/category_marioquintana.json"
+    }
+	
+  ]
+  }
+}

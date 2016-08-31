@@ -1,0 +1,233 @@
+{literal}
+<script type="text/javascript">
+	function grpRep2(){
+        $("#colrepass2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("#colabilities2").html("");
+        $("a.groptions2").show();
+        var type = $('input:radio[name=typerep2]:checked').val();
+        $.post('operator/grouprep', {type: type}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colrepass2").html(response1);
+            }
+        });
+    }
+    function opRep2(){ 
+        $("#colrepass2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("#colabilities2").html("");
+        $("a.groptions2").show();
+        var type = $('input:radio[name=typerep2]:checked').val();
+        $.post('operator/operatorrep', {type: type}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colrepass2").html(response1);
+            }
+        });
+    }
+    function partRep2(){
+        $("#colrepass2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("a.groptions2").css({'display': 'none'});
+        $("#colabilities2").html("");
+        var type = $('input:radio[name=typerep2]:checked').val();
+        $.post('operator/partrep', {type: type}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colrepass2").html(response1);
+            }
+        });
+    }
+   
+   function grpdata2(){
+        $("a.aboptions2").css({'background-color': '#eee','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.aboptions2:hover").css({'background-color': '#999999','color': '#000','border': '1px #000 solid','text-decoration': 'underline'});
+        $("a.groptions2").css({'background-color': '#999999','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions2:hover").css({'background-color': '#999999','color': '#000','border': '1px #000 solid','text-decoration': 'none'});
+        $("#colabilities2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        var type = $('input:radio[name=typerep2]:checked').val();
+        var rep = $("#replist").val();
+        $.post('operator/grouplist', {type: type, rep: rep}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colabilities2").html(response1);
+            }
+        });
+    }
+    function perdata2(){
+        $("a.aboptions2").css({'background-color': '#999999','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions2").css({'background-color': '#eee','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions2:hover").css({'background-color': '#eee','color': '#000','border': '1px #000 solid','text-decoration': 'none'});
+        $("#colabilities2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        var type = $('input:radio[name=typerep2]:checked').val();
+        var rep = $("#replist").val();
+        $.post('operator/abilitieslist', {type: type, rep: rep}, function(response1){
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colabilities2").html(response1);
+            }
+        });
+    }
+    function getAbilities(){
+        $("#colabilities2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+        $("a.aboptions2").css({'background-color': '#999999','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        $("a.groptions2").css({'background-color': '#eee','color': '#000','border':'1px #000 solid','text-decoration': 'none'});
+        var type = $('input:radio[name=typerep2]:checked').val();
+        var rep = $("#replist").val();
+        $.post('operator/abilitieslist', {type: type, rep: rep}, function(response1) {
+            if(response1 == false){
+                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+            }
+            else{
+                $("#colabilities2").html(response1);
+            }
+        });
+    }
+      
+	grpRep2();
+   
+   
+    function send2(){
+        var type2 = $('input:radio[name=typerep2]:checked').val();
+        if(typeof(type2) =="undefined"){
+            alert("{/literal}{$smarty.config.Alert_type_repass}{literal}");
+            return false;
+        }
+        var view2 = $('input:radio[name=repoptns2]:checked').val();
+        if(typeof(view2) =="undefined"){
+            alert("{/literal}{$smarty.config.Alert_follow_repass}{literal}");
+            return false;
+        }
+        var new_rep2 = $("#replist").val();
+        
+        if(!new_rep2){
+            alert("{/literal}{$smarty.config.Alert_in_charge_repass}{literal}");
+            return false;
+        }
+        
+        $('#idrepass').val(new_rep2);                    
+        $('#typerepass').val(type2);                                      
+        $('#viewrepass').val(view2);
+        $('#pop_repass2').fadeOut(400);        
+        trocadisplay();
+        repassRequest();
+        
+    }
+    
+    
+    $("#btnFilter").click(function(){
+    	filter();	
+    })
+    
+    $("#txtFilter").keyup(function(e){
+    	if(e.keyCode == 13){
+    		filter();
+    	}
+    })
+    
+    function filter(){
+    	var $search = document.getElementById("txtFilter").value,
+    		valType = $("input[name=typerep2]:checked").val();
+    	if($search.length){
+    		if(valType == "operator"){
+	    		$("#colrepass2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+		        $("#colabilities2").html("");
+		        $("a.groptions2").show();
+		        $.post('operator/operatorrep', {filter: $search}, function(response1) {
+		            if(response1 == false){
+		                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+		            }
+		            else{
+		                $("#colrepass2").html(response1);
+		            }
+		        });
+    		}
+    		if(valType == "group"){
+    			$("#colrepass2").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif'>");
+		        $("#colabilities2").html("");
+		        $("a.groptions2").show();
+		        $.post('operator/grouprep', {filter: $search}, function(response1) {
+		            if(response1 == false){
+		                alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+		            }
+		            else{
+		                $("#colrepass2").html(response1);
+		            }
+		        });
+    		}
+    	}else{
+    		if(valType == "operator"){
+    			opRep2();
+    		}
+    		if(valType == "group"){
+    			grpRep2();
+    		}
+    	}
+    }
+    
+    
+</script>
+{/literal}
+<div id='smallHeader'>
+    <span class="texto" style="margin-left: 10px;">::&nbsp;{$smarty.config.Repass_btn} </span><a href="#" id='buttonClose' onclick="$('#pop_repass2').fadeOut(400); return false;"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>   
+
+<div id="repassRequest" class="p10">
+    <div id="titlerep" class="texto">{$smarty.config.Repass_request_to}:</div>
+
+    <div class="fl">
+        <div class="mb10 radiorep">
+            <label for="cmbGroup">
+                <input type="radio" id="cmbGroup" name="typerep2" value="group" onchange="grpRep2();" checked="checked"/> 
+                {$smarty.config.Group}
+            </label>
+            <label for="cmbOperator">
+                <input type="radio" id="cmbOperator" value="operator" name="typerep2" onchange="opRep2();"/>
+                {$smarty.config.Operator}
+            </label>
+            <label for="cmbPartner" class="none">
+                <input type="radio" id="cmbPartner" value="partner" name="typerep2" onchange="partRep2();"/>
+                {$smarty.config.Partner}
+            </label>
+        </div>
+        
+		<input type="text" name="txtFilter" id="txtFilter" style="width: 313px;" />
+		<button class="btn_cadastrar" id="btnFilter">{$smarty.config.Filter}</button>
+		
+        <div id="colrepass2" style="width:350px; height:181px; margin-top:3px; border: 1px solid #000;">
+            {$repgrouplist}
+        </div>
+    </div>
+
+    <div class="fl">
+        <div id="repbuttons">
+            <a href="#" class="aboptions2" onclick="perdata2(); return false;">Abilities</a>
+            <a href="#" class="groptions2" onclick="grpdata2(); return false;">Groups</a>
+        </div>
+        <div id="colabilities2" style="width:266px; height:202px; border: 1px solid #000;"></div>
+    </div>
+
+    <div class="radioGroup" id="radiosTypeTrack">
+        <label for="repoptns2">
+            <input type="radio" value="P" name="repoptns2" id="repoptns2"/>{$smarty.config.Still_viewing}
+        </label>
+        <label for="repoptns3">
+            <input type="radio" value="N" name="repoptns2" id="repoptns3"/>{$smarty.config.Stop_viewing}
+        </label>
+    </div>
+    
+	<div id="buttonCadastrar" class="mb10">
+        <input type='submit' name="submit2" class="btn_cadastrar" value="{$smarty.config.Repass_btn}" onclick="send2(); return false;" />
+    </div>
+  
+</div>
+
+

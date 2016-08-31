@@ -1,0 +1,235 @@
+<form action="javascript:;" method="post" id="formRequestEmailEdit" name="requestEmail">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Email_request_edit}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="serverEdit">{$smarty.config.Server}:</label>
+						</li>
+						<li class="field ">
+							<input name="serverEdit" id="serverEdit" type="text" class="w240" value="{$serverurl}" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="typeEdit">{$servertype}:</label>
+						</li>
+						<li class="field ">
+							<select name="typeEdit" id="typeEdit" class="w240">
+								<option value="">{$smarty.config.Select}</option>
+								<option value="pop" {if $servertype == "pop"}selected="selected"{/if}>POP</option>
+								<option value="imap" {if $servertype == "imap"}selected="selected"{/if}>IMAP</option>
+								<option value="pop-gmail" {if $servertype == "pop-gmail"}selected="selected"{/if}>POP - Gmail</option>
+								<option value="imap-gmail" {if $servertype == "imap-gmail"}selected="selected"{/if}>IMAP - Gmail</option>
+							</select>
+						</li>
+					</ul>
+				</li>				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editPort">{$smarty.config.Port}:</label>
+						</li>
+						<li class="field ">
+							<input name="editPort" id="editPort" type="text" class="w130" value="{$serverport}"/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editEmail">Email:</label>
+						</li>
+						<li class="field ">
+							<input name="editEmail" id="editEmail" type="text" class="w240" value="{$user}"/>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editPassword">{$smarty.config.Password}:</label>
+						</li>
+						<li class="field ">
+							<input name="editPassword" id="editPassword" type="password" class="w240" value="{$password}"/>
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbAreaEdit">{$smarty.config.Area}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbArea" class="w240" id="cmbAreaEdit">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$areaids output=$areavals selected=$areasel}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbTypeEdit">{$smarty.config.Type}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbType" class="w240" id="cmbTypeEdit">
+								{html_options values=$typesids output=$typesvals selected=$typessel}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbItemEdit">{$smarty.config.Item}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbItem" class="w240" id="cmbItemEdit">
+								{html_options values=$itemids output=$itemvals selected=$itemsel}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbServiceEdit">{$smarty.config.Service}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbService" class="w240" id="cmbServiceEdit">
+								{html_options values=$serviceids output=$servicevals selected=$servicesel}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editFrom">{$smarty.config.Filter_by_sender}:</label>
+						</li>
+						<li class="field">
+							<input name="editFrom" id="editFrom" type="text" class="w240" value="{$filter_from}"/>								
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editSubject">{$smarty.config.Filter_by_subject}:</label>
+						</li>
+						<li class="field">
+							<input name="editSubject" id="editSubject" type="text" class="w240" value="{$filter_subject}"/>								
+						</li>
+					</ul>
+				</li>				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editCreateUser">{$smarty.config.Create_user}:</label>
+						</li>
+						<li class="field">
+							<input name="editCreateUser" id="editCreateUser" type="checkbox" value="1" {if $ind_create_user == 1}checked="checked"{/if}/>			
+							<label for="editCreateUser">{$smarty.config.Create_user_msg}</label> 					
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li class="createNewUser {if $ind_create_user != 1}none{/if}">
+					<ul>
+						<li class="info">
+							<label for="cmbEditCompany">{$smarty.config.Company}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbEditCompany" class="w240" id="cmbEditCompany">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$companyids output=$companyvals selected=$companysel}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li class="createNewUser {if $ind_create_user != 1}none{/if}">
+					<ul>
+						<li class="info">
+							<label for="cmbEditDepartment">{$smarty.config.Department}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbEditDepartment" class="w240" id="cmbEditDepartment">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$depsids output=$depvals selected=$depsel}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editDeleteEmails">{$smarty.config.Delete_emails}:</label>
+						</li>
+						<li class="field">
+							<input name="editDeleteEmails" id="editDeleteEmails" type="checkbox" value="1" {if $ind_delete_server == 1}checked="checked"{/if}/>			
+							<label for="editDeleteEmails">{$smarty.config.Delete_emails_msg}</label> 					
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editLoginLayout">{$smarty.config.Login_layout}:</label>
+						</li>
+						<li class="field">
+							<select name="editLoginLayout" class="w240" id="editLoginLayout">
+								<option value=""> {$smarty.config.Select} </option>
+								<option value="U" {if $login_layout == "U"}selected="selected"{/if}> {$smarty.config.User} </option>
+								<option value="E" {if $login_layout == "E"}selected="selected"{/if}> Full Email </option>
+							</select>					
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="editNote">{$smarty.config.Note}:</label>
+						</li>
+						<li class="field">
+							<input name="editNote" id="editNote" type="checkbox" value="1" {if $email_response_as_note == 1}checked="checked"{/if}/>			
+							<label for="editNote">{$smarty.config.Note_msg}</label>				
+						</li>
+					</ul>
+				</li>
+				
+			</ul>
+			
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" name="id" value="{$id}" />
+					<input type='submit' name="submit" id="btnSendRequestEmailEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

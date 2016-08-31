@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <script>
+		{literal}
+            $(document).ready(function() {
+                $('#demo').html( '<table cellpadding="0" cellspacing="0" border="0" width="100%" id="requests"></table>' );
+
+                var oTable;
+		
+				oTable = $('#requests').dataTable( {
+					"oLanguage": { 
+						"sProcessing":   "Processando...",
+						"sLengthMenu":   "Mostrar _MENU_ registros",
+						"sZeroRecords":  "N?o foram encontrados resultados",
+						"sInfo":         "Mostrando de _START_ a _END_ de _TOTAL_ registros",
+						"sInfoEmpty":    "Mostrando de 0 a 0 de 0 registros",
+						"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+						"sInfoPostFix":  "",
+						"sSearch":       "Buscar:",
+						"sUrl":          "",
+						"oPaginate": {
+							"sFirst":    "Primeiro",
+							"sPrevious": "Anterior",
+							"sNext":     "Seguinte",
+							"sLast":     "?ltimo"
+									}
+					},
+					"aoColumns":[
+										{ "sTitle": "" },
+										{ "sTitle": "Vencimento" },
+						{ "sTitle": "Assunto" },
+										{ "sTitle": "Link" }
+					],
+					"bProcessing": true,
+					"sAjaxSource": '{/literal}{$path}{literal}/dashboard/hdk_requests/json'
+				});	
+			
+				/* Formating function for row details */
+				function fnFormatDetails ( nTr )
+				{
+					var aData = oTable.fnGetData( nTr );
+					var sOut = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+					sOut += '<tr><td>Assunto:</td><td>Subject</td></tr>';
+					sOut += '<tr><td>Link :</td><td>Link</td></tr>';
+					sOut += '<tr><td>Vencimento:</td><td>Vencimento</td></tr>';
+					sOut += '</table>';
+					
+					return sOut;
+				}				
+					$('#example tbody td img').live('click', function() {
+						var nTr = this.parentNode.parentNode;
+						if ( this.src.match('details_close') )
+						{
+							/* This row is already open - close it */
+							this.src = "widgets/classes/jquery.datatables/images/details_open.png";
+							oTable.fnClose( nTr );
+						}
+						else
+						{
+							/* Open this row */
+							this.src = "widgets/classes/jquery.datatables/images/details_close.png";
+							oTable.fnOpen( nTr, fnFormatDetails(nTr), 'details' );
+						}
+					});
+            }); 
+			
+        </script>
+		{/literal}	
+		
+    </head>
+    <body>ssss
+        <div id="demo"></div>
+    </body>
+</html>

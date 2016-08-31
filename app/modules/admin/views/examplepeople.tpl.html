@@ -1,0 +1,108 @@
+{literal} <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+<style>
+	a:link, a:visited {
+		text-decoration: none;
+		color: #000000;
+	}
+	a:hover {
+		text-decoration: underline;
+		color: #000000;
+	}
+	a:active {
+		text-decoration: none;
+		color: #000000;
+	}
+	table {
+		border-collapse: collapse;
+		border-top: 2px solid #336699;
+		border-bottom: 2px solid #0066cc;;
+	}
+	tr td, tr th {
+		padding: 5px 10px;
+		font-size: 1.0em;
+	}
+	tbody tr td {
+		padding-left: 26px;
+		background: url(bullet.png) no-repeat 5px;
+	}
+	thead tr th {
+		padding-left: 26px;
+		background-repeat: no-repeat;
+		background-position: 6px;
+	}
+	tr th {
+		font: small-caps bold 1.1em Arial, Helvetica, sans-serif;
+		color: #0066cc;
+	}
+	tfoot tr td {
+		text-align: center;
+	}
+	th[scope=row] {
+		background: url(bullet-row.gif) no-repeat 0 1px;
+	}
+	tr:hover {
+		color: #0066cc;
+	}
+	tbody tr td:last-child {
+		background: #eee;
+	}
+</style>
+
+<script type="text/javascript">
+	/** Opens the window that shows the data of selected person calling the action example/editform, when user clicks edit button.
+	 * @name opens
+	 */
+	function opens(URL) {
+		window.open(URL, '', 'height = 160, width = 400');
+
+	}
+
+	/** sends data to be deleted by jQuery's post to example/delete, when user clicks delete button.
+	 *  @name deletes
+	 *
+	 */
+	function deletes(ID) {
+		var id = ID;
+		$.post('{/literal}{$path}{literal}/admin/example/delete', {
+			id : id
+		}, function(resposta) {
+
+			if (resposta != false) {
+				/**
+				 * alerts the success message from the action example/insert
+				 */
+				alert(resposta);
+			}
+			/**
+			 * if return is false, shows an error message.
+			 */
+			else {
+				alert("não foi possível excluir");
+			}
+			document.location.reload();
+		});
+	}
+
+</script>
+{/literal}
+<html>
+	<head>
+		<title>{$pagetitle}</title>
+		<meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+	</head>
+	<body>
+		<div>
+			<table name="ex" border='1px'>
+				<tr>
+					<th>Name</th><th>Age</th><th>Edit</th><th>Delete</th>
+				</tr>
+				{section name=i loop=$table}
+				<tr>
+					<td>{$table[i].name}</td><td>{$table[i].age}</td><td><a href="javascript:opens('editform/id/{$table[i].id}');"><img src="{$path}/app/themes/{$theme}/images/altera.jpg" height="23" width="23"/></a></td><td><a href="javascript:deletes('{$table[i].id}');"><img src="{$path}/app/themes/{$theme}/images/excluir.jpg" height="18" width="18" /></a></td>
+				</tr>
+				<p>
+					{/section}
+			</table>
+		</div>
+	</body>
+</html>

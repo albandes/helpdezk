@@ -1,0 +1,77 @@
+<form action="javascript:;" method="post" id="formTypeInsert" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Type_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="typeName">{$smarty.config.Type_name}:</label>
+						</li>
+						<li class="field ">
+							<input name="typeName" id="typeName" type="text" class="w240" maxlength="150" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="areaType">{$smarty.config.Area}:</label>
+						</li>
+						<li class="field ">
+							<select name="areaType" id="areaType" class="w240">
+								<option value="">{$smarty.config.Select_area}</option>
+								{html_options values=$areaids output=$areavals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="availableType">{$smarty.config.Available}:</label>
+						</li>
+						<li class="field w300">
+							<input name="availableType" type="checkbox" id="availableType" checked="checked" value="A"/>
+							<label for="availableType">{$smarty.config.Available_text}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="defaultType">{$smarty.config.Default}:</label>
+						</li>
+						<li class="field w300">
+							<input name="defaultType" type="checkbox" id="defaultType" value="1"/>
+							<label for="defaultType">{$smarty.config.Default_text}</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="classificationType">{$smarty.config.Classification}:</label>
+						</li>
+						<li class="field w300">
+							<input name="classificationType" type="checkbox" id="classificationType" value="1"/>
+							<label for="classificationType">{$smarty.config.Classification_text}</label>
+						</li>
+					</ul>
+				</li>
+			</ul>			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnSendTypeInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

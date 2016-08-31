@@ -1,0 +1,55 @@
+
+{literal}
+<script>
+    function edit(id) {
+        var id = id;
+        if (document.getElementById(id).checked) {
+            $.post('groups/groupinsert', {
+                id : id
+            }, function(response) {
+
+                if (response != false) {
+                } else {
+                    alert("{/literal}{$smarty.config.Edit_failure}{literal}");
+                }
+            });
+        } else {
+            $.post('groups/groupdelete', {
+                id : id
+            }, function(response) {
+
+                if (response != false) {
+                } else {
+                    alert("{/literal}{$smarty.config.Edit_failure}{literal}");
+                }
+            });
+        }
+    }
+
+
+    function load() {
+        var id = $("#groups2").val();
+        $.post('groups/loadattendants', {
+            id : id
+        }, function(data) {
+            $('#attendants').html(data);
+        });
+    }
+
+</script>
+{/literal}
+
+<form id="form44" action=""/>
+<div style="margin-left: 10px;font-family: verdana; font-size: 12px; font-weight: bold;">
+    {$smarty.config.Show_attendants_title}
+    <a class="btnVoltar" href="#" onclick="voltar1(); return false;"><img src="{$path}/app/themes/{$theme}/images/back_button.png" height="30" width="30" /></a>
+    <br/>
+    <select class="campo" name="groups2" id="groups2" onchange="load();">
+        <option value="0">{$smarty.config.Select_group}</option>
+        {html_options values=$groupsids output=$groupsvals selected=$company}
+    </select>
+    <br/>
+    <br/>
+    <div id="attendants" class="attendants"></div>
+</div>
+</form>

@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+        <link href='{$path}/favicon.ico' rel='shortcut icon'/>
+		<link href='{$path}/favicon.png' rel='icon' type='image/png'/>
+        <title>{$pagetitle}</title>
+        {literal}
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/liteAccordion/js/jquery.easing.1.3.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/liteAccordion/js/liteaccordion.jquery.js"></script> 
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/ajax/ajax.js"></script>        
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/flexigrid.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-maskedinput/jquery.maskedinput-1.2.1.pack.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/js/jscal2.js"></script> 
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jscalendar1.9/js/lang/{/literal}{$lang}{literal}.js"></script>  
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-validation-1.10.0/dist/jquery.validate.min.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery-validation-1.10.0/localization/messages_{/literal}{$lang}{literal}.js"></script>
+        <script src="{/literal}{$path}{literal}/includes/classes/ajax/flex_lang.js"></script>  
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/js/default.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/js/jquery.address-1.5.min.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/countdown/jquery.countdown.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery.timeentry/jquery.timeentry.min.js"></script>
+        <script type="text/javascript">
+            
+            var langName= '{/literal}{$smarty.config.Name}{literal}',
+	            default_lang = "{/literal}{$lang}{literal}",
+	            path = "{/literal}{$path}{literal}",
+	            theme = "{/literal}{$theme}{literal}",
+	            approving = 0,
+            	total_warnings = "{/literal}{$total_warnings}{literal}",
+            	timesession = '{/literal}{$timesession}{literal}',
+                haveToken = '{/literal}{$haveToken}{literal}',
+                have2fa =    '{/literal}{$have2fa}{literal}' ;
+
+            $(document).ready(function(){
+
+            	if(total_warnings > 0){
+	            	$(document.getElementById("nav")).find(".numWarning").text(total_warnings).show();
+	            }
+
+                console.log('have2fa: '+have2fa);
+                console.log('haveToken: '+haveToken);
+
+                if (have2fa) {
+                    if(!haveToken) {
+                        showGoogle2fa();
+                    }
+                }
+
+                countdown.start(timesession);
+
+
+            });
+
+            function showGoogle2fa(){
+                var modalNewRequest = $(document.getElementById("modalGoogle2fa"));
+                objDefault.maskLoaderShow();
+                modalNewRequest.load("google2fa", function(){
+                    objDefault.init();
+                    objModal.openModal("modalGoogle2fa");
+                    objDefault.maskLoaderHide();
+                })
+            }
+
+            function requestInsert(){
+            	var modalNewRequest = $(document.getElementById("modalNewRequest"));
+		        objDefault.maskLoaderShow();
+		        modalNewRequest.load("requestInsertOperator", function(){
+		        	objDefault.init();
+		        	objModal.openModal("modalNewRequest");		        	
+		        	objDefault.maskLoaderHide();
+		        })
+            }
+       
+            
+            function changeOrder(code, person){
+                var value = document.getElementById(code).value;
+                $.post('operator/checkOrder', {code: code, value: value, person: person}, function(resp) {
+                    if (resp == false){
+                        if(value != ''){
+                            $.post('operator/insertexorder', {code: code, value: value, person: person}, function(response) {
+                                if(response == false){
+                                    alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                                }
+                            });
+                        }
+                        else{
+                            $.post('operator/deleteexorder', {code: code, value: value, person: person}, function(response1) {
+                                if(response1 == false){
+                                    alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                                }
+                            });
+                        }
+                    }
+                    else{
+                        if(value != ''){
+                            $.post('operator/updateexorder', {code: code, value: value, person: person}, function(response2) {
+                                if(response2 == false){
+                                    alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                                }
+                            });
+                        }
+                        else{
+                            $.post('operator/deleteexorder', {code: code, value: value, person: person}, function(response3) {
+                                if(response3 == false){
+                                    alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            
+            function formUserEdit(id){
+                var modalEdit = $(document.getElementById("modalPersonEdit"));
+	            objDefault.maskLoaderShow();
+	            modalEdit.load("../admin/person/editformuser/", function(){
+	            	objDefault.init();
+	            	$("#formPersonEdit").validate({
+		        		wrapper: "li class='error'",
+		        		errorPlacement: function(error, element) {
+							error.appendTo(element.parent().parent());
+						},
+					  	rules: {
+					    	email: {
+					      		required: true,
+					      		email: true
+					    	},
+					    	namenatural: {
+					      		required: true
+					    	}
+					 	}
+					});
+	            	objModal.openModal("modalPersonEdit");
+	            	objDefault.maskLoaderHide();
+	            })
+            }
+            
+            $.address.change(function(){
+            	var addr = $.address.path(),
+            		tree = addr.substring(1),
+            		$nav = $(document.getElementById('nav')),
+            		$link = $nav.find("a[href='#"+addr+"']");
+            	
+            	if(addr != "/"){
+            		objDefault.loaderMenu("content2",152);
+            		if(addr == "/dashboard"){
+						$('#content2').load(path+"/dashboard/index/home",function(){
+            				$(document.getElementById('nav')).find('li').removeClass('active');
+            				$link.parent().addClass('active');
+            			});
+            		}else{
+            			$('#content2').load(path+"/helpdezk/"+addr,function(){
+            				$(document.getElementById('nav')).find('li').removeClass('active');
+            				$link.parent().addClass('active');
+            			});
+            		}
+            	}
+            })
+            
+            
+        </script>
+        <script type="text/javascript"  async  src="{/literal}{$path}{literal}/includes/classes/ckeditor/ckeditor.js"></script>
+        {/literal}
+        <link rel="stylesheet" type="text/css" href="{$path}/includes/css/structure.css" />
+        <link rel="stylesheet" type="text/css" href="{$path}/app/themes/{$theme}/style.css" />
+        <link rel="stylesheet" type="text/css" href="{$path}/includes/classes/jquery-treeview/jquery.treeview.css" />
+        <link rel='stylesheet' type='text/css' href='{$path}/includes/classes/flexigrid/flexigrid.css' /> 
+        <link rel="stylesheet" type="text/css" href="{$path}/includes/classes/jscalendar1.9/css/jscal2.css" /> 
+        <link rel="stylesheet" type="text/css" href="{$path}/includes/classes/jscalendar1.9/css/border-radius.css" /> 
+        <link rel="stylesheet" type="text/css" href="{$path}/includes/classes/jscalendar1.9/css/steel/steel.css" /> 
+        <link type="text/css" rel="stylesheet" href="{$path}/includes/classes/jscalendar1.9/css/reduce-spacing.css" />
+        <link rel="stylesheet" href="{$path}/includes/classes/liteAccordion/css/liteaccordion.css"/>
+        <!-- <link rel='stylesheet' type='text/css'  media='screen' href='{$path}/app/themes/{$theme}/css3-buttons.css' />
+        <link rel='stylesheet' type='text/css' href='{$path}/app/themes/{$theme}/requestinsert.css' /> -->
+        <!--- div site - div de auxilio para centralizar e definir tamanho do site NAO MEXER -->
+        <body style="background-color: #FFFFFF;">
+        	<input type="hidden" id="activeModal" />
+        	<input type="hidden" id="displayEquipment" value="{$displayEquipment}"/>
+        	<input type="hidden" id="autoRefreshGridOperator" value="{$auto_refresh_grid_operator}"/>
+        	<input type="hidden" id="grid_operator" value="{$grid_operator}"/>
+        	<input type="hidden" id="grid_operator_width" value="{$grid_operator_width}"/>
+        	<input type="hidden" id="grid_user" value="{$grid_user}"/>
+        	<input type="hidden" id="grid_user_width" value="{$grid_user_width}"/>     
+        	<input type="hidden" id="sortname" value="{$sortname}"/>
+        	<input type="hidden" id="sortorder" value="{$sortorder}"/>
+            <input type="hidden" id="license" value="{$license}"/>
+        	
+            <div id="site">  
+                <!-- div centro - div de auxilio para centralizar e definir tamanho do site NAO MEXER -->
+                <div id="centro">
+                    <div id="header">
+                        <div id="boxlogo">
+                        	<a href="#" onclick="self.location='operator'; return false;">
+                        		<img src="{$path}/app/uploads/logos/{$headerlogo}" height="{$headerheight}px" width="{$headerwidth}px"/>
+                        	</a>
+                        </div>                        
+                        <div class="fr">
+                        	<div id="sessExpire" class="texto">
+	                        	{$smarty.config.timeouttext}:
+	                        	<span id="numberCountdown"><!-- --></span>
+	                        </div>
+                        	<div id="boxlogoff" class="texto">
+		                    	<p>
+		                    		{$smarty.config.User}: 
+		                    		<a href="javascript:;" onclick="formUserEdit('{$userid}'); return false;">{$nom_usuario}</a>
+		                    	</p>
+		                        <a href="home/logout/" title="{#Logoff#}" class="btnLogout">
+		                        	{#Logoff#} 
+		                        </a>  
+		                    </div>
+                        </div>
+                    </div>
+                    <div id="main" class="clearfix">
+                        <div id="user">
+                            <ul id="nav">
+                                <li class="new-request">
+                                	<a href="javascript:;" onclick="requestInsert(); return false;" title="{$smarty.config.New_request}">
+                                		{$smarty.config.New_request}
+                                	</a>
+                                </li>
+                                <li class="my-requests">
+                                	<a href="#/user/myrequest/" title="{$smarty.config.My_requests}">
+                                		{$smarty.config.My_requests}
+                                	</a>
+                                </li>
+                                <li class="attendance active">
+                                	<a href="operator" title="{$smarty.config.Attendance}">
+                                		{$smarty.config.Attendance}
+                                	</a>
+                                </li>
+                                {if $usertype == 1 || $usertype == 3}
+                                <li class="queryrequest">
+                                	<a href="#/operator/queryrequest/" title="{$smarty.config.Consult}">
+                                		{$smarty.config.Consult}
+                                	</a>
+                                </li>
+                                {/if}
+                                <li class="downloads">
+                                	<a href="#/operator/downloadtable/"  title="{$smarty.config.Downloads}">
+                                		{$smarty.config.Downloads}
+                                	</a>
+                                </li>
+                                <!--
+                                <li {$enterprisefeature} class="dashboard">
+                                	<a href="#/dashboard">
+                                		{$smarty.config.Dashboard}
+                                	</a>
+                                </li>
+                                -->
+                                {if $showDashboard == 1}
+                                    <li class="dashboard">
+                                        <a href="#/dashboard" >
+                                            {$smarty.config.Dashboard}
+                                        </a>
+                                    </li>
+                                {/if}
+                              	<li class="warnings" style="position: relative;">
+                                	<a href="#/warnings" class="loadMenu" title="{$smarty.config.pgr_warnings}">
+                                		{$smarty.config.pgr_warnings}
+                                		<span class="numWarning"><!-- --></span>
+                                	</a>
+                                </li>
+                                <li class="knowledge">
+                                	<a href="#/knowledgebase" class="loadMenu" title="{$smarty.config.pgr_warnings}">
+                                		{$smarty.config.pgr_knowledge_base}
+                                	</a>
+                                </li>
+                                {if $showadmbutton == 1}
+                                <li class="settings">
+                                	<a href="{$path}/admin/home" >
+                                		{$smarty.config.Administration}
+                                	</a>
+                                </li>
+                                {/if}
+
+                                {* Aditional Modules*}
+                                {foreach from=$modules key=myId item=i}
+                                <li class={$i.class}>
+                                    <a href="{$path}/{$i.path}/home" >
+                                        {$i.varsmarty}
+                                    </a>
+                                </li>
+                                {/foreach}
+
+                                
+                            </ul>
+                        </div>
+                        <div id="content2" style="text-align: left;">
+                            <table id="flexigrid2"></table>
+                            {literal}
+                            <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/ajax/flex_lang.js"></script>
+                            <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/ajax/attendanceRequest.js"></script>
+                            {/literal}
+                        </div>
+                        {include file="modais/include/useredit.tpl.html"}
+                    </div>
+                    <div id="footer" class="textoRodape">{$smarty.config.Footer_msg}</div>            
+                </div>
+            </div>
+            <div id="pop" class="pop-tp3"><!-- --></div>
+            <div id="sessionTimeoutWarning" style="width: 1px; height:1px;"><!-- --></div>
+            
+            <div id="modalInfo" class="window" style="width:400px;">
+			    <div class="modalHeader">
+					<h2>{$smarty.config.Notification}</h2>
+					<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+				</div>
+				<div class="modalContent"><!-- --></div>
+			</div>
+			
+			<div id="modalNewRequest" class="window" style="width:1106px;"><!-- --></div>
+			<div id="modalSearchUser" class="window" style="width:640px;"><!-- --></div>
+            <div id="modalGoogle2fa" class="window" style="width:400px;"><!-- --></div>
+
+			{include file="modais/requestrepass.tpl.html"}			
+
+            <div id="modalReturnRequest" class="window" style="width:500px;"><!-- --></div>
+			{include file="modais/savingRequest.tpl.html"}
+            <div id="mask">
+				<div class="maskLoader"><!-- --></div>
+			</div>
+            
+        </body>
+</html>

@@ -1,0 +1,32 @@
+<form action="javascript:;" method="post" id="formTopicInsert">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Warning_view_topics}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			
+			<div style="max-height: 300px;overflow-y: auto;width: 380px;"> 
+				<table id="tabSeeTopics" class="tab-services" style="width: 100%; border: none;" border="0" cellpadding="0" cellspacing="0">
+		        	<colgroup>
+		        		<col width="300"/>
+						<col width="30"/>
+		        	</colgroup>
+		            <tbody>
+		            	{foreach from=$topics key=myId item=i}							
+							<tr>
+								<td class="pr0">
+				            		{$i.title}
+				            	</td>
+				            	<td>
+				            		<a href="{$i.id}" class="btnEdit-tp1" alt="Editar">Editar</a>
+				            	</td>
+							</tr>
+						{/foreach}
+		            </tbody>
+            	</table>
+        	</div>
+				
+		</div>
+	</div>	
+</form>

@@ -1,0 +1,86 @@
+<form action="javascript:;" method="post" id="formInsertArticle" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Article_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">	
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbCategory">{$smarty.config.Parent_Category}:</label>
+						</li>
+						<li class="field">
+							<select class="w240" name="cmbCategory" id="cmbCategory">
+								<option value="">{$smarty.config.Select}</option>
+								{foreach from=$categories item=category}
+									<option value="{$category.id}">{$category.name}</option> 
+								{/foreach}
+							</select>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtTitle">{$smarty.config.Title}:</label>
+						</li>
+						<li class="field ">
+							<input type="text" name="txtTitle" id="txtTitle" class="w240"/>							
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="chkFAQ">{$smarty.config.Faq_available}:</label>
+						</li>
+						<li class="field ">
+							<input type="checkbox" name="chkFAQ" id="chkFAQ" value="1"/>							
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtFile">{$smarty.config.File}:</label>
+						</li>
+						<li class="field ">
+							<iframe src="knowledgebase/upload/id/null" name="ianexo" id="ianexo" height="22" frameborder="0" scrolling="no"></iframe>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtDescPro">{$smarty.config.Problem_description}:</label>
+						</li>
+						<li class="field ">
+							<textarea id="txtDescPro" name="txtDescPro" class="ckeditor" data-width="430" data-height="70" data-toolbar="SOLICITA_DET"></textarea>							
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="txtSolPro">{$smarty.config.Problem_solution}:</label>
+						</li>
+						<li class="field ">
+							<textarea id="txtSolPro" name="txtSolPro" class="ckeditor" data-width="430" data-height="140" data-toolbar="SOLICITA"></textarea>							
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnInsertArticle" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

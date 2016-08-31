@@ -1,0 +1,233 @@
+<form action="javascript:;" method="post" id="formRequestEmailInsert" name="requestEmail">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Email_request_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="serverInsert">{$smarty.config.Server}:</label>
+						</li>
+						<li class="field ">
+							<input name="serverInsert" id="serverInsert" type="text" class="w240"  />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="typeInsert">{$smarty.config.Type}:</label>
+						</li>
+						<li class="field ">
+							<select name="typeInsert" id="typeInsert" class="w240">
+								<option value="">{$smarty.config.Select}</option>
+								<option value="pop">POP</option>
+								<option value="imap">IMAP</option>
+								<option value="pop-gmail">POP - Gmail</option>
+								<option value="imap-gmail">IMAP - Gmail</option>
+							</select>
+						</li>
+					</ul>
+				</li>				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertPort">{$smarty.config.Port}:</label>
+						</li>
+						<li class="field ">
+							<input name="insertPort" id="insertPort" type="text" class="w130" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertEmail">Email:</label>
+						</li>
+						<li class="field ">
+							<input name="insertEmail" id="insertEmail" type="text" class="w240" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertPassword">{$smarty.config.Password}:</label>
+						</li>
+						<li class="field ">
+							<input name="insertPassword" id="insertPassword" type="password" class="w240" />
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbArea">{$smarty.config.Area}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbArea" class="w240" id="cmbArea">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$areaids output=$areavals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbType">{$smarty.config.Type}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbType" class="w240" id="cmbType">
+								<option value=""> {$smarty.config.Alert_choose_area} </option>
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbItem">{$smarty.config.Item}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbItem" class="w240" id="cmbItem">
+								<option value=""> {$smarty.config.Alert_choose_type} </option>
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="cmbService">{$smarty.config.Service}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbService" class="w240" id="cmbService">
+								<option value=""> {$smarty.config.Alert_choose_item} </option>
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertFrom">{$smarty.config.Filter_by_sender}:</label>
+						</li>
+						<li class="field">
+							<input name="insertFrom" id="insertFrom" type="text" class="w240" />								
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertSubject">{$smarty.config.Filter_by_subject}:</label>
+						</li>
+						<li class="field">
+							<input name="insertSubject" id="insertSubject" type="text" class="w240" />								
+						</li>
+					</ul>
+				</li>				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertCreateUser">{$smarty.config.Create_user}:</label>
+						</li>
+						<li class="field">
+							<input name="insertCreateUser" id="insertCreateUser" type="checkbox" value="1"/>			
+							<label for="insertCreateUser">{$smarty.config.Create_user_msg}</label> 					
+						</li>
+					</ul>
+				</li>
+				
+				
+				<li class="createNewUser none">
+					<ul>
+						<li class="info">
+							<label for="cmbInsertCompany">{$smarty.config.Company}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbInsertCompany" class="w240" id="cmbInsertCompany">
+								<option value=""> {$smarty.config.Select} </option>
+								{html_options values=$companyids output=$companyvals}
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li class="createNewUser none">
+					<ul>
+						<li class="info">
+							<label for="cmbInsertDepartment">{$smarty.config.Department}:</label>
+						</li>
+						<li class="field">
+							<select name="cmbInsertDepartment" class="w240" id="cmbInsertDepartment">
+								<option value=""> {$smarty.config.Select} </option>
+							</select>
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertDeleteEmails">{$smarty.config.Delete_emails}:</label>
+						</li>
+						<li class="field">
+							<input name="insertDeleteEmails" id="insertDeleteEmails" type="checkbox" value="1"/>			
+							<label for="insertDeleteEmails">{$smarty.config.Delete_emails_msg}</label> 					
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertLoginLayout">{$smarty.config.Login_layout}:</label>
+						</li>
+						<li class="field">
+							<select name="insertLoginLayout" class="w240" id="insertLoginLayout">
+								<option value=""> {$smarty.config.Select} </option>
+								<option value="U"> {$smarty.config.User} </option>
+								<option value="E"> Full Email </option>
+							</select>					
+						</li>
+					</ul>
+				</li>
+				
+				<li>
+					<ul>
+						<li class="info">
+							<label for="insertNote">{$smarty.config.Note}:</label>
+						</li>
+						<li class="field">
+							<input name="insertNote" id="insertNote" type="checkbox" value="1"/>			
+							<label for="insertNote">{$smarty.config.Note_msg}</label>				
+						</li>
+					</ul>
+				</li>
+				
+			</ul>
+			
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnSendRequestEmail" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

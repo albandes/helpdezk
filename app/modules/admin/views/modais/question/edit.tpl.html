@@ -1,0 +1,32 @@
+<form action="javascript:;" method="post" id="formQuestionEdit" name="form1">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Edit_question}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="question">{$smarty.config.Question}:</label>
+						</li>
+						<li class="field ">
+							<input name="question" id="question" type="text" class="w240" maxlength="250" value="{$question}"/>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type="hidden" id="id" name="id" value="{$id}"/>
+					<input type='submit' name="submit" id="btnSendQuestionEdit" class="btnOrange tp1" value="{$smarty.config.Save}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

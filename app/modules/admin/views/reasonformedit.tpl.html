@@ -1,0 +1,81 @@
+{literal}
+<link type="text/css" rel="stylesheet" href="{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/style.css" />
+<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" language="javascript">
+	function send() {
+		$("#status").html("<img src='{/literal}{$path}{literal}/app/themes/{/literal}{$theme}{literal}/images/loading_laranja.gif' alt='{/literal}{$smarty.config.Send_img_alt}{literal}' />");
+		// Colocamos os valores de cada campo em uma v�riavel para facilitar a manipula��o
+		var reason = $("#reason").val();
+		var type = $("#type").val();
+		var id = $("#id").val();
+		if ($("#available").is(":checked")) {
+			var available = 'A';
+		} else {
+			var available = 'N';
+		}
+
+		pathform = document.form1;
+		if (reason == '') {
+			alert("{/literal}{$smarty.config.Alert_empty_reason}{literal}");
+			pathform.name.focus();
+			return false;
+		}
+		if (type == '' || type == 0) {
+			alert("{/literal}{$smarty.config.Select_type}{literal}!");
+			return false;
+		}
+
+		$.post('{/literal}{$path}{literal}/admin/reason/edit', {
+			reason : reason,
+			type : type,
+			available : available,
+			id : id
+		}, function(resp) {
+
+			if (resp != false) {
+				alert("{/literal}{$smarty.config.Edit_sucess}{literal}");
+				window.opener.$("#content").load('reason');
+				self.close();
+			} else {
+				alert("{/literal}{$smarty.config.Edit_failure}{literal}");
+			}
+		});
+	}
+</script>
+{/literal}
+<!--onLoad="document.form1.NOM_GRUPO.focus()"-->
+<div id='smallHeader'>
+	<span class="texto" style="margin-top:12px; margin-left: 10px;">:: {$smarty.config.Reason_insert} </span><a href="#" id='buttonClose' onclick=" $('#status').fadeOut(200); $('#pop').fadeOut(400);"><img src="{$path}/app/themes/{$theme}/images/ico_close_button.gif" border="0" /></a>
+</div>
+<form name="form1" id="form1" method="post" action="javascript:func()">
+	<br />
+	<div class="titulo">
+		{$smarty.config.Reason}:
+	</div>
+	<div class="campos">
+		<input name="reason" id="reason" type="text" value="{$reason}" class="campo" size="30" maxlength="120" />
+	</div>
+	<div class="clr"><!--  --></div>
+	<div class="titulo">
+		{$smarty.config.Service}:
+	</div>
+	<div class="campos">
+		<select class="campo" name="service" id="service">
+			<option value="0">{$smarty.config.Select_type}</option>
+			{html_options values=$typeids output=$typevals selected = $type}
+		</select>
+	</div>
+	<div class="clr"><!--  --></div>
+	<div class="titulo">
+		{$smarty.config.Available}:
+	</div>
+	<div class="campos">
+		<input name="available" type="checkbox" id="available" {if $available == "A"} checked {else} "" {/if}>
+		<span class="texto">{$smarty.config.Available_text}</span>
+	</div>
+	<div id="buttonCadastrar">
+		<input type='submit' class="btn_cadastrar" name="submit" value="{$smarty.config.Record_btn}" onclick="send(); return false;" />
+	</div>
+	<br/>
+	<input type="hidden" id="id" name="id" value="{$id}">
+</form>

@@ -1,0 +1,45 @@
+<div id="modalAssume" class="window" style="width:450px;">
+    <form action="javascript:;" method="post">
+        <div class="modalHeader">
+			<h2>{$smarty.config.Assume_request}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+			    <label for="grpkeep">
+			    	<strong>{$smarty.config.Group_still_viewing}:</strong>
+			    	<input type="checkbox" id="grpkeep" name="grpkeep" {$checkedassume} class="ml10"/>
+			    </label>				
+			    {if $typeincharge == "P"}
+			    	{if $checkedassume == "checked"}
+					<ul class="lstForm clearfix mt10" id="groupsAssume">
+					{else}
+					<ul class="lstForm clearfix mt10 none" id="groupsAssume">
+					{/if}
+						<li>
+							<ul>
+								<li class="info wAuto ml20">
+									<label for="nameGroup">{$smarty.config.Group}:</label>
+								</li>
+								<li class="field">
+									<select name="nameGroupAssume" id="nameGroupAssume" class="w200">
+										{html_options values=$grpids output=$grpvals}
+									</select>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				{/if}
+			</div>
+		</div>
+		<div class="modalFooter">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">	
+						<input type='submit' name="submit"  class="btnOrange tp1" id="assumeRequest" value="{$smarty.config.btn_assume}"/>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>

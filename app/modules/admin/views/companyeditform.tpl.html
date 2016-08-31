@@ -1,0 +1,355 @@
+<html>
+    <head>
+        <title>{$pagetitle}</title>
+        <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+        {literal}
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/jquery/jquery-1.7.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{/literal}{$path}{literal}/includes/classes/jquery-autocomplete/jquery.autocomplete.css" />
+        <script src="{/literal}{$path}{literal}/includes/classes/jquery-maskedinput/jquery.maskedinput-1.2.1.pack.js"></script> 
+        <script type="text/javascript">
+            
+            $(document).ready(function() {
+                
+                $("#cnpj").mask('{/literal}{$ein_mask}{literal}');
+                $("#phone").mask('(99)9999-9999?99');
+                $("#fax").mask('(99)9999-9999?99');
+            
+                function formatItem(row) {
+                    return row[0] + " (<strong>id: " + row[1] + "</strong>)";
+                }
+                function formatResult(row) {
+                    return row[0].replace(/(<.+?>)/gi, '');
+                }              
+                                
+                $.getJSON("person/streets/", function(data) {
+                    ruas = [];
+                    idruas = [];
+                    i=0;
+                    $.each(data, function(key, val) {
+                        ruas[i] = val.name;
+                        idruas[i] = val.id;
+                        i = i + 1;
+                    });
+                });
+               
+                change('{/literal}{$country}{literal}','{/literal}{$state}{literal}');
+               
+            });
+
+            function autoteste() {
+                $("#address").autocomplete(ruas);
+            }
+
+            function carregaFormLevel(sel) {
+                var value = sel.options[sel.selectedIndex].value;
+                if (value == 1 || value == 3) {
+
+                    $('#acess_level_user').css({
+                        'display' : 'none'
+                    });
+                    $('#acess_level_operator').css({
+                        'display' : 'block'
+                    });
+                    //$('#pop').animate({'height':'450px'});
+                }
+                if (value == 2) {
+
+                    $('#acess_level_operator').css({
+                        'display' : 'none'
+                    });
+                    $('#acess_level_user').css({
+                        'display' : 'block'
+                    });
+                    //no futuro tera os campos adicionais
+                    //$('#pop').animate({'margin-left':'-300px','width':'720px'});
+                    //$('#additional_fields').css({'display':'block'});
+                }
+            }
+            
+            function showFormAdress() {
+                $("#formAdress").slideToggle("slow");
+            }
+            
+            function change(val, state) {
+                $("select[name=state]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                var val = $("#country").val();
+                $.post("{/literal}{$path}{literal}/admin/person/state", {
+                    country : val,
+                    state: state
+                }, function(valor) {
+                    $("select[name=state]").html(valor);
+                    returncities("{/literal}{$state}{literal}","{/literal}{$city}{literal}");
+                })
+            }
+
+            function returncities(val, city) {
+                $("select[name=city]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                var val = $("#state").val();
+                $.post("{/literal}{$path}{literal}/admin/person/city", {
+                    state : val,
+                    city: city
+                }, function(valor) {
+                    $("select[name=city]").html(valor);
+                })
+            }
+
+            function returnneighborhood() {
+                $("select[name=neighborhood]").html('<option value="0">{/literal}{$smarty.config.Loading}{literal}</option>');
+                $.post("{/literal}{$path}{literal}/admin/person/neighborhood", {
+                    city : $('#city').val()
+                }, function(valor) {
+                    $("select[name=neighborhood]").html(valor);
+                })
+           
+            }
+            
+            function sendJuridical(){
+                pathform = document.form1;
+                var namejuridical = $("#namejuridical").val();
+                var email = $("#email").val();
+                var department = $("#department").val();
+                var branch = $("#branch").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                var city = $("#city").val();
+                var priority = $("#priority").val();
+                var typeuser = $("#type_company").val();
+                var neighborhood = $("#neighborhood").val();
+                if (neighborhood == ''){
+                    neighborhood = 'Choose';
+                } 
+                if("{/literal}{$lang}{literal}" == 'en_US'){
+                    var clear = '999999999';
+                }
+                else{
+                    var clear = '99999999999999';
+                }
+                var zipcode = $("#zipcode").val();
+                var typestreet = $("#type_street").val();
+                var address = $("#address").val();
+                if (address == ''){
+                    address = 'Choose';
+                } 
+                var number = $("#number").val();
+                var complement = $("#complement").val();
+                if (department == 1 || department == 0 ) {
+                    alert("{/literal}{$smarty.config.Alert_choose_department}{literal}!");
+                    return false;
+                }
+                if (namejuridical == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_name}{literal}");
+                    pathform.namejuridical.focus();
+                    return false;
+                }
+                
+                if (email == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_email}{literal}");
+                    pathform.email.focus();
+                    return false;
+                }
+                
+                if ($("#filladress").is(":checked")) {
+                    var filladress = 'Y';
+                } else {
+                    var filladress = 'N';
+                }
+                
+                $("#phone").unmask();
+                $("#phone").mask("9999999999?99");
+                var phone = $("#phone").val();
+                $("#fax").unmask();
+                $("#fax").mask("9999999999?99");                
+                var fax = $("#fax").val();
+                var country = $("#country").val();
+                var state = $("#state").val();
+                $("#cnpj").unmask();
+                $("#cnpj").mask(clear);
+                var cnpj = $("#cnpj").val();
+                var observation = $("#obs").val();
+                var contact = $("#cperson").val();
+                if (cnpj == '') {
+                    alert("{/literal}{$smarty.config.Alert_empty_cpf}{literal}");
+                    pathform.cnpj.focus();
+                    return false;
+                }
+                var id = $("#id").val();
+                $.post("{/literal}{$path}{literal}/admin/person/editJuridical", {
+                    name: namejuridical,
+                    email: email,
+                    department: department,
+                    phone: phone,
+                    priority: priority,
+                    branch: branch,
+                    fax: fax,
+                    country: country,
+                    state: state,
+                    cnpj: cnpj,
+                    country: country,
+                    city: city,
+                    neighborhood: neighborhood,
+                    zipcode: zipcode,
+                    typestreet: typestreet,
+                    address: address,
+                    number: number,
+                    complement: complement,
+                    filladdress: filladress,
+                    typeuser: typeuser,
+                    observation: observation,
+                    contact: contact,
+                    id: id
+                }, function(resp) {
+                    if (resp != false) {
+                        alert("{/literal}{$smarty.config.Alert_inserted}{literal}");
+                        $("#content").load('person');
+                    } else {
+                        alert("{/literal}{$smarty.config.Alert_failure}{literal}");
+                    }
+                });
+            
+            }
+        </script>
+        {/literal}
+        <link rel="stylesheet" type="text/css" href="{$path}/app/themes/{$theme}/style.css" />
+    </head>
+    <div id='smallHeader' style="margin-top:0px;">
+        <span class="texto" style="margin-left: 10px;">::&nbsp;{$smarty.config.Person_insert} </span>
+    </div>
+    
+<div id="juridicalform">
+    <div class="titulo-tp2">{$smarty.config.Name}:</div>
+    <div class="campos"><input name="namejuridical" id="namejuridical" type="text" class="campo" size="40" maxlength="150" value="{$name}"/></div>
+
+    <div class="titulo-tp2">{$smarty.config.EIN_CNPJ}:</div>
+    <div class="campos"><input name="cnpj" id="cnpj" type="text" class="campo" size="20" maxlength="150" value="{$ein_cnpj}"/></div>
+
+    <div class="titulo-tp2" >
+        E-mail:
+    </div>
+    <div class="campos" >
+        <input name="email" id="email" type="text" class="campo" style="width:255px;" maxlength="150" value="{$email}"/>
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Type}:
+    </div>
+    <div class="campos">
+        <select name="type_company" class="campo" id="type_company" style="width:150px;">
+            <option value="0">{$smarty.config.Select_acess_level}</option>
+            {html_options values=$levelids output=$levelvals selected = $typeperson }
+        </select>
+    </div>
+    
+    <div class="titulo-tp2">
+        {$smarty.config.Phone}:
+    </div>
+    <div class="campos">
+        <input name="phone" id="phone" type="text" class="campo" size="15" maxlength="15" value="{$phone}"/>
+    </div>
+    <div class="titulo-tp2 no-clr" style="width:70px;">
+        {$smarty.config.Branch}:
+    </div>
+    <div class="campos">
+        <input name="branch" id="branch" type="text" class="campo" size="5" maxlength="5" value="{$branch}"/>
+    </div>
+
+    <div class="titulo-tp2" >
+        Fax:
+    </div>
+    <div class="campos" >
+        <input name="fax" id="fax" type="text" class="campo" size="15" maxlength="15" value="{$fax}"/>
+    </div>
+    
+    <div class="titulo-tp2">
+        {$smarty.config.Contact_person}
+    </div>
+    <div class="campos">
+        <input name="cperson" id="cperson" type="text" class="campo" size="35" maxlength="50" value="{$contact}"/>
+    </div>
+    
+    <div style="margin-top: -3px; clear:both;">
+        <div id="formAdress">
+            <div class="titulo-tp2">
+                {$smarty.config.Country}:
+            </div>
+            <div class="campos">
+                <select name="country" class="campo" id="country" style="width:300px;"  onchange="change();">
+                    {html_options values=$countryids output=$countryvals selected = $country }
+                </select>
+            </div>
+
+            <div class="titulo-tp2" >
+                {$smarty.config.State}:
+            </div>
+            <div class="campos" >
+                <select name="state" class="campo" id="state" style="width:300px;" onchange="returncities();">
+                    <option value="1">{$smarty.config.Select_country_first} </option>
+                </select>
+            </div>
+
+            <div class="titulo-tp2" style="background-color:#CFCFCF;">
+                {$smarty.config.City}:
+            </div>
+            <div class="campos" style="background-color:#CFCFCF;">
+                <select name="city" class="campo" id="city" style="width:300px;">
+                    <option value="1">{$smarty.config.Select_state_first} </option>
+                </select>
+            </div>
+
+            <div class="titulo-tp2" >
+                {$smarty.config.Neighborhood}:
+            </div>
+            <div class="campos" >
+                <input name="neighborhood" id="neighborhood" type="text" class="campo" size="15" maxlength="40" value="{$neighborhood}"/>
+            </div>
+            <div class="titulo-tp2 no-clr" style="width:55px;">
+                {$smarty.config.Zipcode}:
+            </div>
+            <div class="campos" >
+                <input name="zipcode" id="zipcode" type="text" class="campo" size="10" maxlength="12" value="{$zipcode}"/>
+            </div>
+
+            <div class="titulo-tp2" style="background-color:#CFCFCF;">
+                {$smarty.config.Type_adress}:
+            </div>
+            <div class="campos" style="background-color:#CFCFCF;">
+                <select name="type_street" class="campo" id="type_street" style="width:70px;">
+                    {html_options values=$typestreetids output=$typestreetvals selected = $idtypestreet }
+                </select>
+            </div>
+            <div class="titulo-tp2 no-clr" style="background-color:#CFCFCF;  width:55px;">
+                {$smarty.config.Adress}:
+            </div>
+            <div class="campos ui-widget" style="background-color:#CFCFCF;">
+                <input name="address" id="address" type="text" class="campo" size="30" maxlength="200" onfocus="autoteste();" value="{$street}"/>
+            </div>
+
+            <div class="titulo-tp2" >
+                {$smarty.config.Number}:
+            </div>
+            <div class="campos" >
+                <input name="number" id="number" type="text" class="campo" size="6" maxlength="40" value="{$number}"/>
+            </div>
+            <div class="titulo-tp2 no-clr" >
+                {$smarty.config.Complement}:
+            </div>
+            <div class="campos" >
+                <input name="complement" id="complement" type="text" class="campo" size="15" maxlength="40" value="{$complement}"/>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="titulo-tp2">
+        {$smarty.config.Observation}
+    </div>
+    <div class="campos">
+        <textarea name="obs" id="obs" class="campo" cols="30" rows="3"/>{$obs}</textarea>
+    </div>
+    <br/>
+    <br/>
+    <input name="id" id="id" type="hidden" value="{$id}" />
+    <div id="buttonCadastrar">
+        <input type='submit' class="btn_cadastrar" name="submit" onclick="sendJuridical(); return false;" value="{$smarty.config.Record_btn}" />
+    </div>
+</div>
