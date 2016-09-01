@@ -1,5 +1,6 @@
 <?php
-	  
+error_reporting(E_ERROR | E_PARSE);
+
 $install_dir	    = "installer/";
 $upload_dir 		= "app/uploads/";
 $smartycache_dir 	= "system/templates_c/";

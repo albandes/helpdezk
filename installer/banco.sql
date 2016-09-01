@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `dsh_tbcategory` (
 
 # Dados para a tabela: dsh_tbcategory
 
-INSERT IGNORE INTO dsh_tbcategory VALUES ('1','Helpdezk','','A');
+INSERT IGNORE INTO dsh_tbcategory VALUES ('1','Helpdezk','0','A');
 
 
 
@@ -196,11 +196,11 @@ CREATE TABLE IF NOT EXISTS `dsh_tbwidget` (
 
 # Dados para a tabela: dsh_tbwidget
 
-INSERT IGNORE INTO dsh_tbwidget VALUES ('1','Hard Users','','','','','2013','6','','','','Most active users','Rogerio Albandes','hdk_harduser','hard user.jpg','','A');
+INSERT IGNORE INTO dsh_tbwidget VALUES ('1','Hard Users','','','','','2013','6','','','','Most active users','Rogerio Albandes','hdk_harduser','hard user.jpg','0','A');
 
-INSERT IGNORE INTO dsh_tbwidget VALUES ('2','Requests in Stock','','','','','1800000','12','','','','Requests  in stock , in the last 30 days','Rogerio Albandes','hdk_requestassets','Estoque de Solicitacoes.jpg','','A');
+INSERT IGNORE INTO dsh_tbwidget VALUES ('2','Requests in Stock','','','','','1800000','12','','','','Requests  in stock , in the last 30 days','Rogerio Albandes','hdk_requestassets','Estoque de Solicitacoes.jpg','0','A');
 
-INSERT IGNORE INTO dsh_tbwidget VALUES ('3','Service Level Agreement','','','','','','','','','','Service Level Agreement','Rogerio Albandes','hdk_sla','sla.jpg','','A');
+INSERT IGNORE INTO dsh_tbwidget VALUES ('3','Service Level Agreement','','','','','','','','','','Service Level Agreement','Rogerio Albandes','hdk_sla','sla.jpg','0','A');
 
 
 
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `dsh_tbwidgetusuario` (
 
 # Dados para a tabela: dsh_tbwidgetusuario
 
-INSERT IGNORE INTO dsh_tbwidgetusuario VALUES ('1','1','eyJyZXN1bHQiIDp7ImxheW91dCI6ICJsYXlvdXQyIiwgImRhdGEiIDogW3sidGl0bGUiIDogIkhhcmQgVXNlcnMiLCAiaWQiIDogIjY0OTA0MTUuOTgzMzI0MDI5IiwgImNvbHVtbiIgOiAidW5kZWZpbmVkIiwiZWRpdHVybCIgOiAidW5kZWZpbmVkIiwib3BlbiIgOiB0cnVlLCJ1cmwiIDogIi9oZC9kYXNoYm9hcmQvaGRrX2hhcmR1c2VyL2hvbWUvaWR3aWRnZXQvMSIsIm1ldGFkYXRhIjp7fX0seyJ0aXRsZSIgOiAiU2VydmljZSBMZXZlbCBBZ3JlZW1lbnQiLCAiaWQiIDogIjY0OTA0MTYuOTgzMzI0MDI5IiwgImNvbHVtbiIgOiAic2Vjb25kIiwiZWRpdHVybCIgOiAidW5kZWZpbmVkIiwib3BlbiIgOiB0cnVlLCJ1cmwiIDogIi9oZC9kYXNoYm9hcmQvaGRrX3NsYS9ob21lL2lkd2lkZ2V0LzMiLCJtZXRhZGF0YSI6e319XX19');
+INSERT IGNORE INTO dsh_tbwidgetusuario VALUES ('1','1','ZXlKeVpYTjFiSFFpSURwN0lteGhlVzkxZENJNklDSnNZWGx2ZFhReUlpd2dJbVJoZEdFaUlEb2dXM3NpZEdsMGJHVWlJRG9nSWtoaGNtUWdWWE5sY25NaUxDQWlhV1FpSURvZ0lqWTBPVEEwTVRVdU9UZ3pNekkwTURJNUlpd2dJbU52YkhWdGJpSWdPaUFpZFc1a1pXWnBibVZrSWl3aVpXUnBkSFZ5YkNJZ09pQWlkVzVrWldacGJtVmtJaXdpYjNCbGJpSWdPaUIwY25WbExDSjFjbXdpSURvZ0lpOW9aQzlrWVhOb1ltOWhjbVF2YUdSclgyaGhjbVIxYzJWeUwyaHZiV1V2YVdSM2FXUm5aWFF2TVNJc0ltMWxkR0ZrWVhSaElqcDdmWDBzZXlKMGFYUnNaU0lnT2lBaVUyVnlkbWxqWlNCTVpYWmxiQ0JCWjNKbFpXMWxiblFpTENBaWFXUWlJRG9nSWpZME9UQTBNVFl1T1Rnek16STBNREk1SWl3Z0ltTnZiSFZ0YmlJZ09pQWljMlZqYjI1a0lpd2laV1JwZEhWeWJDSWdPaUFpZFc1a1pXWnBibVZrSWl3aWIzQmxiaUlnT2lCMGNuVmxMQ0oxY213aUlEb2dJaTlvWkM5a1lYTm9ZbTloY21RdmFHUnJYM05zWVM5b2IyMWxMMmxrZDJsa1oyVjBMek1pTENKdFpYUmhaR0YwWVNJNmUzMTlYWDE5');
 
 
 
@@ -295,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `hdk_tbconfig` (
   PRIMARY KEY (`idconfig`),
   KEY `FK_hdk_tbconfig` (`idconfigcategory`),
   CONSTRAINT `FK_hdk_tbconfig` FOREIGN KEY (`idconfigcategory`) REFERENCES `hdk_tbconfig_category` (`idconfigcategory`)
-) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC ; 
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC ; 
 
 # Dados para a tabela: hdk_tbconfig
 
@@ -347,9 +347,9 @@ INSERT IGNORE INTO hdk_tbconfig VALUES ('54','Sender email','','5','EM_SENDER','
 
 INSERT IGNORE INTO hdk_tbconfig VALUES ('55','Requires authentication','','5','EM_AUTH','','A','em_auth','1');
 
-INSERT IGNORE INTO hdk_tbconfig VALUES ('56','Email Header','PHA+Cgk8aW1nIGFsdD0iIiBzcmM9Imh0dHA6Ly93d3cuaGVscGRlemsub3JnL3B1YmxpYy9pbWFnZXMvbG9nby5wbmciIC8+PC9wPgo=','11','EM_HEADER','','A','em_header','');
+INSERT IGNORE INTO hdk_tbconfig VALUES ('56','Email Header','UEhBK0NnazhhVzFuSUdGc2REMGlJaUJ6Y21NOUltaDBkSEE2THk5M2QzY3VhR1ZzY0dSbGVtc3ViM0puTDNCMVlteHBZeTlwYldGblpYTXZiRzluYnk1d2JtY2lJQzgrUEM5d1Bnbz0=','11','EM_HEADER','','A','em_header','');
 
-INSERT IGNORE INTO hdk_tbconfig VALUES ('57','Email Footer','PHA+Cgk8ZW0+PHN0cm9uZz48c3BhbiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjogcmdiKDI1NSwgMTQwLCAwKTsiPjwvc3Bhbj48L3N0cm9uZz48L2VtPjwvcD4K','11','EM_FOOTER','','A','em_footer','');
+INSERT IGNORE INTO hdk_tbconfig VALUES ('57','Email Footer','','11','EM_FOOTER','','A','em_footer','');
 
 INSERT IGNORE INTO hdk_tbconfig VALUES ('58','POP Host','','12','POP_HOST','','A','pop_host','Teste');
 
@@ -371,7 +371,7 @@ INSERT IGNORE INTO hdk_tbconfig VALUES ('66','Maintenance message','','5','SES_M
 
 INSERT IGNORE INTO hdk_tbconfig VALUES ('67','OPERATOR: Notify operators responsible when forward a request','','3','REPASS_REQUEST_OPERATOR_MAIL','checkbox','A','Email_request_repass','1');
 
-INSERT IGNORE INTO hdk_tbconfig VALUES ('68','Para abrir nova solicita��o o usu�rio n�o poder� ter solicita��es para aprova��o','','1','SES_OPEN_NEW_REQUEST','checkbox','A','sys_open_new_request','1');
+INSERT IGNORE INTO hdk_tbconfig VALUES ('68','Para abrir nova solicita??o o usu?rio n?o poder? ter solicita??es para aprova??o','','1','SES_OPEN_NEW_REQUEST','checkbox','A','sys_open_new_request','1');
 
 INSERT IGNORE INTO hdk_tbconfig VALUES ('69','Allow operator to enter appointment without description','','1','SES_EMPTY_NOTE','checkbox','A','sys_empty_note','1');
 
@@ -409,6 +409,8 @@ INSERT IGNORE INTO hdk_tbconfig VALUES ('85','LDAP or AD','','13','SES_LDAP_AD',
 
 INSERT IGNORE INTO hdk_tbconfig VALUES ('86','POP Domain','','12','POP_DOMAIN','','A','pop_domain','');
 
+INSERT IGNORE INTO hdk_tbconfig VALUES ('89','Google two factor authentication','','1','SES_GOOGLE_2FA','checkbox','A','sys_2FAuthentication','0');
+
 
 
 ##
@@ -428,19 +430,19 @@ CREATE TABLE IF NOT EXISTS `hdk_tbconfig_category` (
 
 INSERT IGNORE INTO hdk_tbconfig_category VALUES ('1','Funcionalidades do Sistema','System_features');
 
-INSERT IGNORE INTO hdk_tbconfig_category VALUES ('2','Permiss�es para Analista','');
+INSERT IGNORE INTO hdk_tbconfig_category VALUES ('2','Permiss?es para Analista','');
 
-INSERT IGNORE INTO hdk_tbconfig_category VALUES ('3','Notifica��es de E-mail','');
+INSERT IGNORE INTO hdk_tbconfig_category VALUES ('3','Notifica??es de E-mail','');
 
-INSERT IGNORE INTO hdk_tbconfig_category VALUES ('4','Usu�rios','');
+INSERT IGNORE INTO hdk_tbconfig_category VALUES ('4','Usu?rios','');
 
 INSERT IGNORE INTO hdk_tbconfig_category VALUES ('5','Geral','');
 
-INSERT IGNORE INTO hdk_tbconfig_category VALUES ('6','Patrim�nio','');
+INSERT IGNORE INTO hdk_tbconfig_category VALUES ('6','Patrim?nio','');
 
-INSERT IGNORE INTO hdk_tbconfig_category VALUES ('7','Integra��o com SMTP/LDAP/MS Active Directory','');
+INSERT IGNORE INTO hdk_tbconfig_category VALUES ('7','Integra??o com SMTP/LDAP/MS Active Directory','');
 
-INSERT IGNORE INTO hdk_tbconfig_category VALUES ('8','Invent�rio','');
+INSERT IGNORE INTO hdk_tbconfig_category VALUES ('8','Invent?rio','');
 
 INSERT IGNORE INTO hdk_tbconfig_category VALUES ('9','Inventario','');
 
@@ -896,7 +898,7 @@ CREATE TABLE IF NOT EXISTS `hdk_tbgetemail` (
 
 # Dados para a tabela: hdk_tbgetemail
 
-INSERT IGNORE INTO hdk_tbgetemail VALUES ('3','200.248.178.82','pop','110','','teste','1234','0','1','');
+INSERT IGNORE INTO hdk_tbgetemail VALUES ('3','200.248.178.82','pop','110','','teste','1234','0','1','0');
 
 
 
@@ -1053,137 +1055,137 @@ CREATE TABLE IF NOT EXISTS `hdk_tbnote` (
 
 # Dados para a tabela: hdk_tbnote
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('1','201211000014','85','PHA+PGI+PC9iPjwvcD4=','2012-11-13 17:36:13','0','0','0','','2012-11-13 17:36:13','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('1','201211000014','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-13 17:36:13','0','0','0','0','2012-11-13 17:36:13','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('2','201211000014','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-13 17:36:36','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('2','201211000014','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-13 17:36:36','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('3','201211000014','1','PHA+PGI+QWd1YXJkYW5kbyBhcHJvdmHDp8OjbyBkbyB1c3UmYWFjdXRlO3JpbzwvYj48L3A+','2012-11-13 17:36:43','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('3','201211000014','1','UEhBK1BHSStRV2QxWVhKa1lXNWtieUJoY0hKdmRtSERwOE9qYnlCa2J5QjFjM1VtWVdGamRYUmxPM0pwYnp3dllqNDhMM0Er','2012-11-13 17:36:43','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('4','201211000014','85','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBFbmNlcnJhZGE8L2I+PC9wPg==','2012-11-13 17:37:57','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('4','201211000014','85','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkZibU5sY25KaFpHRThMMkkrUEM5d1BnPT0=','2012-11-13 17:37:57','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('5','201211000014','85','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBFbmNlcnJhZGE8L2I+PC9wPg==','2012-11-13 17:38:02','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('5','201211000014','85','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkZibU5sY25KaFpHRThMMkkrUEM5d1BnPT0=','2012-11-13 17:38:02','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('6','201211000015','1','PHA+PGI+PC9iPjwvcD4=','2012-11-13 17:55:19','0','0','0','','2012-11-13 17:55:19','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('6','201211000015','1','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-13 17:55:19','0','0','0','0','2012-11-13 17:55:19','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('7','201211000015','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBhdGVuZGVudGUgYXRlbmRlbnRlPC9iPjwvcD4=','2012-11-13 17:56:19','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('7','201211000015','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCaGRHVnVaR1Z1ZEdVZ1lYUmxibVJsYm5SbFBDOWlQand2Y0Q0PQ==','2012-11-13 17:56:19','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('8','201211000016','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBDYWRhc3RyYWRhPC9iPjwvcD4=','2012-11-14 15:03:12','0','0','0','','2012-11-14 15:03:12','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('8','201211000016','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkRZV1JoYzNSeVlXUmhQQzlpUGp3dmNEND0=','2012-11-14 15:03:12','0','0','0','0','2012-11-14 15:03:12','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('9','201211000017','1','PHA+PGI+PC9iPjwvcD4=','2012-11-14 15:04:07','0','0','0','','2012-11-14 15:04:07','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('9','201211000017','1','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-14 15:04:07','0','0','0','0','2012-11-14 15:04:07','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('10','201211000016','1','PHA+PGI+PHNwYW4gc3R5bGU9ImNvbG9yOiAjRkYwMDAwOyI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZWFiZXJ0YTwvc3Bhbj48L2I+PC9wPg==','2012-11-14 15:04:37','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('10','201211000016','1','UEhBK1BHSStQSE53WVc0Z2MzUjViR1U5SW1OdmJHOXlPaUFqUmtZd01EQXdPeUkrVTI5c2FXTnBkR0VtWTJObFpHbHNPeVpoZEdsc1pHVTdieUJTWldGaVpYSjBZVHd2YzNCaGJqNDhMMkkrUEM5d1BnPT0=','2012-11-14 15:04:37','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('11','201211000016','1','PHA+Cgl6YWNkc2Zjdnh2Y3h2PC9wPgo=','2012-11-14 15:04:56','0','','','','0000-00-00 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('11','201211000016','1','UEhBK0NnbDZZV05rYzJaamRuaDJZM2gyUEM5d1Bnbz0=','2012-11-14 15:04:56','0','','','0','0000-00-00 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('12','201211000016','74','PHA+Cglhc2FzZHNhZGFzZHM8L3A+Cg==','2012-11-14 15:05:59','0.17','15:05:50','15:06:00','','2012-11-14 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('12','201211000016','74','UEhBK0NnbGhjMkZ6WkhOaFpHRnpaSE04TDNBK0NnPT0=','2012-11-14 15:05:59','0.17','15:05:50','15:06:00','0','2012-11-14 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('13','201211000016','74','PHA+Cglhc2FzZHNhZGFzZHM8L3A+Cg==','2012-11-14 15:06:02','0.17','15:05:50','15:06:02','','2012-11-14 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('13','201211000016','74','UEhBK0NnbGhjMkZ6WkhOaFpHRnpaSE04TDNBK0NnPT0=','2012-11-14 15:06:02','0.17','15:05:50','15:06:02','0','2012-11-14 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('14','201211000016','74','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBhdGVuZGVudGUgQWxlamFuZHJvPC9iPjwvcD4=','2012-11-14 15:06:19','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('14','201211000016','74','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCaGRHVnVaR1Z1ZEdVZ1FXeGxhbUZ1WkhKdlBDOWlQand2Y0Q0PQ==','2012-11-14 15:06:19','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('15','201211000015','74','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBhdGVuZGVudGUgQWxlamFuZHJvPC9iPjwvcD4=','2012-11-14 15:06:47','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('15','201211000015','74','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCaGRHVnVaR1Z1ZEdVZ1FXeGxhbUZ1WkhKdlBDOWlQand2Y0Q0PQ==','2012-11-14 15:06:47','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('16','201211000018','85','PHA+PGI+PC9iPjwvcD4=','2012-11-19 11:33:24','0','0','0','','2012-11-19 11:33:24','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('16','201211000018','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-19 11:33:24','0','0','0','0','2012-11-19 11:33:24','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('17','201211000018','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-19 11:34:07','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('17','201211000018','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-19 11:34:07','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('18','201211000018','1','PHA+CgltaW1pbWltaTwvcD4K','2012-11-19 11:34:24','0.2','11:34:23','11:34:35','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('18','201211000018','1','UEhBK0NnbHRhVzFwYldsdGFUd3ZjRDRL','2012-11-19 11:34:24','0.2','11:34:23','11:34:35','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('19','201211000018','85','PHA+Cglhc2FzYXNhczwvcD4K','2012-11-19 11:39:33','0','','','','0000-00-00 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('19','201211000018','85','UEhBK0NnbGhjMkZ6WVhOaGN6d3ZjRDRL','2012-11-19 11:39:33','0','','','0','0000-00-00 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('20','201211000018','1','PHA+CglzZGZkc2Ygc2RmIHNkZiBzZGYgc2RmIHNkIGZzZGYgc2QgZmRzIHM8L3A+Cg==','2012-11-19 11:40:47','0.13','11:40:50','11:40:58','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('20','201211000018','1','UEhBK0NnbHpaR1prYzJZZ2MyUm1JSE5rWmlCelpHWWdjMlJtSUhOa0lHWnpaR1lnYzJRZ1ptUnpJSE04TDNBK0NnPT0=','2012-11-19 11:40:47','0.13','11:40:50','11:40:58','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('21','201211000019','85','PHA+PGI+PC9iPjwvcD4=','2012-11-19 13:02:54','0','0','0','','2012-11-19 13:02:54','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('21','201211000019','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-19 13:02:54','0','0','0','0','2012-11-19 13:02:54','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('22','201211000019','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-19 13:03:58','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('22','201211000019','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-19 13:03:58','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('23','201211000019','85','PHA+CglUZXN0ZSBpbmNsdXMmYXRpbGRlO28gYXBvbnRhbWVudG8uPC9wPgo=','2012-11-19 13:12:31','0','','','','0000-00-00 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('23','201211000019','85','UEhBK0NnbFVaWE4wWlNCcGJtTnNkWE1tWVhScGJHUmxPMjhnWVhCdmJuUmhiV1Z1ZEc4dVBDOXdQZ289','2012-11-19 13:12:31','0','','','0','0000-00-00 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('24','201211000019','1','PHA+CglUZXN0ZSBhcG9udGFtZW50byBhdGVuZGVudGUuPC9wPgo=','2012-11-19 13:13:46','0.52','13:13:26','13:13:57','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('24','201211000019','1','UEhBK0NnbFVaWE4wWlNCaGNHOXVkR0Z0Wlc1MGJ5QmhkR1Z1WkdWdWRHVXVQQzl3UGdvPQ==','2012-11-19 13:13:46','0.52','13:13:26','13:13:57','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('25','201211000020','85','PHA+PGI+PC9iPjwvcD4=','2012-11-19 13:27:40','0','0','0','','2012-11-19 13:27:40','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('25','201211000020','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-19 13:27:40','0','0','0','0','2012-11-19 13:27:40','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('26','201211000019','1','PHA+PGI+QWd1YXJkYW5kbyBhcHJvdmHDp8OjbyBkbyB1c3UmYWFjdXRlO3JpbzwvYj48L3A+','2012-11-19 13:32:16','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('26','201211000019','1','UEhBK1BHSStRV2QxWVhKa1lXNWtieUJoY0hKdmRtSERwOE9qYnlCa2J5QjFjM1VtWVdGamRYUmxPM0pwYnp3dllqNDhMM0Er','2012-11-19 13:32:16','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('27','201211000020','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-19 15:40:06','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('27','201211000020','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-19 15:40:06','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('28','201211000020','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-19 15:40:10','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('28','201211000020','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-19 15:40:10','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('29','201211000020','1','PHA+Cgl0ZXNzc3N0ZTwvcD4K','2012-11-19 15:40:33','0.32','15:40:25','15:40:44','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('29','201211000020','1','UEhBK0NnbDBaWE56YzNOMFpUd3ZjRDRL','2012-11-19 15:40:33','0.32','15:40:25','15:40:44','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('30','201211000020','1','PHA+CglhYWFhYTwvcD4K','2012-11-19 17:16:39','0.32','17:16:31','17:16:50','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('30','201211000020','1','UEhBK0NnbGhZV0ZoWVR3dmNENEs=','2012-11-19 17:16:39','0.32','17:16:31','17:16:50','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('31','201211000020','1','PHA+Cglhc2Rhc2Q8L3A+Cg==','2012-11-19 17:27:14','10.47','17:16:57','17:27:25','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('31','201211000020','1','UEhBK0NnbGhjMlJoYzJROEwzQStDZz09','2012-11-19 17:27:14','10.47','17:16:57','17:27:25','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('32','201211000020','85','PHA+Cglhc2Rhc2Rhc2Q8L3A+Cg==','2012-11-19 17:45:13','0','','','','0000-00-00 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('32','201211000020','85','UEhBK0NnbGhjMlJoYzJSaGMyUThMM0ErQ2c9PQ==','2012-11-19 17:45:13','0','','','0','0000-00-00 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('33','201211000018','1','PHA+CglhYWFhPC9wPgo=','2012-11-19 17:45:39','0.12','17:45:43','17:45:50','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('33','201211000018','1','UEhBK0NnbGhZV0ZoUEM5d1Bnbz0=','2012-11-19 17:45:39','0.12','17:45:43','17:45:50','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('34','201211000020','1','PHA+CglhYWFhYWE8L3A+Cg==','2012-11-19 17:45:56','0.07','17:46:03','17:46:07','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('34','201211000020','1','UEhBK0NnbGhZV0ZoWVdFOEwzQStDZz09','2012-11-19 17:45:56','0.07','17:46:03','17:46:07','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('35','201211000018','1','PHA+CglhYSBhIGEgYSAmbmJzcDthPC9wPgo=','2012-11-19 17:57:21','0.25','17:57:18','17:57:33','','2012-11-19 00:00:00','0','0.0000','1','2','1','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('35','201211000018','1','UEhBK0NnbGhZU0JoSUdFZ1lTQW1ibUp6Y0R0aFBDOXdQZ289','2012-11-19 17:57:21','0.25','17:57:18','17:57:33','0','2012-11-19 00:00:00','0','0.0000','1','2','1','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('36','201211000021','85','PHA+PGI+PC9iPjwvcD4=','2012-11-19 18:00:05','0','0','0','','2012-11-19 18:00:05','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('36','201211000021','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-19 18:00:05','0','0','0','0','2012-11-19 18:00:05','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('37','201211000021','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-19 18:07:46','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('37','201211000021','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-19 18:07:46','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('38','201211000021','1','PHA+Cglhc2Rhc2Rhc2Rhc2RhcyBhc2Rhc2QgYXNkYXNkPC9wPgo=','2012-11-19 18:08:00','0.13','18:08:03','18:08:11','','2012-11-19 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('38','201211000021','1','UEhBK0NnbGhjMlJoYzJSaGMyUmhjMlJoY3lCaGMyUmhjMlFnWVhOa1lYTmtQQzl3UGdvPQ==','2012-11-19 18:08:00','0.13','18:08:03','18:08:11','0','2012-11-19 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('39','201211000017','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBhdGVuZGVudGUgYXRlbmRlbnRlPC9iPjwvcD4=','2012-11-21 09:38:32','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('39','201211000017','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCaGRHVnVaR1Z1ZEdVZ1lYUmxibVJsYm5SbFBDOWlQand2Y0Q0PQ==','2012-11-21 09:38:32','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('40','201211000022','85','PHA+PGI+PC9iPjwvcD4=','2012-11-21 10:10:17','0','0','0','','2012-11-21 10:10:17','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('40','201211000022','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-21 10:10:17','0','0','0','0','2012-11-21 10:10:17','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('41','201211000023','85','PHA+PGI+PC9iPjwvcD4=','2012-11-21 10:51:18','0','0','0','','2012-11-21 10:51:18','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('41','201211000023','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-21 10:51:18','0','0','0','0','2012-11-21 10:51:18','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('42','201211000023','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-21 10:52:38','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('42','201211000023','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-21 10:52:38','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('43','201211000023','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyA8L2I+PC9wPg==','2012-11-21 10:53:02','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('43','201211000023','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUE4TDJJK1BDOXdQZz09','2012-11-21 10:53:02','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('44','201211000023','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyA8L2I+PC9wPg==','2012-11-21 11:40:04','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('44','201211000023','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUE4TDJJK1BDOXdQZz09','2012-11-21 11:40:04','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('45','201211000023','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 11:46:08','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('45','201211000023','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 11:46:08','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('46','201211000023','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 11:46:40','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('46','201211000023','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 11:46:40','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('47','201211000023','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 11:47:12','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('47','201211000023','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 11:47:12','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('48','201211000024','85','PHA+PGI+PC9iPjwvcD4=','2012-11-21 11:47:44','0','0','0','','2012-11-21 11:47:44','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('48','201211000024','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-21 11:47:44','0','0','0','0','2012-11-21 11:47:44','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('49','201211000024','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-21 11:48:05','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('49','201211000024','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-21 11:48:05','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('50','201211000024','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 11:48:16','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('50','201211000024','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 11:48:16','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('51','201211000025','85','PHA+PGI+PC9iPjwvcD4=','2012-11-21 11:50:56','0','0','0','','2012-11-21 11:50:56','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('51','201211000025','85','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-21 11:50:56','0','0','0','0','2012-11-21 11:50:56','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('52','201211000025','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBBc3N1bWlkYTwvYj48L3A+','2012-11-21 11:51:15','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('52','201211000025','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QkJjM04xYldsa1lUd3ZZajQ4TDNBKw==','2012-11-21 11:51:15','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('53','201211000025','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 11:51:28','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('53','201211000025','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 11:51:28','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('54','201211000025','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyA8L2I+PC9wPg==','2012-11-21 12:51:39','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('54','201211000025','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUE4TDJJK1BDOXdQZz09','2012-11-21 12:51:39','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('55','201211000025','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 12:52:17','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('55','201211000025','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 12:52:17','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('56','201211000025','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBIYXJkd2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 13:39:16','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('56','201211000025','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJJWVhKa2QyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 13:39:16','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('57','201211000025','1','PHA+PGI+U29saWNpdGEmY2NlZGlsOyZhdGlsZGU7byBSZXBhc3NhZGEgcGFyYSBncnVwbyBTb2Z0d2FyZSBIYW5kbGluZzwvYj48L3A+','2012-11-21 13:39:53','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('57','201211000025','1','UEhBK1BHSStVMjlzYVdOcGRHRW1ZMk5sWkdsc095WmhkR2xzWkdVN2J5QlNaWEJoYzNOaFpHRWdjR0Z5WVNCbmNuVndieUJUYjJaMGQyRnlaU0JJWVc1a2JHbHVaend2WWo0OEwzQSs=','2012-11-21 13:39:53','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('58','201211000026','64','PHA+PGI+PC9iPjwvcD4=','2012-11-26 17:54:54','0','0','0','','2012-11-26 17:54:54','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('58','201211000026','64','UEhBK1BHSStQQzlpUGp3dmNEND0=','2012-11-26 17:54:54','0','0','0','0','2012-11-26 17:54:54','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('59','201211000026','62','PHA+PGI+UmVxdWVzdCBBc3N1bWVkPC9iPjwvcD4=','2012-11-26 17:56:35','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('59','201211000026','62','UEhBK1BHSStVbVZ4ZFdWemRDQkJjM04xYldWa1BDOWlQand2Y0Q0PQ==','2012-11-26 17:56:35','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('60','201211000026','62','PHA+Cgk8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IGFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDEzcHg7Ij5WZXJpZnkgeW91ciBBbnRpLVZpcnVzIHZlcnNpb24sIGlmIGl0JiMzOTtzIGxvd2VyIHRoYW4gMTAuMC4xIGxldCB1cyBrbm93IHRoYXQgd2Ugd2lsbCBoYXZlIHRvIGRvIGEgcmVtb3RlIGFjY2VzcyB0byB1cGRhdGUgaXQuJm5ic3A7PC9zcGFuPjwvcD4K','2012-11-26 18:00:35','3.92','17:56:37','18:00:32','','0000-00-00 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('60','201211000026','62','UEhBK0NnazhjM0JoYmlCemRIbHNaVDBpWm05dWRDMW1ZVzFwYkhrNklHRnlhV0ZzTENCellXNXpMWE5sY21sbU95Qm1iMjUwTFhOcGVtVTZJREV6Y0hnN0lqNVdaWEpwWm5rZ2VXOTFjaUJCYm5ScExWWnBjblZ6SUhabGNuTnBiMjRzSUdsbUlHbDBKaU16T1R0eklHeHZkMlZ5SUhSb1lXNGdNVEF1TUM0eElHeGxkQ0IxY3lCcmJtOTNJSFJvWVhRZ2QyVWdkMmxzYkNCb1lYWmxJSFJ2SUdSdklHRWdjbVZ0YjNSbElHRmpZMlZ6Y3lCMGJ5QjFjR1JoZEdVZ2FYUXVKbTVpYzNBN1BDOXpjR0Z1UGp3dmNENEs=','2012-11-26 18:00:35','3.92','17:56:37','18:00:32','0','0000-00-00 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('61','201301000001','64','PHA+PGI+PC9iPjwvcD4=','2013-01-11 15:57:40','0','0','0','','2013-01-11 15:57:40','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('61','201301000001','64','UEhBK1BHSStQQzlpUGp3dmNEND0=','2013-01-11 15:57:40','0','0','0','0','2013-01-11 15:57:40','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('62','201301000002','64','PHA+PGI+PC9iPjwvcD4=','2013-01-11 15:59:08','0','0','0','','2013-01-11 15:59:08','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('62','201301000002','64','UEhBK1BHSStQQzlpUGp3dmNEND0=','2013-01-11 15:59:08','0','0','0','0','2013-01-11 15:59:08','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('63','201301000001','62','PHA+PGI+UmVxdWVzdCBBc3N1bWVkPC9iPjwvcD4=','2013-01-11 16:02:11','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('63','201301000001','62','UEhBK1BHSStVbVZ4ZFdWemRDQkJjM04xYldWa1BDOWlQand2Y0Q0PQ==','2013-01-11 16:02:11','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('64','201301000001','62','PHA+CglPay4gQVNBUCBzdXBwb3J0IHN0YWYgd2lsbCBhbndzZXIgeW91ciByZXF1ZXN0LiZuYnNwOzwvcD4K','2013-01-11 16:03:08','0.87','16:02:10','16:03:02','','2013-11-01 00:00:00','0','0.0000','1','2','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('64','201301000001','62','UEhBK0NnbFBheTRnUVZOQlVDQnpkWEJ3YjNKMElITjBZV1lnZDJsc2JDQmhibmR6WlhJZ2VXOTFjaUJ5WlhGMVpYTjBMaVp1WW5Od096d3ZjRDRL','2013-01-11 16:03:08','0.87','16:02:10','16:03:02','0','2013-11-01 00:00:00','0','0.0000','1','2','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('65','201211000025','62','PHA+PGI+V2FpdGluZyBmb3IgdXNlcmBzIGFwcHJvdmFsPC9iPjwvcD4=','2013-01-11 16:03:42','0','','','','0000-00-00 00:00:00','0','0.0000','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('65','201211000025','62','UEhBK1BHSStWMkZwZEdsdVp5Qm1iM0lnZFhObGNtQnpJR0Z3Y0hKdmRtRnNQQzlpUGp3dmNEND0=','2013-01-11 16:03:42','0','','','0','0000-00-00 00:00:00','0','0.0000','1','3','0','127.0.0.1','0');
 
-INSERT IGNORE INTO hdk_tbnote VALUES ('66','201301000003','64','PHA+PGI+PC9iPjwvcD4=','2013-01-11 17:46:16','0','0','0','','2013-01-11 17:46:16','0','','1','3','','127.0.0.1','0');
+INSERT IGNORE INTO hdk_tbnote VALUES ('66','201301000003','64','UEhBK1BHSStQQzlpUGp3dmNEND0=','2013-01-11 17:46:16','0','0','0','0','2013-01-11 17:46:16','0','0.0000','1','3','0','127.0.0.1','0');
 
 
 
@@ -1391,7 +1393,7 @@ CREATE TABLE IF NOT EXISTS `hdk_tbrequest` (
   `idreason` int(11) unsigned DEFAULT NULL,
   `idpriority` int(11) NOT NULL,
   `idsource` int(11) NOT NULL,
-  `idperson_creator` int(11) DEFAULT NULL COMMENT 'id da pessoa que abriu a solicitacao em nome de outra, s� � preenchido nesse tipo de situa��o',
+  `idperson_creator` int(11) DEFAULT NULL COMMENT 'id da pessoa que abriu a solicitacao em nome de outra, s? ? preenchido nesse tipo de situa??o',
   `entry_date` datetime NOT NULL COMMENT 'data em que foi registrada no sistema',
   `service_value` float DEFAULT NULL,
   `os_number` varchar(20) DEFAULT NULL,
@@ -1401,9 +1403,9 @@ CREATE TABLE IF NOT EXISTS `hdk_tbrequest` (
   `serial_number` varchar(20) DEFAULT NULL,
   `idattendance_way` smallint(6) unsigned DEFAULT NULL COMMENT 'forma de atendimento',
   `expire_date` datetime DEFAULT NULL,
-  `code_group` mediumint(9) DEFAULT NULL COMMENT 'esta coluna � para dizer para qual grupo que sera designado o atendimento',
+  `code_group` mediumint(9) DEFAULT NULL COMMENT 'esta coluna ? para dizer para qual grupo que sera designado o atendimento',
   `code_email` varchar(240) DEFAULT NULL,
-  `idperson_owner` mediumint(9) NOT NULL COMMENT 'esta coluna o id de quem necessita do servi�o, que pode nao ser o mesmo que abriu',
+  `idperson_owner` mediumint(9) NOT NULL COMMENT 'esta coluna o id de quem necessita do servi?o, que pode nao ser o mesmo que abriu',
   `idstatus` tinyint(2) DEFAULT NULL COMMENT 'aqui ficara o id do status atual da solicitacao',
   `flag_opened` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'essa coluna mostra se o atendente ja viu a solicitacao nova sem assumir',
   PRIMARY KEY (`idrequest`,`code_request`),
@@ -1550,7 +1552,7 @@ CREATE TABLE IF NOT EXISTS `hdk_tbrequest_dates` (
   `rejection_date` datetime DEFAULT NULL,
   `date_period_attendant` datetime DEFAULT NULL,
   `date_charging_period` datetime DEFAULT NULL,
-  `opening_date` datetime DEFAULT NULL COMMENT 'est� � a data de abertura, e nao a de cadastro',
+  `opening_date` datetime DEFAULT NULL COMMENT 'est? ? a data de abertura, e nao a de cadastro',
   PRIMARY KEY (`id`),
   KEY `FK_hdk_tbrequest_dates` (`code_request`),
   CONSTRAINT `FK_hdk_tbrequest_dates` FOREIGN KEY (`code_request`) REFERENCES `hdk_tbrequest` (`code_request`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -1609,10 +1611,10 @@ CREATE TABLE IF NOT EXISTS `hdk_tbrequest_in_charge` (
   `idrequest_in_charge` int(11) NOT NULL AUTO_INCREMENT,
   `code_request` varchar(20) NOT NULL,
   `id_in_charge` int(11) NOT NULL,
-  `type` varchar(1) NOT NULL COMMENT 'aqui sera o tipo de respons�vel, analista ou grupo de atendimento, definido por O(operator) ou G(group)',
+  `type` varchar(1) NOT NULL COMMENT 'aqui sera o tipo de respons?vel, analista ou grupo de atendimento, definido por O(operator) ou G(group)',
   `ind_in_charge` varchar(1) DEFAULT NULL,
   `ind_repass` varchar(1) NOT NULL DEFAULT 'N',
-  `ind_track` smallint(1) DEFAULT '0' COMMENT 'Aqui vai ficar marcado se o grupo continua vizualizando ap�s algu�m assumir',
+  `ind_track` smallint(1) DEFAULT '0' COMMENT 'Aqui vai ficar marcado se o grupo continua vizualizando ap?s algu?m assumir',
   `ind_operator_aux` smallint(1) DEFAULT '0',
   PRIMARY KEY (`idrequest_in_charge`),
   KEY `FK_idrequest` (`code_request`),
@@ -1757,27 +1759,27 @@ CREATE TABLE IF NOT EXISTS `hdk_tbtemplate_email` (
 
 # Dados para a tabela: hdk_tbtemplate_email
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('1','Request assumed by operator # $REQUEST','PHA+PGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+VGhlIHJlcXVlc3QgbnVtYmVyIDxzdHJvbmc+PHU+JFJFUVVFU1Q8L3U+PC9zdHJvbmc+IHdhcyBhc3N1bWVkIGluICRBU1NVTUU8YnIvPg0KPHN0cm9uZz5SZXF1ZXN0ZXI8L3N0cm9uZz46ICRSRVFVRVNURVI8YnIvPg0KPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+PHN0cm9uZz5TdWJqZWN0Ojwvc3Ryb25nPiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAkU1VCSkVDVDxici8+DQo8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8YnIvPg0KPC9mb250PjxzdHJvbmc+T3BlcmF0b3IgSW4gQ2hhcmdlOjwvc3Ryb25nPiAkSU5DSEFSR0U8YnIvPg0KPC9mb250PjwvcD4NCjxwPjxmb250IGZhY2U9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIHNpemU9IjIiPjxzdHJvbmc+RGVzY3JpcHRpb246PC9zdHJvbmc+ICRERVNDUklQVElPTiA8L2ZvbnQ+PC9wPg0KPHA+PGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+JExJTktfVVNFUjwvZm9udD48L3A+DQo8cD48Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczo8L3N0cm9uZz48YnIvPg0KJE5UX1VTRVI8L2ZvbnQ+PC9wPg==');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('1','Request assumed by operator # $REQUEST','UEhBK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3c0lFaGxiSFpsZEdsallTd2djMkZ1Y3kxelpYSnBaaUlnYzJsNlpUMGlNaUkrVkdobElISmxjWFZsYzNRZ2JuVnRZbVZ5SUR4emRISnZibWMrUEhVK0pGSkZVVlZGVTFROEwzVStQQzl6ZEhKdmJtYytJSGRoY3lCaGMzTjFiV1ZrSUdsdUlDUkJVMU5WVFVVOFluSXZQZzBLUEhOMGNtOXVaejVTWlhGMVpYTjBaWEk4TDNOMGNtOXVaejQ2SUNSU1JWRlZSVk5VUlZJOFluSXZQZzBLUEdadmJuUWdabUZqWlQwaVFYSnBZV3dzSUVobGJIWmxkR2xqWVN3Z2MyRnVjeTF6WlhKcFppSWdjMmw2WlQwaU1pSStQSE4wY205dVp6NVRkV0pxWldOME9qd3ZjM1J5YjI1blBpWnVZbk53T3ladVluTndPeVp1WW5Od095WnVZbk53T3ladVluTndPeUFrVTFWQ1NrVkRWRHhpY2k4K0RRbzhjM1J5YjI1blBrVnVkSEo1SUVSaGRHVTZQQzl6ZEhKdmJtYytJQ1JTUlVOUFVrUThZbkl2UGcwS1BDOW1iMjUwUGp4emRISnZibWMrVDNCbGNtRjBiM0lnU1c0Z1EyaGhjbWRsT2p3dmMzUnliMjVuUGlBa1NVNURTRUZTUjBVOFluSXZQZzBLUEM5bWIyNTBQand2Y0Q0TkNqeHdQanhtYjI1MElHWmhZMlU5SWtGeWFXRnNMQ0JJWld4MlpYUnBZMkVzSUhOaGJuTXRjMlZ5YVdZaUlITnBlbVU5SWpJaVBqeHpkSEp2Ym1jK1JHVnpZM0pwY0hScGIyNDZQQzl6ZEhKdmJtYytJQ1JFUlZORFVrbFFWRWxQVGlBOEwyWnZiblErUEM5d1BnMEtQSEErUEdadmJuUWdabUZqWlQwaVFYSnBZV3dzSUVobGJIWmxkR2xqWVN3Z2MyRnVjeTF6WlhKcFppSWdjMmw2WlQwaU1pSStKRXhKVGt0ZlZWTkZVand2Wm05dWRENDhMM0ErRFFvOGNENDhabTl1ZENCbVlXTmxQU0pCY21saGJDSWdjMmw2WlQwaU1pSStQSE4wY205dVp6NU9iM1JsY3pvOEwzTjBjbTl1Wno0OFluSXZQZzBLSkU1VVgxVlRSVkk4TDJadmJuUStQQzl3UGc9PQ==');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('2','Request closed # $REQUEST','PHA+Cgk8Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj5EZWFyIFNyLihNcy4pPHN0cm9uZz4gPC9zdHJvbmc+JFJFUVVFU1RFUjxzdHJvbmc+LCA8L3N0cm9uZz50aGUgcmVxdWVzdCBudW1iZXIgJFJFUVVFU1QmbmJzcDsgd2FzIGNsb3NlZCBpbiAkRklOSVNIX0RBVEU8c3Ryb25nPi48L3N0cm9uZz48L2ZvbnQ+PC9wPgo8cD4KCTxmb250IGZhY2U9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIHNpemU9IjIiPjxzdHJvbmc+UmVxdWVzdGVyPC9zdHJvbmc+OiAkUkVRVUVTVEVSPGJyIC8+Cgk8Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj48c3Ryb25nPlN1YmplY3Q6PC9zdHJvbmc+Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7ICRTVUJKRUNUPGJyIC8+Cgk8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8L2ZvbnQ+PGJyIC8+Cgk8c3Ryb25nPk9wZXJhdG9yIEluIENoYXJnZTo8L3N0cm9uZz4gJElOQ0hBUkdFPC9mb250PjwvcD4KPHA+Cgk8Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj4kTElOS19VU0VSPC9mb250PjwvcD4KPHA+Cgk8Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj48c3Ryb25nPkRlc2NyaXB0aW9uOjwvc3Ryb25nPiAkREVTQ1JJUFRJT04gPC9mb250PjwvcD4KPHA+Cgk8Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczo8L3N0cm9uZz48YnIgLz4KCSROVF9VU0VSPC9mb250PjwvcD4K');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('2','Request closed # $REQUEST','UEhBK0NnazhabTl1ZENCbVlXTmxQU0pCY21saGJDd2dTR1ZzZG1WMGFXTmhMQ0J6WVc1ekxYTmxjbWxtSWlCemFYcGxQU0l5SWo1RVpXRnlJRk55TGloTmN5NHBQSE4wY205dVp6NGdQQzl6ZEhKdmJtYytKRkpGVVZWRlUxUkZVanh6ZEhKdmJtYytMQ0E4TDNOMGNtOXVaejUwYUdVZ2NtVnhkV1Z6ZENCdWRXMWlaWElnSkZKRlVWVkZVMVFtYm1KemNEc2dkMkZ6SUdOc2IzTmxaQ0JwYmlBa1JrbE9TVk5JWDBSQlZFVThjM1J5YjI1blBpNDhMM04wY205dVp6NDhMMlp2Ym5RK1BDOXdQZ284Y0Q0S0NUeG1iMjUwSUdaaFkyVTlJa0Z5YVdGc0xDQklaV3gyWlhScFkyRXNJSE5oYm5NdGMyVnlhV1lpSUhOcGVtVTlJaklpUGp4emRISnZibWMrVW1WeGRXVnpkR1Z5UEM5emRISnZibWMrT2lBa1VrVlJWVVZUVkVWU1BHSnlJQzgrQ2drOFptOXVkQ0JtWVdObFBTSkJjbWxoYkN3Z1NHVnNkbVYwYVdOaExDQnpZVzV6TFhObGNtbG1JaUJ6YVhwbFBTSXlJajQ4YzNSeWIyNW5QbE4xWW1wbFkzUTZQQzl6ZEhKdmJtYytKbTVpYzNBN0ptNWljM0E3Sm01aWMzQTdKbTVpYzNBN0ptNWljM0E3SUNSVFZVSktSVU5VUEdKeUlDOCtDZ2s4YzNSeWIyNW5Qa1Z1ZEhKNUlFUmhkR1U2UEM5emRISnZibWMrSUNSU1JVTlBVa1E4TDJadmJuUStQR0p5SUM4K0NnazhjM1J5YjI1blBrOXdaWEpoZEc5eUlFbHVJRU5vWVhKblpUbzhMM04wY205dVp6NGdKRWxPUTBoQlVrZEZQQzltYjI1MFBqd3ZjRDRLUEhBK0NnazhabTl1ZENCbVlXTmxQU0pCY21saGJDd2dTR1ZzZG1WMGFXTmhMQ0J6WVc1ekxYTmxjbWxtSWlCemFYcGxQU0l5SWo0a1RFbE9TMTlWVTBWU1BDOW1iMjUwUGp3dmNENEtQSEErQ2drOFptOXVkQ0JtWVdObFBTSkJjbWxoYkN3Z1NHVnNkbVYwYVdOaExDQnpZVzV6TFhObGNtbG1JaUJ6YVhwbFBTSXlJajQ4YzNSeWIyNW5Qa1JsYzJOeWFYQjBhVzl1T2p3dmMzUnliMjVuUGlBa1JFVlRRMUpKVUZSSlQwNGdQQzltYjI1MFBqd3ZjRDRLUEhBK0NnazhabTl1ZENCbVlXTmxQU0pCY21saGJDSWdjMmw2WlQwaU1pSStQSE4wY205dVp6NU9iM1JsY3pvOEwzTjBjbTl1Wno0OFluSWdMejRLQ1NST1ZGOVZVMFZTUEM5bWIyNTBQand2Y0Q0Sw==');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('3','Request rejected # $REQUEST','PGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPlRoZSByZXF1ZXN0IG51bWJlciA8c3Ryb25nPjx1PiRSRVFVRVNUPC91Pjwvc3Ryb25nPiB3YXMgcmVqZWN0ZWQgaW4gJFJFSkVDVElPTi48YnIvPgo8c3Ryb25nPlJlcXVlc3Rlcjwvc3Ryb25nPjogJFJFUVVFU1RFUjxici8+Cjxmb250IGZhY2U9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIHNpemU9IjIiPjxzdHJvbmc+U3ViamVjdDo8L3N0cm9uZz4mbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgJFNVQkpFQ1Q8YnIvPgo8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8YnIvPgo8L2ZvbnQ+PHN0cm9uZz5SZWplY3RlZCBieTo8L3N0cm9uZz4gJFVTRVI8YnIvPgo8c3Ryb25nPkRlc2NyaXB0aW9uOjwvc3Ryb25nPiAkREVTQ1JJUFRJT04gPC9mb250PjwvZm9udD4KPHA+PGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+JExJTktfVVNFUjxhIGhyZWY9IiRMSU5LX1VTRVIiIHRhcmdldD0iaGVscGRlc2siPjwvYT48L2ZvbnQ+PC9wPgo8cD48Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczwvc3Ryb25nPjxici8+CiROVF9VU0VSPC9mb250PjwvcD4=');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('3','Request rejected # $REQUEST','UEdadmJuUWdjMmw2WlQwaU1pSStQR1p2Ym5RZ1ptRmpaVDBpUVhKcFlXd2lQbFJvWlNCeVpYRjFaWE4wSUc1MWJXSmxjaUE4YzNSeWIyNW5QangxUGlSU1JWRlZSVk5VUEM5MVBqd3ZjM1J5YjI1blBpQjNZWE1nY21WcVpXTjBaV1FnYVc0Z0pGSkZTa1ZEVkVsUFRpNDhZbkl2UGdvOGMzUnliMjVuUGxKbGNYVmxjM1JsY2p3dmMzUnliMjVuUGpvZ0pGSkZVVlZGVTFSRlVqeGljaTgrQ2p4bWIyNTBJR1poWTJVOUlrRnlhV0ZzTENCSVpXeDJaWFJwWTJFc0lITmhibk10YzJWeWFXWWlJSE5wZW1VOUlqSWlQanh6ZEhKdmJtYytVM1ZpYW1WamREbzhMM04wY205dVp6NG1ibUp6Y0RzbWJtSnpjRHNtYm1KemNEc21ibUp6Y0RzbWJtSnpjRHNnSkZOVlFrcEZRMVE4WW5JdlBnbzhjM1J5YjI1blBrVnVkSEo1SUVSaGRHVTZQQzl6ZEhKdmJtYytJQ1JTUlVOUFVrUThZbkl2UGdvOEwyWnZiblErUEhOMGNtOXVaejVTWldwbFkzUmxaQ0JpZVRvOEwzTjBjbTl1Wno0Z0pGVlRSVkk4WW5JdlBnbzhjM1J5YjI1blBrUmxjMk55YVhCMGFXOXVPand2YzNSeWIyNW5QaUFrUkVWVFExSkpVRlJKVDA0Z1BDOW1iMjUwUGp3dlptOXVkRDRLUEhBK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3c0lFaGxiSFpsZEdsallTd2djMkZ1Y3kxelpYSnBaaUlnYzJsNlpUMGlNaUkrSkV4SlRrdGZWVk5GVWp4aElHaHlaV1k5SWlSTVNVNUxYMVZUUlZJaUlIUmhjbWRsZEQwaWFHVnNjR1JsYzJzaVBqd3ZZVDQ4TDJadmJuUStQQzl3UGdvOGNENDhabTl1ZENCbVlXTmxQU0pCY21saGJDSWdjMmw2WlQwaU1pSStQSE4wY205dVp6NU9iM1JsY3p3dmMzUnliMjVuUGp4aWNpOCtDaVJPVkY5VlUwVlNQQzltYjI1MFBqd3ZjRDQ9');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('4','Request evaluated # $REQUEST','PHA+Cgk8Zm9udCBzaXplPSIyIj48Zm9udCBmYWNlPSJBcmlhbCI+Ti4gPHN0cm9uZz48dT4kUkVRVUVTVDwvdT48L3N0cm9uZz4gLjxiciAvPgoJPHN0cm9uZz5TdWJqZWN0Ojwvc3Ryb25nPiAkU1VCSkVDVDxiciAvPgoJPHN0cm9uZz5Vc2VyOjwvc3Ryb25nPiAkUkVRVUVTVEVSPGJyIC8+Cgk8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8YnIgLz4KCTxzdHJvbmc+RGVzY3JpcHRpb246PC9zdHJvbmc+ICRERVNDUklQVElPTjxiciAvPgoJPHN0cm9uZz5JbiBDaGFyZ2U6PC9zdHJvbmc+ICRJTkNIQVJHRTwvZm9udD48L2ZvbnQ+PC9wPgo8cD4KCTxzdHJvbmc+RXZhbHVhdGlvbjogPC9zdHJvbmc+JEVWQUxVQVRJT048L3A+CjxwPgoJPGZvbnQgc2l6ZT0iMiI+PHN0cm9uZz5QaG9uZTo8L3N0cm9uZz4gJFBIT05FPC9mb250Pjxmb250IHNpemU9IjIiPjxzdHJvbmc+IC0gQnJhbmNoOjwvc3Ryb25nPiAkQlJBTkNIPC9mb250PjwvcD4KPHA+Cgk8Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj4kTElOS19PUEVSQVRPUjwvZm9udD48L3A+CjxwPgoJPGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPjxzdHJvbmc+Tm90ZXM6PC9zdHJvbmc+PGJyIC8+CgkkTlRfT1BFUkFUT1I8L2ZvbnQ+PC9mb250PjwvcD4K');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('4','Request evaluated # $REQUEST','UEhBK0NnazhabTl1ZENCemFYcGxQU0l5SWo0OFptOXVkQ0JtWVdObFBTSkJjbWxoYkNJK1RpNGdQSE4wY205dVp6NDhkVDRrVWtWUlZVVlRWRHd2ZFQ0OEwzTjBjbTl1Wno0Z0xqeGljaUF2UGdvSlBITjBjbTl1Wno1VGRXSnFaV04wT2p3dmMzUnliMjVuUGlBa1UxVkNTa1ZEVkR4aWNpQXZQZ29KUEhOMGNtOXVaejVWYzJWeU9qd3ZjM1J5YjI1blBpQWtVa1ZSVlVWVFZFVlNQR0p5SUM4K0NnazhjM1J5YjI1blBrVnVkSEo1SUVSaGRHVTZQQzl6ZEhKdmJtYytJQ1JTUlVOUFVrUThZbklnTHo0S0NUeHpkSEp2Ym1jK1JHVnpZM0pwY0hScGIyNDZQQzl6ZEhKdmJtYytJQ1JFUlZORFVrbFFWRWxQVGp4aWNpQXZQZ29KUEhOMGNtOXVaejVKYmlCRGFHRnlaMlU2UEM5emRISnZibWMrSUNSSlRrTklRVkpIUlR3dlptOXVkRDQ4TDJadmJuUStQQzl3UGdvOGNENEtDVHh6ZEhKdmJtYytSWFpoYkhWaGRHbHZiam9nUEM5emRISnZibWMrSkVWV1FVeFZRVlJKVDA0OEwzQStDanh3UGdvSlBHWnZiblFnYzJsNlpUMGlNaUkrUEhOMGNtOXVaejVRYUc5dVpUbzhMM04wY205dVp6NGdKRkJJVDA1RlBDOW1iMjUwUGp4bWIyNTBJSE5wZW1VOUlqSWlQanh6ZEhKdmJtYytJQzBnUW5KaGJtTm9Pand2YzNSeWIyNW5QaUFrUWxKQlRrTklQQzltYjI1MFBqd3ZjRDRLUEhBK0NnazhabTl1ZENCbVlXTmxQU0pCY21saGJDd2dTR1ZzZG1WMGFXTmhMQ0J6WVc1ekxYTmxjbWxtSWlCemFYcGxQU0l5SWo0a1RFbE9TMTlQVUVWU1FWUlBVand2Wm05dWRENDhMM0ErQ2p4d1Bnb0pQR1p2Ym5RZ2MybDZaVDBpTWlJK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3aVBqeHpkSEp2Ym1jK1RtOTBaWE02UEM5emRISnZibWMrUEdKeUlDOCtDZ2trVGxSZlQxQkZVa0ZVVDFJOEwyWnZiblErUEM5bWIyNTBQand2Y0Q0Sw==');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('13','New note added to the request # $REQUEST','PHA+PGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPlRoZSByZXF1ZXN0IG51bWJlciA8c3Ryb25nPjx1PiRSRVFVRVNUPC91Pjwvc3Ryb25nPiZuYnNwO3JlY2VpdmVkIGFub3RoZXIgbm90ZS48YnIvPg0KPHN0cm9uZz5SZXF1ZXN0ZXI8L3N0cm9uZz46ICRSRVFVRVNURVI8YnIvPg0KPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+PHN0cm9uZz5TdWJqZWN0Ojwvc3Ryb25nPiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAkU1VCSkVDVDxici8+DQo8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8YnIvPg0KPC9mb250PjwvZm9udD48L2ZvbnQ+PGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPjxzdHJvbmc+T3BlcmF0b3IgSW4gQ2hhcmdlOjwvc3Ryb25nPiAkSU5DSEFSR0U8YnIvPg0KPHN0cm9uZz5EZXNjcmlwdGlvbjo8L3N0cm9uZz4gJERFU0NSSVBUSU9OJm5ic3A7PC9mb250PjwvZm9udD4mbmJzcDs8L3A+DQo8cD48Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj4kTElOS19VU0VSPGEgaHJlZj0iJExJTktfVVNFUiIgdGFyZ2V0PSJoZWxwZGVzayI+PC9hPjwvZm9udD48L3A+DQo8cD48Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczo8L3N0cm9uZz48YnIvPg0KJE5UX1VTRVI8L2ZvbnQ+PC9wPg==');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('13','New note added to the request # $REQUEST','UEhBK1BHWnZiblFnYzJsNlpUMGlNaUkrUEdadmJuUWdabUZqWlQwaVFYSnBZV3dpUGxSb1pTQnlaWEYxWlhOMElHNTFiV0psY2lBOGMzUnliMjVuUGp4MVBpUlNSVkZWUlZOVVBDOTFQand2YzNSeWIyNW5QaVp1WW5Od08zSmxZMlZwZG1Wa0lHRnViM1JvWlhJZ2JtOTBaUzQ4WW5JdlBnMEtQSE4wY205dVp6NVNaWEYxWlhOMFpYSThMM04wY205dVp6NDZJQ1JTUlZGVlJWTlVSVkk4WW5JdlBnMEtQR1p2Ym5RZ1ptRmpaVDBpUVhKcFlXd3NJRWhsYkhabGRHbGpZU3dnYzJGdWN5MXpaWEpwWmlJZ2MybDZaVDBpTWlJK1BITjBjbTl1Wno1VGRXSnFaV04wT2p3dmMzUnliMjVuUGladVluTndPeVp1WW5Od095WnVZbk53T3ladVluTndPeVp1WW5Od095QWtVMVZDU2tWRFZEeGljaTgrRFFvOGMzUnliMjVuUGtWdWRISjVJRVJoZEdVNlBDOXpkSEp2Ym1jK0lDUlNSVU5QVWtROFluSXZQZzBLUEM5bWIyNTBQand2Wm05dWRENDhMMlp2Ym5RK1BHWnZiblFnYzJsNlpUMGlNaUkrUEdadmJuUWdabUZqWlQwaVFYSnBZV3dpUGp4emRISnZibWMrVDNCbGNtRjBiM0lnU1c0Z1EyaGhjbWRsT2p3dmMzUnliMjVuUGlBa1NVNURTRUZTUjBVOFluSXZQZzBLUEhOMGNtOXVaejVFWlhOamNtbHdkR2x2YmpvOEwzTjBjbTl1Wno0Z0pFUkZVME5TU1ZCVVNVOU9KbTVpYzNBN1BDOW1iMjUwUGp3dlptOXVkRDRtYm1KemNEczhMM0ErRFFvOGNENDhabTl1ZENCbVlXTmxQU0pCY21saGJDd2dTR1ZzZG1WMGFXTmhMQ0J6WVc1ekxYTmxjbWxtSWlCemFYcGxQU0l5SWo0a1RFbE9TMTlWVTBWU1BHRWdhSEpsWmowaUpFeEpUa3RmVlZORlVpSWdkR0Z5WjJWMFBTSm9aV3h3WkdWemF5SStQQzloUGp3dlptOXVkRDQ4TDNBK0RRbzhjRDQ4Wm05dWRDQm1ZV05sUFNKQmNtbGhiQ0lnYzJsNlpUMGlNaUkrUEhOMGNtOXVaejVPYjNSbGN6bzhMM04wY205dVp6NDhZbkl2UGcwS0pFNVVYMVZUUlZJOEwyWnZiblErUEM5d1BnPT0=');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('16','New request recorded # $REQUEST','PHA+Cgk8Zm9udCBzaXplPSIyIj48Zm9udCBmYWNlPSJBcmlhbCI+Ti4gPHN0cm9uZz48dT4kUkVRVUVTVDwvdT48L3N0cm9uZz4gLjxiciAvPgoJPHN0cm9uZz5TdWJqZWN0Ojwvc3Ryb25nPiAkU1VCSkVDVDxiciAvPgoJPHN0cm9uZz5Vc2VyOjwvc3Ryb25nPiAkUkVRVUVTVEVSPGJyIC8+Cgk8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8YnIgLz4KCTxzdHJvbmc+RGVzY3JpcHRpb246PC9zdHJvbmc+ICRERVNDUklQVElPTjxiciAvPgoJPHN0cm9uZz5JbiBDaGFyZ2U6PC9zdHJvbmc+ICRJTkNIQVJHRTwvZm9udD48L2ZvbnQ+PC9wPgo8cD4KCTxmb250IHNpemU9IjIiPjxzdHJvbmc+UGhvbmU6PC9zdHJvbmc+ICRQSE9ORTwvZm9udD48Zm9udCBzaXplPSIyIj48c3Ryb25nPiAtIEJyYW5jaDo8L3N0cm9uZz4gJEJSQU5DSDwvZm9udD48L3A+CjxwPgoJPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+JExJTktfT1BFUkFUT1I8L2ZvbnQ+PC9wPgo8cD4KCTxmb250IHNpemU9IjIiPjxmb250IGZhY2U9IkFyaWFsIj48c3Ryb25nPk5vdGVzOjwvc3Ryb25nPjxiciAvPgoJJE5UX09QRVJBVE9SPC9mb250PjwvZm9udD48L3A+Cg==');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('16','New request recorded # $REQUEST','UEhBK0NnazhabTl1ZENCemFYcGxQU0l5SWo0OFptOXVkQ0JtWVdObFBTSkJjbWxoYkNJK1RpNGdQSE4wY205dVp6NDhkVDRrVWtWUlZVVlRWRHd2ZFQ0OEwzTjBjbTl1Wno0Z0xqeGljaUF2UGdvSlBITjBjbTl1Wno1VGRXSnFaV04wT2p3dmMzUnliMjVuUGlBa1UxVkNTa1ZEVkR4aWNpQXZQZ29KUEhOMGNtOXVaejVWYzJWeU9qd3ZjM1J5YjI1blBpQWtVa1ZSVlVWVFZFVlNQR0p5SUM4K0NnazhjM1J5YjI1blBrVnVkSEo1SUVSaGRHVTZQQzl6ZEhKdmJtYytJQ1JTUlVOUFVrUThZbklnTHo0S0NUeHpkSEp2Ym1jK1JHVnpZM0pwY0hScGIyNDZQQzl6ZEhKdmJtYytJQ1JFUlZORFVrbFFWRWxQVGp4aWNpQXZQZ29KUEhOMGNtOXVaejVKYmlCRGFHRnlaMlU2UEM5emRISnZibWMrSUNSSlRrTklRVkpIUlR3dlptOXVkRDQ4TDJadmJuUStQQzl3UGdvOGNENEtDVHhtYjI1MElITnBlbVU5SWpJaVBqeHpkSEp2Ym1jK1VHaHZibVU2UEM5emRISnZibWMrSUNSUVNFOU9SVHd2Wm05dWRENDhabTl1ZENCemFYcGxQU0l5SWo0OGMzUnliMjVuUGlBdElFSnlZVzVqYURvOEwzTjBjbTl1Wno0Z0pFSlNRVTVEU0R3dlptOXVkRDQ4TDNBK0NqeHdQZ29KUEdadmJuUWdabUZqWlQwaVFYSnBZV3dzSUVobGJIWmxkR2xqWVN3Z2MyRnVjeTF6WlhKcFppSWdjMmw2WlQwaU1pSStKRXhKVGt0ZlQxQkZVa0ZVVDFJOEwyWnZiblErUEM5d1BnbzhjRDRLQ1R4bWIyNTBJSE5wZW1VOUlqSWlQanhtYjI1MElHWmhZMlU5SWtGeWFXRnNJajQ4YzNSeWIyNW5QazV2ZEdWek9qd3ZjM1J5YjI1blBqeGljaUF2UGdvSkpFNVVYMDlRUlZKQlZFOVNQQzltYjI1MFBqd3ZabTl1ZEQ0OEwzQStDZz09');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('43','A new note was recorded by an user # $REQUEST','PHA+Cgk8Zm9udCBzaXplPSIyIj48Zm9udCBmYWNlPSJBcmlhbCI+VGhlIHJlcXVlc3QgbnVtYmVyOiA8c3Ryb25nPjx1PiRSRVFVRVNUPC91Pjwvc3Ryb25nPiZuYnNwO3JlY2VpdmVkIGFub3RoZXIgbm90ZS48L2ZvbnQ+PC9mb250PjxiciAvPgoJJm5ic3A7PC9wPgo8cD4KCTxmb250IHNpemU9IjIiPjxmb250IGZhY2U9IkFyaWFsIj48c3BhbiBzdHlsZT0iY29sb3I6IzAwMDAwMDsiPjxzdHJvbmc+UmVxdWVzdGVyPC9zdHJvbmc+Ojwvc3Bhbj4gJFJFUVVFU1RFUjxiciAvPgoJPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+PHN0cm9uZz5TdWJqZWN0Ojwvc3Ryb25nPiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAkU1VCSkVDVDxiciAvPgoJPHN0cm9uZz5FbnRyeSBEYXRlOjwvc3Ryb25nPiAkUkVDT1JEPC9mb250PjwvZm9udD48L2ZvbnQ+PGJyIC8+Cgk8Zm9udCBzaXplPSIyIj48Zm9udCBmYWNlPSJBcmlhbCI+PHN0cm9uZz5PcGVyYXRvciBJbiBDaGFyZ2U6PC9zdHJvbmc+ICRJTkNIQVJHRTxiciAvPgoJPHN0cm9uZz5EZXNjcmkmY2NlZGlsOyZhdGlsZGU7bzo8L3N0cm9uZz4gJERFU0NSSVBUSU9OIDwvZm9udD4gPC9mb250PjwvcD4KPHA+Cgk8Zm9udCBzaXplPSIyIj48Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj4kTElOS19PUEVSQVRPUjwvZm9udD48L2ZvbnQ+PC9wPgo8cD4KCSZuYnNwOzwvcD4KPHA+Cgk8Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczo8L3N0cm9uZz48YnIgLz4KCSROVF9VU0VSPC9mb250PjwvcD4K');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('43','A new note was recorded by an user # $REQUEST','UEhBK0NnazhabTl1ZENCemFYcGxQU0l5SWo0OFptOXVkQ0JtWVdObFBTSkJjbWxoYkNJK1ZHaGxJSEpsY1hWbGMzUWdiblZ0WW1WeU9pQThjM1J5YjI1blBqeDFQaVJTUlZGVlJWTlVQQzkxUGp3dmMzUnliMjVuUGladVluTndPM0psWTJWcGRtVmtJR0Z1YjNSb1pYSWdibTkwWlM0OEwyWnZiblErUEM5bWIyNTBQanhpY2lBdlBnb0pKbTVpYzNBN1BDOXdQZ284Y0Q0S0NUeG1iMjUwSUhOcGVtVTlJaklpUGp4bWIyNTBJR1poWTJVOUlrRnlhV0ZzSWo0OGMzQmhiaUJ6ZEhsc1pUMGlZMjlzYjNJNkl6QXdNREF3TURzaVBqeHpkSEp2Ym1jK1VtVnhkV1Z6ZEdWeVBDOXpkSEp2Ym1jK09qd3ZjM0JoYmo0Z0pGSkZVVlZGVTFSRlVqeGljaUF2UGdvSlBHWnZiblFnWm1GalpUMGlRWEpwWVd3c0lFaGxiSFpsZEdsallTd2djMkZ1Y3kxelpYSnBaaUlnYzJsNlpUMGlNaUkrUEhOMGNtOXVaejVUZFdKcVpXTjBPand2YzNSeWIyNW5QaVp1WW5Od095WnVZbk53T3ladVluTndPeVp1WW5Od095WnVZbk53T3lBa1UxVkNTa1ZEVkR4aWNpQXZQZ29KUEhOMGNtOXVaejVGYm5SeWVTQkVZWFJsT2p3dmMzUnliMjVuUGlBa1VrVkRUMUpFUEM5bWIyNTBQand2Wm05dWRENDhMMlp2Ym5RK1BHSnlJQzgrQ2drOFptOXVkQ0J6YVhwbFBTSXlJajQ4Wm05dWRDQm1ZV05sUFNKQmNtbGhiQ0krUEhOMGNtOXVaejVQY0dWeVlYUnZjaUJKYmlCRGFHRnlaMlU2UEM5emRISnZibWMrSUNSSlRrTklRVkpIUlR4aWNpQXZQZ29KUEhOMGNtOXVaejVFWlhOamNta21ZMk5sWkdsc095WmhkR2xzWkdVN2J6bzhMM04wY205dVp6NGdKRVJGVTBOU1NWQlVTVTlPSUR3dlptOXVkRDRnUEM5bWIyNTBQand2Y0Q0S1BIQStDZ2s4Wm05dWRDQnphWHBsUFNJeUlqNDhabTl1ZENCbVlXTmxQU0pCY21saGJDd2dTR1ZzZG1WMGFXTmhMQ0J6WVc1ekxYTmxjbWxtSWlCemFYcGxQU0l5SWo0a1RFbE9TMTlQVUVWU1FWUlBVand2Wm05dWRENDhMMlp2Ym5RK1BDOXdQZ284Y0Q0S0NTWnVZbk53T3p3dmNENEtQSEErQ2drOFptOXVkQ0JtWVdObFBTSkJjbWxoYkNJZ2MybDZaVDBpTWlJK1BITjBjbTl1Wno1T2IzUmxjem84TDNOMGNtOXVaejQ4WW5JZ0x6NEtDU1JPVkY5VlUwVlNQQzltYjI1MFBqd3ZjRDRL');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('47','Request reopened # $REQUEST','PHA+DQoJPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+RGVhciBTci4oTXMuKTxzdHJvbmc+IDwvc3Ryb25nPiRJTkNIQVJHRTxzdHJvbmc+LCA8L3N0cm9uZz50aGUgcmVxdWVzdCBudW1iZXIgJFJFUVVFU1QmbmJzcDsgd2FzIHJlb3BlbmVkIGluICREQVRFPHN0cm9uZz4uPC9zdHJvbmc+PC9mb250PjwvcD4NCjxwPg0KCTxmb250IGZhY2U9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIHNpemU9IjIiPjxzdHJvbmc+UmVxdWVzdGVyPC9zdHJvbmc+OiAkUkVRVUVTVEVSPGJyIC8+DQoJPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+PHN0cm9uZz5TdWJqZWN0Ojwvc3Ryb25nPiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAkU1VCSkVDVDxiciAvPg0KCTxzdHJvbmc+RW50cnkgRGF0ZTo8L3N0cm9uZz4gJFJFQ09SRDwvZm9udD48YnIgLz4NCgk8c3Ryb25nPk9wZXJhdG9yIEluIENoYXJnZTo8L3N0cm9uZz4gJElOQ0hBUkdFPC9mb250PjwvcD4NCjxwPg0KCTxmb250IGZhY2U9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIHNpemU9IjIiPiRMSU5LX1VTRVI8L2ZvbnQ+PC9wPg0KPHA+DQoJPGZvbnQgZmFjZT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgc2l6ZT0iMiI+PHN0cm9uZz5EZXNjcmlwdGlvbjo8L3N0cm9uZz4gJERFU0NSSVBUSU9OIDwvZm9udD48L3A+DQo8cD4NCgk8Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczo8L3N0cm9uZz48YnIgLz4NCgkkTlRfVVNFUjwvZm9udD48L3A+DQo=');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('47','Request reopened # $REQUEST','UEhBK0RRb0pQR1p2Ym5RZ1ptRmpaVDBpUVhKcFlXd3NJRWhsYkhabGRHbGpZU3dnYzJGdWN5MXpaWEpwWmlJZ2MybDZaVDBpTWlJK1JHVmhjaUJUY2k0b1RYTXVLVHh6ZEhKdmJtYytJRHd2YzNSeWIyNW5QaVJKVGtOSVFWSkhSVHh6ZEhKdmJtYytMQ0E4TDNOMGNtOXVaejUwYUdVZ2NtVnhkV1Z6ZENCdWRXMWlaWElnSkZKRlVWVkZVMVFtYm1KemNEc2dkMkZ6SUhKbGIzQmxibVZrSUdsdUlDUkVRVlJGUEhOMGNtOXVaejR1UEM5emRISnZibWMrUEM5bWIyNTBQand2Y0Q0TkNqeHdQZzBLQ1R4bWIyNTBJR1poWTJVOUlrRnlhV0ZzTENCSVpXeDJaWFJwWTJFc0lITmhibk10YzJWeWFXWWlJSE5wZW1VOUlqSWlQanh6ZEhKdmJtYytVbVZ4ZFdWemRHVnlQQzl6ZEhKdmJtYytPaUFrVWtWUlZVVlRWRVZTUEdKeUlDOCtEUW9KUEdadmJuUWdabUZqWlQwaVFYSnBZV3dzSUVobGJIWmxkR2xqWVN3Z2MyRnVjeTF6WlhKcFppSWdjMmw2WlQwaU1pSStQSE4wY205dVp6NVRkV0pxWldOME9qd3ZjM1J5YjI1blBpWnVZbk53T3ladVluTndPeVp1WW5Od095WnVZbk53T3ladVluTndPeUFrVTFWQ1NrVkRWRHhpY2lBdlBnMEtDVHh6ZEhKdmJtYytSVzUwY25rZ1JHRjBaVG84TDNOMGNtOXVaejRnSkZKRlEwOVNSRHd2Wm05dWRENDhZbklnTHo0TkNnazhjM1J5YjI1blBrOXdaWEpoZEc5eUlFbHVJRU5vWVhKblpUbzhMM04wY205dVp6NGdKRWxPUTBoQlVrZEZQQzltYjI1MFBqd3ZjRDROQ2p4d1BnMEtDVHhtYjI1MElHWmhZMlU5SWtGeWFXRnNMQ0JJWld4MlpYUnBZMkVzSUhOaGJuTXRjMlZ5YVdZaUlITnBlbVU5SWpJaVBpUk1TVTVMWDFWVFJWSThMMlp2Ym5RK1BDOXdQZzBLUEhBK0RRb0pQR1p2Ym5RZ1ptRmpaVDBpUVhKcFlXd3NJRWhsYkhabGRHbGpZU3dnYzJGdWN5MXpaWEpwWmlJZ2MybDZaVDBpTWlJK1BITjBjbTl1Wno1RVpYTmpjbWx3ZEdsdmJqbzhMM04wY205dVp6NGdKRVJGVTBOU1NWQlVTVTlPSUR3dlptOXVkRDQ4TDNBK0RRbzhjRDROQ2drOFptOXVkQ0JtWVdObFBTSkJjbWxoYkNJZ2MybDZaVDBpTWlJK1BITjBjbTl1Wno1T2IzUmxjem84TDNOMGNtOXVaejQ4WW5JZ0x6NE5DZ2trVGxSZlZWTkZVand2Wm05dWRENDhMM0ErRFFvPQ==');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('67','Request repassed # $REQUEST','PHA+DQoJPGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPk4uIDxzdHJvbmc+PHU+JExJTktfT1BFUkFUT1I8L3U+PC9zdHJvbmc+LjxiciAvPg0KCTxzdHJvbmc+U3ViamVjdDo8L3N0cm9uZz4gJFNVQkpFQ1Q8YnIgLz4NCgk8c3Ryb25nPlVzZXI6PC9zdHJvbmc+ICRSRVFVRVNURVI8YnIgLz4NCgk8c3Ryb25nPkVudHJ5IERhdGU6PC9zdHJvbmc+ICRSRUNPUkQ8YnIgLz4NCgk8c3Ryb25nPkRlc2NyaXB0aW9uOjwvc3Ryb25nPiAkREVTQ1JJUFRJT048YnIgLz4NCgk8c3Ryb25nPkluIENoYXJnZTo8L3N0cm9uZz4gJElOQ0hBUkdFPC9mb250PjwvZm9udD48L3A+DQo8cD4NCgk8Zm9udCBzaXplPSIyIj48c3Ryb25nPlBob25lOjwvc3Ryb25nPiAkUEhPTkU8L2ZvbnQ+PGZvbnQgc2l6ZT0iMiI+PHN0cm9uZz4gLSBCcmFuY2g6PC9zdHJvbmc+ICRCUkFOQ0g8L2ZvbnQ+PC9wPg0KPHA+DQoJPGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPjxzdHJvbmc+Tm90ZXM6PC9zdHJvbmc+PGJyIC8+DQoJJE5UX09QRVJBVE9SPC9mb250PjwvZm9udD48L3A+DQo=');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('67','Request repassed # $REQUEST','UEhBK0RRb0pQR1p2Ym5RZ2MybDZaVDBpTWlJK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3aVBrNHVJRHh6ZEhKdmJtYytQSFUrSkV4SlRrdGZUMUJGVWtGVVQxSThMM1UrUEM5emRISnZibWMrTGp4aWNpQXZQZzBLQ1R4emRISnZibWMrVTNWaWFtVmpkRG84TDNOMGNtOXVaejRnSkZOVlFrcEZRMVE4WW5JZ0x6NE5DZ2s4YzNSeWIyNW5QbFZ6WlhJNlBDOXpkSEp2Ym1jK0lDUlNSVkZWUlZOVVJWSThZbklnTHo0TkNnazhjM1J5YjI1blBrVnVkSEo1SUVSaGRHVTZQQzl6ZEhKdmJtYytJQ1JTUlVOUFVrUThZbklnTHo0TkNnazhjM1J5YjI1blBrUmxjMk55YVhCMGFXOXVPand2YzNSeWIyNW5QaUFrUkVWVFExSkpVRlJKVDA0OFluSWdMejROQ2drOGMzUnliMjVuUGtsdUlFTm9ZWEpuWlRvOEwzTjBjbTl1Wno0Z0pFbE9RMGhCVWtkRlBDOW1iMjUwUGp3dlptOXVkRDQ4TDNBK0RRbzhjRDROQ2drOFptOXVkQ0J6YVhwbFBTSXlJajQ4YzNSeWIyNW5QbEJvYjI1bE9qd3ZjM1J5YjI1blBpQWtVRWhQVGtVOEwyWnZiblErUEdadmJuUWdjMmw2WlQwaU1pSStQSE4wY205dVp6NGdMU0JDY21GdVkyZzZQQzl6ZEhKdmJtYytJQ1JDVWtGT1EwZzhMMlp2Ym5RK1BDOXdQZzBLUEhBK0RRb0pQR1p2Ym5RZ2MybDZaVDBpTWlJK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3aVBqeHpkSEp2Ym1jK1RtOTBaWE02UEM5emRISnZibWMrUEdKeUlDOCtEUW9KSkU1VVgwOVFSVkpCVkU5U1BDOW1iMjUwUGp3dlptOXVkRDQ4TDNBK0RRbz0=');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('70','New request to approve # $REQUEST','PHA+DQoJPGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPk4uIDxzdHJvbmc+PHU+JExJTktfT1BFUkFUT1I8L3U+PC9zdHJvbmc+IC48YnIgLz4NCgk8c3Ryb25nPlN1YmplY3Q6PC9zdHJvbmc+ICRTVUJKRUNUPGJyIC8+DQoJPHN0cm9uZz5Vc2VyOjwvc3Ryb25nPiAkUkVRVUVTVEVSPGJyIC8+DQoJPHN0cm9uZz5FbnRyeSBEYXRlOjwvc3Ryb25nPiAkUkVDT1JEPGJyIC8+DQoJPHN0cm9uZz5EZXNjcmlwdGlvbjo8L3N0cm9uZz4gJERFU0NSSVBUSU9OPGJyIC8+DQoJPHN0cm9uZz5JbiBDaGFyZ2U6PC9zdHJvbmc+ICRJTkNIQVJHRTwvZm9udD48L2ZvbnQ+PC9wPg0KPHA+DQoJPGZvbnQgc2l6ZT0iMiI+PHN0cm9uZz5QaG9uZTo8L3N0cm9uZz4gJFBIT05FPC9mb250Pjxmb250IHNpemU9IjIiPjxzdHJvbmc+IC0gQnJhbmNoOjwvc3Ryb25nPiAkQlJBTkNIPC9mb250PjwvcD4NCg==');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('70','New request to approve # $REQUEST','UEhBK0RRb0pQR1p2Ym5RZ2MybDZaVDBpTWlJK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3aVBrNHVJRHh6ZEhKdmJtYytQSFUrSkV4SlRrdGZUMUJGVWtGVVQxSThMM1UrUEM5emRISnZibWMrSUM0OFluSWdMejROQ2drOGMzUnliMjVuUGxOMVltcGxZM1E2UEM5emRISnZibWMrSUNSVFZVSktSVU5VUEdKeUlDOCtEUW9KUEhOMGNtOXVaejVWYzJWeU9qd3ZjM1J5YjI1blBpQWtVa1ZSVlVWVFZFVlNQR0p5SUM4K0RRb0pQSE4wY205dVp6NUZiblJ5ZVNCRVlYUmxPand2YzNSeWIyNW5QaUFrVWtWRFQxSkVQR0p5SUM4K0RRb0pQSE4wY205dVp6NUVaWE5qY21sd2RHbHZiam84TDNOMGNtOXVaejRnSkVSRlUwTlNTVkJVU1U5T1BHSnlJQzgrRFFvSlBITjBjbTl1Wno1SmJpQkRhR0Z5WjJVNlBDOXpkSEp2Ym1jK0lDUkpUa05JUVZKSFJUd3ZabTl1ZEQ0OEwyWnZiblErUEM5d1BnMEtQSEErRFFvSlBHWnZiblFnYzJsNlpUMGlNaUkrUEhOMGNtOXVaejVRYUc5dVpUbzhMM04wY205dVp6NGdKRkJJVDA1RlBDOW1iMjUwUGp4bWIyNTBJSE5wZW1VOUlqSWlQanh6ZEhKdmJtYytJQzBnUW5KaGJtTm9Pand2YzNSeWIyNW5QaUFrUWxKQlRrTklQQzltYjI1MFBqd3ZjRDROQ2c9PQ==');
 
-INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('80','Request rejected # $REQUEST','PHA+DQoJPGZvbnQgc2l6ZT0iMiI+PGZvbnQgZmFjZT0iQXJpYWwiPlRoZSByZXF1ZXN0IG51bWJlciZuYnNwOzxzdHJvbmc+PHU+JExJTktfT1BFUkFUSVI8L3U+PC9zdHJvbmc+Jm5ic3A7d2FzIHJlamVjdGVkIGluICRSRUpFQ1RJT04uPGJyIC8+DQoJPHN0cm9uZz5SZXF1ZXN0ZXI8L3N0cm9uZz46ICRSRVFVRVNURVI8YnIgLz4NCgk8Zm9udCBmYWNlPSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBzaXplPSIyIj48c3Ryb25nPlN1YmplY3Q6PC9zdHJvbmc+Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7ICRTVUJKRUNUPGJyIC8+DQoJPHN0cm9uZz5FbnRyeSBEYXRlOjwvc3Ryb25nPiZuYnNwOyRSRUNPUkQ8L2ZvbnQ+PGJyIC8+DQoJPHN0cm9uZz5SZWplY3RlZCBieTo8L3N0cm9uZz4mbmJzcDskVVNFUjxiciAvPg0KCTxzdHJvbmc+RGVzY3JpcHRpb246PC9zdHJvbmc+Jm5ic3A7JERFU0NSSVBUSU9OPC9mb250PjwvZm9udD48L3A+DQo8cD4NCgk8Zm9udCBmYWNlPSJBcmlhbCIgc2l6ZT0iMiI+PHN0cm9uZz5Ob3Rlczwvc3Ryb25nPjxiciAvPg0KCSROVF9PUEVSQVRPUjwvZm9udD48L3A+DQo=');
+INSERT IGNORE INTO hdk_tbtemplate_email VALUES ('80','Request rejected # $REQUEST','UEhBK0RRb0pQR1p2Ym5RZ2MybDZaVDBpTWlJK1BHWnZiblFnWm1GalpUMGlRWEpwWVd3aVBsUm9aU0J5WlhGMVpYTjBJRzUxYldKbGNpWnVZbk53T3p4emRISnZibWMrUEhVK0pFeEpUa3RmVDFCRlVrRlVTVkk4TDNVK1BDOXpkSEp2Ym1jK0ptNWljM0E3ZDJGeklISmxhbVZqZEdWa0lHbHVJQ1JTUlVwRlExUkpUMDR1UEdKeUlDOCtEUW9KUEhOMGNtOXVaejVTWlhGMVpYTjBaWEk4TDNOMGNtOXVaejQ2SUNSU1JWRlZSVk5VUlZJOFluSWdMejROQ2drOFptOXVkQ0JtWVdObFBTSkJjbWxoYkN3Z1NHVnNkbVYwYVdOaExDQnpZVzV6TFhObGNtbG1JaUJ6YVhwbFBTSXlJajQ4YzNSeWIyNW5QbE4xWW1wbFkzUTZQQzl6ZEhKdmJtYytKbTVpYzNBN0ptNWljM0E3Sm01aWMzQTdKbTVpYzNBN0ptNWljM0E3SUNSVFZVSktSVU5VUEdKeUlDOCtEUW9KUEhOMGNtOXVaejVGYm5SeWVTQkVZWFJsT2p3dmMzUnliMjVuUGladVluTndPeVJTUlVOUFVrUThMMlp2Ym5RK1BHSnlJQzgrRFFvSlBITjBjbTl1Wno1U1pXcGxZM1JsWkNCaWVUbzhMM04wY205dVp6NG1ibUp6Y0Rza1ZWTkZVanhpY2lBdlBnMEtDVHh6ZEhKdmJtYytSR1Z6WTNKcGNIUnBiMjQ2UEM5emRISnZibWMrSm01aWMzQTdKRVJGVTBOU1NWQlVTVTlPUEM5bWIyNTBQand2Wm05dWRENDhMM0ErRFFvOGNENE5DZ2s4Wm05dWRDQm1ZV05sUFNKQmNtbGhiQ0lnYzJsNlpUMGlNaUkrUEhOMGNtOXVaejVPYjNSbGN6d3ZjM1J5YjI1blBqeGljaUF2UGcwS0NTUk9WRjlQVUVWU1FWUlBVand2Wm05dWRENDhMM0ErRFFvPQ==');
 
 
 
@@ -2243,9 +2245,9 @@ INSERT IGNORE INTO tbcity VALUES ('4','89','Porto Alegre');
 
 INSERT IGNORE INTO tbcity VALUES ('5','89','Rio Grande');
 
-INSERT IGNORE INTO tbcity VALUES ('6','89','CamaquÃ£');
+INSERT IGNORE INTO tbcity VALUES ('6','89','Camaquã');
 
-INSERT IGNORE INTO tbcity VALUES ('7','89','JaguarÃ£o');
+INSERT IGNORE INTO tbcity VALUES ('7','89','Jaguarão');
 
 INSERT IGNORE INTO tbcity VALUES ('8','92','Santos');
 
@@ -3142,16 +3144,20 @@ CREATE TABLE IF NOT EXISTS `tbmodule` (
   `name` varchar(20) NOT NULL,
   `index` int(11) DEFAULT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
-  PRIMARY KEY (`idmodule`)
+  `path` varchar(20) DEFAULT NULL,
+  `smarty` varchar(50) DEFAULT NULL,
+  `class` varchar(50) DEFAULT NULL COMMENT 'Class use in css',
+  PRIMARY KEY (`idmodule`),
+  KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC ; 
 
 # Dados para a tabela: tbmodule
 
-INSERT IGNORE INTO tbmodule VALUES ('1','Admin','0','A');
+INSERT IGNORE INTO tbmodule VALUES ('1','Admin','0','A','','','');
 
-INSERT IGNORE INTO tbmodule VALUES ('2','Helpdezk','0','A');
+INSERT IGNORE INTO tbmodule VALUES ('2','Helpdezk','0','A','','','');
 
-INSERT IGNORE INTO tbmodule VALUES ('3','Dashboard','0','A');
+INSERT IGNORE INTO tbmodule VALUES ('3','Dashboard','0','A','','','');
 
 
 
@@ -3276,7 +3282,7 @@ INSERT IGNORE INTO tbneighborhood VALUES ('58','3','Fragata');
 
 INSERT IGNORE INTO tbneighborhood VALUES ('59','3','Castilho');
 
-INSERT IGNORE INTO tbneighborhood VALUES ('60','3','SimÃµes Lopes');
+INSERT IGNORE INTO tbneighborhood VALUES ('60','3','Simões Lopes');
 
 INSERT IGNORE INTO tbneighborhood VALUES ('61','3','Cascata');
 
@@ -3334,6 +3340,7 @@ CREATE TABLE IF NOT EXISTS `tbperson` (
   `time_value` float DEFAULT NULL,
   `overtime` float DEFAULT NULL,
   `change_pass` int(1) DEFAULT '0',
+  `token` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idperson`),
   KEY `fk_tbperson_tblogintype` (`idtypelogin`),
   KEY `fk_tbperson_tbtypeperson1` (`idtypeperson`),
@@ -3348,11 +3355,11 @@ CREATE TABLE IF NOT EXISTS `tbperson` (
 
 # Dados para a tabela: tbperson
 
-INSERT IGNORE INTO tbperson VALUES ('1','3','1','1','1','root','root','81dc9bdb52d04dc20036dbd8313ed055','rogerio@pipegrep.com.br','2011-08-03 18:52:31','A','N','','','','','','','','0');
+INSERT IGNORE INTO tbperson VALUES ('1','3','1','1','1','root','root','81dc9bdb52d04dc20036dbd8313ed055','rogerio@pipegrep.com.br','2011-08-03 18:52:31','A','N','','','','','0','0','0','0','');
 
-INSERT IGNORE INTO tbperson VALUES ('60','3','4','2','1','T.I Masters','','81dc9bdb52d04dc20036dbd8313ed055','timasters@teste.com','2012-08-20 15:29:19','A','N','1154587451','','','1154245784','','','','0');
+INSERT IGNORE INTO tbperson VALUES ('60','3','4','2','1','T.I Masters','','81dc9bdb52d04dc20036dbd8313ed055','timasters@teste.com','2012-08-20 15:29:19','A','N','1154587451','','','1154245784','0','0','0','0','');
 
-INSERT IGNORE INTO tbperson VALUES ('61','3','6','1','1','Information Technology Support','','','','0000-00-00 00:00:00','A','N','','','','','0','0','0','0');
+INSERT IGNORE INTO tbperson VALUES ('61','3','6','1','1','Information Technology Support','','','','0000-00-00 00:00:00','A','N','','','','','0','0','0','0','');
 
 
 
@@ -3375,6 +3382,24 @@ CREATE TABLE IF NOT EXISTS `tbperson_plus` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC ; 
 
 # Dados para a tabela: tbperson_plus
+
+
+
+##
+## TABELA: tbpersontypes
+##
+DROP TABLE IF EXISTS tbpersontypes ; 
+
+CREATE TABLE IF NOT EXISTS `tbpersontypes` (
+  `idperson` int(11) NOT NULL,
+  `idtypeperson` int(11) NOT NULL,
+  PRIMARY KEY (`idperson`,`idtypeperson`),
+  KEY `idtypeperson` (`idtypeperson`),
+  CONSTRAINT `tbpersontypes_ibfk_1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`),
+  CONSTRAINT `tbpersontypes_ibfk_2` FOREIGN KEY (`idtypeperson`) REFERENCES `tbtypeperson` (`idtypeperson`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ; 
+
+# Dados para a tabela: tbpersontypes
 
 
 
@@ -3434,9 +3459,9 @@ INSERT IGNORE INTO tbprogram VALUES ('59','Downloads','downloads/','1','0','A','
 
 INSERT IGNORE INTO tbprogram VALUES ('61','Logos','logos/','17','0','A','pgr_logos');
 
-INSERT IGNORE INTO tbprogram VALUES ('64','Requests Report','relRequests','13','','A','pgr_req_reports');
+INSERT IGNORE INTO tbprogram VALUES ('64','Requests Report','relRequests','13','0','A','pgr_req_reports');
 
-INSERT IGNORE INTO tbprogram VALUES ('65','Importar catalogo de serviços','importservices/','18','','A','pgr_import_services');
+INSERT IGNORE INTO tbprogram VALUES ('65','Importar catalogo de servi�os','importservices/','18','0','A','pgr_import_services');
 
 INSERT IGNORE INTO tbprogram VALUES ('66','Operator Average ResponseTime','relOpeAverRespTime','13','0','A','pgr_ope_aver_resptime');
 
@@ -3726,9 +3751,9 @@ INSERT IGNORE INTO tbstreet VALUES ('3','2','Collins');
 
 INSERT IGNORE INTO tbstreet VALUES ('4','106','Felix da Cunha');
 
-INSERT IGNORE INTO tbstreet VALUES ('6','106','Barão de Santa Tecla');
+INSERT IGNORE INTO tbstreet VALUES ('6','106','Bar�o de Santa Tecla');
 
-INSERT IGNORE INTO tbstreet VALUES ('7','106','Gonçalves Chaves');
+INSERT IGNORE INTO tbstreet VALUES ('7','106','Gon�alves Chaves');
 
 INSERT IGNORE INTO tbstreet VALUES ('9','1','Teste');
 
@@ -3740,7 +3765,7 @@ INSERT IGNORE INTO tbstreet VALUES ('12','106','Keep calm we have a hulk');
 
 INSERT IGNORE INTO tbstreet VALUES ('13','106','Maestro Mendanha');
 
-INSERT IGNORE INTO tbstreet VALUES ('14','1','FÃ©lix da Cunha');
+INSERT IGNORE INTO tbstreet VALUES ('14','1','Félix da Cunha');
 
 INSERT IGNORE INTO tbstreet VALUES ('15','106','Coronel Onofre Pires');
 
@@ -3748,17 +3773,17 @@ INSERT IGNORE INTO tbstreet VALUES ('16','106','Marechal Deodoro');
 
 INSERT IGNORE INTO tbstreet VALUES ('17','106','General Teles');
 
-INSERT IGNORE INTO tbstreet VALUES ('26','106','Major CÃ­cero de Goes Monteiro');
+INSERT IGNORE INTO tbstreet VALUES ('26','106','Major Cícero de Goes Monteiro');
 
 INSERT IGNORE INTO tbstreet VALUES ('27','106','Gomes Carneiro');
 
-INSERT IGNORE INTO tbstreet VALUES ('28','106','TrÃªs de Maio');
+INSERT IGNORE INTO tbstreet VALUES ('28','106','Três de Maio');
 
 INSERT IGNORE INTO tbstreet VALUES ('29','106','Padre Anchieta');
 
 INSERT IGNORE INTO tbstreet VALUES ('30','106','Santa Cruz');
 
-INSERT IGNORE INTO tbstreet VALUES ('36','106','Padre FelÃ­cio');
+INSERT IGNORE INTO tbstreet VALUES ('36','106','Padre Felício');
 
 INSERT IGNORE INTO tbstreet VALUES ('37','4','Example Street');
 
@@ -5045,11 +5070,11 @@ INSERT IGNORE INTO tbtypestreet VALUES ('9','Alameda','AL');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('10','Alto','AT');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('11','�rea','A');
+INSERT IGNORE INTO tbtypestreet VALUES ('11','?rea','A');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('12','�rea Especial','AE');
+INSERT IGNORE INTO tbtypestreet VALUES ('12','?rea Especial','AE');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('13','Art�ria','ART');
+INSERT IGNORE INTO tbtypestreet VALUES ('13','Art?ria','ART');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('14','Atalho','ATL');
 
@@ -5059,9 +5084,9 @@ INSERT IGNORE INTO tbtypestreet VALUES ('16','Avenida Contorno','AV-CONT');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('17','Baixa','BX');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('18','Bal�o','BLO');
+INSERT IGNORE INTO tbtypestreet VALUES ('18','Bal?o','BLO');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('19','Balne�rio','BAL');
+INSERT IGNORE INTO tbtypestreet VALUES ('19','Balne?rio','BAL');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('20','Beco','BC');
 
@@ -5077,7 +5102,7 @@ INSERT IGNORE INTO tbtypestreet VALUES ('25','Buraco','BCO');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('26','Cais','C');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('27','Cal�ada','CALC');
+INSERT IGNORE INTO tbtypestreet VALUES ('27','Cal?ada','CALC');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('28','Caminho','CAM');
 
@@ -5085,23 +5110,23 @@ INSERT IGNORE INTO tbtypestreet VALUES ('29','Campo','CPO');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('30','Canal','CAN');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('31','Ch�cara','CH');
+INSERT IGNORE INTO tbtypestreet VALUES ('31','Ch?cara','CH');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('32','Chapad�o','CHAP');
+INSERT IGNORE INTO tbtypestreet VALUES ('32','Chapad?o','CHAP');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('33','Circular','CIRC');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('34','Col�nia','COL');
+INSERT IGNORE INTO tbtypestreet VALUES ('34','Col?nia','COL');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('35','Complexo Vi�rio','CMP-VR');
+INSERT IGNORE INTO tbtypestreet VALUES ('35','Complexo Vi?rio','CMP-VR');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('36','Condom�nio','COND');
+INSERT IGNORE INTO tbtypestreet VALUES ('36','Condom?nio','COND');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('37','Conjunto','CJ');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('38','Corredor','COR');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('39','C�rrego','CRG');
+INSERT IGNORE INTO tbtypestreet VALUES ('39','C?rrego','CRG');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('40','Descida','DSC');
 
@@ -5119,13 +5144,13 @@ INSERT IGNORE INTO tbtypestreet VALUES ('46','Escada','ESC');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('47','Esplanada','ESP');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('48','Esta��o','ETC');
+INSERT IGNORE INTO tbtypestreet VALUES ('48','Esta??o','ETC');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('49','Estacionamento','ESTC');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('50','Est�dio','ETD');
+INSERT IGNORE INTO tbtypestreet VALUES ('50','Est?dio','ETD');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('51','Est�ncia','ETN');
+INSERT IGNORE INTO tbtypestreet VALUES ('51','Est?ncia','ETN');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('52','Estrada','EST');
 
@@ -5167,13 +5192,13 @@ INSERT IGNORE INTO tbtypestreet VALUES ('70','Loteamento','LOT');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('71','Marina','MNA');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('72','M�dulo','MOD');
+INSERT IGNORE INTO tbtypestreet VALUES ('72','M?dulo','MOD');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('73','Monte','TEM');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('74','Morro','MRO');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('75','N�cleo','NUC');
+INSERT IGNORE INTO tbtypestreet VALUES ('75','N?cleo','NUC');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('76','Parada','PDA');
 
@@ -5185,13 +5210,13 @@ INSERT IGNORE INTO tbtypestreet VALUES ('79','Parque','PRQ');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('80','Passagem','PSG');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('81','Passagem Subterr�nea','PSC-SUB');
+INSERT IGNORE INTO tbtypestreet VALUES ('81','Passagem Subterr?nea','PSC-SUB');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('82','Passarela','PSA');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('83','Passeio','PAS');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('84','P�tio','PAT');
+INSERT IGNORE INTO tbtypestreet VALUES ('84','P?tio','PAT');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('85','Ponta','PNT');
 
@@ -5199,9 +5224,9 @@ INSERT IGNORE INTO tbtypestreet VALUES ('86','Ponte','PTE');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('87','Porto','PTO');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('88','Pra�a','PC');
+INSERT IGNORE INTO tbtypestreet VALUES ('88','Pra?a','PC');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('89','Pra�a de Esportes','PC-ESP');
+INSERT IGNORE INTO tbtypestreet VALUES ('89','Pra?a de Esportes','PC-ESP');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('90','Praia','PR');
 
@@ -5231,21 +5256,21 @@ INSERT IGNORE INTO tbtypestreet VALUES ('102','Rodo Anel','ROD-AN');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('103','Rodovia','ROD');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('104','Rotat�ria','RTT');
+INSERT IGNORE INTO tbtypestreet VALUES ('104','Rotat?ria','RTT');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('105','R�tula','ROT');
+INSERT IGNORE INTO tbtypestreet VALUES ('105','R?tula','ROT');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('106','Rua','R');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('107','Rua de Liga��o','R-LIG');
+INSERT IGNORE INTO tbtypestreet VALUES ('107','Rua de Liga??o','R-LIG');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('108','Rua de Pedestre','R-PED');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('109','Servid�o','SRV');
+INSERT IGNORE INTO tbtypestreet VALUES ('109','Servid?o','SRV');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('110','Setor','ST');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('111','S�tio','SIT');
+INSERT IGNORE INTO tbtypestreet VALUES ('111','S?tio','SIT');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('112','Subida','SUB');
 
@@ -5261,7 +5286,7 @@ INSERT IGNORE INTO tbtypestreet VALUES ('117','Trevo','TRV');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('118','Trincheira','TCH');
 
-INSERT IGNORE INTO tbtypestreet VALUES ('119','T�nel','TUN');
+INSERT IGNORE INTO tbtypestreet VALUES ('119','T?nel','TUN');
 
 INSERT IGNORE INTO tbtypestreet VALUES ('120','Unidade','UNID');
 

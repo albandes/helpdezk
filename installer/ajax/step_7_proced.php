@@ -1,5 +1,5 @@
 <?php
-error_reporting(0);
+error_reporting(E_ERROR | E_PARSE);
 ini_set('max_execution_time', '300');
 include ("../lang/". $_POST['i18n'] . ".php" ."");
 session_start() ;
@@ -72,7 +72,7 @@ while ($row = mysql_fetch_row($rs)) {
 	if ($versao_mysql >= 5.6 ) 
 	{
 		$sql = "UPDATE " . $row[1] . " SET " . $row[2] . " = FROM_BASE64(" . $row[2] . ")";
-		print $sql . "<br>";
+		//print $sql . "<br>";
 		$rsBlob  = mysql_query($sql);
 		if (!$rsBlob) { die( "line: " . __LINE__ . " -- Invalid query. Err " . mysql_errno() . " - "  . mysql_error() ."<br><b> query: </b>" . $sql );		}
 	}

@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+
 include ("../lang/". $_POST['i18n'] . ".php" ."");
 
 session_start ;

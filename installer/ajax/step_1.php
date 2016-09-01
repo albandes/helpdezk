@@ -1,9 +1,10 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
 
 session_start();
 session_destroy(); 
 
-error_reporting(0);
+
 /*
 if (!session_is_registered("LANG")) 
 {
