@@ -230,5 +230,5 @@ function get_primary_key($tabela)
 <img src="images/icon-check-20.gif" > &nbsp; <?php echo utf8_encode(ADMIN_CREATE) ?> 
 <br>
 <br>
-<?php echo  URL_HDK ?> <a href="<?php echo  $_SESSION['site_url'] ?>"><?php echo  $_SESSION['site_url'] ?></a>  
+<?php echo  utf8_encode(URL_HDK) ?> <a href="<?php echo  $_SESSION['site_url'] ?>"><?php echo  $_SESSION['site_url'] ?></a>  
 
