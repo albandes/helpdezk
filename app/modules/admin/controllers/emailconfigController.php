@@ -60,10 +60,12 @@ class emailconfig extends Controllers{
         $limit = "LIMIT $start, $rp";
 
         $bd = new emailconfig_model();
+		
         $rs = $bd->selectConfigs($where, $order, $limit);
 
         $qcount = $bd->countConfigs($where);
         $total = $qcount->fields['total'];
+
 
         /*
           header("Expires: Mon, 26 Jul 1997 05:00:00 GMT" );
