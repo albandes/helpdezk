@@ -22,4 +22,8 @@ Após todos os processos, acesse o HelpDEZk clicando no link gerado (esse será 
 
 Dificuldades? acesse nosso site: www.helpdezk.org 
 
-{<img src="https://ga-beacon.appspot.com/UA-34284783-2/welcome-page" />}[https://github.com/igrigorik/ga-beacon]
+
+
+[![Analytics](https://ga-beacon.appspot.com/UA-34284783-2/chromeskel_a/readme)](https://github.com/igrigorik/ga-beacon)
+
+
