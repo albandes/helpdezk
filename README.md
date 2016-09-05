@@ -21,3 +21,5 @@ Após todos os processos, acesse o HelpDEZk clicando no link gerado (esse será 
 É isso, o HelpDEZk está pronto para ser usado!
 
 Dificuldades? acesse nosso site: www.helpdezk.org 
+
+{<img src="https://ga-beacon.appspot.com/UA-34284783-2/welcome-page" />}[https://github.com/igrigorik/ga-beacon]
