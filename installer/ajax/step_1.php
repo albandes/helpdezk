@@ -19,7 +19,7 @@ if (!session_is_registered("LANG"))
 				Step 1 out of 7 - Select your language			
 			</div>
 				<div class="sections">
-					<div class="info">To begin, please select the preferred language and click on "Next".</div>
+					<div class="info">To begin, please select the preferred language, during the instalation, and click on "Next".</div>
 						<div class="row">
 							<label for="field_language" >
 								Language																			

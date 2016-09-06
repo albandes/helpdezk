@@ -196,9 +196,15 @@ array_push($a_arc,"\t \$config[\"ein_mask\"] \t = \t" . "\" ?99.999.999/9999-99 
 array_push($a_arc,"\t \$config[\"date_format\"] \t = \t" . "\"%d/%m/%Y\"" . ";" );
 array_push($a_arc,"\t \$config[\"hour_format\"] \t = \t" . "\"%H:%i\"" . ";" );
 
+// Turksh
 array_push($a_arc,"}" );
-
-
+array_push($a_arc,"if(\$config[\"lang\"] == 'tr_TR') {");
+array_push($a_arc,"\t \$config[\"id_mask\"] \t = \t" . "\" ?999.999.999-99\"" . ";" );
+array_push($a_arc,"\t \$config[\"ein_mask\"] \t = \t" . "\" ?99.999.999/9999-99 \"" . ";" );
+array_push($a_arc,"\t \$config[\"date_format\"] \t = \t" . "\"%d.%m.%Y\"" . ";" );
+array_push($a_arc,"\t \$config[\"hour_format\"] \t = \t" . "\"%h:%i %p\"" . ";" );
+array_push($a_arc,"}" );
+//
 array_push($a_arc," \r\n\r\n ?>" );
 
 $fd = fopen($_SESSION['config_file'], "w") or die ("ERROR: Config File Not Writable !!!!");

@@ -52,6 +52,7 @@ function curPageURL() {
 								<select id="field_language_default" name="language_default"  class="select">
 									<option value="en_US" selected="selected"> English</option>
 									<option value="pt_BR" 	              > Portuguese - Brazil</option>
+									<option value="tr_TR" 	              > Turkish</option>
 								</select>
 							</div>
 						</div>
