@@ -21,8 +21,8 @@ if($config["db_connect"] == "oci8po") {
 }
 
 //SYSTEM CONFIGURATION
-$config['hdk_url'] 	 	= 	"http://localhost/hd/";
-$config['path_default']	= 	"hd";
+$config['hdk_url'] 	 	= 	"http://localhost/community/";
+$config['path_default']	= 	"community";
 $config['demo']			= 	false;
 $config['enterprise']	= 	false;
 $config['lang'] 		= 	"pt_BR";
