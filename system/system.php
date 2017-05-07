@@ -17,9 +17,75 @@ class System {
         $this->setAction();
         $this->setParams();
 
-        $this->database = $this->getConfig('db_connect');
+        $this->database     = $this->getConfig('db_connect');
+        $this->pathDefault  = $this->getConfig('path_default');
+        $this->dateFormat 	= $this->getConfig('date_format');
+        $this->hourFormat 	= $this->getConfig('hour_format');
+
+        $this->logEmail = true ;
+        $this->logFileEmail  = $this->getHelpdezkPath().'/logs/email.log';
     }
-	
+
+    // Since Appil 28, 2017
+    public function getHelpdezkPath()
+    {
+        $path_default = $this->pathDefault;
+        if(substr($path_default, 0,1)!='/'){
+            $path_default='/'.$path_default;
+        }
+        if ($path_default == "/..") {
+            $path = "";
+        } else {
+            $path =$path_default;
+        }
+        // if in localhost document root is D:/xampp/htdocs
+        $document_root=$_SERVER['DOCUMENT_ROOT'];
+        if(substr($document_root, -1)!='/'){
+            $document_root=$document_root.'/';
+        }
+        return  realpath($document_root.$path) ;
+    }
+
+    /**
+     * Method to write in log file
+     *
+     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     *
+     * @param string  $str String to write
+     * @param string  $file  Log filename
+     *
+     * @since April 28, 2017
+     *
+     * @return string true|false
+     */
+    function logit($str, $file)
+    {
+        if (!file_exists($file)) {
+            if($fp = fopen($file, 'a')) {
+                @fclose($fp);
+                return $this->logit($str, $file);
+            } else {
+                return false;
+            }
+        }
+        if (is_writable($file)) {
+            $str = time().'	'.$str;
+            $handle = fopen($file, "a+");
+            fwrite($handle, $str."\r\n");
+            fclose($handle);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Since April 28, 2017
+    function getPrintDate()
+    {
+        return str_replace("%","",$this->dateFormat) . " " . str_replace("%","",$this->hourFormat);
+
+    }
+
 	public function getConfig($param){
 		return $this->_config[$param];
 	}
@@ -30,9 +96,9 @@ class System {
         	$this->_config[$type] = $value;
         }else{
         	$this->_config = $config;
-        }        
+        }
+
     }
-	
 
     private function setUrl() {
         $_GET['url'] = (isset($_GET['url']) ? $_GET['url'] : '/admin/');
@@ -297,9 +363,6 @@ class System {
         return $nl;
     }
 
-
-
-
     public function parse_ajax($arr) {
         $i = 0;
         $line = array();
@@ -316,20 +379,44 @@ class System {
         $groupperm = $bd->selectGroupPermission($user, $idprogram );
 
         $perm = array();
-		
+
+
+        $first = true;
         while (!$groupperm->EOF) {
-			$program = $groupperm->fields['programname'];
-            $perm[$program] = 'N' ;
+            if ($first)	{
+                $first = false;
+                $flag = false ;
+                $program = $groupperm->fields['programname'];
+            }
+            if ($groupperm->fields['allow'] == 'Y') {
+                $flag = true;
+            }
+            if ($program != $groupperm->fields['programname'] ) {
+                $first = true;
+                if ($flag){
+                    $perm[$program] = 'Y';
+                } else {
+
+                }
+
+            }
+
+
+
+            /*
             if ($perm[$program] != $groupperm->fields['allow'] ) {
                 if ($perm[$program] == 'N') {
                     $perm[$program] = $groupperm->fields['allow'];
                 }
             }
-			//$allow = $groupperm->fields['allow'];
-            //$perm[$program] = $allow;
+            */
+
+
+
             $groupperm->MoveNext();
         }
-       // print "<pre>"; print_r($perm) ;
+
+
         $personperm = $bd->selectPersonPermission($user, $idprogram);
 		if ($personperm->fields['allow']) {
 			while (!$personperm->EOF) {
@@ -652,7 +739,6 @@ class System {
                     $userEmail = $bd->getUserEmail($inchid);
                     $destinatario = $userEmail->Fields('email');
                 }
-
                 $assunto = $rsTemplate->fields['name'];
                 eval("\$assunto = \"$assunto\";");
                 
@@ -1291,10 +1377,11 @@ class System {
 			break;
 	
 		}
+
+
         $bd = new features_model();
         $emconfigs = $bd->getEmailConfigs();
         $tempconfs = $bd->getTempEmail();
-        
 
         $nom_titulo = $emconfigs['EM_TITLE'];
         $mail_metodo = 'smtp';
@@ -1306,7 +1393,7 @@ class System {
         $mail_remetente = $emconfigs['EM_SENDER'];
         $mail_cabecalho = $tempconfs['EM_HEADER'];
         $mail_rodape = $tempconfs['EM_FOOTER'];        
-        $mail_port = $emconfigs['EM_PORT'];
+        $mail_port  = $emconfigs['EM_PORT'];
 
         // print("HOST: $mail_host DOMAIN: $mail_dominio AUTH: $mail_auth USER: $mail_username PASS: $mail_password SENDER: $mail_remetente CABEÇ: $mail_cabecalho RODA: $mail_rodape <BR/>");
 
@@ -1320,6 +1407,7 @@ class System {
         if (isset($mail_port) AND !empty($mail_port)) {
             $mail->Port = $mail_port;
         }
+
         $mail->Mailer = $mail_metodo;
         $mail->SMTPAuth = $mail_auth;
         if (strpos($mail_username,'gmail') !== false) {
@@ -1335,8 +1423,9 @@ class System {
 			$mail->AddAttachment($attachment_dest, $attachment_name);
 			$mail->SetFrom($mail_remetente, $nom_titulo);
 		}
-		
-        //Verifica se há mais de 1 endereço de email no destinatario 
+
+
+        //Checks for more than 1 email address at recipient
         $jaExiste = array();
         if (preg_match("/;/", $destinatario)) {
             $email_destino = explode(";", $destinatario);
@@ -1347,59 +1436,36 @@ class System {
                     if (!in_array($email_destino[$i], $jaExiste)) {
                         $mail->AddAddress($email_destino[$i]);
                         $jaExiste[] = $email_destino[$i];
-                        //echo $email_destino[$i] . "<br>";
                     }
                 }
+
             } else {
+
                 $mail->AddAddress($email_destino);
             }
         } else {
             $mail->AddAddress($destinatario);
         }
-        $mail->SetLanguage('br', DOCUMENT_ROOT . "email/language/");
 
+        $mail->SetLanguage('br', DOCUMENT_ROOT . "email/language/");
+        $mail->AddAddress('rogerio.albandes@marioquintana.com.br');
         $done = $mail->Send();
         
-        $mail->ClearAllRecipients();
-        $mail->ClearAttachments();
 
-        if (!$done) { //algum debug dos erros
+        if (!$done) {
             if ($_SESSION['EM_FAILURE_LOG'] == '1') {
                 $mail->SMTPDebug = true;
                 $mail->Send();
-				if (path == "/..") {
-		                    $file = fopen(DOCUMENT_ROOT . '/logs/email_failures.txt', 'ab');
-				} else {
-		                    $file = fopen(DOCUMENT_ROOT . path .  '/logs/email_failures.txt', 'ab');
-				}	
-                
-                if ($file) {
-                    $msg = date("Y-m-d H:i:s");
-                    $msg .= " " . $mail->ErrorInfo;
-                    $msg .= " CODE REQUEST = $REQUEST AND OPERATION = $operation\r\n";
-                    fwrite($file, $msg);
-                    fclose($file);
-                }
+                $this->logit("[".date($this->getPrintDate())."]" . " Line: " .  __LINE__ . " - Error send email, request " . $REQUEST .', operation: ' . $operation , $this->logFileEmail);
+                $this->logit("[".date($this->getPrintDate())."]" . " Error Info: " . $mail->ErrorInfo , $this->logFileEmail);
             }
         } else {
             if ($_SESSION['EM_SUCCESS_LOG'] == '1') {
-                if (path == "/..") {
-                    $file = fopen(DOCUMENT_ROOT . '/logs/email_success.txt', 'ab');
-                } else {
-                    $file = fopen(DOCUMENT_ROOT . path .  '/logs/email_success.txt', 'ab');
-                }			
-
-                if ($file) {
-
-                    $msg = date("Y-m-d H:i:s");
-                    $msg .= " SUCCESFULLY SENT  - ";
-
-                    $msg .= " CODE REQUEST = $REQUEST AND OPERATION = $operation\r\n";
-                    fwrite($file, $msg);
-                    fclose($file);
-                }
+                $this->logit("[".date($this->getPrintDate())."]" . " Line: " .  __LINE__ . " - Email Succesfully Sent, request " . $REQUEST .', operation: ' . $operation , $this->logFileEmail);
             }
         }
+
+
     }
 
     public function validasessao($mob = null) {
@@ -1412,12 +1478,26 @@ class System {
         }
     }
 
+    public function _sanitize()
+    {
+        if (isset($headers['X-CSRF-TOKEN'])) {
+            if ($headers['X-CSRF-TOKEN'] !== $_SESSION['X-CSRF-TOKEN']) {
+                return (json_encode(['error' => 'Wrong CSRF token.']));
+
+            }
+        } else {
+            return (json_encode(['error' => 'No CSRF token.']));
+
+
+        }
+
+    }
+
     public function found_rows(){
         $dbCommon = new common();
         $ret = $dbCommon->foundRows();
 		return $ret;
     }
-
 
     public function BrasilianCurrencyToMysql($get_valor)
     {
@@ -1570,50 +1650,6 @@ class System {
         return $lista;
 
     }
-    /**
-     * Retorna um inteiro, com o valor de dias entre as duas datas
-     * @param string $inicio - formato: aaaa-mm-dd
-     * @param string $fim - formato: aaaa-mm-dd
-     * @return int
-     */
-    function dataNumeroDias($inicio, $fim) {
-        /*
-        $data_inicio = DateTime::createFromFormat('Y-m-d', $inicio);
-        $data_fim = DateTime::createFromFormat('Y-m-d', $fim);
-        $days = (int)$data_fim->diff($data_inicio)->format('%a');
-
-        return $days;
-        */
-        $time_inicial = strtotime($inicio);
-        $time_final = strtotime($fim);
-        // Calcula a diferença de segundos entre as duas datas:
-        $diferenca = $time_final - $time_inicial;
-        // Calcula a diferença de dias
-        $dias = (int)floor( $diferenca / (60 * 60 * 24));
-        return $dias;
-    }
-
-    public function logit($str, $file)
-    {
-        if (!file_exists($file)) {
-            if($fp = fopen($file, 'a')) {
-                @fclose($fp);
-                return logit($str, $file);
-            } else {
-                return false;
-            }
-        }
-        if (is_writable($file)) {
-            $str = time().'	'.$str;
-            $handle = fopen($file, "a+");
-            fwrite($handle, $str."\r\n");
-            fclose($handle);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     // TMS Methods
     function SetPdfHeaderTestData($a_headerTestData)
     {
@@ -1684,27 +1720,6 @@ class System {
         require_once DOCUMENT_ROOT . path . '/includes/classes/fpdf/fpdf_prova.php';
         $pdf = new PDF_prova();
         return $pdf;
-    }
-
-    /**
-     * Include a specific class in 'includes/classes/pipegrep'
-     *
-     * @param  string   $class     Class filename
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     */
-    public function pipeInclude($class)
-    {
-        if (path == "/..") {
-            $pipeClassesPath = DOCUMENT_ROOT . '/includes/classes/pipegrep/';
-        } else {
-            $pipeClassesPath = DOCUMENT_ROOT . path . '/includes/classes/pipegrep/';
-        }
-        $pipeClassesPath = str_replace('//', '/',$pipeClassesPath);
-        if(!@include_once($pipeClassesPath .$class)) {
-            die("Couldn't load " . $pipeClassesPath . $class ) ;
-        }
-        return ;
     }
 
 }

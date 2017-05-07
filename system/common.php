@@ -1,6 +1,14 @@
 <?php
 
-class common extends Model{
+if(class_exists('Model')) {
+    class dynamicModel extends Model {}
+} else {
+    class dynamicModel extends cronModel {}
+}
+
+class common extends dynamicModel {
+
+//class common extends Model{
 
     /**
      * Returns the id of user type
@@ -12,9 +20,10 @@ class common extends Model{
      */
     public function getIdTypePerson($id)
     {
-        $ret = $this->select("select idtypeperson from tbperson where idperson = $id");
+        $qry = "select idtypeperson from tbperson where idperson = $id";
+        $ret = $this->select($qry);
         if (!$ret) {
-            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<br> Query: " . $qry;
             $this->error($sError);
         }
         return $ret->fields['idtypeperson'];
@@ -784,7 +793,7 @@ class common extends Model{
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
 
-    public function getAuxDB()
+    public function getAuxDB($iddb)
     {
         $q =    "
                 SELECT
@@ -797,6 +806,7 @@ class common extends Model{
                   dbpassword
                 FROM
                   tbauxdatabase
+			   WHERE idauxdatabase = $iddb
                 ";
         //die($q);
         $ret = $this->db->Execute($q);
@@ -807,41 +817,5 @@ class common extends Model{
         }
         return $ret;
     }
-
-    /**
-     * Returns the id of the department, search by name
-     *
-     * @since Version 1.2
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     */
-
-    public function getIdDepartmentByName($name)
-    {
-        $q =    "
-                SELECT
-                  iddepartment
-                FROM
-                  hdk_tbdepartment
-                WHERE `name` = '$name'
-                ";
-
-        $ret = $this->db->Execute($q);
-        if (!$ret) {
-            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
-            $this->error($sError);
-            return false;
-        }
-        return $ret->fields['iddepartment'];
-    }
-
-    /*
-     *  Methods DASHBOARD
-     */
-    public function getWidget($id) {
-        return $this->select("select widgets from dsh_tbwidgetusuario where idusuario = '$id'");
-    }
-    /*
-     *  End methods dashboard
-     */
 
 }

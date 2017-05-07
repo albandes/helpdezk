@@ -1,0 +1,59 @@
+<form action="javascript:;" method="post" id="formHolidayInsert">
+    <input type="hidden" name="_token" value="{$token}">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Holiday_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info">
+							<label for="holiday_description">{$smarty.config.Holiday_des}:</label>
+						</li>
+						<li class="field">
+							<input name="holiday_description" id="holiday_description" type="text" class="campo required" id="holiday_description" size="40" maxlength="150" onclick="close();" />
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li class="info">
+							<label for="holiday_date">{$smarty.config.Date}:</label>
+						</li>
+						<li class="field">
+							<input name="holiday_date" id="holiday_date" type="text" class="w70 mask" data-format="99/99/9999" maxlength="10" />
+							<img src="{$path}/app/themes/{$theme}/images/ico_calendario.gif" align="absmiddle" class="calendar" id="f_holiday_date" title="Escolha a Data"/>
+						</li>
+					</ul>
+				</li>
+
+				<li>
+					<ul>
+						<li class="info">
+							<label for="company">{$smarty.config.Company}:</label>
+						</li>
+						<li class="field ">
+							<select name="company" id="company">
+								<option value="0">{$smarty.config.National_holiday}</option>
+								{html_options values=$corpsids output=$corpsvals selected=$compdefault}
+							</select>
+						</li>
+					</ul>
+				</li>
+
+			</ul>
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">						
+					<input type='submit' name="submit" id="btnEnviarHolidayInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

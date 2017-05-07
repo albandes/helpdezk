@@ -1,0 +1,104 @@
+<form action="javascript:;" method="post" id="formHolidayImport">
+    <input type="hidden" name="_token" id= "_token" value="{$token}">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Holiday_import}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">			
+			<ul class="lstForm clearfix">
+
+
+                <li>
+                    <ul>
+                        <li class="info">
+                            <label for="company">{$smarty.config.Company}:</label>
+                        </li>
+                        <li class="field ">
+                            <select name="company" id="company">
+                                {html_options values=$corpId output=$corpVal selected=$corpsel}
+                            </select>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+					<ul>
+						<li class="info">
+							<label for="lastyear">{$smarty.config.Previous_year}:</label>
+						</li>
+						<li class="field">
+							<select id="lastyear" name="lastyear">
+								<option value="0">{$smarty.config.Select}</option>
+                            	{html_options values=$year_field output=$year_val}
+							</select>
+						</li>
+					</ul>
+				</li>
+
+
+
+            </ul>
+			
+			<div class="loader"><!-- --></div>
+			
+			<div id="boxResult" class="none">
+				
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="nextyear">{$smarty.config.Holidays}:</label>
+							</li>
+							<li class="field">
+								<p>{$smarty.config.Total_holidays} <span class="txtYear"><!-- --></span>: <strong class="txtCount"><!-- --></strong></p>
+								<table id='listaareas' class='tab-tp1 mb10' border=1px >
+									<colgroup>
+										<col width="90" />
+										<col width="170" />
+										<col width="170" />
+									</colgroup>
+									<thead>
+										<tr>
+											<th>{$smarty.config.Date}</th>
+											<th>{$smarty.config.Description}</th>
+											<th>{$smarty.config.Type}</th>
+										</tr>
+									</thead>
+									<tbody><!-- --></tbody>				
+								</table>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="info">
+								<label for="nextyear">{$smarty.config.Import_to}:</label>
+							</li>
+							<li class="field">
+								<select id="nextyear" name="nextyear">
+									<option value="">{$smarty.config.Select}</option>
+	                            	{php}
+	                            	$date = date("Y");
+	                            	for($i = $date; $i <= $date+5; $i++){
+	                            		echo '<option value="'.$i.'">'.$i.'</option>';                            			
+	                            	}
+	                            	{/php}
+								</select>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="modalFooter none">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">						
+					<input type='submit' name="submit" id="btnEnviarHolidayImport" class="btnOrange tp1" value="{$smarty.config.Import}" />				
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>
