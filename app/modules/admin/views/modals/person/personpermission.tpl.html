@@ -1,0 +1,74 @@
+<form action="javascript:;" method="post" id="formPersonPermissionInsert">
+	<input type="hidden" name="_token" id= "_token" value="{$token}">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Permission_insert}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<ul class="lstForm clearfix">
+				<li>
+					<ul>
+						<li class="info mb0">
+							<label for="holiday_date">{$smarty.config.Operations}:</label>
+						</li>
+						{if $defP[1]}
+						<li class="field mb0">
+							<input name="opaccess" id="opaccess" type="checkbox" value="Y"/>
+							<label for="opaccess">{$smarty.config.Access}</label>
+						</li>
+						{/if}
+						{if $defP[2]}
+						<li class="nivel1">
+							<input name="opnew" id="opnew" type="checkbox" value="Y"/>
+							<label for="opnew">{$smarty.config.New}</label>
+						</li>
+						{/if}
+						{if $defP[3]}
+						<li class="nivel1">
+							<input name="opedit" id="opedit" type="checkbox" value="Y"/>
+							<label for="opedit">{$smarty.config.edit}</label>
+						</li>
+						{/if}
+						{if $defP[4]}
+						<li class="nivel1">
+							<input name="opdelete" id="opdelete" type="checkbox" value="Y"/>
+							<label for="opdelete">{$smarty.config.Delete}</label>
+						</li>
+						{/if}
+						{if $defP[5]}
+						<li class="nivel1">
+							<input name="opexport" id="opexport" type="checkbox" value="Y"/>
+							<label for="opexport">{$smarty.config.Export}</label>
+						</li>
+						{/if}
+						{if $defP[6]}
+						<li class="nivel1">
+							<input name="opemail" id="opemail" type="checkbox" value="Y"/>
+							<label for="opemail">{$smarty.config.email}</label>
+						</li>
+						{/if}
+						{if $defP[7]}
+						<li class="nivel1">
+							<input name="opsms" id="opsms" type="checkbox" value="Y"/>
+							<label for="opsms">{$smarty.config.SMS}</label>
+						</li>
+						{/if}
+					</ul>
+				</li>
+			</ul>
+			
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input id="id" name="id" value="{$id}" type="hidden"/>
+    				<input id="person" name="person" value="{$person}" type="hidden"/>
+					<input type='submit' name="submit" id="btnSendPersonPermissionInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

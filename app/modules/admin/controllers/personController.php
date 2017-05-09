@@ -8,7 +8,8 @@ class Person extends Controllers {
 		$this->validasessao();
 	}
 	
-    public function index() { 
+    public function index() {
+
         $user = $_SESSION['SES_COD_USUARIO'];
         $bd = new home_model();
         $typeperson = $bd->selectTypePerson($user);
@@ -161,7 +162,8 @@ class Person extends Controllers {
 
     public function personinsert() {
         $smarty = $this->retornaSmarty();
-        $smarty->display('modais/person/insert.tpl.html');
+        //$smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display('modals/person/insert.tpl.html');
     }
 
     public function formjuridical() {
@@ -212,7 +214,8 @@ class Person extends Controllers {
         $smarty->assign('levelids', $campos);
         $smarty->assign('levelvals', $valores);
         $smarty->assign('ein_mask', $this->getConfig('ein_mask'));
-        $smarty->display('modais/person/formjuridical.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display('modals/person/formjuridical.tpl.html');
     }
 
     public function formnatural() {
@@ -261,7 +264,7 @@ class Person extends Controllers {
 
         // Since 2016-05-09
         $aPersonTypes = array();
-        $rsPersonTypes = $db->getTypePerson('where idtypeperson IN (9,10)');
+        $rsPersonTypes = $db->getTypePerson("WHERE permissiongroup='Y'");
         while (!$rsPersonTypes->EOF) {
             $aPersonTypes[$rsPersonTypes->fields['idtypeperson']] = $langVars['type_user_'.$rsPersonTypes->fields['name']];
             $rsPersonTypes->MoveNext();
@@ -314,7 +317,8 @@ class Person extends Controllers {
         $valores = '';
 
         $smarty->assign('mask', $this->getConfig('id_mask'));
-        $smarty->display('modais/person/formnatural.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display('modals/person/formnatural.tpl.html');
     }
 
     public function insert() {
@@ -435,7 +439,8 @@ class Person extends Controllers {
             $smarty->assign('state', $state);
             $smarty->assign('city', $city);
             $smarty->assign('id', $id);
-            $smarty->display('modais/person/companyeditform.tpl.html');
+            $smarty->assign('token', $this->_makeToken()) ;
+            $smarty->display('modals/person/companyeditform.tpl.html');
         } else {
 			$select = $bd->getLoginTypes();
 			while (!$select->EOF) {
@@ -480,10 +485,6 @@ class Person extends Controllers {
             $smarty->assign('countryvals', $valores);
             $campos = '';
             $valores = '';
-
-
-
-
 
             $select = $bd->getTypeStreet();
             while (!$select->EOF) {
@@ -600,7 +601,7 @@ class Person extends Controllers {
 
             // Since 2016-05-09
             $aPersonTypes = array();
-            $rsPersonTypes = $bd->getTypePerson('where idtypeperson IN (9,10)');
+            $rsPersonTypes = $bd->getTypePerson("WHERE permissiongroup='Y'");
             while (!$rsPersonTypes->EOF) {
                 $aPersonTypes[$rsPersonTypes->fields['idtypeperson']] = $langVars['type_user_'.$rsPersonTypes->fields['name']];
                 $rsPersonTypes->MoveNext();
@@ -643,13 +644,14 @@ class Person extends Controllers {
             $smarty->assign('read', $read);
 			$smarty->assign('location', $location);
 			$smarty->assign('time_value', $time_value);
-			$smarty->assign('overtime', $overtime);			
-            $smarty->display('modais/person/personeditform.tpl.html');
+			$smarty->assign('overtime', $overtime);
+            $smarty->assign('token', $this->_makeToken()) ;
+            $smarty->display('modals/person/personeditform.tpl.html');
         }
     }
 	
 	public function editformuser() {
-        $smarty = $this->retornaSmarty();
+
 		$smarty = $this->retornaSmarty();
 		$langVars = $smarty->get_config_vars();
 		
@@ -859,19 +861,22 @@ class Person extends Controllers {
         $smarty->assign('read', $read);
 		$smarty->assign('location', $location);
 		$smarty->assign('time_value', $time_value);
-		$smarty->assign('overtime', $overtime);			
-        $smarty->display('modais/person/personeditformuser.tpl.html');
+		$smarty->assign('overtime', $overtime);
+        $smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display('modals/person/personeditformuser.tpl.html');
     }
 	
 	public function deactivatemodal() {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/person/disable.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/person/disable.tpl.html');
 	}
 	
     public function deactivate() {
         $id = $_POST['id'];
+        if (!$this->_checkToken()) return false;
         $bd = new person_model();
         $dea = $bd->personDeactivate($id);
         if ($dea) {
@@ -885,10 +890,12 @@ class Person extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/person/active.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/person/active.tpl.html');
 	}
 	
     public function activate() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
         $bd = new person_model();
         $dea = $bd->personActivate($id);
@@ -1048,6 +1055,7 @@ class Person extends Controllers {
 
     public function insertLocation() {
     	extract($_POST);
+        if (!$this->_checkToken()) return false;
         $bd = new location_model();
         $rs = $bd->insertLocation($name);
         if ($rs) {
@@ -1081,9 +1089,8 @@ class Person extends Controllers {
 	}
 
     public function insertNatural() {
-
+        if (!$this->_checkToken()) return false;
         extract($_POST);
-
 
         $db = new person_model();
         $db->BeginTrans();
@@ -1166,6 +1173,7 @@ class Person extends Controllers {
     }
 
     public function insertJuridical() {
+        if (!$this->_checkToken()) return false;
         extract($_POST);
 
         $db = new person_model();
@@ -1244,6 +1252,9 @@ class Person extends Controllers {
     }
 
     public function editNatural() {
+        print_r($_POST);
+        exit ;
+        if (!$this->_checkToken()) return false;
         extract($_POST);
 
         $db = new person_model();
@@ -1304,7 +1315,6 @@ class Person extends Controllers {
             return false;
         }
 
-
         $depart = $db->updatePersonDepartment($id, $department);
 
         if (!$depart) {
@@ -1332,10 +1342,11 @@ class Person extends Controllers {
     }
 	
 	public function editNaturalUser() {
+        if (!$this->_checkToken()) return false;
         extract($_POST);
 		$id = $_SESSION['SES_COD_USUARIO'];
 		$db = new person_model();
-
+        if (!$this->_checkToken()) return false;
         $updt = $db->updatePersonUser($id,$name, $email, $phone, $branch, $mobile, $location);
         $i = 0;
         if ($updt) {
@@ -1386,8 +1397,12 @@ class Person extends Controllers {
         }
     }
 	
-    public function editJuridical() {
+    public function editJuridical()
+    {
+
+        if (!$this->_checkToken()) return false;
         extract($_POST);
+
         $db = new person_model();
         $db->BeginTrans();
         $updt = $db->updateCompany($id, $typeuser, $name, $email, $phone, $branch, $fax);
@@ -1446,6 +1461,7 @@ class Person extends Controllers {
     }
 
     public function insertState() {
+        if (!$this->_checkToken()) return false;
         extract($_POST);
 
         $db = new person_model();
@@ -1460,7 +1476,7 @@ class Person extends Controllers {
 
     public function insertCity() {
         extract($_POST);
-
+        if (!$this->_checkToken()) return false;
         $db = new person_model();
         $ins = $db->insertCity($state, $name);
         if ($ins) {
@@ -1696,11 +1712,12 @@ class Person extends Controllers {
 		$smarty->assign('defP', $defP);
         $smarty->assign('id', $idprogram);
         $smarty->assign('person', $idperson);
-        $smarty->display("modais/person/personpermission.tpl.html");
+        $smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display("modals/person/personpermission.tpl.html");
     }
 
     public function insertPermException() {
-        
+        if (!$this->_checkToken()) return false;
 		$access = $_POST['opaccess'];
 		$newop = $_POST['opnew'];
 		$edit = $_POST['opedit'];
@@ -1808,11 +1825,12 @@ class Person extends Controllers {
 		
 		$smarty->assign('idprogram', $idprogram);
 		$smarty->assign('idperson', $idperson);
-		
-		$smarty->display('modais/person/deletepermission.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/person/deletepermission.tpl.html');
 	}
 	
     public function removeExceptions() {
+        if (!$this->_checkToken()) return false;
 		$idprogram = $_POST['idprogram'];
 		$idperson = $_POST['idperson'];
 	
@@ -1829,10 +1847,12 @@ class Person extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/person/alterpassword.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/person/alterpassword.tpl.html');
     }
 	
     public function changePassword() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
 		$password = $_POST['password'];
 		$bd = new person_model();
@@ -1853,10 +1873,12 @@ class Person extends Controllers {
 	
 	public function modalPasswordUser() {
 		$smarty = $this->retornaSmarty();
-		$smarty->display('modais/person/alterpassworduser.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/person/alterpassworduser.tpl.html');
     }
 
 	public function changePasswordUser() {
+        if (!$this->_checkToken()) return false;
         $id = $_SESSION['SES_COD_USUARIO'];
 		$password = $_POST['password'];
         $password = md5($password);
@@ -1916,11 +1938,13 @@ class Person extends Controllers {
 	        $smarty->assign('groupsvals', $valores);
 			
 			$smarty->assign('id', $id);
-			$smarty->display('modais/person/attendantgroup.tpl.html');
+            $smarty->assign('token', $this->_makeToken()) ;
+			$smarty->display('modals/person/attendantgroup.tpl.html');
 		}
 	}
 
 	public function groupinsert(){
+        if (!$this->_checkToken()) return false;
         extract($_POST);
         if(!$idgroup) return false;
         $bd = new permissions_model();
@@ -1934,8 +1958,8 @@ class Person extends Controllers {
     }
 	
     public function groupdelete(){
+        if (!$this->_checkToken()) return false;
         extract($_POST);
-               
         $bd = new permissions_model();
         $delete = $bd->groupPersonDelete($idgroup, $idperson);
         if ($delete){

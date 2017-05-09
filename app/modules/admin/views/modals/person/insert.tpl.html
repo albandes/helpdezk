@@ -1,0 +1,40 @@
+
+<form action="javascript:;" method="post" id="formPersonInsert" name="form1">
+
+	    <div class="modalHeader">
+			<h2>{$smarty.config.Person_insert}</h2>
+			<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+		</div>
+		<div class="modalContent">
+			<div class="clearfix">
+				<ul class="lstForm clearfix">
+					<li>
+						<ul>
+							<li class="info">
+								<label for="txtJuridical">{$smarty.config.Category}:</label>
+							</li>
+							<li class="field mr15">
+								<input type="radio" name="txtCategory" id="txtJuridical" value="formjuridical"/>
+                				<label for="txtJuridical">{$smarty.config.juridical}</label>
+							</li>
+							<li>
+								<input type="radio" name="txtCategory" id="txtNatural" value="formnatural"/>
+                				<label for ="txtNatural">{$smarty.config.natural}</label>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<div class="loader"></div>
+				<div class="boxRetorno"></div>
+			</div>
+		</div>
+		<div class="modalFooter none">
+			<div class="clearfix">
+				<ul class="lst-btn">
+					<li class="last">
+						<input type='submit' name="submit" id="btnSendPersonInsert" class="btnOrange tp1" value="{$smarty.config.Record_btn}" />						
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
