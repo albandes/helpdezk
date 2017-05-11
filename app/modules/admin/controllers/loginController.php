@@ -1,29 +1,11 @@
 <?php
 
 class Login extends Controllers {
-    /**
-     * Create an instance, check session time
-     *
-     * @access public
-     */
-    public function __construct()
-    {
-        parent::__construct();
 
+    public function index() {
         session_start();
         session_unset();
         session_destroy();
-
-        $this->pipeInclude('ldapClass.php');
-
-        $this->log     = true ;
-        $this->logfile = DOCUMENT_ROOT . path . "/logs/login.log" ;
-        $this->print_date = str_replace("%","",$this->getConfig('date_format')) . " " . str_replace("%","",$this->getConfig('hour_format'));
-
-    }
-
-    public function index() {
-
         
         $smarty = $this->retornaSmarty();
         $database = $this->getConfig('db_connect');
@@ -37,8 +19,8 @@ class Login extends Controllers {
 
         $loginlogo = $db->getLoginLogo();
         $smarty->assign('loginlogo', $loginlogo->fields['file_name']);
-        $smarty->assign('loginheight', $loginlogo->fields['height']);
-        $smarty->assign('loginwidth', $loginlogo->fields['width']);
+        $smarty->assign('height', $loginlogo->fields['height']);
+        $smarty->assign('width', $loginlogo->fields['width']);
         $smarty->assign('erro', 'login_errado');
         //$smarty->config_load(PATH . '/lang/' . $dir . '/lang.conf', $idioma);
         $smarty->assign('bgcolor1', '#00CCFF');
@@ -94,7 +76,7 @@ class Login extends Controllers {
 		
 		$smarty->assign('warning', $warning);
         $smarty->assign('license', $this->getConfig("license"));
-
+		
         //$smarty->display('login.tpl.html');
 		$smarty->display('loginv2.tpl.html');
         //$this->view('login.tpl.html');
@@ -148,7 +130,7 @@ class Login extends Controllers {
 		$ProtectSql = new sqlinj;
 		$ProtectSql->start("aio","all");
 
-        $F_LOGIN = html_entity_decode($_POST['F_LOGIN']);
+        $F_LOGIN = $_POST['F_LOGIN'];		
         $F_SENHA_MD5 = md5($_POST['F_SENHA']);
         
         $bd = new index_model();
@@ -157,30 +139,19 @@ class Login extends Controllers {
         $logintype = $bd->getTypeLogin($F_LOGIN);
 		$logintype = $logintype->fields['idtypelogin'];
 
-		if(!$logintype){  // There is not in the database
-
+		if(!$logintype){
             $license =  $this->getConfig("license");
 
             if($license != '201601001') {
+                // Return with error message
+                $success = array(
+                    "success" => 0,
+                    "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
+                );
+                echo json_encode($success);
+                return;
 
-                /*
-                 *  Normal customers
-                 */
-                if ( 1 == 1) {
-                    // Login by Active Directory
-                    // Continues to see if the user exists in AD, if so it will be registered.
-                    $logintype = 2;
-                } else {
-                    // Return with error message
-                    $success = array(
-                        "success" => 0,
-                        "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
-                    );
-                    echo json_encode($success);
-                    return;
-                }
-
-            } else {
+           } else {
                 /*
                  *  Client 201601001
                  *  Create a new user, if don't exists
@@ -276,25 +247,17 @@ class Login extends Controllers {
                 } elseif ($type == 'GMAIL') {
 					$hostname = '{imap.gmail.com:'.$port.'/imap/ssl/novalidate-cert}INBOX';
                 }
+                //function_exists()
 
                 /* try to connect */
-                $this->logit("[".date($this->print_date)."]" . " - Try to login in POP, user: " . $_POST['F_LOGIN'].$domain , $this->logfile);
                 $mbox = imap_open($hostname,$_POST['F_LOGIN'].$domain,$_POST['F_SENHA']) ;
                 if($mbox) {
                     $idperson = $bd->getIdPerson($F_LOGIN);
                     imap_close($mbox);
                     $login = true;
-                    $this->logit("[".date($this->print_date)."]" . " - Login Sucessfull in POP, user: " . $_POST['F_LOGIN'].$domain , $this->logfile);
                 } else {
                     $login = false ;
-                    $imapErrors =  imap_errors() ;
-                    $this->logit("[".date($this->print_date)."]" . " - Login failure in POP, user: " . $_POST['F_LOGIN']. $domain . ". Error" . $imapErrors[0] , $this->logfile);
-                }
-                //
-
-
-
-                //
+                }                
                 break;
 
             case '2': // AD/LDAP				
@@ -306,68 +269,62 @@ class Login extends Controllers {
                 $bd_cfg = new features_model();
                 $ldapconfigs = $bd_cfg->getArrayConfigs(13);
 				
-				$type 	= $ldapconfigs['SES_LDAP_AD'];              //1 LDAP / 2 AD
+				$type 	= $ldapconfigs['SES_LDAP_AD']; //1 LDAP / 2 AD
                 $server = $ldapconfigs['SES_LDAP_SERVER'];
-                $ldapDN = utf8_encode($ldapconfigs['SES_LDAP_DN']);
+                $dn     = $ldapconfigs['SES_LDAP_DN'];
 				$domain = $ldapconfigs['SES_LDAP_DOMAIN'];
-				$ldapObject = $ldapconfigs['SES_LDAP_FIELD'];
-
-                $ldap = new ldapClass($server, $domain, "administrator", "Laser2016");
-
-                /**
-                 ** The only way to test the connection is to actually call ldap_bind( $ds, $username, $password ).
-                 ** But if that fails, is it because you have the wrong username/password or is it because
-                 *  the connection is down?
-                 ** As far as I can see there isn't any way to tell.
-                 **/
-                $auth = $ldap->authenticate($type,$F_LOGIN,utf8_encode($_POST['F_SENHA']));
-
-                if ( $auth != 'OK') {
-                    $msg = $auth ;
-                    $login = false;
-                } else {
-                    // Create user
-                    $userInfo= $ldap->getUserInfo($ldapDN,$F_LOGIN, $ldapObject);
-                    //
-                    $dbPerson->BeginTrans();
-
-                    $dtcreate = date('Y-m-d H:i:s');
-                    $logintype = 2 ; // Need in the first access
-
-                    $dbCommon = new common();
-                    $iddepartment = $dbCommon->getIdDepartmentByName('teste') ;
-                    if ($iddepartment == ''){
-                        $iddepartment = "(SELECT iddepartment FROM  hdk_tbdepartment ORDER BY iddepartment LIMIT 1)";
-                    }
-
-                    $idNewPerson = $dbPerson->insertPerson('2','2','1','1',$F_LOGIN,$F_LOGIN,$dtcreate,'A','N','','','',$F_LOGIN);
-                    if (!$idNewPerson) {
-                        $error = true ;
-                    }
-                    if (!$error) {
-                        $insNatural = $dbPerson->insertNaturalData($idNewPerson, '', '', '');
-                        if (!$insNatural) {
-                            $error = true;
-                        }
-                    }
-                    if (!$error) {
-                        $depart = $dbPerson->insertInDepartment($idNewPerson, $iddepartment);
-                        if (!$depart) {
-                            $error = true ;
-                        }
-                    }
-                    if($error){
-                        $dbPerson->RollbackTrans();
-                        $msg = "Erro Inserindo usuario";
-                        $login = false ;
-                        return;
-                    } else {
-                        $dbPerson->CommitTrans();
-                        $login = true;
-                    }
-                    //
-
-                }
+				$object = $ldapconfigs['SES_LDAP_FIELD'];
+					
+				//$server ="ldap.testathon.net";
+				//$user   = "carol";
+				//$senha  = "carol";
+				//$dn     = "OU=users,DC=testathon,DC=net";
+				
+				// =================
+				
+				$dn  = $object."=".$_POST['F_LOGIN'].",$dn";
+				
+				$userdomain = $_POST['F_LOGIN']."@".$domain;
+				//$AD = @ldap_connect($server) ;
+				
+				
+				if (!($AD = @ldap_connect($server))) {
+					$msg = "Can't connecto to LDAP server !";
+					$login = false;
+				}
+				
+				
+				ldap_set_option($AD, LDAP_OPT_PROTOCOL_VERSION, 3);
+				ldap_set_option($AD, LDAP_OPT_REFERRALS, 0);
+				
+				/**
+				 ** The only way to test the connection is to actually call ldap_bind( $ds, $username, $password ). 
+				 ** But if that fails, is it because you have the wrong username/password or is it because the connection is down? 
+				 ** As far as I can see there isn't any way to tell. 
+				 **/
+				
+				$ret =  $this->LdapValidate($AD, $dn, $_POST['F_SENHA'], $userdomain, $type) ;
+				
+				/*
+				 * Search for user informations in ldap
+				 * 
+				$busca = ldap_search($AD, $dn , "(".$object."=".$_POST['F_LOGIN'].")");
+				$result = ldap_get_entries($AD, $busca);				
+				for ($item = 0; $item < $result['count']; $item++){
+					for ($attribute = 0; $attribute < $result[$item]['count']; $attribute++){
+				  		$data = $result[$item][$attribute];
+						echo $data. ": ".$result[$item][$data][0]."<br>";
+					}
+				}
+				*/
+				
+				if ( $ret != '0') {
+					$msg = $ret ;
+					$login = false;
+				} else {
+					$idperson = $bd->getIdPerson($F_LOGIN);
+					$login = true;
+				}				
                 break;
         }
 
@@ -714,6 +671,7 @@ class Login extends Controllers {
 		
 		
     }
+	
 
 	public function LdapValidate($AdConnect, $dn, $pass, $userdomain, $type)
 	{	
@@ -721,12 +679,11 @@ class Login extends Controllers {
 		$dn = utf8_encode($dn);
 		$pass = utf8_encode($pass);
 		
-		if($type == 1) {
-            $bind = @ldap_bind($AdConnect, $dn, "$pass");
-        }
-		elseif($type == 2) {
-            $bind = @ldap_bind($AdConnect, $userdomain, "$pass");
-        }
+		if($type == 1)
+			$bind = @ldap_bind($AdConnect,$dn,"$pass");
+		elseif($type == 2)
+			$bind = @ldap_bind($AdConnect,$userdomain,"$pass");
+
 		if($bind) 
 		{
 			return 0; 
