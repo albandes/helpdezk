@@ -19,6 +19,11 @@ class Logos extends Controllers{
         $this->index('login');
     }
 
+    public function reports()
+    {
+        $this->index('reports');
+    }
+
     public function index($loc){
         session_start();
         $user = $_SESSION['SES_COD_USUARIO'];

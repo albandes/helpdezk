@@ -233,6 +233,9 @@ Edit_sucess     =  "Succesfully edited!"
 Edit_failure     =  "Can't Edit!"
 Edit_layout = "Edit Layout"
 email           = "E-mail"
+
+Email_byCron  = "Send the emails of the requests by cron"
+
 Email_host	= "Email host"
 Email_config = "Email Configuration"
 Email_request_insert = "Insert Request by Email"
@@ -870,7 +873,9 @@ pgr_programs = "Programs"
 pgr_modules = "Modules"
 pgr_type_permission = "Type Person Permission"
 pgr_downloads = "Downloads"
-pgr_logos = "Logos"
+pgr_logos_header = "Header Logo"
+pgr_logos_login = "Login Page Logo"
+pgr_logos_reports = "Reports Logo"
 pgr_status = "Status"
 pgr_priority = "Priority"
 pgr_groups = "Groups"
@@ -1030,14 +1035,22 @@ Google_Credentials	= "Credentials"
 Google_Save_Credentials	= "Save my credentials"
 Google_Calendar_Export	= "Exportar para Google Calendar"
 
-Dashboard_SLAFulfillment = "Fulfillment"
-Dashboard_SLANotFulfillment = "Not Fulfillment"
-Dashboard_UpdatedDaily = "Updated daily"
+
 
 Update_Instaled_Version = "Instaled Version"
 Update_Last_Version     = "Last Version"
 Update_Not_Connect      = "I could not connect to the Helpdezk site, please, check your firewall !!!"
 Update_Bad_Response     = "Bad response from the server !"
+
+-- DASH --
+DSN_Navbar_name = "Dashboard"
+
+Dashboard_SLAFulfillment = "Fulfillment"
+Dashboard_SLANotFulfillment = "Not Fulfillment"
+Dashboard_UpdatedDaily = "Updated daily"
+
+--
+Logos_Title = "Logos"
 
 -- ERP --
 ERP_Navbar_name = "E R P"
