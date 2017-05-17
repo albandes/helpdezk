@@ -28,8 +28,9 @@ class Status extends Controllers {
             $rs->MoveNext();
         }
         $smarty->assign('statusids', $campos);
-        $smarty->assign('statusvals', $valores);		
-		$smarty->display('modais/status/insert.tpl.html');
+        $smarty->assign('statusvals', $valores);
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/status/insert.tpl.html');
 	}
 	
     public function json() {
@@ -111,7 +112,9 @@ class Status extends Controllers {
         $data['params'] = $_POST;
         echo json_encode($data);
     }
+
     public function insert(){
+        if (!$this->_checkToken()) return false;
         $name = $_POST['name'];
         $user = $_POST['user'];
         $color = $_POST['color'];
@@ -131,10 +134,12 @@ class Status extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/status/delete.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display('modals/status/delete.tpl.html');
 	}
 	
     public function delete() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
         $bd = new status_model();
         $dea = $bd->statusDelete($id);
@@ -144,6 +149,7 @@ class Status extends Controllers {
            return false;
         }
     }
+
     public function editform(){
         $smarty = $this->retornaSmarty();
         // pegamos o id passado no link no formato /modulo/controller/action/id/variavel pelo método getParam do Framework.
@@ -171,12 +177,12 @@ class Status extends Controllers {
         }
         $smarty->assign('statusids', $campos);
         $smarty->assign('statusvals', $valores);
-		
-		
-        //$smarty->display('statusformedit.tpl.html');
-		$smarty->display('modais/status/edit.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/status/edit.tpl.html');
     }
+
     public function edit() {
+        if (!$this->_checkToken()) return false;
         $name = $_POST['name'];
         $user = $_POST['user'];
         $color = $_POST['color'];
@@ -196,10 +202,12 @@ class Status extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/status/disable.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/status/disable.tpl.html');
 	}
 	
     public function deactivate() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
         $bd = new status_model();
         $dea = $bd->statusDeactivate($id);
@@ -214,10 +222,12 @@ class Status extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/status/active.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/status/active.tpl.html');
 	}
 	
     public function activate() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
         $bd = new status_model();
         $dea = $bd->statusActivate($id);

@@ -1,4 +1,7 @@
 <form action="javascript:;" method="post">
+
+	<input type="hidden" name="_token" id= "_token" value="{$token}">
+
     <div class="modalHeader">
 		<h2>{$smarty.config.Delete}</h2>
 		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
@@ -6,7 +9,7 @@
 	<div class="modalContent">
 		<div class="clearfix">
 			<div class="notification info mb0">
-				<p>{$smarty.config.Delete} {$smarty.config.Holiday}?</p>
+				<p>{$smarty.config.Delete} item?</p>
 			</div>
 			<input type="hidden" value="{$id}" name="id"/>
 		</div>
@@ -15,7 +18,7 @@
 		<div class="clearfix">
 			<ul class="lst-btn">
 				<li class="last">
-					<input type='submit' name="submit" id="btnSendHolidayDelete" class="btnOrange tp1" value="{$smarty.config.Yes}" />
+					<input type='submit' name="submit" id="btnSendStatusDelete" class="btnOrange tp1" value="{$smarty.config.Yes}" />
 					<a href="javascript:;" class="closeModal btnOrange tp1">{$smarty.config.Cancel_btn}</a>
 				</li>
 			</ul>
