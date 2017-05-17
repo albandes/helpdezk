@@ -111,7 +111,8 @@ class Program extends Controllers {
 		$smarty->assign('modulesvals', $valores);
 		$smarty->assign('theme', theme);
 		$smarty->assign('path', path);
-		$smarty->display('modais/programs/programsinsert.tpl.html');
+		$smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/programs/programsinsert.tpl.html');
 	}
 
 	public function category() {
@@ -141,6 +142,8 @@ class Program extends Controllers {
 	}
 
 	public function insert() {
+
+		if (!$this->_checkToken()) return false;
 		$idc = $_POST['category'];
 		$name = $_POST['name'];
 		$controller = $_POST['controller'];
@@ -215,10 +218,12 @@ class Program extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/programs/programsdisable.tpl.html');
+		$smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/programs/programsdisable.tpl.html');
 	}
 
 	public function deactivate() {
+		if (!$this->_checkToken()) return false;
 		$id = $_POST['id'];
 		if(!$id) return false;
 		$bd = new programs_model();
@@ -234,11 +239,12 @@ class Program extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/programs/programsactive.tpl.html');
+		$smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/programs/programsactive.tpl.html');
 	}
-	
 
 	public function activate() {
+		if (!$this->_checkToken()) return false;
 		$id = $_POST['id'];
 		if(!$id) return false;
 		$bd = new programs_model();
@@ -251,6 +257,7 @@ class Program extends Controllers {
 	}
 
 	public function categoryinsert() {
+		if (!$this->_checkToken()) return false;
 		$module_post = $_POST['modules2'];
 		$name_post = $_POST['newcategoryname'];		
 		if(!$module_post || !$name_post) return false;
@@ -299,11 +306,12 @@ class Program extends Controllers {
 		$smarty->assign('controller', $ret->fields['controller']);
 		$smarty->assign('varsmarty', $ret->fields['smarty']);
 		$smarty->assign('module', $mod);
-		$smarty->display('modais/programs/programsedit.tpl.html');
+		$smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/programs/programsedit.tpl.html');
 	}
 
 	public function edit() {
-		
+		if (!$this->_checkToken()) return false;
 		$id = $_POST['id'];
 		$name = $_POST['nameEdit'];
 		$controller = $_POST['controllerEdit'];
@@ -452,6 +460,7 @@ class Program extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
+		$smarty->assign('token', $this->_makeToken()) ;
 		$smarty->display('editpermissions.tpl.html');
 	}
 }

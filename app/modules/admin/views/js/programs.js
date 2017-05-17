@@ -236,6 +236,7 @@ $(document).ready(function(){
 				if(ret){
 					objDefault.notification("success",aLang['Alert_inserted'].replace (/\"/g, ""),"modalProgramInsert");
 					$("#flexigrid2").flexReload();
+
 					objModal.openModal("modalProgramConfirm");
 				}
 				else
