@@ -20,10 +20,12 @@ class Modules extends Controllers {
 	
 	public function insertmodal() {
 		$smarty = $this->retornaSmarty();
-		$smarty->display('modais/modules/modulesinsert.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/modules/insert.tpl.html');
 	}
 	
     public function insert() {
+        if (!$this->_checkToken()) return false;
         $MODNAME = $_POST['name'];
 		if(!$MODNAME) return false;
         $bd = new modules_model();
@@ -126,10 +128,13 @@ class Modules extends Controllers {
         $ret = $bd->selectModuleData($id);
         $smarty->assign('id', $id);
         $smarty->assign('name', $ret->fields['name']);
-        $smarty->display('modais/modules/modulesedit.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+        $smarty->display('modals/modules/edit.tpl.html');
     }
 
     public function edit() {
+        if (!$this->_checkToken()) return false;
+
         $id = $_POST['id_module'];
         $name = $_POST['nameEdit'];
 		
@@ -148,10 +153,12 @@ class Modules extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/modules/modulesdisable.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/modules/disable.tpl.html');
 	}
 	
     public function deactivate() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
 		if(!$id || !id == 1) return false;
         $bd = new modules_model();
@@ -167,10 +174,12 @@ class Modules extends Controllers {
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
 		$smarty->assign('id', $id);
-		$smarty->display('modais/modules/modulesactive.tpl.html');
+        $smarty->assign('token', $this->_makeToken()) ;
+		$smarty->display('modals/modules/active.tpl.html');
 	}
 
     public function activate() {
+        if (!$this->_checkToken()) return false;
         $id = $_POST['id'];
         $bd = new modules_model();
         $dea = $bd->moduleActivate($id);

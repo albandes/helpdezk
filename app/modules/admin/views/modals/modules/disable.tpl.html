@@ -1,0 +1,34 @@
+<form action="javascript:;" method="post" id="formModuleDisable">
+	<input type="hidden" name="_token" value="{$token}">
+    <div class="modalHeader">
+		<h2>{$smarty.config.Deactivate}</h2>
+		<a href="javascript:;" class="closeModal btnCloseModal" title="{$smarty.config.Close}">{$smarty.config.Close}</a>
+	</div>
+	<div class="modalContent">
+		<div class="clearfix">
+			<div class="notification info mb0">
+				<p>{$smarty.config.Deactivate} item?</p>
+			</div>
+			<input type="hidden" value="{$id}" name="id"/>
+		</div>
+	</div>
+	<div class="modalFooter">
+		<div class="clearfix">
+			<ul class="lst-btn">
+				<li class="last">
+					<input type='submit' name="submit" id="btnSendModuleDisable" class="btnOrange tp1" value="{$smarty.config.Yes}" />
+					<a href="javascript:;" class="closeModal btnOrange tp1">{$smarty.config.Cancel_btn}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>
+
+
+
+
+
+
+
+
+
