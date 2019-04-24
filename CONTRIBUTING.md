@@ -88,4 +88,7 @@ If you never created a pull request before, welcome, [Here is a great tutorial](
 8. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/) with a clear title and description.
 
 
+## Code of Conduct
+
+This project and everyone participating in it is governed by the [HelpDEZK Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [team@helpdezk.cc](mailto:team@helpdezk.cc).
 

@@ -35,7 +35,7 @@ See also the list of [contributors](https://github.com/albandes/helpdezk/contrib
 
 This project is licensed under the GNU General Public License v3.0 - see the [licence.txt](licence.txt) file for details
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](code-of-conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![Analytics](https://ga-beacon.appspot.com/UA-34284783-2/chromeskel_a/readme)](https://github.com/igrigorik/ga-beacon)
 
 
