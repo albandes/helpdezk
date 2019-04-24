@@ -11,7 +11,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 First things first: **Do NOT report security vulnerabilities in public issues!** Please disclose responsibly by letting [the HelpDEZK team](mailto:team@helpdezk.cc?subject=Security) know upfront. We will assess the issue as soon as possible on a best-effort basis and will give you an estimate for when we have a fix and release available for an eventual public disclosure.
 
-The issue tracker is the preferred channel for [bug reports](#bugs), [features requests](#features) and [submitting pull requests](#pull-requests), but please respect the following restrictions:
+The issue tracker is the preferred channel for [bug reports](#bugs), [features requests](#features) and submitting pull requests, but please respect the following restrictions:
 
 * Please **do not** use the issue tracker for personal support requests.
 * Please **do not** derail or troll issues. Keep the discussion on topic and respect the opinions of others.
@@ -85,7 +85,7 @@ If you never created a pull request before, welcome, [Here is a great tutorial](
    git push origin <topic-branch-name>
    ```
 
-8. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/)with a clear title and description.
+8. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/) with a clear title and description.
 
 
 
