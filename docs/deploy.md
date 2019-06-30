@@ -54,9 +54,27 @@ Copy the string starting at ssh-rsa until the end of the email
 
 #### Create a directory for the work dir. Go to the work dir and clone, using the web server's user.
 
- ```ShellSession
- sudo -u web_server_user git clone git@github.com:git_user/helpdezk.git .
- ```
+```ShellSession
+sudo -u web_server_user git clone git@github.com:git_user/helpdezk.git .
+```
+
+#### Change the file config.ini
+
+```
+[git]
+directory       = /var/www/html/helpdezk
+work_dir        = /home/workdir/webhook
+log             = 'deploy.log'
+branch          = 'master'
+remote          = 'origin'
+date_format     = 'd/m/Y H:i:s'
+sync_submodule  = false
+git_bin_path    = '/usr/bin/git'
+hook_key        = 'xxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 
+[application]
+app_development = false
+app_timezone = 'America/Sao_Paulo'
+```
 
