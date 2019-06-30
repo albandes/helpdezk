@@ -27,7 +27,7 @@ $secretKey = $init['git']['hook_key'];
 
 /**
  * The Options
- * Only 'directory' is required.
+ *
  * @var array
  */
 $options = array(
@@ -58,8 +58,6 @@ if (!validateHubSignature($secretKey,$hubSignature)) {
 }
 
 $deploy->execute();
-
-
 
 echo 'Run in server.';
 
