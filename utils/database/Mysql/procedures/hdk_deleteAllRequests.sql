@@ -1,5 +1,5 @@
 /*
- *      Procedure Name  :  delete_all_requests
+ *      Procedure Name  :  hdk_deleteAllRequests
  *      Database/Schema :  helpdesk
  *
  *      Description:
@@ -20,6 +20,7 @@
  *
  *         Date:          Id:         Comment:
  *         2016/02/19     albandes    Original
+ *         2019/07/22     albandes    Change name
  *
  *
  */
@@ -27,9 +28,9 @@
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS `delete_all_requests`$$
+DROP PROCEDURE IF EXISTS `hdk_deleteAllRequests`$$
 
-CREATE PROCEDURE `delete_all_requests`()
+CREATE PROCEDURE `hdk_deleteAllRequests`()
 
 BEGIN
 

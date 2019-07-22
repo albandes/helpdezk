@@ -1,0 +1,19 @@
+
+
+sudo yum -y install epel-release
+sudo yum -y install mosquitto
+sudo systemctl start mosquitto
+sudo systemctl enable mosquitto
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-the-mosquitto-mqtt-messaging-broker-on-centos-7
+
+
+
+
+
+import upip
+upip.install('micropython-umqtt.robust')
+
+
+persistence true
+
