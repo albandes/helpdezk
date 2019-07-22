@@ -1,5 +1,5 @@
 /*
- *      Procedure Name  :  delete_requests_for_user
+ *      Procedure Name  :  hkd_deleteRequestsForUser
  *      Database/Schema :  helpdesk
  *
  *      Description:
@@ -27,9 +27,9 @@
 DELIMITER $$
 
 
-DROP PROCEDURE IF EXISTS  `delete_requests_for_user`$$
+DROP PROCEDURE IF EXISTS  `hkd_deleteRequestsForUser`$$
 
-CREATE PROCEDURE `delete_requests_for_user`(IN person_ID INT)
+CREATE PROCEDURE `hkd_deleteRequestsForUser`(IN person_ID INT)
 
 delete_request:BEGIN
 

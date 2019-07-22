@@ -10,8 +10,8 @@
 
 /* Configs */
 
-$apiToken = "790949240:AAFqnHmhVGRHBM3lcyiWS3Yp8Sj14kZSBWA";
-$chatId = '-1001425077112';
+$apiToken = "";
+$chatId = '';
 
 $debug_screen = true ;
 error_reporting(1);

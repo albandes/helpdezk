@@ -1,5 +1,5 @@
 /*
- *      Procedure Name  :  delete_request
+ *      Procedure Name  :  hkd_deleteRequest
  *      Database/Schema :  helpdesk
  *
  *      Description:
@@ -22,19 +22,20 @@
  *
  *         Date:          Id:         Comment:
  *         2016/02/18     albandes    Original
+ *		   2019/07/22     albandes    Change name
  *
  *
  */
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS `delete_request`$$
+DROP PROCEDURE IF EXISTS `hkd_deleteRequest`$$
 
-CREATE PROCEDURE `delete_request`(
+CREATE PROCEDURE `hkd_deleteRequest`(
 	IN code_ID VARCHAR(20),
 	OUT msg VARCHAR(100)
 )
-delete_request:BEGIN
+hkd_deleteRequest:BEGIN
 
 	DECLARE num_requests INT;
 
@@ -42,7 +43,7 @@ delete_request:BEGIN
 
 	IF ( num_requests = 0 ) THEN
 		SET msg = "Request doesn´t exist !!!" ;
-		LEAVE delete_request ;
+		LEAVE hkd_deleteRequest ;
 	ELSE
 		DELETE FROM hdk_tbrequest_dates WHERE code_request = code_ID ;
 		DELETE FROM hdk_tbevaluation_token WHERE code_request = code_ID ;

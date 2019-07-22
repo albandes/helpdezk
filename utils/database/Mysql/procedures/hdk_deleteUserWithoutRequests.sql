@@ -1,5 +1,5 @@
 /*
- *      Procedure Name  :  delete_user_without_requests
+ *      Procedure Name  :  hkd_deleteUserWithoutRequests
  *      Database/Schema :  helpdesk
  *
  *      Description:
@@ -25,9 +25,9 @@
  */
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS `delete_user_without_requests`$$
+DROP PROCEDURE IF EXISTS `hkd_deleteUserWithoutRequests`$$
 
-CREATE PROCEDURE `delete_user_without_requests`(IN person_ID INT, OUT msg VARCHAR(100))
+CREATE PROCEDURE `hkd_deleteUserWithoutRequests`(IN person_ID INT, OUT msg VARCHAR(100))
 delete_user:BEGIN
 
 	DECLARE num_requests INT;
