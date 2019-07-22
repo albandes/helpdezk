@@ -19,24 +19,6 @@ $apiConfig['db']['pass'] = $config["db_password"];
 $app = new \Slim\App(['settings' => $apiConfig]);
 $container = $app->getContainer();
 
-/**
- **  Return helpdezk version
- **/
-$app->get('/version', function (Request $request, Response $response) use ($app) {
-    $return = $response->withJson(['version' => getHelpdezkVersion()], 200);
-    return $return;
-});
-
-/**
- **  Return helpdezk upload path
- **/
-$app->get('/upload_path', function (Request $request, Response $response) use ($app) {
-    $pathUpload = str_replace('api/src/public','',dirname(__FILE__)) . "app/uploads" ;
-    $return = $response->withJson(['upload_path' => $pathUpload], 200);
-    return $return;
-});
-
-
 $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
     $name = $args['name'];
     
@@ -125,19 +107,5 @@ $container['db'] = function ($c) {
 	}
 	
 };
-
-
-function getHelpdezkVersion()
-{
-    $versionFile = str_replace('api/src/public','',dirname(__FILE__)) . "/version.txt" ;
-    if ($arquivo = fopen($versionFile, "r")) {
-        while (!feof($arquivo)) {
-            return fgets($arquivo, 4096);
-        }
-    } else {
-        return '';
-    }
-
-}
 
 $app->run();
