@@ -19,7 +19,7 @@
   
    Este programa é um software livre; você pode redistribui-lo e/ou 
    modifica-lo dentro dos termos da Licença Pública Geral GNU como 
-   publicada pela Fundação do Software Livre (FSF); na versão 3 da
+   publicada pela Fundação do Software Livre (FSF); na versão 2 da 
    Licença, ou (na sua opinião) qualquer versão.
 
 
@@ -35,8 +35,8 @@
    Livre(FSF) Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
-
-error_reporting(0);
+error_reporting(E_ERROR|E_PARSE);
+ini_set('xdebug.max_nesting_level', 512);
 
 $curr_url = $_GET['url'];
 $curr_url = explode("/", $curr_url);
@@ -44,7 +44,7 @@ $curr_url = explode("/", $curr_url);
 define('CONTROLLERS', 'app/modules/'.$curr_url[0].'/controllers/');
 define('VIEWS', 'app/modules/'.$curr_url[0].'/views/');
 define('MODELS', 'app/modules/'.$curr_url[0].'/models/');
-define('SMARTY', 'includes/Smarty/');
+define('SMARTY', 'includes/smarty/');
 define('FPDF',   'includes/classes/fpdf/');
 
 require_once('system/system.php');
@@ -52,12 +52,18 @@ require_once('system/controller.php');
 require_once('system/model.php');
 require_once('system/common.php');
 
+/*
 function __autoload( $file ){
-    if (strpos($file, "PHPExcel") === false  ) {
-        require_once (MODELS.$file.'.php');
+   if (strpos($file, "PHPExcel") === false  ) {
+        if(file_exists(MODELS.$file.'.php')) {
+            require_once (MODELS.$file.'.php');
+        } else {
+            die ('The model file does not exist: ' . MODELS.$file.'.php' );
+        }
     }
     //require_once (MODELS.$file.'.php'); }
 }
+*/
 
 $system = new System();
 
@@ -78,8 +84,9 @@ if(substr($document_root, -1)!='/'){
 define('DOCUMENT_ROOT',$document_root);
 define('LANGUAGE',$system->getConfig("lang"));
 define('theme',$system->getConfig("theme"));
-define('PATH_ANEXO','');
-
+define('`PATH_ANEXO','');
+// Since April 18, 2017
+define ('HELPDEZK_PATH', realpath(DOCUMENT_ROOT.path)) ;
 
 $system->run();
 
