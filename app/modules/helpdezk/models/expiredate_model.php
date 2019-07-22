@@ -1,5 +1,14 @@
 <?php
-class expiredate_model extends Model{	
+if(class_exists('Model')) {
+    class DynamicRequestExpireDate_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicRequestExpireDate_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicRequestExpireDate_model extends apiModel {}
+}
+
+class expiredate_model extends DynamicRequestExpireDate_model {
+
 	public function getExpireDateService($id){
 		return $this->select("SELECT hours_attendance, days_attendance, ind_hours_minutes FROM hdk_tbcore_service WHERE idservice = $id");
 	}
@@ -54,7 +63,6 @@ class expiredate_model extends Model{
         return $ret->fields['idcustomer'];		
 	}
 	
-	
 	public function getBusinessDays(){
 		$ret = $this->select("SELECT num_day_week, begin_morning, end_morning, begin_afternoon, end_afternoon FROM hdk_tbwork_calendar_new WHERE business_day = 1");
 		if (!$ret) {
@@ -63,6 +71,7 @@ class expiredate_model extends Model{
             return false;
         }
         return $ret;
-	}	
+	}
+
 }
 ?>

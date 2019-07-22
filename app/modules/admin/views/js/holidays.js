@@ -1,424 +1,270 @@
-$(document).ready(function(){
-    
-    $("#flexigrid2").flexigrid({
-        url: 'holidays/json/',  
-        pagestat: aLang['showing'].replace (/\"/g, "")+' {from} '+ aLang['to'].replace (/\"/g, "")+' {to} '+aLang['of'].replace (/\"/g, "")+' {total} '+ aLang['Items'].replace (/\"/g, ""),
-        pagetext: aLang['Page'].replace (/\"/g, ""),
-        outof: aLang['of'].replace (/\"/g, ""),
-        findtext: aLang['Search'].replace (/\"/g, ""),
-        procmsg: aLang['Loading'].replace (/\"/g, ""),
-        nomsg: aLang['Empty'].replace (/\"/g, ""),
-        dataType: 'json',
-        colModel : [
-        {
-            display: aLang['Name'].replace (/\"/g, ""),  
-            name : 'tbh.holiday_description', 
-            width : 250, 
-            sortable : true, 
-            align: 'left'
-        },
+$(document).ready(function () {
 
-        {
-            display: aLang['Date'].replace (/\"/g, ""), 
-            name : 'tbh.holiday_date', 
-            width : 150, 
-            sortable : true, 
-            align: 'left'
-        },
-        {
-            display: aLang['Company'].replace (/\"/g, ""), 
-            name : 'tbp.name', 
-            width : 150, 
-            sortable : true, 
-            align: 'left'
-        }
-        ],
+    countdown.start(timesession);
+    new gnMenu( document.getElementById( 'gn-menu' ) );
 
-        buttons : [		
-        {
-            name: aLang['New'].replace (/\"/g, ""),  
-            bclass: 'add', 
-            onpress: novo
-        },
-        {
-            separator:true
-        },
+    var grid = $("#table_list_holidays");
 
-        {
-            name: aLang['edit'].replace (/\"/g, ""), 
-            bclass: 'edit', 
-            onpress: edit
-        },
-        {
-            separator:true
-        },
-        {
-            name: aLang['Holiday_import'].replace (/\"/g, ""), 
-            bclass: 'calendar', 
-            onpress: importlast
-        },
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['Delete'].replace (/\"/g, ""), 
-            bclass: 'delete', 
-            onpress: encerra
-        }
-        ],
-
-        searchitems : [
-        {
-            display: aLang['Name'].replace (/\"/g, ""),  
-            name : 'HOLIDAY_DESCRIPTION', 
-            isdefault: true
-        }					
-        ],
-        sortname: "tbp.name, tbh.holiday_description",
-        sortorder: "asc",
-        usepager: true,
-        title: ' :: '+aLang['Holiday'].replace(/\"/g, "")+'s',
-        useRp: true,
-        rp: 20,
-        showTableToggleBtn: false,
-        width: 'auto',
-        height: $(window).height()-206,
-        resizable: false,
-        minimizado: false,
-        singleSelect : true
-    });
-    
-    $(document.getElementById('modalHolydayInsert')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnEnviarHolidayInsert'));
-		objDefault.buttonAction($btn,'disabled');
-		$.post('holidays/insert', 
-			$self.serialize()
-		, function(resposta) {
-			if (resposta != false) {			
-				objDefault.notification("success",aLang['Alert_inserted'].replace (/\"/g, ""),"modalHolydayInsert");
-				$("#flexigrid2").flexReload();
-			}
-			else {
-				objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalHolydayInsert");					
-			}
-		}).complete(function(){
-			objDefault.buttonAction($btn,'enabled');
-		});
-	});
-	
-	$(document.getElementById('modalHolydayEdit')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnEnviarHolidayEdit')),
-			date = $(document.getElementById("holiday_date_edit")).val(),
-			id = $(document.getElementById("id_edit")).val(),
-			description = $(document.getElementById("holiday_description_edit")).val(),
-            _token = $(document.getElementById("_token")).val();
-
-		objDefault.buttonAction($btn,'disabled');
-		$.post('holidays/edit',{
-			date: date,
-			description: description,
-			id: id,
-            _token : _token
-		}, function(resposta) {
-			if (resposta != false) {
-				objDefault.notification("success",aLang['Edit_sucess'].replace (/\"/g, ""),"modalHolydayEdit");
-				$("#flexigrid2").flexReload();
-			}
-			else {
-				objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalHolydayEdit");
-			}
-		}).complete(function(){
-			objDefault.buttonAction($btn,'enabled');
-		});
-	});
-
-	$(document.getElementById('modalHolydayImport')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnEnviarHolidayImport')),
-			year2 = $("#nextyear").val(),
-			fromyear = $("#lastyear").val(),
-            idperson = $("#company").val(),
-            _token = $(document.getElementById("_token")).val();
-
-		objDefault.buttonAction($btn,'disabled');
-		$.post('holidays/import', {
-			year2 : year2,
-			fromyear : fromyear,
-            idperson: idperson,
-            _token: _token
-		}, function(resposta) {
-			if (resposta != false) {
-				objDefault.notification("success",aLang['Import_successfull'].replace (/\"/g, ""),"modalHolydayImport");
-				$("#flexigrid2").flexReload();
-			} else {
-				objDefault.notification("error",aLang['Import_failure'].replace (/\"/g, ""),"modalHolydayImport");
-			}
-		}).complete(function(){
-			objDefault.buttonAction($btn,'enabled');
-		});		
-	})
-	
-	$(document.getElementById('modalHolydayDelete')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendHolidayDelete'));
-		$.ajax({
-			type: "POST",
-			url: "holidays/delete",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_deleted_error'].replace (/\"/g, ""),"modalHolydayDelete");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_deleted'].replace (/\"/g, ""),"modalHolydayDelete");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_deleted_error'].replace (/\"/g, ""),"modalHolydayDelete");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});	
-	});
-    
-    
-});//init		 
-
-//
-var objAccount = {
-    changeCompany: function(){
-
-        var $modalFind = $(document.getElementById(objModal.getActive()));
-        $valcompany = this.value ;
-        $comboYear = $modalFind.find("select[name=lastyear]");
-
-        $comboYear.html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
-
-        $.post(path+"/admin/holidays/yearByCompanyCombo",{company: $valcompany},
-            function(ret){
-                $comboYear.html(ret);
-                //return objAccount.changeItem();
-            })
-    },
-    changeYear: function()
+    datePick = function(elem)
     {
-        var year = $("#lastyear").val(),
-            idperson = $("#company").val(),
-            $modal = $(document.getElementById("modalHolydayImport"))
-        $boxResult = $(document.getElementById("boxResult")),
-            $modalFooter = $modal.find(".modalFooter");
-        if(year == 0){
-            $boxResult.addClass('none');
-            $modalFooter.addClass('none');
-            objModal.refreshPosition("modalHolydayImport");
-        }else{
-            $boxResult.addClass('none');
-            $modalFooter.addClass('none');
-            $modal.find(".loader").show();
-            $.getJSON("holidays/load/year/"+year+"/idperson/"+idperson,
-                function(data)
-                {
-                    $modal.find('.txtYear').text(data.year);
-                    $modal.find('.txtCount').text(data.count);
-
-                    $("#listaareas").find("tbody").empty();
-                    $.each(data.result, function(i,result)
-                    {
-                        $("#listaareas").find("tbody")
-                            .append("<tr><td>"+result.date+"</td><td>"+result.name+"</td><td>"+result.type+"</td>");
-                    });
-                    $modal.find(".loader").hide();
-                    $boxResult.removeClass('none');
-                    $modalFooter.removeClass('none');
-                    objModal.refreshPosition("modalHolydayImport");
-                });
-        }
-
-    }
-}
-
-$("#content")
-    .off(".contentloaded")
-    .on("change.contentloaded", "#company", objAccount.changeCompany)
-    .on("change.contentloaded", "#lastyear", objAccount.changeYear)
-    //.on("change.contentloaded", "#cmbItem", objAccount.changeService)
-    .on("change.contentloaded", "#companyEdit", objAccount.changeCompany)
-    //.on("change.contentloaded", "#cmbTypeEdit", objAccount.changeItem)
-    //.on("change.contentloaded", "#cmbItemEdit", objAccount.changeService)
-;
-
-
-function novo(){    
-    if (access[1]=='N'){        	
-    	objModal.openModal("modalPermission");
-    }
-    else{
-    	var modalInsert = $(document.getElementById("modalHolydayInsert"));
-        objDefault.maskLoaderShow();
-        modalInsert.load("holidays/insertmodal", function(){
-        	objDefault.init();
-        	objModal.openModal("modalHolydayInsert");            	
-        	$("#formHolidayInsert").validate({
-        		wrapper: "li class='error'",            		
-        		errorPlacement: function(error, element) {
-					error.appendTo(element.parent().parent());
-				},
-			  	rules: {
-			  		holiday_description: {
-			  			required: true
-			  		},
-			    	holiday_date: {
-			      		required: true,
-			      		hdDate: true
-			    	}
-			 	}
-			});
-        	objDefault.maskLoaderHide();
-        })
-    }
-}
-
-function somapar(com2){
-    $('#flexigrid2').flexOptions({
-        newp:1, 
-        params:[{
-            name:'COD_STATUS', 
-            value: com2
-        }]
+        $(elem).datepicker({
+            format: "dd/mm/yyyy",
+            language: "pt-BR",
+            autoclose: true
         });
-    refresh2();
-}	
-	
-function refresh(){
-    $('#flexigrid2').flexReload();
-}	
-    
-function encerra(com, grid){
-    if (access[3]=='N'){
-            objModal.openModal("modalPermission");
+
+        $(elem).mask('00/00/0000');
+
+    };
+
+    grid.jqGrid({
+        url: path+"/admin/holidays/jsonGrid",
+        datatype: "json",
+        mtype: 'POST',
+        sortname: 'holiday_date', //initially sorted on code_request
+        sortorder: "asc",
+        height: 450,
+        autowidth: true,
+        shrinkToFit: true,
+        rowNum: 10,
+        rowList: [10, 20, 25, 30, 50],
+        colNames:['',aLang['Name'].replace (/\"/g, ""),aLang['Date'].replace (/\"/g, ""), aLang['Company'].replace (/\"/g, "")],
+        colModel:[
+            {name:'id',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
+            {name:'holiday_description',index:'holiday_description', editable: true, width:150, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'holiday_date',index:'holiday_date', width:10, align:"center", sortable: true, editable: false, width:25, sorttype:"date", formatter:"date",formatoptions: { srcformat: 'ISO8601Short', newformat: 'd/m/Y'}, searchoptions: {dataInit:datePick}, searchrules:{required:true,date:true}},
+            {name:'company',index:'tbp.name', editable: true, width:25, search:false, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} }
+
+        ],
+        pager: "#pager_list_holidays",
+        viewrecords: true,
+        caption: ' :: '+aLang['Holiday'].replace(/\"/g, "")+'s',
+        hidegrid: false,
+        toppager:false,
+        //jqModal: false,
+        //modal: true,
+        ondblClickRow: function(rowId) {
+            var idholiday = grid.jqGrid('getCell', rowId, 'id');
+            location.href = path + "/admin/holidays/formUpdateHolidays/idholiday/" + idholiday ;
+        },
+        onSelectRow: function(rowId) {
+            var myCellData = grid.jqGrid('getCell', rowId, 'id');
+            var myCellStatus = grid.jqGrid('getCell', rowId, 'status');
+
+            $('#btnEnable').removeClass('disabled').addClass('active');
+            $('#btnDisable').removeClass('disabled').addClass('active');
+            if (myCellStatus == 'A')
+                $('#btnEnable').removeClass('active').addClass('disabled');
+            else
+                $('#btnDisable').removeClass('active').addClass('disabled');
+        },
+        loadError : function(xhr,st,err) {
+            grid.html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText);
+        },
+        jsonReader : {
+            repeatitems: false,
+            id: "id"   // row ID
         }
-        else{
-    if($('.trSelected',grid).length>0){
-        if(confirm(aLang['Delete'].replace (/\"/g, "") +" "+ $('.trSelected',grid).length +" "+ aLang['Items'].replace (/\"/g, "")+'?')){
-            var items = $('.trSelected',grid);
-            var itemlist ='';
-            for(i=0;i<items.length;i++){
-                itemlist+= items[i].id.substr(3)+",";
+
+    });
+
+    // First time, show tBeing attended Tickets, then need to set the label
+    grid.jqGrid('setCaption', ' :: '+aLang['Holiday'].replace(/\"/g, "")+'s');
+
+    // Setup buttons
+    grid.navGrid('#pager_list_holidays',{edit:false,add:false,del:false,search:true,searchtext: makeSmartyLabel('Search'),refreshtext: makeSmartyLabel('Grid_reload'),cloneToTop: true});
+
+
+    // remove some double elements from one place which we not need double
+    var topPagerDiv = $('#' + grid[0].id + '_toppager')[0];         // "#list_toppager"
+    $("#search_" + grid[0].id + "_top", topPagerDiv).remove();      // "#search_list_top"
+    $("#refresh_" + grid[0].id + "_top", topPagerDiv).remove();     // "#refresh_list_top"
+    $("#" + grid[0].id + "_toppager_center", topPagerDiv).remove(); // "#list_toppager_center"
+    //$(".ui-paging-info", topPagerDiv).remove();
+
+    /**
+     ** Increase _toppager_left
+     ** https://stackoverflow.com/questions/29041956/how-to-place-pager-to-end-of-top-of-toolbar-in-free-jqgrid
+     **/
+    $(grid['selector']+"_toppager_left").attr("colspan", "4");
+
+    // Add responsive to jqGrid
+    $(window).bind('resize', function () {
+        var width = $('.jqGrid_wrapper').width();
+        grid.setGridWidth(width);
+    });
+
+
+    // Buttons
+    $("#btnCreate").click(function(){
+        location.href = path + "/admin/holidays/formCreateHolidays" ;
+    });
+
+    $("#btnUpdate").click(function(){
+        var myGrid = $('#table_list_holidays'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idholiday = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        if (!idholiday) {
+            $("#btn-modal-ok").attr("href", '');
+            $('#modal-notification').html(aLang['Alert_select_one'].replace (/\"/g, ""));
+            $("#tipo-alert").attr('class', 'warning alert-warning');
+            $('#modal-alert').modal('show');
+        } else {
+            location.href = path + "/admin/holidays/formUpdateHolidays/idholiday/" + idholiday ;
+        }
+    });
+
+    $("#btnImport").click(function(){
+        location.href = path + "/admin/holidays/formImportHolidays" ;
+
+    });
+
+    $("#btnSendImport").click(function(){
+        
+        $.ajax({
+            type: "POST",
+            url: path + '/admin/holidays/importHolidays',
+            dataType: 'json',
+            data: $("#import-form").serialize(),
+
+            error: function (ret) {
+                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel alterar !','alert-motivo');
+            },
+            success: function(ret){
+
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                if(obj.status == 'OK' ) {
+                    //console.log("sdafdsfsda");
+                    modalAlertMultiple('success',aLang['Alert_deleted'].replace (/\"/g, ""),'alert-motivo');
+                    setTimeout(function(){
+                        $('#modal-form-import').modal('hide');
+                        $('#import-form').trigger('reset');
+                        grid.trigger('reloadGrid');
+                    },2000);
+
+
+                } else {
+                    modalAlertMultiple('danger','N&atilde;o foi cancelar o pedido !','alert-motivo');
+                }
+
             }
+
+        });
+
+    });
+
+    $("#btnDelete").click(function(){
+        var myGrid = $('#table_list_holidays'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idHoliday = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        //console.log(idstatus);
+
+        if (!idHoliday) {
+            $("#btn-modal-ok").attr("href", '');
+            $('#modal-notification').html(aLang['Alert_select_one'].replace (/\"/g, ""));
+            $("#tipo-alert").attr('class', 'alert alert-danger');
+            $('#modal-alert').modal('show');
+        } else {
             $.ajax({
                 type: "POST",
-                dataType: "json",
-                url: "holidays/delete",
-                data: "items="+itemlist,
-                success: function(data){
-                    //alert("Query: "+data.query+" - Total affected rows: "+data.total);
-                    alert(aLang['Alert_deleted'].replace (/\"/g, ""));
-                    $("#flexigrid2").flexReload();
+                url: path + '/admin/holidays/modalDeleteHoliday',
+                dataType: 'json',
+                data: {idholiday: idHoliday},
+                error: function (ret) {
+                    modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel inserir !','alert-create-pedidocompra');
+                },
+                success: function(ret){
+
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                    $('#_token').val(obj.token);
+                    $('#idholiday').val(obj.idholiday);
+
+                    $('#modal-form-delete').modal('show');
                 }
             });
         }
-    } else {
-        return false;
-    }
-        }
-}
 
 
-function edit(com,grid){
-    if (access[2]=='N'){
-            objModal.openModal("modalPermission");
-        }
-    else{
-	    if($('.trSelected',grid).length>0){
-            var items = $('.trSelected',grid);
-            var itemlist ='';
-            for(i=0;i<items.length;i++){
-                itemlist+= items[i].id.substr(3);
+
+    });
+
+    $("#btnSendDelete").click(function(){
+        
+        $.ajax({
+            type: "POST",
+            url: path + '/admin/holidays/deleteHoliday',
+            dataType: 'json',
+            data: $("#delete-form").serialize(),
+
+            error: function (ret) {
+                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel alterar !','alert-motivo');
+            },
+            success: function(ret){
+
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                if(obj.status == 'OK' ) {
+                    //console.log("sdafdsfsda");
+                    modalAlertMultiple('success',aLang['Alert_deleted'].replace (/\"/g, ""),'alert-motivo');
+                    setTimeout(function(){
+                        $('#modal-form-delete').modal('hide');
+                        $('#delete-form').trigger('reset');
+                        grid.trigger('reloadGrid');
+                    },2000);
+
+
+                } else {
+                    modalAlertMultiple('danger','N&atilde;o foi cancelar o pedido !','alert-motivo');
+                }
+
             }
-            var modalEdit = $(document.getElementById("modalHolydayEdit"));
-            objDefault.maskLoaderShow();
-            modalEdit.load("holidays/editmodal/id/"+itemlist, function(){
-            	objDefault.init();
-            	objModal.openModal("modalHolydayEdit");
-            	$("#formHolidayEdit").validate({
-            		wrapper: "li class='error'",            		
-            		errorPlacement: function(error, element) {
-						error.appendTo(element.parent().parent());
-					},
-				  	rules: {
-				  		holiday_description: {
-				  			required: true
-				  		},
-				    	holiday_date: {
-				      		required: true,
-				      		hdDate: true
-				    	}
-				 	}
-				});
-            	objDefault.maskLoaderHide();
-            })
-	    }
-	    else{	    	
-	    	objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-	    }
-    }
+
+        });
+
+    });
+
+
+
+});
+function postStatus(idProduto,newStatus)
+{
+    $.ajax({
+        type: "POST",
+        url: path + '/scm/scmProduto/statusProduto/idproduto/' + idProduto,
+        dataType: 'json',
+        data: {
+            newstatus: newStatus
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-produto');
+
+        },
+        success: function(ret){
+            console.log(ret);
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            if(obj.status == 'OK' ) {
+                console.log(ret);
+                var idproduto = obj.idproduto;
+                $('#modal-notification').html('Produto atualizado com sucesso');
+                $("#btn-modal-ok").attr("href", path + '/scm/scmProduto/index');
+                $("#tipo_alerta").attr('class', 'alert alert-success');
+                $('#modal-alert').modal('show');
+            } else {
+                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-produto');
+            }
+        }
+
+    });
+
+    return false;
 }
 
-function importlast(com,grid){
-    if (access[4]=='N'){
-            objModal.openModal("modalPermission");
-        }
-        else{
-        	var modalImport = $(document.getElementById("modalHolydayImport"));
-            objDefault.maskLoaderShow();
-            modalImport.load("holidays/importmodal", function(){
-            	objDefault.init();
-            	objModal.openModal("modalHolydayImport");
-            	$("#formHolidayImport").validate({
-            		wrapper: "li class='error'",            		
-            		errorPlacement: function(error, element) {
-						error.appendTo(element.parent().parent());
-					},
-				  	rules: {
-				    	nextyear: {
-				      		required: true,
-				      		notEqualTo:'#lastyear'
-				    	}
-				 	}
-				});
-            	objDefault.maskLoaderHide();
-            })
-        }
+function fontColorFormat(cellvalue, options, rowObject) {
+    var color = "blue";
+    var cellHtml = "<span style='color:" + color + "' originalValue='" + cellvalue + "'>" + cellvalue + "</span>";
+    return cellHtml;
 }
-
-function encerra(com, grid){
-    if (access[3]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-           
-        	var items = $('.trSelected'),
-        		id = items[0].id.substr(3),
-            	modalDelete = $(document.getElementById("modalHolydayDelete"));
-			objDefault.maskLoaderShow();
-			modalDelete.load("holidays/deletemodal/id/"+id, function(){
-				objModal.openModal("modalHolydayDelete");
-				objDefault.maskLoaderHide();
-			});
-        }
-        else{
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-        }
-    }
-}
-

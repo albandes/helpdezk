@@ -1,9 +1,23 @@
 <?php
 class warning_model extends Model{
-    	
+
+	/**
+	 * Returns recordset of warnings
+	 *
+	 * @param  string   $where   Sql where
+	 * @param  string   $order   Sql order
+	 * @param  string   $limit   Sql limit
+	 * @return object   Returns a recordset with helpdezk warnings
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 *
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 */
 	public function selectWarning($where = NULL, $order = NULL, $limit = NULL){
         $database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
+		// strpos($database, 'mysql') !== false
+		if ($this->isMysql($database)) {
 			$ret = $this->select("SELECT
 									  a.idmessage,
 									  b.idtopic,
@@ -70,17 +84,13 @@ class warning_model extends Model{
 
 			$ret = $this->db->Execute($query);
 		}
-
-
-        
 										
 		if (!$ret) {
-            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<br>Query: " . $query;
             $this->error($sError);
         }
         return $ret;
-    }
-	
+    }	
 		
     public function insertTopic($data){
         $query = "INSERT into bbd_topic (title, default_display, fl_emailsent) values ('".$data['title']."' , '".$data['default_display']."' , '".$data['fl_emailsent']."')";
@@ -111,8 +121,6 @@ class warning_model extends Model{
         else{
             return $this->insert("bbd_tbmessage",$data);
         }
-
-
 
 	}
 	
@@ -161,6 +169,148 @@ class warning_model extends Model{
 	
 	public function InsertID() {
         return $this->db->Insert_ID();
+    }
+
+    public function getTotalWarning($where = null)
+    {
+
+        $query =   "  SELECT
+                              COUNT(a.idmessage) as total
+                        FROM bbd_tbmessage a, bbd_topic b
+                       WHERE a.idtopic = b.idtopic 
+                      $where";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret->fields['total'];
+
+    }
+
+    public function getTopic($where = null, $order = null , $group = null , $limit = null )
+    {
+
+        $query =    "
+                    SELECT
+                      idtopic,
+                      title,
+                      default_display,
+                      fl_emailsent
+                    FROM bbd_topic
+                    $where $order $group $limit
+                    ";
+        $ret = $this->db->Execute($query);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret;
+    }
+
+    public function getGroups($where = null, $order = null , $group = null , $limit = null )
+    {
+
+        $query =    "
+                    SELECT
+                           tbg.idgroup,
+                           tbp.name ,
+                           tbg.idperson,
+                           tbg.level as lvl,
+                           tbg.status,
+                           tbp2.name   as company
+                      FROM hdk_tbgroup tbg,
+                           tbperson tbp,
+                           tbperson tbp2
+                     WHERE tbg.idperson = tbp.idperson
+                       AND tbp2.idperson = tbg.idcustomer
+                    $where $order $group $limit
+                    ";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret;
+    }
+
+    public function getTotalTopic($where = null)
+    {
+
+        $query =   "SELECT
+                              COUNT(idtopic) as total
+                      FROM bbd_topic 
+                      $where";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret->fields['total'];
+
+    }
+
+    public function getTopicGroups($idtopic,$idgroup)
+    {
+
+        $query =    "
+                    SELECT
+                           idtopicgroup
+                      FROM bbd_topic_group
+                     WHERE idtopic = $idtopic
+                       AND idgroup = $idgroup
+                    ";
+        $ret = $this->db->Execute($query);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret;
+    }
+
+    public function getTopicCorporations($idtopic,$idcompany)
+    {
+
+        $query =    "
+                    SELECT
+                           idtopiccompany
+                      FROM bbd_topic_company
+                     WHERE idtopic = $idtopic
+                       AND idcompany = $idcompany
+                    ";
+        $ret = $this->db->Execute($query);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret;
+    }
+
+    public function getCountTopicGroup($idtopic)
+    {
+
+        $query =    "
+                    SELECT COUNT(idtopicgroup) as total FROM bbd_topic_group
+                     WHERE idtopic = $idtopic
+                    ";
+        $ret = $this->db->Execute($query);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret->fields['total'];
+    }
+
+    public function getCountTopicCorp($idtopic)
+    {
+
+        $query =    "
+                    SELECT COUNT(idtopiccompany) as total FROM bbd_topic_company
+                     WHERE idtopic = $idtopic
+                    ";
+        $ret = $this->db->Execute($query);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query );
+        else
+            return $ret->fields['total'];
     }
   
   

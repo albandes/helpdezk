@@ -1,51 +1,67 @@
 <?php
 
-class Login extends Controllers {
+require_once(HELPDEZK_PATH . '/app/modules/admin/controllers/admCommonController.php');
+
+class Login extends admCommon {
+    protected $dbIndex, $dbConfig;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->program  = basename( __FILE__ );
+
+        $this->loadModel('index_model');
+        $dbIndex = new index_model();
+        $this->dbIndex = $dbIndex ;
+
+        $this->loadModel('features_model');
+        $dbConfig = new features_model();
+        $this->dbConfig = $dbConfig;
+    }
+
 
     public function index() {
+
         session_start();
         session_unset();
         session_destroy();
-        
+
         $smarty = $this->retornaSmarty();
+
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
-            if (!function_exists('mysql_connect')) die("MYSQL functions are not available !!!");
+        if ($this->isMysql($database) ) {
+            // mysql_connect is deprecated as of PHP 5.5 and was removed in PHP 7
+            if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION >= 5.5) {
+                if (!function_exists('mysqli_connect')) die("MYSQL functions are not available !!!");
+            } else {
+                if (!function_exists('mysql_connect')) die("MYSQL functions are not available !!!");
+            }
         } elseif ($database == 'oci8po') {
             if (!function_exists('oci_connect')) die("ORACLE functions are not available !!!");
         }
 
+        $this->loadModel('logos_model');
         $db = new logos_model();
 
-        $loginlogo = $db->getLoginLogo();
-        $smarty->assign('loginlogo', $loginlogo->fields['file_name']);
-        $smarty->assign('height', $loginlogo->fields['height']);
-        $smarty->assign('width', $loginlogo->fields['width']);
-        $smarty->assign('erro', 'login_errado');
-        //$smarty->config_load(PATH . '/lang/' . $dir . '/lang.conf', $idioma);
-        $smarty->assign('bgcolor1', '#00CCFF');
-        $smarty->assign('bgcolor2', '#FF9900');
-        $smarty->assign('versao', 'Parracho');
-        $smarty->assign('Company_name', 'Sistema Helpdezk - Pipegrep ');
-        $smarty->assign('release', '1.0');
-        $smarty->assign('proj', 'login');
-        $smarty->assign('ip', getenv("REMOTE_ADDR"));
-		
-		$smarty->assign('lang_default', $this->getConfig('lang'));
-		$smarty->assign('path', path);
-		$smarty->assign('hdk_url', $this->getConfig('hdk_url'));
-		
-        //le o arquivo de versao para printar na tela de login
-        $csvFile = DOCUMENT_ROOT . path . "/version.txt";
-        if ($arquivo = fopen($csvFile, "r")) {
-            while (!feof($arquivo)) {
-                $i++;
-                $version = fgets($arquivo, 4096);
-            }
-            $smarty->assign('version', $version);
-        } else {
-            $smarty->assign('version', '');
-        }
+        $rsLogo = $db->getLoginLogo();
+
+        $smarty->assign('loginlogo', $this->getLoginLogoImage());
+        $smarty->assign('height',    $this->getLoginLogoHeight());
+        $smarty->assign('width',     $this->getLoginLogoWidth());
+
+        $smarty->assign('path',      path);
+        $smarty->assign('lang_default', $this->getConfig('lang'));
+        $smarty->assign('hdk_url', $this->getConfig('hdk_url'));
+        $smarty->assign('theme', $this->getTheme());
+        $smarty->assign('jquery_version', $this->jquery);
+
+        // Log Directory
+        if (!file_exists($this->helpdezkPath.'/logs'))
+            mkdir($this->helpdezkPath.'/logs', 0777, true) ;
+
+        $smarty->assign('version', $this->helpdezkName);
+
 		if($enterprise) {
 			$smarty->assign('site', 'HelpDEZK.com.br');
 			$smarty->assign('urlsite', 'http://www.helpdezk.com.br');
@@ -53,22 +69,25 @@ class Login extends Controllers {
 			$smarty->assign('site', 'HelpDEZK.org');
 			$smarty->assign('urlsite', 'http://helpdezk.org');		
 		}
-		
-		$bdw = new warning_model();
-		$database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
+
+        $this->loadModel('warning_model');
+		$dbWarning = new warning_model();
+
+        $database = $this->getConfig('db_connect');
+
+        if ($this->isMysql($database)) {
 			$and = "AND (a.dtend > NOW() AND a.dtstart <= NOW() OR a.dtend = '0000-00-00 00:00:00') AND a.showin IN (2,3)" ;
 		} elseif ($database == 'oci8po') {
 			$and = "AND (a.dtend > SYSDATE AND a.dtstart <= SYSDATE OR a.dtend IS NULL) AND a.showin IN (2,3)" ;
 		}
-        $rsWarning = $bdw->selectWarning($and,"ORDER BY dtstart ASC");
+
+        $rsWarning = $dbWarning->selectWarning($and,"ORDER BY dtstart ASC");
 
 		$i = 0;
-		//print_r($rsWarning->fields) ;
-		
+
 		while (!$rsWarning->EOF) {
-			$warning[$i]['idmessage'] = $rsWarning->fields['idmessage'];
-			$warning[$i]['title_topic'] = $rsWarning->fields['title_topic'];
+			$warning[$i]['idmessage']    = $rsWarning->fields['idmessage'];
+			$warning[$i]['title_topic']   = $rsWarning->fields['title_topic'];
 			$warning[$i]['title_warning'] = $rsWarning->fields['title_warning'];
 			$i++;
             $rsWarning->MoveNext();	 	
@@ -76,15 +95,71 @@ class Login extends Controllers {
 		
 		$smarty->assign('warning', $warning);
         $smarty->assign('license', $this->getConfig("license"));
-		
-        //$smarty->display('login.tpl.html');
-		$smarty->display('loginv2.tpl.html');
-        //$this->view('login.tpl.html');
+
+
+		$smarty->display('login_two_columns.tpl.html');
+
     }
 
-	public function getWarningInfo(){
+    public function getWarning()
+    {
+
+        $id = $this->getParam('id');
+
+        $this->loadModel('warning_model');
+        $dbWarning = new warning_model();
+
+        $rsWarning = $dbWarning->selectWarning("AND a.idmessage = $id");
+        $database = $this->getConfig('db_connect');
+
+        //$smarty->assign('title_topic', $rsWarning->fields['title_topic']);
+        //$smarty->assign('title_warning', $rsWarning->fields['title_warning']);
+        //$smarty->assign('description', $rsWarning->fields['description']);
+
+
+        if ($this->isMysql($database)) {
+            $datestart =  $this->formatDate($rsWarning->fields['dtstart']);
+
+            $timestart = $this->formatHour($rsWarning->fields['dtstart']);
+
+        } elseif ($database == 'oci8po') {
+            $datestart = $rsWarning->fields['dtstart'];
+            $timestart = '';
+        }
+
+        if($rsWarning->fields['dtend'] == "0000-00-00 00:00:00" || empty($rsWarning->fields['dtend'])){
+            $until = true;
+
+        }else{
+            if ($this->isMysql($database)) {
+                $dateend = $this->formatDate($rsWarning->fields['dtend']);
+                $timeend = $this->formatHour($rsWarning->fields['dtend']);
+            } elseif ($database == 'oci8po') {
+                $dateend = $rsWarning->fields['dtend'];
+                $timeend = '';
+            }
+
+        }
+
+        $validMessage = $this->getLanguageWord('Valid') . ': ' . $datestart . ' ' . $timestart . ' ';
+        if ($until) {
+            $validMessage .=  $this->getLanguageWord('until_closed') ;
+        } else {
+            $validMessage .= $this->getLanguageWord('until') . ' ' .$dateend . ' ' . $timeend;
+        }
+
+        $arrJson[] = array("title_topic"    => $rsWarning->fields['title_topic'],
+                           "title_warning"  => $rsWarning->fields['title_warning'],
+                           "description"    => $rsWarning->fields['description'],
+                           "valid_msg"      => $validMessage);
+
+        echo json_encode($arrJson);
+    }
+
+    public function getWarningInfo(){
 		$smarty = $this->retornaSmarty();
 		$id = $this->getParam('id');
+        $this->loadModel('warning_model');
 		$bdw = new warning_model();
         $rsWarning = $bdw->selectWarning("AND a.idmessage = $id");
 		$database = $this->getConfig('db_connect');
@@ -125,19 +200,23 @@ class Login extends Controllers {
     public function auth() {
 
         $smarty = $this->retornaSmarty();
-        $langVars = $smarty->get_config_vars();		
-		include 'includes/classes/ProtectSql/ProtectSql.php';
-		$ProtectSql = new sqlinj;
+
+        $langVars = $this->getLangVars($smarty);
+
+
+		$ProtectSql = $this->returnProtectSql();
 		$ProtectSql->start("aio","all");
 
-        $F_LOGIN = $_POST['F_LOGIN'];		
-        $F_SENHA_MD5 = md5($_POST['F_SENHA']);
-        
-        $bd = new index_model();
+        $frm_login = $_POST['login'];
+        $frm_password = $_POST['password'];
+        $passwordMd5 = md5($_POST['password']);
+        $form_token = $_POST['token'];
+
+        $this->loadModel('person_model');
         $dbPerson = new person_model();
 
-        $logintype = $bd->getTypeLogin($F_LOGIN);
-		$logintype = $logintype->fields['idtypelogin'];
+        $rsLogintype = $this->dbIndex->getTypeLogin($login);
+		$logintype = $rsLogintype->fields['idtypelogin'];
 
 		if(!$logintype){
             $license =  $this->getConfig("license");
@@ -164,7 +243,7 @@ class Login extends Controllers {
                 $logintype = 4 ; // Need in the first access
                 $iddepartment =  '72' ;
 
-                $idNewPerson = $dbPerson->insertPerson('4','2','1','1',$F_LOGIN,$F_LOGIN,$dtcreate,'A','N','','','',$F_LOGIN);
+                $idNewPerson = $dbPerson->insertPerson('4','2','1','1',$login,$login,$dtcreate,'A','N','','','',$login);
                 if (!$idNewPerson) {
                     $error = true ;
                 }
@@ -200,64 +279,25 @@ class Login extends Controllers {
 
         switch ($logintype) {
             case '4': // Request
-                $idperson = $bd->getIdPerson($F_LOGIN);
 
-                if($idperson)
-                {
-                    if ($bd->getRequestsByPerson($idperson) == 0) {
-                        $login = true ;
-                    } else {
-                        if($bd->checkPersonRequest($idperson,$_POST['F_SENHA']) == 1) {
-                            $login =true ;
-                        } else {
-                            $login = false ;
-                        }
-                    }
-                }
-                else
-                {
-                    $login = false ;
-                }
-
+                $login = $this->requestAuth($frm_login,$frm_password);
+                $idperson = $this->dbIndex->getIdPerson($frm_login);
                 break;
 
             case '3': // HelpDEZk   
 
-                $idperson = $bd->selectDataLogin($F_LOGIN, $F_SENHA_MD5);
-                if ($idperson) {
-                    $login = true;
-                } else {
-                    $login = false ;
-                }
-				
+                $login = $this->helpdezkAuth($frm_login,$passwordMd5);
+                $idperson = $this->dbIndex->selectDataLogin($frm_login, $passwordMd5);
                 break;
 
             case '1': // Pop/Imap Server
-                $bd_cfg = new features_model();
-                $popconfigs = $bd_cfg->getPopConfigs();
-
-                $host = $popconfigs['POP_HOST'];
-                $port = $popconfigs['POP_PORT'];
-                $type = $popconfigs['POP_TYPE'];
-                $domain = $popconfigs['POP_DOMAIN'];
-                if(!empty($domain)) $domain = '@'.$domain;
-                
-                if ($type == 'POP'){
-                    $hostname = '{' . $host . ':'.$port.'/pop3}INBOX' ;
-                } elseif ($type == 'GMAIL') {
-					$hostname = '{imap.gmail.com:'.$port.'/imap/ssl/novalidate-cert}INBOX';
-                }
-                //function_exists()
-
-                /* try to connect */
-                $mbox = imap_open($hostname,$_POST['F_LOGIN'].$domain,$_POST['F_SENHA']) ;
-                if($mbox) {
-                    $idperson = $bd->getIdPerson($F_LOGIN);
-                    imap_close($mbox);
-                    $login = true;
-                } else {
+                if (!function_exists('imap_open')) {
                     $login = false ;
-                }                
+                    $msg = "IMAP functions are not available!!!";
+                    break;
+                }
+                $login = $this->imapAuth($frm_login,$frm_password);
+                $idperson = $this->dbIndex->getIdPerson($frm_login);
                 break;
 
             case '2': // AD/LDAP				
@@ -265,78 +305,15 @@ class Login extends Controllers {
 					$login = false ;
 					$msg = "LDAP functions are not available!!!";
 					break;
-				}				
-                $bd_cfg = new features_model();
-                $ldapconfigs = $bd_cfg->getArrayConfigs(13);
-				
-				$type 	= $ldapconfigs['SES_LDAP_AD']; //1 LDAP / 2 AD
-                $server = $ldapconfigs['SES_LDAP_SERVER'];
-                $dn     = $ldapconfigs['SES_LDAP_DN'];
-				$domain = $ldapconfigs['SES_LDAP_DOMAIN'];
-				$object = $ldapconfigs['SES_LDAP_FIELD'];
-					
-				//$server ="ldap.testathon.net";
-				//$user   = "carol";
-				//$senha  = "carol";
-				//$dn     = "OU=users,DC=testathon,DC=net";
-				
-				// =================
-				
-				$dn  = $object."=".$_POST['F_LOGIN'].",$dn";
-				
-				$userdomain = $_POST['F_LOGIN']."@".$domain;
-				//$AD = @ldap_connect($server) ;
-				
-				
-				if (!($AD = @ldap_connect($server))) {
-					$msg = "Can't connecto to LDAP server !";
-					$login = false;
 				}
-				
-				
-				ldap_set_option($AD, LDAP_OPT_PROTOCOL_VERSION, 3);
-				ldap_set_option($AD, LDAP_OPT_REFERRALS, 0);
-				
-				/**
-				 ** The only way to test the connection is to actually call ldap_bind( $ds, $username, $password ). 
-				 ** But if that fails, is it because you have the wrong username/password or is it because the connection is down? 
-				 ** As far as I can see there isn't any way to tell. 
-				 **/
-				
-				$ret =  $this->LdapValidate($AD, $dn, $_POST['F_SENHA'], $userdomain, $type) ;
-				
-				/*
-				 * Search for user informations in ldap
-				 * 
-				$busca = ldap_search($AD, $dn , "(".$object."=".$_POST['F_LOGIN'].")");
-				$result = ldap_get_entries($AD, $busca);				
-				for ($item = 0; $item < $result['count']; $item++){
-					for ($attribute = 0; $attribute < $result[$item]['count']; $attribute++){
-				  		$data = $result[$item][$attribute];
-						echo $data. ": ".$result[$item][$data][0]."<br>";
-					}
-				}
-				*/
-				
-				if ( $ret != '0') {
-					$msg = $ret ;
-					$login = false;
-				} else {
-					$idperson = $bd->getIdPerson($F_LOGIN);
-					$login = true;
-				}				
+
+                $login = $this->ldapAuth($frm_login,$frm_password);
+                $idperson = $this->dbIndex->getIdPerson($login);
                 break;
         }
 
         if ($login) {
-            /*
-            $type = $bd->selectTypePerson($idperson);
-            if(!$type){
-                die("#".__LINE__);
-                return false;
-            }
-			$idtypeperson = ($type->fields['idtypeperson']) ;
-            */
+
             $idtypeperson =  $dbPerson->getIdTypePerson($idperson);
 
             /*
@@ -346,11 +323,11 @@ class Login extends Controllers {
              *
              */
 
-            $google2fa = $bd->getConfigValue('SES_GOOGLE_2FA');
-            // Mario Quintana
-            if (empty($google2fa)) { // if don't exists in hdk_tbconfig [old versions before 1.02]
+            $google2fa = $this->dbIndex->getConfigValue('SES_GOOGLE_2FA');
+
+            if (empty($google2fa))  // if don't exists in hdk_tbconfig [old versions before 1.02]
                 $google2fa = 0 ;
-            }
+
             /*
              *
              */
@@ -358,7 +335,7 @@ class Login extends Controllers {
                 if ($idperson != 1)
                 {
                     if($this->getConfig("license") == '200701006') {
-                        $iddepartment = $bd->getIdPersonDepartment($F_LOGIN) ; //die('id: ' . $iddepartment) ;
+                        $iddepartment = $this->dbIndex->getIdPersonDepartment($frm_login) ; //die('id: ' . $iddepartment) ;
                         //$typePerson   = $dbPerson->getIdTypePerson($idperson) ;
                         if($iddepartment == '314') {
                             $makeSecret = true;
@@ -377,9 +354,6 @@ class Login extends Controllers {
                     $makeSecret = false ;
                 }
 
-                //var_dump($makeSecret);
-                //die('aqui: ' . $iddepartment);
-
                 if ($makeSecret)
                 {
                     if ((include 'includes/classes/GoogleAuthenticator/GoogleAuthenticator.php') == false) {
@@ -388,19 +362,13 @@ class Login extends Controllers {
 
                     $ga = new PHPGangsta_GoogleAuthenticator();
 
-                    $oneCode = $_POST['F_SECRET'] ;
+                    $oneCode = $form_token ;
                     $token = $dbPerson->getPersonSecret($idperson) ;
 
-                     //die(__LINE__ . ": ". $token) ;
-                    if ($token)
-                    {
-
-
+                    if ($token) {
                         $checkResult = $ga->verifyCode($token, $oneCode, 2);
-                        //die(__LINE__ . ": " . $checkResult);
 
                         if(!$checkResult){
-                            //die(__LINE__ . ": " . $token);
                             $success = array(
                                 "success" => 0,
                                 "msg"     => html_entity_decode($langVars['Login_error_secret'],ENT_COMPAT, 'UTF-8')
@@ -408,7 +376,6 @@ class Login extends Controllers {
                             echo json_encode($success);
                             return;
                         }
-                        //die(__LINE__ . ": " . $token);
                     }
                     else
                     {
@@ -441,12 +408,20 @@ class Login extends Controllers {
 						echo json_encode($maintenance);
 						return;
                     }else{
-                        $success = array(
-										"success" => 1,
-										"redirect" => path . "/helpdezk/user"
-									);
+                        /*
+                        $success = array( "success" => 1,
+										  "redirect" => path . "/helpdezk/home/index/2"	);
 						echo json_encode($success);
-						return;
+                        */
+                        //$redirect = path . "/" . $this->getConfig('module_default') . "/home/index" ;
+
+                        $redirect = path . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
+
+                        $success = array( "success" => 1,
+                                          "redirect" => $redirect	);
+                        echo json_encode($success);
+
+                        return;
                     }
                     break;
 
@@ -462,8 +437,10 @@ class Login extends Controllers {
 					}else{
 						$success = array(
 										"success" => 1,
-										"redirect" => path . "/helpdezk/operator"
+										"redirect" => path . "/helpdezk/home/index"
+                                        //"redirect" => path . "/scm/home/index"
 									);
+
 						echo json_encode($success);
 						return;
 					}
@@ -504,14 +481,12 @@ class Login extends Controllers {
             }
         } else {
 			if ($logintype == 1 or $logintype == 3 or $logintype == 4) { // Pop, HD  ou REQUEST login
-				$rs = $bd->checkUser($F_LOGIN);
+				$rs = $this->dbIndex->checkUser($login);
 				if($rs == "A") $msg = $langVars['Login_error_error'];
 				elseif($rs == "I") $msg = $langVars['Login_user_inactive'];
 			}
-			$success = array(
-								"success" => 0,
-								"msg" => $msg
-							);
+			$success = array("success" => 0,
+							 "msg" => $msg );
 			echo json_encode($success);
 			return;
         }        
@@ -519,7 +494,8 @@ class Login extends Controllers {
 
     public function startSession($idperson)
     {
-    session_start();
+        
+        session_start();
         $_SESSION['SES_COD_USUARIO'] = $idperson;
         $_SESSION['REFRESH'] = false;
 
@@ -527,42 +503,61 @@ class Login extends Controllers {
         $_SESSION['SES_LICENSE'] = $this->getConfig('license');
         $_SESSION['SES_ENTERPRISE'] = $this->getConfig('enterprise');
         
-        $bd = new index_model();
+        $_SESSION['SES_ADM_MODULE_DEFAULT'] = $this->pathModuleDefault();
+
         if ($_SESSION['SES_COD_USUARIO'] != 1) {
-            $typeuser = $bd->selectDataSession($idperson);
 
-            //print_r($typeuser) ; die() ;
+            if ($this->isActiveHelpdezk()) {
+                $typeuser = $this->dbIndex->selectDataSession($idperson);
+                $_SESSION['SES_LOGIN_PERSON'] = $typeuser->fields['login'];
+                $_SESSION['SES_NAME_PERSON'] = $typeuser->fields['name'];
+                $_SESSION['SES_TYPE_PERSON'] = $typeuser->fields['idtypeperson'];
+                $_SESSION['SES_IND_CODIGO_ANOMES'] = true;
+                $_SESSION['SES_COD_EMPRESA'] = $typeuser->fields['idjuridical'];
+                $_SESSION['SES_COD_TIPO'] = $typeuser->fields['idtypeperson'];
+                $groups = $this->dbIndex->selectPersonGroups($idperson);
+                $i = "0";
+                while (!$groups->EOF) {
+                    $arr[$i] = $groups->fields['idgroup'];
+                    $i++;
+                    $groups->MoveNext();
+                }
+                $groups = implode(',', $arr);
+                $_SESSION['SES_PERSON_GROUPS'] = $groups;
 
-			$_SESSION['SES_NAME_PERSON'] = $typeuser->fields['name'];
-			$_SESSION['SES_TYPE_PERSON'] = $typeuser->fields['idtypeperson'];
-			$_SESSION['SES_IND_CODIGO_ANOMES'] = true;
-			$_SESSION['SES_COD_EMPRESA'] = $typeuser->fields['idjuridical'];
-			$_SESSION['SES_COD_TIPO'] = $typeuser->fields['idtypeperson'];
-            $groups = $bd->selectPersonGroups($idperson);
-            $i = "0";
-            while (!$groups->EOF) {
-				$arr[$i] = $groups->fields['idgroup'];
-                $i++;
-                $groups->MoveNext();
+            } else {
+                $this->loadModel('admin/person_model');
+                $dbPerson = new person_model();
+                $rsPerson = $dbPerson->selectPerson(" AND tbp.idperson = $idperson");
+                $_SESSION['SES_LOGIN_PERSON'] = $rsPerson->fields['login'];
+                $_SESSION['SES_NAME_PERSON'] = $rsPerson->fields['name'];
+                $_SESSION['SES_TYPE_PERSON'] = $rsPerson->fields['idtypeperson'];
+                //$_SESSION['SES_COD_TIPO'] = $rsPerson->fields['idtypeperson'];
             }
-            $groups = implode(',', $arr);
-            $_SESSION['SES_PERSON_GROUPS'] = $groups;
+
         } else {
-            $_SESSION['SES_NAME_PERSON'] = 'Root';
-            $_SESSION['SES_TYPE_PERSON'] = 1;
-            $_SESSION['SES_IND_CODIGO_ANOMES'] = true;
-            $_SESSION['SES_COD_EMPRESA'] = 1;
-            $_SESSION['SES_COD_TIPO'] = 1;
+            if($this->isActiveHelpdezk()){
+                $_SESSION['SES_NAME_PERSON'] = 'Root';
+                $_SESSION['SES_TYPE_PERSON'] = 1;
+                $_SESSION['SES_IND_CODIGO_ANOMES'] = true;
+                $_SESSION['SES_COD_EMPRESA'] = 1;
+                $_SESSION['SES_COD_TIPO'] = 1;
 
-            $groups = $bd->selectAllGroups();
-            $i = "0";
-            while (!$groups->EOF) {
-				$arr[$i] = $groups->fields['idgroup'];
-                $i++;
-                $groups->MoveNext();
+                $groups = $this->dbIndex->selectAllGroups();
+                $i = "0";
+                while (!$groups->EOF) {
+                    $arr[$i] = $groups->fields['idgroup'];
+                    $i++;
+                    $groups->MoveNext();
+                }
+                $groups = implode(',', $arr);
+                $_SESSION['SES_PERSON_GROUPS'] = $groups;
+            } else {
+                $_SESSION['SES_NAME_PERSON'] = 'Root';
+                $_SESSION['SES_TYPE_PERSON'] = 1;
+                $_SESSION['SES_COD_EMPRESA'] = 1;
+                //$_SESSION['SES_COD_TIPO'] = 1;
             }
-            $groups = implode(',', $arr);
-            $_SESSION['SES_PERSON_GROUPS'] = $groups;
         }
 		
     }
@@ -571,24 +566,83 @@ class Login extends Controllers {
     {
 
         session_start();
-        $bd = new index_model();
-        $data = $bd->getConfigData();
 
-		$idperson = $_SESSION['SES_COD_USUARIO'];
-        while (!$data->EOF) {
-			$ses = $data->fields['session_name'];
-			$val = $data->fields['value'];
-            $_SESSION[$ses] = $val;
-            $data->MoveNext();
+        if (version_compare($this->helpdezkVersionNumber, '1.0.1', '>' )) {
+            $objModules = $this->getActiveModules();
+            while (!$objModules->EOF) {
+                $prefix = $objModules->fields['tableprefix'];
+                if(!empty($prefix)) {
+                    $data = $this->dbIndex->getConfigDataByModule($prefix);
+                    if (!$data) {
+                        die('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory' );
+                    }
+                    while (!$data->EOF) {
+                        $ses = $data->fields['session_name'];
+                        $val = $data->fields['value'];
+                        //$_SESSION[$ses] = $val;
+                        //
+                        $_SESSION[$prefix][$ses] = $val;
+                        //
+                        $data->MoveNext();
+                    }
+
+                }
+
+                $objModules->MoveNext();
+            }
+        } else {
+            $data = $this->dbIndex->getConfigData();
+            if($data) {
+                while (!$data->EOF) {
+                    $ses = $data->fields['session_name'];
+                    $val = $data->fields['value'];
+                    $_SESSION[$ses] = $val;
+                    //
+                    $_SESSION[$prefix][$ses] = $val;
+                    //
+                    $data->MoveNext();
+                }
+            }
         }
 
+        /*echo '<pre>';
+        print_r($_SESSION);
+        die();*/
+		$idperson = $_SESSION['SES_COD_USUARIO'];
+
+        // Module config data
+        /*
+        if($data) {
+            while (!$data->EOF) {
+                $ses = $data->fields['session_name'];
+                $val = $data->fields['value'];
+                $_SESSION[$ses] = $val;
+                //
+                $_SESSION[$prefix][$ses] = $val;
+                //
+                $data->MoveNext();
+            }
+        }
+        */
+
+        // Global Config Data
+        $rsConfig = $this->dbIndex->getConfigGlobalData();
+        while (!$rsConfig->EOF) {
+            $ses = $rsConfig->fields['session_name'];
+            $val = $rsConfig->fields['value'];
+            $_SESSION[$ses] = $val;
+            $rsConfig->MoveNext();
+        }
+
+        // User config data
+        $this->loadModel('userconfig_model');
 		$cf = new userconfig_model();
 		$columns = $cf->getColumns(); //GET COLUMNS OF THE TABLE
 
         $database = $this->getConfig('db_connect');
 
 		while (!$columns->EOF) {
-            if($database == 'mysqlt') {
+            if($this->isMysql($database)) {
                 $cols[] = strtolower($columns->fields['Field']);
             } elseif($database == 'oci8po') {
                 $cols[] = strtolower($columns->fields['column_name']);
@@ -602,7 +656,8 @@ class Login extends Controllers {
 		$getUserConfig = $cf->getConf($cols,$idconf);
 		foreach ($cols as $key => $value) {
 			$_SESSION['SES_PERSONAL_USER_CONFIG'][$value] = $getUserConfig->fields[$value];
-		}		
+		}
+
     }
 
 	/**
@@ -613,17 +668,19 @@ class Login extends Controllers {
 	* @return string true|false 
 	*/
     public function lostPassword() {
-        $login = addslashes($_POST['txtUser']);
+
+        $login = addslashes($_POST['username']);
+
+        $this->loadModel('index_model');
+        $dbIndex = new index_model();
+        $logintype = $dbIndex->getTypeLogin($login);
         
-        $bd = new index_model();
-        $logintype = $bd->getTypeLogin($login);
-        
-		$idperson = $bd->getIdPerson($login);
+		$idperson = $dbIndex->getIdPerson($login);
 		if($idperson == 1) {
 			echo "MASTER";
 			exit;
 		}
-		
+
         if ($logintype->fields) 
 		{
             if ($logintype->fields['idtypelogin'] == 1 ) // POP  
@@ -636,13 +693,13 @@ class Login extends Controllers {
 				echo 2;
 				exit;
 			}
-			include 'includes/classes/pipegrep/pipegrep.php';
-			$pipe = new pipegrep();
-			$pass = $pipe->generateRandomPassword(8, false, true, false);
-			
-			$idperson = $bd->getIdPerson($login);
+
+            $pass = $this->generateRandomPassword(8, false, true, false);
+
+			$idperson = $dbIndex->getIdPerson($login);
 			$password = md5($pass);
-			
+
+            $this->loadModel('admin/person_model');
 			$data = new person_model();
 			$change = $data->changePassword($idperson, $password);
 			
@@ -650,16 +707,17 @@ class Login extends Controllers {
 				echo ('ERROR');
 				exit;
 			} 
-			
+
 			$smarty = $this->retornaSmarty();
-			$subject = $smarty->get_config_vars('Lost_password_subject');
-			$body = $smarty->get_config_vars('Lost_password_body');
-			$log_text = $smarty->get_config_vars('Lost_password_log');
+
+			$subject = $smarty->getConfigVars('Lost_password_subject');
+			$body = $smarty->getConfigVars('Lost_password_body');
+			$log_text = $smarty->getConfigVars('Lost_password_log');
 			
 			eval("\$body = \"$body\";");
 			
-			$address = array($bd->getEmailPerson($login));
-			
+			$address = array($dbIndex->getEmailPerson($login));
+
 			$ret = $this->sendEmailDefault($subject,$body,$address, true, $log_text  . $login) ;
 			echo $logintype->fields['idtypelogin'];
         }
@@ -671,7 +729,6 @@ class Login extends Controllers {
 		
 		
     }
-	
 
 	public function LdapValidate($AdConnect, $dn, $pass, $userdomain, $type)
 	{	
@@ -712,6 +769,132 @@ class Login extends Controllers {
         return;
     }
 
+    public function requestAuth($login,$password)
+    {
+
+        $idperson = $this->dbIndex->getIdPerson($login);
+
+        if($idperson)
+        {
+            if ($this->dbIndex->getRequestsByPerson($idperson) == 0) {
+                return true ;
+            } else {
+                if($this->dbIndex->checkPersonRequest($idperson,$password) == 1) {
+                   return true ;
+                } else {
+                    return false ;
+                }
+            }
+        }
+        else
+        {
+            return false ;
+        }
+    }
+
+    public function helpdezkAuth($login,$passwordMd5)
+    {
+
+        $idperson = $this->dbIndex->selectDataLogin($login, $passwordMd5);
+        if ($idperson) {
+            return true;
+        } else {
+            return false ;
+        }
+    }
+
+    public function imapAuth($login,$password)
+    {
+
+        $popconfigs = $this->dbConfig->getPopConfigs() ;
+
+        $host = $popconfigs['POP_HOST'];
+        $port = $popconfigs['POP_PORT'];
+        $type = $popconfigs['POP_TYPE'];
+        $domain = $popconfigs['POP_DOMAIN'];
+        if(!empty($domain)) $domain = '@'.$domain;
+
+        if ($type == 'POP'){
+            $hostname = '{' . $host . ':'.$port.'/pop3}INBOX' ;
+        } elseif ($type == 'GMAIL') {
+            $hostname = '{imap.gmail.com:'.$port.'/imap/ssl/novalidate-cert}INBOX';
+        }
+        //function_exists()
+        if (!function_exists('imap_open'))
+            die("IMAP functions are not available.<br />\n");
+
+        /* try to connect */
+        $mbox = imap_open($hostname,$login.$domain,$password) ;
+        if($mbox) {
+            imap_close($mbox);
+            return true;
+        } else {
+            return false ;
+        }
+
+    }
+
+    public function ldapAuth($login,$password)
+    {
+        $ldapconfigs = $this->dbConfig->getArrayConfigs(13);
+
+        $type 	= $ldapconfigs['SES_LDAP_AD']; //1 LDAP / 2 AD
+        $server = $ldapconfigs['SES_LDAP_SERVER'];
+        $dn     = $ldapconfigs['SES_LDAP_DN'];
+        $domain = $ldapconfigs['SES_LDAP_DOMAIN'];
+        $object = $ldapconfigs['SES_LDAP_FIELD'];
+
+        //$server ="ldap.testathon.net";
+        //$user   = "carol";
+        //$senha  = "carol";
+        //$dn     = "OU=users,DC=testathon,DC=net";
+
+        // =================
+
+        $dn  = $object."=".$login.",$dn";
+
+        $userdomain = $login."@".$domain;
+        //$AD = @ldap_connect($server) ;
+
+        if (!($AD = @ldap_connect($server))) {
+            $msg = "Can't connecto to LDAP server !";
+            return false;
+        }
+
+
+        ldap_set_option($AD, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($AD, LDAP_OPT_REFERRALS, 0);
+
+        /**
+         ** The only way to test the connection is to actually call ldap_bind( $ds, $username, $password ).
+         ** But if that fails, is it because you have the wrong username/password or is it because the connection is down?
+         ** As far as I can see there isn't any way to tell.
+         **/
+
+        $ret =  $this->LdapValidate($AD, $dn, $password, $userdomain, $type) ;
+
+        /*
+         * Search for user informations in ldap
+         *
+        $busca = ldap_search($AD, $dn , "(".$object."=".$_POST['login'].")");
+        $result = ldap_get_entries($AD, $busca);
+        for ($item = 0; $item < $result['count']; $item++){
+            for ($attribute = 0; $attribute < $result[$item]['count']; $attribute++){
+                  $data = $result[$item][$attribute];
+                echo $data. ": ".$result[$item][$data][0]."<br>";
+            }
+        }
+        */
+
+        if ( $ret != '0') {
+            $msg = $ret ;
+            return false;
+        } else {
+            return true;
+        }
+
+    }
 
 }
+
 ?>

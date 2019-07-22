@@ -1,6 +1,15 @@
 <?php
 
-class emailconfig_model extends Model {
+//class emailconfig_model extends Model {
+if(class_exists('Model')) {
+    class DynamicEmailConfig_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicEmailConfig_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicEmailConfig_model extends apiModel {}
+}
+
+class emailconfig_model extends DynamicEmailConfig_model {
 
     public function selectConfigs($where) {
         return $this->db->Execute("select * from hdk_tbconfig where idconfigcategory = 3 $where");
@@ -44,20 +53,20 @@ class emailconfig_model extends Model {
 
     public function getUserEmail($iduser) {
         return $this->select("select
-  pers.email
-from tbperson pers
-where pers.idperson = '$iduser'");
+                                  pers.email
+                                from tbperson pers
+                                where pers.idperson = '$iduser'");
     }
 
     public function getRequesterEmail($code_request) {
         return $this->select("select
-  pers.email,
-  pers.name,
-  pers.idtypeperson
-from tbperson pers,
-  hdk_tbrequest req
-where pers.idperson = req.idperson_owner
-and req.code_request = '$code_request'");
+                                  pers.email,
+                                  pers.name,
+                                  pers.idtypeperson
+                                from tbperson pers,
+                                  hdk_tbrequest req
+                                where pers.idperson = req.idperson_owner
+                                and req.code_request = '$code_request'");
     }
     
     public function getEmailIdBySession($session){
@@ -67,7 +76,7 @@ and req.code_request = '$code_request'");
 									AND b.idtemplate = c.idtemplate
 									AND session_name = '$session'");
         if(!$ret) {
-            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
             $this->error($sError);
             return false;
         }

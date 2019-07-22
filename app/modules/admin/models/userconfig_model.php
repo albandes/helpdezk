@@ -39,7 +39,7 @@ class userconfig_model extends Model{
 	
 	public function getColumns(){
 		$database = $this->getConfig('db_connect');
-		if($database == 'mysqlt') {	
+		if($this->isMysql($database)) {
 			$ret = $this->db->Execute("SHOW COLUMNS FROM hdk_tbconfig_user");
 		} elseif($database == 'oci8po') {
                 $ret = $this->db->Execute('SELECT COLUMN_NAME FROM all_tab_columns WHERE table_name = \'HDK_TBCONFIG_USER\'');

@@ -1,5 +1,0 @@
-edit widget 2
-
-<form>
-	<input type="submit" value="submit" />
-</form>

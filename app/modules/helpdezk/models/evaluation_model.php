@@ -1,5 +1,16 @@
 <?php
-class evaluation_model extends Model{
+
+if(class_exists('Model')) {
+	class DynamicEvaluation_model extends Model {}
+} elseif (class_exists('cronModel')){
+	class DynamicEvaluation_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicEvaluation_model extends apiModel {}
+}
+
+class evaluation_model extends DynamicEvaluation_model {
+
+//class evaluation_model extends Model{
     public function selectEvaluation($where, $order, $limit){
         return $this->db->Execute("Select idevaluation, name, icon_name, status from hdk_tbevaluation $where $order $limit");
     }
@@ -26,7 +37,14 @@ class evaluation_model extends Model{
 	}
 	
 	public function removeTokenByCode($code){
-		return $this->db->Execute("DELETE FROM hdk_tbevaluation_token WHERE code_request = '$code'");
+		$sql = "DELETE FROM hdk_tbevaluation_token WHERE code_request = '$code'" ;
+		$ret = $this->db->Execute($sql);
+		if (!$ret) {
+			$sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+			$this->error($sError);
+			return false;
+		}
+		return $ret;
 	}
 	
 	public function insertToken($code){

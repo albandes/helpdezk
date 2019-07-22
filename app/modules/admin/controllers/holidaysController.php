@@ -1,116 +1,283 @@
 <?php
-class Holidays extends Controllers {
-    public $database;
-	public function __construct(){
-		parent::__construct();
-		session_start();
-		$this->validasessao();
-        $this->database = $this->getConfig('db_connect');
-	}
 
-	public function index() {
-		$smarty = $this->retornaSmarty();
-		$user = $_SESSION['SES_COD_USUARIO'];
-		$bd = new home_model();
-		$program = $bd->selectProgramIDByController("holidays/");
-		$typeperson = $bd->selectTypePerson($user);
-		$access = $this->access($user, $program, $typeperson);
-		$smarty->display('holidays.tpl.html');
-	}
-	
-	public function json() {
-		$smarty = $this->retornaSmarty();
-		$langVars = $smarty->get_config_vars();
+require_once(HELPDEZK_PATH . '/app/modules/admin/controllers/admCommonController.php');
 
-		$prog = "";
-		$path = "";
-		$page = $_POST['page'];
-		$rp = $_POST['rp'];
-		if (!$sortorder) $sortorder = 'asc';
-		if (!$page) $page = 1;
-		if (!$rp) $rp = 15;
-		$start = (($page - 1) * $rp);
-		$limit = "LIMIT $start, $rp";
-		$query = $_POST['query'];
-		$qtype = $_POST['qtype'];
-		$sortname = $_POST['sortname'];
-		$sortorder = $_POST['sortorder'];
-		$where = "";
-		if ($query) {
-			switch ($qtype) {
-				case 'HOLIDAY_DESCRIPTION':
-					$where = "where  $qtype LIKE '$query%' ";
-					break;
-				default:
-					$where = "";
-					break;
-			}
-		}
-		if (!$sortname or !$sortorder) {
-		} else {
-			$order = " ORDER BY $sortname $sortorder ";
-		}
-		$limit = "LIMIT $start, $rp";
-		$bd = new holidays_model();
-		$rsHoliday = $bd->selectHoliday($where, $order, $limit);
-		$qcount = $bd->countHoliday($where);
-		$total = $qcount->fields['total'];		
-		$data['page'] = $page;
-		$data['total'] = $total;
+class Holidays extends admCommon
+{
+    /**
+     * Create an instance, check session time
+     *
+     * @access public
+     */
+    public function __construct()
+    {
 
-		while (!$rsHoliday->EOF) {
-            if ($this->database == 'oci8po') {
-                $dataformatada = $rsHoliday->fields['holiday_date'];
-            }else{
-                $dataformatada = $this->formatDate($rsHoliday->fields['holiday_date']);
-            }
-			
-			if(isset($rsHoliday->fields['idperson'])){
-				$type_holiday = $rsHoliday->fields['name'];
-			}else{
-				$type_holiday = $langVars['National_holiday'];
-			}
-			
-			//$dataformatada = $rsHoliday->fields['holiday_date'];
-			$rows[] = array(
-				"id" => $rsHoliday->fields['idholiday'],
-				"cell" => array(
-					utf8_decode($rsHoliday->fields['holiday_description'])
-					, $dataformatada
-					, $type_holiday
-				)
-			);
-			$dataformatada = '';
-			$rsHoliday->MoveNext();
-		}
-		$data['rows'] = $rows;
-		$data['params'] = $_POST;
-		echo json_encode($data);
-	}
+        parent::__construct();
+        session_start();
+        $this->sessionValidate();
 
-	public function insertmodal() {
-		$smarty = $this->retornaSmarty();
-		$smarty->assign('theme', theme);
-		$smarty->assign('path', path);
-		
-		$db = new groups_model();
-        $select = $db->selectCorporations();
-        while (!$select->EOF) {
-            $campos[] = $select->fields['idperson'];
-            $valores[] = $select->fields['name'];
-            $select->MoveNext();
+        $this->idPerson = $_SESSION['SES_COD_USUARIO'];
+
+        // Log settings
+        $this->log = parent::$_logStatus;
+        $this->program = basename(__FILE__);
+
+        $this->loadModel('holidays_model');
+        $dbHoliday = new holidays_model();
+        $this->dbHoliday = $dbHoliday;
+
+    }
+
+    public function index()
+    {
+
+        $smarty = $this->retornaSmarty();
+
+        $this->makeNavVariables($smarty,'admin');
+        $this->makeFooterVariables($smarty);
+        $this->_makeNavAdm($smarty);
+        $smarty->assign('lang_default', $this->getConfig('lang'));
+        $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $smarty->display('holidays.tpl');
+
+    }
+
+    public function jsonGrid()
+    {
+        $this->validasessao();
+        $smarty = $this->retornaSmarty();
+
+        $where = '';
+
+        // create the query.
+        $page  = $_POST['page'];
+        $rows  = $_POST['rows'];
+        $sidx  = $_POST['sidx'];
+        $sord  = $_POST['sord'];
+
+        if(!$sidx)
+            $sidx ='holiday_date';
+        if(!$sord)
+            $sord ='asc';
+
+        if ($_POST['_search'] == 'true'){
+            if ( $_POST['searchField'] == 'holiday_description') $searchField = 'tbh.holiday_description';
+            if ( $_POST['searchField'] == 'holiday_date') $searchField = "DATE_FORMAT(tbh.holiday_date,'%d/%m/%Y')";
+            if ( $_POST['searchField'] == 'tbp.name') $searchField = 'tbp.name';
+
+            if (empty($where))
+                $oper = ' WHERE ';
+            else
+                $oper = ' AND ';
+            $where .= $oper . $this->getJqGridOperation($_POST['searchOper'],$searchField ,$_POST['searchString']);
+
         }
-        $smarty->assign('corpsids', $campos);
-        $smarty->assign('corpsvals', $valores);
-		
-		$smarty->display('modais/holidays/holidaysinsert.tpl.html');
-	}
 
-    public function insert() {
-		
-		if(!$_POST['holiday_date'] || !$_POST['holiday_description']) return false;
-		$bd = new holidays_model();
-		$bd->BeginTrans();
+        $count = $this->dbHoliday->CountHoliday($where);
+
+        if( $count->fields['total'] > 0 && $rows > 0) {
+            $total_pages = ceil($count->fields['total']/$rows);
+        } else {
+            $total_pages = 0;
+        }
+        if ($page > $total_pages) $page=$total_pages;
+        $start = $rows*$page - $rows;
+        if($start <0) $start = 0;
+
+        $order = "ORDER BY $sidx $sord";
+        $limit = "LIMIT $start , $rows";
+        //
+
+        $rsHolidays = $this->dbHoliday->selectHoliday($where,$order,null,$limit);
+        
+        while (!$rsHolidays->EOF) {
+            
+            if(isset($rsHolidays->fields['idperson'])){
+				$type_holiday = $rsHolidays->fields['name'];
+			}else{
+                $type_holiday = $this->getLanguageWord('National_holiday');
+            }
+            
+            $aColumns[] = array(
+                'id'                  => $rsHolidays->fields['idholiday'],
+                'holiday_description' => utf8_decode($rsHolidays->fields['holiday_description']),
+                'holiday_date'        => $rsHolidays->fields['holiday_date'],
+                'company'             => $type_holiday
+
+            );
+            $rsHolidays->MoveNext();
+        }
+
+
+        $data = array(
+            'page' => $page,
+            'total' => $total_pages,
+            'records' => $count->fields['total'],
+            'rows' => $aColumns
+        );
+
+        echo json_encode($data);
+
+    }
+
+    public function formCreateHolidays()
+    {
+        $smarty = $this->retornaSmarty();
+
+        $this->makeScreenHolidays($smarty,'','create');
+
+        $smarty->assign('token', $this->_makeToken()) ;
+        $this->makeNavVariables($smarty,'admin');
+        $this->makeFooterVariables($smarty);
+        $this->_makeNavAdm($smarty);
+        $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $smarty->display('holidays-create.tpl');
+    }
+
+    public function formUpdateHolidays()
+    {
+        $token = $this->_makeToken();
+        $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
+
+        $smarty = $this->retornaSmarty();
+
+        $idHolidays = $this->getParam('idholiday');
+        
+        $rsHoliday = $this->dbHoliday->getHoliday('WHERE a.idholiday = ' . $idHolidays);
+
+        $this->makeScreenHolidays($smarty,$rsHoliday,'update');
+
+        $smarty->assign('token', $token) ;
+
+        $smarty->assign('hidden_idholidays', $idHolidays);
+
+        $this->makeNavVariables($smarty,'admin');
+        $this->makeFooterVariables($smarty);
+        $this->_makeNavAdm($smarty);
+        $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $smarty->display('holidays-update.tpl');
+
+    }
+
+    function formImportHolidays()
+    {
+        $token = $this->_makeToken();
+        $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
+
+        $smarty = $this->retornaSmarty();
+
+        $this->makeScreenHolidays($smarty,'','import');
+
+        $smarty->assign('token', $this->_makeToken()) ;
+        $this->makeNavVariables($smarty,'admin');
+        $this->makeFooterVariables($smarty);
+        $this->_makeNavAdm($smarty);
+        $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $smarty->display('holidays-import.tpl');
+
+    }
+
+    function makeScreenHolidays($objSmarty,$rs,$oper)
+    {
+        // --- Holiday description ---
+        if ($oper == 'update') {
+            if (empty($rs->fields['holiday_description']))
+                $objSmarty->assign('plh_holiday_description', $this->getLanguageWord('plh_holiday_description'));
+            else
+                $objSmarty->assign('holiday_description',$rs->fields['holiday_description']);
+        } elseif ($oper == 'create') {
+            $objSmarty->assign('plh_holiday_description', $this->getLanguageWord('plh_holiday_description'));
+        } elseif ($oper == 'echo') {
+            $objSmarty->assign('holiday_description',$rs->fields['holiday_description']);
+        }
+
+        // --- Holiday date ---
+        if ($oper == 'update') {
+            if (empty($rs->fields['holiday_date']))
+                $objSmarty->assign('plh_holiday_date', $this->getLanguageWord('plh_holiday_date'));
+            else{
+                if ($this->database == 'oci8po') {
+                    $dataformatada = $rs->fields['holiday_date'];
+                }else{
+                    $dataformatada = $this->formatDate($rs->fields['holiday_date']);
+                }
+                $objSmarty->assign('holiday_date',$dataformatada);
+            }
+        } elseif ($oper == 'create') {
+            $objSmarty->assign('plh_holiday_date', $this->getLanguageWord('plh_holiday_date'));
+        } elseif ($oper == 'echo') {
+            if ($this->database == 'oci8po') {
+                $dataformatada = $rs->fields['holiday_date'];
+            }else{
+                $dataformatada = $this->formatDate($rs->fields['holiday_date']);
+            }
+            $objSmarty->assign('holiday_date',$dataformatada);
+        }
+
+        // --- Company ---
+        if ($oper == 'update') {
+            $idCompanyEnable = $rs->fields['idperson'];
+        }elseif ($oper == 'echo') {
+            if($rs->fields['idperson'] == 0){$nameCompany = $this->getLanguageWord('National_holiday');}
+            else{$nameCompany = $rs->fields['name'];}
+            $objSmarty->assign('company_name',$nameCompany);
+        }elseif($oper == 'create') {
+            $idCompanyEnable = 0;
+        } 
+        
+        $arrCompany = $this->_comboCompany();
+
+        array_push($arrCompany['ids'],0);
+        array_push($arrCompany['values'],$this->getLanguageWord('National_holiday'));
+        
+        $objSmarty->assign('companyids',  $arrCompany['ids']);
+        $objSmarty->assign('companyvals',$arrCompany['values']);
+        $objSmarty->assign('idcompany', $idCompanyEnable );
+
+        // --- Previous year ---
+        $arrPreviousYear = $this->_comboLastYear();
+        if ($oper == 'update') {
+            $idPreviousYearEnable = $rs->fields['idperson'];
+        }elseif ($oper == 'echo') {
+            if($rs->fields['idperson'] == 0){$nameCompany = $this->getLanguageWord('National_holiday');}
+            else{$nameCompany = $rs->fields['name'];}
+            $objSmarty->assign('company_name',$nameCompany);
+        }elseif($oper == 'create') {
+            $idPreviousYearEnable = $arrPreviousYear['ids'][0];
+        } 
+
+        $objSmarty->assign('lastyearids',  $arrPreviousYear['ids']);
+        $objSmarty->assign('lastyearvals',$arrPreviousYear['values']);
+        $objSmarty->assign('idlastyear', $idPreviousYearEnable );
+
+        // --- Next year ---
+        $arrNextYear = $this->_comboNextYear();
+        if ($oper == 'update') {
+            $idNextYearEnable = $rs->fields['idperson'];
+        }elseif ($oper == 'echo') {
+            if($rs->fields['idperson'] == 0){$nameCompany = $this->getLanguageWord('National_holiday');}
+            else{$nameCompany = $rs->fields['name'];}
+            $objSmarty->assign('company_name',$nameCompany);
+        } else {
+            $idNextYearEnable = $arrNextYear['ids'][0];
+        } 
+
+        $objSmarty->assign('nextyearids',  $arrNextYear['ids']);
+        $objSmarty->assign('nextyearvals',$arrNextYear['values']);
+        $objSmarty->assign('idnextyear', $idNextYearEnable );
+
+    }
+
+    function createHoliday()
+    {
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->dbHoliday->BeginTrans();
+
         if ($this->database == 'oci8po') {
             $data = array(
                 'holiday_date' => "TO_DATE ('".$_POST['holiday_date']."','DD/MM/YYYY')",
@@ -124,123 +291,265 @@ class Holidays extends Controllers {
             );
         }
 
-		$ins = $bd->insertHoliday($data);
+        $ins = $this->dbHoliday->insertHoliday($data);
 		if(!$ins){
-			$bd->RollbackTrans();
+			$this->dbHoliday->RollbackTrans();
 			return false;
-		}
+        }
+        
+        $id_holiday = $this->dbHoliday->TableMaxID('tbholiday','idholiday');
 		
-		if($_POST['company'] != 0){
-			$id_holiday = $bd->TableMaxID('tbholiday','idholiday');
-			
+		if($_POST['company'] != 0){			
 			$data = array(
                 'idholiday' => $id_holiday,
                 'idperson' => $_POST['company']
             );
 			
-			$ins = $bd->insertHolidayHasCompany($data);
+			$ins = $this->dbHoliday->insertHolidayHasCompany($data);
 			if(!$ins){
-				$bd->RollbackTrans();
+				$this->dbHoliday->RollbackTrans();
 				return false;
 			}
 		}
+
+        $aRet = array(
+            "idholiday" => $id_holiday,
+            "description" => $_POST['holiday_description']
+        );
+
+        $this->dbHoliday->CommitTrans();
+
+        echo json_encode($aRet);
+
+    }
+
+    function updateHoliday()
+    {
+        $idHoliday = $_POST['idholiday'];
+
+        $this->dbHoliday->BeginTrans();
+
+        $desc = $_POST['holiday_description'];
+		$holiday_date = $_POST['holiday_date'];
+
+        if ($this->database == 'oci8po') {
+            $ret = $this->dbHoliday->updateHoliday($idHoliday, utf8_encode($desc), "TO_DATE ('".$holiday_date."','DD/MM/YYYY')");
+        }else{
+            $ret = $this->dbHoliday->updateHoliday($idHoliday, utf8_encode($desc), $this->formatSaveDate($holiday_date));
+        }
+
+        if (!$ret) {
+            $this->dbHoliday->RollbackTrans();
+            if($this->log)
+                $this->logIt('Update Holiday - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $aRet = array(
+            "idholiday" => $idHoliday,
+            "status"   => 'OK'
+        );
+
+        $this->dbHoliday->CommitTrans();
+
+        echo json_encode($aRet);
+
+
+    }
+
+    public function modalDeleteHoliday()
+    {
+        $token = $this->_makeToken();
+        $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
+
+        $idholiday = $_POST['idholiday'];
+
+        $aRet = array(
+            "idholiday" => $idholiday,
+            "token" => $token
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    function deleteHoliday()
+    {
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $id = $_POST['idholiday'];
+
+        $this->dbHoliday->BeginTrans();
 		
-		$bd->CommitTrans();
-		echo "OK";
-	}
-	
-	public function editmodal() {
-		$smarty = $this->retornaSmarty();
-		$id = $this->getParam('id');
-		$smarty->assign('theme', theme);
-		$smarty->assign('path', path);
-		$bd = new holidays_model();
-		$ret = $bd->selectHolidaysData($id);
-        if ($this->database == 'oci8po') {
-		    $dataformatada = $ret->fields['holiday_date'];
-        }else{
-            $dataformatada = $this->formatDate($ret->fields['holiday_date']);
-        }
-
-		$smarty->assign('id', $id);
-		$smarty->assign('date', $dataformatada);
-		$smarty->assign('description', utf8_decode($ret->fields['holiday_description']));
-		$smarty->display('modais/holidays/holidayseditmodal.tpl.html');
-	}
-
-	public function edit() {
-		$id = $_POST['id'];
-		$desc = $_POST['description'];
-		$holiday_date = $_POST['date'];
-		if(!$id || !$desc || !$holiday_date) return false;
-		$db = new holidays_model();
-        if ($this->database == 'oci8po') {
-            $updt = $db->updateHoliday($id, utf8_encode($desc), "TO_DATE ('".$holiday_date."','DD/MM/YYYY')");
-        }else{
-            $updt = $db->updateHoliday($id, utf8_encode($desc), $this->formatSaveDate($holiday_date));
-        }
-
-		if ($updt) echo true;
-		else echo false;
-	}
-
-	public function importmodal() {
-		$smarty = $this->retornaSmarty();
-		$db = new holidays_model();
-		$select = $db->getYearsHolidays();
-		while (!$select->EOF) {
-			$campos[] = $select->fields['holiday_year'];
-			$valores[] = $select->fields['holiday_year'];
-			$select->MoveNext();
+		$retCompany = $this->dbHoliday->holidayDeleteHasCompany($id);
+		if(!$retCompany){
+            $this->dbHoliday->RollbackTrans();
+            if($this->log)
+                $this->logIt('Delete Holidays Company - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+			return false;
 		}
-		$smarty->assign('year_field', $campos);
-		$smarty->assign('year_val', $valores);
-		$smarty->display('modais/holidays/holidaysimport.tpl.html');
-	}
+		
+        $ret = $this->dbHoliday->holidayDelete($id);
+		if(!$ret){
+            $this->dbHoliday->RollbackTrans();
+            if($this->log)
+                $this->logIt('Delete Holiday - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+			return false;
+		}
 
-	public function load() {
+        $this->dbHoliday->CommitTrans();
+
+        $aRet = array(
+            "status" => "OK"
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    public function ajaxYearByCompany()
+    {
+        echo $this->_comboYearByCompanyHtml($_POST['companyId']);
+    }
+
+    public function _comboYearByCompanyHtml($companyId)
+    {
+        if($companyId != 0 && $companyId != "X"){$cond = 'and b.idperson = ' . $companyId;}
+        else{$cond = '';}
+
+        $arrYear = $this->_comboLastYear($cond);
+        $select = '';
+
+        if(sizeof($arrYear['ids']) == 0){
+            $select .= "<option value=''>- Sem feriados para esta empresa -</option>";
+        }else{
+            $select .= "<option value='X'>&nbsp;</option>";
+            foreach ( $arrYear['ids'] as $indexKey => $indexValue ) {
+                if ($arrYear['default'][$indexKey] == 1) {
+                    $default = 'selected="selected"';
+                } else {
+                    $default = '';
+                }
+                $select .= "<option value='$indexValue' $default>".$arrYear['values'][$indexKey]."</option>";
+            }
+        }
+
+        
+        return $select;
+    }
+
+    public function _comboNextYearHtml()
+    {
+        $arrYear = $this->_comboNextYear();
+        foreach ( $arrYear['ids'] as $indexKey => $indexValue ) {
+            if ($arrNextYear['ids'][0]) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrYear['values'][$indexKey]."</option>";
+        }
+
+        
+        return $select;
+    }
+
+    public function load() {
 		$smarty = $this->retornaSmarty();
-		$langVars = $smarty->get_config_vars();
-		$year = $this->getParam('year');
-		$db = new holidays_model();
-		$order = "ORDER BY HOLIDAY_DATE";
-		$ret = $db->selectHolidayByYear($year, $order);
-		$count = $db->countAllHolidays($year);
-		$date = date('Y');
-		$i = 0;
-		$resultado = array(
-							'year' => $year,
-							'count' => $count,
-							'result' => array()
-						);
+
+        $year = $_POST['prevyear'];
+        $idcompany = $_POST['companyId'];
+
+        if($idcompany == 0){
+            $where = "
+                        WHERE YEAR(a.holiday_date) = $year
+                        AND b.idperson IS NULL
+                        ORDER BY holiday_date
+                    ";
+        }else{
+            $where = "
+                        WHERE YEAR(a.holiday_date) = $year
+                        AND c.idperson=$idcompany
+                        ORDER BY holiday_date
+                    ";
+        }        
+
+        $ret = $this->dbHoliday->getHoliday($where) ;
+
+		$count = $ret->RecordCount();
+
+        $date = date('Y');
+		$i = 0;		
+        
+        $list = '';
 		while (!$ret->EOF) {
 			
-			if(isset($ret->fields['idperson'])){
+			if($ret->fields['idperson'] != 0){
 				$type_holiday = $ret->fields['name'];
 			}else{
-				$type_holiday = $langVars['National_holiday'];
+				$type_holiday =  $this->getLanguageWord('National_holiday');
 			}
 			
-			$dataformatada = $this->formatDate($ret->fields['holiday_date']);
-			$resultado['result'][$i]['date']	= $dataformatada;
-			$resultado['result'][$i]['name']	= utf8_decode($ret->fields['holiday_description']);
-			$resultado['result'][$i]['type']	= $type_holiday;
+            $dataformatada = $this->formatDate($ret->fields['holiday_date']);
+            
+            $list .= "<tr>
+                        <td>".$dataformatada."</td>
+                        <td>".utf8_decode($ret->fields['holiday_description'])."</td>
+                        <td>".$type_holiday."</td>
+                    </tr>";
 			$i++;
 			$ret->MoveNext();
         }
+
+        $resultado = array(
+            'year' => $year,
+            'count' => $ret->RecordCount(),
+            'result' => $list,
+            'yearto' => $this->_comboNextYearHtml()
+        );
+
 		echo json_encode($resultado);
     }
 
-	public function import() {
-		$year = $_POST['fromyear'];
-		$nextyear = $_POST['year2'];
-		if(!$year || !$nextyear) return false;
-		$db = new holidays_model();
-		$db->BeginTrans();
-		$count = $db->countAllHolidays($year);
-		$sel = $db->selectHolidayByYear($year);
+    public function import() {
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+        
+        $year = $_POST['lastyear'];
+		$nextyear = $_POST['nextyear'];
+        $idcompany = $_POST['company'];
+        
+        if(!$nextyear) return false;
+
+        $this->dbHoliday->BeginTrans();
+        
+        $count = $this->dbHoliday->countAllHolidays($year);
+        
+        if($idcompany == 0){
+            $where = "WHERE YEAR(a.holiday_date) = $year
+                        AND b.idperson IS NULL
+                        ORDER BY holiday_date
+                    ";
+        }else{
+            $where = "WHERE YEAR(a.holiday_date) = $year
+                        AND c.idperson=$idcompany
+                        ORDER BY holiday_date
+                    ";
+        }
+
+        $sel = $this->dbHoliday->getHoliday($where) ;
+
 		while (!$sel->EOF) {
-			$desc = $sel->fields['holiday_description'];
+            $desc = $sel->fields['holiday_description'];
 			$newdate = $sel->fields['holiday_date'];
 
             $newdate = substr($newdate, 4);
@@ -253,64 +562,47 @@ class Holidays extends Controllers {
                 $newdate = $newdate . $nextyear;
 				$dataformatada = $newdate ;
 				$newdate = "to_date('".$dataformatada."','DD/MM/YYYY')" ;
-				$ins = $db->insertHoliday(array('holiday_date' => $newdate,'holiday_description' => "'".addslashes($desc)."'"));
-			}elseif($database == "mysqlt"){
-				$ins = $db->insertHoliday(array('holiday_date' => "'".$newdate."'",'holiday_description' => "'".addslashes($desc)."'"));
+                $ins = $this->dbHoliday->insertHoliday(array('holiday_date' => $newdate,'holiday_description' => "'".addslashes($desc)."'"));
+                if (!$ins) {
+                    $this->dbHoliday->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Import Holidays - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+			}elseif($database == "mysqli"){
+				$ins = $this->dbHoliday->insertHoliday(array('holiday_date' => "'".$newdate."'",'holiday_description' => "'".addslashes($desc)."'"));
+                if (!$ins) {
+                    $this->dbHoliday->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Import Holidays - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+                $id_holiday = $this->dbHoliday->TableMaxID('tbholiday','idholiday');
+
+                if($sel->fields['idperson'] != 0){
+                    $data = array( 'idholiday' => $id_holiday, 'idperson' => $sel->fields['idperson'] );
+                    $ret = $this->dbHoliday->insertHolidayHasCompany($data);
+                    if (!$ret) {
+                        $this->dbHoliday->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Import Holidays - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+                
 			}
 
-			if(!$ins){
-				$db->RollbackTrans();
-				return false;
-			}
-			
-			if(isset($sel->fields['idperson'])){
-				$id_holiday = $db->TableMaxID('tbholiday','idholiday');
-				
-				$data = array(
-	                'idholiday' => $id_holiday,
-	                'idperson' => $sel->fields['idperson']
-	            );
-				
-				$ins = $db->insertHolidayHasCompany($data);
-				if(!$ins){
-					$bd->RollbackTrans();
-					return false;
-				}
-			}
-			
-			$db->CommitTrans();
 			$sel->MoveNext();
-		}
-		if ($ins) echo true;
-		else return false;
+        }
+
+        $aRet = array(
+            "status"   => 'OK'
+        );
+        
+        $this->dbHoliday->CommitTrans();
+
+        echo json_encode($aRet);
+
 	}
-	
-	public function deletemodal() {
-		$smarty = $this->retornaSmarty();
-		$id = $this->getParam('id');
-		$smarty->assign('id', $id);
-		$smarty->display('modais/holidays/delete.tpl.html');
-	}
-	
-	public function delete() {
-        $id = $_POST['id'];
-		$db = new holidays_model();
-		$db->BeginTrans();
-		
-		$del = $db->holidayDeleteHasCompany($id);
-		if(!$del){
-			$db->RollbackTrans();
-			return false;
-		}
-		
-        $del = $db->holidayDelete($id);
-		if(!$del){
-			$db->RollbackTrans();
-			return false;
-		}
-		
-		$db->CommitTrans();
-        echo "ok";
-    }
 
 }

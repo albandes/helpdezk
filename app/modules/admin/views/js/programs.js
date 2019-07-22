@@ -1,513 +1,167 @@
-$(document).ready(function(){
+$(document).ready(function () {
 
-    $("#flexigrid2").flexigrid({
-        url: 'program/json/',  
-        pagestat: aLang['showing'].replace (/\"/g, "")+' {from} '+ aLang['to'].replace (/\"/g, "")+' {to} '+aLang['of'].replace (/\"/g, "")+' {total} '+ aLang['Items'].replace (/\"/g, ""),
-        pagetext: aLang['Page'].replace (/\"/g, ""),
-        outof: aLang['of'].replace (/\"/g, ""),
-        findtext: aLang['Search'].replace (/\"/g, ""),
-        procmsg: aLang['Loading'].replace (/\"/g, ""),
-        nomsg: aLang['Empty'].replace (/\"/g, ""),
+    countdown.start(timesession);
+    new gnMenu( document.getElementById( 'gn-menu' ) );
+
+    var grid = $("#table_list_programs");
+
+    grid.jqGrid({
+        url: path+"/admin/program/jsonGrid",
+        datatype: "json",
+        mtype: 'POST',
+        sortname: 'tbp.name', //initially sorted on code_request
+        sortorder: "asc",
+        height: 450,
+        autowidth: true,
+        shrinkToFit: true,
+        rowNum: 10,
+        rowList: [10, 20, 25, 30, 50],
+        colNames:['',aLang['Name'].replace (/\"/g, ""),aLang['Controller'].replace (/\"/g, ""),aLang['Module'].replace (/\"/g, ""),aLang['Category'].replace (/\"/g, ""),aLang['status'].replace (/\"/g, ""),''],
+        colModel:[
+            {name:'id',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
+            {name:'name',index:'tbp.name', editable: true, width:200, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'controller',index:'tbp.controller', editable: true, width:200, search:false, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'module',index:'tbm.name', editable: true, width:150, search:true, sorttype:'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'category',index:'tbtp.name', editable: false, width:150, search:false, sorttype:'string', searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'status',index:'tbp.status', editable: true, width:50, search:false, align:"center", sorttype:'string', searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'statusval',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true }
+        ],
+        pager: "#pager_list_programs",
+        viewrecords: true,
+        caption: ' :: '+aLang['Programs'].replace(/\"/g, "")+'s',
+        hidegrid: false,
+        toppager:false,
+        //jqModal: false,
+        //modal: true,
+        ondblClickRow: function(rowId) {
+            var idprogram = grid.jqGrid('getCell', rowId, 'id');
+            location.href = path + "/admin/program/formUpdateProgram/idprogram/" + idprogram ;
+        },
+        onSelectRow: function(rowId) {
+            var myCellData = grid.jqGrid('getCell', rowId, 'id');
+            var myCellStatus = grid.jqGrid('getCell', rowId, 'statusval');
+
+            $('#btnEnable').removeClass('disabled').addClass('active');
+            $('#btnDisable').removeClass('disabled').addClass('active');
+            if (myCellStatus == 'A')
+                $('#btnEnable').removeClass('active').addClass('disabled');
+            else
+                $('#btnDisable').removeClass('active').addClass('disabled');
+        },
+        loadError : function(xhr,st,err) {
+            grid.html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText);
+        },
+        jsonReader : {
+            repeatitems: false,
+            id: "id"   // row ID
+        }
+
+    });
+
+    // First time, show tBeing attended Tickets, then need to set the label
+    grid.jqGrid('setCaption', ' :: '+aLang['Programs'].replace(/\"/g, ""));
+
+    // Setup buttons
+    grid.navGrid('#pager_list_programs',{edit:false,add:false,del:false,search:true,searchtext: makeSmartyLabel('Search'),refreshtext: makeSmartyLabel('Grid_reload'),cloneToTop: true});
+
+    // remove some double elements from one place which we not need double
+    var topPagerDiv = $('#' + grid[0].id + '_toppager')[0];         // "#list_toppager"
+    $("#search_" + grid[0].id + "_top", topPagerDiv).remove();      // "#search_list_top"
+    $("#refresh_" + grid[0].id + "_top", topPagerDiv).remove();     // "#refresh_list_top"
+    $("#" + grid[0].id + "_toppager_center", topPagerDiv).remove(); // "#list_toppager_center"
+    //$(".ui-paging-info", topPagerDiv).remove();
+
+    /**
+     ** Increase _toppager_left
+     ** https://stackoverflow.com/questions/29041956/how-to-place-pager-to-end-of-top-of-toolbar-in-free-jqgrid
+     **/
+    $(grid['selector']+"_toppager_left").attr("colspan", "4");
+
+    // Add responsive to jqGrid
+    $(window).bind('resize', function () {
+        var width = $('.jqGrid_wrapper').width();
+        grid.setGridWidth(width);
+    });
+
+
+    // Buttons
+    $("#btnCreate").click(function(){
+        location.href = path + "/admin/program/formCreateProgram" ;
+    });
+
+    $("#btnUpdate").click(function(){
+        var myGrid = $('#table_list_programs'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idprogram = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        if (!idprogram) {
+            $("#btn-modal-ok").attr("href", '');
+            $('#modal-notification').html(aLang['Alert_select_one'].replace (/\"/g, ""));
+            $("#tipo-alert").attr('class', 'warning alert-warning');
+            $('#modal-alert').modal('show');
+        } else {
+            location.href = path + "/admin/program/formUpdateProgram/idprogram/" + idprogram ;
+        }
+    });
+
+    $("#btnEnable").click(function(){
+        var myGrid = $('#table_list_programs'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idprogram = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        postStatus(idprogram,'A');
+    });
+
+    $("#btnDisable").click(function(){
+        var myGrid = $('#table_list_programs'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idprogram = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        postStatus(idprogram,'I');
+    });
+
+
+
+});
+
+function postStatus(idprogram,newStatus)
+{
+    $.ajax({
+        type: "POST",
+        url: path + '/admin/program/statusProgram/idprogram/' + idprogram,
         dataType: 'json',
-        colModel : [
-        {
-            display: aLang['Name'].replace (/\"/g, ""), 
-            name : 'name', 
-            width : 250, 
-            sortable : true, 
-            align: 'left'
+        data: {
+            newstatus: newStatus
         },
+        error: function (ret) {
+            modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-program');
 
-        {
-            display: aLang['Controller'].replace (/\"/g, ""), 
-            name : 'controller', 
-            width : 150, 
-            sortable : true, 
-            align: 'left'
         },
+        success: function(ret){
+            console.log(ret);
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            if(obj.status == 'OK' ) {
+                console.log(ret);
+                var idprogram = obj.idprogram, msg = '';
+                if(obj.programstatus == 'A'){msg = aLang['Alert_activated'].replace (/\"/g, "");}
+                else{msg = aLang['Alert_deactivated'].replace (/\"/g, "");}
 
-        {
-            display: aLang['Module'].replace (/\"/g, ""),  
-            name : 'module', 
-            width : 100, 
-            sortable : true, 
-            align: 'left'
-        },
-
-        {
-            display: aLang['Category'].replace (/\"/g, ""),  
-            name : 'category', 
-            width : 100, 
-            sortable : true, 
-            align: 'left'
-        },
-
-        {
-            display: aLang['status'].replace (/\"/g, ""), 
-            name : 'status', 
-            width : 40, 
-            sortable : true, 
-            align: 'center'
+                $('#modal-notification').html(msg);
+                $("#btn-modal-ok").attr("href", path + '/admin/program/index');
+                $("#tipo-alert").attr('class', 'alert alert-success');
+                $('#modal-alert').modal('show');
+            } else {
+                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-program');
+            }
         }
-                                        
-        ],
 
-        buttons : [
-        {
-            name: aLang['New'].replace (/\"/g, ""), 
-            bclass: 'add', 
-            onpress: novo
-        },
+    });
 
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['edit'].replace (/\"/g, ""),  
-            bclass: 'edit', 
-            onpress: edit
-        },
-
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['Deactivate'].replace (/\"/g, ""),  
-            bclass: 'encerra', 
-            onpress: disable
-        },
-
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['Activate'].replace (/\"/g, ""),  
-            bclass: 'activate', 
-            onpress: enable
-        },
-        {
-            separator:true
-        }
-        ],
-
-        searchitems : [
-        {
-            display: aLang['Name'].replace (/\"/g, ""),  
-            name : 'tbp.name', 
-            isdefault: true
-        },
-        {
-            display: aLang['Module'].replace (/\"/g, ""),  
-            name : 'tbm.name', 
-            isdefault: false
-        }
-					
-        ],
-        sortname: "NAME",
-        sortorder: "ASC",
-        usepager: true,
-        title: ' :: '+aLang['pgr_programs'].replace (/\"/g, ""),
-        useRp: true,
-        rp: 15,
-        showTableToggleBtn: false,
-        width: 'auto',
-        height: $(window).height()-206,     
-        resizable: false,
-        minimizado: false,
-        singleSelect : true
-    });        
-    
-    $("#formProgamsInsertCategory").validate({
-		wrapper: "li class='error'",            		
-		errorPlacement: function(error, element) {
-			error.appendTo(element.parent().parent());
-		},
-	  	rules: {
-	  		modules2: {
-	  			required: true
-	  		},
-	    	newcategoryname: {
-	      		required: true
-	    	}
-	 	}
-	});	
-	
-	$(document.getElementById('modalProgramInsertCategory')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnAddCategory'));
-		$.ajax({
-			type: "POST",
-			url: "program/categoryinsert",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalProgramInsertCategory");
-			},
-			success: function(ret) {
-				if(ret){					
-					modalActive = objModal.getActive();
-					if(modalActive == "modalProgramInsert"){
-						$('#modules option[value="' + $("#modules2").val() + '"]').attr({ selected : "selected" });
-						name = "category";
-					}
-					else{
-						$('#modulesEdit option[value="' + $("#modules2").val() + '"]').attr({ selected : "selected" });
-						name = "categoryEdit";
-					}
-					
-					objCategory.load2($("#modules2").val(),ret,name);
-					objModal.openModal(modalActive);
-					$self[0].reset();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalProgramInsertCategory");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});		
-	});
-	
-	
-	objCategory = {
-		load: function(){
-			
-			if(objModal.getActive() == "modalProgramInsert")
-				name = "category";
-			else
-				name = "categoryEdit";
-			
-			var $select = $("select[name="+name+"]"),
-				val = this.value;
-			
-			if(val == 0){
-				$select.html('<option value="">'+aLang['Select_module'].replace (/\"/g, "")+'</option>');
-				return;
-			}
-			
-			$("select[name="+name+"]").html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
-			$.post("program/category", {
-				module : val
-			}, function(valor) {
-				$("select[name="+name+"]").html(valor);
-			})
-		},
-		load2: function(val,checked,name){
-			var $select = $("select[name="+name+"]");
-			if(val == 0){
-				$select.html('<option value="">'+aLang['Select_module'].replace (/\"/g, "")+'</option>');
-				return;
-			}
-			$("select[name="+name+"]").html('<option value="">'+aLang['Loading'].replace (/\"/g, "")+'</option>');
-			$.post("program/category", {
-				module : val
-			}, function(valor) {
-				$("select[name="+name+"]").html(valor);
-				if(checked)	$('select[name='+name+'] option[value="' + checked + '"]').attr({ selected : "selected" });
-			})
-		}
-	}
-	
-	
-	$("#content")
-		.off(".contentloaded")
-		.on("change.contentloaded", "#modules", objCategory.load)
-		.on("change.contentloaded", "#modulesEdit", objCategory.load);
-	
-	
-	
-	
-	$(document.getElementById('modalProgramInsert')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendProgramInsert'));
-		$.ajax({
-			type: "POST",
-			url: "program/insert",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalProgramInsert");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_inserted'].replace (/\"/g, ""),"modalProgramInsert");
-					$("#flexigrid2").flexReload();
-
-					objModal.openModal("modalProgramConfirm");
-				}
-				else
-					objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalProgramInsert");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});	
-	});
-	
-	$(document.getElementById('btnProgramYes')).live("click",function(){
-		objModal.closeModal("modalProgramConfirm");
-		$.address.value("/typepersonpermission/");
-	});
-	
-	$(document.getElementById('modalProgramDisable')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendProgramDisable'));
-		$.ajax({
-			type: "POST",
-			url: "program/deactivate",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_deactivated_error'].replace (/\"/g, ""),"modalProgramDisable");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_deactivated'].replace (/\"/g, ""),"modalProgramDisable");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_deactivated_error'].replace (/\"/g, ""),"modalProgramDisable");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});	
-	});
-	
-	$(document.getElementById('modalProgramActive')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendProgramDisable'));
-		$.ajax({
-			type: "POST",
-			url: "program/activate",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_activated_error'].replace (/\"/g, ""),"modalProgramActive");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_activated'].replace (/\"/g, ""),"modalProgramActive");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_activated_error'].replace (/\"/g, ""),"modalProgramActive");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});	
-	});
-
-	$(document.getElementById('modalProgramEdit')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendProgramEdit'));
-		$.ajax({
-			type: "POST",
-			url: "program/edit",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalProgramEdit");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Edit_sucess'].replace (/\"/g, ""),"modalProgramEdit");
-					$("#flexigrid2").flexReload();
-					
-				}
-				else
-					objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalProgramEdit");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});	
-	});
-    
-    $("#permEdit").live("click",function(){
-    	if(this.checked){
-    		$("#boxPerms").removeClass("none");
-    		objModal.refreshPosition("modalProgramEdit");
-    	}else{
-    		$("#boxPerms").addClass("none");
-    		objModal.refreshPosition("modalProgramEdit");
-    	}
-    })
-    
-           
-});//init		 
-	
-	
-function novo(){       
-    if (access[1]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-    	var modalInsert = $(document.getElementById("modalProgramInsert"));
-        objDefault.maskLoaderShow();
-    	
-    	modalInsert.load("program/insertmodal", function(){
-        	objDefault.init();
-        	objModal.openModal("modalProgramInsert");      	
-        	
-        	$("#formProgramsInsert").validate({
-        		wrapper: "li class='error'",            		
-        		errorPlacement: function(error, element) {
-					error.appendTo(element.parent().parent());
-				},
-			  	rules: {
-			  		modules: {
-			  			required: true
-			  		},
-			    	category: {
-			      		required: true
-			    	},
-			    	name: {
-			      		required: true
-			    	},
-			    	controller: {
-			      		required: true
-			    	}
-			 	}
-			});
-        	objDefault.maskLoaderHide();
-        })
-    }
+    return false;
 }
 
-function disable(com, grid){
-    if (access[2]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-        	var items = $('.trSelected',grid);
-            var itemlist ='';
-            for(i=0;i<items.length;i++){
-                itemlist+= items[i].id.substr(3);
-            }
-            
-            if(itemlist == 3){
-            	objDefault.notification("error",aLang['Deactivate_program'].replace (/\"/g, ""),"modalInfo");
-	    		objModal.openModal("modalInfo");
-            }else{
-            	var modalDisable = $(document.getElementById("modalProgramDisable"));
-	            objDefault.maskLoaderShow();
-	            modalDisable.load("program/deactivatemodal/id/"+itemlist, function(){
-	            	objModal.openModal("modalProgramDisable");
-	            	objDefault.maskLoaderHide();
-	            })	
-            }
-        } else {
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-        }
-    }
-}
-function enable(com, grid){
-    if (access[1]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-	            var items = $('.trSelected',grid);
-	            var itemlist ='';
-	            for(i=0;i<items.length;i++){
-	                itemlist+= items[i].id.substr(3);
-	            }
-	            var modalActive = $(document.getElementById("modalProgramActive"));
-	            objDefault.maskLoaderShow();
-	            modalActive.load("program/activatemodal/id/"+itemlist, function(){
-	            	objModal.openModal("modalProgramActive");
-	            	objDefault.maskLoaderHide();
-	            })
-        } else {
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-        }
-    }
-}
-function edit(com,grid){
-    if (access[2]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-           
-            var items = $('.trSelected',grid);
-            var itemlist ='';
-            for(i=0;i<items.length;i++){
-                itemlist+= items[i].id.substr(3);
-            }
-            var modalEdit = $(document.getElementById("modalProgramEdit"));
-            objDefault.maskLoaderShow();
-            modalEdit.load("program/editmodal/id/"+itemlist, function(){
-            	$("#formProgramsEdit").validate({
-            		wrapper: "li class='error'",            		
-            		errorPlacement: function(error, element) {
-						error.appendTo(element.parent().parent());
-					},
-				  	rules: {
-				  		modulesEdit: {
-				  			required: true
-				  		},
-				    	categoryEdit: {
-				      		required: true
-				    	},
-				    	nameEdit: {
-				      		required: true
-				    	},
-				    	controllerEdit: {
-				      		required: true
-				    	}
-				 	}
-				});
-            	objModal.openModal("modalProgramEdit");
-            	objDefault.maskLoaderHide();
-            })
-           
-           
-        }
-        else{
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-        }
-    }
-}
-function permission(){
-    if (access[2]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-            if($('.trSelected',grid).length>1){
-                alert(aLang['Alert_select_just_one'].replace (/\"/g, ""));
-            }
-            else{
-                var items = $('.trSelected',grid);
-                var itemlist ='';
-                for(i=0;i<items.length;i++){
-                    itemlist+= items[i].id.substr(3);
-                }
-                load('program/editpermissions/id/'+itemlist);
-            }
-        }
-        else{
-            alert(aLang['Alert_select_one'].replace (/\"/g, ""));
-        }
-    }
+function fontColorFormat(cellvalue, options, rowObject) {
+    var color = "blue";
+    var cellHtml = "<span style='color:" + color + "' originalValue='" + cellvalue + "'>" + cellvalue + "</span>";
+    return cellHtml;
 }

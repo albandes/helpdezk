@@ -1,3 +1,153 @@
+adm_Navbar_name = "Admin"
+hdk_Navbar_name = "HelpDEZK"
+
+# --- Academico ---
+acd_Navbar_name = "Acadêmico"
+acd_pgr_indicadoresnotas = "Indicadores Notas"
+
+
+# --- Recursos Humanos ---
+hur_pgr_atestsaudeocupacional = "Atestado Saúde Ocupacional"
+hur_pgr_candidate = "Currículos"
+
+# --- Suprimentos ---
+scm_Navbar_name = "Suprimentos"
+scm_pgr_centrocusto = "Centro de Custo"
+scm_pgr_cadastrocentrocusto = "Centro de Custo"
+scm_pgr_contacontabil = "Conta Contábil"
+scm_pgr_cadastrocontacontabil = "Conta Contábil"
+scm_pgr_fornecedor = "Fornecedor"
+scm_pgr_cadastrofornecedor = "Fornecedor"
+scm_pgr_produto = "Produto"
+scm_pgr_cadastroproduto = "Produto"
+scm_pgr_pedidocompra = "Pedido"
+scm_pgr_cadastropedidocompra = "Pedido"
+scm_pgr_pedidooperador = "Aprovação Pedidos de Suprimentos"
+scm_pgr_cadastropedidooperador = "Aprovação Pedidos de Suprimentos"
+scm_pgr_pedidoaprovador = "Aprovação Pedidos de Suprimentos"
+scm_pgr_cadastropedidoaprovador = "Aprovação Pedidos de Suprimentos"
+scm_pgr_relatoriopedido = "Relatório de Pedidos"
+scm_pgr_local = "Local"
+scm_pgr_cadastrolocal = "Local"
+scm_pgr_grupodebens = "Grupo de Bens"
+scm_pgr_cadastrogrupodebens = "Grupo de Bens"
+scm_pgr_bens = "Bens"
+scm_pgr_cadastrobens = "Bens"
+scm_pgr_relatoriobens = "Relatório de Bens"
+scm_pgr_transportadora = "Transportadora"
+scm_pgr_cadastrotransportadora = "Transportadora"
+scm_pgr_entradaproduto = "Entrada Produto"
+scm_pgr_cadastroentradaproduto = "EntradaProduto"
+scm_pgr_relatorioestoque = "Relatório de Estoque"
+scm_total_value = "Valor Total"
+scm_Item = "Item"
+scm_Quantidade = "Quantidade"
+scm_Approve = "Aprovar"
+scm_Pdf = "PDF"
+scm_shipping_value = "Valor Frete"
+scm_item_total = "TOTAL ITENS"
+scm_shipping_total = "TOTAL FRETE"
+scm_request_total = "TOTAL"
+
+
+# --- Fim Suprimentos --
+
+logout = "Sair"
+UserData = "Dados do usuário"
+
+spm_pgr_cadastroatleta = "Atleta"
+
+
+Year  =  "ano"
+Years =  "anos"
+Month = "mês"
+Months = " meses"
+Day = "dia"
+Days = "dias"
+Hour = "hora"
+Hours = "horas";
+Minute = "minuto"
+Minutes = "minutos"
+Second = "segundo"
+Seconds = "segundos"
+
+
+Placeholder_name = "Insira o nome"
+Placeholder_cpf = "Insira o CPF"
+Placeholder_email = "Insira o email"
+Placeholder_phone = "Insira o telefone"
+Placeholder_cellphone = "Insira o celular"
+Placeholder_zipcode = "Insira o Cep"
+Placeholder_neighborhood = "Insira o bairro"
+Placeholder_address = "Insira o endereço"
+Placeholder_city = "Insira a cidade"
+Placeholder_subject = "Insira o assunto"
+
+
+Alert_field_required = "Este campo é obrigatório"
+Alert_success_update = "Dados atualizados com sucesso"
+Alert_success_withoutaddress = "Dados atualizados, mas sem endereço"
+
+overdue = "Atrasado"
+on_time = "No prazo"
+Messages = "Mensagens"
+New_messages = "Novas mensagens"
+Message_title = "Você tem $$ novas mensagens."
+
+Lock_text = "Você está em tela de bloqueio. O aplicativo principal foi desligado e você precisa acessar a tela de login para voltar ao aplicativo."
+Lock_unlock = "Desbloquear"
+
+btn_cancel = "Cancela"
+btn_submit = "Enviar"
+btn_update_userdata = "Atualize seus dados"
+
+Grid_opening_date = "Data de Abertura"
+Grid_subject = "Assunto"
+Grid_expire_date = "Prazo Final"
+Grid_incharge = "Respons&aacute;vel"
+Grid_status = "Status"
+Grid_all_tickets = "Todas as solicitações"
+Grid_view = "Ver"
+Grid_all = "Todas"
+Grid_new = "Novas"
+Grid_being_attended = "Em atendimento"
+Grid_waiting_my_approval = "Aguardando minha aprova&ccedil;&atilde;o"
+Grid_finished = "Encerradas"
+Grid_rejected = "Rejeitadas"
+Grid_all_tickets = "Todas as solicitações"
+Grid_new_tickets = "Solicitações novas"
+Grid_being_attended_tickets = "Solicitações em atendimento"
+Grid_waiting_my_approval_tickets = "Solicitações aguardando aprova&ccedil;&atilde;o"
+Grid_finished_tickets = "Solicitações Atendidas e Encerradas"
+Grid_rejected_tickets = "Solicitações Rejeitadas"
+Grid_reload = "Recarregar"
+Grid_waiting_approve_msg = "Existem solicitações aguardando sua aprovação. <br/> Você não poderá abrir novos chamados antes de aprová-las."
+
+Editor_Placeholder_insert = "Insira aqui seu apontamento ..."
+Editor_Placeholder_description = "Insira aqui a descrição da solicitação ..."
+
+Tckt_incharge = "Respons&aacute;vel"
+Tckt_drop_file = "Arraste os arquivos para upload ou clique aqui !"
+
+Tckt_opened = "Solicitação aberta"
+
+Btn_evaluate = "Avaliar"
+Tckt_Request = "Solicita&ccedil;&atilde;o"
+Tckt_evaluated_success = "Solicitação avaliada com sucesso !"
+Tckt_cancel_request = "Confirma cancelamento da solicitação ?"
+Tckt_reopen_request = "Confirma reabertura da solicitação ?"
+Tckt_delete_note = "Confirma exclusão do apontamento ?"
+Tckt_del_note_failure = "Não possível excluir o apontamento !"
+Tckt_finish_request = "Encerrar"
+
+Reason_no_registered = "Sem motivo cadastrado"
+
+Tck_Open = "Solicitações em aberto"
+My_Tickets = "Minhas Solicitações"
+Tck_title = "Solicitações"
+Tck_new_ticket = "Nova Solicitação"
+# -----
+
 Abbreviation = "Sigla"
 Abilities = "Habilidades"
 Access = "Accessar"
@@ -17,7 +167,7 @@ Add_widget = "Adicionar Widget"
 Added_notes = "Apontamentos Inclusos"
 Additional_information = "Informa&ccedil;&atilde;o Adicional"
 Administration = "Administra&ccedil;&atilde;o"
-Adress          = "End."
+Adress          = "Endereço"
 Alert_empty_fields = "Preencha todos campos"
 Alert_activated = "Ativado com sucesso."
 Alert_activated_error = "Falha ao ativar."
@@ -74,7 +224,7 @@ Alert_empty_question    = "Selecione uma pergunta"
 Alert_empty_service = "Preencha o nome do item"
 Alert_empty_solution = "Preecha a solu&ccedil;&atilde;o"
 Alert_empty_status      = "Preencha o Status"
-Alert_empty_subject = "Preencha o assunto da Solicita&ccedil;&atilde;o"
+Alert_empty_subject = "Preencha o assunto da solicita&ccedil;&atilde;o"
 Alert_empty_time    = "Preencha a hora de abertura"
 Alert_empty_type = "Preencha o nome do tipo!"
 Alert_empty_user        = "Preencha o Usuário"
@@ -102,7 +252,7 @@ Alert_sucess_cancel = "Solicita&ccedil;&atilde;o cancelada com sucesso."
 Alert_sucess_reopen = "Solicita&ccedil;&atilde;o reaberta com sucesso."
 Alert_system_default = "Itens padrões não podem ser deletados."
 Alert_type_repass = "Um erro ocorreu ao definir para quem repassar. Contate a administração."
-Alert_follow_repass = "Escolha uma das opções sobre o acompanhemento."
+Alert_follow_repass = "Escolha uma das opções sobre o acompanhamento."
 Alert_wrong_date    = "Preencha a data no formato dd/mm/yyyy"
 Alert_wrong_date_2    = "Preencha a data"
 Alert_wrong_time    = "Preencha a hora com 4 caracteres"
@@ -146,7 +296,7 @@ Average_time = "Tempo M&eacute;dio"
 Back_btn        = "Voltar"
 Being_attended = "Em atendimento"
 Branch          = "Ramal"
-Birth_date = "Data de Nascimento"
+Birth_date = "Nascimento"
 Be_together_with = "Agrupar com"
 Bar_show = "Mostrar Barra"
 Bar_hide = "Esconder Barra"
@@ -510,12 +660,13 @@ Priority_insert = "Cadastrar Prioridade"
 Property            = "Patrim&ocirc;nio"
 Problem_solution = "Solu&ccedil;&atilde;o do Problema"
 Problem_description = "Descri&ccedil;&atilde;o do Problema"
-Programs = "Programs"
+Programs = "Programas"
 Programs_insert = "Inserir Programa"
 Programs_edit = "Editar Programa"
 PDF_person_report = "Relatório de Pessoa"
 PDF_reject = "Solicitações Rejeitadas"
 PDF_request_report = "Relatório de Solicitações"
+PDF_request_report_total = "Relatório de Qunatidade de Solicitações"
 PDF_code = "Código"
 PDF_Page            = "Página"
 Question            = "Pergunta"
@@ -540,6 +691,7 @@ Rejected = "Rejeitadas"
 Repass_request_only = "Apenas Repassar Chamados"
 Repass_request_to = "Repassar solicita&ccedil;&atilde;o para"
 Request_report = "Relat&oacute;rio de Solicita&ccedil;&otilde;es"
+Request_report_total = "Relat&oacute;rio de Quantidade de Solicita&ccedil;&otilde;es"
 Reports = "Relat&oacute;rios"
 Reports_logo = "Logo dos Relat&oacute;rios"
 Request         = "Solicita&ccedil;&atilde;o"
@@ -561,7 +713,7 @@ Request_in_progress = "Em atendimento"
 Request_owner = "Solicitante"
 Request_number = "N&uacute;mero da solicita&ccedil;&atilde;o"
 Request_not_approve = "A solicita&ccedil;&atilde;o n&atilde;o foi aprovada."
-Request_approve = "Existem solicitações aguardando sua aprovação. <br/> Você não poderá abrir novos chamados antes de aprová-las."
+Request_approve = "Existem solicitações aguardando sua aprovação. <br/> Você não poderá abrir novos chamados antes de aprová-las.<br/> Deseja aprova-las agora?"
 Request_waiting_approval = "Aguardando aprovação do usu&aacute;rio"
 Restricted = "Restrito"
 Restricted_msg = "Se marcado, somente atendentes e administradores poder&atilde;o ter acesso."
@@ -698,7 +850,7 @@ VIP_user_text   = "Utilizar esta prioridade quando a solicita&ccedil;&atilde;o f
 View_groups = "Visualizar grupos"
 Yes = "Sim"
 Year = "Ano"
-Warning_insert = "Cadastrar Alerta"	
+Warning_insert = "Cadastrar Alerta"
 Weekday = "Dia da Semana"
 Welcome = "Bem-vindo"
 Waiting_my_approval = "Aguardando minha aprova&ccedil;&atilde;o"
@@ -712,7 +864,7 @@ Warning_view_topics = "Ver T&oacute;picos"
 Warning_title_topic = "T&iacute;tulo do T&oacute;pico"
 Warning_title = "T&iacute;tulo do Aviso"
 
-Zipcode         = "CEP"
+Zipcode         = "Cep"
 Minimum = "M&iacute;nimo"
 Middle = "M&eacute;dio"
 Maximum = "M&aacute;ximo"
@@ -732,7 +884,7 @@ Author = "Autor"
 Permission_Groups        = "Permissão"
 Permission_Groups_Select = "Selecione o Grupo de Permissão"
 
----- Dias da semana ----
+#-- Dias da semana ----
 
 Monday = "Segunda-Feira"
 Tuesday = "Ter&ccedil;a-Feira"
@@ -742,7 +894,7 @@ Friday = "Sexta-Feira"
 Saturday = "S&eacute;bado"
 Sunday = "Domingo"
 
----- Meses ----
+#-- Meses ----
 
 January = "Janeiro"
 February = "Fevereiro"
@@ -757,7 +909,7 @@ October = "Outubro"
 November = "Novembro"
 December = "Dezembro"
 
------- Type User ------
+#---- Type User ------
 
 type_user_admin = "Administrador"
 type_user_user = "Usu&aacute;rio"
@@ -771,22 +923,27 @@ type_user_ERP_Supplier = "Fornecedor"
 type_user_TMS_User = "Usuário TMS"
 type_user_GES_User = "Usuário Gestão"
 type_user_IT_User = "Usuário IT"
+type_user_BIN_User = "Usuário Business Intelligence"
+type_user_HUR_USer = "Usuário Recursos Humanos"
+type_user_ACD_User = "Usuário Acadêmico"
+type_user_SCM_User = "Usuário Suprimentos"
+type_user_FIN_User = "Usuário Financeiro"
 
------- Email ------
+#---- Email ------
 
 Email_request_assumed = "USUARIO: Notificar usu&aacute;rio quando a solicita&ccedil;&atilde;o for assumida"
-Email_request_finished = "USUARIO: Notificar usu&aacute;rio ao encerrar a solicita&ccedil;&atilde;o"	
-Email_request_rejected = "USUARIO: Notificar usu&aacute;rio ao rejeitar a solicita&ccedil;&atilde;o"	
+Email_request_finished = "USUARIO: Notificar usu&aacute;rio ao encerrar a solicita&ccedil;&atilde;o"
+Email_request_rejected = "USUARIO: Notificar usu&aacute;rio ao rejeitar a solicita&ccedil;&atilde;o"
 Email_request_apont_user = "USUARIO: Enviar notifica&ccedil;&atilde;o ao incluir novo apontamento"
 Email_request_record = "ATENDENTE: Notificar atendentes respons&aacute;veis ao cadastrar uma nova solicita&ccedil;&atilde;o"
 Email_request_repass = "ATENDENTE: Notificar atendentes respons&aacute;veis ao repassar uma solicita&ccedil;&atilde;o"
-Email_request_apont_operator = "ATENDENTE: Enviar notifica&ccedil;&atilde;o ao incluir novo apontamento"	
+Email_request_apont_operator = "ATENDENTE: Enviar notifica&ccedil;&atilde;o ao incluir novo apontamento"
 Email_request_reopened = "ATENDENTE: Enviar notifica&ccedil;&atilde;o quando uma solicita&ccedil;&atilde;o for reaberta"
 Email_request_evaluated = "ATENDENTE: Notificar atendente quando uma solicitação for avaliada."
 Email_request_approve = "ATENDENTE: Notificar atendente de solicitação para aprovação."
 Email_operator_reject = "ATENDENTE: Enviar email para todos atendentes do grupo quando rejeitar uma solicita&ccedil;&atilde;o."
 
------ Email vars -----
+#--- Email vars -----
 
 Var_user = "Usu&aacute;rio logado no sistema"
 Var_phone = "Telefone do usu&aacute;rio"
@@ -806,8 +963,8 @@ Var_serial = "N&uacute;mero de s&eacute;rie"
 Var_status = "Status da solicita&ccedil;&atilde;o"
 Var_requester = "Nome do solicitante"
 Var_incharge = "Nome do respons&aacute;vel"
-Var_type "Tipo"
-Var_item "Item"
+Var_type = "Tipo"
+Var_item = "Item"
 Var_service = "Servi&ccedil;o"
 Var_nt_operator = "Apontamentos que somente os atendentes podem ver"
 Var_tag = "Etiqueta"
@@ -818,7 +975,8 @@ Var_link_user =	"Link para a p&aacute;gina da solicita&ccedil;&atilde;o (usu&aac
 Var_evaluation = "Avaliação dada pelo usu&aacute;rio!"
 Var_link_evaluation = "Link para avaliação sem login."
 auxiliary_operator_include = "Incluir Atendente Auxiliar"
------ Operator Buttons ------
+lbl_auxiliary_operator = "Atendente(s) Auxiliar(es)"
+#--- Operator Buttons ------
 
 btn_save_changes = "Salvar Altera&ccedil;&otilde;es"
 btn_assume = "Assumir"
@@ -829,7 +987,7 @@ btn_reopen = "Reabrir"
 btn_add_note = "Inserir Apontamento"
 btn_ope_aux = "Atendente Auxiliar"
 
------ System Features -----
+#--- System Features -----
 
 sys_allow_delete_note = "Permitir que os atendentes excluam apontamentos"
 sys_prorogation_qt = " Qtde de prorroga&ccedil;&otilde;es na data de vencimento (0 = Nunca, [Em branco] = Sem limites, [Acima de 0] = Qtd. de prorroga&ccedil;&otilde;es)"
@@ -858,9 +1016,9 @@ sys_use_equipment = "Utiliza controle de equipamentos [Etiqueta, Serial e OS]"
 Other_items = "Outros Itens"
 sys_workdays_request_approval="N&uacute;mero de dias &uacute;teis para o sistema aprovar automaticamente as solicita&ccedil;&atilde;es encerradas [0 = Nunca aprovar]"
 sys_time_session = "Tempo que ir&aacute; durar a sess&atilde;o do sistema. Valor em segundos. Se n&atilde;o definido ser&aacute; de 10 minutos."
------ Grid Sorting -----
+#--- Grid Sorting -----
 
-grd_show_only_mine = "Mostras as minhas"
+grd_show_only_mine = "Mostrar as minhas"
 grd_show_group = "Mostrar as do meu grupo"
 grd_show_all = "Mostrar todas"
 
@@ -869,7 +1027,7 @@ grd_expiring_today = "Vencendo Hoje"
 grd_expired = "Vencidas"
 grd_expired_n_assumed = "Vencidas n&atilde;o assumidas"
 
------ Programs -----
+#--- Programs -----
 
 cat_records = "Cadastros"
 cat_config = "Config"
@@ -897,6 +1055,7 @@ pgr_email_request = "Solicitações por Email"
 pgr_sys_features = "Funcionalidades do Sistema"
 pgr_person_report = "Relat&oacute;rio de Pessoas"
 pgr_req_reports = "Relat&oacute;rio de Solicita&ccedil;&otilde;es"
+pgr_req_reports_total = "Relat&oacute;rio de Quantidade de Solicita&ccedil;&otilde;es"
 pgr_ope_aver_resptime = "Tempo de resposta por atendente"
 pgr_grp_aver_resptime = "Tempo de resposta por grupo"
 pgr_request_department = "Solicitações por Departamentos"
@@ -924,6 +1083,7 @@ pgr_sum_add_info = "Resumido por Informa&ccedil;&atilde;o Adicional"
 pgr_req_add_info = "Solicita&ccedil;&otilde;es por Informa&ccedil;&atilde;o Adicional"
 pgr_worked_requests = "Solicita&ccedil;&otilde;es Trabalhadas"
 pgr_requests_by_company = "Solicita&ccedil;&otilde;es por Empresa"
+pgr_logos = "Logos"
 
 pgr_erp_costcenter = "Centro de Custo - ERP"
 pgr_erp_account = "Conta Contábil"
@@ -960,12 +1120,12 @@ seconds             = "segundos"
 expiredmessage      = "Sua sess&atilde;o expirou.  Voc&ecirc; foi deslogado por raz&otilde;es de seguran&ccedil;a."
 titleSessionDialog  = "Aviso de expiração de sessão"
 sessionContinueText = "Clique <b>OK</b> para manter sua sess&atilde;o."
-reload_request      = "Recarregar dados do Chamado"
+reload_request      = "Recarregar dados "
 Error_insert_note   = "Erro ao inserir apontamento"
 Alert_Cancel_sucess = "Solicitação cancelada com sucesso"
 Alert_note_sucess   = "Apontamento inserido com sucesso"
-Alert_close_request = "Solicitação encerrada"
-Alert_reopen_sucess = "Solicitação Reaberta"
+Alert_close_request = "Solicitação encerrada com sucesso"
+Alert_reopen_sucess = "Solicitação Reaberta com sucesso"
 Alert_deleted_note  = "Apontamento excluido"
 Alert_person_inserted = "Cadastrado com sucesso"
 Alert_edited_person = "Cadastro Editado"
@@ -1000,11 +1160,11 @@ Low                 = "Baixa"
 Planned             = "Planejada"
 
 Error_Number_columns 		= "N&uacute;mero de colunas na linha % do arquivo inv&aacute;lida. Importa&ccedil;&atilde;o cancelada !!!"
-Error_Company_NotFound 		= "Empresa n&atilde;o existe na linha %" 
-Error_Department_Insert 	= "Erro ao cadastrar departamento %" 
-Error_Login_Found 			= "Login j&aacute; existe na linha %" 
-Error_Login_Type 			= "Tipo de Login Inv&aacute;lido na linha %" 
-Error_Invalid_Email			= "Email inv&aacute;lido na linha %" 
+Error_Company_NotFound 		= "Empresa n&atilde;o existe na linha %"
+Error_Department_Insert 	= "Erro ao cadastrar departamento %"
+Error_Login_Found 			= "Login j&aacute; existe na linha %"
+Error_Login_Type 			= "Tipo de Login Inv&aacute;lido na linha %"
+Error_Invalid_Email			= "Email inv&aacute;lido na linha %"
 Error_Invalid_AccessLevel   = "N&iacute;l de acesso inv&aacute;lido na linha %"
 Error_Invalid_Gender 		= "Sexo inv&aacute;lido na linha %"
 Error_Unable_Write 			= "N&atilde;o foi poss&iacute;vel gravar: %"
@@ -1066,7 +1226,9 @@ Update_Last_Version         = "&Uacute;ltima Vers&atilde;o"
 Update_Not_Connect          = "N&atilde;o consegui conectar ao site do helpdezk, por favor, verifique seu firewall !!!"
 Update_Bad_Response         = "Resposta do servidor com erro !"
 
--- DASH --
+
+Processing = "Processando"
+# DASH --
 DSN_Navbar_name = "Dashboard"
 
 Dashboard_SLAFulfillment = "Cumprido"
@@ -1077,10 +1239,10 @@ Dashboard_Default = "Widget default em"
 Dashboard_Allowed = "Widget permitido em"
 Dashboard_Groups = "Grupos e Tipos"
 
----
+#-
 
 Logos_Title = "Logos"
--- ERP --
+# ERP --
 ERP_Navbar_name = "E R P"
 ERP_Cost_Center  = "Centro de Custo"
 ERP_Type         = "Tipo de CC"
@@ -1226,7 +1388,7 @@ google2FA_write_token_Error = "Erro ao salvar token !!!"
 
 
 
----- T M S ---
+#-- T M S ---
 
 TMS_Navbar_name = "T M S"
 
@@ -1423,9 +1585,9 @@ TMS_Description = "Descrição"
 TMS_Serie = "Série"
 
 
------
+#---
 
--------GESTAO----
+#-----GESTAO----
 GES_Navbar_name = "GESTAO"
 pgr_ges_pedidosuprimento = "Pedido de Suprimentos"
 
@@ -1440,8 +1602,6 @@ GES_Pessoa = "Solicitante"
 
 GES_Header_insert = "Novo Pedido de Compra"
 GES_DataEntregaPedido = "Data Entrega Pedido"
-GES_Item = "Item"
-GES_Quantidade = "Qtd."
 GES_Unidade = "Un."
 GES_AddItem = "Adicionar Item"
 GES_DelItem = "Remover Item"
@@ -1454,7 +1614,6 @@ GES_Observacao = "Observação"
 GES_CancelaPedido = "Deseja cancelar o Pedido"
 GES_HeaderCancela = "Cancelamento de Pedido"
 GES_NumberRequest = "Solicitação de Compra"
-GES_Approve = "Aprovar"
 GES_CentroCusto = "Centro de Custo"
 GES_ContaContabil = "Conta Contábil"
 GESSelect_CostCenter = "Selecione o Centro de Custo"
@@ -1468,9 +1627,9 @@ GES_ApproveAlert = "Este processo não pode ser realizado neste estágio"
 GES_Alert_cancelado = "Pedido cancelado com sucesso."
 GES_OrcamentoCompra = "Orçamento"
 GES_DestinaPedido = "Destinado a"
------
+#---
 
----- IT ---
+#-- IT ---
 
 IT_Navbar_name = "IT"
 pgr_it_cadastromac = "Cadastro MAC"
@@ -1489,10 +1648,141 @@ IT_Header_edit = "Editar MAC"
 IT_EnableAlert = "Este host já está ativo!"
 IT_DisableAlert = "Este host já está inativo!"
 
------
+#- API ---
+
+API_Alert_choose_area  		 = "Escolha a Área"
+API_Alert_choose_item  		 = "Escolha o Item"
+API_Alert_choose_type  	 	 = "Escolha o Tipo"
+API_Approve_no 				 = "Não."
+API_Approve_obs 			 = "Sim, com observações."
+API_Approve_text 			 = "Você aprova o atendimento do atendente?"
+API_Approve_yes 			 = "Sim."
+API_Error_cancel_request	 = "Falha ao cancelar solicitação!"
+API_Error_code_approval 	 = "Erro, faltando código ou tipo de aprovação."
+API_Error_not_insert 		 = "Não foi possível inserir!"
+API_Error_reopen_request 	 = "Falha ao reabrir solicitação!"
+API_No_result 				 = "Nenhum registro encontrado."
+API_Observation 			 = "Observação"
+API_Reason          		 = "Motivo"
+API_Request_closed 			 = "Solicitação Encerrada"
+API_Request_not_approve 	 = "A solicitação não foi aprovada."
+API_Request_opened 			 = "Solicitação Cadastrada"
+API_Success_approval_request = "Solicitação avaliada com sucesso!"
+API_Success_cancel_request 	 = "Solicitação cancelada com sucesso!"
+API_Success_insert_note 	 = "Apontamento inserido com sucesso!"
+API_Success_reopen_request 	 = "Solicitação reaberta com sucesso!"
+API_Success_reprove_request  = "Solicitação reprovada com sucesso!"
+API_Text_cancel_request 	 = "Solicitação cancelada."
+API_Text_reopen_request 	 = "Solicitação reaberta."
+API_Error_token              = "Token inválido, usuário não está logado."
+
+#-----
+
+DWL_Upload_file = "Upload de arquivo"
+DWL_Button_upload = "Upload"
+
+# --- hur start ---
+# --- headers ---
+hur_Navbar_name = "Recursos Humanos"
+personal_details = "Dados Pessoais"
+address_details = "Endereço"
+role_details = "Cargo desejado"
+curriculum_details = "Dados do Currículo"
 
 
----------
+name_full = "Nome completo"
+rg = "RG"
+gender = "Gênero"
+marital_status = "Estado Civil"
+childs_number = "Filhos"
+mother = "Nome da Mãe"
+nationality = "Nacionalidade"
+birth_place = "Naturalidade"
+home_phone = "Residencial"
+scrap_phone = "Recado"
+facebook = "Facebook"
+linkedin = "LinkedIn"
+twitter = "Twitter"
+skype = "Skype"
+lattes = "Currículo Lattes"
+address = "Endereço"
+complement = "Complemento"
+uf = "UF"
+role = "Cargo"
+role_experience_time = "Tempo de experiência no cargo"
+preference_shift = "Turno de Preferência"
+hiring = "Contração"
+deficiency = "Deficiência"
+summary = "Resumo do Currículo"
+upload_lbl = "Upload do CV"
+
+integral = "Integral"
+morning = "Manhã"
+afternoon = "Tarde"
+nighttime = "Noite"
+indifferent = "Indiferente"
+
+internship = "Estágio"
+temporary = "Temporária"
+effective = "Efetiva"
+
+# --- hur end ---
+
+# --- bin start ---
+bin_Navbar_name = "Business Intelligence"
+bin_pgr_georeferencing = "Georreferenciamento"
+# --- bin end ---
+
+# --- fin start ---
+fin_Navbar_name = "Financeiro"
+fin_pgr_bank_remittance = "Verifica Remessa"
+# --- fin end ---
+
+
+#-------
+teacher_no_class = "Professor não possui turma"
+
+# --- Placeholders ---
+plh_holiday_description = "Informe a descrição do Feriado"
+plh_holiday_date = "Informe a data do Feriado"
+
+plh_module_description = "Informe o nome do Módulo"
+plh_module_path = "Informe o caminho do Módulo"
+plh_smarty_variable = "Informe a vari&aacute;vel smarty"
+plh_module_prefix = "Informe o prefixo de tabela"
+plh_program_description = "Informe o nome do Programa"
+plh_controller_description = "Informe o Controller do Programa"
+plh_category_description = "Informe o nome da Categoria"
+
+Editor_Placeholder_solution = "Insira aqui a solução da solicitação..."
+Editor_Placeholder_reason = "Insira aqui o motivo..."
+Alert_empty_reason        = "Preencha o motivo"
+
+Program = "Programa"
+Drag_image_msg = "Arraste<br> o arquivo<br> com a imagem<br> ou<br> clique aqui."
+
+Table_prefix = "Prefixo de Tabela"
+Module_default = "M&oacute;dulo Padr&atilde;o"
+Module_path    = "Caminho do M&oacute;dulo"
+
+Alert_sucess_category = "Categoria cadastrada com sucesso"
+Alert_invalid_email = "Formato de E-mail inválido"
+
+tooltip_state = "Adicionar novo estado"
+tooltip_type_street = "Adicionar novo logradouro"
+tooltip_neighborhood = "Adicionar novo bairro"
+tooltip_street = "Adicionar novo endereço"
+tooltip_city = "Adicionar nova cidade"
+
+Option_only_attendant_active = "Opção somente para atendentes ativos"
+Alert_add_program_title = "Não esqueça de acrescentar a entrada do programa em 'app/lang/[idioma].txt'"
+Select_country= "Selecione o Pa&iacute;s"
+Select_state= "Selecione o Estado"
+Select_city= "Selecione a Cidade"
+Select_neighborhood= "Selecione o Bairro"
+Select_street = "Selecione o Endereço"
+Select_location = "Selecione a Localização"
+
 [201301014]
 Service_order_number = "N&ordm; do documento"
 Service_order_number_min = "N&ordm; do doc."
@@ -1503,8 +1793,10 @@ Tag_min = "N&ordm; de patrim."
 Att_way_min     = "Fornecedor"
 Att_way         = "Fornecedor"
 
-sys_two_factor "teste"
--- Italy --
+sys_two_factor = "teste"
+# Italy --
+
+
 Login_cant_create_user = "Cant create User !!!!"
 
 

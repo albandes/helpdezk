@@ -1,12 +1,34 @@
 <?php
-class modules_model extends Model{
-    public function insertModule($var){
-        return $this->db->Execute("INSERT into tbmodule (name) values('$var')");
+
+/*if(class_exists('Model')) {
+    class DynamicIndex_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicIndex_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicIndex_model extends apiModel {}
+}*/
+
+class modules_model extends Model {
+    public function insertModule($name, $path, $smarty,$prefix,$default=NULL){
+        $fcond = isset($default) ? ', defaultmodule' : '';
+        $vcond = isset($default) ? ", '$default'" : '';
+        $query = "INSERT INTO tbmodule (name, path, smarty, tableprefix $fcond) 
+                    VALUES('$name', '$path', '$smarty', '$prefix' $vcond)";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }        
     }
+
     public function selectModule($where = NULL, $order = NULL, $limit = NULL){
 
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($database == 'mysqli') {
             $ret = $this->select("SELECT idmodule, name, status from tbmodule $where $order $limit");
         } elseif ($database == 'oci8po') {
             $limit = str_replace('LIMIT', "", $limit);
@@ -25,27 +47,51 @@ class modules_model extends Model{
         }
         return $ret;
     }
+
     public function countModule($where = NULL, $order = NULL, $limit = NULL){
         $sel = $this->select("SELECT count(idmodule) as total from tbmodule $where $order $limit");
         return $sel;
     }
-     public function deleteModule($where){
+    
+    public function deleteModule($where){
         return $this->delete('tbmodule', $where);
     }
+
     public function selectModuleData($id){
-        return $this->select("SELECT name from tbmodule where idmodule ='$id'");
+        $query = "SELECT name, path, smarty, headerlogo, tableprefix, defaultmodule from tbmodule where idmodule ='$id'";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }
+            
+        return $ret;
+        
     }
-    public function updateModule($id,$name){
-        return $this->db->Execute("UPDATE tbmodule set name = '$name' where idmodule = '$id'");
+
+    public function updateModule($id,$set){
+        $query = "UPDATE tbmodule SET $set WHERE idmodule = '$id'";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
     }
-    public function moduleDeactivate($id){
-       return $this->db->Execute("UPDATE tbmodule set status = 'N' where idmodule in ($id)");  
+
+    public function changeModuleStatus($id,$newStatus){
+       return $this->db->Execute("UPDATE tbmodule SET status = '$newStatus' WHERE idmodule in ($id)");
     }
-    public function moduleActivate($id){
-       return $this->db->Execute("UPDATE tbmodule set status = 'A' where idmodule in ($id)");  
-    }
+
     public function checkName($name){
         return $this->select("select idmodule from tbmodule where name='$name'");
     }
+
+    
+
 }
+
 ?>

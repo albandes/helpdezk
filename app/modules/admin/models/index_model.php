@@ -1,10 +1,19 @@
 <?php
 
-class index_model extends Model {
+if(class_exists('Model')) {
+    class DynamicIndex_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicIndex_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicIndex_model extends apiModel {}
+}
+
+class index_model extends DynamicIndex_model {
+//class index_model extends Model {
 
     public function selectDataLogin($F_LOGIN, $F_SENHA) {
 		$database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
+		if ($this->isMysql($database)) {
 			$password = $F_SENHA;
 		} elseif ($database == 'oci8po') {
 			$password = strtoupper($F_SENHA) ;
@@ -19,6 +28,7 @@ class index_model extends Model {
             $this->error($sError);
             return false;
         }
+
         return $ret->fields['idperson'];
 
     }
@@ -40,6 +50,7 @@ class index_model extends Model {
         $ret = $this->select("select
           person.idtypeperson as idtypeperson,
           person.name         as name,
+          person.login        as login,
           juridical.idperson  as idjuridical,
           juridical.name as company
         from tbperson  person,
@@ -60,7 +71,7 @@ class index_model extends Model {
 
     public function selectTypePerson($idperson) {
 		$database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
+		if ($this->isMysql($database)) {
 			$ret = $this->db->Execute( 	"
 										select
 										  tp.name, tp.idtypeperson
@@ -110,7 +121,7 @@ class index_model extends Model {
 
     public function selectPersonGroups($idperson) {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $ret = $this->db->Execute("SELECT pers.name as personname,
                                         pers.idperson,
                                         pers.name as groupname,
@@ -148,7 +159,39 @@ class index_model extends Model {
         }
         return $ret;
     }
-    
+
+    public function getModules()
+    {
+
+    }
+
+    public function getConfigDataByModule($abbrModule){
+        $tableName = $abbrModule . '_tbconfig';
+        if ( $this->tableExists($tableName) == 0 )
+            return false;
+        $ret = $this->select("select session_name, value from $tableName");
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return $ret;
+    }
+
+
+
+    public function getConfigGlobalData(){
+
+        $sql = "select session_name, value from tbconfig" ;
+
+        $ret = $this->select($sql);
+
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+        else
+            return $ret;
+    }
+
     public function getConfigData(){
         $ret = $this->select("select session_name, value from hdk_tbconfig");
         if (!$ret) {
@@ -314,6 +357,30 @@ class index_model extends Model {
             return false;
         }
         return $ret->fields['value'];
+    }
+
+    // Use by API
+    // Since May 16, 2017
+    public function setToken($id,$token)
+    {
+        $ret =  $this->select("UPDATE tbperson SET token='$token' WHERE idperson = $id");
+        return  $ret;
+    }
+
+    // Use by API
+    // Since May 16, 2017
+    public function getUserIdByToken($token)
+    {
+        $ret =  $this->select("SELECT idperson FROM tbperson WHERE token='$token'");
+        return  $ret->fields['idperson'];
+    }
+
+    // Use by API
+    // Since May 17, 2017
+    public function getLoginByToken($token)
+    {
+        $ret =  $this->select("SELECT login FROM tbperson WHERE token='$token'");
+        return  $ret->fields['login'];
     }
 
 }

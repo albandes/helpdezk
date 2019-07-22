@@ -14,16 +14,20 @@ class Model extends System{
 		$db_sn 			= $this->getConfig('db_sn');
 
         if(!$db_connect){
-        	$this->setConfig("db_connect","mysqlt");
+        	$this->setConfig("db_connect","mysqli");
         }
         if ($db_connect == 'oci8po') define('ADODB_ASSOC_CASE', 0); # use  lowercase field names for ADODB_FETCH_ASSOC
-		
-		include 'includes/adodb/adodb.inc.php';
+
+		//include 'includes/adodb/adodb.inc.php';
+
+        $adodbVersion = $this->getAdoDbVersion();
+        include 'includes/adodb/'.$adodbVersion.'/adodb.inc.php';
+
 		$this->db = NewADOConnection($db_connect);
-		
-		if($db_connect == 'mysqlt'){
+
+		if($db_connect == 'mysqli'){
 			if (!$this->db->Connect($db_hostname, $db_username, $db_password, $db_name)) {
-				die("<br>Error connecting to database: " . $this->db->ErrorNo() . " - " . $this->db->ErrorMsg());
+				die("<br>Error connecting to database ----: " . $this->db->ErrorNo() . " - " . $this->db->ErrorMsg());
 			}
 		}
 		elseif ($db_connect == 'oci8po'){
@@ -118,12 +122,30 @@ class Model extends System{
          
     }
 
-
     public function error($sError)
     {
     	$this->db->RollbackTrans(); 
         die($sError);
         return;
+    }
+
+    public function tableExists($tableName)
+    {
+        $rs = $this->select("SELECT pipeTableExists('".$tableName."') as exist");
+        return $rs->fields['exist'];
+    }
+
+    public function dbError($file,$line,$method,$error,$query='')
+    {
+        if(empty($query))
+            $sql = '';
+        else
+            $sql = ' , query : ' . $query;
+
+        $file = str_replace($this->helpdezkPath,'',$file);
+
+        echo "[DB Error] File: " . $file . " , method: " . $method . ", line: " . $line . ", Db message: " . $error . $sql;
+
     }
 
     public function TableMaxID($table, $key) 
