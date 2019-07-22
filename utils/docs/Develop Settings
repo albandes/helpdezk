@@ -1,0 +1,16 @@
+session_name    VALUE
+EM_EVALUATED    1
+SEND_EMAILS     1
+EM_DOMAIN       escola3v.com.br
+EM_USER         no-reply@escola3v.com.br
+EM_PASSWORD     LambruscO2017
+EM_SENDER       no-reply@marioquintana.com.br
+EM_AUTH         1
+EM_HEADER
+EM_FOOTER
+EM_SUCCESS_LOG  1
+EM_HOSTNAME     smtp.escola3v.com.br
+EM_TITLE        [Helpdesk] Teste
+EM_FAILURE_LOG  1
+EM_BY_CRON      0
+EM_PORT         587

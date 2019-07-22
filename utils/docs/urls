@@ -1,0 +1,40 @@
+* Adjust Bootstrap Tooltip Width
+https://stackoverflow.com/questions/36263249/adjust-bootstrap-tooltip-width
+
+* Remote Syslog
+http://www.itzgeek.com/how-tos/linux/centos-how-tos/setup-syslog-server-on-centos-6-rhel-6.html
+http://linuxsysconfig.com/2013/04/how-to-configure-remote-logging-on-rhel6-centos6/
+https://www.developer.com/lang/php/article.php/3327111/Monitor-PHP-Application-Errors-and-Messages-with-syslog.htm
+
+* Dropzone
+https://stackoverflow.com/questions/31519812/what-about-dropzone-js-within-an-existing-form-submitted-by-ajax
+https://stackoverflow.com/questions/18765183/how-do-i-refresh-the-page-after-dropzone-js-upload
+https://github.com/enyo/dropzone/issues/253
+
+* icheck
+http://icheck.fronteed.com
+https://stackoverflow.com/questions/20736315/icheck-check-if-checkbox-is-checked
+
+* Validation
+https://jqueryvalidation.org
+https://stackoverflow.com/questions/12098103/need-jquery-validate-without-submit
+
+*Mask
+https://igorescobar.github.io/jQuery-Mask-Plugin/docs.html
+
+*Autocomplete
+https://xdsoft.net/jqplugins/autocomplete/
+
+*Select Combobox autocomplete
+https://harvesthq.github.io/chosen/
+
+*Mysql
+https://stackoverflow.com/questions/10112718/mysql-output-masking-i-e-phone-number-ssn-etc-display-formatting
+https://ajuda.locaweb.com.br/pt-br/Resolvendo_problemas_de_caracteres_acentuados_no_MySQL
+https://github.com/hiiamrohit/Countries-States-Cities-database
+https://stackoverflow.com/questions/18817148/how-can-i-use-transactions-in-my-mysql-stored-procedure
+https://dev.mysql.com/doc/refman/5.6/en/get-diagnostics.html
+https://dba.stackexchange.com/questions/99120/if-exists-then-update-else-insert
+
+*PHP
+https://stackoverflow.com/questions/11420520/php-variables-in-anonymous-functions

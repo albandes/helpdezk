@@ -1,0 +1,83 @@
+
+Procedure Name                  Description
+----------------------------    -----------------------------------------------------
+delete_all_requests             Delete all requests from database
+delete_requests_for_user        Delete all requests for the especific user
+delete_request                  Delete a specific request
+delete_user_without_requests    delete a user if he doesn´t have an requests
+
+
+---
+--- Delete user and his requests
+---
+SET @idperson=454;
+CALL delete_requests_for_user(@idperson);
+CALL delete_user_without_requests(@idperson,@msg);
+SELECT @msg;
+
+--
+-- Delete all persons except root
+--
+DELETE FROM hdk_tbgroup_has_service WHERE idgroup IN ( SELECT idgroup FROM hdk_tbgroup WHERE idperson > 1) ;
+DELETE FROM prj_tbprojects WHERE group_project IN ( SELECT idgroup FROM hdk_tbgroup WHERE idperson > 1);
+DELETE FROM hdk_tbgroup WHERE idperson > 1 ;
+DELETE FROM tbaddress WHERE idperson > 1 ;
+DELETE FROM tbjuridicalperson WHERE idperson > 1 ;
+DELETE FROM tbnaturalperson WHERE idperson > 1 ;
+DELETE FROM hdk_tbdepartment_has_person WHERE idperson > 1 ;
+DELETE FROM tbpermission WHERE idperson > 1 ;
+DELETE FROM hdk_tbrequest_log WHERE cod_request IN ( SELECT code_request FROM hdk_tbrequest WHERE idperson_creator > 1 ) ;
+DELETE FROM hdk_tbrequest_log  WHERE idperson > 1 ;
+DELETE FROM hdk_tbrequest_times WHERE code_request IN ( SELECT code_request FROM hdk_tbrequest WHERE idperson_creator > 1 ) ;
+DELETE FROM hdk_tbrequest_attachment WHERE code_request IN ( SELECT code_request FROM hdk_tbrequest WHERE idperson_creator > 1 ) ;
+DELETE FROM hdk_tbrequest_repassed WHERE code_request IN ( SELECT code_request FROM hdk_tbrequest WHERE idperson_creator > 1 ) ;
+DELETE FROM hdk_tbrequest_evaluation WHERE code_request IN ( SELECT code_request FROM hdk_tbrequest WHERE idperson_creator > 1 ) ;
+DELETE FROM hdk_tbrequest WHERE idperson_creator > 1 ;
+DELETE FROM hdk_tbcostcenter WHERE idperson > 1 ;
+DELETE FROM hdk_tbconfig_user WHERE idperson > 1 ;
+DELETE FROM hdk_tbexecutionorder_person WHERE idperson > 1 ;
+DELETE FROM hdk_base_knowledge WHERE idperson > 1 ;
+DELETE FROM hdk_base_knowledge WHERE idperson_edit > 1;
+DELETE FROM bbd_tbread WHERE idperson > 1;
+DELETE FROM tbpersontypes WHERE idperson > 1;
+DELETE FROM bbd_tbread WHERE idperson > 1;
+DELETE FROM tbperson WHERE idperson > 1 ;
+
+
+--
+-- Export to "import services layout"
+--
+SELECT
+   a.name,
+   b.name,
+   c.name,
+   d.name,
+   g.name,
+   h.name,
+   d.days_attendance,
+   CONCAT(
+      d.hours_attendance,
+      d.ind_hours_minutes
+   ) ,
+   (SELECT
+      NAME
+   FROM
+      tbperson
+   WHERE idperson = f.idcustomer) AS company
+FROM
+   hdk_tbcore_area a,
+   hdk_tbcore_type b,
+   hdk_tbcore_item c,
+   hdk_tbcore_service d,
+   hdk_tbgroup_has_service e,
+   hdk_tbgroup f,
+   tbperson g,
+   hdk_tbpriority h
+WHERE a.idarea
+   AND a.idarea = b.idarea
+   AND b.idtype = c.idtype
+   AND c.iditem = d.iditem
+   AND d.idservice = e.idservice
+   AND e.idgroup = f.idgroup
+   AND f.idperson = g.idperson
+   AND d.idpriority = h.idpriority

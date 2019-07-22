@@ -1,0 +1,97 @@
+Array
+(
+    [SES_COD_USUARIO] => 234
+    [REFRESH] => 
+    [SES_LICENSE] => 200701006
+    [SES_ENTERPRISE] => 
+    [SES_ADM_MODULE_DEFAULT] => helpdezk
+    [SES_LOGIN_PERSON] => marcia.silva
+    [SES_NAME_PERSON] => Marcia Helena Molina da Silva 
+    [SES_TYPE_PERSON] => 2
+    [SES_IND_CODIGO_ANOMES] => 1
+    [SES_COD_EMPRESA] => 2
+    [SES_COD_TIPO] => 2
+    [SES_PERSON_GROUPS] => 
+    [hdk] => Array
+        (
+            [NEW_ASSUMED_MAIL] => 1
+            [FINISH_MAIL] => 1
+            [REJECTED_MAIL] => 1
+            [EM_EVALUATED] => 1
+            [USER_NEW_NOTE_MAIL] => 1
+            [NEW_REQUEST_OPERATOR_MAIL] => 1
+            [SES_IND_DELETE_NOTE] => 1
+            [SES_QT_PRORROGATION] => 2
+            [SES_IND_REOPEN] => 1
+            [SES_IND_ENTER_TIME] => 1
+            [SES_IND_ASSUME_OTHER] => 1
+            [OPERATOR_NEW_NOTE] => 1
+            [SES_IND_TIMER_OPENING] => 1
+            [SES_HIDE_PERIOD] => 1
+            [SES_SHARE_VIEW] => 0
+            [REQUEST_REOPENED] => 1
+            [SEND_EMAILS] => 1
+            [SES_ORDER_ASC] => 0
+            [SES_APROVE] => 1
+            [SES_EVALUATE] => 1
+            [SES_OPEN_NEW_REQUEST] => 1
+            [REPASS_REQUEST_OPERATOR_MAIL] => 1
+            [SES_QT_WORK_DAYS_REQUEST_APPROVAL] => 0
+            [SES_REFRESH_OPERATOR_GRID] => 0
+            [SES_ATTACHMENT_OPERATOR_NOTE] => 1
+            [SES_IND_REOPEN_USER] => 1
+        )
+
+    [hur] => Array
+        (
+            [server_api_dominio] => http://10.42.44.200
+        )
+
+    [EM_TITLE] => [HELPDEZK]
+    [EM_HOSTNAME] => smtp.escola3v.com.br
+    [EM_DOMAIN] => escola3v.com.br
+    [EM_USER] => no-reply@escola3v.com.br
+    [EM_PASSWORD] => LambruscO2017
+    [EM_SENDER] => no-reply@escola3v.com.br
+    [EM_AUTH] => 1
+    [EM_HEADER] => 
+    [EM_FOOTER] => 
+    [POP_HOST] => imap.google.com
+    [POP_PORT] => 993
+    [POP_TYPE] => GMAIL
+    [EM_SUCCESS_LOG] => 1
+    [EM_FAILURE_LOG] => 1
+    [SES_MAINTENANCE] => 0
+    [SES_MAINTENANCE_MSG] => 
+	Estamos em manutenção, voltaremos em breve!
+
+    [SES_TIME_SESSION] => 3720
+    [SES_LDAP_SERVER] => ldap.testathon.net
+    [SES_LDAP_DN] => OU=users,DC=testathon,DC=net
+    [SES_LDAP_DOMAIN] => 
+    [SES_LDAP_FIELD] => uid
+    [SES_LDAP_AD] => 1
+    [SES_GOOGLE_2FA] => 0
+    [POP_DOMAIN] => marioquintana.com.br
+    [EM_BY_CRON] => 1
+    [EM_PORT] => 587
+    [LOG_GENERAL] => 1
+    [LOG_EMAIL] => 1
+    [LOG_HOST] => remote
+    [LOG_REMOTE_SERVER] => 10.42.44.203
+    [LOG_LEVEL] => 7
+    [COUNTRY_DEFAULT] => 31
+    [STATE_DEFAULT] => 89
+    [SES_PERSONAL_USER_CONFIG] => Array
+        (
+            [idconfiguser] => 23
+            [idperson] => 234
+            [lang] => 
+            [theme] => 
+            [grid_operator] => [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            [grid_operator_width] => [22,8,85,105,70,115,90,90,80,130,80,80,55,100]
+            [grid_user] => [0,0,0,0,0,0,0,0]
+            [grid_user_width] => [26,75,100,240,200,100,130,145]
+        )
+
+)

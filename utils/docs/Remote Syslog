@@ -1,0 +1,65 @@
+
+http://www.itzgeek.com/how-tos/linux/centos-how-tos/setup-syslog-server-on-centos-6-rhel-6.html
+http://linuxsysconfig.com/2013/04/how-to-configure-remote-logging-on-rhel6-centos6/
+
+yum install rsyslog
+
+Edit /etc/rsyslog.conf
+
+
+Un comment the following to enable the syslog server to listen on the tcp and udp port.
+
+From
+
+# Provides UDP syslog reception
+#$ModLoad imudp
+#$UDPServerRun 514
+
+# Provides TCP syslog reception
+#$ModLoad imtcp
+#$InputTCPServerRun 514
+
+To
+
+# Provides UDP syslog reception
+$ModLoad imudp
+$UDPServerRun 514
+
+# Provides TCP syslog reception
+$ModLoad imtcp
+$InputTCPServerRun 514
+
+
+
+Restart the syslog service
+
+systemctl restart rsyslog
+
+Verify the syslog server listening.
+
+
+To enable listening to remote hosts, simply uncomment the 2 lines.
+I also recommend specifying a separate log file for the client host as it is easier to maintain and troubleshoot.
+
+The above lines will configure the host to listen for remote logs coming in through port 514 TCP. In addition, all remote logs coming from 192.168.0.101 (which is the client rhel6) will be stored in a separate file (the default is to store all logs, both local and remote, to /var/log/messages).
+
+After modifying the configuration file, save it and restart the daemon as shown above. If there’s a firewall configured on the remote server, modify it to allow incoming TCP connections on port 514 e.g.
+
+
+Note how I append ";local0.none" to the end of this to prevent PHP-specific messages from going to /var/log/messages, example:
+*.info;mail.none;authpriv.none;cron.none;local0.none                /var/log/messages
+
+Save HELPDEZK messages to helpdezk.log, example:
+
+local0.*                                                /var/log/helpdezk.log
+
+If you ...
+
+:FROMHOST-IP, isequal, "10.42.43.2" /var/log/helpdezk.log
+
+
+If you change to traditional syslog format:
+
+
+$template TraditionalFormat,"%timegenerated% %HOSTNAME% %syslogtag%%msg:::drop-last-lf%\n"
+:FROMHOST-IP, isequal, "10.42.43.2" /var/log/helpdezk.log;TraditionalFormat
