@@ -36,6 +36,7 @@
 
 */
 error_reporting(E_ERROR|E_PARSE);
+
 ini_set('xdebug.max_nesting_level', 512);
 
 $curr_url = $_GET['url'];
