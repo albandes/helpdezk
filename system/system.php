@@ -3,12 +3,18 @@
 class System {
 
     private $_url, $_explode;
-    public $_controller, $_action, $_params, $_module, $_config;
-    var $pdfAligns, $pdfWidths, $pdfLeftMargin, $pdfLogo, $pdfTitle, $a_pdfHeaderData, $pdfPage;
-    // Use only in TMS module
-    var $a_pdfHeaderTestData;
+    public $_controller, $_action, $_params, $_module, $_config, $_version;
+    public $_smartyVersion ;
+    var $pdfAligns, $pdfWidths, $pdfLeftMargin, $pdfLogo, $pdfTitle, $a_pdfHeaderData, $pdfPage, $pdfFontFamily, $pdfFontStyle, $pdfFontSyze;
 
-    public function __construct() {		
+    public $_logLevel ;
+    public $_logHost ;
+    public $_logRemoteServer ;
+    public $_logFacility;
+
+
+    public function __construct()
+    {
         $this->setConfig();
         $this->setUrl();
         $this->setExplode();
@@ -21,12 +27,601 @@ class System {
         $this->pathDefault  = $this->getConfig('path_default');
         $this->dateFormat 	= $this->getConfig('date_format');
         $this->hourFormat 	= $this->getConfig('hour_format');
+        $this->langDefault  = $this->getConfig('lang');
 
-        $this->logEmail = true ;
-        $this->logFileEmail  = $this->getHelpdezkPath().'/logs/email.log';
+        $this->printDate    = $this->getPrintDate();
+        $this->logDateHour  = $this->getlogDateHour();
+        $this->helpdezkUrl  = $this->getHelpdezkUrl();
+        $this->helpdezkPath = $this->getHelpdezkPath();
+
+        // Helpdezk Logos
+        //$this->headerLogoImage = $this->getHeaderLogoImage();
+
+        $this->logFile = $this->getLogFile('general');
+        $this->logFileEmail  = $this->getLogFile('email');
+
+
+        // Version settings
+        $this->getHelpdezkVersion();
+        $this->helpdezkName = $this->getHelpdezkName();
+        $this->helpdezkType = $this->getHelpdezkType();
+        $this->helpdezkVersionNumber = $this->getHelpdezkVersionNumber();
+        $this->smartyVersion = $this->getSmartyVersion();
+
+        $this->jquery = $this->getJqueryVersion();
+        $this->summernote = $this->getSummerNoteVersion();
+
     }
 
-    // Since Appil 28, 2017
+    public function getArrayScreenFields($idModule,$personType,$formId)
+    {
+        $dbCommon = new common();
+        $rsScreen =  $dbCommon->getScreenFieldEnable($idModule,$personType,$formId);
+        $arrScreen = array();
+        while (!$rsScreen->EOF) {
+            $arrScreen[$rsScreen->fields['fieldid']] = $rsScreen->fields['enable'];
+            $rsScreen->MoveNext();
+        }
+        return $arrScreen ;
+
+    }
+
+    public function  getScreenFieldEnable($arrScreen,$fieldid)
+    {
+
+        if (array_key_exists($fieldid, $arrScreen)) {
+            if ($arrScreen[$fieldid] == 'Y')
+                return true;
+            else
+                return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    function getLogFile($logType)
+    {
+        if ($logType == 'general') {
+            return $this->getHelpdezkPath().'/logs/helpdezk.log';
+        } elseif($logType == 'email') {
+            return $this->getHelpdezkPath().'/logs/email.log';
+        }
+    }
+
+    /**
+     * Method to write in log file
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
+     * @param string  $str String to write
+     * @param string  $file  Log filename
+     *
+     * @since December 06, 2017
+     *
+     * @return string true|false
+     */
+    function logIt($msg,$logLevel,$logType,$line = null)
+    {
+
+
+        if ($logLevel > $this->_logLevel)
+            return false ;
+
+        $levelStr = '';
+        switch ( $logLevel ) {
+            case '0':
+                $levelStr = 'EMERG';
+                break;
+            case '1':
+                $levelStr = 'ALERT';
+                break;
+            case '2':
+                $levelStr = 'CRIT';
+                break;
+            case '3':
+                $levelStr = 'ERR';
+                break;
+            case '4':
+                $levelStr = 'WARNING';
+                break;
+            case '5':
+                $levelStr = 'NOTICE';
+                break;
+            case '6':
+                $levelStr = 'INFO';
+                break;
+            case '7':
+                $levelStr = 'DEBUG';
+                break;
+        }
+
+        $date = date($this->logDateHour);
+
+        if($line)
+            $msg .= ' line '. $line;
+
+        if ($this->_logHost == 'local'){
+            $msg = sprintf( "[%s] [%s]: %s%s", $date, $levelStr, $msg, PHP_EOL );
+            if ($logType == 'general'){
+                $file = $this->logFile;
+            } else {
+                $file = $this->logFileEmail;
+            }
+            file_put_contents( $file, $msg, FILE_APPEND );
+
+        } elseif ($this->_logHost == 'remote'){
+
+            $rmt = $_SERVER["REMOTE_ADDR"];
+            if  ($rmt == '::1' )
+                $rmt = '127.0.0.1';
+
+            $msg = sprintf( "[%s]: %s", $levelStr, $msg);
+            $remoteSyslog = new Syslog();
+            $remoteSyslog->SetFacility(8);
+            $remoteSyslog->SetSeverity(3);
+            $remoteSyslog->SetHostname(utf8_encode(gethostname()));
+            //$remoteSyslog->SetFqdn('hdk.marioquintana.com.br');
+            $remoteSyslog->SetIpFrom($rmt);
+            $remoteSyslog->SetProcess($logType);
+            $remoteSyslog->SetContent($msg);
+            $remoteSyslog->SetServer($this->_logRemoteServer);
+            $remoteSyslog->SetPort(514);
+            $remoteSyslog->SetTimeout(10);
+            $remoteSyslog->Send();
+
+        }
+
+
+
+
+    }
+
+    // Since December, 03
+    public function makeNavVariables($smarty,$module = 'helpdezk')
+    {
+
+        $idPerson = $_SESSION['SES_COD_USUARIO'];
+        // Modules
+        $aModules = $this->getArrayModulesByPerson($idPerson);
+        $smarty->assign(modules, $aModules);
+
+        // Menu
+        //if ($this->getConfig('module_default') == 'helpdezk')
+        if($this->isActiveHelpdezk())
+            $hasHelpdezk = true;
+        else
+            $hasHelpdezk = false;
+
+        if($_SESSION['SES_COD_USUARIO'] == 1){$smarty->assign('isroot', true);}
+        if($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1){$smarty->assign('hasadmin', true);}
+        $smarty->assign('adminhome', $this->helpdezkUrl.'/admin/home/index');
+        $smarty->assign('adminlogo', 'adm_header.png');
+
+
+        $smarty->assign('hashelpdezk', $hasHelpdezk);
+        $smarty->assign('helpdezkhome', $this->helpdezkUrl.'/helpdezk/home/index');
+        $smarty->assign('logout', $this->helpdezkUrl . '/main/home/logout');
+
+        // Warnings
+        $smarty->assign('total_warnings', $this->getNumNewEwarnings($idPerson));
+        // Logo
+        $smarty->assign('headerlogo', $this->getHeaderLogoImage());
+        // JS Variables
+        $smarty->assign('path', path);
+        $smarty->assign('theme', $this->getTheme());
+        $smarty->assign('lang', $this->langDefault);
+        $smarty->assign('id_mask', $this->getConfig('id_mask'));
+        $smarty->assign('ein_mask', $this->getConfig('ein_mask'));
+        $smarty->assign('zip_mask', $this->getConfig('zip_mask'));
+        $smarty->assign('phone_mask', $this->getConfig('phone_mask'));
+        $smarty->assign('cellphone_mask', $this->getConfig('cellphone_mask'));
+
+        $mascdatetime = $this->dateFormat . ' ' . $this->hourFormat;
+        $smarty->assign('mascdatetime', str_replace('%','',$mascdatetime));
+
+        $mascdate = $this->dateFormat;
+        $smarty->assign('mascdate', str_replace('%','',$mascdate));
+
+        if(!$_SESSION['SES_TIME_SESSION'])
+            $smarty->assign('timesession', 600);
+        else
+            $smarty->assign('timesession', $_SESSION['SES_TIME_SESSION']);
+        // End JS variables
+
+        $smarty->assign('jquery_version', $this->jquery);
+        $smarty->assign('jqgrid_i18nFile', $this->getFileI18n('jqgrid'));
+        $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
+
+    }
+    public function makeFooterVariables($smarty)
+    {
+        $smarty->assign('version', $this->helpdezkName);
+        $smarty->assign('footer', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/footer-main.tpl');
+    }
+    public function isActiveHelpdezk()
+    {
+
+        $dbCommon = new common();
+        return $dbCommon->isActiveHelpdezk();
+    }
+
+    public function pathModuleDefault()
+    {
+        $dbCommon = new common();
+        $rs = $dbCommon->getModule("where defaultmodule='YES'");
+        return $rs->fields['path'];
+    }
+
+    public function getHelpdezkVersionNumber()
+    {
+        $exp = explode('-',$this->_version);
+        return $exp[2];
+    }
+
+    public function getHelpdezkType()
+    {
+        $exp = explode('-',$this->_version);
+        return $exp[1];
+    }
+
+    public function getHelpdezkName()
+    {
+        return $this->_version;
+    }
+
+    public function getHelpdezkVersion()
+    {
+        // Read the version.txt file
+        $csvFile = $this->helpdezkPath . "/version.txt";
+        if ($arquivo = fopen($csvFile, "r")) {
+            while (!feof($arquivo)) {
+                $this->_version = fgets($arquivo, 4096);
+            }
+        } else {
+            $this->_version = '';
+        }
+    }
+
+    public function getHeaderLogoImage()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getHeaderLogo();
+        if(empty($rsLogo->fields['file_name']))
+            return 'default/header.png';
+        else
+            return $rsLogo->fields['file_name'];
+    }
+
+    public function getHeaderLogoHeight()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getHeaderLogo();
+        return $rsLogo->fields['height'];
+    }
+
+    public function getHeaderLogoWidth()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getHeaderLogo();
+        return $rsLogo->fields['width'];
+    }
+
+    public function getReportsLogoImage()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getReportsLogo();
+        if(empty($rsLogo->fields['file_name']))
+            return 'default/reports.png';
+        else
+            return $rsLogo->fields['file_name'];
+
+    }
+
+    public function getReportsLogoHeight()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getReportsLogo();
+        return $rsLogo->fields['height'];
+    }
+
+    public function getReportsLogoWidth()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getReportsLogo();
+        return $rsLogo->fields['width'];
+    }
+
+    public function getLoginLogoImage()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getLoginLogo();
+        if(empty($rsLogo->fields['file_name']))
+            return 'default/login.png';
+        else
+            return $rsLogo->fields['file_name'];
+    }
+
+    public function getLoginLogoHeight()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getReportsLogo();
+        if(empty($rsLogo->fields['file_name']))
+            return '102';
+        else
+            return $rsLogo->fields['height'];
+    }
+
+    public function getLoginLogoWidth()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getReportsLogo();
+        if(empty($rsLogo->fields['file_name']))
+            return '227';
+        else
+            return $rsLogo->fields['width'];
+
+    }
+
+    /**
+     * Returns the modules that the user has access to
+     *
+     * @param string    $idPerson   Person Id
+     * @return array    Modules array
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getArrayModulesByPerson($idPerson)
+    {
+        $smarty = $this->retornaSmarty();
+
+        $rsModules = $this->getPersonModules($idPerson);
+        $aModules = array();
+        while (!$rsModules->EOF) {
+            $aModules[] = array('idmodule' => $rsModules->fields['idmodule'],
+                                'path' => $rsModules->fields['path'],
+                                'class' => $rsModules->fields['class'],
+                                'headerlogo' => $rsModules->fields['headerlogo'],
+                                'reportslogo' => $rsModules->fields['reportslogo'],
+                                //'varsmarty' => $smarty->getConfigVars($rsModules->fields['smarty']));
+                                'varsmarty' => $smarty->getConfigVars($rsModules->fields['smarty']));
+            $rsModules->MoveNext();
+        }
+
+        return $aModules;
+
+    }
+
+    /**
+     * Returns the sql sintax, according JQgrid types
+     *
+     * @param string    $oper    Name of the PqGrid operation
+     * @param string    $column  Field to search
+     * @param string    $search  Column to search
+     * @return boolean|string    False is not exists ou file extention
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getJqGridOperation($oper,$column, $search)
+    {
+        switch($oper) {
+            case 'eq' : // equal
+                $ret = "pipeLatinToUtf8(".$column.")" . ' = ' . "pipeLatinToUtf8('" . $search . "')";
+                break;
+            case 'ne': // not equal
+                $ret = "pipeLatinToUtf8(".$column.")" . ' != ' . "pipeLatinToUtf8('" . $search . "')";
+                break;
+            case 'lt': // less
+                $ret = $column . ' < ' . $search;
+                break;
+            case 'le': // less or equal
+                $ret = $column . ' <= ' . $search;
+                break;
+            case 'gt': // greater
+                $ret = $column . ' > ' . $search;
+                break;
+            case 'ge': // greater or equal
+                $ret = $column . ' >= ' . $search;
+                break;
+            case 'bw': // begins with
+                $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
+                break;
+            case 'bn': //does not begin with
+                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
+            case 'in': // is in
+                $ret = "pipeLatinToUtf8(".$column.")" . ' IN ('. "pipeLatinToUtf8('" . $search . "')" . ')';
+                break;
+            case 'ni': // is not in
+                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT IN ('. "pipeLatinToUtf8('" . $search . "')" . ')';
+                break;
+            case 'ew': // ends with
+                $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' . "pipeLatinToUtf8('" . '%' . rtrim($search) . "')";
+                break;
+            case 'en': // does not end with
+                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . '%' .  rtrim($search) . "')";
+                break;
+            case 'cn': // contains
+                $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' .  "pipeLatinToUtf8('" . '%' . $search .'%' . "')" ;
+                break;
+            case 'nc': // does not contain
+                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' .  "pipeLatinToUtf8('" .'%' . $search . '%' .  "')" ;
+                break;
+            case 'nu': //is null
+                $ret = $column . ' IS NULL';
+                break;
+            case 'nn': // is not null
+                $ret = $column . ' IS NOT NULL';
+                break;
+            default:
+                die('Operator invalid in grid search !!!' . " File: " . __FILE__ . " Line: " . __LINE__ );
+                break;
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Returns the image file format( Only allowed formats: GIF, PNG, JPEG ans BMP)
+     *
+     * Used for some cases where you can upload various formats and at the time of showing,
+     * we do not know what format it is in. The method tests if the file exists and verifies
+     * that the format is compatible
+     *
+     * @param string    $file    Image file
+     * @return boolean|string    False is not exists ou file extention
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getImageFileFormat($file)
+    {
+        $arrImages = glob($this->getHelpdezkPath().$file.'.*');
+
+        if(empty($arrImages))
+            return false ;
+
+        foreach ($arrImages as &$imgFile) {
+            if(in_array( exif_imagetype($imgFile) , array(IMAGETYPE_GIF , IMAGETYPE_JPEG ,IMAGETYPE_PNG , IMAGETYPE_BMP))) {
+                switch (exif_imagetype($imgFile)) {
+                    case 1:
+                        $ext = 'gif';
+                        break;
+                    case 2:
+                        $ext = 'jpg';
+                        break;
+                    case 3:
+                        $ext = 'png';
+                        break;
+                    case 6:
+                        $ext = 'bmp';
+                }
+                return $ext;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the i18n code for use in JS or anything else
+     *
+     * Used because some JS has includes with lowercase and others with uppercase
+     *
+     * @param string     $use       Script name
+     * @return string|boolen        Name of include or false
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getFileI18n($use)
+    {
+        $i18n = $this->getConfig('lang');
+
+        switch($use){
+            case 'jqgrid':
+                if($i18n == 'pt_BR') {
+                    $file = 'grid.locale.pt-br.js';
+                } elseif( $i18n == 'en_US') {
+                    $file = 'grid.locale.en.js';
+                } else {
+                    $file = false;
+                }
+            break;
+            default:
+                 $file = false;
+            break;
+        }
+        return $file ;
+    }
+
+    public function getPersonById($idPerson)
+    {
+        $this->loadModel('admin/person_model');
+        $dbPerson  = new person_model();
+        $rsPerson = $dbPerson->selectPerson('AND tbp.idperson='.$idPerson);
+        return $rsPerson;
+    }
+
+    /**
+     * Returns the number of new warnings (don´t read)
+     *
+     * @param int       $idPerson    Person Id
+     * @param int       $idTypePerson
+     * @return int      Number of not read warnings
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getNumNewEwarnings($idPerson)
+    {
+
+        $this->loadModel('admin/warning_model');
+        $dbWarning = new warning_model();
+        $database = $this->getConfig('db_connect');
+
+        if ($this->isMysql($database)) {
+            $and = "AND (a.dtend > NOW() OR a.dtend = '0000-00-00 00:00:00') AND (a.idmessage NOT IN(SELECT idmessage FROM bbd_tbread WHERE idperson = $idPerson))" ;
+        } elseif ($database == 'oci8po') {
+            $and = "AND (a.dtend > SYSDATE OR a.dtend = '') AND (a.idmessage NOT IN(SELECT idmessage FROM bbd_tbread WHERE idperson = $idPerson))" ;
+        }
+
+        $rsWarning = $dbWarning->selectWarning($and);
+
+        if ($this->isMysql($database)) {
+            $total = $rsWarning->RecordCount();
+        } elseif ($database == 'oci8po') {
+            $total = $rsWarning->fields['rnum'];
+            if(!$total) $total = 0;
+        }
+
+        while (!$rsWarning->EOF) {
+            if($_SESSION['SES_COD_TIPO'] == $this->getIdTypePerson($idPerson)){
+                if($rsWarning->fields['total_company'] > 0){
+                    $checkCompany = $dbCommom->checkCompany($rsWarning->fields['idtopic'], $idcompany);
+                    if($checkCompany->fields['check'] == 0){
+                        $total--;
+                        $rsWarning->MoveNext();
+                        continue;
+                    }
+                }
+            }else{
+                // by group
+                if($rsWarning->fields['total_group'] > 0){
+                    $checkGroup = $dbCommom->checkGroup($rsWarning->fields['idtopic'], $_SESSION['SES_PERSON_GROUPS']);
+                    if($checkGroup->fields['check'] == 0){
+                        $total--;
+                        $rsWarning->MoveNext();
+                        continue;
+                    }
+                }
+            }
+            $rsWarning->MoveNext();
+        }
+
+        return $total;
+    }
+
+    // Since October 28, 2017
+    public function getPersonModules($idperson)
+    {
+
+        $dbCommon = new common();
+        return $dbCommon->getExtraModulesPerson($idperson,$this->getIdTypePerson($idperson));
+    }
+
+    public function getIdTypePerson($idperson)
+    {
+        $dbCommon = new common();
+        return $dbCommon->getIdTypePerson($idperson);
+    }
+
+    // Since October 28, 2017
+    public function getHelpdezkUrl()
+    {
+
+        $hdkUrl = $this->getConfig('hdk_url');
+        if(substr($hdkUrl, 0,1) == '/')
+            $hdkUrl = substr($hdkUrl,0,-1);
+        return $hdkUrl;
+    }
+
+    // Since April 28, 2017
     public function getHelpdezkPath()
     {
         $path_default = $this->pathDefault;
@@ -46,6 +641,169 @@ class System {
         return  realpath($document_root.$path) ;
     }
 
+    public function getPersonName($idperson)
+    {
+        $dbCommon = new common();
+        return $dbCommon->getPersonName($idperson);
+    }
+
+    // Since October 25, 2017
+    public function returnPhpMailer()
+    {
+
+        $phpMailerDir = $this->getHelpdezkPath() . '/includes/classes/phpMailer/class.phpmailer.php';
+
+        if (!file_exists($phpMailerDir)) {
+            die ('ERROR: ' .$phpMailerDir . ' , does not exist  !!!!') ;
+        }
+
+        require_once($phpMailerDir);
+
+        $mail = new phpmailer();
+
+        return $mail;
+    }
+
+    // Since October 27, 2017
+    public function returnProtectSql()
+    {
+
+        $phpProtectSql = $this->getHelpdezkPath() . '/includes/classes/ProtectSql/ProtectSql.php';
+
+        if (!file_exists($phpProtectSql)) {
+            die ('ERROR: ' .$phpProtectSql . ' , does not exist  !!!!') ;
+        }
+
+        require_once($phpProtectSql);
+        $ProtectSql = new sqlinj;
+        return $ProtectSql;
+    }
+
+    /**
+     * Method to create random passwords
+     *
+     * @author Thiago Belem <contato@thiagobelem.net>
+     *
+     * @param integer $tamanho Size of the new password
+     * @param boolean $maiusculas If it will have capital letters
+     * @param boolean $numeros If it will have numbers
+     * @param boolean $simbolos  If it will have symbols
+     *
+     * @return string A senha gerada
+     */
+    public function generateRandomPassword($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
+    {
+        $lmin = 'abcdefghijklmnopqrstuvwxyz';
+        $lmai = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $num = '1234567890';
+        $simb = '!@#$%*-';
+        $retorno = '';
+        $caracteres = '';
+
+        $caracteres .= $lmin;
+        if ($maiusculas) $caracteres .= $lmai;
+        if ($numeros) $caracteres .= $num;
+        if ($simbolos) $caracteres .= $simb;
+
+        $len = strlen($caracteres);
+        for ($n = 1; $n <= $tamanho; $n++)
+        {
+            $rand = mt_rand(1, $len);
+            $retorno .= $caracteres[$rand-1];
+        }
+        return $retorno;
+    }
+
+    // Since October 19, 2017
+    public function getLanguageWord($smartyConfig)
+    {
+        $smarty = $this->retornaSmarty();
+        return  $smarty->getConfigVars($smartyConfig);
+    }
+
+    // Since October 16, 2017
+    function isMysql($haystack)
+    {
+        return strpos($haystack, 'mysql') !== false;
+    }
+
+    // Since November 03, 2017
+    public function getAdoDbVersion()
+    {
+        $adodb = $this->getConfig('adodb');
+        if (empty($adodb))
+            $adodb = 'adodb-5.20.9';
+        return $adodb;
+    }
+
+    // Since November 03, 2017
+    public function getJqueryVersion()
+    {
+        $jquery = $this->getConfig('jquery');
+        if (empty($jquery))
+            $jquery = 'jquery-2.1.1.js';
+        return $jquery;
+    }
+
+    // Since November 29, 2017
+    public function getSummerNoteVersion()
+    {
+        $summer = $this->getConfig('summernote_version');
+        if (empty($summer))
+            $summer = '0.0.8';
+        return $summer;
+    }
+    /*
+    public function setSmartyVersionNumber()
+    {
+        $this->_smartyVersionNumber = 'smarty3.1.2';
+    }
+    */
+    public function getSmartyVersion()
+    {
+        return 'smarty-3.1.32' ;
+    }
+
+    public function setSmartyVersionNumber($version)
+    {
+        $this->_smartyVersionNumber = $version;
+    }
+
+    public function getSmartyVersionNumber()
+    {
+        return $this->_smartyVersionNumber ;
+    }
+
+    public function getLangVars($smarty)
+    {
+
+        if (version_compare($this->getSmartyVersionNumber(), '3', '>=' ))
+            $langVars = $smarty->getConfigVars();
+        else
+            $langVars = $smarty->getConfigVars();
+
+        return $langVars;
+    }
+
+    // Since October 16, 2017
+    function getTheme()
+    {
+        return 'parracho';
+    }
+
+    // Since May 28, 2017
+    public function _getEspecificValueSession($idSession)
+    {
+        $bd = new index_model();
+        $data = $bd->getConfigValue($idSession);
+        if($data){
+            return $data;
+        } else {
+            return false ;
+        }
+
+    }
+
     /**
      * Method to write in log file
      *
@@ -58,6 +816,7 @@ class System {
      *
      * @return string true|false
      */
+    /*
     function logit($str, $file)
     {
         if (!file_exists($file)) {
@@ -77,6 +836,17 @@ class System {
         } else {
             return false;
         }
+    }*/
+
+    function getlogDateHour()
+    {
+        $dateHour = $this->getConfig('log_date_format');
+        if (!empty($dateHour)){
+            return "d/m/Y H:i:s";
+        } else {
+            return str_replace('%','',$dateHour );
+        }
+
     }
 
     // Since April 28, 2017
@@ -91,7 +861,11 @@ class System {
 	}
 	
 	public function setConfig($type = null, $value = null) {
-        include './includes/config/config.php';
+
+        if ((include './includes/config/config.php') == false) {
+            die('The config file does not exist: ' . 'includes/config/config.php, line '.__LINE__ . '!!!');
+        }
+
         if($type && $value){
         	$this->_config[$type] = $value;
         }else{
@@ -171,45 +945,101 @@ class System {
         $controller_path = CONTROLLERS . $this->_controller . 'Controller.php';
 
         if (!file_exists($controller_path)) {
-            die("O controller não existe: " . $controller_path );
+            die("The controller does not exist: " . $controller_path );
         }
         require_once($controller_path);
+
         $app = new $this->_controller();
+
         if (!method_exists($app, $this->_action)) {
-            die("A action não existe");
+            die("A action não existe: " . $this->_action);
         }
         $action = $this->_action;
         $app->$action();
     }
 
-    public function retornaSmarty() {
-        require_once(SMARTY . 'Smarty.class.php');
+    public function retornaSmarty()
+    {
+
+        $smartPluginsDir = $this->getHelpdezkPath(). "/system/smarty_plugins/";
+        if (!file_exists($smartPluginsDir)) {
+                die ('ERROR: ' .$smartPluginsDir . ' , does not exist  !!!!') ;
+        }
+
+        $smartCompileDir = $this->getHelpdezkPath(). "/system/templates_c/";
+
+        if (!file_exists($smartCompileDir)) {
+            if (!mkdir($smartCompileDir, 0777, true)) {
+                die ('ERROR: ' .$smartCompileDir . ' , does not exist and could not be created !!!!') ;
+            }
+
+        }
+        if (!is_writable($smartCompileDir)) {
+            if (!chmod($smartCompileDir,0777)){
+                die($smartCompileDir . ' is not writable !!!') ;
+            }
+
+        }
+
+        switch ($this->smartyVersion) {
+            case 'smarty-old':
+                $dirSmarty = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-old/Smarty.class.php';
+                break;
+            case 'smarty-2.6.30':
+                $dirSmarty = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
+                break;
+            case 'smarty-3.1.32':
+                $dirSmarty = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
+                $dirPluginDefault = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-3.1.32/libs/plugins';
+                break;
+        }
+
+        if (!file_exists($dirSmarty))
+            die('Smarty Class doesn´t exists: ' . $dirSmarty . ' file: '. __FILE__);
+
+        require_once($dirSmarty);
+
         $smarty = new Smarty;
         $smarty->debugging = false;
+        $smarty->caching = false;
         $smarty->template_dir = VIEWS;
-        $smarty->compile_dir = "system/templates_c/";
-		$lang_default = $this->getConfig("lang");
-		$license =  $this->getConfig("license");
-        if (path == "/..") {
-            $smarty->config_load(DOCUMENT_ROOT . '/app/lang/' . $lang_default . '.txt', $license);
-        } else {
-            $smarty->config_load(DOCUMENT_ROOT . path . '/app/lang/' . $lang_default . '.txt', $license);
-        }
-        
-        $smarty->assign('lang', $lang_default);
-		$smarty->assign('date_format', $this->getConfig("date_format"));
-		$smarty->assign('hour_format', $this->getConfig("hour_format"));
-        $smarty->assign('demo', $this->getConfig("demo"));
-        $smarty->assign('theme', $this->getConfig("theme"));
-        $smarty->assign('path', path);        
-        $smarty->assign('pagetitle', $this->getConfig("page_title"));
-        return $smarty;
-    }
+        $smarty->compile_dir = $smartCompileDir;
 
-    public function retornaFpdf() {
-        require_once(FPDF . 'fpdf.php');
-        $pdf = new FPDF;
-        return $pdf;
+        $lang_default = $this->getConfig("lang");
+        $license =  $this->getConfig("license");
+
+        $smartConfigFile = $this->getHelpdezkPath().'/app/lang/' . $lang_default . '.txt';
+        if (!file_exists($smartConfigFile)) {
+            die('Lang file: ' . $smartConfigFile . ' does not exist !!!!') ;
+        }
+
+
+        $this->setSmartyVersionNumber(Smarty::SMARTY_VERSION);
+
+        if (version_compare($this->getSmartyVersionNumber(), '3', '>=' )) {
+            $smarty->configLoad($smartConfigFile, $license);
+            $smarty->setPluginsDir(array($dirPluginDefault,$smartPluginsDir));
+        } else {
+            $smarty->config_load($smartConfigFile, $license);
+            $smarty->plugins_dir[] = $smartPluginsDir;
+        }
+
+
+        $smarty->assign('lang',         $lang_default);
+		$smarty->assign('date_format',  $this->getConfig("date_format"));
+		$smarty->assign('hour_format',  $this->getConfig("hour_format"));
+        $smarty->assign('demo',         $this->getConfig("demo"));
+        $smarty->assign('theme',        $this->getConfig("theme"));
+        $smarty->assign('path',         path);
+        $smarty->assign('id_mask', $this->getConfig('id_mask'));
+        $smarty->assign('ein_mask', $this->getConfig('ein_mask'));
+        $smarty->assign('zip_mask', $this->getConfig('zip_mask'));
+        $smarty->assign('phone_mask', $this->getConfig('phone_mask'));
+        $smarty->assign('cellphone_mask', $this->getConfig('cellphone_mask'));
+
+        $smarty->assign('pagetitle',    $this->getConfig("page_title"));
+
+        return $smarty;
     }
 
     public function returnPhpExcel()
@@ -228,50 +1058,104 @@ class System {
         $this->pdfWidths=$w;
     }
     */
+
+    /* Start PDF Methods */
+    public function returnFpdf()
+    {
+        require_once(FPDF . 'fpdf.php');
+        $pdf = new FPDF;
+        return $pdf;
+
+    }
+
+    // class FPDF with extention to parsehtml
+    public function returnHtml2pdf() {
+        require_once(FPDF . 'html2pdf.php');
+        $pdf = new html2Pdf();
+        return $pdf;
+
+    }
+
+    public function SetPdfFontFamily($pdfFontFamily)
+    {
+        $this->pdfFontFamily = $pdfFontFamily;
+    }
+
+    public function SetPdfFontStyle($pdfFontStyle)
+    {
+        $this->pdfFontStyle = $pdfFontStyle;
+    }
+
+    public function setPdfFontSyze($pdfFontSyze)
+    {
+        $this->pdfFontSyze = $pdfFontSyze;
+    }
+
     function SetpdfLeftMargin($leftMargin){
         $this->pdfLeftMargin=$leftMargin;
     }
+
     function SetPdfLogo($logo){
         $this->pdfLogo=$logo;
     }
+
+    public function makePdfLineBlur($objPdf, $text)
+    {
+        foreach($text as $k=>$v){
+            $objPdf->SetFillColor(200,220,255);
+            $objPdf->Cell($v['cellWidth'],$v['cellHeight'],$v['title'],0,0,$v['titleAlign'],1);
+        }
+        $objPdf->Ln(6);
+    }
+
+    public function makePdfLine($objPdf,$leftMargin, $width)
+    {
+        $objPdf->Ln(2);
+        $objPdf->Cell($leftMargin);
+        $objPdf->Line($objPdf->GetX(),$objPdf->GetY(), $width, $objPdf->GetY());
+        $objPdf->Ln(2);
+    }
+
     function SetPdfPage($page){
         $this->pdfPage=$page;
     }
+
     function SetPdfTitle($title){
         $this->pdfTitle=$title;
     }
+
     function SetPdfHeaderData($a_headerData){
         $this->a_pdfHeaderData=$a_headerData;
     }
 
-    public function retornaReportFpdf() {
-        require_once DOCUMENT_ROOT . path . '/includes/classes/fpdf/fpdf.php';
-        $pdf = new FPDF();
-        return $pdf;
-    }
     public function ReportPdfHeader($pdf){
+
         if(file_exists($this->pdfLogo)) {
             $pdf->Image($this->pdfLogo, 10 + $this->pdfLeftMargin, 8);
         }
-        //$pdf->AddPage();
+
         $pdf->Ln(2);
-        $pdf->SetFont('Arial', 'B', 10);
+
+        $pdf->SetFont($this->pdfFontFamily,'B',10);
         $pdf->Cell($this->pdfLeftMargin);
         $pdf->Cell(0, 5, $this->pdfTitle, 0, 0, 'C');
-        $pdf->SetFont('Arial', 'I', 6);
+
+        $pdf->SetFont($this->pdfFontFamily,'I',6);
         $pdf->Cell(0, 5, $this->pdfPage . ' ' . $pdf->PageNo() . '/{nb}', 0, 0, 'R');
         $pdf->Ln(7);
         $pdf->Cell($this->pdfLeftMargin);
         $pdf->Line($pdf->GetX(), $pdf->GetY(), 198, $pdf->GetY());
-        $pdf->SetFont('Arial','B',8);
+
+        $pdf->SetFont($this->pdfFontFamily,$this->pdfFontStyle,$this->pdfFontSyze);
         $pdf->Cell($this->pdfLeftMargin);
-        //$pdf->Cell(0,0,date("d/m/Y"),0,0,'C');
+
         $pdf->Ln(8);
         return $pdf ;
     }
+
     public function ReportPdfCabec($pdf)
     {
-        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont($this->pdfFontFamily,$this->pdfFontStyle,$this->pdfFontSyze);
         $pdf->SetFillColor(211,211,211);
         $pdf->Cell($this->pdfLeftMargin);
 
@@ -282,6 +1166,7 @@ class System {
         $pdf->Ln(5);
         return $pdf ;
     }
+
     public function ReportPdfRow($pdf,$data){
         //Calcula a altura da fila
         $nb=0;
@@ -308,7 +1193,8 @@ class System {
         $pdf->Ln($h);
         return $pdf;
     }
-    function ReportPdfCheckPageBreak($pdf,$h){
+
+    public function ReportPdfCheckPageBreak($pdf,$h){
         if($pdf->GetY()+$h>$pdf->PageBreakTrigger) {
             $pdf->AddPage($pdf->CurOrientation);
             $this->ReportPdfHeader($pdf);
@@ -318,7 +1204,7 @@ class System {
     }
 
     public function ReportPdfNbLines($pdf,$w,$txt){
-        //Calcula o número de linhas de uma MultiCell de largura w
+
         $cw=&$pdf->CurrentFont['cw'];
         if($w==0)
             $w=$this->w-$pdf->rMargin-$pdf->x;
@@ -363,6 +1249,8 @@ class System {
         return $nl;
     }
 
+    /* End PDF Methods */
+
     public function parse_ajax($arr) {
         $i = 0;
         $line = array();
@@ -373,7 +1261,7 @@ class System {
         return $line;
     }
 
-    public function access($user, $idprogram, $type) {
+    public function access($smarty, $user, $idprogram, $type) {
 
         $bd = new common();
         $groupperm = $bd->selectGroupPermission($user, $idprogram );
@@ -416,7 +1304,7 @@ class System {
             $groupperm->MoveNext();
         }
 
-
+        //print "<pre>"; print_r($perm) ; die();
         $personperm = $bd->selectPersonPermission($user, $idprogram);
 		if ($personperm->fields['allow']) {
 			while (!$personperm->EOF) {
@@ -431,33 +1319,9 @@ class System {
 		}
         //print "<pre>"; print_r($perm) ; die();
         $string_array = implode('|', $perm);
-        ?>
-        <script type="text/javascript">
-            var i, access, string_array;
-            string_array = '<?php echo $string_array; ?>';
-                                                                                                                       
+        $smarty->assign('string_array', $string_array);
+        $smarty->assign('access', "string_array.split('|')");
 
-            access = string_array.split('|');
-        </script>
-        <?php
-
-        if(count($perm) > 0){
-			$permAccess = array_values($perm);
-			if($permAccess[0] != "Y"){
-				$smarty = $this->retornaSmarty();
-                $dir = str_replace("\\","/", __DIR__) ;
-                $path_tpl = str_replace("system","",$dir) ;
-                $smarty->display('file:'.$path_tpl.'/app/modules/admin/views/nopermission.tpl.html');
-				die();
-			}
-		}else{
-			$smarty = $this->retornaSmarty();
-            $dir = str_replace("\\","/", __DIR__) ;
-            $path_tpl = str_replace("system","",$dir) ;
-            $smarty->display('file:'.$path_tpl.'/app/modules/admin/views/nopermission.tpl.html');
-            die();
-		}
-        
         return $perm;
     }
 
@@ -485,24 +1349,23 @@ class System {
     }
 	
 	public function formatHour($date) {
-        $bd = new operatorview_model();
+        $bd = new common();
         $dateafter = $bd->getDate($date, $this->getConfig("hour_format"));
         return $dateafter;
     }
 	
 	public function formatDateHour($date) {
-        $bd = new operatorview_model();
+        $bd = new common();
         $dateafter = $bd->getDateTime($date, $this->getConfig("date_format")." ".$this->getConfig("hour_format"));
         return $dateafter;
     }
 
     public function formatSaveDate($date) {
-        //$bd = new operatorview_model();
-        //$dateafter = $bd->getSaveDate($date, $this->getConfig("date_format"));
+
         $dbCommon = new common();
         $dateafter = $dbCommon->getSaveDate($date, $this->getConfig("date_format"));
 		$database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             return "'".$dateafter."'";
         } elseif ($database == 'oci8po') {
 			return $dateafter;
@@ -516,10 +1379,10 @@ class System {
     }
 
 	public function formatSaveDateHour($date) {
-        $bd = new operatorview_model();
-        $dateafter = $bd->getSaveDate($date, $this->getConfig("date_format")." ".$this->getConfig("hour_format"));
+        $dbCommon = new common();
+        $dateafter = $dbCommon->getSaveDate($date, $this->getConfig("date_format")." ".$this->getConfig("hour_format"));
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             return "'".$dateafter."'";
         } elseif ($database == 'oci8po') {
 			return $dateafter;
@@ -536,35 +1399,6 @@ class System {
         $value = str_replace(",",".",str_replace(".","",$value)) ;
         return $value;
     }
-    /**
-     * Method to write in log file
-     *
-     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
-     *
-     * @param string  $str String to write
-     * @param string  $file  Log filename
-     *
-     * @return string true|false
-     */
-    public function saveLog($str, $file)
-    {
-        if (!file_exists($file)) {
-            if($fp = fopen($file, 'a')) {
-                @fclose($fp);
-                return logit($str, $file);
-            } else {
-                return false;
-            }
-        }
-        if (is_writable($file)) {
-            $handle = fopen($file, "a+");
-            fwrite($handle, $str."\r\n");
-            fclose($handle);
-            return true;
-        } else {
-            return false;
-        }
-    }
 
 	/**
 	* Method to send e-mails
@@ -579,95 +1413,116 @@ class System {
 	*
 	* @return string true|false 
 	*/
-    public function sendEmailDefault($subject,$body,$address,$log = false, $log_text) 
-	{        
-        $data = new features_model();
-        $emconfigs = $data->getEmailConfigs();
-        $tempconfs = $data->getTempEmail();
+    public function sendEmailDefault($params)
+	{
+        $dbCommon = new common();
+        $emconfigs = $dbCommon->getEmailConfigs();
+        $tempconfs = $dbCommon->getTempEmail();
+
+        $mail_title     = '=?UTF-8?B?'.base64_encode($emconfigs['EM_TITLE']).'?=';
+        $mail_method    = 'smtp';
+        $mail_host      = $emconfigs['EM_HOSTNAME'];
+        $mail_domain    = $emconfigs['EM_DOMAIN'];
+        $mail_auth      = $emconfigs['EM_AUTH'];
+        $mail_username  = $emconfigs['EM_USER'];
+        $mail_password  = $emconfigs['EM_PASSWORD'];
+        $mail_sender    = $emconfigs['EM_SENDER'];
+        $mail_header    = $tempconfs['EM_HEADER'];
+        $mail_footer    = $tempconfs['EM_FOOTER'];
+        $mail_port      = $emconfigs['EM_PORT'];
         
-        $mail_host 		= $emconfigs['EM_HOSTNAME'];
-        $mail_dominio 	= $emconfigs['EM_DOMAIN'];
-        
-        $mail_header 	= $tempconfs['EM_HEADER'];
-        $mail_footer 	= $tempconfs['EM_FOOTER'];
-		
-        require_once("includes/classes/phpMailer/class.phpmailer.php");
-        $mail = new phpmailer();
-		
-        $mail->From = $emconfigs['EM_SENDER'];
-        $mail->FromName = 'HelpDEZk';
+        $mail = $this->returnPhpMailer();
+
+        $mail->CharSet = 'utf-8';
+
+        if($params['customHeader'] && $params['customHeader'] != ''){
+            $mail->addCustomHeader($params['customHeader']);
+        }
+
+        if ($this->getConfig('demo') == true) {
+            $mail->addCustomHeader('X-hdkLicence:' . 'demo');
+        } else {
+            $mail->addCustomHeader('X-hdkLicence:' . $this->getConfig('license'));
+        }
+
+        if($params['sender'] && $params['sender'] != ''){
+            $mail_sender = $params['sender'];
+            $mail_title = $params['sender_name'];
+        }
+
+        if($params['sender_name'] && $params['sender_name'] != ''){
+            $mail_title = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
+        }
+
+        $mail->From = $mail_sender;
+        $mail->FromName = $mail_title;
+
         if ($mail_host)
             $mail->Host = $mail_host;
-        if (isset($mail_porta) AND !empty($mail_porta)) {
-            $mail->Port = $mail_porta;
+        if (isset($mail_port) AND !empty($mail_port)) {
+            $mail->Port = $mail_port;
         }
-		
-        $mail->Mailer 	= 'smtp';
-        $mail->SMTPAuth = $emconfigs['EM_AUTH'];
-        $mail->Username = $emconfigs['EM_USER'];
-        $mail->Password = $emconfigs['EM_PASSWORD'];
-        $mail->Body 	= $mail_header . $body . $mail_footer;
+
+        $mail->Mailer = $mail_method;
+        $mail->SMTPAuth = $mail_auth;
+        if (strpos($mail_username,'gmail') !== false) {
+            $mail->SMTPSecure = "tls";
+        }
+        $mail->Username = $mail_username;
+        $mail->Password = $mail_password;
+
         $mail->AltBody 	= "HTML";
-        $mail->Subject 	= $subject;
+        $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
 
-		$exist = array();
-		if (is_array($address) )
-		{
-			foreach ($address as $v) {
-				if (!in_array($v, $exist)) {
-					$mail->AddAddress($v);
-					$exist[] = $v;
-				}
-			}
-		} 
-		else
-		{
-		
-		}
+        $mail->SetLanguage('br', $this->helpdezkPath . "/includes/classes/phpMailer/language/");
 
-		$done = $mail->Send();
- 
-        if (!$done) 
-		{ 
-            if ($log) {
-                $mail->SMTPDebug = true;
-                $mail->Send();
-				
-				if (path == "/..") {
-					$file = fopen(DOCUMENT_ROOT . '/logs/email_failures.txt', 'ab');
-				} else {
-					$file = fopen(DOCUMENT_ROOT . path .  '/logs/email_failures.txt', 'ab');
-				}	
-                
-				if ($file) {
-					$msg = date("Y-m-d H:i:s");
-					$msg .= " " . $mail->ErrorInfo;
-					$msg .= $log_text . "\r\n";
-					fwrite($file, $msg);
-					fclose($file);
-				}
-			}
-		} 
-		else 
-		{
-			if ($log) {
-				if (path == "/..") {
-					$file = fopen(DOCUMENT_ROOT . '/logs/email_success.txt', 'ab');
-				} else {
-					$file = fopen(DOCUMENT_ROOT . path .  '/logs/email_success.txt', 'ab');
-				}			
+        $paramsDone = array("msg" => $params['msg'],
+            "msg2" => $params['msg2'],
+            "mail_host" => $mail_host,
+            "mail_domain" => $mail_domain,
+            "mail_auth" => $mail_auth,
+            "mail_port" => $mail_port,
+            "mail_username" => $mail_username,
+            "mail_password" => $mail_password,
+            "mail_sender" => $mail_sender
+        );
 
-				if ($file) {
-					$msg = date("Y-m-d H:i:s");
-					$msg .= " SUCCESFULLY SENT  - ";
-					$msg .= $msg .= $log_text . "\r\n"; 
-					fwrite($file, $msg);
-					fclose($file);
-				}
-			}
-		}
-        $mail->ClearAllRecipients();
+        if(sizeof($params['attachment']) > 0){
+            foreach($params['attachment'] as $key=>$value){
+                $mail->AddAttachment($value['filepath'], $value['filename']);  // optional name
+            }
+        }
+
+        // Tracker
+        if($params['tracker']) {
+            $body = $mail_header . $params['contents'] . $mail_footer;
+            $aEmail = $this->makeArrayTracker($params['address']);
+
+            foreach ($aEmail as $key => $sendEmailTo) {
+                $idEmail = $this->saveTracker($params['idmodule'],$mail_sender,$sendEmailTo,addslashes($params['subject']),addslashes($params['contents']));
+                if(!$idEmail) {
+                    $this->logIt("Error insert in tbtracker, " . $params['msg'] .' - program: ' . $this->program, 3, 'email', __LINE__);
+                } else {
+                    $mail->AddAddress($sendEmailTo);
+                    $trackerID = '<img src="'.$this->helpdezkUrl.'/tracker/'.$this->modulename.'/'.$idEmail.'.png" height="1" width="1" />' ;
+                    $mail->Body = $mail_header . $params['contents'] . $mail_footer . $trackerID;
+                    $error_send = $this->isEmailDone($mail,$paramsDone);
+                }
+                $mail->ClearAddresses();
+            }
+        } else {
+            //Checks for more than 1 email address at recipient
+            $this->makeSentTo($mail,$params['address']);
+            $mail->Body = $mail_header . $params['contents'] . $mail_footer;
+            $error_send = $this->isEmailDone($mail,$paramsDone);
+        }
+
         $mail->ClearAttachments();
+        if ($error_send)
+            return false;
+        else
+            return true;
+
 	}	
 	
     public function sendEmail($operation, $code_request, $reason = NULL) {
@@ -1398,8 +2253,9 @@ class System {
         // print("HOST: $mail_host DOMAIN: $mail_dominio AUTH: $mail_auth USER: $mail_username PASS: $mail_password SENDER: $mail_remetente CABEÇ: $mail_cabecalho RODA: $mail_rodape <BR/>");
 
 
-        require_once("includes/classes/phpMailer/class.phpmailer.php");
-        $mail = new phpmailer();
+        //require_once("includes/classes/phpMailer/class.phpmailer.php");
+        //$mail = new phpmailer();
+        $mail = $this->returnPhpMailer();
         $mail->From = $mail_remetente;
         $mail->FromName = $nom_titulo;
         if ($mail_host)
@@ -1456,6 +2312,7 @@ class System {
             if ($_SESSION['EM_FAILURE_LOG'] == '1') {
                 $mail->SMTPDebug = true;
                 $mail->Send();
+
                 $this->logit("[".date($this->getPrintDate())."]" . " Line: " .  __LINE__ . " - Error send email, request " . $REQUEST .', operation: ' . $operation , $this->logFileEmail);
                 $this->logit("[".date($this->getPrintDate())."]" . " Error Info: " . $mail->ErrorInfo , $this->logFileEmail);
             }
@@ -1466,6 +2323,26 @@ class System {
         }
 
 
+    }
+
+    // Since November 03, 2017
+    public function sessionValidate($mob = null) {
+        if (!isset($_SESSION['SES_COD_USUARIO'])) {
+            if($mob){
+                echo 1;
+            }else{
+                $this->sessionDestroy();
+                header('Location:' . $this->helpdezkUrl . '/admin/login');
+            }
+        }
+    }
+
+    // Since November 03, 2017
+    public function sessionDestroy()
+    {
+        session_start();
+        session_unset();
+        session_destroy();
     }
 
     public function validasessao($mob = null) {
@@ -1483,12 +2360,9 @@ class System {
         if (isset($headers['X-CSRF-TOKEN'])) {
             if ($headers['X-CSRF-TOKEN'] !== $_SESSION['X-CSRF-TOKEN']) {
                 return (json_encode(['error' => 'Wrong CSRF token.']));
-
             }
         } else {
             return (json_encode(['error' => 'No CSRF token.']));
-
-
         }
 
     }
@@ -1512,6 +2386,12 @@ class System {
         return $dbCommon->getValueParam($module,$param) ;
     }
 
+    public function getActiveModules()
+    {
+        $dbCommon = new common() ;
+        return $dbCommon->getActiveModules();
+
+    }
     // Encrypt Function
     public function mc_encrypt($encrypt, $key){
         $encrypt = serialize($encrypt);
@@ -1539,17 +2419,18 @@ class System {
         return $decrypted;
     }
 
-    public function makeMenu($idPerson, $idmodule='')
+    public function makeMenuTreeView($idPerson, $idmodule='')
     {
+
         $smarty = $this->retornaSmarty();
-        $langVars = $smarty->get_config_vars();
+        $langVars = $this->getLangVars($smarty);
 
         $dbCommon = new common();
-        $typeperson = $dbCommon->getIdTypePerson($idPerson) ;
 
         $programcount = $dbCommon->countPrograms($idmodule);
-        //$groupperm = $dbCommon->selectGroupPermissionMenu($idPerson, $typeperson,$idmodule) ;
+
         $andModule = 'm.idmodule = ' . $idmodule ;
+
         $groupperm = $dbCommon->getPermissionMenu($idPerson, $andModule) ;
 
         if($groupperm){
@@ -1570,30 +2451,6 @@ class System {
                 $groupperm->MoveNext();
             }
         }
-
-        /*
-        $personperm = $dbCommon->selectPersonPermissionMenu($idPerson,$idmodule);
-
-        if ($personperm->fields['idmodule_pai']) {
-            while (!$personperm->EOF) {
-                $allow = $personperm->fields['allow'];
-                $program = $personperm->fields['program'];
-                $idmodule_pai = $personperm->fields['idmodule_pai'];
-                $module = $personperm->fields['module'];
-                $idmodule_origem = $personperm->fields['idmodule_origem'];
-                $category = $personperm->fields['category'];
-                $category_pai = $personperm->fields['category_pai'];
-                $idcategory_origem = $personperm->fields['idcategory_origem'];
-                $controller = $personperm->fields['controller'];
-                $idprogram = $personperm->fields['idprogram'];
-                $prsmarty = $personperm->fields['pr_smarty'];
-                $ctsmarty = $personperm->fields['cat_smarty'];
-                $perm[$idprogram] = array('program' => $program, 'smartypr' => $prsmarty, 'smartyct' => $ctsmarty, 'idmodule_pai' => $idmodule_pai, 'module' => $module, 'idmodule_origem' => $idmodule_origem, 'category' => $category, 'category_pai' => $category_pai, 'idcategory_origem' => $idcategory_origem, 'controller' => $controller, 'idprogram' => $idprogram, 'allow' => $allow);
-                $personperm->MoveNext();
-            }
-        }
-
-        */
 
         for ($j = 1; $j <= $programcount; $j++) {
             if (in_array($perm[$j]['idmodule_pai'], $modules) || $perm[$j]['allow'] != 'Y') {
@@ -1650,76 +2507,543 @@ class System {
         return $lista;
 
     }
-    // TMS Methods
-    function SetPdfHeaderTestData($a_headerTestData)
+
+    // Since 1.0.1
+    public function makeMenuBycategory($idPerson,$idmodule,$idcategory)
     {
-        $this->a_pdfHeaderTestData=$a_headerTestData;
-    }
-    public function ReportTestPdfHeader($pdf)
-    {
-        if(file_exists($this->pdfLogo)) {
-            $pdf->Image($this->pdfLogo, 10 + $this->pdfLeftMargin, 8);
-        }
-        $pdf->Ln(2);
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell($this->pdfLeftMargin);
-        $pdf->Cell(0, 5, $this->pdfTitle, 0, 0, 'C');
-        $pdf->SetFont('Arial', 'I', 6);
-        $pdf->Cell(0, 5, $this->pdfPage . ' ' . $pdf->PageNo() . '/{nb}', 0, 0, 'R');
-        $pdf->Ln(10);
-        $pdf->SetFont('Arial','B',8);
-        $i = 1;
-        for ($row = 0; $row < count($this->a_pdfHeaderTestData); $row++) {
-            $pdf->Cell($this->pdfLeftMargin);
-            if(($i%2) != 0){
-                $pdf->Cell(20,4,'',0,0,'L',0);
+        $smarty = $this->retornaSmarty();
+        $langVars = $this->getLangVars($smarty);
+
+        $dbCommon = new common();
+
+        $andModule = " m.idmodule = " . $idmodule . " AND cat.idmodule = " . $idcategory ;
+
+        $groupperm = $dbCommon->getPermissionMenu($idPerson, $andModule) ;
+
+        $list='';
+        if($groupperm){
+            while (!$groupperm->EOF) {
+                $allow = $groupperm->fields['allow'];
+                $path  = $groupperm->fields['path'];
+                $program = $groupperm->fields['program'];
+                $controller = $groupperm->fields['controller'];
+                $prsmarty = $groupperm->fields['pr_smarty'];
+
+                if ($allow == 'Y') {
+                    $checkbar = substr($groupperm->fields['controller'], -1);
+                    if($checkbar != "/") $checkbar = "/";
+                    else $checkbar = "";
+                    $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $langVars[$prsmarty] . "</a></li>";
+                }
+
+                $groupperm->MoveNext();
             }
-            $pdf->Cell($this->a_pdfHeaderTestData[$row]['width'], 4, utf8_decode($this->a_pdfHeaderTestData[$row]['title'].$this->a_pdfHeaderTestData[$row]['descricao']), 0, 0, $this->a_pdfHeaderTestData[$row]['align'], 0);
-            if(($i%2) == 0){
-                $pdf->Ln();
+        }
+
+        return $list;
+
+    }
+
+
+    // -- Combos ---
+
+    public function comboCountries()
+    {
+        $dbCommon = new common();
+
+        $rs = $dbCommon->getCountry();
+        while (!$rs->EOF) {
+            $fieldsID[] = $rs->fields['idcountry'];
+            $values[]   = $rs->fields['printablename'];
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+
+    }
+
+    public function getIdCountryDefault()
+    {
+        return $_SESSION['COUNTRY_DEFAULT'];
+    }
+
+    public function getIdStateDefault()
+    {
+        return $_SESSION['hdk']['STATE_DEFAULT'] ;
+    }
+
+    public function getIdCityDefault($idState)
+    {
+        // get the first city in table
+        $dbCommon = new common();
+        $rs = $dbCommon->getCity(" where idstate = $idState"," ORDER BY name ASC", "LIMIT 1");
+        return $rs->fields['idcity'];
+    }
+
+    public function comboStates($idCountry)
+    {
+        $dbCommon = new common();
+
+        $rs = $dbCommon->getState("where idcountry = $idCountry");
+        while (!$rs->EOF) {
+            $name = $rs->fields['idstate'] != 1 ? $rs->fields['name'] : $this->getLanguageWord('Select_state');
+            $fieldsID[] = $rs->fields['idstate'];
+            $values[]   = $name;
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+
+    }
+
+    public function comboCity($idState)
+    {
+        $dbCommon = new common();
+
+        $rs = $dbCommon->getCity("where idstate = $idState");
+        while (!$rs->EOF) {
+            $name = $rs->fields['idcity'] != 1 ? $rs->fields['name'] : $this->getLanguageWord('Select_city');
+            $fieldsID[] = $rs->fields['idcity'];
+            $values[]   = utf8_encode($name);
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+
+    }
+
+    public function comboNeighborhood($idCity)
+    {
+        $dbCommon = new common();
+
+        $rs = $dbCommon->getNeighborhood("where idcity = $idCity");
+        while (!$rs->EOF) {
+            $name = $rs->fields['idneighborhood'] != 1 ? $rs->fields['name'] : $this->getLanguageWord('Select_city');
+            $fieldsID[] = $rs->fields['idneighborhood'];
+            $values[]   = $name;
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+
+    }
+
+    public function comboStatesHtml($idCountry)
+    {
+
+        $arrType = $this->comboStates($idCountry);
+        $select = '';
+
+        foreach ( $arrType['ids'] as $indexKey => $indexValue ) {
+            if ($arrType['default'][$indexKey] == 1) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
             }
-            $i++;
+            $select .= "<option value='$indexValue' $default>".$arrType['values'][$indexKey]."</option>";
         }
-        $pdf->Ln(7);
-        $pdf->Cell($this->pdfLeftMargin);
-        $pdf->Line($pdf->GetX(), $pdf->GetY(), 198, $pdf->GetY());
-        $pdf->SetFont('Arial','B',8);
-        $pdf->Cell($this->pdfLeftMargin);
-        $pdf->Ln(8);
-        return $pdf ;
+        return $select;
     }
-    public function ReportTestPdfRow($pdf,$data)
+
+    public function comboCitesHtml($idState)
     {
-        //Calcula a altura da fila
-        $nb=0;
-        for($i=0;$i<count($data);$i++)
-            $nb=max($nb,$this->ReportPdfNbLines($pdf,$this->a_pdfHeaderData[$i]['width'],$data[$i]));
-        $h=5*$nb;
-        //Insere um salto de página primeiramente se for necessario
-        $this->ReportTestPdfCheckPageBreak($pdf,$h);
-        //Desenha as células da linha
-        for($i=0;$i<count($data);$i++){
-            $w=$this->a_pdfHeaderData[$i]['width'];
-            $a=isset($this->a_pdfHeaderData[$i]['align']) ? $this->a_pdfHeaderData[$i]['align'] : 'C';
-            //Salva a posição atual
-            $x=$pdf->GetX();
-            $y=$pdf->GetY();
-            //Draw the border
-            $pdf->Rect($x,$y,$w,$h,'F');
-            //Imprime o texto
-            $pdf->MultiCell($w,5,$data[$i],0,$a);
-            //Coloca a posição para a direita da célula
-            $pdf->SetXY($x+$w,$y);
+
+        $arrType = $this->comboCity($idState);
+        $select = '';
+
+        foreach ( $arrType['ids'] as $indexKey => $indexValue ) {
+            if ($arrType['default'][$indexKey] == 1) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrType['values'][$indexKey]."</option>";
         }
-        //Va para a próxima linha
-        $pdf->Ln($h);
-        return $pdf;
+        return $select;
     }
-    public function retornaReportFpdfProva()
+
+    public function comboNeighborhoodHtml($idCity)
     {
-        require_once DOCUMENT_ROOT . path . '/includes/classes/fpdf/fpdf_prova.php';
-        $pdf = new PDF_prova();
-        return $pdf;
+
+        $arrType = $this->comboneighborhood($idCity);
+        $select = '';
+
+        foreach ( $arrType['ids'] as $indexKey => $indexValue ) {
+            if ($arrType['default'][$indexKey] == 1) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrType['values'][$indexKey]."</option>";
+        }
+        return $select;
+    }
+
+    public function comboTypeStreet()
+    {
+        $location = $this->getConfig('lang');
+        $dbCommon = new common();
+
+        $rs = $dbCommon->getTypeStreet("where location = '" . $this->getConfig('lang') ."'");
+        while (!$rs->EOF) {
+            $fieldsID[] = $rs->fields['idtypestreet'];
+            $values[]   = utf8_encode($rs->fields['name']);
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+
+    }
+    // --
+    public function makeJsonUtf8Compat($aParam)
+    {
+        $array = array_map('htmlentities',$aParam);
+        $json = html_entity_decode(json_encode($array));
+        return $json;
+    }
+
+    public function loadModel($modelName)
+    {
+        $modelPath = 'app/modules/';
+
+        if (strpos($modelName, '/') === false) {
+            $class = $modelName;
+            $curr_url = $_GET['url'];
+            $curr_url = explode("/", $curr_url);
+            $file = $modelPath . $curr_url[0]. '/models/' . $class . '.php';
+        } else {
+            $arrParts = explode("/", $modelName);
+            $class = $arrParts[1];
+            $file = $modelPath . $arrParts[0] . '/models/' . $class . '.php';
+
+        }
+        spl_autoload_register(function ($class) use( &$file) {
+            if (file_exists($file)) {
+                require_once($file);
+            } else {
+                die ('The model file does not exist: ' . $file);
+            }
+        });
+
+
+
+    }
+
+    public function getIdCategoryByName($name)
+    {
+
+    }
+
+    public function getIdModule($modulename)
+    {
+        $dbCommon = new common();
+        $id = $dbCommon->_getIdModule($modulename) ;
+        if(!$id) {
+            die('Module don\'t exists in tbmodule !!!') ;
+        } else {
+            return $id ;
+        }
+    }
+
+    public function makeLogin($name)
+    {
+        $this->loadModel('admin/person');
+        $dbPerson = new person_model();
+
+        $aName = $arr = explode(' ', $this->clearAccent($name));
+        $num = count($aName);
+        $login = strtolower($aName[0].'.'.$aName[$num-1]);
+
+        for ($x = 0; $x <= 100; $x++) {
+            if($x == 0)
+                $login = $login;
+            else
+                $test = $login.'_'.$x;
+            if (!$dbPerson->isLogin($test)){
+                return $test;
+            }
+        }
+
+        return false;
+
+    }
+
+    public function clearAccent($string)
+    {
+         $LetraProibi = Array(",",".","'","\"","&","|","!","#","$","¨","*","(",")","`","´","<",">",";","=","+","§","{","}","[","]","^","~","?","%");
+         $special =  Array('Á','È','ô','Ç','á','è','Ò','ç','Â','Ë','ò','â','ë','Ø','Ñ','À','Ð','ø','ñ','à','ð','Õ','Å','õ','Ý','å','Í','Ö','ý','Ã','í','ö','ã','Î','Ä','î','Ú','ä','Ì','ú','Æ','ì','Û','æ','Ï','û','ï','Ù','®','É','ù','©','é','Ó','Ü','Þ','Ê','ó','ü','þ','ê','Ô','ß','‘','’','‚','“','”','„');
+         $clearspc = Array('A','A','o','Ç','a','e','o','c','A','E','o','a','e','o','N','A','D','o','n','a','o','O','A','o','y','a','I','O','y','A','i','o','a','I','A','i','U','a','I','u','A','i','U','a','I','u','i','U','','E','u','c','e','O','U','p','E','o','u','b','e','O','b','','','','','','');
+         $newId = str_replace($special, $clearspc, $string);
+         $newId = str_replace($LetraProibi, "", trim($newId));
+         return strtolower($newId);
+        }
+
+    public function formatMask($string, $mask)
+    {
+        $aValid = array('0','9','X','#');
+        $aToFormat = str_split($string);
+        $aMask = str_split($mask);
+        $outputLen = strlen($mask)-1;
+
+        $j=0;
+        $format = '';
+        $tempChar = '';
+        for($i=0; $i<=$outputLen; $i++){
+            $tempChar = substr($mask,$i,1);
+            if (in_array($tempChar,$aValid)){
+                $format .= $aToFormat[$j];
+                $j++;
+            } else {
+                $format .= $aMask[$i];
+            }
+        }
+        return $format;
+
+    }
+
+    public function getIdNeighborhoodDefault($idCity)
+    {
+        // get the first city in table
+        $dbCommon = new common();
+        $rs = $dbCommon->getNeighborhood(" where idcity = $idCity"," ORDER BY name ASC", "LIMIT 1");
+        return $rs->fields['idneighborhood'];
+    }
+
+    public function getIdProgramByController($programcontroller)
+    {
+        $dbCommon = new common();
+        $id = $dbCommon->selectProgramIDByController($programcontroller) ;
+        if(!$id) {
+            die('Program don\'t exists in tbprogram !!!') ;
+        } else {
+            return $id ;
+        }
+    }
+
+    public function getModuleInfo($idmodule)
+    {
+        $dbCommon = new common();
+        $ret = $dbCommon->getModule("WHERE idmodule = $idmodule") ;
+        if(!$ret) {
+            die('Module don\'t exists in tbmodule !!!') ;
+        } else {
+            return $ret;
+        }
+    }
+
+    public function makeMenuByModule($idPerson,$idmodule)
+    {
+        $smarty = $this->retornaSmarty();
+        $langVars = $this->getLangVars($smarty);
+
+        $dbCommon = new common();
+        $rsCat = $dbCommon->getModulesCategoryAtive($idPerson, $idmodule) ;
+
+        $list='';
+        if($rsCat){
+            while (!$rsCat->EOF) {
+
+                $list .= "<li class='dropdown'>
+                    <a aria-expanded='false' role='button' href='#' class='dropdown-toggle' data-toggle='dropdown'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."<span class='caret'></span></a>
+                    <ul role='menu' class='dropdown-menu'>";
+
+                $andModule = " m.idmodule = " . $idmodule . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
+                $groupperm = $dbCommon->getPermissionMenu($idPerson, $andModule);
+
+                if($groupperm){
+                    while (!$groupperm->EOF) {
+                        $allow = $groupperm->fields['allow'];
+                        $path  = $groupperm->fields['path'];
+                        $program = $groupperm->fields['program'];
+                        $controller = $groupperm->fields['controller'];
+                        $prsmarty = $groupperm->fields['pr_smarty'];
+
+                        if ($allow == 'Y') {
+                            $checkbar = substr($groupperm->fields['controller'], -1);
+                            if($checkbar != "/") $checkbar = "/";
+                            else $checkbar = "";
+                            $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $langVars[$prsmarty] . "</a></li>";
+                        }
+
+                        $groupperm->MoveNext();
+                    }
+                }
+
+                $list .= "</ul>
+                </li>";
+
+                $rsCat->MoveNext();
+            }
+        }
+
+        return $list;
+
+    }
+
+    public function makeArrayTracker($sentTo)
+    {
+        $jaExiste = array();
+        $aRet = array();
+        if (preg_match("/;/", $sentTo)) {
+            $email_destino = explode(";", $sentTo);
+            if (is_array($email_destino)) {
+                for ($i = 0; $i < count($email_destino); $i++) {
+                    if (empty($email_destino[$i]))
+                        continue;
+                    if (!in_array($email_destino[$i], $jaExiste)) {
+                        $jaExiste[] = $email_destino[$i];
+                        array_push($aRet,$email_destino[$i]);
+                    }
+                }
+            } else {
+                array_push($aRet,$email_destino);
+            }
+        } else {
+            array_push($aRet,$sentTo);
+        }
+        return $aRet;
+    }
+
+    public function isEmailDone($objmail,$params){
+        $done = $objmail->Send();
+        if (!$done) {
+            if($this->log AND $_SESSION['EM_FAILURE_LOG'] == '1') {
+                if(!$this->getConfig('test_environment'))
+                    $objmail->SMTPDebug = 5;
+                $objmail->Send();
+                $this->logIt("Error send email, " . $params['msg'] . ' - program: ' . $this->program, 3, 'email', __LINE__);
+                $this->logIt("Error send email, " . $params['msg2'] . ' - Error Info:: ' . $objmail->ErrorInfo . ' - program: ' . $this->program, 3, 'email', __LINE__);
+                $this->logIt("Error send email, request # " . $params['request'] . ' - Variables: HOST: '.$params['mail_host'].'  DOMAIN: '.$params['mail_domain'].'  AUTH: '.$params['mail_auth'].' PORT: '.$params['mail_port'].' USER: '.$params['mail_username'].' PASS: '.$params['mail_password'].'  SENDER: '.$params['mail_sender'].' - program: ' . $this->program, 7, 'email', __LINE__);
+            }
+            $error_send = true ;
+        } else {
+            if($this->log AND $_SESSION['EM_SUCCESS_LOG'] == '1') {
+                $this->logIt("Email Succesfully Sent, ". $params['msg']  ,6,'email');
+            }
+            $error_send = false ;
+        }
+
+        return $error_send;
+
+    }
+
+    public function makeSentTo($mail,$sentTo)
+    {
+        //$this->logIt('sentTo: ' . $sentTo,7,'email');
+        $jaExiste = array();
+        if (preg_match("/;/", $sentTo)) {
+            //$this->logIt('Entrou',7,'email');
+            $email_destino = explode(";", $sentTo);
+            if (is_array($email_destino)) {
+                for ($i = 0; $i < count($email_destino); $i++) {
+                    // If the e-mail address is NOT in the array, it sends e-mail and puts it in the array
+                    // If the email already has the array, do not send again, avoiding duplicate emails
+                    if (!in_array($email_destino[$i], $jaExiste)) {
+                        $mail->AddAddress($email_destino[$i]);
+                        $jaExiste[] = $email_destino[$i];
+                    }
+                }
+            } else {
+                //$this->logIt('Entrou ' . $email_destino,7,'email');
+                $mail->AddAddress($email_destino);
+            }
+        } else {
+            //$this->logIt('Nao Entrou ' . $sentTo,7,'email');
+            $mail->AddAddress($sentTo);
+        }
+    }
+
+    function saveTracker($idmodule,$mail_sender,$sentTo,$subject,$body)
+    {
+        $this->loadModel('admin/tracker_model');
+        $dbTracker = new tracker_model();
+
+        $ret = $dbTracker->insertEmail($idmodule,$mail_sender,$sentTo,$subject,$body);
+        if(!$ret) {
+            return false;
+        } else {
+            return $ret;
+        }
+
+    }
+
+    function makeMenuAdmin($smarty)
+    {
+        $this->loadModel('admin/programs_model');
+        $dbProgram = new programs_model();
+
+        $rs = $this->getActiveModules();
+        $list = '';
+        while (!$rs->EOF) {
+            $list .= "<li class='dropdown-submenu'>
+                            <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
+                            <ul class='dropdown-menu'>";
+
+            $rsCat = $dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
+            while (!$rsCat->EOF) {
+                $list .= "<li class='dropdown-submenu'>
+                            <a tabindex='-1' href='#'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."</a>
+                            <ul class='dropdown-menu'>";
+
+                $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
+                $groupperm = $dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
+
+                if($groupperm){
+                    while (!$groupperm->EOF) {
+                        $allow = $groupperm->fields['allow'];
+                        $path  = $groupperm->fields['path'];
+                        $program = $groupperm->fields['program'];
+                        $controller = $groupperm->fields['controller'];
+                        $prsmarty = $groupperm->fields['pr_smarty'];
+
+                        if ($allow == 'Y') {
+                            $checkbar = substr($groupperm->fields['controller'], -1);
+                            if($checkbar != "/") $checkbar = "/";
+                            else $checkbar = "";
+                            $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
+                        }
+
+                        $groupperm->MoveNext();
+                    }
+                }
+                $list .= "</ul>
+                </li>";
+                $rsCat->MoveNext();
+            }
+
+            $list .= "</ul>
+                </li>";
+            $rs->MoveNext();
+        }
+        //echo $list;
+        return $list;
+    }
+
+    public function makeNavAdmin($smarty)
+    {
+        $idPerson = $_SESSION['SES_COD_USUARIO'];
+        $listRecords = $this->makeMenuAdmin($smarty);
+        $moduleinfo = $this->getModuleInfo(1);
+
+        $smarty->assign('displayMenu_Adm',1);
+        $smarty->assign('listMenu_Adm',$listRecords);
+        $smarty->assign('moduleLogo',$moduleinfo->fields['headerlogo']);
+        $smarty->assign('modulePath',$moduleinfo->fields['path']);
     }
 
 }

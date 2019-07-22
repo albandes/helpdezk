@@ -1,10 +1,36 @@
 <?php
-class holidays_model extends Model {
-    public $database;
 
-    public function __construct(){
-        parent::__construct();
-        $this->database = $this->getConfig('db_connect');
+/*if(class_exists('Model')) {
+    class DynamicIndex_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicIndex_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicIndex_model extends apiModel {}
+}*/
+
+class holidays_model extends Model {
+//class index_model extends Model {
+
+    // Since April 26, 2017
+    public function getHoliday($where=null)
+    {
+        $query =    "
+                    SELECT
+                       a.idholiday,
+                       a.holiday_date,
+                       a.holiday_description,
+                       IFNULL(c.idperson,0) idperson,
+                       IFNULL(c.name,'') name
+                    FROM
+                       tbholiday a
+                       LEFT OUTER JOIN tbholiday_has_company b
+                          ON b.idholiday = a.idholiday
+                       LEFT JOIN tbperson c
+                          ON c.idperson = b.idperson
+                       $where
+                    ";
+        return $this->db->Execute($query);
+
     }
 
     public function insertHoliday(array $dados) {
@@ -19,9 +45,9 @@ class holidays_model extends Model {
 		else 	 return false;
     }
 	
-    public function selectHoliday($where = NULL, $order = NULL, $limit = NULL){
+    public function selectHoliday($where = null, $order = null , $group = null , $limit = null){
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($database == 'mysqli') {
             $query = "	SELECT
 						  tbh.idholiday,
 						  tbh.holiday_date,
@@ -33,7 +59,7 @@ class holidays_model extends Model {
 						ON tbhc.idholiday = tbh.idholiday
 						LEFT JOIN tbperson tbp
 						ON tbp.idperson = tbhc.idperson
-						$where $order $limit" ;
+						$where $group $order $limit" ;
         } elseif ($database == 'oci8po') {
             $limit = str_replace('LIMIT', "", $limit);
             $p     = explode(",", $limit);
@@ -67,21 +93,26 @@ class holidays_model extends Model {
 
         return $this->db->Execute($query);
     }
+
     public function countHoliday($where = NULL){
 		$sel = $this->select("SELECT count(IDHOLIDAY) as total from tbholiday $where");
 		return $sel;
     }
+
     public function deleteHoliday($where){
         return $this->delete('tbholiday', $where);
     }
+
     public function selectHolidaysData($id){
         return ($this->database == 'oci8po') ? $this->select("select to_char(holiday_date,'DD/MM/YYYY') holiday_date, holiday_description from tbholiday where idholiday=$id") : $this->select("select holiday_date, holiday_description from tbholiday where idholiday=$id") ;
 
     }
+
     public function countAllHolidays($year){
         $sel = $this->select("SELECT count(IDHOLIDAY) as total from tbholiday where HOLIDAY_DATE LIKE '%$year%'");
         return $sel->fields['total'];
     }
+
     public function selectHolidayByYear($year, $order=NULL){
     	$database = $this->getConfig('db_connect');
         if ($database == 'mysqlt') {
@@ -118,20 +149,27 @@ class holidays_model extends Model {
 		}    	
         
     }
+
     public function updateHoliday($id,$desc,$date){
-        //die("UPDATE tbholiday set holiday_date=$date, holiday_description='$desc' where idholiday=$id");
         return $this->db->Execute("UPDATE tbholiday set holiday_date=$date, holiday_description='$desc' where idholiday=$id");
     }
-	public function getYearsHolidays(){
+
+	public function getYearsHolidays($and=null)
+    {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {   
+        if ($database == 'mysqli') {   
 		    return $this->select("
-                                SELECT
-                                   DATE_FORMAT(holiday_date, '%Y') as holiday_year
-                                from tbholiday
-                                where year(holiday_date) <> year(now())
-                                group by holiday_year
-                                order by holiday_year
+                                  SELECT DISTINCT
+                                         YEAR(a.holiday_date) AS holiday_year,
+                                         b.idperson idcompany
+                                  FROM
+                                        tbholiday a
+                                  LEFT OUTER JOIN tbholiday_has_company b
+                                  ON a.idholiday = b.idholiday
+                                  WHERE YEAR(a.holiday_date) <> YEAR(NOW())
+                                    $and
+                                  GROUP BY holiday_year
+                                  ORDER BY holiday_year DESC
                                 ");
         } elseif ($database == 'oci8po') {
             return $this->select("
@@ -144,11 +182,16 @@ class holidays_model extends Model {
                                 ORDER BY   X.HOLIDAY_YEAR DESC
                                 ");
         }
-	}
+    }
+    
 	public function holidayDelete($id){
         return $this->db->Execute("DELETE FROM tbholiday WHERE idholiday=$id");
     }
+    
     public function holidayDeleteHasCompany($id){
         return $this->db->Execute("DELETE FROM tbholiday_has_company WHERE idholiday=$id");
     }
+
 }
+
+?>

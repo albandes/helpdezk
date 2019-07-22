@@ -1,3 +1,90 @@
+
+logout = "Log out"
+UserData = "User data"
+
+Year  =  "year"
+Years =  "years"
+Month = "month"
+Months = " months"
+Day = "day"
+Days = "days"
+Hour = "hour"
+Hours = "hours";
+Minute = "minute"
+Minutes = "minutes"
+Second = "second"
+Seconds = "seconds"
+
+
+Placeholder_name = "Enter the name"
+Placeholder_cpf = "Enter the SSN"
+Placeholder_email = "Enter the email"
+Placeholder_phone = "Enter the phone number"
+Placeholder_cellphone = "Enter the cellphone number"
+Placeholder_zipcode = "Enter de Zipcode"
+Placeholder_neighborhood = "Enter the Neighborhood"
+Placeholder_address = "Enter the adress"
+Placeholder_city = "Enter the city"
+Placeholder_subject = "Enter the subject"
+
+Alert_field_required = "This field is required."
+Alert_success_update = "Data updated successfully"
+Alert_success_withoutaddress = "Updated data but no address"
+
+overdue = "Overdue"
+on_time = "On Time"
+Messages = "Messages"
+New_messages = "New messages"
+Message_title = "You have $$ new messages ."
+
+Lock_text = "Your are in lock screen. Main app was shut down and you need to go the login screen  to go back to app."
+Lock_unlock = "Unlock"
+
+btn_cancel = "Cancel"
+btn_submit = "Submit"
+btn_update_userdata = "Update your data "
+
+Grid_opening_date "Entry Date"
+Grid_subject = "Subject"
+Grid_expire_date = "Deadline"
+Grid_incharge = "In charge"
+Grid_status = "Status"
+Grid_all_tickets = "All Tickets"
+Grid_view = "View"
+Grid_all = "Todas"
+Grid_new = "New"
+Grid_being_attended = "Being attended"
+Grid_waiting_my_approval =  "Waiting my approval"
+Grid_finished = "Closed"
+Grid_rejected = "Rejected"
+Grid_all_tickets = "All tickets"
+Grid_new_tickets = "New tickets"
+Grid_being_attended_tickets = "Being attended Tickets"
+Grid_waiting_my_approval_tickets = "Waiting approval Tickets "
+Grid_finished_tickets = "Closed Tickets"
+Grid_rejected_tickets = = "Rejected Tickets"
+
+Editor_Placeholder_insert = "Insert your note here ..."
+Editor_Placeholder_description = "Insert your descrition here ..."
+
+Tckt_incharge = "In charge"
+Tckt_drop_file = "Drop files to upload (or click here)!"
+
+Tckt_opened = "Ticket opened"
+
+Btn_evaluate = "Evaluate"
+Tckt_Request = "Ticket";
+Tckt_evaluated_success = "Request evaluated successfully !"
+Tckt_cancel_request = "Confirm  cancel request ?"
+Tckt_reopen_request = "Confirm  reopen request ?"
+Tckt_delete_note = "Confirm  delete request note?"
+Tckt_del_note_failure = "Could not delete the note !"
+
+Reason_no_registered = "No registered reason"
+
+Tck_Open = "Open Tickets "
+#-----
+
 Abbreviation = "Abbreviation"
 Abilities = "Abilities"
 Access = "Access"
@@ -144,7 +231,7 @@ Available_text  = "Available for record on request."
 Average_time = "Average Time"
 Back_btn        = "Back"
 Being_attended = "Being attended"
-Birth_date = "Birth Date"
+email = "Birth Date"
 Branch          = "Branch"
 Be_together_with = "Be together with"
 Bar_show = "Show Bar"
@@ -727,7 +814,7 @@ Image = "Image"
 Permission_Groups = "Permission"
 Permission_Groups_Select = "Select the Permission Group"
 
----- Days of the week ----
+#-- Days of the week ----
 
 Monday = "Monday"
 Tuesday = "Tuesday"
@@ -737,7 +824,7 @@ Friday = "Friday"
 Saturday = "Saturday"
 Sunday = "Sunday"
 
----- Months ----
+#-- Months ----
 
 January = "January"
 February = "February"
@@ -752,7 +839,7 @@ October = "October"
 November = "November"
 December = "December"
 
------- Type User ------
+#---- Type User ------
 
 type_user_admin = "Administrator"
 type_user_user = "User"
@@ -764,7 +851,7 @@ type_user_ERP_User = "ERP User"
 type_user_ERP_Company = "Company ERP"
 type_user_ERP_Supplier = "Supplier"
 
------- Email ------
+#---- Email ------
 
 Email_request_assumed = "USER: Notify user when a request is assumed"
 Email_request_finished = "USER: Notify user when a request is closed"	
@@ -778,7 +865,7 @@ Email_request_evaluated = "OPERATOR: Notify operator when a request is evaluated
 Email_request_approve = "OPERATOR: Notify operator in charge when have new request to approve"
 Email_operator_reject = "OPERATOR: Send email for all operator in the group when reject request."
 
------ Email vars -----
+#--- Email vars -----
 
 Var_user = "Logged User"
 Var_phone = "User's Phone"
@@ -810,7 +897,7 @@ Var_link_user =	"Link to the request page (user)"
 Var_evaluation = "Evaluation given by the user"
 Var_link_evaluation = "Link to evaluate without login."
 auxiliary_operator_include = "Include Auxiliary Operator"
------ Operator Buttons ------
+#--- Operator Buttons ------
 
 btn_save_changes = "Save Changes"
 btn_assume = "Assume"
@@ -821,7 +908,7 @@ btn_reopen = "Reopen"
 btn_add_note = "Add Note"
 btn_ope_aux = "Operator Auxiliary"
 
------ System Features -----
+#--- System Features -----
 
 sys_allow_delete_note = "Give operators the ability to delete notes"
 sys_prorogation_qt = "Quantity of expire date prorogations (0 = Never, [Blank] = No Limits, [Above 0] = Prorogation Quantity)"
@@ -850,7 +937,7 @@ Other_items = "Other Options"
 sys_workdays_request_approval = "Number of days for the system to automatically approve requests closed [0 = never approve]"
 sys_time_session = "Time that will last the session system. Value in seconds. If not set will be 10 minutes."
 
------ Grid Sorting -----
+#--- Grid Sorting -----
 
 grd_show_only_mine = "Show only mine"
 grd_show_group = "Show from my groups"
@@ -861,7 +948,7 @@ grd_expiring_today = "Expiring today"
 grd_expired = "Expired"
 grd_expired_n_assumed = "Expired not assumed"
 
------ Programs -----
+#--- Programs -----
 
 cat_records = "Records"
 cat_config = "Config"
@@ -889,6 +976,7 @@ pgr_email_request = "Requests by Email"
 pgr_sys_features = "System Features"
 pgr_person_report = "Person Report"
 pgr_req_reports = "Requests Report"
+pgr_req_reports = "Total Requests Report"
 pgr_ope_aver_resptime = "Operator Average Response Time"
 pgr_grp_aver_resptime = "Group Average Response Time"
 pgr_request_department = "Request by Department"
@@ -1042,17 +1130,18 @@ Update_Last_Version     = "Last Version"
 Update_Not_Connect      = "I could not connect to the Helpdezk site, please, check your firewall !!!"
 Update_Bad_Response     = "Bad response from the server !"
 
--- DASH --
+Processing = "Processing"
+# DASH --
 DSN_Navbar_name = "Dashboard"
 
 Dashboard_SLAFulfillment = "Fulfillment"
 Dashboard_SLANotFulfillment = "Not Fulfillment"
 Dashboard_UpdatedDaily = "Updated daily"
 
---
+#
 Logos_Title = "Logos"
 
--- ERP --
+# ERP --
 ERP_Navbar_name = "E R P"
 ERP_Cost_Center  = "Cost Center"
 ERP_Type         = "CC Type"
@@ -1190,7 +1279,39 @@ google2FA_write_token = "Write Token"
 google2FA_write_token_OK = "Token successfully saved !!!"
 google2FA_write_token_Error = "Error saving token !!!"
 
+#- API ---
 
--- Italy --
+API_Alert_choose_area  		 = "Please choose an area"
+API_Alert_choose_item 		 = "Please choose an item"
+API_Alert_choose_type  		 = "Please choose a type"
+API_Approve_no				 = "No."
+API_Approve_obs 			 = "Yes, with observation."
+API_Approve_text 			 = "Do you approve the operators attendance?"
+API_Approve_yes 			 = "Yes."
+API_Error_cancel_request	 = "Failure to cancel request!"
+API_Error_code_approval		 = "Error, missing code or type approval."
+API_Error_not_insert		 = "Could not insert!"
+API_Error_reopen_request	 = "Failed to reopen request!"
+API_No_result 				 = "No results found."
+API_Observation 			 = "Observation"
+API_Reason          		 = "Reason"
+API_Request_closed			 = "Request Closed"
+API_Request_not_approve 	 = "The request was not approved"
+API_Request_opened 			 = "Request Opened"
+API_Success_approval_request = "Request successfully evaluated!"
+API_Success_cancel_request 	 = "Request successfully canceled!"
+API_Success_insert_note 	 = "Note inserted successfully!"
+API_Success_reopen_request 	 = "Request reopened successfully!"
+API_Success_reprove_request  = "Request reproved with success!"
+API_Text_cancel_request 	 = "Request canceled."
+API_Text_reopen_request 	 = "Request reopened."
+API_Error_token              = "Invalid token, user not loged."
+
+#-
+DWL_Upload_file = "File Upload "
+DWL_Button_upload = "Upload"
+# Italy --
+
+
 Login_cant_create_user = "Cant create User !!!!"
 

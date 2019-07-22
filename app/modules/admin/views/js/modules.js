@@ -1,313 +1,165 @@
-$(document).ready(function(){
+$(document).ready(function () {
 
-    $("#flexigrid2").flexigrid({
-        url: 'modules/json',  
+    countdown.start(timesession);
+    new gnMenu( document.getElementById( 'gn-menu' ) );
+
+    var grid = $("#table_list_modules");
+
+    grid.jqGrid({
+        url: path+"/admin/modules/jsonGrid",
+        datatype: "json",
+        mtype: 'POST',
+        sortname: 'name', //initially sorted on code_request
+        sortorder: "asc",
+        height: 450,
+        autowidth: true,
+        shrinkToFit: true,
+        rowNum: 10,
+        rowList: [10, 20, 25, 30, 50],
+        colNames:['',aLang['Name'].replace (/\"/g, ""),aLang['status'].replace (/\"/g, ""),''],
+        colModel:[
+            {name:'id',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
+            {name:'name',index:'name', editable: true, width:150, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'status',index:'status', editable: true, width:10, align:"center",search:false, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'statusval',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true }
+
+        ],
+        pager: "#pager_list_modules",
+        viewrecords: true,
+        caption: ' :: '+aLang['Module'].replace(/\"/g, "")+'s',
+        hidegrid: false,
+        toppager:false,
+        //jqModal: false,
+        //modal: true,
+        ondblClickRow: function(rowId) {
+            var idmodule = grid.jqGrid('getCell', rowId, 'id');
+            location.href = path + "/admin/modules/formUpdateModule/idmodule/" + idmodule ;
+        },
+        onSelectRow: function(rowId) {
+            var myCellData = grid.jqGrid('getCell', rowId, 'id');
+            var myCellStatus = grid.jqGrid('getCell', rowId, 'statusval');
+
+            $('#btnEnable').removeClass('disabled').addClass('active');
+            $('#btnDisable').removeClass('disabled').addClass('active');
+            if (myCellStatus == 'A')
+                $('#btnEnable').removeClass('active').addClass('disabled');
+            else
+                $('#btnDisable').removeClass('active').addClass('disabled');
+        },
+        loadError : function(xhr,st,err) {
+            grid.html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText);
+        },
+        jsonReader : {
+            repeatitems: false,
+            id: "id"   // row ID
+        }
+
+    });
+
+    // First time, show tBeing attended Tickets, then need to set the label
+    grid.jqGrid('setCaption', ' :: '+aLang['Module'].replace(/\"/g, "")+'s');
+
+    // Setup buttons
+    grid.navGrid('#pager_list_modules',{edit:false,add:false,del:false,search:true,searchtext: makeSmartyLabel('Search'),refreshtext: makeSmartyLabel('Grid_reload'),cloneToTop: true});
+
+    // remove some double elements from one place which we not need double
+    var topPagerDiv = $('#' + grid[0].id + '_toppager')[0];         // "#list_toppager"
+    $("#search_" + grid[0].id + "_top", topPagerDiv).remove();      // "#search_list_top"
+    $("#refresh_" + grid[0].id + "_top", topPagerDiv).remove();     // "#refresh_list_top"
+    $("#" + grid[0].id + "_toppager_center", topPagerDiv).remove(); // "#list_toppager_center"
+    //$(".ui-paging-info", topPagerDiv).remove();
+
+    /**
+     ** Increase _toppager_left
+     ** https://stackoverflow.com/questions/29041956/how-to-place-pager-to-end-of-top-of-toolbar-in-free-jqgrid
+     **/
+    $(grid['selector']+"_toppager_left").attr("colspan", "4");
+
+    // Add responsive to jqGrid
+    $(window).bind('resize', function () {
+        var width = $('.jqGrid_wrapper').width();
+        grid.setGridWidth(width);
+    });
+
+
+    // Buttons
+    $("#btnCreate").click(function(){
+        location.href = path + "/admin/modules/formCreateModule" ;
+    });
+
+    $("#btnUpdate").click(function(){
+        var myGrid = $('#table_list_modules'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idmodule = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        if (!idmodule) {
+            $("#btn-modal-ok").attr("href", '');
+            $('#modal-notification').html(aLang['Alert_select_one'].replace (/\"/g, ""));
+            $("#tipo-alert").attr('class', 'warning alert-warning');
+            $('#modal-alert').modal('show');
+        } else {
+            location.href = path + "/admin/modules/formUpdateModule/idmodule/" + idmodule ;
+        }
+    });
+
+    $("#btnEnable").click(function(){
+        var myGrid = $('#table_list_modules'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idmodule = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        postStatus(idmodule,'A');
+    });
+
+    $("#btnDisable").click(function(){
+        var myGrid = $('#table_list_modules'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idmodule = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        postStatus(idmodule,'I');
+    });
+
+
+
+});
+
+function postStatus(idmodule,newStatus)
+{
+    $.ajax({
+        type: "POST",
+        url: path + '/admin/modules/statusModule/idmodule/' + idmodule,
         dataType: 'json',
-        pagestat: aLang['showing'].replace (/\"/g, "")+' {from} '+ aLang['to'].replace (/\"/g, "")+' {to} '+aLang['of'].replace (/\"/g, "")+' {total} '+ aLang['Items'].replace (/\"/g, ""),
-        pagetext: aLang['Page'].replace (/\"/g, ""),
-        outof: aLang['of'].replace (/\"/g, ""),
-        findtext: aLang['Search'].replace (/\"/g, ""),
-        procmsg: aLang['Loading'].replace (/\"/g, ""),
-        nomsg: aLang['Empty'].replace (/\"/g, ""),
-        colModel : [
-        {
-            display: aLang['Name'].replace (/\"/g, ""), 
-            name : 'name', 
-            width : 250, 
-            sortable : true, 
-            align: 'left'
+        data: {
+            newstatus: newStatus
         },
+        error: function (ret) {
+            modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-module');
 
-        {
-            display: aLang['status'].replace (/\"/g, ""), 
-            name : 'status', 
-            width : 40, 
-            sortable : true, 
-            align: 'center'
-        }
-                                        
-        ],
-
-        buttons : [
-        {
-            name: aLang['New'].replace (/\"/g, ""), 
-            bclass: 'add', 
-            onpress: novo
         },
+        success: function(ret){
+            console.log(ret);
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            if(obj.status == 'OK' ) {
+                console.log(ret);
+                var idmodule = obj.idmodule, msg = '';
+                if(obj.modulestatus == 'A'){msg = aLang['Alert_activated'].replace (/\"/g, "");}
+                else{msg = aLang['Alert_deactivated'].replace (/\"/g, "");}
 
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['edit'].replace (/\"/g, ""), 
-            bclass: 'edit', 
-            onpress: edit
-        },
-
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['Deactivate'].replace (/\"/g, ""), 
-            bclass: 'encerra', 
-            onpress: disable
-        },
-
-        {
-            separator:true
-        },
-
-        {
-            name: aLang['Activate'].replace (/\"/g, ""), 
-            bclass: 'activate', 
-            onpress: enable
-        }
-        ],
-
-        searchitems : [
-        {
-            display: aLang['Module'].replace (/\"/g, ""), 
-            name : 'name', 
-            isdefault: true
-        }
-        ],
-
-        sortname: "name",
-        sortorder: "ASC",
-        usepager: true,
-        title:  ":: "+aLang['Modules'].replace (/\"/g, ""),
-        useRp: true,
-        rp: 15,
-        showTableToggleBtn: false,
-        width: 'auto',
-        height: $(window).height()-206,     
-        resizable: false,
-        minimizado: false,
-        singleSelect: true
-    }); 	
-    
-    $(document.getElementById('modalModulesInsert')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendModulesInsert'));
-		$.ajax({
-			type: "POST",
-			url: "modules/insert",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalModulesInsert");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_inserted'].replace (/\"/g, ""),"modalModulesInsert");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_failure'].replace (/\"/g, ""),"modalModulesInsert");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});		
-	});
-    
-    $(document.getElementById('modalModulesEdit')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendModulesEdit'));
-		$.ajax({
-			type: "POST",
-			url: "modules/edit",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalModulesEdit");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Edit_sucess'].replace (/\"/g, ""),"modalModulesEdit");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Edit_failure'].replace (/\"/g, ""),"modalModulesEdit");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});		
-	});
-    
-    $(document.getElementById('modalModulesDisable')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendModuleDisable'));
-		$.ajax({
-			type: "POST",
-			url: "modules/deactivate",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_deactivated_error'].replace (/\"/g, ""),"modalModulesDisable");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_deactivated'].replace (/\"/g, ""),"modalModulesDisable");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_deactivated_error'].replace (/\"/g, ""),"modalModulesDisable");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});		
-	});
-    
-    $(document.getElementById('modalModulesActive')).find('form').live("submit",function(){
-		var $self = $(this),
-			$btn = $self.find(document.getElementById('btnSendModuleActive'));
-		$.ajax({
-			type: "POST",
-			url: "modules/activate",
-			data: $(this).serialize(),
-			error: function (ret) {
-				objDefault.notification("error",aLang['Alert_activated_error'].replace (/\"/g, ""),"modalModulesActive");
-			},
-			success: function(ret) {
-				if(ret){
-					objDefault.notification("success",aLang['Alert_activated'].replace (/\"/g, ""),"modalModulesActive");
-					$("#flexigrid2").flexReload();
-				}
-				else
-					objDefault.notification("error",aLang['Alert_activated_error'].replace (/\"/g, ""),"modalModulesActive");
-			},
-			beforeSend: function(){
-				objDefault.buttonAction($btn,'disabled');
-			},
-			complete: function(){
-				objDefault.buttonAction($btn,'enabled');
-			}
-		});		
-	});
-    
-});//init		 
-
-function novo(){     
-    if (access[1]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        var modalInsert = $(document.getElementById("modalModulesInsert"));
-        objDefault.maskLoaderShow();
-        modalInsert.load("modules/insertmodal", function(){
-        	objModal.openModal("modalModulesInsert");            	
-        	$("#formModulesInsert").validate({
-        		wrapper: "li class='error'",            		
-        		errorPlacement: function(error, element) {
-					error.appendTo(element.parent().parent());
-				},
-			  	rules: {
-			  		name: {
-			  			required: true
-			  		}
-			 	}
-			});
-        	objDefault.maskLoaderHide();
-        })
-    }	   
-}
-    
-function edit(com,grid){
-    if (access[2]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-       if($('.trSelected',grid).length>0){
-			var items = $('.trSelected',grid);
-			var itemlist ='';
-			for(i=0;i<items.length;i++){
-			    itemlist+= items[i].id.substr(3);
-			}
-			var modalEdit = $(document.getElementById("modalModulesEdit"));
-			objDefault.maskLoaderShow();
-			modalEdit.load("modules/editform/id/"+itemlist, function(){
-				objModal.openModal("modalModulesEdit");
-				objDefault.maskLoaderHide();
-				$("#formModulesEdit").validate({
-            		wrapper: "li class='error'",            		
-            		errorPlacement: function(error, element) {
-						error.appendTo(element.parent().parent());
-					},
-				  	rules: {
-				  		name: {
-				  			required: true
-				  		}
-				 	}
-				});
-			})
-        } else {
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-        }
-    }
-}
-
-function disable(com, grid){
-    if (access[2]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-        	var items = $('.trSelected',grid);
-            var itemlist ='';
-            for(i=0;i<items.length;i++){
-                itemlist+= items[i].id.substr(3);
+                $('#modal-notification').html(msg);
+                $("#btn-modal-ok").attr("href", path + '/admin/modules/index');
+                $("#tipo_alerta").attr('class', 'alert alert-success');
+                $('#modal-alert').modal('show');
+            } else {
+                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-module');
             }
-            
-            if(itemlist == 1){
-            	objDefault.notification("error",aLang['Deactivate_module'].replace (/\"/g, ""),"modalInfo");
-	    		objModal.openModal("modalInfo");
-            }else{
-            	var modalDisable = $(document.getElementById("modalModulesDisable"));
-	            objDefault.maskLoaderShow();
-	            modalDisable.load("modules/deactivatemodal/id/"+itemlist, function(){
-	            	objModal.openModal("modalModulesDisable");
-	            	objDefault.maskLoaderHide();
-	            })	
-            }
-        } else {
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
         }
-    }
+
+    });
+
+    return false;
 }
 
-function enable(com, grid){
-    if (access[2]=='N'){
-        objModal.openModal("modalPermission");
-    }
-    else{
-        if($('.trSelected',grid).length>0){
-        	var items = $('.trSelected',grid);
-            var itemlist ='';
-            for(i=0;i<items.length;i++){
-                itemlist+= items[i].id.substr(3);
-            }            
-        	var modalActive = $(document.getElementById("modalModulesActive"));
-            objDefault.maskLoaderShow();
-            modalActive.load("modules/activatemodal/id/"+itemlist, function(){
-            	objModal.openModal("modalModulesActive");
-            	objDefault.maskLoaderHide();
-            })
-        } else {
-            objDefault.notification("info",aLang['Alert_select_one'].replace (/\"/g, ""),"modalInfo");
-	    	objModal.openModal("modalInfo");
-        }
-    }
+function fontColorFormat(cellvalue, options, rowObject) {
+    var color = "blue";
+    var cellHtml = "<span style='color:" + color + "' originalValue='" + cellvalue + "'>" + cellvalue + "</span>";
+    return cellHtml;
 }

@@ -1,6 +1,15 @@
 <?php
+if(class_exists('Model')) {
+    class DynamicFeatures_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicFeatures_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicFeatures_model extends apiModel {}
+}
 
-class features_model extends Model {
+class features_model extends DynamicFeatures_model {
+
+//class features_model extends Model {
 
     public function getConfigs($cats) {
         return $this->db->Execute("select conf.idconfig, conf.status, conf.value,conf.name as config_name, cat.smarty as cat_smarty, conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate from hdk_tbconfig conf, hdk_tbconfig_category cat where conf.idconfigcategory in($cats) and conf.idconfigcategory = cat.idconfigcategory order by cate");
@@ -41,7 +50,7 @@ class features_model extends Model {
     }
     
     public function getPopConfigs() {
-        $conf = $this->select("select session_name,value from hdk_tbconfig where idconfigcategory = 12");
+        $conf = $this->select("select session_name,value from tbconfig where idconfigcategory = 12");
         while (!$conf->EOF) {
             $ses = $conf->fields['session_name'];
             $val = $conf->fields['value'];
@@ -97,6 +106,7 @@ class features_model extends Model {
             $this->db->Execute("update hdk_tbconfig set `value` = '$title' where session_name = 'EM_TITLE'");
             $this->db->Execute("update hdk_tbconfig set `value` = '$mailport' where session_name = 'EM_PORT'");
 
+
             $foot = $this->db->Execute("update hdk_tbconfig set description = '$footer' where session_name = 'EM_FOOTER'");
         } elseif ($database == 'oci8po') {
             $this->db->Execute("update hdk_tbconfig set value = '$host' where session_name = 'EM_HOSTNAME'");
@@ -146,11 +156,26 @@ class features_model extends Model {
         }
         return $foot;
     }
-	
-    
-    
+
     public function updateMaintenance($msg, $session_name){
         return $this->db->Execute("update hdk_tbconfig set value = '$msg' where session_name = '$session_name'");
     }
-    
+
+    // Since May 31, 2017
+    public function setDeploy($server,$state,$created_on)
+    {
+        return $this->db->Execute("INSERT INTO tbdeploy (gitserver, dttrigger,state,created_on) VALUES ('$server', NOW(),'$state','$created_on')");
+    }
+
+    // Since May 30, 2017
+    public function getDeployTrigger()
+    {
+        return $this->db->Execute("SELECT iddeploy FROM tbdeploy WHERE  dtdone = '0000-00-00 00:00:00' LIMIT 1") ;
+    }
+
+    // Since May 30, 2017
+    public function updateDeploy($idDeploy)
+    {
+        return $this->db->Execute("UPDATE tbdeploy SET dtdone = NOW() WHERE iddeploy = '$idDeploy' ") ;
+    }
 }

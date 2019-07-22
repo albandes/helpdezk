@@ -1,22 +1,57 @@
 <?php
 
-session_start();
+require_once(HELPDEZK_PATH . '/app/modules/admin/controllers/admCommonController.php');
 
-class Home extends Controllers {
+
+class Home extends admCommon {
+
+    /**
+     * Create an instance, check session time
+     *
+     * @access public
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        session_start();
+        $this->sessionValidate();
+
+        // Log settings
+        $this->log = parent::$_logStatus;
+        $this->program  = basename( __FILE__ );
+
+        //
+        $this->modulename = 'admin' ;
+        //
+
+        $id = $this->getIdModule($this->modulename) ;
+        if(!$id) {
+            die('Module don\'t exists in tbmodule !!!') ;
+        } else {
+            $this->idmodule = $id ;
+        }
+
+        /*$this->loadModel('home_model');
+        $dbHome = new home_model();
+        $this->dbHome = $dbHome;
+
+        $this->loadModel('ticket_model');
+        $dbTicket = new ticket_model();
+        $this-$dbTicket = $dbTicket;*/
+    }
 
     public function index() {
-        $this->validasessao();
         $smarty = $this->retornaSmarty();
-        $langVars = $smarty->get_config_vars();
+        $langVars = $this->getLangVars($smarty);
 
-        if (isset($_SESSION['SES_COD_USUARIO'])) {
+        /*if (isset($_SESSION['SES_COD_USUARIO'])) {
             $cod_usu = $_SESSION['SES_COD_USUARIO'];
             $bd = new home_model();
             $typeperson = $bd->selectTypePerson($cod_usu);
             $usu_name   = $bd->selectUserLogin($cod_usu);
             $rsmenu     = $bd->selectMenu($cod_usu, $typeperson);
             $programcount   = $bd->countPrograms();
-            //$groupperm      = $bd->selectGroupPermissionMenu($cod_usu, $typeperson,);
+            //$groupperm      = $bd->selectGroupPermissionMenu($cod_usu, $typeperson);
             $groupperm      = $bd->getPermissionMenu($cod_usu, $typeperson,'m.idmodule <= 3');
 
 
@@ -91,7 +126,7 @@ class Home extends Controllers {
                 }
             }
         	$lista.="</ul>";                        
-//;
+    //;
             $smarty = $this->retornaSmarty();
             $smarty->assign('lang', $this->getConfig('lang'));
             $smarty->assign('path', path);
@@ -99,15 +134,22 @@ class Home extends Controllers {
             $smarty->assign('nom_usuario', $usu_name);
             $smarty->assign('userid', $cod_usu);
             $smarty->assign('SES_COD_USUARIO', $cod_usu);
-            $db = new logos_model();
+
+            /*$db = new logos_model();
             $headerlogo = $db->getHeaderLogo();
             $smarty->assign('headerlogo', $headerlogo->fields['file_name']);
             $smarty->assign('headerheight', $headerlogo->fields['height']);
-            $smarty->assign('headerwidth', $headerlogo->fields['width']);
+            $smarty->assign('headerwidth', $headerlogo->fields['width']);*/
+
+            /*$smarty->assign('headerlogo', $this->getHeaderLogoImage());
+            $smarty->assign('headerheight', $this->getHeaderLogoHeight());
+            $smarty->assign('headerwidth', $this->getHeaderLogoWidth());
+
             $smarty->assign('typeperson', $typeperson);
             $smarty->assign('SES_COD_JURIDICAL', $_SESSION['SES_COD_EMPRESA']);
 			$smarty->assign('enterprise', $this->getConfig('enterprise'));
-			
+            $smarty->assign('jquery_version', $this->jquery);
+
 			if(!$_SESSION['SES_TIME_SESSION'])
 				$smarty->assign('timesession', 600);
 			else
@@ -126,7 +168,12 @@ class Home extends Controllers {
         } else {            
             $this->sessionDestroy();
             header('Location:' . path . '/admin/login');
-        }
+        }*/
+        $this->makeNavVariables($smarty,$this->modulename);
+        $this->makeFooterVariables($smarty);
+        $this->_makeNavAdm($smarty);
+        $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $smarty->display('adm-main.tpl');
     }
 
 	public function systemUpdate(){
@@ -325,7 +372,7 @@ class Home extends Controllers {
         if ($column[0] == date("Y-m-d")) {
             echo false;
         } else {
-            $fp = fopen($path_releases . "logs/releases.txt", "w");
+            //$fp = fopen($path_releases . "logs/releases.txt", "w");
             $date = date("Y-m-d");
             fwrite($fp, $date . '|');
             fclose($fp);
@@ -342,7 +389,7 @@ class Home extends Controllers {
 		if(substr($path_releases, -1)!='/'){
 			$path_releases=$path_releases.'/';
 		} 	
-        $fp = fopen($path_releases . "logs/releases.txt", "w");
+        //$fp = fopen($path_releases . "logs/releases.txt", "w");
         $date = date("Y-m-d");
         fwrite($fp, $date . '|' . $_POST['release']);
         fclose($fp);
@@ -397,14 +444,14 @@ class Home extends Controllers {
     }
 
 
-
+/*
     public function sessionDestroy() {
         session_start();
         session_unset();
         session_destroy();
     }
     
-    
+  */
 }
 
 ?>

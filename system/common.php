@@ -1,14 +1,41 @@
 <?php
 
 if(class_exists('Model')) {
-    class dynamicModel extends Model {}
-} else {
-    class dynamicModel extends cronModel {}
+    class dynamicCommonModel extends Model {}
+} elseif(class_exists('cronModel')) {
+    class dynamicCommonModel extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class dynamicCommonModel extends apiModel {}
 }
 
-class common extends dynamicModel {
+class common extends dynamicCommonModel {
 
-//class common extends Model{
+
+	/**
+	 * Returns the number of warning´s topics by company
+	 *
+	 * @param int       $idtopic     Topic Id
+	 * @param int       $idcompany   Company Id
+	 * @return int      Number of warning´s topics
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 */
+	public function checkCompanyWarning($idtopic, $idcompany){
+		return $this->select("SELECT COUNT(*) as chk FROM bbd_topic_company WHERE idtopic = $idtopic AND idcompany = $idcompany");
+	}
+
+	/**
+	 * Returns the number of warning´s topics by group
+	 *
+	 * @param int       $idtopic     Topic Id
+	 * @param int       $idsgroup    Groups Id
+	 * @return int      Number of warning´s topics
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 */
+	public function checkGroupWarning($idtopic, $idsgroup){
+		return $this->select("SELECT COUNT(*) as chk FROM bbd_topic_group WHERE idtopic = $idtopic AND idgroup IN ($idsgroup)");
+	}
 
     /**
      * Returns the id of user type
@@ -29,6 +56,26 @@ class common extends dynamicModel {
         return $ret->fields['idtypeperson'];
     }
 
+	/**
+	 * Returns the name of user
+	 *
+	 * @param int       $id     User id
+	 * @return string   Returns the name of user
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 */
+	public function getPersonName($id)
+	{
+		$qry = "select name from tbperson where idperson = $id";
+
+		$ret = $this->select($qry);
+		if (!$ret) {
+			$sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<br> Query: " . $qry;
+			$this->error($sError);
+		}
+		return $ret->fields['name'];
+	}
+
     /**
      * Returns the user's login
      * @param int       $id     User id
@@ -41,6 +88,21 @@ class common extends dynamicModel {
     {
         $ret = $this->select("select login from tbperson where idperson = $id");
         $nom = $ret->fields['login'];
+        return $nom;
+    }
+
+    /**
+     * Returns the user's Id
+     * @param int       $login  User login
+     * @return int      Returns the user's Id
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     *
+     */
+    public function getUserId($login)
+    {
+        $ret = $this->select("select idperson from tbperson where login = '$login''");
+        $nom = $ret->fields['idperson'];
         return $nom;
     }
 
@@ -66,9 +128,10 @@ class common extends dynamicModel {
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      *
      */
-    public function selectGroupPermissionMenu($idperson, $type='', $idmodule)
+	/*
+    public function selectGroupPermissionMenu($idperson, $idmodule)
     {
-        $rsGroupperm = $this->select("
+        $sql =						"
 									select
 									  m.idmodule           as idmodule_pai,
 									  m.name               as module,
@@ -118,30 +181,38 @@ class common extends dynamicModel {
                                                                 WHERE idperson = $idperson
 										)
 										AND g.idaccesstype = '1'
-										AND g.allow = 'Y'");
+										AND g.allow = 'Y'
+										";
 
         // Old version :  AND tp.idtypeperson = '$type'
+		$rsGroupperm = $this->select($sql);
+		if ($this->db->ErrorNo() != 0) {
+			$this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql);
+		} else {
+			if ($rsGroupperm->fields['idmodule_pai'])
+				return $rsGroupperm;
+		}
 
-        if ($rsGroupperm->fields['idmodule_pai'])
-            return $rsGroupperm;
 
     }
 
-    public function getPermissionMenu($idperson,  $andModule)
+ */
+	public function getPermissionMenu($idperson,  $andModule)
     {
-        $rsGroupperm = $this->select("
+        $sql=						"
 									(
 									select
-									  m.idmodule           as idmodule_pai,
-									  m.name               as module,
+									  m.idmodule           	as idmodule_pai,
+									  m.name               	as module,
+									  m.path				as path,
 									  cat.idmodule          as idmodule_origem,
 									  cat.name              as category,
 									  cat.idprogramcategory as category_pai,
-									  cat.smarty as cat_smarty,
+									  cat.smarty 			as cat_smarty,
 									  pr.idprogramcategory  as idcategory_origem,
 									  pr.name               as program,
 									  pr.controller         as controller,
-									  pr.smarty  as pr_smarty,
+									  pr.smarty  			as pr_smarty,
 									  pr.idprogram          as idprogram,
 									  g.allow
 									from tbperson  p,
@@ -172,16 +243,17 @@ class common extends dynamicModel {
 									UNION
 									(
 										select
-										  m.idmodule           as idmodule_pai,
-										  m.name               as module,
+										  m.idmodule           	as idmodule_pai,
+										  m.name               	as module,
+										  m.path				as path,
 										  cat.idmodule          as idmodule_origem,
 										  cat.name              as category,
 										  cat.idprogramcategory as category_pai,
-										  cat.smarty as cat_smarty,
+										  cat.smarty 			as cat_smarty,
 										  pr.idprogramcategory  as idcategory_origem,
 										  pr.name               as program,
 										  pr.controller         as controller,
-										  pr.smarty  as pr_smarty,
+										  pr.smarty  			as pr_smarty,
 										  pr.idprogram          as idprogram,
 										  p.allow
 										from tbperson  per,
@@ -201,10 +273,16 @@ class common extends dynamicModel {
 											AND p.idaccesstype = '1'
 											AND $andModule
 									)
-                                  ");
+                                  ";
+//die($sql);
+		$rsGroupperm = $this->select($sql);
+		if ($this->db->ErrorNo() != 0) {
+			$this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql);
+		} else {
+			if ($rsGroupperm->fields['idmodule_pai'])
+				return $rsGroupperm;
+		}
 
-        if ($rsGroupperm->fields['idmodule_pai'])
-            return $rsGroupperm;
 
     }
 
@@ -286,6 +364,23 @@ class common extends dynamicModel {
         return $count->fields['total'];
     }
 
+	/**
+	 * Returns active modules
+	 * @return object   	Returns a recordset of active modules
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 *
+	 */
+	public function getActiveModules()
+	{
+		$sql = "SELECT idmodule,`name`,`index`,path,smarty,headerlogo,reportslogo,tableprefix FROM tbmodule WHERE `status` = 'A'";
+		$rs = $this->select($sql);
+		if ($this->db->ErrorNo() != 0)
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		else
+			return $rs;
+	}
+
     /**
      * Returns the if of module
      * @param  string   name    Module name
@@ -294,7 +389,7 @@ class common extends dynamicModel {
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      *
      */
-    public function getIdModule($name)
+    public function _getIdModule($name)
     {
         $ret = $this->select("
                                 SELECT
@@ -323,7 +418,9 @@ class common extends dynamicModel {
 				  temp.index,
 				  temp.path,
 				  temp.smarty,
-				  temp.class
+				  temp.class,
+				  temp.headerlogo,
+				  temp.reportslogo
 				FROM
 				  (
 					(
@@ -333,7 +430,9 @@ class common extends dynamicModel {
                        m.index,
                        m.path,
                        m.smarty,
-                       m.class
+                       m.class,
+                       m.headerlogo,
+                       m.reportslogo
                     FROM
                        tbperson per,
                        tbpermission p,
@@ -361,7 +460,9 @@ class common extends dynamicModel {
 					  d.index,
 					  d.path,
 					  d.smarty,
-					  d.class
+					  d.class,
+					  d.headerlogo,
+					  d.reportslogo
 					FROM
 					  tbtypepersonpermission a,
 					  tbprogram b,
@@ -393,6 +494,51 @@ class common extends dynamicModel {
 
     }
 
+	public function isActiveHelpdezk()
+	{
+		$sql =  "SELECT idmodule FROM tbmodule WHERE tableprefix = 'hdk' AND `status` = 'A'";
+		$ret = $this->select($sql);
+		if ($this->db->ErrorNo() != 0){
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		} else {
+			if($ret->RecordCount() > 0)
+				return true;
+			else
+				return false;
+		}
+
+	}
+
+	public function getModule($where='', $order='', $limit='')
+	{
+		$sql = 	"
+					SELECT
+					  idmodule,
+					  `name`,
+					  `index`,
+					  `status`,
+					  path,
+					  smarty,
+					  class,
+					  headerlogo,
+					  reportslogo,
+					  tableprefix,
+					  defaultmodule
+					FROM
+					  tbmodule
+					$where
+					$order
+					$limit
+				";
+
+		$ret = $this->select($sql);
+
+		if ($this->db->ErrorNo() != 0)
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		else
+			return $ret;
+
+	}
     /**
      * Returns a recordset with data of header logo image
      * @return object   Returns a recordset with data of header logo image
@@ -405,15 +551,26 @@ class common extends dynamicModel {
     }
 
     /**
-     * Returns a recordset with data of report logo image
-     * @return object   Returns a recordset with data of header logo image
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     *
-     */
-    public function getReportsLogo(){
-        return $this->select("select name, height, width, file_name from tblogos where name = 'reports'");
-    }
+ * Returns a recordset with data of report logo image
+ * @return object   Returns a recordset with data of header logo image
+ *
+ * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+ *
+ */
+	public function getReportsLogo(){
+		return $this->select("select name, height, width, file_name from tblogos where name = 'reports'");
+	}
+
+	/**
+	 * Returns a recordset with data of login logo image
+	 * @return object   Returns a recordset with data of header logo image
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 *
+	 */
+	public function getLoginLogo(){
+		return $this->select("select name, height, width, file_name from tblogos where name = 'login'");
+	}
 
     /**
      * Returns a recordset with the permission access per user
@@ -443,7 +600,7 @@ class common extends dynamicModel {
     public function getErpAccount($where, $order, $limit)
     {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $qry =  "
                     SELECT a.idaccount,
                       a.idperson,
@@ -505,7 +662,6 @@ class common extends dynamicModel {
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
-
     public function selectProgramIDByController($controller)
     {
         $database = $this->getConfig('db_connect');
@@ -517,7 +673,7 @@ class common extends dynamicModel {
             $contr_dash = $controller;
         }
 
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $sel = $this->select("select idprogram from tbprogram where controller = '$contr' || controller = '$contr_dash'");
         } elseif ($database == 'oci8po') {
             $sel = $this->select("select idprogram from tbprogram where controller = '$contr' or controller = '$contr_dash'");
@@ -538,7 +694,7 @@ class common extends dynamicModel {
      */
     public function selectPersonPermission($idperson, $idprogram) {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $concat = "concat(pr.name, '–' ,p.idaccesstype) as programname";
         } elseif ($database == 'oci8po') {
             $concat = "pr.name || '–' || p.idaccesstype as programname";
@@ -583,7 +739,7 @@ class common extends dynamicModel {
     public function selectGroupPermission($idperson, $idprogram, $type='')
     {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $concat = "concat(pr.name, '–' ,a.idaccesstype) as programname";
         } elseif ($database == 'oci8po') {
             $concat = "pr.name || '–' || a.idaccesstype as programname";
@@ -638,6 +794,44 @@ class common extends dynamicModel {
 
     }
 
+	/**
+	 * Returns a recordset with the  access´s permission for a field in scren for a one especific type of user
+	 *
+	 * @param  int      $idModule   Module id
+	 * @param  string   $formId  	Form html id
+	 * @param  string   $fieldId    Field html id
+	 * @return object   Returns a recordset with the permission the access to the screen´s fields
+	 *
+	 * @since 1.0.1 First time this was introduced.
+	 *
+	 * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+	 *
+	 */
+	public function getScreenFieldEnable($idModule,$personType,$formId)
+	{
+		$sql =	"
+				SELECT
+				  tbscreen_permission.fieldid,
+				  tbscreen_permission.enable
+				FROM tbscreen_permission
+				  INNER JOIN tbscreen
+					ON tbscreen_permission.idscreen = tbscreen.idscreen
+				  INNER JOIN tbmodule
+					ON tbscreen.idmodule = tbmodule.idmodule
+				WHERE tbmodule.idmodule = $idModule
+				  AND tbscreen.formid = '$formId'
+				  AND tbscreen_permission.idtypeperson = '$personType'
+				";
+		$ret = $this->db->Execute($sql);
+		if (!$ret) {
+			$sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<br>--" . $query;
+			$this->error($sError);
+			return false;
+		}
+		return $ret;
+
+	}
+
     /**
      * Returns a query date format so use in a database query
      * Use in method formatSaveDate
@@ -652,7 +846,7 @@ class common extends dynamicModel {
     public function getSaveDate($date, $format)
     {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $ret = $this->db->Execute("SELECT STR_TO_DATE('$date','$format') as date");
             if (!$ret) {
                 $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<br>--" . $query;
@@ -669,7 +863,6 @@ class common extends dynamicModel {
     public function foundRows(){
         return $this->select("SELECT FOUND_ROWS() AS `found_rows`");
     }
-
 
     public function getValueParam($module,$param) {
         $query =    "
@@ -690,9 +883,8 @@ class common extends dynamicModel {
         return $rs->fields['value'] ;
     }
 
-
     public function getEmailConfigs() {
-        $conf = $this->select("select session_name,value from hdk_tbconfig where idconfigcategory = 5");
+        $conf = $this->select("select session_name,value from tbconfig where idconfigcategory = 5");
         while (!$conf->EOF) {
             $ses = $conf->fields['session_name'];
             $val = $conf->fields['value'];
@@ -702,70 +894,22 @@ class common extends dynamicModel {
         return $emailConfs;
     }
 
-    public function selectPerson($where = NULL, $order = NULL, $limit = NULL) {
-        $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
-            $number = "addr.number";
-        } elseif ($database == 'oci8po') {
-            $number = "addr.number_";
-        }
+	public function getTempEmail() {
+		$conf = $this->select("select session_name,description as value from hdk_tbconfig where idconfigcategory = 11");
+		while (!$conf->EOF) {
+			$ses = $conf->fields['session_name'];
+			$val = $conf->fields['value'];
+			$tempConfs[$ses] = $val;
+			$conf->MoveNext();
+		}
+		return $tempConfs;
+	}
 
-        $ret = $this->select("
-							select
-								  tbp.idperson,
-								  tbp.name,
-								  tbp.login,
-								  tbp.email,
-								  tbp.status,
-								  tbp.user_vip,
-								  tbp.phone_number as telephone,
-								  tbp.branch_number,
-								  tbp.cel_phone as cellphone,
-								  tbtp.name         as typeperson,
-								  tbtp.idtypeperson,
-								  ctry.printablename as country,
-								  ctry.idcountry,
-								  stt.name as state,
-								  stt.idstate,
-								  nbh.name as neighborhood,
-								  ct.name as city,
-								  ct.idcity,
-								  tpstr.name as typestreet,
-								  tpstr.idtypestreet,
-								  st.name as street,
-								  $number,
-								  addr.complement,
-								  addr.zipcode
-                            from tbperson tbp,
-								  tbtypeperson tbtp,
-								  tbaddress addr,
-								  tbcity ct,
-								  tbcountry ctry,
-								  tbstate stt,
-								  tbstreet st,
-								  tbneighborhood nbh,
-								  tbtypeaddress tpad,
-								  tbtypestreet tpstr
-                            where tbp.idtypeperson = tbtp.idtypeperson
-									AND addr.idperson = tbp.idperson
-									AND addr.idcity = ct.idcity
-									AND addr.idneighborhood = nbh.idneighborhood
-									AND addr.idstreet = st.idstreet
-									AND addr.idtypeaddress = tpad.idtypeaddress
-									AND st.idtypestreet = tpstr.idtypestreet
-									AND ct.idstate = stt.idstate
-									and stt.idcountry = ctry.idcountry $where $order $limit"
-        );
-        if (!$ret) {
-            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
-            $this->error($sError);
-        }
-        return $ret;
-    }
 
-    public function getDate($date, $format) {
+    public function getDate($date, $format)
+    {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+        if ($this->isMysql($database)) {
             $query = "SELECT DATE_FORMAT('$date','$format') as date" ;
         } elseif ($database == 'oci8po') {
             if ((strpos($date, '-') === false)&&(strpos($date, '/') === false)){
@@ -780,6 +924,34 @@ class common extends dynamicModel {
         $ret = $this->db->Execute($query);
         if(!$ret) {
             $sError = $query."Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
+            $this->error($sError);
+            return false;
+        }
+        return $ret->fields['date'];
+    }
+
+    public function getTime($date, $format) {
+        $ret = $this->db->Execute("SELECT DATE_FORMAT('$date', '$format') as time");
+        if(!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
+            $this->error($sError);
+            return false;
+        }
+        $time = $ret->fields['time'];
+        return $time;
+    }
+
+    public function getDateTime($date, $format) {
+        $database = $this->getConfig('db_connect');
+        if ($this->isMysql($database)) {
+            $query = "SELECT DATE_FORMAT('$date','$format') as date" ;
+        } elseif ($database == 'oci8po') {
+            $query = "SELECT to_char(TO_DATE('$date', 'RRRR-MM-DD HH24:MI:SS'), 'DD/MM/YYYY HH24:MI') as \"date\" from dual" ;
+        }
+
+        $ret = $this->db->Execute($query);
+        if(!$ret) {
+            $sError = $query . "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
             $this->error($sError);
             return false;
         }
@@ -808,7 +980,7 @@ class common extends dynamicModel {
                   tbauxdatabase
 			   WHERE idauxdatabase = $iddb
                 ";
-        //die($q);
+
         $ret = $this->db->Execute($q);
         if (!$ret) {
             $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
@@ -816,6 +988,140 @@ class common extends dynamicModel {
             return false;
         }
         return $ret;
+    }
+
+	public function getCountry($where = '')
+	{
+		if (empty($where))
+			$where = ' where idcountry != 1';
+
+		$sql = "select idcountry, iso, printablename from tbcountry $where order by name";
+
+		$rs = $this->db->Execute($sql);
+
+		if ($this->db->ErrorNo() != 0)
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		else
+			return $rs;
+	}
+
+	public function getState($where = '')
+	{
+		if (empty($where))
+			$where = ' where idstate != 1';
+
+		$sql = "select idstate, name from tbstate $where order by name";
+		$rs = $this->select($sql);
+
+		if ($this->db->ErrorNo() != 0)
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		else
+			return $rs;
+	}
+
+	public function getCity($where = 'where idcity != 1',$order='order by name asc',$limit='')
+	{
+		//if (empty($where))
+		//	$where = ' where idcity != 1';
+
+		$sql = "select idcity, name from tbcity $where $order $limit " ;
+
+		$rs = $this->select($sql);
+		if ($this->db->ErrorNo() != 0)
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		else
+			return $rs;
+	}
+
+
+	public function getNeighborhood($where = '')
+	{
+		if (empty($where))
+			$where = ' where idneighborhood != 1';
+		$sql = "select idneighborhood, name from tbneighborhood $where order by name" ;
+
+		$rs = $this->select($sql);
+		if ($this->db->ErrorNo() != 0)
+			$this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+		else
+			return $rs;
+	}
+
+	public function getTypeStreet($where = null)
+	{
+		if (empty($where))
+			$where = ' where idtypestreet != 1';
+		else
+			$where .= ' AND idtypestreet != 1';
+		return $this->db->Execute("SELECT idtypestreet, name  from tbtypestreet $where order by `name` ASC");
+
+	}
+
+    /**
+     * Returns active modules
+     * @return object   	Returns a recordset of active modules
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     *
+     */
+    public function getModulesCategoryAtive($idperson,$idmodule)
+    {
+        $sql = "(SELECT
+                        DISTINCT cat.name              AS category,
+                        cat.idprogramcategory 	AS category_id,
+                        cat.smarty 		AS cat_smarty
+                   FROM tbperson  p,
+                        tbtypepersonpermission  g,
+                        tbaccesstype  a,
+                        tbprogram  pr,
+                        tbmodule  m,
+                        tbprogramcategory  cat,
+                        tbtypeperson  tp
+                  WHERE g.idaccesstype = a.idaccesstype
+                    AND g.idprogram = pr.idprogram
+                    AND m.idmodule = cat.idmodule
+                    AND cat.idprogramcategory = pr.idprogramcategory
+                    AND tp.idtypeperson = g.idtypeperson
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = '$idperson'
+                    AND tp.idtypeperson IN
+                        (SELECT idtypeperson
+                           FROM tbpersontypes
+                          WHERE idperson = '$idperson'  )
+                    AND g.idaccesstype = '1'
+                    AND g.allow = 'Y'
+                    AND m.idmodule = $idmodule
+                    )
+                  UNION
+                    (
+                 SELECT
+                        DISTINCT cat.name              	AS category,
+                        cat.idprogramcategory 	AS category_id,
+                        cat.smarty 		AS cat_smarty
+                   FROM tbperson  per,
+                        tbpermission  p,
+                        tbprogram  pr,
+                        tbmodule  m,
+                        tbprogramcategory  cat,
+                        tbaccesstype  acc
+                  WHERE m.idmodule = cat.idmodule
+                    AND pr.idprogramcategory = cat.idprogramcategory
+                    AND per.idperson = p.idperson
+                    AND pr.idprogram = p.idprogram
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = '$idperson'
+                    AND p.idaccesstype = acc.idaccesstype
+                    AND p.idaccesstype = '1'
+                    AND p.allow = 'Y'
+                    AND m.idmodule = $idmodule
+                    )";
+        $rs = $this->select($sql);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+        else
+            return $rs;
     }
 
 }

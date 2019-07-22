@@ -4,7 +4,7 @@ class Controllers extends System {
 
     protected function view($nome, $vars=NULL) {
         $smarty = $this->retornaSmarty();
-        $langVars = $smarty->get_config_vars();
+        $langVars = $this->getLangVars($smarty);
         $langVars2 = $smarty->get_template_vars();
         
         if (is_array($vars) && count($vars) > 0) {
@@ -58,6 +58,7 @@ class Controllers extends System {
                 return true;
             }
         }
+
         return false;
     }
 

@@ -1,391 +1,181 @@
 <?php
-
-class home_model extends Model {
-
-    public function selectUserLogin($cod_usu) {
-        $ret = $this->select("select login from tbperson where idperson = $cod_usu");
-		$nom = $ret->fields['login'];
-        return $nom;
-    }
-
-    public function selectMenu($idperson, $type) {
-        return $this->select("	select
-								  m.idmodule           as idmodule_pai,
-								  m.name               as module,
-								  cat.idmodule          as idmodule_origem,
-								  cat.name              as category,
-								  cat.idprogramcategory as category_pai,
-								  cat.smarty  as cat_smarty,
-								  pr.idprogramcategory  as idcategory_origem,
-								  pr.name               as program,
-								  pr.controller         as controller,
-								  pr.idprogram          as idprogram,
-								  pr.smarty as pr_smarty,
-								  a.idaccesstype    as permission
-								from tbperson  p,
-								  tbtypepersonpermission  g,
-								  tbaccesstype  a,
-								  tbprogram  pr,
-								  tbmodule  m,
-								  tbprogramcategory  cat,
-								  tbtypeperson  tp
-								where g.idaccesstype = a.idaccesstype
-									and g.idprogram = pr.idprogram
-									and m.idmodule = cat.idmodule
-									and cat.idprogramcategory = pr.idprogramcategory
-									and tp.idtypeperson = g.idtypeperson
-									AND m.status = 'A'
-									AND pr.status = 'A'
-									AND g.allow = 'Y'
-									AND p.idperson = '$idperson'
-									AND g.idaccesstype = '1'
-									AND g.idtypeperson = '$type'");
-    }
-
-    public function selectPersonPermission($idperson, $idprogram) {
-		$database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
-			//$concat = "concat(pr.name, '–' ,a.idaccesstype) as programname";
-			$concat = "concat(pr.name, '–' ,p.idaccesstype) as programname";
-		} elseif ($database == 'oci8po') {
-			$concat = "pr.name || '–' || p.idaccesstype as programname";
-		}
-	
-		$query = "
-				select
-				   p.idpermission,
-				   p.idaccesstype,
-				   p.idprogram,
-				   p.idperson,
-				   p.allow,
-				   m.idmodule     as module,
-				   ".$concat."
-				from tbpermission  p,
-				   tbprogram  pr,
-				   tbprogramcategory  cat,
-				   tbmodule  m
-				where m.idmodule = cat.idmodule
-					 and pr.idprogramcategory = cat.idprogramcategory
-					 and p.idprogram = pr.idprogram
-					 and m.status = 'A'
-					 and pr.status = 'A'
-					 AND idperson = '$idperson'
-					 AND p.idprogram = '$idprogram'
-				";	
-        $individualperm = $this->select($query);        
-       // if ($individualperm->fields['idpermission']) {
-            return $individualperm;
-       // }
-    }
-
-    public function selectGroupPermission($idperson, $idprogram, $type) {
-		$database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
-			$concat = "concat(pr.name, '–' ,a.idaccesstype) as programname";
-		} elseif ($database == 'oci8po') {
-			$concat = "pr.name || '–' || a.idaccesstype as programname";
-		}
-		
-		$query = "
-					select
-					  g.idpermissiongroup,
-					  pr.idprogram        as idprogram,
-					  pr.smarty  as pr_smarty,
-					  a.idaccesstype,
-					  m.idmodule          as idmodule,
-					  tp.idtypeperson     as idtypeperson,
-					  ".$concat.",
-					  g.allow              
-					from tbperson  p,
-					  tbtypepersonpermission  g,
-					  tbaccesstype  a,
-					  tbprogram  pr,
-					  tbmodule  m,
-					  tbprogramcategory  cat,
-					  tbtypeperson  tp
-					WHERE g.idaccesstype = a.idaccesstype
-						and g.idprogram = pr.idprogram
-						and m.idmodule = cat.idmodule
-						and cat.idprogramcategory = pr.idprogramcategory
-						and tp.idtypeperson = g.idtypeperson
-						AND m.status = 'A'
-						AND pr.status = 'A'
-						AND p.idperson = '$idperson'
-						AND tp.idtypeperson = '$type'            
-						AND pr.idprogram = '$idprogram'
-				";	
-        $groupperm = $this->select($query);
-        //if ($groupperm->fields['idpermissiongroup']) {
-            return $groupperm;
-       // }
-    }
-
-    public function selectProgramID($name) {
-        $sel = $this->select("select idprogram from tbprogram where name = '$name'");
-        return $sel->fields['idprogram'];
-    }
-    
-    public function selectProgramIDByController($controller) {
-		$database = $this->getConfig('db_connect');
-		if ($database == 'mysqlt') {
-			$sel = $this->select("select idprogram from tbprogram where controller = '$controller' || controller = '".substr($controller,0,-1)."'");
-		} elseif ($database == 'oci8po') {
-			$sel = $this->select("select idprogram from tbprogram where controller = '$controller' or controller = '".substr($controller,0,-1)."'");
-		}
-		return $sel->fields['idprogram'];
-    }
-    
-
-    public function selectTypePerson($id) {
-        $ret = $this->select("select idtypeperson from tbperson where idperson='$id'");
-		return $ret->fields['idtypeperson'];
-    }
-
-    public function selectPersonPermissionMenu($idperson) {
-        $individualperm = $this->select("
-										select
-										  m.idmodule           as idmodule_pai,
-										  m.name               as module,
-										  cat.idmodule          as idmodule_origem,
-										  cat.name              as category,
-										  cat.idprogramcategory as category_pai,
-										  cat.smarty as cat_smarty,
-										  pr.idprogramcategory  as idcategory_origem,
-										  pr.name               as program,
-										  pr.controller         as controller,
-										  pr.smarty  as pr_smarty,
-										  pr.idprogram          as idprogram,
-										  p.allow
-										from tbperson  per,
-										  tbpermission  p,
-										  tbprogram  pr,
-										  tbmodule  m,
-										  tbprogramcategory  cat,
-										  tbaccesstype  acc
-										where m.idmodule = cat.idmodule
-											and pr.idprogramcategory = cat.idprogramcategory
-											and per.idperson = p.idperson
-											AND pr.idprogram = p.idprogram
-											and m.status = 'A'
-											and pr.status = 'A'
-											AND p.idperson = '$idperson'
-											AND p.idaccesstype = acc.idaccesstype
-											AND p.idaccesstype = '1'
-											and m.idmodule =< 3
-
-
-
-											");
-		
-		if ($individualperm->fields['idmodule_pai'])    return $individualperm;
-			
-    }
-
-    public function getPermissionMenu($idperson, $typeperson, $andModule) {
-        $groupperm = $this->select("
-									(
-									select
-									  m.idmodule           as idmodule_pai,
-									  m.name               as module,
-									  cat.idmodule          as idmodule_origem,
-									  cat.name              as category,
-									  cat.idprogramcategory as category_pai,
-									  cat.smarty as cat_smarty,
-									  pr.idprogramcategory  as idcategory_origem,
-									  pr.name               as program,
-									  pr.controller         as controller,
-									  pr.smarty  as pr_smarty,
-									  pr.idprogram          as idprogram,
-									  g.allow
-									from tbperson  p,
-									  tbtypepersonpermission  g,
-									  tbaccesstype  a,
-									  tbprogram  pr,
-									  tbmodule  m,
-									  tbprogramcategory  cat,
-									  tbtypeperson  tp
-									WHERE g.idaccesstype = a.idaccesstype
-										and g.idprogram = pr.idprogram
-										and m.idmodule = cat.idmodule
-										and cat.idprogramcategory = pr.idprogramcategory
-										and tp.idtypeperson = g.idtypeperson
-										AND m.status = 'A'
-										AND pr.status = 'A'
-										AND p.idperson = '$idperson'
-										AND tp.idtypeperson = '$typeperson'
-										AND g.idaccesstype = '1'
-										AND g.allow = 'Y'
-										AND $andModule
-									)
-									UNION
-									(
-										select
-										  m.idmodule           as idmodule_pai,
-										  m.name               as module,
-										  cat.idmodule          as idmodule_origem,
-										  cat.name              as category,
-										  cat.idprogramcategory as category_pai,
-										  cat.smarty as cat_smarty,
-										  pr.idprogramcategory  as idcategory_origem,
-										  pr.name               as program,
-										  pr.controller         as controller,
-										  pr.smarty  as pr_smarty,
-										  pr.idprogram          as idprogram,
-										  p.allow
-										from tbperson  per,
-										  tbpermission  p,
-										  tbprogram  pr,
-										  tbmodule  m,
-										  tbprogramcategory  cat,
-										  tbaccesstype  acc
-										where m.idmodule = cat.idmodule
-											and pr.idprogramcategory = cat.idprogramcategory
-											and per.idperson = p.idperson
-											AND pr.idprogram = p.idprogram
-											and m.status = 'A'
-											and pr.status = 'A'
-											AND p.idperson = '$idperson'
-											AND p.idaccesstype = acc.idaccesstype
-											AND p.idaccesstype = '1'
-											AND $andModule
-									)
-									");
-
-        if ($groupperm->fields['idmodule_pai'])       return $groupperm;
-
-    }
-
-    public function selectGroupPermissionMenu($idperson, $type) {
-        $groupperm = $this->select("
-									(
-									select
-									  m.idmodule           as idmodule_pai,
-									  m.name               as module,
-									  cat.idmodule          as idmodule_origem,
-									  cat.name              as category,
-									  cat.idprogramcategory as category_pai,
-									  cat.smarty as cat_smarty,
-									  pr.idprogramcategory  as idcategory_origem,
-									  pr.name               as program,
-									  pr.controller         as controller,
-									  pr.smarty  as pr_smarty,                
-									  pr.idprogram          as idprogram,
-									  g.allow
-									from tbperson  p,
-									  tbtypepersonpermission  g,
-									  tbaccesstype  a,
-									  tbprogram  pr,
-									  tbmodule  m,
-									  tbprogramcategory  cat,
-									  tbtypeperson  tp
-									WHERE g.idaccesstype = a.idaccesstype
-										and g.idprogram = pr.idprogram
-										and m.idmodule = cat.idmodule
-										and cat.idprogramcategory = pr.idprogramcategory
-										and tp.idtypeperson = g.idtypeperson
-										AND m.status = 'A'
-										AND pr.status = 'A'
-										AND p.idperson = '$idperson'
-										AND tp.idtypeperson = '$type'
-										AND g.idaccesstype = '1'
-										AND g.allow = 'Y'
-										and m.idmodule <= 3
-									)
-									UNION
-									(
-										select
-										  m.idmodule           as idmodule_pai,
-										  m.name               as module,
-										  cat.idmodule          as idmodule_origem,
-										  cat.name              as category,
-										  cat.idprogramcategory as category_pai,
-										  cat.smarty as cat_smarty,
-										  pr.idprogramcategory  as idcategory_origem,
-										  pr.name               as program,
-										  pr.controller         as controller,
-										  pr.smarty  as pr_smarty,
-										  pr.idprogram          as idprogram,
-										  p.allow
-										from tbperson  per,
-										  tbpermission  p,
-										  tbprogram  pr,
-										  tbmodule  m,
-										  tbprogramcategory  cat,
-										  tbaccesstype  acc
-										where m.idmodule = cat.idmodule
-											and pr.idprogramcategory = cat.idprogramcategory
-											and per.idperson = p.idperson
-											AND pr.idprogram = p.idprogram
-											and m.status = 'A'
-											and pr.status = 'A'
-											AND p.idperson = '$idperson'
-											AND p.idaccesstype = acc.idaccesstype
-											AND p.idaccesstype = '1'
-											and m.idmodule <= 3
-									)
-									");
-		
-		if ($groupperm->fields['idmodule_pai'])       return $groupperm;
-        
-    }
-
-    public function countPrograms() {
-        $count = $this->select("select max(idprogram) as total from tbprogram");
-		return $count->fields['total'];
-    }
-
-    public function countCategories() {
-        $count = $this->select("select max(idprogramcategory) as total from tbprogramcategory");
-        return $count->fields['total'];
-    }
-
-    public function countModules() {
-        $count = $this->select("select max(idmodule) as total from tbmodule where status = 'A'");
-		return $count->fields['total'];
-    }
-
-    public function getIdTypePerson($id) {
-        $ret = $this->select("select idtypeperson from tbperson where idperson = $id");
-        if (!$ret) {
-            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
-            $this->error($sError);
-        }
-        return $ret->fields['idtypeperson'];
-    }
-
-    public function mysqlVersion() {
-        $ret = $this->select("select version() as version");
-        return $ret->fields['version'];
-    }	
-    
-    public function foundRows(){
-		return $this->select("SELECT FOUND_ROWS() AS `found_rows`");
-	}
-
-    /*
-     * Execute query in database
-     *
-     * @access public
-     * @param $query Query to execute
-     *
-     * @return array ret bollean , msg string Error message
-     */
-    public function systemUpdateExecute($query)
-    {
-        $ret =  $this->db->Execute($query);
-
-        $msg = '';
-        if (!$ret) $msg = $this->db->ErrorMsg();
-        return array("ret" => $ret,
-                     "msg" => $msg
-                    ) ;
-
-
-
-    }
-
-
+if(class_exists('Model')) {
+    class DynamicFeatures_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicFeatures_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicFeatures_model extends apiModel {}
 }
 
+class home_model extends DynamicFeatures_model {
 
-?>
+//class features_model extends Model {
+
+    public function getConfigs($cats) {
+        return $this->db->Execute("select conf.idconfig, conf.status, conf.value,conf.name as config_name, cat.smarty as cat_smarty, conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate from hdk_tbconfig conf, hdk_tbconfig_category cat where conf.idconfigcategory in($cats) and conf.idconfigcategory = cat.idconfigcategory order by cate");
+    }
+
+    public function activateConfig($id) {
+        return $this->db->Execute("update hdk_tbconfig set value = '1' where idconfig ='$id'");
+    }
+
+    public function deactivateConfig($id) {
+        return $this->db->Execute("update hdk_tbconfig set value = '0' where idconfig ='$id'");
+    }
+
+    public function changeVal($id, $value) {
+        return $this->db->Execute("update hdk_tbconfig set value = '$value' where idconfig = '$id'");
+    }
+	
+	public function getArrayConfigs($id) {
+        $conf = $this->select("select session_name,value from hdk_tbconfig where idconfigcategory = $id");
+        while (!$conf->EOF) {
+            $ses = $conf->fields['session_name'];
+            $val = $conf->fields['value'];
+            $emailConfs[$ses] = $val;
+            $conf->MoveNext();
+        }
+        return $emailConfs;
+    }
+
+    public function getEmailConfigs() {
+        $conf = $this->select("select session_name,value from hdk_tbconfig where idconfigcategory = 5");
+        while (!$conf->EOF) {
+            $ses = $conf->fields['session_name'];
+            $val = $conf->fields['value'];
+            $emailConfs[$ses] = $val;
+            $conf->MoveNext();
+        }
+        return $emailConfs;
+    }
+    
+    public function getPopConfigs() {
+        $conf = $this->select("select session_name,value from tbconfig where idconfigcategory = 12");
+        while (!$conf->EOF) {
+            $ses = $conf->fields['session_name'];
+            $val = $conf->fields['value'];
+            $emailConfs[$ses] = $val;
+            $conf->MoveNext();
+        }
+        return $emailConfs;
+    }
+
+    public function getLdapConfigs() {
+        $conf = $this->select("select session_name,value from hdk_tbconfig where idconfigcategory = 13");
+        while (!$conf->EOF) {
+            $ses = $conf->fields['session_name'];
+            $val = $conf->fields['value'];
+            $emailConfs[$ses] = $val;
+            $conf->MoveNext();
+        }
+        return $emailConfs;
+    }
+	
+	
+    public function getTempEmail() {
+        $conf = $this->select("select session_name,description as value from hdk_tbconfig where idconfigcategory = 11");
+        while (!$conf->EOF) {
+            $ses = $conf->fields['session_name'];
+            $val = $conf->fields['value'];
+            $tempConfs[$ses] = $val;
+            $conf->MoveNext();
+        }
+        return $tempConfs;
+    }
+
+    public function getValueBySessionName($session_name) {
+        $conf = $this->select("select value from hdk_tbconfig where session_name = '$session_name'");
+        return $conf->fields['value'];
+    }
+
+    public function getIdBySessionName($session_name) {
+        $conf = $this->select("select idconfig from hdk_tbconfig where session_name = '$session_name'");
+        return $conf->fields['idconfig'];
+    }
+
+    public function updateEmailConfigs($title, $host, $domain, $user, $pass, $auth, $sender, $header, $footer, $mailport) {
+        $database = $this->getConfig('db_connect');  
+        if ($database == 'mysqlt') {
+            $this->db->Execute("update hdk_tbconfig set `value` = '$host' where session_name = 'EM_HOSTNAME'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$domain' where session_name = 'EM_DOMAIN'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$user' where session_name = 'EM_USER'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$pass' where session_name = 'EM_PASSWORD'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$sender' where session_name = 'EM_SENDER'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$auth' where session_name = 'EM_AUTH'");      
+            $this->db->Execute("update hdk_tbconfig set description = '$header' where session_name = 'EM_HEADER'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$title' where session_name = 'EM_TITLE'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$mailport' where session_name = 'EM_PORT'");
+
+
+            $foot = $this->db->Execute("update hdk_tbconfig set description = '$footer' where session_name = 'EM_FOOTER'");
+        } elseif ($database == 'oci8po') {
+            $this->db->Execute("update hdk_tbconfig set value = '$host' where session_name = 'EM_HOSTNAME'");
+            $this->db->Execute("update hdk_tbconfig set value = '$domain' where session_name = 'EM_DOMAIN'");
+            $this->db->Execute("update hdk_tbconfig set value = '$user' where session_name = 'EM_USER'");
+            $this->db->Execute("update hdk_tbconfig set value = '$pass' where session_name = 'EM_PASSWORD'");
+            $this->db->Execute("update hdk_tbconfig set value = '$sender' where session_name = 'EM_SENDER'");
+            $this->db->Execute("update hdk_tbconfig set value = '$auth' where session_name = 'EM_AUTH'");      
+            $this->db->Execute("update hdk_tbconfig set description = RAWTOHEX('$header') where session_name = 'EM_HEADER'");
+            $this->db->Execute("update hdk_tbconfig set value = '$title' where session_name = 'EM_TITLE'");
+            $this->db->Execute("update hdk_tbconfig set value`= '$mailport' where session_name = 'EM_PORT'");
+            $foot = $this->db->Execute("update hdk_tbconfig set description = RAWTOHEX('$footer') where session_name = 'EM_FOOTER'");
+        }        
+        return $foot;
+    }
+    
+    public function updatePopConfigs($pophost, $popport, $poptype, $popdomain) {
+        $database = $this->getConfig('db_connect');  
+        if ($database == 'mysqlt') {
+            $this->db->Execute("update hdk_tbconfig set `value` = '$pophost' where session_name = 'POP_HOST'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$popport' where session_name = 'POP_PORT'");
+            $this->db->Execute("update hdk_tbconfig set `value` = '$popdomain' where session_name = 'POP_DOMAIN'");
+            $foot = $this->db->Execute("update hdk_tbconfig set `value` = '$poptype' where session_name = 'POP_TYPE'");
+        } elseif ($database == 'oci8po') {
+            $this->db->Execute("update hdk_tbconfig set value = '$pophost' where session_name = 'POP_HOST'");
+            $this->db->Execute("update hdk_tbconfig set value = '$popport' where session_name = 'POP_PORT'");
+            $this->db->Execute("update hdk_tbconfig set value = '$popdomain' where session_name = 'POP_DOMAIN'");
+            $foot = $this->db->Execute("update hdk_tbconfig set value = '$poptype' where session_name = 'POP_TYPE'");   
+        }
+        return $foot;
+    }
+    
+    public function updateLdapConfigs($ldapserver, $ldapdn, $ldapdomain, $ldapfield, $ldaptype) {
+        $database = $this->getConfig('db_connect');  
+        if ($database == 'mysqlt') {
+        	$this->db->Execute("UPDATE hdk_tbconfig set `value` = '$ldaptype' where session_name = 'SES_LDAP_AD'");
+        	$this->db->Execute("UPDATE hdk_tbconfig set `value` = '$ldapserver' where session_name = 'SES_LDAP_SERVER'");
+			$this->db->Execute("UPDATE hdk_tbconfig set `value` = '$ldapdn' where session_name = 'SES_LDAP_DN'");
+			$this->db->Execute("UPDATE hdk_tbconfig set `value` = '$ldapdomain' where session_name = 'SES_LDAP_DOMAIN'");
+			$foot = $this->db->Execute("UPDATE hdk_tbconfig set `value` = '$ldapfield' where session_name = 'SES_LDAP_FIELD'");
+        } elseif ($database == 'oci8po') {
+        	$this->db->Execute("update hdk_tbconfig set value = '$ldaptype' where session_name = 'SES_LDAP_AD'");
+            $this->db->Execute("update hdk_tbconfig set value = '$ldapserver' where session_name = 'SES_LDAP_SERVER'");
+            $this->db->Execute("update hdk_tbconfig set value = '$ldapdn' where session_name = 'SES_LDAP_DN'");
+            $this->db->Execute("update hdk_tbconfig set value = '$ldapdomain' where session_name = 'SES_LDAP_DOMAIN'");
+            $foot = $this->db->Execute("update hdk_tbconfig set value = '$ldapfield' where session_name = 'SES_LDAP_FIELD'");   
+        }
+        return $foot;
+    }
+
+    public function updateMaintenance($msg, $session_name){
+        return $this->db->Execute("update hdk_tbconfig set value = '$msg' where session_name = '$session_name'");
+    }
+
+    // Since May 31, 2017
+    public function setDeploy($server,$state,$created_on)
+    {
+        return $this->db->Execute("INSERT INTO tbdeploy (gitserver, dttrigger,state,created_on) VALUES ('$server', NOW(),'$state','$created_on')");
+    }
+
+    // Since May 30, 2017
+    public function getDeployTrigger()
+    {
+        return $this->db->Execute("SELECT iddeploy FROM tbdeploy WHERE  dtdone = '0000-00-00 00:00:00' LIMIT 1") ;
+    }
+
+    // Since May 30, 2017
+    public function updateDeploy($idDeploy)
+    {
+        return $this->db->Execute("UPDATE tbdeploy SET dtdone = NOW() WHERE iddeploy = '$idDeploy' ") ;
+    }
+}

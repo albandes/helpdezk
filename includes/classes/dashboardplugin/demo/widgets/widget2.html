@@ -1,9 +1,0 @@
-Different examples for the dashboard plugin:
-<ul>
-  <li><a href="dashboard_minimal.html">Minimal dashboard</a></li>
-  <li><a href="dashboard.html">Dashboard</a></li>
-  <li><a href="dashboard_multiple.html">Tabs with different dashboards</a></li>
-  <li><a href="dashboard_custom_eventhandler.html">Custom event handler</a></li>
-  <li><a href="dashboard_metadata.html">Using widget specific metadata</a></li>
-  <li><a href="dashboard_with_highchart.html">Dashboard with pie charts</a></li>
-</ul>
