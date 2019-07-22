@@ -1,6 +1,13 @@
 ### HelpDEZk ##
 
-app/uploads
+app/uploads/files/*
+app/uploads/helpdezk/attachments/*
+app/uploads/helpdezk/dashboard/*
+app/uploads/helpdezk/noteattachments/*
+app/uploads/tmp/*
+
+
+
 includes/config/config.php
 system/templates_c/*.php
 logs/* 
