@@ -88,6 +88,11 @@ $( document ).ready(function() {
 
     });
 
+    /* reset modal's form */
+    $('.modal').on('hidden.bs.modal', function() {
+        $('#username').val('');
+    });
+
 });
 
 function lostPasswordAjax($ButtonSend)
@@ -102,6 +107,7 @@ function lostPasswordAjax($ButtonSend)
             $ButtonSend.button('reset');
         },
         success: function(ret) {
+            $('#modal-form-lost-password').modal('hide');
             if(ret){
                 if (ret ==  '1')  {
                     modalAlert('info',makeSmartyLabel('Lost_password_pop'));

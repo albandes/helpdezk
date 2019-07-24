@@ -1109,6 +1109,7 @@ button.dim:active:before {
   padding: 4px 12px;
   position: relative;
   width: 100%;
+  cursor:pointer;
 }
 .chosen-container-multi .chosen-choices li.search-choice {
   background: #f1f1f1;
@@ -1121,6 +1122,9 @@ button.dim:active:before {
   margin: 3px 0 3px 5px;
   padding: 3px 20px 3px 5px;
   position: relative;
+}
+.chosen-container-multi .chosen-choices  {
+  cursor:pointer;
 }
 /* PAGINATIN */
 .pagination > .active > a,
@@ -5063,4 +5067,9 @@ body.skin-3 {
     border-top: 1px solid rgba(0,0,0,.4);
     margin: 1em 0;
     padding: 0;
+}
+input, textarea, [role=gridcell],
+select,
+.note-editor {
+  cursor:pointer;
 }

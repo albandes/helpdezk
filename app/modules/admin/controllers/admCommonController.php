@@ -19,34 +19,10 @@ class admCommon extends Controllers  {
         //$dbTicket = new ticket_model();
         //$this->dbTicket = $dbTicket;
 
-        // Log settings
-        $objSyslog = new Syslog();
-        $this->log  = $objSyslog->setLogStatus() ;
-        self::$_logStatus = $objSyslog->setLogStatus() ;
-        if ($this->log) {
-            $this->_logLevel = $objSyslog->setLogLevel();
-            $this->_logHost = $objSyslog->setLogHost();
-            if($this->_logHost == 'remote')
-                $this->_logRemoteServer = $objSyslog->setLogRemoteServer();
-                $this->_logFacility = $objSyslog->setLogFacility();
-        }
-
-        //
-        $this->modulename = 'admin' ;
-        //
-
-
-        $id = $this->getIdModule($this->modulename) ;
-        if(!$id) {
-            die('Module don\'t exists in tbmodule !!!') ;
-        } else {
-            $this->idmodule = $id ;
-        }
-
         $this->loadModel('person_model');
         $dbPerson = new person_model();
         $this->dbPerson = $dbPerson;
-        
+
         $this->loadModel('holidays_model');
         $dbHoliday = new holidays_model();
         $this->dbHoliday = $dbHoliday;
@@ -54,7 +30,7 @@ class admCommon extends Controllers  {
         $this->loadModel('modules_model');
         $dbModule = new modules_model();
         $this->dbModule = $dbModule;
-        
+
         $this->loadModel('programs_model');
         $dbProgram = new programs_model();
         $this->dbProgram = $dbProgram;
@@ -66,6 +42,38 @@ class admCommon extends Controllers  {
         $this->loadModel('helpdezk/groups_model');
         $dbGroups = new groups_model();
         $this->dbGroups = $dbGroups;
+
+        // Log settings
+        $objSyslog = new Syslog();
+        $this->log  = $objSyslog->setLogStatus() ;
+        self::$_logStatus = $objSyslog->setLogStatus() ;
+        if ($this->log) {
+            $objSyslog->SetFacility(18);
+            $this->_logLevel = $objSyslog->setLogLevel();
+            $this->_logHost = $objSyslog->setLogHost();
+            if($this->_logHost == 'remote')
+                $this->_logRemoteServer = $objSyslog->setLogRemoteServer();
+        }
+
+        // Tracker Settings
+        if($_SESSION['TRACKER_STATUS'] == 1) {
+            $this->modulename = 'admin' ;
+            $this->idmodule = $this->getIdModule($this->modulename) ;
+            $this->tracker = true;
+        }  else {
+            $this->tracker = false;
+        }
+
+        //
+        $this->modulename = 'admin' ;
+        //
+        $id = $this->getIdModule($this->modulename) ;
+        if(!$id) {
+            die('Module don\'t exists in tbmodule !!!') ;
+        } else {
+            $this->idmodule = $id ;
+        }
+
 
     }
 
@@ -161,44 +169,59 @@ class admCommon extends Controllers  {
         $rs = $this->getActiveModules();
         $list = '';
         while (!$rs->EOF) {
-            $list .= "<li class='dropdown-submenu'>
-                            <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
-                            <ul class='dropdown-menu'>";
 
             $rsCat = $this->dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
-            while (!$rsCat->EOF) {
+
+            if($rsCat->RecordCount() > 0){
                 $list .= "<li class='dropdown-submenu'>
-                            <a tabindex='-1' href='#'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."</a>
-                            <ul class='dropdown-menu'>";
+                                <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
+                                <ul class='dropdown-menu'>";
 
-                $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
-                $groupperm = $this->dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
+                
+                while (!$rsCat->EOF) {
+                    $list .= "<li class='dropdown-submenu'>
+                                <a tabindex='-1' href='#'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."</a>
+                                <ul class='dropdown-menu'>";
 
-                if($groupperm){
-                    while (!$groupperm->EOF) {
-                        $allow = $groupperm->fields['allow'];
-                        $path  = $groupperm->fields['path'];
-                        $program = $groupperm->fields['program'];
-                        $controller = $groupperm->fields['controller'];
-                        $prsmarty = $groupperm->fields['pr_smarty'];
+                    $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
+                    $groupperm = $this->dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
 
-                        if ($allow == 'Y') {
+                    if($groupperm){
+                        while (!$groupperm->EOF) {
+                            $allow = $groupperm->fields['allow'];
+                            $path  = $groupperm->fields['path'];
+                            $program = $groupperm->fields['program'];
+                            $controller = $groupperm->fields['controller'];
+                            $prsmarty = $groupperm->fields['pr_smarty'];
+
                             $checkbar = substr($groupperm->fields['controller'], -1);
                             if($checkbar != "/") $checkbar = "/";
                             else $checkbar = "";
-                            $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
-                        }
 
-                        $groupperm->MoveNext();
+                            $controllertmp = ($checkbar != "") ? $controller : substr($controller,0,-1);
+                            $controller_path = 'app/modules/' . $path . '/controllers/' . $controllertmp . 'Controller.php';
+                            
+                            if (!file_exists($controller_path)) {
+                                $this->logIt("The controller does not exist: " . $controller_path. ' - program: '. $this->program ,3,'general',__LINE__);
+                            }else{
+                                if ($allow == 'Y') {
+                                    
+                                    $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
+                                }
+                            }                            
+
+                            $groupperm->MoveNext();
+                        }
                     }
+                    $list .= "</ul>
+                    </li>";
+                    $rsCat->MoveNext();
                 }
+
                 $list .= "</ul>
-                </li>";
-                $rsCat->MoveNext();
+                    </li>";
             }
 
-            $list .= "</ul>
-                </li>";
             $rs->MoveNext();
         }
         //echo $list;
