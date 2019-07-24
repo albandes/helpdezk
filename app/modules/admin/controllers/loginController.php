@@ -18,6 +18,14 @@ class Login extends admCommon {
         $this->loadModel('features_model');
         $dbConfig = new features_model();
         $this->dbConfig = $dbConfig;
+
+        /*
+         * It's necessary because we need the global variables to set log method
+         */
+        $this->getGlobalSessionData();
+
+        // Log settings
+        $this->log = parent::$_logStatus;
     }
 
 
@@ -574,18 +582,19 @@ class Login extends admCommon {
                 if(!empty($prefix)) {
                     $data = $this->dbIndex->getConfigDataByModule($prefix);
                     if (!$data) {
-                        die('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory' );
+                        if($this->log)
+                            $this->logIt('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory - program: '. $this->program ,3,'general',__LINE__);
+                    }else{
+                        while (!$data->EOF) {
+                            $ses = $data->fields['session_name'];
+                            $val = $data->fields['value'];
+                            //$_SESSION[$ses] = $val;
+                            //
+                            $_SESSION[$prefix][$ses] = $val;
+                            //
+                            $data->MoveNext();
+                        }
                     }
-                    while (!$data->EOF) {
-                        $ses = $data->fields['session_name'];
-                        $val = $data->fields['value'];
-                        //$_SESSION[$ses] = $val;
-                        //
-                        $_SESSION[$prefix][$ses] = $val;
-                        //
-                        $data->MoveNext();
-                    }
-
                 }
 
                 $objModules->MoveNext();
@@ -715,11 +724,25 @@ class Login extends admCommon {
 			$log_text = $smarty->getConfigVars('Lost_password_log');
 			
 			eval("\$body = \"$body\";");
-			
-			$address = array($dbIndex->getEmailPerson($login));
 
-			$ret = $this->sendEmailDefault($subject,$body,$address, true, $log_text  . $login) ;
-			echo $logintype->fields['idtypelogin'];
+            $address = $dbIndex->getEmailPerson($login);
+
+            $params = array("subject" => $subject,
+                "contents" => $body,
+                "address" => $address,
+                "idmodule" => $this->idmodule,
+                "tracker" => $this->tracker,
+                "msg" => $log_text,
+                "msg2" => $log_text
+            );
+
+            $done = $this->sendEmailDefault($params);
+
+            if (!$done) {
+                return false ;
+            } else {
+                echo $logintype->fields['idtypelogin'];
+            }
         }
 		else
 		{
@@ -891,6 +914,20 @@ class Login extends admCommon {
             return false;
         } else {
             return true;
+        }
+
+    }
+
+    public function getGlobalSessionData()
+    {
+
+        // Global Config Data
+        $rsConfig = $this->dbIndex->getConfigGlobalData();
+        while (!$rsConfig->EOF) {
+            $ses = $rsConfig->fields['session_name'];
+            $val = $rsConfig->fields['value'];
+            $_SESSION[$ses] = $val;
+            $rsConfig->MoveNext();
         }
 
     }

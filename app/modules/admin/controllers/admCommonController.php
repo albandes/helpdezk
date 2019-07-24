@@ -67,6 +67,15 @@ class admCommon extends Controllers  {
         $dbGroups = new groups_model();
         $this->dbGroups = $dbGroups;
 
+        // Tracker Settings
+        if($_SESSION['TRACKER_STATUS'] == 1) {
+            $this->modulename = 'admin' ;
+            $this->idmodule = $this->getIdModule($this->modulename) ;
+            $this->tracker = true;
+        }  else {
+            $this->tracker = false;
+        }
+
     }
 
     public function _makeNavAdm($smarty)
@@ -161,44 +170,58 @@ class admCommon extends Controllers  {
         $rs = $this->getActiveModules();
         $list = '';
         while (!$rs->EOF) {
-            $list .= "<li class='dropdown-submenu'>
-                            <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
-                            <ul class='dropdown-menu'>";
-
             $rsCat = $this->dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
-            while (!$rsCat->EOF) {
+
+            if($rsCat->RecordCount() > 0){
                 $list .= "<li class='dropdown-submenu'>
-                            <a tabindex='-1' href='#'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."</a>
-                            <ul class='dropdown-menu'>";
+                                <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
+                                <ul class='dropdown-menu'>";
 
-                $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
-                $groupperm = $this->dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
 
-                if($groupperm){
-                    while (!$groupperm->EOF) {
-                        $allow = $groupperm->fields['allow'];
-                        $path  = $groupperm->fields['path'];
-                        $program = $groupperm->fields['program'];
-                        $controller = $groupperm->fields['controller'];
-                        $prsmarty = $groupperm->fields['pr_smarty'];
+                while (!$rsCat->EOF) {
+                    $list .= "<li class='dropdown-submenu'>
+                                <a tabindex='-1' href='#'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."</a>
+                                <ul class='dropdown-menu'>";
 
-                        if ($allow == 'Y') {
+                    $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
+                    $groupperm = $this->dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
+
+                    if($groupperm){
+                        while (!$groupperm->EOF) {
+                            $allow = $groupperm->fields['allow'];
+                            $path  = $groupperm->fields['path'];
+                            $program = $groupperm->fields['program'];
+                            $controller = $groupperm->fields['controller'];
+                            $prsmarty = $groupperm->fields['pr_smarty'];
+
                             $checkbar = substr($groupperm->fields['controller'], -1);
                             if($checkbar != "/") $checkbar = "/";
                             else $checkbar = "";
-                            $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
-                        }
 
-                        $groupperm->MoveNext();
+                            $controllertmp = ($checkbar != "") ? $controller : substr($controller,0,-1);
+                            $controller_path = 'app/modules/' . $path . '/controllers/' . $controllertmp . 'Controller.php';
+
+                            if (!file_exists($controller_path)) {
+                                $this->logIt("The controller does not exist: " . $controller_path. ' - program: '. $this->program ,3,'general',__LINE__);
+                            }else{
+                                if ($allow == 'Y') {
+
+                                    $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
+                                }
+                            }
+
+                            $groupperm->MoveNext();
+                        }
                     }
+                    $list .= "</ul>
+                    </li>";
+                    $rsCat->MoveNext();
                 }
+
                 $list .= "</ul>
-                </li>";
-                $rsCat->MoveNext();
+                    </li>";
             }
 
-            $list .= "</ul>
-                </li>";
             $rs->MoveNext();
         }
         //echo $list;

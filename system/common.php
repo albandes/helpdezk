@@ -420,7 +420,8 @@ class common extends dynamicCommonModel {
 				  temp.smarty,
 				  temp.class,
 				  temp.headerlogo,
-				  temp.reportslogo
+				  temp.reportslogo,
+                  temp.tableprefix
 				FROM
 				  (
 					(
@@ -432,7 +433,8 @@ class common extends dynamicCommonModel {
                        m.smarty,
                        m.class,
                        m.headerlogo,
-                       m.reportslogo
+                       m.reportslogo,
+                       m.tableprefix
                     FROM
                        tbperson per,
                        tbpermission p,
@@ -462,7 +464,8 @@ class common extends dynamicCommonModel {
 					  d.smarty,
 					  d.class,
 					  d.headerlogo,
-					  d.reportslogo
+					  d.reportslogo,
+					  d.tableprefix
 					FROM
 					  tbtypepersonpermission a,
 					  tbprogram b,
@@ -539,7 +542,8 @@ class common extends dynamicCommonModel {
 			return $ret;
 
 	}
-    /**
+
+	/**
      * Returns a recordset with data of header logo image
      * @return object   Returns a recordset with data of header logo image
      *
@@ -551,12 +555,12 @@ class common extends dynamicCommonModel {
     }
 
     /**
- * Returns a recordset with data of report logo image
- * @return object   Returns a recordset with data of header logo image
- *
- * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
- *
- */
+     * Returns a recordset with data of report logo image
+     * @return object   Returns a recordset with data of header logo image
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     *
+     */
 	public function getReportsLogo(){
 		return $this->select("select name, height, width, file_name from tblogos where name = 'reports'");
 	}

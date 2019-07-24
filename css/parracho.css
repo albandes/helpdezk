@@ -5064,3 +5064,11 @@ body.skin-3 {
     margin: 1em 0;
     padding: 0;
 }
+
+.chosen-container-single .chosen-single,
+.chosen-container-multi .chosen-choices,
+input, textarea, [role=gridcell],
+select, #btnTimer,
+.note-editor {
+  cursor:pointer;
+}
