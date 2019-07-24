@@ -215,7 +215,7 @@ class Login extends admCommon {
         $this->loadModel('person_model');
         $dbPerson = new person_model();
 
-        $rsLogintype = $this->dbIndex->getTypeLogin($login);
+        $rsLogintype = $this->dbIndex->getTypeLogin($frm_login);
 		$logintype = $rsLogintype->fields['idtypelogin'];
 
 		if(!$logintype){
