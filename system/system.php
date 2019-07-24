@@ -375,17 +375,29 @@ class System {
     {
         $smarty = $this->retornaSmarty();
 
+        $this->loadModel('admin/index_model');
+        $dbIndex = new index_model();
+
         $rsModules = $this->getPersonModules($idPerson);
         $aModules = array();
         while (!$rsModules->EOF) {
-            $aModules[] = array('idmodule' => $rsModules->fields['idmodule'],
-                                'path' => $rsModules->fields['path'],
-                                'class' => $rsModules->fields['class'],
-                                'headerlogo' => $rsModules->fields['headerlogo'],
-                                'reportslogo' => $rsModules->fields['reportslogo'],
-                                //'varsmarty' => $smarty->getConfigVars($rsModules->fields['smarty']));
-                                'varsmarty' => $smarty->getConfigVars($rsModules->fields['smarty']));
+            $prefix = $rsModules->fields['tableprefix'];
+            $data = $dbIndex->getConfigDataByModule($prefix);
+
+            if (!$data) {
+                $this->logIt('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory - program: '. $this->program ,3,'general',__LINE__);
+            }else{
+                $aModules[] = array('idmodule' => $rsModules->fields['idmodule'],
+                    'path' => $rsModules->fields['path'],
+                    'class' => $rsModules->fields['class'],
+                    'headerlogo' => $rsModules->fields['headerlogo'],
+                    'reportslogo' => $rsModules->fields['reportslogo'],
+                    //'varsmarty' => $smarty->getConfigVars($rsModules->fields['smarty']));
+                    'varsmarty' => $smarty->getConfigVars($rsModules->fields['smarty']));
+            }
+
             $rsModules->MoveNext();
+
         }
 
         return $aModules;
@@ -2990,44 +3002,58 @@ class System {
         $rs = $this->getActiveModules();
         $list = '';
         while (!$rs->EOF) {
-            $list .= "<li class='dropdown-submenu'>
+            $rsCat = $dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
+            if($rsCat->RecordCount() > 0){
+                $list .= "<li class='dropdown-submenu'>
                             <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
                             <ul class='dropdown-menu'>";
 
-            $rsCat = $dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
-            while (!$rsCat->EOF) {
-                $list .= "<li class='dropdown-submenu'>
+
+                while (!$rsCat->EOF) {
+                    $list .= "<li class='dropdown-submenu'>
                             <a tabindex='-1' href='#'>". $smarty->getConfigVars($rsCat->fields['cat_smarty']) ."</a>
                             <ul class='dropdown-menu'>";
 
-                $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
-                $groupperm = $dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
+                    $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
+                    $groupperm = $dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
 
-                if($groupperm){
-                    while (!$groupperm->EOF) {
-                        $allow = $groupperm->fields['allow'];
-                        $path  = $groupperm->fields['path'];
-                        $program = $groupperm->fields['program'];
-                        $controller = $groupperm->fields['controller'];
-                        $prsmarty = $groupperm->fields['pr_smarty'];
+                    if($groupperm){
+                        while (!$groupperm->EOF) {
+                            $allow = $groupperm->fields['allow'];
+                            $path  = $groupperm->fields['path'];
+                            $program = $groupperm->fields['program'];
+                            $controller = $groupperm->fields['controller'];
+                            $prsmarty = $groupperm->fields['pr_smarty'];
 
-                        if ($allow == 'Y') {
                             $checkbar = substr($groupperm->fields['controller'], -1);
                             if($checkbar != "/") $checkbar = "/";
                             else $checkbar = "";
-                            $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
-                        }
 
-                        $groupperm->MoveNext();
+                            $controllertmp = ($checkbar != "") ? $controller : substr($controller,0,-1);
+                            $controller_path = 'app/modules/' . $path . '/controllers/' . $controllertmp . 'Controller.php';
+
+                            if (!file_exists($controller_path)) {
+                                $this->logIt("The controller does not exist: " . $controller_path. ' - program: '. $this->program ,3,'general',__LINE__);
+                            }else{
+                                if ($allow == 'Y') {
+
+                                    $list .="<li><a href='" . $this->helpdezkUrl . "/".$path."/" . $controller . $checkbar."index' >" . $smarty->getConfigVars($prsmarty) . "</a></li>";
+                                }
+                            }
+
+                            $groupperm->MoveNext();
+                        }
                     }
+                    $list .= "</ul>
+                </li>";
+                    $rsCat->MoveNext();
                 }
+
                 $list .= "</ul>
                 </li>";
-                $rsCat->MoveNext();
+
             }
 
-            $list .= "</ul>
-                </li>";
             $rs->MoveNext();
         }
         //echo $list;
