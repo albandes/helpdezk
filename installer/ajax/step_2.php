@@ -1,4 +1,8 @@
 <?php
+/**
+ * Date: 01/07/2019
+ * Time: 16:47
+ */
 error_reporting(E_ERROR | E_PARSE);
 
 $install_dir	    = "installer/";
@@ -7,268 +11,230 @@ $smartycache_dir 	= "system/templates_c/";
 $log_dir			= "logs/";
 $config_file		= "includes/config/config.php" ;
 
+if ( !isset($_POST['i18n']) )
+    die('Language not set.');
+else
+    $lang = $_POST['i18n'];
+
+
 include ("../lang/". $_POST['i18n'] . ".php" ."");
 
-//echo $_POST['i18n'];
-//session_start();
-//session_destroy();
-/*
-session_start();
-if (	session_register("LANG") !=  $_POST['i18n']  ) 
+if (DIRECTORY_SEPARATOR=='/')
+    $absolute_path = dirname(__FILE__).'/';
+else
+    $absolute_path = str_replace('\\', '/', dirname(__FILE__)).'/';
+
+
+if (strnatcmp(phpversion(),'7.0.0') >= 0)
 {
-die('entrou');
-	$LANG = $_POST['i18n'];
-	session_register("LANG");   
-}
-*/
-
-
-
-if (DIRECTORY_SEPARATOR=='/') 
-  $absolute_path = dirname(__FILE__).'/'; 
-else 
-  $absolute_path = str_replace('\\', '/', dirname(__FILE__)).'/'; 
-  
-  
-if (strnatcmp(phpversion(),'5.2.0') >= 0)
-{
-	# equal or newer
-	$status = OK;
-	$class  = "pass";
+    $statPHP = phpversion() . '&nbsp; - ' . OK ;
+    $linePHP = '<span class="label label-primary">1</span> PHP Version' ;
 }
 else
 {
-	# not sufficiant
-	$status = NOT_OK;
-	$class  = "fail";
-} 
-	
-$srv = 	"
-			<div class=\"first odd\">
-				<label>PHP Version</label>
-				<div class=\"value\"> ". phpversion(). " <span class=\" ".$class." \">". $status ."</span></div>
-				<div class=\"clear\"></div>
-			</div>
-
-		";
-
-if (ini_get('file_uploads'))
-{
-	# equal or newer
-	$value  = "YES";
-	$status = OK;
-	$class  = "pass";
-}
-else
-{
-	# not sufficiant
-	$value  = "NO";
-	$status = NOT_OK;
-	$class  = "fail";
-} 
-
-$srv .= 	"
-			<div class=\"even\">
-				<label>file_upload</label>
-				<div class=\"value\"> ".$value. " <span class=\" ".$class." \">". $status ."</span></div>
-				<div class=\"clear\"></div>
-			</div>
-
-		";
-
-
-$srv .= 	"
-			<div class=\"odd\">
-				<label>upload_max_filesize</label>
-				<div class=\"value\"> ".ini_get('upload_max_filesize')."</div>
-				<div class=\"clear\"></div>
-			</div>
-
-		";		
-
-if (function_exists('mysql_connect')){
-	$mysql = true;
-	$status = ENABLE;
-	$class  = "pass";
-} 
-else
-{
-	$status = DISABLE;
-	$class  = "fail";
+    $statPHP = phpversion() . '&nbsp; - ' . OK ;
+    $linePHP = '<span class="label label-primary">1</span> PHP Version' ;
 }
 
-$mdl =	"	
-			<div class=\"first odd\">
-				<label>MySQL</label>
-				<div class=\"value\">	". $status."</div>
-				<div class=\"clear\"></div>
-		";
+if (ini_get('file_uploads')) {
+    $statUpl =  OK ;
+    $lineUpl = '<span class="label label-primary">2</span> file_upload (php.ini)' ;
+} else {
+    $statUpl = NOT_OK ;
+    $lineUpl = '<span class="label label-danger">2</span> file_upload (php.ini)' ;
+}
 
-/**
- **		
- ** Config file
- **
- **/
+if (ini_get('upload_max_filesize')) {
+    $statMax =  ini_get('upload_max_filesize') . '&nbsp;- ' .OK ;
+    $lineMax = '<span class="label label-primary">3</span> upload_max_filesize (php.ini)' ;
+} else {
+    $statMax = NOT_OK ;
+    $lineMax = '<span class="label label-danger">3</span> upload_max_filesize (php.ini)' ;
+}
 
- 
+if (function_exists(mysqli_connect)) {
+    $statMysql =   "version: " . mysqli_get_client_version() . '&nbsp;- ' . OK ;
+    $lineMysql = '<span class="label label-primary">1</span> Mysqli '  ;
+} else {
+    $statMysql = NOT_OK ;
+    $lineMysql = '<span class="label label-danger">1</span> Mysqli)' ;
+}
+
+if (!empty(PDO::getAvailableDrivers())) {
+    foreach(PDO::getAvailableDrivers() AS $DRIVERS) :
+        $CountDrivers++;
+        $ARR_DRIVERS[$CountDrivers] = $DRIVERS;
+    endforeach;
+    $driversList = implode(',', $ARR_DRIVERS);
+    $statPdo =   "drivers: " . $driversList  . '&nbsp;- ' . OK ;
+    $linePdo = '<span class="label label-primary">2</span> Pdo '  ;
+} else {
+    $statPdo = NOT_OK ;
+    $linePdo = '<span class="label label-danger">2</span> Pdo' ;
+
+}
+if (DIRECTORY_SEPARATOR=='/')
+    $absolute_path = dirname(__FILE__).'/';
+else
+    $absolute_path = str_replace('\\', '/', dirname(__FILE__)).'/';
+
+
 $path = substr($absolute_path, 0, strpos($absolute_path, $install_dir)   );
 $name  = $path.$config_file;
-
 session_start() ;
 $_SESSION['config_file'] = $name;
 
 clearstatcache();
-// - aqui 
-/*
-if (!file_exists($name)) {
-	$mode	= "Not Exists";
-	$status = "FAIL"; 
-	$class  = "fail";
-} else {	
-	if (is_writable($name))	
-	{
-		$mode	= utf8_encode(WRITABLE);
-		$status = OK; 
-		$class  = "pass";
-	}
-	else
-	{
-		$mode	= utf8_encode(NOT_WRITABLE);
-		$status = NOT_OK; 
-		$class  = "fail";
-	}	
-}
+$aReturn = testeDir($path.$upload_dir,1);
+$statUploadDir = $aReturn['stat'];
+$lineUploadDir = $aReturn['line'];
 
-$fld .= "
-		<div class=\"first odd\">
-			<label>config.php</label>
-			<div class=\"value\">".$mode."<span class=\"".$class."\"> ".$status."</span>	</div>
-			<div class=\"clear\"></div>
-		</div>
-
-		";
-
-*/
-
-// Upload Dir		
-$name  = $path.$upload_dir;
 clearstatcache();
-if (!file_exists($name)) {
-	$mode	= "Not Exists";
-	$status = "FAIL"; 
-	$class  = "fail";
-} else {	
-	if (is_writable($name))	
-	{
-		$mode	= utf8_encode(WRITABLE);
-		$status = OK; 
-		$class  = "pass";
-	}
-	else
-	{
-		$mode	= utf8_encode(NOT_WRITABLE);
-		$status = NOT_OK; 
-		$class  = "fail";
-	}	
-}
-$fld .= "
-		<div class=\"even\">
-			<label>".$upload_dir."</label>
-			<div class=\"value\">".$mode."<span class=\"".$class."\"> ".$status."</span>	</div>
-			<div class=\"clear\"></div>
-		</div>
+$aReturn = testeDir($path.$smartycache_dir,2);
+$statSmarty = $aReturn['stat'];
+$lineSmarty = $aReturn['line'];
 
-		";		
-		
-// Smarty Cache Dir		
-$name  = $path.$smartycache_dir;
 clearstatcache();
-if (!file_exists($name)) {
-	$mode	= "Not Exists";
-	$status = "FAIL"; 
-	$class  = "fail";
-} else {	
-	if (is_writable($name))	
-	{
-		$mode	= utf8_encode(WRITABLE);
-		$status = OK; 
-		$class  = "pass";
-	}
-	else
-	{
-		$mode	= utf8_encode(NOT_WRITABLE);
-		$status = NOT_OK; 
-		$class  = "fail";
-	}	
-}
-$fld .= "
-		<div class=\"odd\">
-			<label>".$smartycache_dir."</label>
-			<div class=\"value\">".$mode."<span class=\"".$class."\"> ".$status."</span>	</div>
-			<div class=\"clear\"></div>
-		</div>
+$aReturn = testeDir($path.$log_dir,3);
+$statLog = $aReturn['stat'];
+$lineLog = $aReturn['line'];
 
-		";		
-// Log Dir		
-$name  = $path.$log_dir;
-clearstatcache();
-if (!file_exists($name)) {
-	$mode	= "Not Exists";
-	$status = "FAIL"; 
-	$class  = "fail";
-} else {	
-	if (is_writable($name))	
-	{
-		$mode	= utf8_encode(WRITABLE);
-		$status = OK; 
-		$class  = "pass";
-	}
-	else
-	{
-		$mode	= utf8_encode(NOT_WRITABLE);
-		$status = NOT_OK; 
-		$class  = "fail";
-	}	
-}
-$fld .= "
-		<div class=\"even\">
-			<label>".$log_dir."</label>
-			<div class=\"value\">".$mode."<span class=\"".$class."\"> ".$status."</span>	</div>
-			<div class=\"clear\"></div>
-		</div>
+function testeDir($fileName,$seq)
+{
+    if (!file_exists($fileName)){
+        $stat = NOT_OK;
+        $line = '<span class="label label-danger">'.$seq.'</span> ' . $fileName ;
+    } else {
+        if (is_writable($fileName)) {
+            $stat = utf8_encode(WRITABLE) . " - " . OK;
+            $line = '<span class="label label-primary">'.$seq.'</span> ' . $fileName  ;
+        } else {
+            $stat = utf8_encode(NOT_WRITABLE) . " - " . NOT_OK;
+            $line = '<span class="label label-danger">'.$seq.'</span> ' . $fileName  ;
+        }
+    }
 
-		";		
-		
-		
+    return array('stat' => $stat, 'line' => $line);
+}
+
 ?>
 
-	<div class="progress">
-		<?php echo utf8_encode(PROGRESS_STEP_2) ?>
-	</div>
-						
-	<div class="sections">
-		<div class="info">
-			<?php echo utf8_encode(INFO_STEP_2) ?>
-		</div>
-		<h2><?php echo utf8_encode(PHP_SETTINGS) ?></h2>
-		<div class="grid">
-			<?php echo $srv ?>
-		</div>		
-		<h2><?php echo utf8_encode(PHP_MODULES) ?></h2>
-		<div class="grid">
-			<?php echo $mdl ?>
-		</div>
-	</div>
-	
-	<h2><?php echo utf8_encode(FOLDERS_FILES) ?></h2>
-	<div class="grid widegrid">
-		<?php echo $fld; ?>
-	</div>
-	<div class="buttons">
-		<button class="button button-back" onclick="step_1()" ><?php echo BACK ?></button>
-		<button class="button button-next" onclick="step_3('<?php echo $_POST['i18n'] ?>')" ><?php echo NEXT ?></button>
-	</div>
-		
-	<div class="clear"></div>
-	<div class="clear"></div>
+
+<div id=content class="col-md-8">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><?php echo utf8_encode(PROGRESS_STEP_2) ?></h5>
+        </div>
+        <div class="ibox-content">
+            <div>
+                <div class="feed-activity-list">
+                    <div class="feed-element">
+                        <div class="media-body ">
+                            <form method="get" class="form-horizontal">
+                                <div class="col-sm-12">
+                                    <h5><?php echo INFO_STEP_2 ?></h5>
+                                </div>
+
+                                <div class="form-group">
+                                    <!-- -->
+                                    <div class="row  border-bottom white-bg dashboard-header">
+                                        <div class="col-sm-12">
+
+                                            <?php echo PHP_SETTINGS ?>
+                                            <ul class="list-group clear-list m-t">
+                                                <li class="list-group-item fist-item">
+                                                        <span class="pull-right">
+                                                            <?php echo $statPHP ?>
+                                                        </span>
+                                                    <?php echo $linePHP ?>
+                                                </li>
+                                                <li class="list-group-item">
+                                                        <span class="pull-right">
+                                                            <?php echo $statUpl ?>
+                                                        </span>
+                                                    <?php echo $lineUpl ?>
+                                                </li>
+                                                <li class="list-group-item ">
+                                                            <span class="pull-right">
+                                                                <?php echo $statMax ?>
+                                                            </span>
+                                                    <?php echo $lineMax ?>
+                                                </li>
+                                            </ul>
+
+                                            <?php echo PHP_MODULES ?>
+                                            <ul class="list-group clear-list m-t">
+                                                <li class="list-group-item fist-item">
+                                                            <span class="pull-right">
+                                                                <?php echo $statMysql ?>
+                                                            </span>
+                                                    <?php echo $lineMysql ?>
+                                                </li>
+                                                <li class="list-group-item ">
+                                                            <span class="pull-right">
+                                                                <?php echo $statPdo ?>
+                                                            </span>
+                                                    <?php echo $linePdo ?>
+                                                </li>
+
+                                            </ul>
+
+
+                                            <?php echo FOLDERS_FILES ?>
+                                            <ul class="list-group clear-list m-t">
+                                                <li class="list-group-item fist-item">
+                                                            <span class="pull-right">
+                                                                <?php echo $statUploadDir ?>
+                                                            </span>
+                                                    <?php echo $lineUploadDir ?>
+                                                </li>
+                                                <li class="list-group-item">
+                                                            <span class="pull-right">
+                                                                <?php echo $statSmarty ?>
+                                                            </span>
+                                                    <?php echo $lineSmarty ?>
+                                                </li>
+
+                                                <li class="list-group-item">
+                                                            <span class="pull-right">
+                                                                <?php echo $statLog ?>
+                                                            </span>
+                                                    <?php echo $lineLog ?>
+
+
+                                            </ul>
+
+                                        </div>
+
+                                    </div>
+                                    <!-- -->
+
+
+
+
+                                </div>
+
+                            </form>
+
+                            <div class="row">
+
+                                <div class="col-xs-1"></div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="step_1('<?php echo $_POST['i18n'] ?>')">
+                                        <i class="fa fa-arrow-left"></i>&nbsp;<?php echo BACK ?></button>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="step_3('<?php echo $_POST['i18n'] ?>')">
+                                        <i class="fa fa-arrow-right"></i>&nbsp;<?php echo NEXT ?></button>
+                                </div>
+                            </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 

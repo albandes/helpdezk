@@ -1,271 +1,120 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
-<title>HELPDEZK Setup Wizard</title>
-<link type="text/css" rel="stylesheet" href="css/style.css" />
-<script src="js/jquery-1.7.1.min.js"  type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
-<script   type="text/javascript">
-var step = 1;
+    <title>Helpdezk | Installer</title>
 
-$(document).ready(function ()
-{
-	step_1();
-})
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 
-function step_1(){
-	
-	$.ajax( 
-    { 
-        type: "POST", 
-        url:  "ajax/step_1.php", 
-        success: 
-            function(ret) 
-            { 
-                //$('#mostra').empty().append(t); 
-				$('#content').html(ret);
-            }, 
-        error: 
-            function() 
-            { 
-                $('#content').html("An error occured during processing"); 
-            } 
-			
-    });
-		
-}
 
-function step_2(lang){
-	  
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_2.php", 
-		data: 	{
-				i18n:lang
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#content').html(ret);
-				$('#etapa1').removeClass("current").addClass("completed");
-				$('#etapa2').removeClass("next").addClass("current");
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });	
-}
+    <script src="js/jquery-3.4.1.min.js"  type="text/javascript"></script>
+    <script src="js/bootstrap.js"  type="text/javascript"></script>
 
-function step_3(lang){
-	
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_3.php", 
-		data: 	{
-				i18n:lang
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#content').html(ret);
-				$('#etapa2').removeClass("current").addClass("completed");
-				$('#etapa3').removeClass("next").addClass("current");
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });	
-}
+    <script src="js/installer.js" type="text/javascript"></script>
+    <script src="js/jquery.validate.min.js" type="text/javascript"></script>
 
-function step_4(lang){
-	
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_4.php", 
-		data: 	{
-				i18n:lang,
-				site_url:$("#field_site_url").val(),
-				lang_default:$("#field_language_default").val(),
-				theme_default:$("#field_theme_default").val()
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#content').html(ret);
-				$('#etapa3').removeClass("current").addClass("completed");
-				$('#etapa4').removeClass("next").addClass("current");	
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });	
-}
+    <script   type="text/javascript">
 
-function step_5(lang){
-	//alert ($("#field_db_hostname").val());
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_5.php", 
-		data: 	{
-				i18n:lang,
-				db_hostname:$("#field_db_hostname").val(),
-				db_port:$("#field_db_port").val() ,
-				db_name:$("#field_db_name").val() ,
-				db_username:$("#field_db_username").val(),
-				db_password:$("#field_db_password").val()
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#content').html(ret);
-				$('#etapa4').removeClass("current").addClass("completed");
-				$('#etapa5').removeClass("next").addClass("current");
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });	
-}
 
-function step_6(lang){
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_6.php", 
-		data: 	{
-				i18n:lang,
-				admin_username:$("#field_admin_username").val(),
-				admin_password:$("#field_admin_password").val() ,
-				admin_email:$("#field_admin_email").val() 
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#content').html(ret);
-				$('#etapa5').removeClass("current").addClass("completed");
-				$('#etapa6').removeClass("next").addClass("current");
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });	
-}
-
-function step_7(lang){
-
-	
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_7.php", 
-		data: 	{
-				i18n:lang
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#content').html(ret);
-				$('#etapa6').removeClass("current").addClass("completed");
-				$('#etapa7').removeClass("next").addClass("current");
-
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });	
-
-	$.ajax( 
-    { 
-        type: "POST", 
-        url: "ajax/step_7_proced.php", 
-		data: 	{
-				i18n:lang
-				},	
-        success: 
-            function(ret) 
-            {
-				$('#install_status').html(ret);
-				//$('#etapa6').removeClass("current").addClass("completed");
-				$('#etapa7').removeClass("current").addClass("completed");
-            }, 
-        error: 
-            function() 
-            { 
-                alert("An error occured during processing"); 
-            } 
-			
-    });		
-}
-
-</script>
+    </script>
 
 
 </head>
+
+
+
+
 <body>
 
-<div id="container">
-	<div id="page" style='overflow:auto;'>
-		<div id="header">
-			<h1>HELPDEZK Setup Wizard </h1>
-			<p>This wizard will guide you through the installation process</p>
-		</div>
-		<div id="sidebar">
-			<div class="progress">
-				<ul>
-					<li id="etapa1" class="current">
-						Select your language						
-					</li>
-					<li id="etapa2" class="next">
-						Server requirements						
-					</li>
-					<li id="etapa3" class="next">
-						Website URL						
-					</li>
-					<li id="etapa4" class="next">
-						Database settings						
-					</li>
-					<li id="etapa5" class="next">
-						Administrator account						
-					</li>
-					<li id="etapa6" class="next">
-						Ready to install					
-					</li>
-					<li id="etapa7" class="next">
-						Installing						
-					</li>
-				</ul>
-			</div>
-		</div>
-		
-		<div id="content">
-		
-		</div>
-	</div>	
+<div  >
+
+    <div  class="gray-bg">
+
+
+
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10 ">
+                <img alt="image" class="img-responsive" src="images/header.png" width="15%" height="15%">
+            </div>
+            <div class="col-lg-10">
+                <h2>Helpdezk Installer</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        This wizard will guide you through the installation process.
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+
+
+        <div class="wrapper wrapper-content">
+            <div class="row ">
+                <div class="col-md-4">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Steps</h5>
+                        </div>
+                        <div>
+                            <div class="ibox-content no-padding border-left-right">
+
+                            </div>
+
+                            <div class="ibox-content no-padding border-left-right">
+
+                            </div>
+                            <div class="ibox-content profile-content">
+
+
+                                <h4><div id="etapa1" class="fa fa-square"></div>&nbsp; Select your language</h4></p>
+                                <h4><div id="etapa2" class="fa fa-square"></div>&nbsp; Server requirements</h4></p>
+                                <h4><div id="etapa3" class="fa fa-square"></div>&nbsp; Website URL</h4></p>
+                                <h4><div id="etapa4" class="fa fa-square"></div>&nbsp; Database settings</h4></p>
+                                <h4><div id="etapa5" class="fa fa-square"></div>&nbsp; Administrator account</h4></p>
+                                <h4><div id="etapa6" class="fa fa-square"></div>&nbsp; Ready to install</h4></p>
+                                <h4><div id="etapa7" class="fa fa-square"></div>&nbsp; Installing</h4></p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id=content class="col-md-8">
+
+
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="pull-right">
+                <strong>Community version</strong>.
+            </div>
+            <div>
+                <strong>Copyright</strong> Example Company &copy; 2014-2015
+            </div>
+        </div>
+
+
+    </div>
 </div>
-	<div id="footer"><a href="http://www.helpdezk.org" target="_blank">Helpdezk </a> &copy; 2012</div>
+
+
+
+
+
+
+
+
 </body>
+
 </html>

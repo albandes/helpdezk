@@ -1,4 +1,9 @@
 <?php
+/**
+ * Date: 04/07/2019
+ * Time: 11:18
+ */
+
 error_reporting(E_ERROR | E_PARSE);
 
 include ("../lang/". $_POST['i18n'] . ".php" ."");
@@ -10,85 +15,104 @@ $_SESSION['db_name']     = $_POST['db_name'];
 $_SESSION['db_username'] = $_POST['db_username'];
 $_SESSION['db_password'] = $_POST['db_password'];
 
+
+
 ?>
-
-
-<script src="../installer/js/password_strength/password_strength.js" type="text/javascript"></script>
-<link type="text/css" rel="stylesheet" href="../installer/password_strength.css" />
-
-
-
 <script   type="text/javascript">
+    $("#form_admin").validate({
+        ignore:[],
+        rules: {
+            admin_username: {required:true},
+            admin_password: {required:true},
+            admin_email: {
+                required:true,
+                email: true
+            }
+        },
+        messages: {
+            admin_username:{required:'<?Php echo REQUIRED_FIELD ?>'},
+            admin_password:{required:'<?Php echo REQUIRED_FIELD ?>'},
+            admin_email:{required:'<?Php echo REQUIRED_FIELD ?>'}
+        }
+    });
 
-$(document).ready(function ()
-{
-	$(".field_admin_password").passStrength({
-		
-		shortPass: 		"top_shortPass",
-		badPass:		"top_badPass",
-		goodPass:		"top_goodPass",
-		strongPass:		"top_strongPass",
-		baseStyle:		"top_testresult",
-		
-		userid:			"#field_admin_username",
-		messageloc:		0,
-		
-		label_shortPass: 	'<?php echo SHORT_PASS?>',
-		label_badPass: 		'<?php echo BAD_PASS?>',
-		label_goodPass: 	'<?php echo GOOD_PASS?>',
-		label_strongPass: 	'<?php echo STRONG_PASS?>',
-		label_samePassword: '<?php echo SAME_PASS?>'
-	
-	});
-	
 
-})
+    $("#button_step_6").click(function(){
+        //if (!$("#form_admin").valid()) {
+        //    return false ;
+        //} else {
+            step_6('<?php echo $_POST['i18n'] ?>');
+        //}
+    });
+
 
 </script>
 
-	<div class="progress">
-		<?php echo utf8_encode(PROGRESS_STEP_5) ?>		
-	</div>
-						
-	<div class="sections">
-		<div class="info">
-			<?php echo utf8_encode(INFO_STEP_5) ?>
-		</div>
-	
-		<div class="row">
-			<label for="field_admin_username" ><?php echo utf8_encode(ADMIN_USERNAME) ?></label>
-			<div class="field">
-				<input type="text" id="field_admin_username" name="admin_username"   class="text" value="admin"/>
-			</div>
-		</div>
-		
-		<div class="row">
-			<label for="field_admin_password" ><?php echo utf8_encode(ADMIN_PASSWORD) ?></label>
-			<div class="field">
-				<input type="text" id="field_admin_password" name="admin_password"   class="text field_admin_password" value="1234" />
-			</div>
-		</div>
+<div id=content class="col-md-12">
 
-		<div class="row">
-			<label for="field_admin_email" ><?php echo utf8_encode(ADMIN_EMAIL) ?></label>
-			<div class="field">
-				<input type="text" id="field_admin_email" name="admin_email" class="text" value="user@domain.com" />
-			</div>
-		</div>
-		<div class="clear"></div>
-		
-		<div class="clear"></div>
-		<div class="clear"></div>
-		
+    <div class="ibox float-e-margins">
+        <div class="ibox-title"> <h5><?php echo PROGRESS_STEP_5 ?></h5> </div>
+        <div class="ibox-content">
+            <div>
+                <div class="feed-activity-list">
+                    <div class="feed-element">
+                        <div class="media-body ">
+                            <form role="form" method="post" class="form-horizontal" name="form_admin" id="form_admin">
+                                <div class="col-lg-12">
+                                    <h5><?php echo INFO_STEP_5 ?></h5>
+                                </div>
 
-		
-	</div>
-		<div class="buttons">
-			<button class="button button-back" onclick="step_4('<?php echo $_POST['i18n'] ?>')" ><?php echo BACK ?></button>
-			<button class="button button-next" onclick="step_6('<?php echo $_POST['i18n'] ?>')" ><?php echo NEXT ?></button>
-		</div>
-		
-		<div class="clear"></div>
+                                <div class="form-group">&nbsp;</div>
 
-	<div class="clear"></div>
+
+                                <div class="col-lg-12">
+                                    <?php echo ADMIN_CONFIGURE ?>
+                                    <div class="hr-line-dashed"></div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><?php echo ADMIN_USERNAME ?></label>
+                                    <div class="col-sm-9"><input type="text" id="admin_username" name="admin_username" class="form-control" value="<?php echo $pageURL ?>" ></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><?php echo ADMIN_PASSWORD ?></label>
+                                    <div class="col-sm-9"><input type="text" id="admin_password" name="admin_password" class="form-control" value="<?php echo $pageURL ?>" ></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><?php echo ADMIN_EMAIL ?></label>
+                                    <div class="col-sm-9"><input type="text" id="admin_email" name="admin_email" class="form-control" value="<?php echo $pageURL ?>" ></div>
+                                </div>
+
+                                <div class="col-sm-6"></div>
+
+                        </div>
+
+
+
+                        <div class="row">
+                            <div class="col-lg-2"></div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="step_4('<?php echo $_POST['i18n'] ?>')">
+                                    <i class="fa fa-arrow-left"></i>&nbsp;<?php echo BACK ?></button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary btn-sm" type="button" id="button_step_6" onclick="">
+                                    <i class="fa fa-arrow-right"></i>&nbsp;<?php echo NEXT ?></button>
+                            </div>
+                        </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
 
