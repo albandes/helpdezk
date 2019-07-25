@@ -6,39 +6,41 @@ define ('ENABLE',			'Dispon&iacute;vel');
 define ('DISABLE',			'Indisispon&iacute;vel');
 define ('OK',				'SUCESSO');
 define ('NOT_OK',			'FALHA');
+define ('REQUIRED_FIELD' ,  'Preenchimento obrigatÃ³rio');
 
-define ('PROGRESS_STEP_1', 	'Step 1 out of 7 - Select your language');
-define ('INFO_STEP_1',     	'To begin, please select the preferred language and click on "Next".');
+define ('PROGRESS_STEP_1', 	'Etapa 1 de 7 - Selecione o idioma.');
+define ('INFO_STEP_1',     	'Para comeÃ§ar, selecione o idioma preferido e clique em "Pr&oacute;ximo".');
 define ('LABEL_LANGUAGE',  	'Language');
 
 define ('PROGRESS_STEP_2', 	'Etapa 2 de 7 - Requisitos do servidor');
-define ('INFO_STEP_2',     	'Antes de prosseguir com a instalação completa, vamos realizar alguns testes na configuração de seu servidor para garantir que você é capaz de instalar e executar o nosso software. Por favor, leia cuidadosamente através dos resultados e não prossiga até que todos os testes exigidos sejam realizados com sucesso.');
-define ('PHP_SETTINGS', 	'Configurações do PHP');
-define ('PHP_MODULES',  	'Módulos do PHP');
+define ('INFO_STEP_2',     	'Antes de prosseguir com a instalaÃ§Ã£o completa, vamos realizar alguns testes na configuraÃ§Ã£o de seu servidor para garantir que vocÃª Ã© capaz de instalar e executar o nosso software. Por favor, leia cuidadosamente atravÃ©s dos resultados e nÃ£o prossiga atÃ© que todos os testes exigidos sejam realizados com sucesso.');
+define ('PHP_SETTINGS', 	'ConfiguraÃ§Ãµes do PHP');
+define ('PHP_MODULES',  	'MÃ³dulos do PHP');
 define ('FOLDERS_FILES', 	'Pastas e arquivos');
-define ('WRITABLE',			'Permissão para Gravação');
-define ('NOT_WRITABLE',		'Sem Permissão para Gravação');
+define ('WRITABLE',			'PermissssÃ£o para GravaÃ§Ã£o');
+define ('NOT_WRITABLE',		'Sem PermissÃ£o para GravaÃ§Ã£o');
 
 define ('PROGRESS_STEP_3', 	'Etapa 3 de 7 - Website URL');
-define ('INFO_STEP_3',     	'Nós já pré-definimos automaticamente a url para acesso ao HELPDEZK. Por favor verifique se está tudo correto antes de continuar para o próximo passo. ');
-define ('WEB_URL_THEME', 	'Website URL - Configuração de temas e idioma');
+define ('INFO_STEP_3',     	'NÃ¡s jÃ¡ prÃ©-definimos automaticamente a url para acesso ao HELPDEZK. Por favor verifique se estÃ¡ tudo correto antes de continuar para o prÃ³ximo passo. ');
+define ('WEB_URL_THEME', 	'Website URL - ConfiguraÃ§Ã£o de temas e idioma');
 define ('HDK_URL', 			'Helpdezk URL');
-define ('LANGUAGE', 		'Idioma padrão');
-define ('TIMEZONE', 		'Time Zone padrão');
-define ('THEME', 		    'Tema padrão');
+define ('LANGUAGE', 		'Idioma padrÃ£o');
+define ('TIMEZONE', 		'Time Zone padrÃ£o');
+define ('THEME', 		    'Tema padrÃ£o');
 
-define ('PROGRESS_STEP_4', 	'Etapa 4 de 7 - Configurações do Banco de Dados');
-define ('INFO_STEP_4',     	'Especifique as configurações de seu banco de dados aqui. Observe que o banco de dados já deve estar criado antes desta etapa. Se não criou, por favor, crie agora.');
-
+define ('PROGRESS_STEP_4', 	'Etapa 4 de 7 - ConfiguraÃ§Ãµes do Banco de Dados');
+define ('INFO_STEP_4',     	'Especifique as configuraÃ§Ãµes de seu banco de dados aqui. Observe que o banco de dados jÃ¡ deve estar criado antes desta etapa. Se nÃ£o criou, por favor, crie agora.');
+define ('DB_CONFIGURE',		'ConfiguraÃ§Ãµes do servidor do banco de dados');
 define ('DB_HOSTNAME', 		'Servidor do Banco de Dados');
 define ('DB_PORT',     		'Porta ');
-define ('DB_USERNAME', 		'Usuário do Banco de Dados');
+define ('DB_USERNAME', 		'UsuÃ¡rio do Banco de Dados');
 define ('DB_PASSWORD', 		'Senha do Banco de Dados');
 define ('DB_NAME', 			'Nome do Banco de Dados');
 
 define ('PROGRESS_STEP_5', 	'Etapa 5 de 7 - Conta do Administrador');
-define ('INFO_STEP_5',     	'Você agora irá configurar a conta do administrador. Esta conta que permitirá gerenciar o HELPDEZK através do módulo de administração.');
-define ('ADMIN_USERNAME',  	'Usuário');
+define ('INFO_STEP_5',     	'VocÃª agora irÃ¡ configurar a conta do administrador. Esta conta que permitirÃ¡ gerenciar o HELPDEZK atravÃ©s do mÃ³dulo de administraÃ§Ã£o.');
+define ('ADMIN_CONFIGURE', 	'ConfiguraÃ§Ã£o da conta de administrador');
+define ('ADMIN_USERNAME',  	'UsuÃ¡rio');
 define ('ADMIN_PASSWORD',  	'Senha');
 define ('ADMIN_EMAIL', 	   	'Email do Administrador');
 
@@ -46,16 +48,16 @@ define ('SHORT_PASS', 	   	'Muito pequena');
 define ('BAD_PASS', 	   	'Fraca');
 define ('GOOD_PASS', 	   	'Boa');
 define ('STRONG_PASS', 	   	'Forte');
-define ('SAME_PASS', 	   	'Usuario e Senha são iguais');
+define ('SAME_PASS', 	   	'Usuario e Senha sÃ£o iguais');
 
 define ('PROGRESS_STEP_6', 	'Etapa 6 out of 7 - Pronto para instalar');
-define ('INFO_STEP_6',     	'Agora estamos prontos para prosseguir com a instalação. Nesta etapa vamos tentar criar todas as tabelas necessárias e preenchê-los com dados. Caso ocorra algum problema,  volte para a Etapa 4 de 7 - Configurações do Banco de Dados e  certifique-se que tudo está correto.');
+define ('INFO_STEP_6',     	'Agora estamos prontos para prosseguir com a instalaÃ§Ã£o. Nesta etapa vamos tentar criar todas as tabelas necessÃ¡rias e preenchÃª-los com dados. Caso ocorra algum problema,  volte para a Etapa 4 de 7 - ConfiguraÃ§Ãµes do Banco de Dados e  certifique-se que tudo estÃ¡ correto.');
 define ('INSTALL', 		   	' INSTALAR ');
 
 define ('PROGRESS_STEP_7', 	'Step 7 out of 7 - Instalando');
-define ('WAIT_INSTALL',    	'Aguarde enquanto a instalação é realizada. Isto pode demorar alguns minutos ...');
-define ('CONFIG_CREATE',    'Arquivo de configuração criado com sucesso.');
+define ('WAIT_INSTALL',    	'SerÃ£o criadas as tabelas do banco de dados, as procedures e views. Aguarde enquanto a instalaÃ§Ã£o Ã© realizada. Isto pode demorar alguns minutos ...');
+define ('CONFIG_CREATE',    'Arquivo de configuraÃ§Ã£o criado com sucesso.');
 define ('ADMIN_CREATE',    	'Conta do Administrador criada com sucesso.');
 define ('DB_CREATE',       	'Todas as tabelas criadas com sucesso.');
-define ('URL_HDK',    	   	'O HELPDEZK está disponível em : ');
+define ('URL_HDK',    	   	'O HELPDEZK estÃ¡ disponÃ­vel em : ');
 ?>
