@@ -27,9 +27,9 @@
 DELIMITER $$
 
 
-DROP PROCEDURE IF EXISTS  `hkd_deleteRequestsForUser`$$
+DROP PROCEDURE IF EXISTS  `hdk_deleteRequestsForUser`$$
 
-CREATE PROCEDURE `hkd_deleteRequestsForUser`(IN person_ID INT)
+CREATE PROCEDURE `hdk_deleteRequestsForUser`(IN person_ID INT)
 
 delete_request:BEGIN
 

@@ -1,8 +1,9 @@
 
 CREATE
-    VIEW `vw_RequestData`
+    VIEW `hdk_viewRequestData`
     AS
 (
+
 SELECT
   req.code_request,
   req.expire_date,
@@ -50,8 +51,8 @@ SELECT
   are.idarea,
   are.name as area,
   (select
-  reason
-   from hdk_tbreason
+  name
+   from hdk_tbcore_reason
    where idreason = req.idreason) as reason,
   (select
   way
@@ -75,7 +76,7 @@ FROM
     hdk_tbdepartment_has_person AS dep_pers,
     hdk_tbrequest_in_charge AS inch
   )
-  LEFT JOIN hdk_tbreason AS reason
+  LEFT JOIN hdk_tbcore_reason AS reason
     ON (req.idreason = reason.idreason)
   LEFT JOIN hdk_tbgroup AS grp
     ON (resp.idperson = grp.idperson)
