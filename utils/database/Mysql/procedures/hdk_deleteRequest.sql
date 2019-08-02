@@ -29,9 +29,9 @@
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS `hkd_deleteRequest`$$
+DROP PROCEDURE IF EXISTS `hdk_deleteRequest`$$
 
-CREATE PROCEDURE `hkd_deleteRequest`(
+CREATE PROCEDURE `hdk_deleteRequest`(
 	IN code_ID VARCHAR(20),
 	OUT msg VARCHAR(100)
 )

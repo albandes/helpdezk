@@ -45,6 +45,6 @@ BEGIN
 		DELETE FROM hdk_tbrequest_emailcron;
 		DELETE FROM hdk_tbrequest  ;
 
-    END$$
+END$$
 
 DELIMITER ;

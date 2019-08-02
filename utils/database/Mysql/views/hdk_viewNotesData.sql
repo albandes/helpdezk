@@ -1,6 +1,6 @@
 DELIMITER $$
 
-DROP VIEW IF EXISTS `vw_NotesData`
+DROP VIEW IF EXISTS `hdk_viewNotesData`
 
 $$
 

@@ -25,9 +25,9 @@
  */
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS `hkd_deleteUserWithoutRequests`$$
+DROP PROCEDURE IF EXISTS `hdk_deleteUserWithoutRequests`$$
 
-CREATE PROCEDURE `hkd_deleteUserWithoutRequests`(IN person_ID INT, OUT msg VARCHAR(100))
+CREATE PROCEDURE `hdk_deleteUserWithoutRequests`(IN person_ID INT, OUT msg VARCHAR(100))
 delete_user:BEGIN
 
 	DECLARE num_requests INT;
