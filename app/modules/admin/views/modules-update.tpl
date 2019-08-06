@@ -34,7 +34,8 @@
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
     {head_item type="js" src="$path/app/modules/admin/views/js/" files="createmodule.js"}
     <!-- Font Awesome -->
-    {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
+    {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     <!-- animate -->
     {head_item type="css" src="$path/css/" files="animate.css"}
 
@@ -135,141 +136,118 @@
 
 <body class="top-navigation">
 
-<div id="wrapper">
+    <div id="wrapper">
 
-    <div id="page-wrapper" class="gray-bg">
+        <div id="page-wrapper" class="gray-bg">
 
-        <div class="row border-bottom white-bg">
-            {include file=$navBar}
-        </div>
-
-        <div class="row border-bottom"> </div>
-
-
-
-        <div class="wrapper wrapper-content  ">
-            <div class="col-xs-12 white-bg" style="height:10px;"></div>
-
-            <div class="row wrapper    white-bg ">
-                <div class="col-sm-4">
-
-                    <h4>Cadastros / {$smarty.config.Modules} / <strong>{$smarty.config.edit}</strong></h4>
-
-                </div>
-                <div class="col-sm-8 text-right"">
-
-                &nbsp;
-
-            </div>
-        </div>
-
-        <div class="row wrapper  border-bottom white-bg ">
-            &nbsp;
-        </div>
-
-        <!-- First Line -->
-
-
-        <div class="col-xs-12 white-bg" style="height:10px;"></div>
-
-        <!-- Form area -->
-        <form method="get" class="form-horizontal" id="update-module-form">
-
-            <!-- Hidden -->
-            <input type="hidden" id="idmodule" name="idmodule" value="{$hidden_idmodule}" />
-            <input type="hidden" name="_token" id= "_token" value="{$token}">
-
-            <div class="row wrapper  white-bg ">
-
-                <div class="col-sm-2 b-l">
-                    <div class="text-center" style="height:50px;">
-                        {*<img alt="image" class="m-t-xs img-thumbnail" src="{$person_photo}">*}
-                        <div id="myDropzone" class="dropzone dz-default dz-message" ></div>
-                    </div>                    
-                </div>
-
-                <div class="col-sm-10 b-l">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">{$smarty.config.Module_name}:</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="txtName" name="txtName" class="form-control input-sm"  placeholder="{$plh_module_description}" value="{$module_description}" >
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">{$smarty.config.Module_path}:</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="txtPath" name="txtPath" class="form-control input-sm" required placeholder="{$plh_module_path}" value="{$module_path}" >
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">{$smarty.config.Smarty}:&nbsp;</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="txtSmartyVar" name="txtSmartyVar" class="form-control input-sm" required placeholder="{$plh_module_smartyvar}" value="{$module_smartyvar}" >
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">{$smarty.config.Table_prefix}:&nbsp;</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="txtPrefix" name="txtPrefix" class="form-control input-sm" required placeholder="{$plh_module_prefix}" value="{$module_prefix}" >
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label  class="col-sm-2 control-label" style="text-align: right;padding-right: 5px;">{$smarty.config.Module_default}?</label>
-                        <div class="checkbox i-checks"><label> <input type="checkbox" id="module-default" name="module-default" value="S" {$checkedval}> <i></i> &nbsp;{$smarty.config.Yes}</label></div>
-                    </div>
-                </div>
+            <div class="row border-bottom white-bg">
+                {include file=$navBar}
             </div>
 
-            <div class="row wrapper  white-bg ">
+            <div class="row border-bottom"> </div>
 
-                <div class="col-sm-1 b-l">
 
+            <div class="wrapper wrapper-content  ">
+                <div class="row wrapper white-bg ibox-title">
+                    <div class="col-sm-4">
+                        <h4>Cadastros / {$smarty.config.Modules} / <strong>{$smarty.config.edit}</strong></h4>
+                    </div>
                 </div>
 
-                <div class="col-sm-11 b-l">
-                    <div id="alert-update-module"></div>
+                <div class="row wrapper  border-bottom white-bg ">
+                    &nbsp;
                 </div>
-            </div>
+
+                <!-- First Line -->
 
 
-            <div class="row wrapper  white-bg ">
+                <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
-                <div class="col-sm-1 b-l">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="update-module-form">
 
-                </div>
-                <div class="col-sm-11 b-l">
-                    <div class="form-group">
+                    <!-- Hidden -->
+                    <input type="hidden" id="idmodule" name="idmodule" value="{$hidden_idmodule}" />
+                    <input type="hidden" name="_token" id= "_token" value="{$token}">
 
-                        <div class="col-sm-6">
-                            <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-circle-o-left" aria-hidden="true"></i> Volta </a>
+                    <div class="row wrapper  white-bg ">
+                        <div class="col-sm-2 b-l">
+                            <div class="text-center" style="height:50px;">
+                                {*<img alt="image" class="m-t-xs img-thumbnail" src="{$person_photo}">*}
+                                <div id="myDropzone" class="dropzone dz-default dz-message" ></div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-10 b-l">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$smarty.config.Module_name}:</label>
+                                <div class="col-sm-5">
+                                    <input type="text" id="txtName" name="txtName" class="form-control input-sm"  placeholder="{$plh_module_description}" value="{$module_description}" >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$smarty.config.Module_path}:</label>
+                                <div class="col-sm-5">
+                                    <input type="text" id="txtPath" name="txtPath" class="form-control input-sm" required placeholder="{$plh_module_path}" value="{$module_path}" >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$smarty.config.Smarty}:&nbsp;</label>
+                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="right" title="{$smarty.config.Alert_add_program_title}">
+                                    <input type="text" id="txtSmartyVar" name="txtSmartyVar" class="form-control input-sm" required placeholder="{$plh_module_smartyvar}" value="{$module_smartyvar}" >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$smarty.config.Table_prefix}:&nbsp;</label>
+                                <div class="col-sm-5">
+                                    <input type="text" id="txtPrefix" name="txtPrefix" class="form-control input-sm" required placeholder="{$plh_module_prefix}" value="{$module_prefix}" disabled >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label  class="col-sm-3 control-label">{$smarty.config.Module_default}?</label>
+                                <div class="checkbox i-checks"><label> <input type="checkbox" id="module-default" name="module-default" value="S" {$checkedval}> <i></i> &nbsp;{$smarty.config.Yes}</label></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper  white-bg ">
+                        <div class="col-sm-12 b-l">
+                            <div id="alert-update-module"></div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper  border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                    <div class="row wrapper  white-bg text-center">
+                        <div class="col-sm-12 form-group">
+                            <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> Volta </a>
                             <button type="button" class="btn btn-primary btn-md " id="btnUpdateModule" >
-                                <span class="fa fa-check"></span>  &nbsp;Envia
+                                <span class="fa fa-save"></span>  &nbsp;{$smarty.config.Save}
                             </button>
                         </div>
+                    </div>
 
-                        <div class="col-sm-3">
+                </form>
+                <!-- End form area -->
 
-                        </div>
+                <div class="row border-bottom white-bg ">
+                    <div class="footer">
+                        {include file=$footer}
                     </div>
                 </div>
+
             </div>
-
-        </form>
-        <!-- End form area -->
-
-        <div class="row border-bottom white-bg ">
-            <div class="row border-bottom">
-                <div class="footer">
-                    {include file=$footer}
-                </div>
-            </div>
+        </div>
+    </div>
 
 
-            {include file='modals/modules/modal-alert.tpl'}
+    {include file='modals/modules/modal-alert.tpl'}
 
 
 </body>

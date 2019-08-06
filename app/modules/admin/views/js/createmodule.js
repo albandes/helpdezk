@@ -26,7 +26,7 @@ $(document).ready(function () {
             dataType: 'json',
             data: $("#create-module-form").serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-create-module');
+                modalAlertMultiple('danger', makeSmartyLabel('Alert_failure'),'alert-create-module');
             },
             success: function(ret){
 
@@ -53,8 +53,16 @@ $(document).ready(function () {
 
                     $('#modal-alert-create').modal('show');
                 } else {
-                    modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-create-module');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-create-module');
                 }
+            },
+            beforeSend: function(){
+                $("#btnCreateModule").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnCancel").addClass('disabled');
+            },
+            complete: function(){
+                $("#btnCreateModule").html("<i class='fa fa-check-circle'></i> "+ makeSmartyLabel('Yes')).removeClass('disabled');
+                $("#btnCancel").removeClass('disabled');
             }
         });
     });
@@ -92,7 +100,7 @@ $(document).ready(function () {
 
                     $('#modal-notification').html(aLang['Edit_sucess'].replace (/\"/g, ""));
                     $("#btn-modal-ok").attr("href", path + '/admin/modules/index');
-                    $("#tipo_alerta").attr('class', 'alert alert-success');
+                    $("#tipo-alert").attr('class', 'alert alert-success');
                     $('#modal-alert').modal('show');
 
                 } else {
@@ -120,10 +128,10 @@ $(document).ready(function () {
             txtPrefix:      "required"
         },
         messages: {
-            txtName:        "Campo obrigat&oacute;rio",
-            txtPath:        "Campo obrigat&oacute;rio",
-            txtSmartyVar:   "Campo obrigat&oacute;rio",
-            txtPrefix:      "Campo obrigat&oacute;rio"
+            txtName:        makeSmartyLabel('Alert_field_required'),
+            txtPath:        makeSmartyLabel('Alert_field_required'),
+            txtSmartyVar:   makeSmartyLabel('Alert_field_required'),
+            txtPrefix:      makeSmartyLabel('Alert_field_required')
         }
     });
 
@@ -136,10 +144,10 @@ $(document).ready(function () {
             txtPrefix:      "required"
         },
         messages: {
-            txtName:        "Campo obrigat&oacute;rio",
-            txtPath:        "Campo obrigat&oacute;rio",
-            txtSmartyVar:   "Campo obrigat&oacute;rio",
-            txtPrefix:      "Campo obrigat&oacute;rio"
+            txtName:        makeSmartyLabel('Alert_field_required'),
+            txtPath:        makeSmartyLabel('Alert_field_required'),
+            txtSmartyVar:   makeSmartyLabel('Alert_field_required'),
+            txtPrefix:      makeSmartyLabel('Alert_field_required')
         }
     });
 
@@ -149,7 +157,7 @@ $(document).ready(function () {
     Dropzone.autoDiscover = false;
     var myDropzone = new Dropzone("#myDropzone", {  url: path + "/admin/modules/saveLogo/",
         method: "post",
-        dictDefaultMessage: aLang['Drag_image_msg'].replace (/\"/g, ""),
+        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('Drag_image_msg'),
         createImageThumbnails: true,
         maxFiles: 1,
         acceptedFiles: '.jpg, .jpeg, .png, .gif',
@@ -227,5 +235,7 @@ $(document).ready(function () {
         //sendNotification('new-ticket-user',global_coderequest,true);
         //console.log('Sent email, with attachments');
     });
+
+    $('.lbltooltip').tooltip();
 
 });

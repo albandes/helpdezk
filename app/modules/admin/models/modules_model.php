@@ -1,14 +1,14 @@
 <?php
 
-/*if(class_exists('Model')) {
-    class DynamicIndex_model extends Model {}
+if(class_exists('Model')) {
+    class DynamicModule_model extends Model {}
 } elseif(class_exists('cronModel')) {
-    class DynamicIndex_model extends cronModel {}
+    class DynamicModule_model extends cronModel {}
 } elseif(class_exists('apiModel')) {
-    class DynamicIndex_model extends apiModel {}
-}*/
+    class DynamicModule_model extends apiModel {}
+}
 
-class modules_model extends Model {
+class modules_model extends DynamicModule_model {
     public function insertModule($name, $path, $smarty,$prefix,$default=NULL){
         $fcond = isset($default) ? ', defaultmodule' : '';
         $vcond = isset($default) ? ", '$default'" : '';
@@ -70,8 +70,17 @@ class modules_model extends Model {
         
     }
 
-    public function updateModule($id,$set){
-        $query = "UPDATE tbmodule SET $set WHERE idmodule = '$id'";
+    public function updateModule($id,$name,$path,$smarty,$default=NULL){
+        $fcond = isset($default) ? ', defaultmodule = ' : '';
+        $vcond = isset($default) ? "'$default'" : '';
+           
+        
+        $query = "UPDATE tbmodule 
+                     SET name = '$name',
+                         path = '$path',
+                         smarty = '$smarty'
+                         $fcond $vcond
+                   WHERE idmodule = '$id'";
         $ret = $this->db->Execute($query);
 
         if ($this->db->ErrorNo() != 0) {
@@ -90,7 +99,42 @@ class modules_model extends Model {
         return $this->select("select idmodule from tbmodule where name='$name'");
     }
 
-    
+    public function removeDefault(){
+        $query = "UPDATE tbmodule SET defaultmodule = NULL WHERE defaultmodule = 'YES'";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function createConfigTables($prefix){
+        $query = "CALL adm_createConfigTables('$prefix')";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function deleteConfigTables($prefix){
+        $dbDelete = $this->getConfig('db_name');
+        $query = "CALL adm_deleteTables('$dbDelete','$prefix',@msg)";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
 
 }
 

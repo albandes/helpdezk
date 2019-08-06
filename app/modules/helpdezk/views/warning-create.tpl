@@ -333,13 +333,8 @@
 
 
             <div class="footer">
-            <div class="pull-right">
-                10GB of <strong>250GB</strong> Free.
+                {include file=$footer}
             </div>
-            <div>
-                <strong>Copyright</strong> Pipegrep &copy; 2014-2015
-            </div>
-        </div>
 </div>
 
 

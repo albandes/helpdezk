@@ -5069,6 +5069,25 @@ body.skin-3 {
 .chosen-container-multi .chosen-choices,
 input, textarea, [role=gridcell],
 select, #btnTimer,
+#dash_table [role=row],
 .note-editor {
   cursor:pointer;
+}
+
+.text-service {
+  color: #1ab394;
+  font-weight: bold;
+}
+
+.group-result {
+  color: #1ab394;
+  font-weight: bold;
+  background-color: #e7eaec;
+}
+
+.alert-hdk {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
 }

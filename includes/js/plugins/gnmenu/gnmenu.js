@@ -41,7 +41,7 @@
 		_initEvents : function() {
 			var self = this;
 
-			if( !mobilecheck() ) {
+			/*if( !mobilecheck() ) {
 				this.trigger.addEventListener( 'mouseover', function(ev) { self._openIconMenu(); } );
 				this.trigger.addEventListener( 'mouseout', function(ev) { self._closeIconMenu(); } );
 			
@@ -49,7 +49,7 @@
 					self._openMenu(); 
 					document.addEventListener( self.eventtype, self.bodyClickFn ); 
 				} );
-			}
+			}*/
 			this.trigger.addEventListener( this.eventtype, function( ev ) {
 				ev.stopPropagation();
 				ev.preventDefault();

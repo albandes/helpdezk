@@ -9,10 +9,34 @@ if(class_exists('Model')) {
 
 class features_model extends DynamicFeatures_model {
 
-//class features_model extends Model {
+    //class features_model extends Model {
 
-    public function getConfigs($cats) {
-        return $this->db->Execute("select conf.idconfig, conf.status, conf.value,conf.name as config_name, cat.smarty as cat_smarty, conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate from hdk_tbconfig conf, hdk_tbconfig_category cat where conf.idconfigcategory in($cats) and conf.idconfigcategory = cat.idconfigcategory order by cate");
+    public $database;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->database = $this->getConfig('db_connect');
+
+
+    }
+
+    public function getConfigs($prefix,$cats) {
+        $query = "SELECT conf.idconfig, conf.status, conf.value,conf.name as config_name, cat.smarty as cat_smarty, 
+                         conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate 
+                    FROM {$prefix}_tbconfig conf, {$prefix}_tbconfig_category cat 
+                   WHERE conf.idconfigcategory IN($cats) 
+                     AND conf.idconfigcategory = cat.idconfigcategory 
+                ORDER BY cate";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
     }
 
     public function activateConfig($id) {
@@ -28,14 +52,23 @@ class features_model extends DynamicFeatures_model {
     }
 	
 	public function getArrayConfigs($id) {
-        $conf = $this->select("select session_name,value from hdk_tbconfig where idconfigcategory = $id");
-        while (!$conf->EOF) {
-            $ses = $conf->fields['session_name'];
-            $val = $conf->fields['value'];
-            $emailConfs[$ses] = $val;
-            $conf->MoveNext();
+        $query = "SELECT session_name,value FROM tbconfig WHERE idconfigcategory = $id";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            while (!$ret->EOF) {
+                $ses = $ret->fields['session_name'];
+                $val = $ret->fields['value'];
+                $emailConfs[$ses] = $val;
+                $ret->MoveNext();
+            }
+            return $emailConfs;
         }
-        return $emailConfs;
+        
     }
 
     public function getEmailConfigs() {
@@ -73,14 +106,22 @@ class features_model extends DynamicFeatures_model {
 	
 	
     public function getTempEmail() {
-        $conf = $this->select("select session_name,description as value from hdk_tbconfig where idconfigcategory = 11");
-        while (!$conf->EOF) {
-            $ses = $conf->fields['session_name'];
-            $val = $conf->fields['value'];
-            $tempConfs[$ses] = $val;
-            $conf->MoveNext();
+        $query = "SELECT session_name,description AS value FROM tbconfig WHERE idconfigcategory = 11";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            while (!$ret->EOF) {
+                $ses = $ret->fields['session_name'];
+                $val = $ret->fields['value'];
+                $tempConfs[$ses] = $val;
+                $ret->MoveNext();
+            }
+            return $tempConfs;
         }
-        return $tempConfs;
     }
 
     public function getValueBySessionName($session_name) {
@@ -89,38 +130,41 @@ class features_model extends DynamicFeatures_model {
     }
 
     public function getIdBySessionName($session_name) {
-        $conf = $this->select("select idconfig from hdk_tbconfig where session_name = '$session_name'");
-        return $conf->fields['idconfig'];
+        $query = "SELECT idconfig FROM hdk_tbconfig WHERE session_name = '$session_name'";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret->fields['idconfig'];
+        }
     }
 
-    public function updateEmailConfigs($title, $host, $domain, $user, $pass, $auth, $sender, $header, $footer, $mailport) {
-        $database = $this->getConfig('db_connect');  
-        if ($database == 'mysqlt') {
-            $this->db->Execute("update hdk_tbconfig set `value` = '$host' where session_name = 'EM_HOSTNAME'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$domain' where session_name = 'EM_DOMAIN'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$user' where session_name = 'EM_USER'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$pass' where session_name = 'EM_PASSWORD'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$sender' where session_name = 'EM_SENDER'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$auth' where session_name = 'EM_AUTH'");      
-            $this->db->Execute("update hdk_tbconfig set description = '$header' where session_name = 'EM_HEADER'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$title' where session_name = 'EM_TITLE'");
-            $this->db->Execute("update hdk_tbconfig set `value` = '$mailport' where session_name = 'EM_PORT'");
+    public function updateConfigsVals($sessionName, $value) {
+        if ($this->database == 'mysqli') {
+            $query = "UPDATE tbconfig SET `value` = '$value' WHERE session_name = '$sessionName'";
 
+            $ret = $this->db->Execute($query);
 
-            $foot = $this->db->Execute("update hdk_tbconfig set description = '$footer' where session_name = 'EM_FOOTER'");
-        } elseif ($database == 'oci8po') {
-            $this->db->Execute("update hdk_tbconfig set value = '$host' where session_name = 'EM_HOSTNAME'");
-            $this->db->Execute("update hdk_tbconfig set value = '$domain' where session_name = 'EM_DOMAIN'");
-            $this->db->Execute("update hdk_tbconfig set value = '$user' where session_name = 'EM_USER'");
-            $this->db->Execute("update hdk_tbconfig set value = '$pass' where session_name = 'EM_PASSWORD'");
-            $this->db->Execute("update hdk_tbconfig set value = '$sender' where session_name = 'EM_SENDER'");
-            $this->db->Execute("update hdk_tbconfig set value = '$auth' where session_name = 'EM_AUTH'");      
-            $this->db->Execute("update hdk_tbconfig set description = RAWTOHEX('$header') where session_name = 'EM_HEADER'");
-            $this->db->Execute("update hdk_tbconfig set value = '$title' where session_name = 'EM_TITLE'");
-            $this->db->Execute("update hdk_tbconfig set value`= '$mailport' where session_name = 'EM_PORT'");
-            $foot = $this->db->Execute("update hdk_tbconfig set description = RAWTOHEX('$footer') where session_name = 'EM_FOOTER'");
-        }        
-        return $foot;
+            if ($this->db->ErrorNo() != 0) {
+                $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+                return false ;
+            }
+            
+        } elseif ($this->database == 'oci8po') {
+            $query = "UPDATE tbconfig SET `value` = '$value' WHERE session_name = '$sessionName'";
+
+            $ret = $this->db->Execute($query);
+
+            if ($this->db->ErrorNo() != 0) {
+                $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+                return false ;
+            }
+        }
+        //echo $query;        
+        return $ret;
     }
     
     public function updatePopConfigs($pophost, $popport, $poptype, $popdomain) {
@@ -177,5 +221,42 @@ class features_model extends DynamicFeatures_model {
     public function updateDeploy($idDeploy)
     {
         return $this->db->Execute("UPDATE tbdeploy SET dtdone = NOW() WHERE iddeploy = '$idDeploy' ") ;
+    }
+
+    public function updateConfig($id,$stval) {
+        $query = "UPDATE hdk_tbconfig SET value = '$stval' WHERE idconfig ='$id'";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function updateEmailConfigsHF($sessionName, $value) {
+        if ($this->database == 'mysqli') {
+            $query = "UPDATE tbconfig SET `description` = '$value' WHERE session_name = '$sessionName'";
+
+            $ret = $this->db->Execute($query);
+
+            if ($this->db->ErrorNo() != 0) {
+                $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+                return false ;
+            }
+            
+        } elseif ($this->database == 'oci8po') {
+            $query = "UPDATE tbconfig SET `description` = RAWTOHEX('$value') WHERE session_name = '$sessionName'";
+
+            $ret = $this->db->Execute($query);
+
+            if ($this->db->ErrorNo() != 0) {
+                $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+                return false ;
+            }
+        }        
+        return $ret;
     }
 }

@@ -45,6 +45,7 @@ class hdkWarning extends hdkCommon
         $smarty = $this->retornaSmarty();
 
         $this->makeNavVariables($smarty);
+        $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
 
         $smarty->display('warning.tpl');
@@ -149,6 +150,7 @@ class hdkWarning extends hdkCommon
         $smarty->assign('token', $token) ;
 
         $this->makeNavVariables($smarty);
+        $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->display('warning-create.tpl');
     }
@@ -168,7 +170,8 @@ class hdkWarning extends hdkCommon
         $smarty->assign('token', $token) ;
 
         $this->makeNavVariables($smarty);
-        $this->_makeNavHdk($smarty);
+        $this->makeFooterVariables($smarty);
+        $this->makeNavAdmin($smarty);
         $smarty->display('warning-update.tpl');
 
     }
@@ -597,7 +600,8 @@ class hdkWarning extends hdkCommon
         $smarty = $this->retornaSmarty();
 
         $this->makeNavVariables($smarty);
-        $this->_makeNavHdk($smarty);
+        $this->makeFooterVariables($smarty);
+        $this->makeNavAdmin($smarty);
         $smarty->display('warning-topic-grid.tpl');
     }
 

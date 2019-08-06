@@ -32,6 +32,7 @@ class Modules extends admCommon
     {
 
         $smarty = $this->retornaSmarty();
+        $smarty->assign('token', $this->_makeToken()) ;
 
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
@@ -239,32 +240,61 @@ class Modules extends admCommon
             return false;
         }        
         
-        $MODNAME = $_POST['txtName'];
-        $MODPATH = $_POST['txtPath'];
-        $MODPREFIX = $_POST['txtPrefix'];
-        $MODSMARTY = $_POST['txtSmartyVar'];
+        $MODNAME = addslashes($_POST['txtName']);
+        $MODPATH = addslashes($_POST['txtPath']);
+        $MODPREFIX = addslashes($_POST['txtPrefix']);
+        $MODSMARTY = addslashes($_POST['txtSmartyVar']);
         $MODDEFAULT = isset($_POST['module-default']) ? "YES" : NULL;
 
         $this->dbModule->BeginTrans();
 
         $check = $this->dbModule->checkName($MODNAME);
+        if(!$check){
+            if($this->log)
+                $this->logIt('Check if module exists - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
         if ($check->fields['idmodule']) {
             return false;
         } else {
+            if($MODDEFAULT == 'YES'){
+                $del = $this->dbModule->removeDefault();
+
+                if(!$del){
+                    $this->dbModule->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Remove Default Module - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+            }
+
             $ret = $this->dbModule->insertModule($MODNAME,$MODPATH,$MODSMARTY,$MODPREFIX,$MODDEFAULT);
 
             if(!$ret){
                 $this->dbModule->RollbackTrans();
+                if($this->log)
+                    $this->logIt('Insert Module - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                 return false;
-            }else{
-                $this->dbModule->CommitTrans();
-                $id_module = $this->dbHoliday->TableMaxID('tbmodule','idmodule');
-                $aRet = array(
-                    "idmodule" => $id_module,
-                    "description" => $MODNAME
-                );
             }
             
+            $retTbConf = $this->dbModule->createConfigTables($MODPREFIX);
+
+            if(!$retTbConf){
+                $this->dbModule->RollbackTrans();
+                if($this->log)
+                    $this->logIt('Insert Module - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
+            
+            $this->dbModule->CommitTrans();
+            
+            $id_module = $this->dbHoliday->TableMaxID('tbmodule','idmodule');
+            
+            $aRet = array(
+                "idmodule" => $id_module,
+                "description" => $MODNAME
+            );
         }
 
         echo json_encode($aRet);
@@ -280,37 +310,53 @@ class Modules extends admCommon
         }
 
         $idmodule = $_POST['idmodule'];
-        $MODNAME = $_POST['txtName'];
-        $MODPATH = $_POST['txtPath'];
-        $MODPREFIX = $_POST['txtPrefix'];
-        $MODSMARTY = $_POST['txtSmartyVar'];
+        $MODNAME = addslashes($_POST['txtName']);
+        $MODPATH = addslashes($_POST['txtPath']);
+        $MODPREFIX = addslashes($_POST['txtPrefix']);
+        $MODSMARTY = addslashes($_POST['txtSmartyVar']);
+        $MODDEFAULT = isset($_POST['module-default']) ? "YES" : NULL;
 
         $this->dbModule->BeginTrans();
 
         $check = $this->dbModule->checkName($MODNAME);
+        if(!$check){
+            if($this->log)
+                $this->logIt('Check if module exists - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
         if ($check->fields['idmodule'] && $check->fields['idmodule'] != $idmodule) {
             return false;
         } else {
-            $setCond = "name = '$MODNAME', path = '$MODPATH', smarty = '$MODSMARTY' ";
-            $setCond .= isset($_POST['module-default']) ? ", defaultmodule = 'YES'" : ", defaultmodule = NULL";
+            if($MODDEFAULT == 'YES'){
+                $del = $this->dbModule->removeDefault();
 
-            $ret = $this->dbModule->updateModule( $idmodule, $setCond);
+                if(!$del){
+                    $this->dbModule->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Remove Default Module - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+            }
+
+            $ret = $this->dbModule->updateModule( $idmodule,$MODNAME,$MODPATH,$MODSMARTY,$MODDEFAULT);
             if(!$ret){
                 $this->dbModule->RollbackTrans();
+                if($this->log)
+                    $this->logIt('Update Module - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                 return false;
-            }else{
-                $aRet = array(
-                    "idmodule" => $idmodule,
-                    "status"   => 'OK'
-                );
             }
+
+            $this->dbModule->CommitTrans();
+            
+            $aRet = array(
+                "idmodule" => $idmodule,
+                "status"   => 'OK'
+            );
             
         }
 
-        $this->dbModule->CommitTrans();
-
         echo json_encode($aRet);
-
 
     }
 
@@ -429,6 +475,52 @@ class Modules extends admCommon
             "status" => 'OK',
         );
         echo json_encode($aRet);
+    }
+
+    function deleteModule()
+    {
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $idmodule = $_POST['idmodule'];
+
+        $this->dbModule->BeginTrans();
+
+        $rs = $this->dbModule->selectModuleData($idmodule);
+        if(!$rs){
+            if($this->log)
+                $this->logIt('Get Module\'s data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $del = $this->dbModule->deleteConfigTables($rs->fields['tableprefix']);
+        if(!$del){
+            $this->dbModule->RollbackTrans();
+            if($this->log)
+                $this->logIt('Delete Module\'s Config tables  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $ret = $this->dbModule->deleteModule("idmodule = $idmodule");
+        if(!$ret){
+            $this->dbModule->RollbackTrans();
+            if($this->log)
+                $this->logIt("Delete Module ID: {$idmodule} - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->dbModule->CommitTrans();
+
+        $aRet = array(
+            "idmodule" => $idmodule,
+            "status"   => 'OK'
+        );
+
+        echo json_encode($aRet);
+
     }
 
 }

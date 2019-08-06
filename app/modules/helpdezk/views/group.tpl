@@ -31,7 +31,7 @@
     <!-- Helpdezk -->
     {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
-    {head_item type="js" src="$path/app/modules/admin/views/js/" files="modules.js"}
+    {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="group.js"}
 
     {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
     {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
@@ -40,6 +40,17 @@
     {head_item type="css" src="$path/css/plugins/jQueryUI/" files="jquery-ui-1.10.4.custom.min.css"}
     {head_item type="css" src="$path/css/plugins/jqGrid/" files="ui.jqgrid.css"}
     {head_item type="css" src="$path/css/" files="$theme.css"}
+
+    <!-- Icheck, used in checkbox and radio -->
+    {head_item type="css" src="$path/css/plugins/iCheck/" files="custom.css"}
+    {head_item type="js"  src="$path/includes/js/plugins/iCheck/" files="icheck.min.js"}
+
+    <!-- Combo Autocomplete -->
+    {head_item type="js" src="$path/includes/js/plugins/chosen/" files="chosen.jquery.js"}
+    {head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
+
+    <!-- Jquery Validate -->
+    {head_item type="js"  src="$path/includes/js/plugins/validate/" files="jquery.validate.min.js"}
 
     {literal}
         <script type="text/javascript">
@@ -54,6 +65,11 @@
             /* Additional style to fix warning dialog position */
             #alertmod_table_list_tickets {
                 top: 900px !important;
+            }
+
+            .scrollable-panel {
+                height: 350px;
+                overflow: auto;
             }
         </style>
 
@@ -78,24 +94,25 @@
                         <div class="ibox ">
 
                             <div class="ibox-title">
-                                <h5>Cadastros / {$smarty.config.Modules} / <strong>{$smarty.config.Home}</strong></h5>
-
+                                <h5>Cadastros / {$smarty.config.pgr_groups} / <strong>{$smarty.config.Home}</strong></h5>
                             </div>
 
                             <div class="ibox-content">
 
-                                <input type="hidden" name="_token" id= "_token" value="{$token}">
                                 <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;{$smarty.config.New}</button>
-                                <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{$smarty.config.edit}</button>
+                                <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true""></i>&nbsp;{$smarty.config.edit}</button>
                                 <button id="btnDisable" type="button" class="btn btn-primary btn-xs disabled"><i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{$smarty.config.Deactivate}</button>
                                 <button id="btnEnable" type="button" class="btn btn-primary btn-xs disabled"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;{$smarty.config.Activate}</button>
-                                <button id="btnDelete" type="button" class="btn btn-primary btn-xs"><i class="fa fa-times-circle" aria-hidden="true"></i>&nbsp;{$smarty.config.Delete}</button>
+                                <button id="btnAttGroup" type="button" class="btn btn-primary btn-xs"><i class="fa fa-headset" aria-hidden="true"></i>&nbsp;{$smarty.config.Attendants_by_group}</button>
+                                <button id="btnGrpService" type="button" class="btn btn-primary btn-xs"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;{$smarty.config.Groups_by_service}</button>
+                                <!--<button id="btnSetRepass" type="button" class="btn btn-primary btn-xs"><i class="fa fa-users-cog" aria-hidden="true"></i>&nbsp;{$smarty.config.Set_repass_groups}</button>-->
 
                                 <p></p>
 
                                 <div class="jqGrid_wrapper">
-                                    <table id="table_list_modules"></table>
-                                    <div id="pager_list_modules"></div>
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <table id="table_list_groups"></table>
+                                    <div id="pager_list_groups"></div>
                                 </div>
 
                             </div>
@@ -113,8 +130,11 @@
     </div>
 
     <!-- Modal -->
-    {include file='modals/modules/modal-alert.tpl'}
-    {include file='modals/modules/modal-dialog-delete.tpl'}
+
+    {include file='modals/main/modal-alert.tpl'}
+    {include file='modals/hdkgroup/modal-attendant-group.tpl'}
+    {include file='modals/hdkgroup/modal-group-service.tpl'}
+    {include file='modals/hdkgroup/modal-group-repass.tpl'}
 
 
 </body>

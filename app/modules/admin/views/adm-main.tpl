@@ -34,7 +34,7 @@
     <!-- Helpdezk -->
     {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
-    {head_item type="js" src="$path/app/modules/scm/views/js/" files="main.js"}
+    {head_item type="js" src="$path/app/modules/admin/views/js/" files="main.js"}
 
 
     <!-- Personalized style -->
