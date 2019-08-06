@@ -12,12 +12,7 @@
     {head_item type="js" src="$path/includes/js/" files="$jquery_version"}
     {head_item type="css" src="$path/includes/bootstrap/css/" files="bootstrap.min.css"}
     {head_item type="js"  src="$path/includes/bootstrap/js/" files="bootstrap.min.js"}
-    <!-- jqGrid -->
-    {*
-    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="grid.locale-pt-br.js"}
-    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/" files="jquery.jqGrid.min.js"}
-    {head_item type="css" src="$path/css/plugins/jqGrid/" files="ui.jqgrid.css"}
-    *}
+
     <!-- Custom and plugin javascript -->
     <!-- {head_item type="js"  src="$path/includes/js/" files="inspinia.js"} -->
     {head_item type="js"  src="$path/includes/js/plugins/pace/" files="pace.min.js"}
@@ -32,13 +27,12 @@
     <!-- Helpdezk -->
     {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
-    {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="createwarning.js"}
+    {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="creategroup.js"}
     <!-- Font Awesome -->
     {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
     {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     <!-- animate -->
     {head_item type="css" src="$path/css/" files="animate.css"}
-
     <!-- Icheck, used in checkbox and radio -->
     {head_item type="css" src="$path/css/plugins/iCheck/" files="custom.css"}
     {head_item type="js"  src="$path/includes/js/plugins/iCheck/" files="icheck.min.js"}
@@ -62,7 +56,7 @@
     <!-- Summernote  -->
     {head_item type="css" src="$path/css/plugins/summernote/0.0.8/" files="summernote.css"}
     {head_item type="js"  src="$path/includes/js/plugins/summernote/0.0.8/" files="summernote.js"}
-   <!-- Datapicker  -->
+    <!-- Datapicker  -->
     {head_item type="css" src="$path/css/plugins/datepicker/" files="datepicker3.css"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/" files="bootstrap-datepicker.js"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="bootstrap-datepicker.pt-BR.min.js"}
@@ -154,9 +148,9 @@
 
 
         <div class="wrapper wrapper-content  ">
-            <div class="row wrapper white-bg ibox-title">
+            <div class="row wrapper    white-bg ibox-title">
                 <div class="col-sm-4">
-                    <h4>Cadastros / {$smarty.config.pgr_warnings} / <strong>{$smarty.config.edit}</strong></h4>
+                    <h4>Cadastros / {$smarty.config.pgr_groups} / <strong>{$smarty.config.Add}</strong></h4>
                 </div>
                 <div class="col-sm-8 text-right">
                     &nbsp;
@@ -172,12 +166,10 @@
 
             <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
-            <!-- Form area -->
-            <form method="get" class="form-horizontal" id="update-warning-form">
 
-                <!-- Hidden -->
-                <input type="hidden" id="idwarning" value="{$hidden_idwarning}" />
-                <input type="hidden" id="flagUntil" value="{$flagUntil}" />
+            <!-- Form area -->
+            <form method="get" class="form-horizontal" id="create-group-form">
+
                 <input type="hidden" name="_token" id= "_token" value="{$token}">
 
                 <div class="row wrapper  white-bg ">
@@ -186,139 +178,59 @@
 
                     <div class="col-sm-10 b-l">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label text-right">{$smarty.config.Topic}:</label>
+                            <label class="col-sm-3 control-label text-right">{$smarty.config.Group_name}:</label>
                             <div class="col-sm-5">
-                                <select class="form-control input-sm"  id="topic" >
-                                    {html_options values=$topicids output=$topicvals selected=$idtopic}
-                                </select>
-                            </div>
-                            <div class="col-sm-1 ">
-                                <button class="btn btn-default" id="btnAddTopic" type="button" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                <input type="text" id="grpName" name="grpName" class="form-control input-sm" >
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-2 control-label text-right">{$smarty.config.Title}:</label>
-                            <div class="col-sm-5">
-                                <input type="text" id="title" name="title" class="form-control input-sm" required placeholder="{$plh_title}" value="{$title_warning}" >
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label text-right">{$smarty.config.Description}:</label>
-                            <div class="col-sm-5">
-                                <textarea class="form-control input-sm" id="description" name="description" placeholder="{$plh_description}">{$description}</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- row -->
-                <div class="row wrapper  white-bg ">
-
-                    <div class="col-sm-2 b-l"></div>
-
-                    <div class="col-sm-10 b-l">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label text-right">{$smarty.config.Valid}:</label>
-                            <div class="col-sm-3">
-                                <div class="input-group date">
-                                    <input type="text"  id="dtstart" class="form-control input-sm" placeholder="{$plh_dtstart}" value="{$dtstart}" readonly/>
-                                    <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
-                                </div>
-                            </div>
+                            <label class="col-sm-3 control-label text-right">{$smarty.config.Attend_level}:</label>
                             <div class="col-sm-2">
-                                <div class="input-group clockpicker">
-                                    <input type="text" id="timestart" class="form-control input-sm" placeholder="{$plh_timestart}" value="{$timestart}" readonly/>
-                                    <span class="input-group-addon"><i class="fa fa-clock"></i></span>
-                                </div>
+                                <input type="text" id="attLevel" name="attLevel" class="form-control input-sm" >
                             </div>
                         </div>
-                    </div>
 
-                </div>
-
-                <!--  -->
-                <div class="row wrapper  white-bg ">
-
-                    <div class="col-sm-2 b-l"></div>
-
-                    <div class="col-sm-10 b-l">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label text-right">{$smarty.config.Valid_until}:</label>
-                            <div id="line_dtend" class="col-sm-3">
-                                <div class="input-group date">
-                                    <input type="text"  id="dtend" class="form-control input-sm" value="{$dtend}" readonly/>
-                                    <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
-                                </div>
-                            </div>
-                            <div id="line_timeend" class="col-sm-2">
-                                <div class="input-group clockpicker">                                    
-                                    <input type="text" id="timeend" class="form-control input-sm" value="{$timeend}" readonly/>
-                                    <span class="input-group-addon"><i class="fa fa-clock"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-sm-3 checkbox i-checks"><label> <input type="checkbox" id="warningend" {$checkedUntil}> <i></i> &nbsp; {$smarty.config.Until_closed}</label></div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- row -->
-                <div class="row wrapper  white-bg ">
-
-                    <div class="col-sm-2 b-l"></div>
-
-                    <div class="col-sm-10 b-l">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label text-right text-right">{$smarty.config.Send_email}:</label>
-                            <div class="checkbox i-checks"><label> <input type="checkbox" id="sendemailconf" {$checkedSend} > <i></i> &nbsp;{$smarty.config.Send_alerts_email}</label></div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- row -->
-                <div class="row wrapper  white-bg ">
-
-                    <div class="col-sm-2 b-l"></div>
-
-                    <div class="col-sm-10 b-l">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label text-right">{$smarty.config.Show_in}:</label>
-                            <div class="col-sm-2">
-                                <select class="form-control input-sm" id="showin" >
-                                    {html_options values=$showinids output=$showinvals selected=$idshowin}
+                            <label class="col-sm-3 control-label text-right">{$smarty.config.Company}:</label>
+                            <div class="col-sm-5">
+                                <select class="form-control input-sm"  id="cmbGrpCompany" name="cmbGrpCompany" >
+                                    <option value="">{$smarty.config.Select_company}</option>
+                                    {html_options values=$grpcompanyids output=$grpcompanyvals selected=$idgrpcompany}
                                 </select>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label text-right">{$smarty.config.Repass_request_only}:</label>
+                            <div class="checkbox i-checks"><label> <input type="checkbox" id="flgRepassOnly" name="flgRepassOnly" value=""> <i></i> &nbsp;</label></div>
+                        </div>
                     </div>
 
                 </div>
-                <!--  -->
 
                 <div class="row wrapper  white-bg ">
 
                     <div class="col-sm-2 b-l"></div>
 
                     <div class="col-sm-10 b-l">
-                        <div id="alert-update-warning"></div>
+                        <div id="alert-create-group"></div>
                     </div>
+                    
                 </div>
 
-                 <div class="row wrapper  border-bottom white-bg ">
+                <div class="row wrapper  border-bottom white-bg ">
                     &nbsp;
                 </div>
 
                 <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
-                 <div class="row wrapper  white-bg text-center">
+                <div class="row wrapper  white-bg text-center">
                     <div class="col-sm-12 b-l">
                         <div class="form-group">
                             <div class="col-sm-12">
                                 <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> Volta </a>
-                                <button type="button" class="btn btn-primary btn-md" id="btnUpdateWarning" >
+                                <button type="button" class="btn btn-primary btn-md" id="btnCreateGroup" >
                                     <span class="fa fa-save"></span>  &nbsp;{$smarty.config.Save}
                                 </button>
                             </div>
@@ -328,8 +240,6 @@
 
             </form>
             <!-- End form area -->
-
-
 
 
             <div class="row border-bottom white-bg ">
@@ -342,9 +252,7 @@
 </div>
 
 
-                {*include file='modals/hdkwarning/modalAlert.tpl'*}
-                {include file='modals/hdkwarning/modal-alert.tpl'}
-                {include file='modals/hdkwarning/modal-topic.tpl'}
+                {include file='modals/main/modal-alert.tpl'}
 
 
 

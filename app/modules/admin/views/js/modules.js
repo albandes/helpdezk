@@ -14,7 +14,7 @@ $(document).ready(function () {
         height: 450,
         autowidth: true,
         shrinkToFit: true,
-        rowNum: 10,
+        rowNum: 15,
         rowList: [10, 20, 25, 30, 50],
         colNames:['',aLang['Name'].replace (/\"/g, ""),aLang['status'].replace (/\"/g, ""),''],
         colModel:[
@@ -39,12 +39,14 @@ $(document).ready(function () {
             var myCellData = grid.jqGrid('getCell', rowId, 'id');
             var myCellStatus = grid.jqGrid('getCell', rowId, 'statusval');
 
-            $('#btnEnable').removeClass('disabled').addClass('active');
-            $('#btnDisable').removeClass('disabled').addClass('active');
-            if (myCellStatus == 'A')
-                $('#btnEnable').removeClass('active').addClass('disabled');
-            else
-                $('#btnDisable').removeClass('active').addClass('disabled');
+            if (myCellStatus == 'A'){
+                $('#btnDisable').removeClass('disabled');
+                $('#btnEnable').addClass('disabled');
+            }
+            else{
+                $('#btnDisable').addClass('disabled');
+                $('#btnEnable').removeClass('disabled');
+            }
         },
         loadError : function(xhr,st,err) {
             grid.html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText);
@@ -93,12 +95,13 @@ $(document).ready(function () {
             idmodule = myGrid.jqGrid ('getCell', selRowId, 'id');
 
         if (!idmodule) {
-            $("#btn-modal-ok").attr("href", '');
-            $('#modal-notification').html(aLang['Alert_select_one'].replace (/\"/g, ""));
-            $("#tipo-alert").attr('class', 'warning alert-warning');
-            $('#modal-alert').modal('show');
+            showAlert(makeSmartyLabel('Alert_select_one'),'warning','');
         } else {
-            location.href = path + "/admin/modules/formUpdateModule/idmodule/" + idmodule ;
+            if(idmodule == 1 || idmodule == 2){
+                showAlert(makeSmartyLabel('module_not_edit'),'warning','');
+            }else{
+                location.href = path + "/admin/modules/formUpdateModule/idmodule/" + idmodule ;
+            }
         }
     });
 
@@ -115,7 +118,65 @@ $(document).ready(function () {
             selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
             idmodule = myGrid.jqGrid ('getCell', selRowId, 'id');
 
-        postStatus(idmodule,'I');
+        if(idmodule == 1){
+            showAlert(makeSmartyLabel('module_not_disable'),'warning','');
+        }else{
+            postStatus(idmodule,'I');
+        }
+
+    });
+
+    $("#btnDelete").click(function(){
+        var myGrid = $('#table_list_modules'),
+            selRowId = myGrid.jqGrid ('getGridParam', 'selrow'),
+            idmodule = myGrid.jqGrid ('getCell', selRowId, 'id');
+
+        if (!idmodule) {
+            showAlert(makeSmartyLabel('Alert_select_one'),'warning','');
+        } else {
+            if(idmodule == 1 || idmodule == 2){
+                showAlert(makeSmartyLabel('module_not_delete'),'warning','');
+            }else{
+                $('#idmodule_modal').val(idmodule);
+                $('#modal-dialog-delete').modal('show');
+            }
+
+        }
+    });
+
+    $("#btnSaveDelete").click(function(){
+        $.ajax({
+            type: "POST",
+            url: path + '/admin/modules/deleteModule',
+            dataType: 'json',
+            data: {
+                idmodule: $('#idmodule_modal').val(),
+                _token: $('#_token').val()
+            },
+            error: function (ret) {
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_deleted_error'),'alert-delete-module');
+            },
+            success: function(ret){
+
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                if(obj.status == 'OK') {
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_deleted'),'alert-delete-module');
+                    setTimeout(function(){
+                        $('#modal-dialog-delete').modal('hide');
+                        grid.trigger('reloadGrid');
+                    },3500);
+                } else {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_deleted_error'),'alert-delete-module');
+                }
+            },
+            beforeSend: function(){
+                $("#btnSaveDelete").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+            },
+            complete: function(){
+                $("#btnSaveDelete").html("<i class='fa fa-check-circle'></i> "+ makeSmartyLabel('Yes')).removeClass('disabled');
+            }
+        });
     });
 
 
@@ -141,12 +202,12 @@ function postStatus(idmodule,newStatus)
             if(obj.status == 'OK' ) {
                 console.log(ret);
                 var idmodule = obj.idmodule, msg = '';
-                if(obj.modulestatus == 'A'){msg = aLang['Alert_activated'].replace (/\"/g, "");}
-                else{msg = aLang['Alert_deactivated'].replace (/\"/g, "");}
+                if(obj.modulestatus == 'A'){msg = makeSmartyLabel('Alert_activated');}
+                else{msg = makeSmartyLabel('Alert_deactivated');}
 
                 $('#modal-notification').html(msg);
                 $("#btn-modal-ok").attr("href", path + '/admin/modules/index');
-                $("#tipo_alerta").attr('class', 'alert alert-success');
+                $("#tipo-alert").attr('class', 'alert alert-success');
                 $('#modal-alert').modal('show');
             } else {
                 modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-module');
@@ -154,6 +215,16 @@ function postStatus(idmodule,newStatus)
         }
 
     });
+
+    return false;
+}
+
+function showAlert(msg,typeAlert,btnOk)
+{
+    $('#modal-notification').html(msg);
+    $("#btn-modal-ok").attr("href", btnOk);
+    $("#tipo-alert").attr('class', 'alert alert-'+typeAlert);
+    $('#modal-alert').modal('show');
 
     return false;
 }

@@ -46,6 +46,14 @@ class hdkCommon extends Controllers  {
         $this->modulename = 'helpdezk' ;
         $this->idmodule =  $this->getIdModule($this->modulename);
 
+        $this->loadModel('groups_model');
+        $dbGroups = new groups_model();
+        $this->dbGroups = $dbGroups;
+
+        $this->loadModel('admin/person_model');
+        $dbPerson = new person_model();
+        $this->dbPerson = $dbPerson;
+
     }
 
     public function _saveNote($aParam)
@@ -1459,6 +1467,45 @@ class hdkCommon extends Controllers  {
         }else{
             return 0;
         }
+    }
+
+    public function _comboGroups($where=NULL,$order=NULL,$limit=NULL)
+    {
+        $rs = $this->dbGroups->selectGroup($where,$order,$limit);
+
+        if($rs->RecordCount() > 0){
+            $fieldsID[] = $rs->fields[''];
+            $values[]   = $rs->fields[''];
+            while (!$rs->EOF) {
+                $fieldsID[] = $rs->fields['idgroup'];
+                $values[]   = $rs->fields['name'];
+                $rs->MoveNext();
+            }
+        }else{
+            $fieldsID[] = "";
+            $values[]   = $this->getLanguageWord('No_result');
+        }
+
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+    }
+
+    public function _comboCompanies()
+    {
+        $rs = $this->dbPerson->getErpCompanies("WHERE idtypeperson IN (4) AND status = 'A'","ORDER BY name ASC");
+        while (!$rs->EOF) {
+            $fieldsID[] = $rs->fields['idcompany'];
+            $values[]   = $rs->fields['name'];
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
     }
 
 }

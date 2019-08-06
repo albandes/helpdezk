@@ -109,5 +109,90 @@ class ticketrules_model extends DynamicTicketRules_model {
 			return $this->db->Execute("SELECT fl_recalculate as recalculate, a.iditem, a.idservice, a.idpriority FROM hdk_tbrequest a, hdk_tbapproval_rule b where a.iditem = b.iditem AND a.idservice = b.idservice AND a.code_request = $code_request LIMIT 0,1");
 		}			
 	}
+
+	public function getUsers($iditem, $idservice){
+		$query = "SELECT per.idperson, per.name 
+					FROM tbperson per 
+				   WHERE per.idperson NOT IN (SELECT DISTINCT app.idperson 
+				   								FROM hdk_tbapproval_rule app 
+											   WHERE app.iditem = $iditem 
+											   	 AND app.idservice = $idservice) 
+					 AND per.idtypeperson IN('1','3') 
+					 AND per.status = 'A' 
+				ORDER BY per.name ASC";
+        
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+		return $ret;
+    }
+	
+	public function getUsersApprove($iditem, $idservice){
+		if ($this->database == 'mysqli') {
+            $query = "SELECT per.idperson, per.name, app.fl_recalculate 
+						FROM tbperson per, hdk_tbapproval_rule app 
+					   WHERE per.idperson = app.idperson 
+					   	 AND app.iditem = $iditem 
+						 AND app.idservice = $idservice 
+					ORDER BY app.order ASC" ;
+        } elseif ($this->database == 'oci8po') {
+            $query = "SELECT per.idperson, per.name, app.fl_recalculate 
+						FROM tbperson per, hdk_tbapproval_rule app 
+					   WHERE per.idperson = app.idperson 
+					     AND app.iditem = $iditem 
+						 AND app.idservice = $idservice 
+					ORDER BY app.order_ ASC";
+        }
+        
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+		return $ret;
+    }
+    
+	public function insertUsersApprove($iditem, $idservice, $idperson, $order, $recalculate){
+		if ($this->database == 'mysqli') {
+			$query = "INSERT INTO hdk_tbapproval_rule (iditem,idservice,idperson,`order`,fl_recalculate) 
+						VALUES ('$iditem','$idservice','$idperson','$order','$recalculate')" ;
+        } elseif ($this->database == 'oci8po') {
+			$query = "INSERT INTO hdk_tbapproval_rule (iditem,idservice,idperson,order_,fl_recalculate) 
+						VALUES ('$iditem','$idservice','$idperson','$order','$recalculate')";
+        }
+        
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+		return $ret;
+    }
+	
+	public function deleteUsersApprove($iditem, $idservice){
+		$query = "DELETE FROM  hdk_tbapproval_rule WHERE idservice = '$idservice' AND iditem = '$iditem'";
+        
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+		return $ret;
+	}
+	
 }
 ?>
