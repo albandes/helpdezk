@@ -89,7 +89,7 @@ class typepersonpermission extends admCommon
         while (!$rsPrograms->EOF) {
             
             $status_fmt = ($rsPrograms->fields['status'] == 'A' ) ? '<span class="label label-info">A</span>' : '<span class="label label-danger">I</span>';
-            $name_pgr = ($rsPrograms->fields['smarty']) ? $this->getLanguageWord($rsPrograms->fields['smarty']) : $rsPrograms->fields['name'];
+            $name_pgr = $this->getLanguageWord($rsPrograms->fields['smarty']) ? $this->getLanguageWord($rsPrograms->fields['smarty']) : $rsPrograms->fields['name'];
 
             $checknew = $this->dbPermissions->checkForPermissions($rsPrograms->fields['idprogram']);
             $icon = ($checknew->fields['allow']) ? '<span class="label label-info">'.$this->getLanguageWord('New').'</span>' : '';            
