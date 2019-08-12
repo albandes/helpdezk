@@ -36,13 +36,19 @@
 
 */
 error_reporting(E_ERROR|E_PARSE);
-
 ini_set('xdebug.max_nesting_level', 512);
 
 $curr_url = $_GET['url'];
 $curr_url = explode("/", $curr_url);
 
-define('CONTROLLERS', 'app/modules/'.$curr_url[0].'/controllers/');
+//This is necessary for programs outside the modules to use their methods. (Ex. cron)
+$arrExtras = array('api','cron');
+if(in_array($curr_url[0],$arrExtras)){
+    define('CONTROLLERS', $curr_url[0].'/');
+}else{
+    define('CONTROLLERS', 'app/modules/'.$curr_url[0].'/controllers/');
+}
+
 define('VIEWS', 'app/modules/'.$curr_url[0].'/views/');
 define('MODELS', 'app/modules/'.$curr_url[0].'/models/');
 define('SMARTY', 'includes/smarty/');
