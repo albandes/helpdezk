@@ -381,7 +381,7 @@ class hdkTicket extends hdkCommon {
             return false;
         }
 
-        if($solution){				
+        if($solution && $solution != '<p><br></p>'){
             //Se for acesso pelo usuario Inserir Apontamento indicando o IP USADO
             $date = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
             $description = "<p><b>" . $langVars['Solution'] . "</b></p>". $solution;
@@ -2105,7 +2105,7 @@ class hdkTicket extends hdkCommon {
                 return false;
             }
 
-            if($solution){				
+            if($solution && $solution != '<p><br></p>'){
                 //Se for acesso pelo usuario Inserir Apontamento indicando o IP USADO
                 $date = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
                 $description = "<p><b>" . $langVars['Solution'] . "</b></p>". $solution;
@@ -2311,9 +2311,9 @@ class hdkTicket extends hdkCommon {
             $idtype = '3';
             $public = '1';
 
-            $note = '<p><b>' . $langVars['Request_closed'] . '</b></p><p><b>' . $langVars['Solution'] . ':</b></p>'. $SOLUTION;
+            $note = '<p><b>' . $langVars['Request_closed'] . '</b></p><p><b>' . $langVars['Solution'] . ':</b></p>'. $solution;
 
-            if($solution){				
+            if($solution  && $solution != '<p><br></p>'){
                 //Se for acesso pelo usuario Inserir Apontamento indicando o IP USADO
                 $description = "<p><b>" . $langVars['Request_closed'] . "</b></p><p><b>" . $langVars['Solution'] . "</b></p>". $solution;				
             }else{
