@@ -383,7 +383,7 @@ class home extends hdkCommon {
 
         $dbPerson->BeginTrans();
 
-        $ret = $dbPerson->updatePersonUser($_POST['idperson'],$_POST['name'],$_POST['email'],$_POST['phone'],$_POST['branch'],$_POST['cellphone']);
+        $ret = $dbPerson->updatePersonUser($_POST['idperson'],$_POST['name'],$_POST['email'],$_POST['phone'],$_POST['branch'],$_POST['cellphone'],'');
         if (!$ret) {
             $dbPerson->RollbackTrans();
             if($this->log)
