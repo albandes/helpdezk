@@ -76,7 +76,8 @@
                  noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
                  noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
                  ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+                 hdkMaxSize = '{/literal}{$hdkMaxSize}{literal}';
 
 
     </script>

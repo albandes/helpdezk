@@ -1508,4 +1508,9 @@ class hdkCommon extends Controllers  {
         return $arrRet;
     }
 
+    public function _getTicketAttMaxFileSize()
+    {
+        return ini_get(upload_max_filesize);
+    }
+
 }

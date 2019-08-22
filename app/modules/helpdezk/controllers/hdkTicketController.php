@@ -113,6 +113,7 @@ class hdkTicket extends hdkCommon {
 
         $smarty->assign('ticketattmaxfiles', $this->_getTicketAttMaxFiles());
         $smarty->assign('ticketacceptedfiles', $this->_getTicketAcceptedFiles());
+        $smarty->assign('hdkMaxSize', substr($this->_getTicketAttMaxFileSize(),0,-1) );
 
         $smarty->assign('summernote_version', $this->summernote);
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
@@ -724,6 +725,7 @@ class hdkTicket extends hdkCommon {
         $flgauxopelist = (count($aux) > 0) ? '' : 'hide';
         $smarty->assign('usersaux', $aux);
         $smarty->assign('flgauxopelist', $flgauxopelist);
+        $smarty->assign('hdkMaxSize', substr($this->_getTicketAttMaxFileSize(),0,-1) );
 
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
 
@@ -1104,9 +1106,9 @@ class hdkTicket extends hdkCommon {
         if($this->log)
             $this->logIt("Reopen request # ". $code . ' - User: ' . $_SESSION['SES_LOGIN_PERSON'],6,'general');
 
-        $this->_sendNotification('reopen-ticket','email',$code,false);
-
         $this->dbTicket->CommitTrans();
+
+        $this->_sendNotification('reopen-ticket','email',$code,false);
 
         die ("OK");
 
@@ -2843,11 +2845,11 @@ class hdkTicket extends hdkCommon {
             return false;
         }
 
+        $this->dbTicket->CommitTrans();
+
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == 1) {
             $this->_sendEmail('assume', $code_request);
         }
-
-        $this->dbTicket->CommitTrans();
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
@@ -3101,11 +3103,11 @@ class hdkTicket extends hdkCommon {
             return false;
         }
 
+        $this->dbTicket->CommitTrans();
+
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == 1) {
             $this->_sendEmail('repass', $code_request);
         }
-
-        $this->dbTicket->CommitTrans();
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
@@ -3194,6 +3196,8 @@ class hdkTicket extends hdkCommon {
             return false;
         }
 
+        $this->dbTicket->CommitTrans();
+
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == 1) {
             $this->_sendEmail('reject', $code_request);
         }
@@ -3202,8 +3206,6 @@ class hdkTicket extends hdkCommon {
             $_SESSION['hdk']['SES_MAIL_OPERATOR_REJECT_ID'] = $incharge;
             $email = $this->_sendEmail('operator_reject', $code_request, $rejectreason);
         }
-
-        $this->dbTicket->CommitTrans();
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
@@ -3310,11 +3312,11 @@ class hdkTicket extends hdkCommon {
             return false;
         }
 
+        $this->dbTicket->CommitTrans();
+
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['FINISH_MAIL'] == 1) {
             $this->_sendEmail('close', $code_request);
         }
-
-        $this->dbTicket->CommitTrans();
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
