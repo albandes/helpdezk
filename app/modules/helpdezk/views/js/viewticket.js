@@ -69,9 +69,13 @@ $(document).ready(function () {
             dictDefaultMessage: "<br><i class='fa fa-file fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('Tckt_drop_file'),
             createImageThumbnails: true,
             maxFiles: noteAttMaxFiles,
+            maxFilesize: hdkMaxSize,
             acceptedFiles: noteAcceptedFiles,
             parallelUploads: ticketAttMaxFiles,                         // https://github.com/enyo/dropzone/issues/253
-            autoProcessQueue: false
+            autoProcessQueue: false,
+            dictFileTooBig: makeSmartyLabel('hdk_exceed_max_file_size'),
+            addRemoveLinks:true,
+            dictRemoveFile: makeSmartyLabel('hdk_remove_file')
         });
 
 
@@ -81,6 +85,7 @@ $(document).ready(function () {
 
         myDropzone.on("queuecomplete", function (file) {        // https://stackoverflow.com/questions/18765183/how-do-i-refresh-the-page-after-dropzone-js-upload
             console.log('Completed the dropzone queue');
+            //console.log(myDropzone.getQueuedFiles());
             sendNotification('addnote',$('#coderequest').val(),true);
             console.log('Sent email, with attachments');
             // clear summernote and dropzone
@@ -256,6 +261,14 @@ $(document).ready(function () {
                 else {
                   modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-evaluate');
                 }
+            },
+            beforeSend: function(){
+                $("#btnSendEvaluate").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnCancel").addClass('disabled');
+            },
+            complete: function(){
+                $("#btnSendEvaluate").html(makeSmartyLabel('Send')).removeClass('disabled');
+                $("#btnCancel").removeClass('disabled');
             }
         });
         return false;  // <- cancel event

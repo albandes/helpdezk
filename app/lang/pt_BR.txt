@@ -1800,6 +1800,8 @@ log_level = "Nivel de Log"
 
 sys_session_time_lbl = "Tempo duração da Sessão do Sistema"
 country_default = "País Padrão"
+hdk_exceed_max_file_size = "Este arquivo não será processado. Excede o tamanho máximo de upload: {{maxFilesize}}MB"
+hdk_remove_file = "Remover Arquivo"
 
 [201301014]
 Service_order_number = "N&ordm; do documento"

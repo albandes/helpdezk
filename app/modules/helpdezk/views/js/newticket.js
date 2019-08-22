@@ -28,9 +28,13 @@ $(document).ready(function () {
         dictDefaultMessage: "<br><i class='fa fa-file fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('Tckt_drop_file'),
         createImageThumbnails: true,
         maxFiles: ticketAttMaxFiles,
+        maxFilesize: hdkMaxSize,
         acceptedFiles: ticketAcceptedFiles,
         parallelUploads: ticketAttMaxFiles,                         // https://github.com/enyo/dropzone/issues/253
-        autoProcessQueue: false
+        autoProcessQueue: false,
+        dictFileTooBig: makeSmartyLabel('hdk_exceed_max_file_size'),
+        addRemoveLinks:true,
+        dictRemoveFile: makeSmartyLabel('hdk_remove_file')
     });
 
     myDropzone.on("maxfilesexceeded", function(file) {

@@ -64,14 +64,15 @@
                 langName = '{/literal}{$smarty.config.Name}{literal}',
                 theme = '{/literal}{$theme}{literal}',
                 mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                timesession = '{/literal}{$timesession}{literal}';
+                timesession = '{/literal}{$timesession}{literal}',
                 noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
                 noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
                 ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
                 obtime =  '{/literal}{$obrigatorytime}{literal}',
                 emptynote = '{/literal}{$emptynote}{literal}',
-                flgoperator = '{/literal}{$flgoperator}{literal}';
+                flgoperator = '{/literal}{$flgoperator}{literal}',
+                hdkMaxSize = '{/literal}{$hdkMaxSize}{literal}';
     </script>
     <style>
         /* Additional style to fix warning dialog position */
@@ -438,7 +439,7 @@
                 <hr class="hr-pipe-black"/>
                 <br>
             </div>
-
+            <form method="get" id="note-form-insert">
             <div class="row wrapper  white-bg ">
                 <div class="col-sm-12 ">
                     <div >
@@ -473,6 +474,7 @@
                     </div>
                 </div>
             </div>
+            </form>
             <!-- -->
 
             <div class="col-xs-12 white-bg" style="height:10px;"></div>
