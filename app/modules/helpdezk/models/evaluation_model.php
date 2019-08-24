@@ -51,6 +51,10 @@ class evaluation_model extends DynamicEvaluation_model {
 		$token = sha1(time().$code);
 		return $this->db->Execute("INSERT INTO hdk_tbevaluation_token (code_request,token) values ('$code', '$token')");
 	}
+
+    public function insertTokenOnEvaluateError($code,$token){
+        return $this->db->Execute("INSERT INTO hdk_tbevaluation_token (code_request,token) values ('$code', '$token')");
+    }
 	
 }
 ?>
