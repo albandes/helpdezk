@@ -810,8 +810,26 @@ class hdkTicket extends hdkCommon {
         $this->loadModel('evaluation_model');
         $dbEvaluation = new evaluation_model();
 
+        //Get the Evaluate Token
+        $rsTokenTmp = $dbEvaluation->getToken($code);
+        if (!$rsTokenTmp) {
+            if($this->log)
+                $this->logIt("Get Evaluate token request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+            return false;
+        }
+
+        $tokenTmp = $rsTokenTmp->fields['token'];
+
+        //Delete the Evaluate Token
+        $rmToken = $dbEvaluation->removeTokenByCode($code);
+        if(!$rmToken){
+            if($this->log)
+                $this->logIt("Delete Evaluate token request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+
+            return false;
+        }
+
         $this->dbTicket->BeginTrans();
-        $dbEvaluation->BeginTrans();
 
         switch ($_POST['approve']) {
 
@@ -821,6 +839,13 @@ class hdkTicket extends hdkCommon {
                 $retLog = $this->dbTicket->changeRequestStatus($status,$code,$person);
                 if (!$retLog) {
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
                 $callback = '0';
@@ -832,6 +857,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -840,6 +872,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -848,6 +887,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -862,17 +908,15 @@ class hdkTicket extends hdkCommon {
                         if($this->log)
                             $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                         $this->dbTicket->RollbackTrans();
+
+                        $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                        if(!$iToken){
+                            if($this->log)
+                                $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                        }
+
                         return false;
                     }
-                }
-
-                $rmToken = $dbEvaluation->removeTokenByCode($code);
-                if(!$rmToken){
-                    if($this->log)
-                        $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-                    $dbEvaluation->RollbackTrans();
-                    $this->dbTicket->RollbackTrans();
-                    return false;
                 }
 
                 $retUpdateDate = $this->dbTicket->updateDate($code, "approval_date");
@@ -880,6 +924,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -891,6 +942,13 @@ class hdkTicket extends hdkCommon {
                 $retLog = $this->dbTicket->changeRequestStatus($status,$code,$person);
                 if (!$retLog) {
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -904,6 +962,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -912,15 +977,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
-                    return false;
-                }
 
-                $rmToken = $dbEvaluation->removeTokenByCode($code);
-                if(!$rmToken){
-                    if($this->log)
-                        $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-                    $dbEvaluation->RollbackTrans();
-                    $this->dbTicket->RollbackTrans();
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -932,6 +995,13 @@ class hdkTicket extends hdkCommon {
                 $retLog = $this->dbTicket->changeRequestStatus($status,$code,$person);
                 if (!$retLog) {
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -945,6 +1015,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -953,6 +1030,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -961,6 +1045,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -975,17 +1066,15 @@ class hdkTicket extends hdkCommon {
                         if($this->log)
                             $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                         $this->dbTicket->RollbackTrans();
+
+                        $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                        if(!$iToken){
+                            if($this->log)
+                                $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                        }
+
                         return false;
                     }
-                }
-
-                $rmToken = $dbEvaluation->removeTokenByCode($code);
-                if(!$rmToken){
-                    if($this->log)
-                        $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-                    $dbEvaluation->RollbackTrans();
-                    $this->dbTicket->RollbackTrans();
-                    return false;
                 }
 
                 $retUpdateDate = $this->dbTicket->updateDate($code, "approval_date");
@@ -993,6 +1082,13 @@ class hdkTicket extends hdkCommon {
                     if($this->log)
                         $this->logIt("Evaluate request # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                     $this->dbTicket->RollbackTrans();
+
+                    $iToken = $this->dbEvaluation->insertTokenOnEvaluateError($code,$tokenTmp);
+                    if(!$iToken){
+                        if($this->log)
+                            $this->logIt("Insert Eval Token on error -  ticket # ". $code . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    }
+
                     return false;
                 }
 
@@ -1010,7 +1106,7 @@ class hdkTicket extends hdkCommon {
             $this->logIt("Evaluate request # ". $code . ' - User: ' . $_SESSION['SES_LOGIN_PERSON'],6,'general');
 
         $this->dbTicket->CommitTrans();
-        $dbEvaluation->CommitTrans();
+
         die ("OK");
 
     }
