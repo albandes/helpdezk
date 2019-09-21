@@ -1,16 +1,39 @@
 <?php
 class logos_model extends Model{
     public function getHeaderLogo(){
-        return $this->select("select name, height, width, file_name from tblogos where name = 'header'");
+        $sql = "SELECT name, height, width, file_name FROM tblogos WHERE name = 'header'";
+        $ret = $this->db->Execute($sql);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+        else
+            return $ret;
     }
+    
     public function getLoginLogo(){
-        return $this->select("select name, height, width, file_name from tblogos where name = 'login'");
+        $sql = "SELECT name, height, width, file_name FROM tblogos WHERE name = 'login'";
+        $ret = $this->db->Execute($sql);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+        else
+            return $ret;
     }
+    
     public function getReportsLogo(){
-        return $this->select("select name, height, width, file_name from tblogos where name = 'reports'");
+        $sql = "SELECT name, height, width, file_name FROM tblogos WHERE name = 'reports'";
+        $ret = $this->db->Execute($sql);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+        else
+            return $ret;
     }
+    
     public function upload($filename, $height, $width, $where){
-        return $this->db->Execute("update tblogos set file_name = '$filename', height = '$height', width = '$width' where name = '$where'");
+        $sql = "UPDATE tblogos SET file_name = '$filename', height = '$height', width = '$width' WHERE name = '$where'";
+        $ret = $this->db->Execute($sql);
+        if ($this->db->ErrorNo() != 0)
+            $this->dbError( __FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $sql );
+        else
+            return $ret;
     }
 }
 ?>

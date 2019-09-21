@@ -12,24 +12,73 @@ if(class_exists('Model')) {
 class emailconfig_model extends DynamicEmailConfig_model {
 
     public function selectConfigs($where) {
-        return $this->db->Execute("select * from hdk_tbconfig where idconfigcategory = 3 $where");
+        $query = "SELECT * FROM hdk_tbconfig WHERE idconfigcategory = 3 $where";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
     }
 
     public function countConfigs($where = NULL) {
-        $sel = $this->select("SELECT count(idconfig) as total from hdk_tbconfig where idconfigcategory = 3 $where");
-        return $sel;
+        $query = "SELECT count(idconfig) as total from hdk_tbconfig where idconfigcategory = 3 $where";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
     }
 
     public function getTemplate($id) {
-        return $this->db->Execute("select idtemplate from hdk_tbconfig_has_template where idconfig = '$id'");
+        $query = "SELECT idtemplate FROM hdk_tbconfig_has_template WHERE idconfig = '$id'";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
     }
 
     public function getTemplateData($id) {
-        return $this->db->Execute("select name, description from hdk_tbtemplate_email where idtemplate = $id");
+        $query = "SELECT name, description FROM hdk_tbtemplate_email WHERE idtemplate = $id";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
     }
 
     public function updateTemplate($id, $name, $description) {
-        return $this->db->Execute("update hdk_tbtemplate_email set name = '$name', description = '$description' where idtemplate ='$id'");
+        $query = "UPDATE hdk_tbtemplate_email SET `name` = '$name', description = '$description' WHERE idtemplate ='$id'";
+
+        $ret = $this->db->Execute($query); echo $query;
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
     }
 
     public function getGroupInCharge($id) {
@@ -81,6 +130,20 @@ class emailconfig_model extends DynamicEmailConfig_model {
             return false;
         }
         return $ret->fields['idtemplate'];    	
+    }
+
+    public function changeConfStatus($id,$newstatus){
+    	$query = "UPDATE hdk_tbconfig SET `status` = '$newstatus' WHERE idconfig = $id";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;    	
     }
 
 }
