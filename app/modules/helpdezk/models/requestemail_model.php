@@ -205,4 +205,42 @@ class requestemail_model extends DynamicRequestEmail_model {
         }
         return $ret;
     }
+
+
+    public function getRequestCodEmail($id){
+        $query = " select idrequest, code_request from hdk_tbrequest where code_email = '".$id."'  ";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }
+
+        return $ret;
+    }
+
+    public function getCountRequest($id){
+        $query = " SELECT COUNT(*) as total FROM hdk_tbrequest WHERE code_request =  '".$id."'  ";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }
+
+        return $ret->fields['total'];
+    }
+
+    public function getRequestFromNote($where){
+        $query = "SELECT code_request FROM hdk_tbnote ".$where."'  ";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }
+
+        return $ret;
+    }
+
 }
