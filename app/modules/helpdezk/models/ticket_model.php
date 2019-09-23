@@ -449,39 +449,9 @@ class ticket_model extends DynamicTicket_model
         return $ret;
     }
 
-    public function insertNote($code, $person, $note, $date, $totalminutes, $starthour, $finishour, $execdate, $hourtype, $serviceval = null, $public, $idtype, $ipadress, $callback, $flgopen, $idanexo = NULL)
+    public function insertNote($code, $person, $note, $date, $totalminutes, $starthour, $finishour, $execdate, $hourtype, $serviceval = null, $public, $idtype, $ipadress, $callback, $flgopen, $idanexo = NULL,$code_email = NULL)
     {
-
-        if ( $this->database == 'oci8po'){
-            $totalminutes = str_replace('.',',',$totalminutes);
-            if (strlen($execdate) > 1 && $execdate != "0000-00-00 00:00:00"){
-                $execdate =  "to_date('$execdate','DD/MM/YYYY')";
-            }else{
-                $execdate = " '' ";
-            }
-            if (strlen($serviceval) == 0){
-                $serviceval = 'null';
-            }
-
-            if ($date != 'sysdate'){
-                $date = "to_date('$date','DD/MM/YYYY HH24:MI')";
-            }else{
-                $date = "sysdate";
-            }
-
-        }
-
-        if($this->database == 'oci8po'){
-            $vSQL = "
-                    DECLARE
-                        clobVar CLOB := '$note';
-                    BEGIN
-                        INSERT INTO hdk_tbnote (code_request,idperson,description,entry_date,minutes,start_hour,finish_hour,execution_date,hour_type,service_value,public_,idtype,ip_adress,callback,flag_opened) VALUES('$code', '$person',clobVar, $date, '$totalminutes', '$starthour', '$finishour', $execdate, '$hourtype', $serviceval, '$public', '$idtype', '$ipadress', '$callback', '$flgopen');
-                    END;
-                    " ;
-        } elseif($this->isMysql($this->database)){
-            $vSQL = "insert into hdk_tbnote (code_request,idperson,description,entry_date,minutes,start_hour,finish_hour,execution_date,hour_type,service_value,public,idtype,ip_adress,callback,flag_opened) values ('$code', '$person', '$note', $date, '$totalminutes', '$starthour', '$finishour', '$execdate', '$hourtype', '$serviceval', '$public', '$idtype', '$ipadress', '$callback', '$flgopen')";
-        }
+         $vSQL = "insert into hdk_tbnote (code_request,idperson,description,entry_date,minutes,start_hour,finish_hour,execution_date,hour_type,service_value,public,idtype,ip_adress,callback,flag_opened,code_email) values ('$code', '$person', '$note', $date, '$totalminutes', '$starthour', '$finishour', '$execdate', '$hourtype', '$serviceval', '$public', '$idtype', '$ipadress', '$callback', '$flgopen', '$code_email')";
 
         $ret = $this->db->Execute($vSQL);
         if (!$ret) {
