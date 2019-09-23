@@ -1,5 +1,14 @@
 <?php
-class person_model extends Model
+
+if(class_exists('Model')) {
+    class DynamicPerson_model extends Model {}
+} elseif(class_exists('cronModel')) {
+    class DynamicPerson_model extends cronModel {}
+} elseif(class_exists('apiModel')) {
+    class DynamicPerson_model extends apiModel {}
+}
+
+class person_model extends DynamicPerson_model
 {
     public $database;
 
