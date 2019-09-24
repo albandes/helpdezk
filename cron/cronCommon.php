@@ -35,6 +35,7 @@ class cronCommon extends cronSystem  {
             $objSyslog->SetFacility(18);
             $this->_logLevel = $objSyslog->setLogLevel();
             $this->_logHost = $objSyslog->setLogHost();
+            die($this->_logHost);
             if($this->_logHost == 'remote')
                 $this->_logRemoteServer = $objSyslog->setLogRemoteServer();
         }
@@ -72,7 +73,7 @@ class cronCommon extends cronSystem  {
 
     public function getGlobalSessionData()
     {
-
+        session_start();
         // Global Config Data
         $rsConfig = $this->dbIndex->getConfigGlobalData();
         while (!$rsConfig->EOF) {

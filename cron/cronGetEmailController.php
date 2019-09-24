@@ -28,6 +28,7 @@ class cronGetEmail extends cronCommon {
         $this->log = parent::$_logStatus;
         $this->program  = basename( __FILE__ );
 
+var_dump($this->log);
 
         $this->loadModel('helpdezk/ticket_model');
         $dbTicket = new ticket_model();
