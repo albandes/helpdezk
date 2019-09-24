@@ -31,7 +31,7 @@
     <!-- Helpdezk -->
     {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
-    {head_item type="js" src="$path/app/modules/admin/views/js/" files="request-email.js"}
+    {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="request-email.js"}
 
     {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
     {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}

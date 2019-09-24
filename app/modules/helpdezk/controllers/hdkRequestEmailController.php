@@ -1,8 +1,8 @@
 <?php
 
-require_once(HELPDEZK_PATH . '/app/modules/admin/controllers/admCommonController.php');
+require_once(HELPDEZK_PATH . '/app/modules/helpdezk/controllers/hdkCommonController.php');
 
-class RequestEmail extends admCommon
+class hdkRequestEmail extends hdkCommon
 {
     /**
      * Create an instance, check session time
@@ -36,7 +36,7 @@ class RequestEmail extends admCommon
 
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
-        $this->_makeNavAdm($smarty);
+        $this->makeNavAdmin($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
         $smarty->display('request-email.tpl');
@@ -62,14 +62,11 @@ class RequestEmail extends admCommon
             $sord ='asc';
 
         if ($_POST['_search'] == 'true'){
-            if ( $_POST['searchField'] == 'name') $searchField = 'name';
-            if ( $_POST['searchField'] == 'status') $searchField = 'status';
-
             if (empty($where))
                 $oper = ' WHERE ';
             else
                 $oper = ' AND ';
-            $where .= $oper . $this->getJqGridOperation($_POST['searchOper'],$searchField ,$_POST['searchString']);
+            $where .= $oper . $this->getJqGridOperation($_POST['searchOper'],$_POST['searchField'],$_POST['searchString']);
 
         }
 
@@ -97,9 +94,7 @@ class RequestEmail extends admCommon
                 'id'=> $rsReqEmails->fields['idgetemail'],
                 'serverurl'=> $rsReqEmails->fields['serverurl'],
                 'servertype'=> $rsReqEmails->fields['servertype'],
-                'serverport' => $rsReqEmails->fields['serverport'],
-                'filtersender'=> $rsReqEmails->fields['filter_from'],
-                'filtersubject'=> $rsReqEmails->fields['filter_subject']
+                'user' => $rsReqEmails->fields['user']
             );
             $rsReqEmails->MoveNext();
         }
@@ -125,7 +120,7 @@ class RequestEmail extends admCommon
         
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
-        $this->_makeNavAdm($smarty);
+        $this->makeNavAdmin($smarty);
         
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
         $smarty->display('request-email-create.tpl');
@@ -151,7 +146,7 @@ class RequestEmail extends admCommon
 
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
-        $this->_makeNavAdm($smarty);
+        $this->makeNavAdmin($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
         $smarty->display('request-email-update.tpl');
 

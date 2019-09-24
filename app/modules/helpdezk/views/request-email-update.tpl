@@ -32,7 +32,7 @@
     <!-- Helpdezk -->
     {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
-    {head_item type="js" src="$path/app/modules/admin/views/js/" files="createrequestemail.js"}
+    {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="createrequestemail.js"}
     <!-- Font Awesome -->
     {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
     {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
@@ -145,7 +145,7 @@
 
                 <div class="row wrapper white-bg ibox-title">
                     <div class="col-sm-4">
-                        <h4>Cadastros / {$smarty.config.pgr_email_request} / <strong>{$smarty.config.Add}</strong></h4>
+                        <h4>Cadastros / {$smarty.config.pgr_email_request} / <strong>{$smarty.config.Edit}</strong></h4>
                     </div>
                 </div>            
 
@@ -155,10 +155,11 @@
                 <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
                 <!-- Form area -->
-                <form method="get" class="form-horizontal" id="create-request-email-form">
+                <form method="get" class="form-horizontal" id="update-request-email-form">
 
                     <!-- Hidden -->
                     <input type="hidden" name="_token" id= "_token" value="{$token}">
+                    <input type="hidden" name="idgetemail" id= "idgetemail" value="{$hidden_idgetemail}">
 
                     <div class="row wrapper  white-bg ">
 
@@ -169,7 +170,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Server}:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" id="txtServer" name="txtServer" class="form-control input-sm" placeholder="{$plh_program_description}" value="" >
+                                    <input type="text" id="txtServer" name="txtServer" class="form-control input-sm" value="{$txtServer}" >
                                 </div>
                             </div>
                             
@@ -185,21 +186,21 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Port}:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" id="txtPort" name="txtPort" class="form-control input-sm" required placeholder="{$plh_program_description}" value="" >
+                                    <input type="text" id="txtPort" name="txtPort" class="form-control input-sm" value="{$txtPort}" >
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.email}:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" id="txtEmail" name="txtEmail" class="form-control input-sm" required placeholder="{$plh_controller_description}" value="" >
+                                    <input type="text" id="txtEmail" name="txtEmail" class="form-control input-sm" value="{$txtEmail}" >
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Password}:</label>
                                 <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="right" title="{$smarty.config.Alert_add_program_title}">
-                                    <input type="password" id="txtPassword" name="txtPassword" class="form-control input-sm" required placeholder="{$plh_module_smartyvar}" value="" >
+                                    <input type="password" id="txtPassword" name="txtPassword" class="form-control input-sm" value="{$txtPassword}" >
                                 </div>
                             </div>
 
@@ -242,23 +243,23 @@
                              <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Filter_by_sender}:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" id="txtFilterSender" name="txtFilterSender" class="form-control input-sm" placeholder="{$plh_program_description}" value="" >
+                                    <input type="text" id="txtFilterSender" name="txtFilterSender" class="form-control input-sm" value="{$txtFilterSender}" >
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Filter_by_subject}:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" id="txtFilterSubject" name="txtFilterSubject" class="form-control input-sm" placeholder="{$plh_controller_description}" value="" >
+                                    <input type="text" id="txtFilterSubject" name="txtFilterSubject" class="form-control input-sm" value="{$txtFilterSubject}" >
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Create_user}:</label>
-                                <div class="checkbox i-checks"><label> <input type="checkbox" name="checkCreateUser" id="checkCreateUser" value="1"> <i></i> &nbsp;{$smarty.config.Create_user_msg}</label></div>
+                                <div class="checkbox i-checks"><label> <input type="checkbox" name="checkCreateUser" id="checkCreateUser" value="1" {$checkedCreateUser}> <i></i> &nbsp;{$smarty.config.Create_user_msg}</label></div>
                             </div>
 
-                            <div class="form-group createNewUser hide">
+                            <div class="form-group createNewUser {$flghide}">
                                 <label class="col-sm-2 control-label">{$smarty.config.Company}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbCompany" name="cmbCompany" data-placeholder="{$plh_category_select}" >
@@ -268,7 +269,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group createNewUser hide">
+                            <div class="form-group createNewUser {$flghide}">
                                 <label class="col-sm-2 control-label">{$smarty.config.Department}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbDepartment" name="cmbDepartment" data-placeholder="{$plh_category_select}" >
@@ -280,7 +281,7 @@
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Delete_emails}:</label>
-                                <div class="checkbox i-checks"><label> <input type="checkbox" name="checkDeleteEmails" id="checkDeleteEmails" value="1"> <i></i> &nbsp;{$smarty.config.Delete_emails_msg}</label></div>
+                                <div class="checkbox i-checks"><label> <input type="checkbox" name="checkDeleteEmails" id="checkDeleteEmails" value="1" {$checkedDeleteEmails}> <i></i> &nbsp;{$smarty.config.Delete_emails_msg}</label></div>
                             </div>
 
                             <div class="form-group">
@@ -294,7 +295,7 @@
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Note}:</label>
-                                <div class="checkbox i-checks"><label> <input type="checkbox" name="checkNote" id="checkNote" value="1"> <i></i> &nbsp;{$smarty.config.Note_msg}</label></div>
+                                <div class="checkbox i-checks"><label> <input type="checkbox" name="checkNote" id="checkNote" value="1" {$checkedNote}> <i></i> &nbsp;{$smarty.config.Note_msg}</label></div>
                             </div>
 
                         </div>
@@ -308,7 +309,7 @@
                         </div>
 
                         <div class="col-sm-11 b-l">
-                            <div id="alert-create-request-email"></div>
+                            <div id="alert-update-request-email"></div>
                         </div>
 
                     </div>
@@ -321,7 +322,7 @@
                     <div class="row wrapper  white-bg text-center">
                         <div class="col-sm-12 form-group">
                             <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> Volta </a>
-                            <button type="button" class="btn btn-primary btn-md " id="btnCreateReqEmail" >
+                            <button type="button" class="btn btn-primary btn-md " id="btnUpdateReqEmail" >
                                 <span class="fa fa-save"></span>  &nbsp;{$smarty.config.Save}
                             </button>
                         </div>

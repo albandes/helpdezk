@@ -36,7 +36,7 @@ $(document).ready(function () {
     var objRequestEmail = {
         changeArea: function() {
             var areaId = $("#cmbArea").val();
-            $.post(path+"/admin/requestEmail/ajaxTypes",{areaId: areaId},
+            $.post(path+"/helpdezk/hdkRequestEmail/ajaxTypes",{areaId: areaId},
                 function(valor){
                     $("#cmbType").html(valor);
                     $("#cmbType").trigger("chosen:updated");
@@ -45,7 +45,7 @@ $(document).ready(function () {
         },
         changeItem: function(){
             var typeId = $("#cmbType").val();
-            $.post(path+"/admin/requestEmail/ajaxItens",{typeId: typeId},
+            $.post(path+"/helpdezk/hdkRequestEmail/ajaxItens",{typeId: typeId},
                 function(valor){
                     $("#cmbItem").html(valor);
                     $("#cmbItem").trigger("chosen:updated");
@@ -54,7 +54,7 @@ $(document).ready(function () {
         },
         changeService: function(){
             var itemId = $("#cmbItem").val();
-            $.post(path+"/admin/requestEmail/ajaxServices",{itemId: itemId},
+            $.post(path+"/helpdezk/hdkRequestEmail/ajaxServices",{itemId: itemId},
                 function(valor){
                     $("#cmbService").html(valor);
                     $("#cmbService").trigger("chosen:updated");
@@ -62,7 +62,7 @@ $(document).ready(function () {
         },
         changeDepartment: function(){
             var companyId = $("#cmbCompany").val();
-            $.post(path+"/admin/requestEmail/ajaxDepartments",{companyId: companyId},
+            $.post(path+"/helpdezk/hdkRequestEmail/ajaxDepartments",{companyId: companyId},
                 function(valor){
                     $("#cmbDepartment").html(valor);
                     $("#cmbDepartment").trigger("chosen:updated");
@@ -128,7 +128,7 @@ $(document).ready(function () {
     /*
      * Buttons
      */
-    $("#btnCancel").attr("href", path + '/admin/requestEmail/index');
+    $("#btnCancel").attr("href", path + '/helpdezk/hdkRequestEmail/index');
 
     $("#btnCreateReqEmail").click(function(){
 
@@ -138,7 +138,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: path + '/admin/requestEmail/createRequestEmail',
+            url: path + '/helpdezk/hdkRequestEmail/createRequestEmail',
             dataType: 'json',
             data: $("#create-request-email-form").serialize(),
             error: function (ret) {
@@ -150,7 +150,7 @@ $(document).ready(function () {
 
                 if(obj.status == "Ok") {
                     $('#modal-notification').html(makeSmartyLabel('Alert_inserted'));
-                    $("#btn-modal-ok").attr("href", path + '/admin/requestEmail/index');
+                    $("#btn-modal-ok").attr("href", path + '/helpdezk/hdkRequestEmail/index');
                     $("#tipo-alert").attr('class', 'alert alert-success');
                     $('#modal-alert').modal('show');
                 } else {
@@ -168,7 +168,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: path + '/admin/requestEmail/updateRequestEmail',
+            url: path + '/helpdezk/hdkRequestEmail/updateRequestEmail',
             dataType: 'json',
             data: $("#update-request-email-form").serialize(),
             error: function (ret) {
@@ -180,7 +180,7 @@ $(document).ready(function () {
 
                 if(obj.status == 'Ok' ) {
                     $('#modal-notification').html(makeSmartyLabel('Edit_sucess'));
-                    $("#btn-modal-ok").attr("href", path + '/admin/requestEmail/index');
+                    $("#btn-modal-ok").attr("href", path + '/helpdezk/hdkRequestEmail/index');
                     $("#tipo-alert").attr('class', 'alert alert-success');
                     $('#modal-alert').modal('show');
 

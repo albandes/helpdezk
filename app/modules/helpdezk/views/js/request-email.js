@@ -6,7 +6,7 @@ $(document).ready(function () {
     var grid = $("#table_list_request_email");
 
     grid.jqGrid({
-        url: path+"/admin/requestEmail/jsonGrid",
+        url: path+"/helpdezk/hdkRequestEmail/jsonGrid",
         datatype: "json",
         mtype: 'POST',
         sortname: 'idgetemail', //initially sorted on code_request
@@ -16,14 +16,12 @@ $(document).ready(function () {
         shrinkToFit: true,
         rowNum: 10,
         rowList: [10, 20, 25, 30, 50],
-        colNames:['',makeSmartyLabel('Server'),makeSmartyLabel('Type'),makeSmartyLabel('Port'),makeSmartyLabel('Filter_by_sender'),makeSmartyLabel('Filter_by_subject')],
+        colNames:['',makeSmartyLabel('Server'),makeSmartyLabel('Type'),makeSmartyLabel('email')],
         colModel:[
             {name:'id', index:'idgetemail',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
             {name:'serverurl',index:'serverurl', editable: true, width:120, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
-            {name:'servertype',index:'servertype', editable: true, width:120, search:false, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
-            {name:'serverport',index:'serverport', editable: true, width:60, search:true, sorttype:'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
-            {name:'filtersender',index:'filter_from', editable: false, width:200, search:false, sorttype:'string', searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
-            {name:'filtersubject',index:'filter_subject', editable: true, width:200, search:false, align:"center", sorttype:'string', searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'servertype',index:'servertype', editable: true, width:60, search:false, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'user',index:'user', editable: true, width:120, search:true, sorttype:'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} }
         ],
         pager: "#pager_list_request_email",
         viewrecords: true,
@@ -34,7 +32,7 @@ $(document).ready(function () {
         //modal: true,
         ondblClickRow: function(rowId) {
             var idgetemail = grid.jqGrid('getCell', rowId, 'id');
-            location.href = path + "/admin/requestEmail/formUpdateRequestEmail/idgetemail/" + idgetemail ;
+            location.href = path + "/helpdezk/hdkRequestEmail/formUpdateRequestEmail/idgetemail/" + idgetemail ;
         },
         onSelectRow: function(rowId) {
             var myCellData = grid.jqGrid('getCell', rowId, 'id');
@@ -85,7 +83,7 @@ $(document).ready(function () {
 
     // Buttons
     $("#btnCreate").click(function(){
-        location.href = path + "/admin/requestEmail/formCreateRequestEmail" ;
+        location.href = path + "/helpdezk/hdkRequestEmail/formCreateRequestEmail" ;
     });
 
     $("#btnUpdate").click(function(){
@@ -99,7 +97,7 @@ $(document).ready(function () {
             $("#tipo-alert").attr('class', 'warning alert-warning');
             $('#modal-alert').modal('show');
         } else {
-            location.href = path + "/admin/requestEmail/formUpdateRequestEmail/idgetemail/" + idgetemail ;
+            location.href = path + "/helpdezk/hdkRequestEmail/formUpdateRequestEmail/idgetemail/" + idgetemail ;
         }
     });
 
@@ -122,7 +120,7 @@ $(document).ready(function () {
     $("#btnSaveDelete").click(function(){
         $.ajax({
             type: "POST",
-            url: path + "/admin/requestEmail/deleteRequestEmail",
+            url: path + "/helpdezk/hdkRequestEmail/deleteRequestEmail",
             dataType: 'json',
             data: {
                 idgetemail: $('#idgetemail_modal').val(),
