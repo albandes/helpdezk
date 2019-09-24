@@ -35,7 +35,6 @@ class cronCommon extends cronSystem  {
             $objSyslog->SetFacility(18);
             $this->_logLevel = $objSyslog->setLogLevel();
             $this->_logHost = $objSyslog->setLogHost();
-            die($this->_logHost);
             if($this->_logHost == 'remote')
                 $this->_logRemoteServer = $objSyslog->setLogRemoteServer();
         }
