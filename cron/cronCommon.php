@@ -58,16 +58,7 @@ class cronCommon extends cronSystem  {
 
     function _getServerApi()
     {
-
-        /*$sessionVal = $_SESSION['itm']['server_api'] ;
-        if (isset($sessionVal) && !empty($sessionVal)) {
-            return $sessionVal;
-        } else {
-            if ($this->log)
-                $this->logIt("Url da API sem valor - Variavel de sessao: {$_SESSION['itm']['server_api']}" . $_SESSION['SES_LOGIN_PERSON'] . ' - program: ' . $this->program . ' - method: ' . __METHOD__, 3, 'general', __LINE__);
-            return false ;
-        }*/
-        return $this->getConfig('server_api');
+       return $this->getConfig('server_api');
 
     }
 
