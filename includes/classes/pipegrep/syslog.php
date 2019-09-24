@@ -244,6 +244,7 @@
         }
 
         // Pipegrep Functions --------------------
+
         function setLogStatus(){
             $logEmail = $_SESSION['LOG_EMAIL'];
             $logGeneral = $_SESSION['LOG_GENERAL'];

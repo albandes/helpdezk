@@ -35,6 +35,7 @@ class cronCommon extends cronSystem  {
             $objSyslog->SetFacility(18);
             $this->_logLevel = $objSyslog->setLogLevel();
             $this->_logHost = $objSyslog->setLogHost();
+            die($this->_logHost);
             if($this->_logHost == 'remote')
                 $this->_logRemoteServer = $objSyslog->setLogRemoteServer();
         }
@@ -57,22 +58,13 @@ class cronCommon extends cronSystem  {
 
     function _getServerApi()
     {
-
-        /*$sessionVal = $_SESSION['itm']['server_api'] ;
-        if (isset($sessionVal) && !empty($sessionVal)) {
-            return $sessionVal;
-        } else {
-            if ($this->log)
-                $this->logIt("Url da API sem valor - Variavel de sessao: {$_SESSION['itm']['server_api']}" . $_SESSION['SES_LOGIN_PERSON'] . ' - program: ' . $this->program . ' - method: ' . __METHOD__, 3, 'general', __LINE__);
-            return false ;
-        }*/
-        return $this->getConfig('server_api');
+       return $this->getConfig('server_api');
 
     }
 
     public function getGlobalSessionData()
     {
-
+        session_start();
         // Global Config Data
         $rsConfig = $this->dbIndex->getConfigGlobalData();
         while (!$rsConfig->EOF) {
