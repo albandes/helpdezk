@@ -1513,4 +1513,47 @@ class hdkCommon extends Controllers  {
         return ini_get(upload_max_filesize);
     }
 
+    public function _comboServerType()
+    {
+        $arrRet['ids'] = array("","pop","imap","pop-gmail","imap-gmail");
+        $arrRet['values'] = array($this->getLanguageWord('Select'),"POP","IMAP","POP - Gmail","IMAP - Gmail");
+
+        return $arrRet;
+    }
+
+    public function _comboLoginLayout()
+    {
+        $arrRet['ids'] = array("","U","E");
+        $arrRet['values'] = array($this->getLanguageWord('Select'),$this->getLanguageWord('User'),"Full E-mail");
+
+        return $arrRet;
+    }
+
+    public function _comboDepartment($idcompany)
+    {
+        $rs = $this->dbPerson->getDepartment("WHERE idperson = $idcompany AND status = 'A'","ORDER BY name ASC");
+        while (!$rs->EOF) {
+            $fieldsID[] = $rs->fields['iddepartment'];
+            $values[]   = $rs->fields['name'];
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+    }
+
+    public function _comboDepartmentHtml($companyID)
+    {
+
+        $arrDepartment = $this->_comboDepartment($companyID);
+        $select = '';
+        foreach ( $arrDepartment['ids'] as $indexKey => $indexValue ) {
+            $select .= "<option value='$indexValue'>".$arrDepartment['values'][$indexKey]."</option>";
+        }
+
+        return $select;
+    }
+
 }
