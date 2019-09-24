@@ -28,8 +28,6 @@ class cronGetEmail extends cronCommon {
         $this->log = parent::$_logStatus;
         $this->program  = basename( __FILE__ );
 
-var_dump($this->log);
-
         $this->loadModel('helpdezk/ticket_model');
         $dbTicket = new ticket_model();
         $this->dbTicket = $dbTicket;
@@ -54,21 +52,18 @@ var_dump($this->log);
         while(!$rsGetEmail->EOF){
 
             $authHost = $this->setServerType($rsGetEmail->fields['servertype'],$rsGetEmail->fields['serverurl'],$rsGetEmail->fields['serverport']);
+
+            if($this->log)
+                $this->logIt('Connecting to: '.$authHost,5,'general');
+
             $mbox = imap_open( $authHost, $rsGetEmail->fields['user'], $rsGetEmail->fields['password'] );
+
             if ($mbox) {
                 $check = imap_mailboxmsginfo($mbox);
                 if ($check) {
-                    if ($this->log) {
-                        $this->logIt("Mailbox: " . $rsGetEmail->fields['user'], 5, 'general');
-                        $this->logIt("Driver: " . $check->Driver, 5, 'general');
-                        $this->logIt("Messages: " . $check->Messages, 5, 'general');
-                        $this->logIt("Recent: " . $check->Recent, 5, 'general');
-                        $this->logIt("Unread:: " . $check->Unread, 5, 'general');
-                        $this->logIt("Deleted: " . $check->Deleted, 5, 'general');
-                        $this->logIt("Size: " . $check->Size, 5, 'general');
-                    }
+                    if ($this->log)
+                        $this->listMailboxLog($rsGetEmail->fields['user'],$check);
                 } else {
-                    echo "imap_check() failed: " . imap_last_error();
                     if ($this->log)
                         $this->logIt('Get E-mail Error: '.imap_last_error().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                 }
@@ -93,7 +88,7 @@ var_dump($this->log);
             for($i = 1;$i <= $nummsg; $i++)
             {
                 $headers = imap_header($mbox, $i);
-                $subject = fix_text($headers->subject);
+                $subject = $this->fixText($headers->subject);
                 $udate = $headers->udate;
                 $from = $headers->sender;
                 $sender = $from[0]->mailbox . "@" .  $from[0]->host;
@@ -103,141 +98,95 @@ var_dump($this->log);
                 $EmailDate = strtotime($EmailDate);
                 $EmailDate = date("d/m/Y H:i:s", $EmailDate);
 
-
                 if($this->log)
-                    $this->logIt('Processing: Message: '.$i. 'From $sender, Subject: $subject ' ,3,'general',__LINE__);
+                    $this->logIt('Processing: Message: '.$i. ', From: ' .$sender . ', Subject: ' . $subject ,5,'general');
 
                 // --- Body -------------------------------------------------------------------
-                $body = getBody($mbox,$i);
+                $body = $this->getBody($mbox,$i);
                 // --- Attachments ------------------------------------------------------------
-                unset($a_att);
+                unset($arrayAtt);
                 unset($a_attachments);
-                $a_att = extract_attachments($mbox, $i) ;
-                $k=0;
-                foreach ($a_att as $v1) {
-                    foreach ($v1 as $key=>$value) {
-                        if($key == "is_attachment" and $value == "1") {
-                            $grava = true ;
-                        }
-                        if($key == "is_attachment" and $value != "1") {
-                            $grava = false ;
-                        }
-                        if($grava) {
-                            $a_attachments[$k][$key]=$value;
-                        }
-                    }
-                    $k++;
-                }
-                // -----------------------------------------------------------------------------
+                $arrayAtt = $this->extractAttachments($mbox, $i) ;
+                $a_attachments = $this->parseAttachments($arrayAtt);
 
-                if($rsGetEmail->fields['login_layout'] == 'U') {
-                    $login = $from[0]->mailbox ;
-                } elseif ($rsGetEmail->fields['login_layout'] == 'E') {
-                    $login = $sender;
-                }
-
-                if($this->log)
-                    $this->logIt('Login empty ! ',5,'general',__LINE__);
-
-                $rsPerson = $this->dbPerson->selectPerson(' where login = ' . $login);
-                if(!$rsPerson) {
-                    if($this->log)
-                        $this->logIt('Login unknow: '.$login ,3,'general');
-
-                    continue;
-                } else {
-                    $idperson = $rsPerson->fields['idperson'];
-                }
-
-                // To check if there is already a request associated with the email id
-                $rsCodeEmail = $this->dbGetEmail->getRequestCodEmail($id);
-                if (!$rsCodeEmail->EOF){
-                    if ($rsGetEmail->fields['ind_delete_server']) {
-                        imap_delete($mbox, $i);	 // Mark email to delete
-                    }
-                    if($this->log)
-                        $this->logIt('Already have request associated : '. $rsCodeEmail->fields['code_request']." Sender: "  . $sender ,3,'general',__LINE__);
-
-                    continue;
-                }
-                // Filters
-                if( $rsGetEmail->fields['filter_from'] ) {
-                    if ($rsGetEmail->fields['filter_from'] != $sender) {
-                        if($this->log)
-                            $this->logIt('Filter by sender enabled, sender does not match: '.  $sender ,5,'general',__LINE__);
-
-                        continue;
-                    }
-                }
-                if( $rsGetEmail->fields['filter_subject'] ) {
-                    if ($rsGetEmail->fields['filter_subject'] != $subject) {
-                        if($this->log)
-                            $this->logIt('Filter by subject enabled, subject does not match: '.  $subject ,5,'general',__LINE__);
-
-                        continue;
-                    }
-                }
-
-                $INSERT_SQL = "true";
-                preg_match('/.*# (\d+).*$/', $subject, $cod_solicitacao);
-
-                if (isset($cod_solicitacao[1])) {
-                    $COD_SOLICITACAO_APONT =  $cod_solicitacao[1];
-                    $resposta = "R";
-                } else {
-                    $resposta = "NAO";
-                }
-
-                $sql_checkreq = $this->dbGetEmail->getCountRequest($COD_SOLICITACAO_APON);
-                if (($resposta == "R") and (is_numeric($COD_SOLICITACAO_APONT)) and ($rsGetEmail->fields['email_response_as_note'] == 1) and ($sql_checkreq->fields['total'] > 0) )
-                {
-                    if($this->log)
-                        $this->logIt('Create new note: '.  $COD_SOLICITACAO_APONT ,5,'general',__LINE__);
-
-                    $rsSol = $this->dbTicket->getRequestData(' where code_request = ' . $COD_SOLICITACAO_APONT);
-
-                    if (strlen($id) < 4) {
-                        $ja_add = false;
-                    } else {
-                        $sql_result_verifica = $this->dbGetEmail->getRequestFromNote(' where code_request = '.$COD_SOLICITACAO_APONT.' AND code_email = "'.$id.'"');
-                        $ja_add = (bool)$sql_result_verifica->RecordCount();
-                    }
-
-                    if (!$rsSol->EOF AND !$ja_add) {
-                        //divisores de mensagens outlook 2000 e outlook express
-                        $array = array("-----Mensagem original-----",
-                            "----- Mensagem Original -----",
-                            "-----Original message-----",
-                            "-----Original Message-----",
-                            "----- Original Message -----");
-
-                        //percorre todos os divisores de mensagens
-                        foreach ($array as $value) {
-                            $str = explode($value, $body);
-                            if (count($str) > 1)
-                                break;
-                        }
-
-                        if (isset($str[0]) && !empty($str[0]))  {
-                            $body = $str[0];
-                        }
-
-                        $resposta = $body;
-                        $resposta = strip_tags($resposta,"<br><br/><br />");
-                        $resposta = addslashes($resposta);
-                        $retCreateNote = $this->dbTicket->insertNote($COD_SOLICITACAO_APONT,$idperson,$resposta,NOW(),'','','',NOW(),'','',1,1,'Generated by e-mail',0,NULL,NULL,$id);
-
-
-
-                    }
-
-
-                }
             }
+
+            if($rsGetEmail->fields['login_layout'] == 'U') {
+                $login = $from[0]->mailbox ;
+            } elseif ($rsGetEmail->fields['login_layout'] == 'E') {
+                $login = $sender;
+            }
+
+            if($this->log)
+                $this->logIt('Login empty ! ',5,'general',__LINE__);
+
+            $idperson = $this->getIdPerson($login);
+            if (!$idperson) {
+                continue;
+            }
+
+
 
 
             $rsGetEmail->MoveNext();
         }
+    }
+
+    function getIdPerson($login)
+    {
+        $rsPerson = $this->dbPerson->selectPerson(" AND login = '$login'");
+        if(!$rsPerson) {
+            if($this->log)
+                $this->logIt('Login unknow: '.$login ,3,'general');
+            return false;
+        } else {
+            return $rsPerson->fields['idperson'];
+        }
+    }
+
+    function parseAttachments ($a_att)
+    {
+        $k=0;
+        foreach ($a_att as $v1) {
+            foreach ($v1 as $key=>$value) {
+                if($key == "is_attachment" and $value == "1") {
+                    $grava = true ;
+                }
+                if($key == "is_attachment" and $value != "1") {
+                    $grava = false ;
+                }
+                if($grava) {
+                    $a_attachments[$k][$key]=$value;
+                }
+            }
+            $k++;
+        }
+
+        return $a_attachments;
+    }
+
+    function getBody($bx,$mid)
+    {
+        // Get Message Body
+        $body = $this->getPart($bx, $mid, "TEXT/HTML");
+        if ($body == "")
+            $body = $this->getPart($bx, $mid, "TEXT/PLAIN");
+        if ($body == "") {
+            return "";
+        }
+        return $body;
+    }
+
+    function listMailboxLog($user,$mailboxInfo)
+    {
+        $this->logIt("Mailbox: " . $user, 5, 'general');
+        $this->logIt("Driver: " . $mailboxInfo->Driver, 5, 'general');
+        $this->logIt("Messages: " . $mailboxInfo->Messages, 5, 'general');
+        $this->logIt("Recent: " . $mailboxInfo->Recent, 5, 'general');
+        $this->logIt("Unread:: " . $mailboxInfo->Unread, 5, 'general');
+        $this->logIt("Deleted: " . $mailboxInfo->Deleted, 5, 'general');
+        $this->logIt("Size: " . $mailboxInfo->Size, 5, 'general');
+
     }
 
     function setServerType ($serverType, $serverUrl,$serverPort)
@@ -251,5 +200,126 @@ var_dump($this->log);
         }
         return $authhost;
     }
+
+    function fixText($str)
+    {
+        $subject = '';
+        $subject_array = imap_mime_header_decode($str);
+        foreach ($subject_array AS $obj){
+            $charset = strtoupper($obj->charset);
+            if($charset == "ISO-8859-1" || $charset == "WINDOWS-1252"){
+                $subject .= utf8_encode(rtrim($obj->text, "\t"));
+            }else{
+                $subject .= rtrim($obj->text, "\t");
+            }
+            //if($this->log)
+            //    $this->logIt("Text: ".$obj->text . " - Charset: ".$obj->charset,5,'general');
+
+        }
+
+
+        return $subject;
+    }
+
+    function extractAttachments($connection, $message_number)
+    {
+        $attachments = array();
+        $structure = imap_fetchstructure($connection, $message_number);
+
+        if(isset($structure->parts) && count($structure->parts)) {
+            for($i = 0; $i < count($structure->parts); $i++) {
+                $attachments[$i] = array(
+                    'is_attachment' => false,
+                    'filename' => '',
+                    'name' => '',
+                    'attachment' => ''
+                );
+                if($structure->parts[$i]->ifdparameters) {
+                    foreach($structure->parts[$i]->dparameters as $object) {
+                        if(strtolower($object->attribute) == 'filename') {
+                            $attachments[$i]['is_attachment'] = true;
+                            $attachments[$i]['filename'] = $object->value;
+                        }
+                    }
+                }
+                if($structure->parts[$i]->ifparameters) {
+                    foreach($structure->parts[$i]->parameters as $object) {
+                        if(strtolower($object->attribute) == 'name') {
+                            $attachments[$i]['is_attachment'] = true;
+                            $attachments[$i]['name'] = $object->value;
+                        }
+                    }
+                }
+                if($attachments[$i]['is_attachment']) {
+                    $attachments[$i]['attachment'] = imap_fetchbody($connection, $message_number, $i+1);
+                    if($structure->parts[$i]->encoding == 3) { // 3 = BASE64
+                        $attachments[$i]['attachment'] = base64_decode($attachments[$i]['attachment']);
+                    }
+                    elseif($structure->parts[$i]->encoding == 4) { // 4 = QUOTED-PRINTABLE
+                        $attachments[$i]['attachment'] = quoted_printable_decode($attachments[$i]['attachment']);
+                    }
+                }
+            }
+        }
+
+
+        return $attachments;
+    }
+
+    function getPart($stream, $msg_number, $mime_type, $structure = false, $part_number = false) //Get Part Of Message Internal Private Use
+    {
+        if(!$structure) {
+            $structure = imap_fetchstructure($stream, $msg_number);
+        }
+        if($structure) {
+            if($mime_type == $this->get_mime_type($structure))
+            {
+                if(!$part_number)
+                {
+                    $part_number = "1";
+                }
+                $text = imap_fetchbody($stream, $msg_number, $part_number);
+                if($structure->encoding == 3)
+                {
+                    return imap_base64($text);
+                }
+                else if($structure->encoding == 4)
+                {
+                    return imap_qprint($text);
+                }
+                else
+                {
+                    return $text;
+                }
+            }
+            if($structure->type == 1) /* multipart */
+            {
+                while(list($index, $sub_structure) = each($structure->parts))
+                {
+                    if($part_number)
+                    {
+                        $prefix = $part_number . '.';
+                    }
+                    $data = $this->getPart($stream, $msg_number, $mime_type, $sub_structure, $prefix . ($index + 1));
+                    if($data)
+                    {
+                        return $data;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    function get_mime_type(&$structure) //Get Mime type Internal Private Use
+    {
+        $primary_mime_type = array("TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER");
+
+        if($structure->subtype) {
+            return $primary_mime_type[(int) $structure->type] . '/' . $structure->subtype;
+        }
+        return "TEXT/PLAIN";
+    }
+
 
 }

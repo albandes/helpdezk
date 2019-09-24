@@ -42,15 +42,8 @@ class person_model extends DynamicPerson_model
     }
 
     public function selectPerson($where = NULL, $order = NULL, $limit = NULL) {
-        $database = $this->getConfig('db_connect');
 
-        if ( $this->isMysql($database) ) {
-            $number = "addr.number";
-        } elseif ($database == 'oci8po') {
-            $number = "addr.number_";
-        }
-
-       $sql =               "
+        $sql =               "
 							select
 								  tbp.idperson,
 								  tbp.name,
@@ -75,7 +68,7 @@ class person_model extends DynamicPerson_model
 								  tpstr.name as typestreet,
 								  tpstr.idtypestreet,
 								  st.name as street,
-								  $number,
+								  addr.number,
 								  addr.complement,
 								  addr.zipcode,
 								  pipeMask (addr.zipcode, '#####-###') AS zipcode_fmt,
