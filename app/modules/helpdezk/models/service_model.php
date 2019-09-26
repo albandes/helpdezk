@@ -629,4 +629,25 @@ class service_model extends DynamicService_model{
         return $this->db->Execute("");
     }
 
+    // Since September 25, 2019
+    public function getCoreByService($idservice)
+    {
+       $sql =   "
+                 SELECT
+                  a.idpriority,
+                  a.iditem,
+                  c.idtype,
+                  d.idarea
+                FROM
+                  hdk_tbcore_service a,
+                  hdk_tbcore_item b,
+                  hdk_tbcore_type c,
+                  hdk_tbcore_area d
+                WHERE a.iditem = b.iditem
+                  AND b.idtype = c.idtype
+                  AND c.idarea = d.idarea
+                  AND a.idservice = $idservice
+                ";
+       return $this->db->Execute($sql);
+    }
 }

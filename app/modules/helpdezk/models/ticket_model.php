@@ -783,11 +783,8 @@ class ticket_model extends DynamicTicket_model
     }
 
     public function getCode() {
-        if($this->isMysql($this->database)){
-            $vSql = "SELECT cod_request, cod_month FROM hdk_tbrequest_code WHERE COD_MONTH = " . date("Ym");
-        }else {
-            $vSql = "SELECT cod_request, cod_month FROM hdk_tbrequest_code WHERE COD_MONTH = " . date("Ym");
-        }
+
+        $vSql = "SELECT cod_request, cod_month FROM hdk_tbrequest_code WHERE COD_MONTH = " . date("Ym");
 
         $ret = $this->select($vSql);
         if (!$ret) {

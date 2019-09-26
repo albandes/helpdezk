@@ -9,6 +9,7 @@
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 require_once(HELPDEZK_PATH . '/cron/cronCommon.php');
+require_once(HELPDEZK_PATH . '/includes/classes/pipegrep/ticket.php');
 
 class cronGetEmail extends cronCommon {
     /**
@@ -39,6 +40,8 @@ class cronGetEmail extends cronCommon {
         $this->loadModel('admin/person_model');
         $dbPerson = new person_model();
         $this->dbPerson = $dbPerson;
+
+        $this->ticket = new ticket();
 
     }
 
@@ -109,35 +112,173 @@ class cronGetEmail extends cronCommon {
                 $arrayAtt = $this->extractAttachments($mbox, $i) ;
                 $a_attachments = $this->parseAttachments($arrayAtt);
 
+                if($this->log)
+                    $this->logIt('layout: '. $rsGetEmail->fields['login_layout'] ,5,'general');
+
+                $login = $this->makeLogin($rsGetEmail->fields['login_layout'],$from);
+
+                if(!$login) {
+                    if ($this->log)
+                        $this->logIt('Login empty ! ', 5, 'general', __LINE__);
+                }
+
+                if($this->log)
+                    $this->logIt("Getting ID from login : $login",5,'general');
+
+                $idperson = $this->getIdPerson($login);
+                if (!$idperson) {
+                    if ($this->log)
+                        $this->logIt("Login unknown ! idperson from  $login not found! ", 5, 'general');
+                    continue;
+                }
+
+                if($this->log)
+                    $this->logIt("$login, idperson : $idperson",5,'general');
+
+                // ---
+                
+                // To check if there is already a request associated with the email id
+                $rsCodeEmail = $this->dbGetEmail->getRequestCodEmail($id);
+                if (!$rsCodeEmail->EOF){
+                    if ($rsGetEmail->fields['ind_delete_server']) {
+                        imap_delete($mbox, $i);	 // Mark email to delete
+                    }
+                    if($this->log)
+                        $this->logIt('Already have request associated : '. $rsCodeEmail->fields['code_request']." Sender: "  . $sender ,3,'general',__LINE__);
+
+                    continue;
+                }
+
+
+                // Filters
+                // pipetodo [albandes]: Test this filters
+                if(!$this->filterEmailSender($rsGetEmail, $sender)) {
+                    continue;
+                }
+
+                if(!$this->filterEmailSubject($rsGetEmail, $sender)){
+                    continue;
+                }
+
+                $INSERT_SQL = "true";
+
+                // pipetodo [albandes]: Check if you can use the email header.
+                $codeRequestAtt = $this->getCodeRequestFromSubject($subject);
+                if($codeRequestAtt)
+                    $rsCount = $this->dbGetEmail->getCountRequest($codeRequestAtt);
+
+                if (($codeRequestAtt) and (is_numeric($codeRequestAtt)) and ($rsGetEmail->fields['email_response_as_note'] == 1) and ($rsCount->fields['total'] > 0) ) {
+
+                }
+
+
+                if ($INSERT_SQL == "true")  {
+                    $this->logIt('Passei aqui : ',7,'general',__LINE__);
+
+                    $code_request = $this->ticket->createRequestCode();
+
+                    $this->logIt('Code Request By Class: '. $code_request,7,'general',__LINE__);
+
+
+                    $idperson_juridical = $this->ticket->getIdPersonJuridical($idperson) ;
+                    if(!$idperson_juridical) {
+                        if($this->log)
+                            $this->logIt('There is no user related company !!! ',3,'general',__LINE__);
+                        continue;
+                    }
+
+                    $idStatus 	= 1;
+
+                    $this->logIt('idcompany: '. $idperson_juridical,7,'general',__LINE__);
+
+
+                    $rsCore = $this->ticket->getAreaTypeItemByService($rsGetEmail->fields['idservice']);
+                    if(!$rsCore) {
+                        if($this->log)
+                            $this->logIt("Couldn't get Area, Type, Item by service id !!! ",3,'general',__LINE__);
+                        continue;
+                    }
+
+
+                    $numRules = $this->ticket->getNumRules($rsCore->fields['iditem'],$rsGetEmail->fields['idservice']);
+                    if($numRules > 0)  // If have approval rule, put the status of the ticket as repassed (2)
+                        $idStatus = 2;
+
+
+                    // pipetodo: Vip User
+                    if($this->ticket->isVipUser($idperson)){
+                        $this->logIt('is vip : '. $idperson,7,'general',__LINE__);
+                    } else {
+                        $this->logIt('is not vip : '. $idperson,7,'general',__LINE__);
+
+                    }
+
+
+
+
+                }
+
+    
             }
-
-            if($rsGetEmail->fields['login_layout'] == 'U') {
-                $login = $from[0]->mailbox ;
-            } elseif ($rsGetEmail->fields['login_layout'] == 'E') {
-                $login = $sender;
-            }
-
-            if($this->log)
-                $this->logIt('Login empty ! ',5,'general',__LINE__);
-
-            $idperson = $this->getIdPerson($login);
-            if (!$idperson) {
-                continue;
-            }
-
-
-
-
+		
             $rsGetEmail->MoveNext();
+        }
+        
+        die('OK');
+    }
+
+
+
+    function  getCodeRequestFromSubject($subject)
+    {
+        preg_match('/.*# (\d+).*$/', $subject, $cod_solicitacao);
+        if (isset($cod_solicitacao[1])) {
+            return $cod_solicitacao[1];
+        } else {
+            return  false;
         }
     }
 
+    function makeLogin($layout,$objFrom)
+    {
+        if($layout == 'U') {
+            return $objFrom[0]->mailbox ;
+        } elseif ($layout == 'E') {
+            return $objFrom[0]->mailbox."@".$objFrom[0]->host;;
+        }
+
+        return false;
+
+    }
+
+    function filterEmailSubject($rs, $subject)
+    {
+        if( $rs->fields['filter_subject'] ) {
+            if ($rs->fields['filter_subject'] != $subject) {
+                if($this->log)
+                    $this->logIt('Filter by subject enabled, subject does not match: '.  $subject ,5,'general');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function filterEmailSender($rs, $sender)
+    {
+        if( $rs->fields['filter_from'] ) {
+            if ($rs->fields['filter_from'] != $sender) {
+                if($this->log)
+                    $this->logIt('Filter by sender enabled, sender does not match: '.  $sender ,5,'general');
+                return false;
+            }
+        }
+        return true ;
+    }    
     function getIdPerson($login)
     {
         $rsPerson = $this->dbPerson->selectPerson(" AND login = '$login'");
         if(!$rsPerson) {
-            if($this->log)
-                $this->logIt('Login unknow: '.$login ,3,'general');
             return false;
         } else {
             return $rsPerson->fields['idperson'];

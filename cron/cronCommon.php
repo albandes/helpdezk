@@ -2,6 +2,7 @@
 
 require_once(HELPDEZK_PATH . '/includes/classes/pipegrep/syslog.php');
 
+
 /*
  *  Common methods - Information Technology Management Module
  */
