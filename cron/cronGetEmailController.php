@@ -6,7 +6,8 @@
  * Time: 11:00
  */
 // Report simple running errors
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
+//error_reporting(E_ERROR | E_WARNING | E_PARSE);
+error_reporting(E_ERROR | E_PARSE);
 
 require_once(HELPDEZK_PATH . '/cron/cronCommon.php');
 require_once(HELPDEZK_PATH . '/includes/classes/pipegrep/ticket.php');
@@ -29,6 +30,9 @@ class cronGetEmail extends cronCommon {
         $this->log = parent::$_logStatus;
         $this->program  = basename( __FILE__ );
 
+        //
+        $this->attachPath = $this->getAttachPath();
+
         $this->loadModel('helpdezk/ticket_model');
         $dbTicket = new ticket_model();
         $this->dbTicket = $dbTicket;
@@ -41,7 +45,12 @@ class cronGetEmail extends cronCommon {
         $dbPerson = new person_model();
         $this->dbPerson = $dbPerson;
 
-        $this->ticket = new ticket();
+        $this->loadModel('helpdezk/ticketrules_model');
+        $dbTicketRules = new ticketrules_model();
+        $this->dbTicketRules = $dbTicketRules;
+
+
+        $this->ticket = new ticket('debug');
 
     }
 
@@ -51,6 +60,9 @@ class cronGetEmail extends cronCommon {
             die("IMAP functions are not available.");
 
         $rsGetEmail = $this->dbGetEmail->getRequestEmail();
+
+        $idSource = 3;
+        $idWay    = 3;
 
         while(!$rsGetEmail->EOF){
 
@@ -88,8 +100,14 @@ class cronGetEmail extends cronCommon {
                 continue;
             }
 
+
+            $idService = $rsGetEmail->fields['idservice'] ;
+
             for($i = 1;$i <= $nummsg; $i++)
             {
+
+                $hasAttachments = false ;
+
                 $headers = imap_header($mbox, $i);
                 $subject = $this->fixText($headers->subject);
                 $udate = $headers->udate;
@@ -112,6 +130,11 @@ class cronGetEmail extends cronCommon {
                 $arrayAtt = $this->extractAttachments($mbox, $i) ;
                 $a_attachments = $this->parseAttachments($arrayAtt);
 
+                if(count($a_attachments) > 0)
+                    $hasAttachments = true;
+
+
+
                 if($this->log)
                     $this->logIt('layout: '. $rsGetEmail->fields['login_layout'] ,5,'general');
 
@@ -125,15 +148,12 @@ class cronGetEmail extends cronCommon {
                 if($this->log)
                     $this->logIt("Getting ID from login : $login",5,'general');
 
-                $idperson = $this->getIdPerson($login);
-                if (!$idperson) {
+                $idPerson = $this->getIdPerson($login);
+                if (!$idPerson) {
                     if ($this->log)
                         $this->logIt("Login unknown ! idperson from  $login not found! ", 5, 'general');
                     continue;
                 }
-
-                if($this->log)
-                    $this->logIt("$login, idperson : $idperson",5,'general');
 
                 // ---
                 
@@ -148,7 +168,6 @@ class cronGetEmail extends cronCommon {
 
                     continue;
                 }
-
 
                 // Filters
                 // pipetodo [albandes]: Test this filters
@@ -171,50 +190,225 @@ class cronGetEmail extends cronCommon {
 
                 }
 
-
                 if ($INSERT_SQL == "true")  {
-                    $this->logIt('Passei aqui : ',7,'general',__LINE__);
+                    //$this->logIt('Passei aqui : ',7,'general',__LINE__);
 
                     $code_request = $this->ticket->createRequestCode();
 
                     $this->logIt('Code Request By Class: '. $code_request,7,'general',__LINE__);
 
 
-                    $idperson_juridical = $this->ticket->getIdPersonJuridical($idperson) ;
-                    if(!$idperson_juridical) {
+                    $idCompany = $this->ticket->getIdPersonJuridical($idPerson) ;
+                    if(!$idCompany) {
                         if($this->log)
                             $this->logIt('There is no user related company !!! ',3,'general',__LINE__);
                         continue;
                     }
 
-                    $idStatus 	= 1;
-
-                    $this->logIt('idcompany: '. $idperson_juridical,7,'general',__LINE__);
-
-
-                    $rsCore = $this->ticket->getAreaTypeItemByService($rsGetEmail->fields['idservice']);
+                    $rsCore = $this->ticket->getAreaTypeItemByService($idService);
                     if(!$rsCore) {
                         if($this->log)
                             $this->logIt("Couldn't get Area, Type, Item by service id !!! ",3,'general',__LINE__);
                         continue;
                     }
 
+                    $idItem = $rsCore->fields['iditem'] ;
+                    $idType = $rsCore->fields['idtype'] ;
 
-                    $numRules = $this->ticket->getNumRules($rsCore->fields['iditem'],$rsGetEmail->fields['idservice']);
+                    $idStatus 	= 1;
+
+                    $numRules = $this->ticket->getNumRules($idItem,$idService);
                     if($numRules > 0)  // If have approval rule, put the status of the ticket as repassed (2)
                         $idStatus = 2;
 
+                    $this->logIt('numRules: '. $numRules,7,'general',__LINE__);
 
-                    // pipetodo: Vip User
-                    if($this->ticket->isVipUser($idperson)){
-                        $this->logIt('is vip : '. $idperson,7,'general',__LINE__);
+                    if ( $this->ticket->isVipUser($idPerson)  &&  $this->ticket->hasVipPriority()  ) {
+                        $idPriority = $this->ticket->getVipPriority();
                     } else {
-                        $this->logIt('is not vip : '. $idperson,7,'general',__LINE__);
+                        $idPriority = $this->ticket->getServicePriority($idService);
+                    }
+
+                    $this->logIt('idpriority: '. $idPriority,7,'general',__LINE__);
+
+                    $startDate = $this->ticket->getStartDate();
+                    $expireDate = $this->ticket->getDueDate($idPriority, $idService);
+                    $this->logIt('expireDate: '. $expireDate,7,'general',__LINE__);
+
+                    $idPersonAuthor = $idPerson;
+
+                    $idReason = "NULL"; // pipetodo [albandes]: Colocar no form e no banco de dados o reason
+                    $description = $body ;
+                    $numberOS = "NULL";
+                    $numberTag = "NULL";
+                    $numberSerial = "NULL";
+
+
+                    $this->dbTicket->BeginTrans();
+
+                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$description,$numberOS,$idPriority,$numberTag,$numberSerial,$idCompany,$expireDate,$idPerson,$idStatus,$code_request);
+                    if(!$rs){
+                        $this->dbTicket->RollbackTrans();
+                        if($this->log)
+                            $this->logIt("Did not insert ticket by email # ". $code_request . ' - User: '.$sender.' - program: '.$this->program ,3,'general',__LINE__);
+                        continue;
+                    }
+
+
+                    $idGroup = $this->ticket->getServiceGroup($idService);
+                    if (!$idGroup){
+                        $this->dbTicket->RollbackTrans();
+                        $this->logIt("Failed to get the service group. idService: ". $idService .' - program: '.$this->program ,3,'general',__LINE__);
+                        continue;
+                    }
+
+                    if($numRules > 0)  {
+                        $values = $this->ticket->getApprovalOrder($code_request,$idItem, $idService);
+                        $ret = $this->dbTicketRules->insertApproval($values);
+                        if($ret) {
+
+                            $onlyRep = $this->ticket->checkGroupOnlyRepass($idGroup);
+
+                            if($onlyRep){
+                                $rsNewGroup = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
+                                $idGroup_2 = $rsNewGroup->fields['idperson'];
+
+                                if($idGroup_2) {
+                                    $save = $this->dbTicket->insertRequestCharge($code_request,$idGroup_2,'G', '0');
+                                } else {
+                                    $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '0');
+                                }
+                            } else {
+                                $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '0');
+                            }
+
+                            $idPersonApprover = $this->ticket->getIdPersonApprover($idItem,$idService);
+
+                            if(!$idPersonApprover) {
+                                if ($this->log)
+                                    $this->logIt("Failed to get idPersonApprover, by email. "  . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                                $this->dbTicket->RollbackTrans();
+                                continue;
+                            }
+
+                            $write = $this->dbTicket->insertRequestCharge($code_request, $idPersonApprover, 'P', '1');
+
+                            if(!$save || !$write) {
+                                if ($this->log)
+                                    $this->logIt("Failed to insert in insert request charge, by email.  "  . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                                $this->dbTicket->RollbackTrans();
+                                continue;
+                            }
+
+                        } else {
+                            if($this->log)
+                                $this->logIt("Failed to insert in hdk_tbrequest_approval table, by email !!! " .' Program: '.$this->program ,3,'general',__LINE__);
+                            $this->dbTicket->RollbackTrans();
+                            continue;
+                        }
+
+                    } else {
+
+                        $onlyRep = $this->ticket->checkGroupOnlyRepass($idGroup);
+                        if($onlyRep){
+                            $rsNewGroup = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
+                            $idGroup_2 = $rsNewGroup->fields['idperson'];
+                            if($idGroup_2) {
+                                $save = $this->dbTicket->insertRequestCharge($code_request,$idGroup_2,'G', '1');
+                            } else {
+                                $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '1');
+                            }
+                            if(!$save) {
+                                if ($this->log)
+                                    $this->logIt("Failed to insert in insert request charge, by email.  "  . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                                $this->dbTicket->RollbackTrans();
+                                continue;
+                            }
+                        } else {
+                            $write = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '1');
+                            if (!$write) {
+                                if ($this->log)
+                                    $this->logIt("Failed to insert in insert request charge, by email.  " . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                                $this->dbTicket->RollbackTrans();
+                                continue;
+                            }
+                        }
+
+                    }
+
+
+                    $ret = $this->dbTicket->insertRequestTimesNew($code_request);
+                    if(!$ret){
+                        $this->dbTicket->RollbackTrans();
+                        if($this->log)
+                            $this->logIt("Did not insert Request Time, by email . Program: ".$this->program ,3,'general',__LINE__);
+                        continue;
+                    }
+
+                    $ret = $this->dbTicket->insertRequestLog($code_request,date("Y-m-d H:i:s"),$idStatus,$idPerson);
+                    if(!$ret){
+                        $this->dbTicket->RollbackTrans();
+                        if($this->log)
+                            $this->logIt("Did not insert Request Log, by email. Program: ".$this->program ,3,'general',__LINE__);
+                        continue;
+                    }
+
+                    $date = 'now()' ;
+                    $description = "<p><b>" . $this->_getLanguageWord('Request_opened') . "</b></p>";
+
+                    $serviceVal = 'NULL';
+                    $public     = 1;
+                    $typeNote   = 3;
+                    $callback   = 0;
+                    $execDate   = '0000-00-00 00:00:00';
+
+                    $totalminutes   = 0 ;
+                    $starthour      = 0;
+                    $finishour      = 0;
+                    $hourtype       = 0 ;
+
+                    $ipAddress = '';
+
+                    $ret = $this->dbTicket->insertNote($code_request, $idPerson, $description, $this->databaseNow, $totalminutes, $starthour, $finishour, $execDate, $hourtype, $serviceVal, $public, $typeNote, $ipAddress, $callback, 'NULL' );
+                    if(!$ret){
+                        $this->dbTicket->RollbackTrans();
+                        if($this->log)
+                            $this->logIt("Did not insert Request Note, by email. Program: ".$this->program ,3,'general',__LINE__);
+                        continue;
+                    }
+
+                    $this->dbTicket->CommitTrans();
+
+                    /**
+                     **  Attachments
+                     **/
+                    $attach_err = 0;
+                    
+                    if( $hasAttachments ) {
+                        if($this->log)
+                            $this->logIt("Email has: " . count($a_attachments) . " attachment(s) !"  ,5,'general',__LINE__);
+                        if (!is_writeable($this->attachPath))
+                        {
+                            $this->dbTicket->RollbackTrans();
+                            if($this->log)
+                                $this->logIt("Error directory : " .$this->attachPath . ", is not writable, request  not inserted !!! " . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                            continue;
+                        }
+
+                        $ret = $this->ticket->saveRequestAttachments($a_attachments,$code_request,$this->attachPath);
+                        if(!$ret){
+                            $this->dbTicket->RollbackTrans();
+                            if($this->log)
+                                $this->logIt("There were errors with attachments, request was not generated ! Program: ".$this->program ,3,'general',__LINE__);
+                            continue;
+                        }
 
                     }
 
 
 
+                    if($this->log)
+                        $this->logIt("Insert ticket by email# ". $code_request . ' - User: '.$sender ,5,'general');
 
                 }
 
@@ -224,8 +418,9 @@ class cronGetEmail extends cronCommon {
             $rsGetEmail->MoveNext();
         }
         
-        die('OK');
+        die(PHP_EOL.'OK'.PHP_EOL);
     }
+
 
 
 
@@ -460,6 +655,13 @@ class cronGetEmail extends cronCommon {
             return $primary_mime_type[(int) $structure->type] . '/' . $structure->subtype;
         }
         return "TEXT/PLAIN";
+    }
+
+    function getAttachPath()
+    {
+        $path_parts = pathinfo(dirname(__FILE__));
+        $cron_path = $path_parts['dirname'] ;
+        return  str_replace("\\","/",$cron_path) . "/app/uploads/helpdezk/attachments/" ;
     }
 
 

@@ -888,60 +888,6 @@ class ticket_model extends DynamicTicket_model
     public function insertRequest($idperson_creator, $source, $date, $type, $item, $service, $reason, $way, $subject, $description, $osnumber, $idpriority, $tag, $serial_number, $idjuridical, $expiration_date, $idperson_owner, $idstatus, $code_request)
     {
 
-
-        if($this->database == 'oci8po'){
-
-            $sql =  "
-                    DECLARE
-                        clobVar CLOB := '$description';
-                    BEGIN
-                        INSERT INTO hdk_tbrequest (
-                               code_request,
-                               SUBJECT,
-                               description,
-                               idtype,
-                               iditem,
-                               idservice,
-                               idreason,
-                               idpriority,
-                               idsource,
-                               idperson_creator,
-                               entry_date,
-                               os_number,
-                               label,
-                               serial_number,
-                               idperson_juridical,
-                               expire_date,
-                               idattendance_way,
-                               idperson_owner,
-                               idstatus
-                        )
-                        VALUES
-                        (
-                              $code_request,
-                              '$subject',
-                              clobVar,
-                              $type,
-                              $item,
-                              $service,
-                              $reason,
-                              $idpriority,
-                              $source,
-                              $idperson_creator,
-                              TO_DATE('$date','DD/MM/YYYY HH24:MI:SS'),
-                              '$osnumber',
-                              '$tag',
-                              '$serial_number',
-                              $idjuridical,
-                              TO_DATE('$expiration_date','DD/MM/YYYY HH24:MI:SS'),
-                              $way,
-                              $idperson_owner,
-                              $idstatus
-                           ) ;
-                    END;
-
-                    ";
-        } elseif($this->isMysql($this->database)){
             $sql = "
                     insert into hdk_tbrequest  (code_request,
                                                 `subject`,
@@ -986,8 +932,6 @@ class ticket_model extends DynamicTicket_model
                                               $idstatus
                                               )
                    ";
-        }
-
 
         $ret = $this->db->Execute($sql);
 
@@ -1067,11 +1011,9 @@ class ticket_model extends DynamicTicket_model
 
     public function insertRequestLog($code_request, $date, $idstatus, $idperson) {
 
-        if($this->isMysql($this->database)) {
+
             $vSQL = "insert into hdk_tbrequest_log (cod_request,date,idstatus,idperson) values ($code_request, '$date', $idstatus, $idperson)";
-        } elseif($this->database == 'oci8po') {
-            $vSQL = "insert into hdk_tbrequest_log (cod_request,date_,idstatus,idperson) values ($code_request, to_date('$date','YYYY-MM-DD HH24:MI:SS'), $idstatus, $idperson)";
-        }
+
 
         $ret = $this->db->Execute($vSQL);
 
@@ -1125,7 +1067,9 @@ class ticket_model extends DynamicTicket_model
                   ) ;
 
                 ";
+
         $ret = $this->db->Execute($sql);
+
         if (!$ret) {
             $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
             $this->error($sError);
@@ -1134,6 +1078,16 @@ class ticket_model extends DynamicTicket_model
         return $this->db->Insert_ID( );
     }
 
+    public function deleteTicketAtt($idAttachment){
+        $sql =  " delete from hdk_tbrequest_attachment where idrequest_attachment = '".$idAttachment."'" ;
+        $ret = $this->db->Execute($sql);
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return true;
+    }
     public function selectUser($where = NULL, $order = NULL, $limit = NULL) {
         
         if ($this->database == 'mysqli') {
