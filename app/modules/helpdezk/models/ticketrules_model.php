@@ -25,7 +25,15 @@ class ticketrules_model extends DynamicTicketRules_model {
 			return $this->db->Execute("SELECT idapproval, idperson, `order`, fl_recalculate FROM hdk_tbapproval_rule WHERE iditem = $iditem AND idservice = $idservice ORDER BY `order` ASC");
 		}
 	}
-	
+
+    public function getIdPersonApproverRule($iditem, $idservice)
+    {
+
+        $rs = $this->db->Execute("SELECT idperson FROM hdk_tbapproval_rule WHERE iditem = $iditem AND idservice = $idservice AND `order` = 1 ");
+        return $rs->fields['idperson'] ;
+
+    }
+
 	public function insertApproval($values){
 		if ($this->database == 'oci8po') {
 			return $this->db->Execute('INSERT INTO hdk_tbrequest_approval (idapproval, request_code, order_ , idperson, fl_recalculate) '.

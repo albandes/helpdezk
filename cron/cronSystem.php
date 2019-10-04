@@ -307,6 +307,12 @@ class cronSystem{
         }
     }
 
+    public function formatSaveDate($date) {
+        $dbCommon = new common();
+        $dateafter = $dbCommon->getSaveDate($date, $this->getConfig("date_format"));
+        return "'".$dateafter."'";
+    }
+
     /**
      * Method to send e-mails
      *
@@ -610,6 +616,99 @@ class cronSystem{
 
     }
 
+    public function _getLanguageWord($smartyConfig)
+    {
+        $smarty = $this->_returnSmarty();
+        return  $smarty->getConfigVars($smartyConfig);
+    }
+
+    public function _returnSmarty()
+    {
+
+        $smartPluginsDir = $this->_getHelpdezkPath(). "/system/smarty_plugins/";
+        if (!file_exists($smartPluginsDir)) {
+            die ('ERROR: ' .$smartPluginsDir . ' , does not exist  !!!!') ;
+        }
+
+        $smartCompileDir = $this->_getHelpdezkPath(). "/system/templates_c/";
+
+        if (!file_exists($smartCompileDir)) {
+            if (!mkdir($smartCompileDir, 0777, true)) {
+                die ('ERROR: ' .$smartCompileDir . ' , does not exist and could not be created !!!!') ;
+            }
+
+        }
+        if (!is_writable($smartCompileDir)) {
+            if (!chmod($smartCompileDir,0777)){
+                die($smartCompileDir . ' is not writable !!!') ;
+            }
+
+        }
+
+        switch ($this->_getSmartyVersion()) {
+            case 'smarty-old':
+                $dirSmarty = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-old/Smarty.class.php';
+                break;
+            case 'smarty-2.6.30':
+                $dirSmarty = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
+                break;
+            case 'smarty-3.1.32':
+                $dirSmarty = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
+                $dirPluginDefault = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-3.1.32/libs/plugins';
+                break;
+        }
+
+        if (!file_exists($dirSmarty))
+            die('Smarty Class doesn´t exists: ' . $dirSmarty . ' file: '. __FILE__);
+
+        require_once($dirSmarty);
+
+        $smarty = new Smarty;
+        $smarty->debugging = false;
+        $smarty->caching = false;
+        $smarty->compile_dir = $smartCompileDir;
+
+        $lang_default = $this->getConfig("lang");
+        $license =  $this->getConfig("license");
+
+        $smartConfigFile = $this->_getHelpdezkPath().'/app/lang/' . $lang_default . '.txt';
+        if (!file_exists($smartConfigFile)) {
+            die('Lang file: ' . $smartConfigFile . ' does not exist !!!!') ;
+        }
+
+        if (version_compare(Smarty::SMARTY_VERSION, '3', '>=' )) {
+            $smarty->configLoad($smartConfigFile, $license);
+            $smarty->setPluginsDir(array($dirPluginDefault,$smartPluginsDir));
+        } else {
+            $smarty->config_load($smartConfigFile, $license);
+            $smarty->plugins_dir[] = $smartPluginsDir;
+        }
+
+        return $smarty;
+    }
+
+    // Since October 03, 2019
+    public function _getHelpdezkPath()
+    {
+
+        $path_parts = pathinfo(dirname(__FILE__));
+        $document_root=$path_parts['dirname'];
+
+
+        if(substr($document_root, -1)!='/'){
+            $document_root=$document_root.'/';
+        }
+
+
+        return  $document_root ;
+    }
+
+
+    // pipetodo [albandes] : Tem que ir para o config.php
+    public function _getSmartyVersion()
+    {
+        return 'smarty-3.1.32' ;
+    }
 }
 
 ?>
