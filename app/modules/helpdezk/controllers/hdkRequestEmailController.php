@@ -180,9 +180,10 @@ class hdkRequestEmail extends hdkCommon
         if ($oper == 'update') {
             $idAreaDefault = $rs->fields['idarea'];
         } elseif ($oper == 'create') {
-            $idAreaDefault = $this->_getIdCoreDefault('area');            
+            $idAreaDefault = '';
         } 
-        $arrArea = $this->_comboArea();        
+        $arrArea = $this->_comboArea();
+
         $objSmarty->assign('areaids',  $arrArea['ids']);
         $objSmarty->assign('areavals', $arrArea['values']);
         $objSmarty->assign('idarea', $idAreaDefault);
@@ -196,6 +197,7 @@ class hdkRequestEmail extends hdkCommon
         }        
         $objSmarty->assign('typeids',  $arrType['ids']);
         $objSmarty->assign('typevals', $arrType['values']);
+        $objSmarty->assign('idtype', $idtype);
 
         // --- Item ---
         $arrItem = $this->_comboItem($idtype);
@@ -206,6 +208,7 @@ class hdkRequestEmail extends hdkCommon
         }
         $objSmarty->assign('itemids',  $arrItem['ids']);
         $objSmarty->assign('itemvals', $arrItem['values']);
+        $objSmarty->assign('iditem', $iditem);
 
         // --- Service ---
         $arrService = $this->_comboService($iditem);
@@ -216,6 +219,7 @@ class hdkRequestEmail extends hdkCommon
         }
         $objSmarty->assign('serviceids',  $arrService['ids']);
         $objSmarty->assign('servicevals', $arrService['values']);
+        $objSmarty->assign('idservice', $idservice);
 
         // --- Login layout ---        
         if ($oper == 'update') {
