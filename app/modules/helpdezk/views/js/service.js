@@ -839,6 +839,8 @@ $(document).ready(function () {
         $('#checkServDefault').iCheck('unCheck');
         $('#checkServClassification').iCheck('unCheck');
 
+        $('#checkRecalculate').iCheck('unCheck');
+
         $('#area_form').trigger('reset');
         $('#area_update_form').trigger('reset');
         $('#type_form').trigger('reset');
@@ -885,6 +887,12 @@ $(document).ready(function () {
                 objServices.changeServiceStatus(idtype,'N');
             }
         });
+
+        $('#confCmbType').html('').trigger("chosen:updated");
+        $('#confCmbItem').html('').trigger("chosen:updated");
+        $('#confCmbService').html('').trigger("chosen:updated");
+        $('#confCmbUser').html('').trigger("chosen:updated");
+        $("#userslist").html('');
     });
 
 
