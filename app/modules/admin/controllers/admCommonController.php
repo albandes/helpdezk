@@ -16,9 +16,6 @@ class admCommon extends Controllers  {
 
         parent::__construct();
 
-        //$dbTicket = new ticket_model();
-        //$this->dbTicket = $dbTicket;
-
         // Log settings
         $objSyslog = new Syslog();
         $this->log  = $objSyslog->setLogStatus() ;
@@ -67,11 +64,7 @@ class admCommon extends Controllers  {
         $dbGroups = new groups_model();
         $this->dbGroups = $dbGroups;
 		
-		$this->loadModel('helpdezk/ticket_model');
-        $dbTicket = new ticket_model();
-        $this->dbTicket = $dbTicket;
-
-        // Tracker Settings
+		// Tracker Settings
         if($_SESSION['TRACKER_STATUS'] == 1) {
             $this->modulename = 'admin' ;
             $this->idmodule = $this->getIdModule($this->modulename) ;
@@ -353,157 +346,6 @@ class admCommon extends Controllers  {
         $arrRet['values'] = $values;
 
         return $arrRet;
-    }
-	
-	public function _comboArea()
-    {
-        $rs = $this->dbTicket->selectArea();
-        while (!$rs->EOF) {
-            $fieldsID[] = $rs->fields['idarea'];
-            $values[]   = $rs->fields['name'];
-            $default[] = $rs->fields['default'];
-            $rs->MoveNext();
-        }
-
-        $arrRet['ids'] = $fieldsID;
-        $arrRet['values'] = $values;
-        //$arrRet['default'] = $default;
-
-        return $arrRet;
-    }
-
-    public function _getIdCoreDefault($table){
-        return $this->dbTicket->selectIdCoreDefault($table);
-    }
-
-    public function _comboType($idArea)
-    {
-        $rs = $this->dbTicket->selectType($idArea);
-        while (!$rs->EOF) {
-            $fieldsID[] = $rs->fields['idtype'];
-            $values[]   = $rs->fields['name'];
-            $default[] = $rs->fields['default'];
-            $rs->MoveNext();
-        }
-
-        $arrRet['ids'] = $fieldsID;
-        $arrRet['values'] = $values;
-        $arrRet['default'] = $default;
-
-        return $arrRet;
-    }
-
-    public function _comboTypeHtml($idArea)
-    {
-
-        $arrType = $this->_comboType($idArea);
-        $select = '';
-
-        foreach ( $arrType['ids'] as $indexKey => $indexValue ) {
-            if ($arrType['default'][$indexKey] == 1) {
-                $default = 'selected="selected"';
-            } else {
-                $default = '';
-            }
-            $select .= "<option value='$indexValue' $default>".$arrType['values'][$indexKey]."</option>";
-        }
-        return $select;
-    }
-
-    public function _comboItem($idType)
-    {
-        $rs = $this->dbTicket->selectItem($idType);
-        while (!$rs->EOF) {
-            $fieldsID[] = $rs->fields['iditem'];
-            $values[]   = $rs->fields['name'];
-            $default[] = $rs->fields['default'];
-            $rs->MoveNext();
-        }
-
-        $arrRet['ids'] = $fieldsID;
-        $arrRet['values'] = $values;
-        $arrRet['default'] = $default;
-
-        return $arrRet;
-    }
-
-    public function _comboItemHtml($idType)
-    {
-
-        $arrItem = $this->_comboItem($idType);
-        $select = '';
-        foreach ( $arrItem['ids'] as $indexKey => $indexValue ) {
-            if ($arrItem['default'][$indexKey] == 1) {
-                $default = 'selected="selected"';
-            } else {
-                $default = '';
-            }
-            $select .= "<option value='$indexValue' $default>".$arrItem['values'][$indexKey]."</option>";
-        }
-
-        return $select;
-    }
-
-    public function _comboService($idItem)
-    {
-        $rs = $this->dbTicket->selectService($idItem);
-        while (!$rs->EOF) {
-            $fieldsID[] = $rs->fields['idservice'];
-            $values[]   = $rs->fields['name'];
-            $default[] = $rs->fields['default'];
-            $rs->MoveNext();
-        }
-
-        $arrRet['ids'] = $fieldsID;
-        $arrRet['values'] = $values;
-        $arrRet['default'] = $default;
-
-        return $arrRet;
-    }
-
-    public function _comboServiceHtml($idItem)
-    {
-
-        $arrService = $this->_comboService($idItem);
-        $select = '';
-        foreach ( $arrService['ids'] as $indexKey => $indexValue ) {
-            if ($arrService['default'][$indexKey] == 1) {
-                $default = 'selected="selected"';
-            } else {
-                $default = '';
-            }
-            $select .= "<option value='$indexValue' $default>".$arrService['values'][$indexKey]."</option>";
-        }
-
-        return $select;
-    }
-
-    public function _comboServerType()
-    {
-        $arrRet['ids'] = array("","pop","imap","pop-gmail","imap-gmail");
-        $arrRet['values'] = array($this->getLanguageWord('Select'),"POP","IMAP","POP - Gmail","IMAP - Gmail");
-
-        return $arrRet;
-    }
-
-    public function _comboLoginLayout()
-    {
-        $arrRet['ids'] = array("","U","E");
-        $arrRet['values'] = array($this->getLanguageWord('Select'),$this->getLanguageWord('User'),"Full E-mail");
-
-        return $arrRet;
-    }
-
-    public function _comboDepartmentHtml($companyID)
-    {
-
-        $arrDepartment = $this->_comboDepartment($companyID);
-        $select = '';
-        foreach ( $arrDepartment['ids'] as $indexKey => $indexValue ) {
-            $select .= "<option value='$indexValue'>".$arrDepartment['values'][$indexKey]."</option>";
-        }
-
-        return $select;
     }
 
 }

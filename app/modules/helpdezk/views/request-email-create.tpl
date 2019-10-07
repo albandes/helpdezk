@@ -207,6 +207,7 @@
                                 <label class="col-sm-2 control-label">{$smarty.config.Area}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbArea" name="cmbArea" data-placeholder="{$plh_category_select}" >
+                                        <option value="">{$smarty.config.Select}</option>
                                         {html_options values=$areaids output=$areavals selected=$idarea}
                                     </select>
                                 </div>
@@ -216,6 +217,7 @@
                                 <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbType" name="cmbType" data-placeholder="{$plh_category_select}" >
+                                        <option value="">{$smarty.config.Select}</option>
                                         {html_options values=$typeids output=$typevals selected=$idtype}
                                     </select>
                                 </div>
@@ -225,6 +227,7 @@
                                 <label class="col-sm-2 control-label">{$smarty.config.Item}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbItem" name="cmbItem" data-placeholder="{$plh_category_select}" >
+                                        <option value="">{$smarty.config.Select}</option>
                                         {html_options values=$itemids output=$itemvals selected=$iditem}
                                     </select>
                                 </div>
@@ -234,6 +237,7 @@
                                 <label class="col-sm-2 control-label">{$smarty.config.Service}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbService" name="cmbService" data-placeholder="{$plh_category_select}" >
+                                        <option value="">{$smarty.config.Select}</option>
                                         {html_options values=$serviceids output=$servicevals selected=$idservice}
                                     </select>
                                 </div>
