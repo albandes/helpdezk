@@ -912,10 +912,10 @@ class common extends dynamicCommonModel {
 
     public function getDate($date, $format)
     {
-        $database = $this->getConfig('db_connect');
-        if ($this->isMysql($database)) {
-            $query = "SELECT DATE_FORMAT('$date','$format') as date" ;
-        } elseif ($database == 'oci8po') {
+
+         $query = "SELECT DATE_FORMAT('$date','$format') as date" ;
+        /*
+        elseif ($database == 'oci8po') {
             if ((strpos($date, '-') === false)&&(strpos($date, '/') === false)){
                 $query = "SELECT to_char(TO_DATE('$date','YYYYMMDD'), 'DD/MM/YYYY') as \"date\"  from dual";
             }else if(strpos($date, '-') === false){
@@ -923,8 +923,8 @@ class common extends dynamicCommonModel {
             }else{
                 $query = "SELECT to_char(TO_DATE('$date','YYYY-MM-DD HH24:MI'), 'DD/MM/YYYY') as \"date\" from dual";
             }
+        */
 
-        }
         $ret = $this->db->Execute($query);
         if(!$ret) {
             $sError = $query."Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
