@@ -53,9 +53,19 @@ class cronSystem{
     public function setConfig($type = null, $value = null) {
         $path_parts = pathinfo(dirname(__FILE__));
 
-        if ((include $path_parts['dirname'] . '/includes/config/config.php') == false) {
-            die('The config file does not exist: ' . 'includes/config/config.php, line '.__LINE__ . '!!!');
+        $pathConfig = $path_parts['dirname'] . '/includes/config/config.php';
+
+
+
+        if ((include $pathConfig) == FALSE) {
+            die('The config file does not exist: ' . $pathConfig . ' , line '.__LINE__ . '!!!');
+        } else {
+            echo 'OK';
         }
+        //if ((include './includes/config/config.php') == false) {
+        //if ((include $pathConfig) == false) {
+        //    die('The config file does not exist: ' . $pathConfig . ' , line '.__LINE__ . '!!!');
+        //}
 
         if($type && $value){
             $this->_config[$type] = $value;
@@ -313,6 +323,12 @@ class cronSystem{
         return "'".$dateafter."'";
     }
 
+    public function formatDate($date) {
+        $dbCommon = new common();
+        $dateafter = $dbCommon->getDate($date, $this->getConfig("date_format"));
+        return $dateafter;
+    }
+
     /**
      * Method to send e-mails
      *
@@ -407,6 +423,8 @@ class cronSystem{
             "server" => $server
         );
 
+
+
         if ($typesender == 'mandrill') {
             $aEmail = !is_array($params['address']) ? $this->makeArraySendTo($params['address']) : $params['address'];
             foreach ($aEmail as $key => $sendEmailTo) {
@@ -426,7 +444,6 @@ class cronSystem{
                 }
             }
         }else{
-            // Tracker
 
             if($params['tracker']) {
 
@@ -444,7 +461,7 @@ class cronSystem{
                         $arrMessage['to'] = $sendEmailTo['to_address'];
                         $trackerID = '<img src="'.$this->helpdezkUrl.'/tracker/'.$params['modulename'].'/'.$idEmail.'.png" height="1" width="1" />' ;
                         $arrMessage['body'] = $mail_header . $params['contents'] . $mail_footer . $trackerID;
-
+                        echo PHP_EOL . 'send ' . $params['tracker'] . PHP_EOL ;
                         $error_send = $this->isSendDone($mail,$arrMessage,$paramsDone);
                     }
                 }
@@ -479,7 +496,9 @@ class cronSystem{
     public function returnMailer($sender)
     {
 
-        $mailerDir = $this->_path . '/includes/classes/sendMail/sendMail.php';
+
+        $mailerDir = $this->_path . '/includes/classes/pipegrep/sendMail.php';
+
 
         if (!file_exists($mailerDir)) {
             die ('ERROR: ' .$mailerDir . ' , does not exist  !!!!') ;
@@ -494,7 +513,7 @@ class cronSystem{
 
     public function isSendDone($objmail,$message,$params){
         $done = $objmail->sendEmail($message);
-        //print_r($done);
+        print_r($done);
         if ($done['status'] == 'error') {
             if($this->log AND $_SESSION['EM_FAILURE_LOG'] == '1') {
                 $this->logIt("Error send email, " . $params['msg'] . ' - program: ' . $this->program, 3, 'email', __LINE__);
@@ -516,7 +535,10 @@ class cronSystem{
                 $this->saveMandrillID($params['idemail'],$done['result'][0]['_id']);
             }
 
-            $this->updateEmailSendTime($params['idemail']);
+            $this->_updateEmailSendTime($params['idemail']);
+
+
+
             $error_send = false;
         }
 
@@ -538,7 +560,7 @@ class cronSystem{
 
     }
 
-    function updateEmailSendTime($idemail)
+    function _updateEmailSendTime($idemail)
     {
         $this->loadModel('admin/tracker_model');
         $dbTracker = new tracker_model();
@@ -647,14 +669,14 @@ class cronSystem{
 
         switch ($this->_getSmartyVersion()) {
             case 'smarty-old':
-                $dirSmarty = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-old/Smarty.class.php';
+                $dirSmarty = $this->_getHelpdezkPath().'/includes/classes/smarty/smarty-old/Smarty.class.php';
                 break;
             case 'smarty-2.6.30':
-                $dirSmarty = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
+                $dirSmarty = $this->_getHelpdezkPath().'/includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
                 break;
             case 'smarty-3.1.32':
-                $dirSmarty = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
-                $dirPluginDefault = $this->_getHelpdezkPath().'includes/classes/smarty/smarty-3.1.32/libs/plugins';
+                $dirSmarty = $this->_getHelpdezkPath().'/includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
+                $dirPluginDefault = $this->_getHelpdezkPath().'/includes/classes/smarty/smarty-3.1.32/libs/plugins';
                 break;
         }
 
@@ -702,7 +724,6 @@ class cronSystem{
 
         return  $document_root ;
     }
-
 
     // pipetodo [albandes] : Tem que ir para o config.php
     public function _getSmartyVersion()

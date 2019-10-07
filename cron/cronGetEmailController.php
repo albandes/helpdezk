@@ -59,6 +59,9 @@ class cronGetEmail extends cronCommon {
         if (!function_exists('imap_open'))
             die("IMAP functions are not available.");
 
+        //$this->_cronSendNotification();
+        //die();
+
         $rsGetEmail = $this->dbGetEmail->getRequestEmail();
 
         $idSource = 3;
@@ -197,7 +200,6 @@ class cronGetEmail extends cronCommon {
 
                     $this->logIt('Code Request By Class: '. $code_request,7,'general',__LINE__);
 
-
                     $idCompany = $this->ticket->getIdPersonJuridical($idPerson) ;
                     if(!$idCompany) {
                         if($this->log)
@@ -253,7 +255,6 @@ class cronGetEmail extends cronCommon {
                             $this->logIt("Did not insert ticket by email # ". $code_request . ' - User: '.$sender.' - program: '.$this->program ,3,'general',__LINE__);
                         continue;
                     }
-
 
                     $idGroup = $this->ticket->getServiceGroup($idService);
                     if (!$idGroup){
@@ -406,6 +407,8 @@ class cronGetEmail extends cronCommon {
                     }
 
 
+                    echo 'aqui';
+                    $this->_cronSendNotification('new-ticket-user','email',$code_request);
 
                     if($this->log)
                         $this->logIt("Insert ticket by email# ". $code_request . ' - User: '.$sender ,5,'general');

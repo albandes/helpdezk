@@ -27,7 +27,7 @@ class cronModel extends cronSystem{
 
         if($db_connect == 'mysqli'){
             if (!$this->db->Connect($db_hostname, $db_username, $db_password, $db_name)) {
-                die("<br>Error connecting to database ----: " . $this->db->ErrorNo() . " - " . $this->db->ErrorMsg());
+                die("<br>Error connecting to database: " . $this->db->ErrorNo() . " - " . $this->db->ErrorMsg() . " File: " . __FILE__ . " Line: " . __LINE__);
             }
         }
         elseif ($db_connect == 'oci8po'){
@@ -36,7 +36,7 @@ class cronModel extends cronSystem{
 						(CONNECT_DATA=(SERVICE_NAME=".$db_sn.")))
 					";
             if (!$this->db->Connect($ora_db, $db_username, $db_password)){
-                die("<br>Error connecting to database: " . $this->db->ErrorNo() . " - " . $this->db->ErrorMsg() );
+                die("<br>Error connecting to database: " . $this->db->ErrorNo() . " - " . $this->db->ErrorMsg() . __LINE__ );
             }
         }
 

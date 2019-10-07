@@ -563,7 +563,7 @@ class ticket_model extends DynamicTicket_model
     }
 
     public function getRequestNotes($id) {
-        if($this->isMysql($this->database)) {
+        
             $vSQL = "
                     SELECT
                       nt.idnote,
@@ -587,32 +587,7 @@ class ticket_model extends DynamicTicket_model
                     WHERE code_request = '$id' AND pers.idperson = nt.idperson
                     ORDER BY idnote DESC
                     ";
-        } else {
-            $vSQL = "select
-                          nt.idnote,
-                          pers.idperson,
-                          pers.name,
-                          nt.description,
-                          to_char(nt.entry_date,'DD/MM/YYYY HH24:MI') entry_date,
-                          nt.minutes,
-                          nt.start_hour,
-                          nt.finish_hour,
-                          to_char(nt.execution_date,'DD/MM/YYYY HH24:MI') execution_date,
-                          nt.public_,
-                          nt.idtype,
-                          nt.idnote_attachment,
-                          nt.ip_adress,
-                          nt.callback,
-                          nta.file_name,
-                          TO_CHAR(TRUNC(SYSDATE) + ( NUMTODSINTERVAL(TO_DATE(nt.finish_hour,'HH24:MI:SS') - to_date(nt.start_hour, 'HH24:MI:SS'), 'DAY')),'HH24:MI:SS') AS diferenca,
-                          nt.hour_type,
-                          nt.flag_opened
-                        from
-                          hdk_tbnote  nt,
-                          tbperson  pers,
-                          hdk_tbnote_attachment  nta
-                        where code_request = '$id' and nt.idnote_attachment = nta.idnote_attachment(+) and pers.idperson = nt.idperson  order by idnote desc";
-        }
+
 
 
         $ret = $this->db->Execute($vSQL);
