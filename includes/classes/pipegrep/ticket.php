@@ -8,12 +8,11 @@
 
 class ticket {
 
-    public function __construct($debug = '')
+    public function __construct($debug = false)
     {
         session_start();
 
-        if ($debug == 'debug')
-            $this->debug = true ;
+
 
         $this->_loadModel('helpdezk/ticket_model');
         $this->_dbTicket = new ticket_model();
