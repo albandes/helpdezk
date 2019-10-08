@@ -24,7 +24,7 @@ class cronGetEmail extends cronCommon {
         parent::__construct();
 
         // Debug Settings
-        $this->debug = true ;
+        $this->debug = false ;
 
         // Log settings
         $this->log = parent::$_logStatus;
@@ -50,7 +50,7 @@ class cronGetEmail extends cronCommon {
         $this->dbTicketRules = $dbTicketRules;
 
 
-        $this->ticket = new ticket('debug');
+        $this->ticket = new ticket($this->debug);
 
     }
 
@@ -58,9 +58,6 @@ class cronGetEmail extends cronCommon {
     {
         if (!function_exists('imap_open'))
             die("IMAP functions are not available.");
-
-        //$this->_cronSendNotification();
-        //die();
 
         $rsGetEmail = $this->dbGetEmail->getRequestEmail();
 
@@ -132,11 +129,10 @@ class cronGetEmail extends cronCommon {
                 unset($a_attachments);
                 $arrayAtt = $this->extractAttachments($mbox, $i) ;
                 $a_attachments = $this->parseAttachments($arrayAtt);
+                // ----------------------------------------------------------------------------
 
                 if(count($a_attachments) > 0)
                     $hasAttachments = true;
-
-
 
                 if($this->log)
                     $this->logIt('layout: '. $rsGetEmail->fields['login_layout'] ,5,'general');
@@ -383,6 +379,7 @@ class cronGetEmail extends cronCommon {
                     /**
                      **  Attachments
                      **/
+
                     $attach_err = 0;
                     
                     if( $hasAttachments ) {
@@ -406,8 +403,8 @@ class cronGetEmail extends cronCommon {
 
                     }
 
+                    // pipetodo [albandes]: Need delete files and database register if have problem in attachs
 
-                    echo 'aqui';
                     $this->_cronSendNotification('new-ticket-user','email',$code_request);
 
                     if($this->log)

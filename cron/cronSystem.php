@@ -513,7 +513,7 @@ class cronSystem{
 
     public function isSendDone($objmail,$message,$params){
         $done = $objmail->sendEmail($message);
-        print_r($done);
+
         if ($done['status'] == 'error') {
             if($this->log AND $_SESSION['EM_FAILURE_LOG'] == '1') {
                 $this->logIt("Error send email, " . $params['msg'] . ' - program: ' . $this->program, 3, 'email', __LINE__);
