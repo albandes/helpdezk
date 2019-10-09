@@ -335,7 +335,7 @@ class cronSystem{
      *
      * @return string true|false
      */
-    public function sendEmailDefaultNew($params,$typesender=null)
+    public function sendEmailDefaultNew($params,$typesender=null,$token=null)
     {
         $dbCommon = new common();
         $emconfigs = $dbCommon->getEmailConfigs();
@@ -357,8 +357,19 @@ class cronSystem{
             $typesender = strpos($mail_host,'mandrill') !== false ? 'mandrill' : 'SMTP';
         }
 
+        if(!$token){
+            if(strpos($typesender,'mandrill') !== false){
+                if(!$this->getConfig('mandrill_token')){
+                    $this->logIt("Not found this param: 'mandrill_token', in config file" .' - program: ' . $this->program, 3, 'general', __LINE__);
+                    return false;
+                }
 
-        $mail = $this->returnMailer($typesender);
+                $token =  $this->getConfig('mandrill_token');
+            }
+        }
+
+
+        $mail = $this->returnMailer($typesender,$token);
 
         if($params['customHeader'] && $params['customHeader'] != ''){
             $arrCustomHead = explode(': ',$params['customHeader']);
@@ -492,7 +503,7 @@ class cronSystem{
 
     }
 
-    public function returnMailer($sender)
+    public function returnMailer($sender,$token=null)
     {
 
 
@@ -505,7 +516,7 @@ class cronSystem{
 
         require_once($mailerDir);
 
-        $mail = new sendMail($sender);
+        $mail = new sendMail($sender,$token);
 
         return $mail;
     }
