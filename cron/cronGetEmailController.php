@@ -59,10 +59,13 @@ class cronGetEmail extends cronCommon {
         if (!function_exists('imap_open'))
             die("IMAP functions are not available.");
 
+
         $rsGetEmail = $this->dbGetEmail->getRequestEmail();
 
         $idSource = 3;
         $idWay    = 3;
+
+        $deleteFromServer = $rsGetEmail->fields['ind_delete_server'];
 
         while(!$rsGetEmail->EOF){
 
@@ -125,10 +128,7 @@ class cronGetEmail extends cronCommon {
                 // --- Body -------------------------------------------------------------------
                 $body = $this->getBody($mbox,$i);
                 // --- Attachments ------------------------------------------------------------
-                unset($arrayAtt);
-                unset($a_attachments);
-                $arrayAtt = $this->extractAttachments($mbox, $i) ;
-                $a_attachments = $this->parseAttachments($arrayAtt);
+                $a_attachments = $this->getAttachments($mbox,$i);
                 // ----------------------------------------------------------------------------
 
                 if(count($a_attachments) > 0)
@@ -154,17 +154,14 @@ class cronGetEmail extends cronCommon {
                     continue;
                 }
 
-                // ---
-                
                 // To check if there is already a request associated with the email id
                 $rsCodeEmail = $this->dbGetEmail->getRequestCodEmail($id);
                 if (!$rsCodeEmail->EOF){
-                    if ($rsGetEmail->fields['ind_delete_server']) {
+                    if ($deleteFromServer) {
                         imap_delete($mbox, $i);	 // Mark email to delete
                     }
                     if($this->log)
                         $this->logIt('Already have request associated : '. $rsCodeEmail->fields['code_request']." Sender: "  . $sender ,3,'general',__LINE__);
-
                     continue;
                 }
 
@@ -235,16 +232,12 @@ class cronGetEmail extends cronCommon {
 
                     $idPersonAuthor = $idPerson;
 
-                    $idReason = "NULL"; // pipetodo [albandes]: Colocar no form e no banco de dados o reason
-                    $description = $body ;
-                    $numberOS = "NULL";
-                    $numberTag = "NULL";
-                    $numberSerial = "NULL";
-
+                    $idReason = 'NULL';
+                    // pipetodo [albandes]: Colocar no form e no banco de dados o reason
 
                     $this->dbTicket->BeginTrans();
 
-                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$description,$numberOS,$idPriority,$numberTag,$numberSerial,$idCompany,$expireDate,$idPerson,$idStatus,$code_request);
+                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$body,'',$idPriority,'','',$idCompany,$expireDate,$idPerson,$idStatus,$code_request);
                     if(!$rs){
                         $this->dbTicket->RollbackTrans();
                         if($this->log)
@@ -350,23 +343,9 @@ class cronGetEmail extends cronCommon {
                         continue;
                     }
 
-                    $date = 'now()' ;
                     $description = "<p><b>" . $this->_getLanguageWord('Request_opened') . "</b></p>";
 
-                    $serviceVal = 'NULL';
-                    $public     = 1;
-                    $typeNote   = 3;
-                    $callback   = 0;
-                    $execDate   = '0000-00-00 00:00:00';
-
-                    $totalminutes   = 0 ;
-                    $starthour      = 0;
-                    $finishour      = 0;
-                    $hourtype       = 0 ;
-
-                    $ipAddress = '';
-
-                    $ret = $this->dbTicket->insertNote($code_request, $idPerson, $description, $this->databaseNow, $totalminutes, $starthour, $finishour, $execDate, $hourtype, $serviceVal, $public, $typeNote, $ipAddress, $callback, 'NULL' );
+                    $ret = $this->dbTicket->insertNote($code_request, $idPerson, $description, $this->databaseNow, 0, 0, 0, '0000-00-00 00:00:00', 0, NULL, 1, 3, '', 0, NULL );
                     if(!$ret){
                         $this->dbTicket->RollbackTrans();
                         if($this->log)
@@ -423,6 +402,14 @@ class cronGetEmail extends cronCommon {
 
 
 
+    function getAttachments($mbox, $i)
+    {
+        unset($arrayAtt);
+        unset($a_attachments);
+        $arrayAtt = $this->extractAttachments($mbox, $i) ;
+        return $this->parseAttachments($arrayAtt);
+
+    }
 
     function  getCodeRequestFromSubject($subject)
     {

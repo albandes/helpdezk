@@ -12,8 +12,6 @@ class ticket {
     {
         session_start();
 
-
-
         $this->_loadModel('helpdezk/ticket_model');
         $this->_dbTicket = new ticket_model();
 
