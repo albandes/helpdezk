@@ -665,7 +665,7 @@
                 <div class="col-sm-12 text-center">
                     <div class="col-sm-2">
                         <button type="button" class="btn btn-primary" id="btnSendNote" >
-                            <i class='fa fa-paper-plane'></i>
+                            <i class='fa fa-paper-plane' aria-hidden="true"></i>
                             {$smarty.config.Send}
                         </button>
                     </div>
