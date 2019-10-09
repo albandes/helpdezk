@@ -449,7 +449,7 @@ body.fixed-sidebar.mini-navbar .navbar-default .nav li a span {
   border: none;
 }
 .top-navigation .nav > li.active > a {
-  color: #1ab394;
+  color: #3F6873;
 }
 .top-navigation .navbar-right {
   margin-right: 10px;
@@ -567,8 +567,8 @@ body-small.fixed-sidebar.mini-navbar .top-navigation #page-wrapper {
   color: #fff;
 }
 .btn-primary {
-  background-color: #1ab394;
-  border-color: #1ab394;
+  background-color: #E04579;
+  border-color: #E04579;
   color: #FFFFFF;
 }
 .btn-primary:hover,
@@ -576,8 +576,8 @@ body-small.fixed-sidebar.mini-navbar .top-navigation #page-wrapper {
 .btn-primary:active,
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
-  background-color: #18a689;
-  border-color: #18a689;
+  background-color: #EB7DA2;
+  border-color: #EB7DA2;
   color: #FFFFFF;
 }
 .btn-primary:active,
