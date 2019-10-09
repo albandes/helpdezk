@@ -99,6 +99,7 @@ class ticket {
 
     }
 
+/*
     public function getNewGroupOnlyRepass($idGroup,$idCompany)
     {
         $rsNewGroup = $this->_dbGroups->getNewGroupOnlyRepass($idGroup,$idCompany);
@@ -108,18 +109,24 @@ class ticket {
             return $rsNewGroup;
         }
     }
+*/
+
+    public function getIdGroupOnlyRepass($idGroup,$idCompany)
+    {
+        $rsGroup = $this->_dbGroups->getNewGroupOnlyRepass($idGroup,$idCompany);
+
+        if(!$rsGroup) {
+            return false;
+        } else {
+            return $rsGroup->fields['idperson'];
+        }
+
+    }
+
 
     public function checkGroupOnlyRepass($idGroup)
     {
         $rsOnlyRep = $this->_dbGroups->checkGroupOnlyRepass($idGroup);
-        /*
-        if ($rsOnlyRep->fields['repass_only'] == "Y") {
-            return true;
-        } else {
-            return false;
-        }
-        */
-
         return ($rsOnlyRep->fields['repass_only'] == "Y" ? true : false);
     }
 

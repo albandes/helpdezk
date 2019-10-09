@@ -187,7 +187,6 @@ class cronGetEmail extends cronCommon {
                 }
 
                 if ($INSERT_SQL == "true")  {
-                    //$this->logIt('Passei aqui : ',7,'general',__LINE__);
 
                     $code_request = $this->ticket->createRequestCode();
 
@@ -233,7 +232,7 @@ class cronGetEmail extends cronCommon {
                     $idPersonAuthor = $idPerson;
 
                     $idReason = 'NULL';
-                    // pipetodo [albandes]: Colocar no form e no banco de dados o reason
+                    // pipetodo [albandes]: Put "reason" in the form and databse
 
                     $this->dbTicket->BeginTrans();
 
@@ -252,7 +251,9 @@ class cronGetEmail extends cronCommon {
                         continue;
                     }
 
+
                     if($numRules > 0)  {
+
                         $values = $this->ticket->getApprovalOrder($code_request,$idItem, $idService);
                         $ret = $this->dbTicketRules->insertApproval($values);
                         if($ret) {
@@ -260,11 +261,9 @@ class cronGetEmail extends cronCommon {
                             $onlyRep = $this->ticket->checkGroupOnlyRepass($idGroup);
 
                             if($onlyRep){
-                                $rsNewGroup = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
-                                $idGroup_2 = $rsNewGroup->fields['idperson'];
-
-                                if($idGroup_2) {
-                                    $save = $this->dbTicket->insertRequestCharge($code_request,$idGroup_2,'G', '0');
+                                $idGroupRepass = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
+                                if($idGroupRepass) {
+                                    $save = $this->dbTicket->insertRequestCharge($code_request,$idGroupRepass,'G', '0');
                                 } else {
                                     $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '0');
                                 }
@@ -298,13 +297,11 @@ class cronGetEmail extends cronCommon {
                         }
 
                     } else {
-
                         $onlyRep = $this->ticket->checkGroupOnlyRepass($idGroup);
                         if($onlyRep){
-                            $rsNewGroup = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
-                            $idGroup_2 = $rsNewGroup->fields['idperson'];
-                            if($idGroup_2) {
-                                $save = $this->dbTicket->insertRequestCharge($code_request,$idGroup_2,'G', '1');
+                            $idGroupRepass = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
+                            if($idGroupRepass) {
+                                $save = $this->dbTicket->insertRequestCharge($code_request,$idGroupRepass,'G', '1');
                             } else {
                                 $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '1');
                             }
@@ -326,6 +323,12 @@ class cronGetEmail extends cronCommon {
 
                     }
 
+                    /*
+                    $ret = $this->setRequestInCharge($numRules,$idCompany,$idGroup,$code_request,$idItem, $idService);
+                    if(!$ret){
+                        continue;
+                    }
+                    */
 
                     $ret = $this->dbTicket->insertRequestTimesNew($code_request);
                     if(!$ret){
@@ -401,6 +404,83 @@ class cronGetEmail extends cronCommon {
     }
 
 
+    function setRequestInCharge($numRules,$idCompany,$idGroup,$code_request,$idItem, $idService)
+    {
+
+        if($numRules > 0)  {
+
+            $values = $this->ticket->getApprovalOrder($code_request,$idItem, $idService);
+            $ret = $this->dbTicketRules->insertApproval($values);
+            if($ret) {
+
+                $onlyRep = $this->ticket->checkGroupOnlyRepass($idGroup);
+
+                if($onlyRep){
+                    $idGroupRepass = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
+                    if($idGroupRepass) {
+                        $save = $this->dbTicket->insertRequestCharge($code_request,$idGroupRepass,'G', '0');
+                    } else {
+                        $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '0');
+                    }
+                } else {
+                    $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '0');
+                }
+
+                $idPersonApprover = $this->ticket->getIdPersonApprover($idItem,$idService);
+
+                if(!$idPersonApprover) {
+                    if ($this->log)
+                        $this->logIt("Failed to get idPersonApprover, by email. "  . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                    $this->dbTicket->RollbackTrans();
+                    return false;
+                }
+
+
+                $write = $this->dbTicket->insertRequestCharge($code_request, $idPersonApprover, 'P', '1');
+                if(!$save || !$write) {
+                    if ($this->log)
+                        $this->logIt("Failed to insert in insert request charge, by email.  "  . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                    $this->dbTicket->RollbackTrans();
+                    return false;
+                }
+
+            } else {
+                if($this->log)
+                    $this->logIt("Failed to insert in hdk_tbrequest_approval table, by email !!! " .' Program: '.$this->program ,3,'general',__LINE__);
+                $this->dbTicket->RollbackTrans();
+                return false;
+            }
+
+        } else {
+            $onlyRep = $this->ticket->checkGroupOnlyRepass($idGroup);
+            if($onlyRep){
+                $idGroupRepass = $this->ticket->getNewGroupOnlyRepass($idGroup,$idCompany);
+                if($idGroupRepass) {
+                    $save = $this->dbTicket->insertRequestCharge($code_request,$idGroupRepass,'G', '1');
+                } else {
+                    $save = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '1');
+                }
+                if(!$save) {
+                    if ($this->log)
+                        $this->logIt("Failed to insert in insert request charge, by email.  "  . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                    $this->dbTicket->RollbackTrans();
+                    return false ;
+                }
+            } else {
+                $write = $this->dbTicket->insertRequestCharge($code_request, $idGroup, 'G', '1');
+                if (!$write) {
+                    if ($this->log)
+                        $this->logIt("Failed to insert in insert request charge, by email.  " . ' Program: ' . $this->program, 3, 'general', __LINE__);
+                    $this->dbTicket->RollbackTrans();
+                    return false;
+                }
+            }
+
+        }
+
+        return true;
+
+    }
 
     function getAttachments($mbox, $i)
     {
@@ -456,7 +536,8 @@ class cronGetEmail extends cronCommon {
             }
         }
         return true ;
-    }    
+    }
+
     function getIdPerson($login)
     {
         $rsPerson = $this->dbPerson->selectPerson(" AND login = '$login'");
@@ -540,7 +621,6 @@ class cronGetEmail extends cronCommon {
 
         }
 
-
         return $subject;
     }
 
@@ -584,7 +664,6 @@ class cronGetEmail extends cronCommon {
                 }
             }
         }
-
 
         return $attachments;
     }

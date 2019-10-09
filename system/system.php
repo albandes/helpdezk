@@ -800,7 +800,8 @@ class System {
     // Since October 16, 2017
     function getTheme()
     {
-        return 'parracho';
+        // return 'parracho';
+        return $this->getConfig('theme');
     }
 
     // Since May 28, 2017
