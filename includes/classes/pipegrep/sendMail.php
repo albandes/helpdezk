@@ -12,9 +12,11 @@
 class sendMail {
 
     public $sender;
+    public $token;
 
-    public function __construct($sender) {
+    public function __construct($sender,$token=null) {
         $this->sender = $sender;
+        $this->token = $token;
     }
 
     public function sendEmail($params){
@@ -79,7 +81,7 @@ class sendMail {
 
     function sendMandrill($message){
         $endPoint = 'https://mandrillapp.com/api/1.0/messages/send.json';
-        $token = '';
+        $token = $this->token;
         $params = array(
             "key" => $token,
             "message" => $message
