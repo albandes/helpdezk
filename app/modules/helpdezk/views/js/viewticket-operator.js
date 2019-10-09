@@ -172,62 +172,70 @@ $(document).ready(function () {
 
         e.preventDefault();
 
-        if (emptynote == 0 && $('#requestnote').summernote('isEmpty')) {
-            modalAlertMultiple('danger',makeSmartyLabel('Alert_empty_note'),'alert-noteadd');
-            return false;
-        }
-
-        if (obtime == 1 && ( $("#totalminutes").val() == 0 || $("#totalminutes").val() == '')) {
-            modalAlertMultiple('danger',makeSmartyLabel('Obrigatory_time'),'alert-noteadd');
-            return false;
-        }
-
-        if ($("#callback").is(":checked")) var callback = '1';
-        else var callback = '0';
-
-        $.ajax({
-            type: "POST",
-            url: path + "/helpdezk/hdkTicket/saveNote",
-            data: {
-                noteContent: $('#requestnote').summernote('code'),
-                code_request: $('#coderequest').val(),
-                totalminutes: $("#totalminutes").val(),
-                starthour: $("#started").val(),
-                finishour: $("#finished").val(),
-                execDate: $("#execdate").val(),
-                typehour: $("#typehour").val(),
-                typeNote: $("#typenote").val(),
-                flagNote: 3
-
-            },
-            error: function (ret) {
-                modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
-            },
-            success: function(ret) {
-
-                console.log('ajax saveNote, return: ' + ret);
-
-                if($.isNumeric(ret)) {
-                    idNote = ret ;
-                    console.log('idnote: ' + idNote);
-                    if (myDropzone.getQueuedFiles().length > 0) {
-                        console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                        myDropzone.options.params = {idNote: idNote };
-                        myDropzone.processQueue();
-                    } else {
-                        console.log('No files, no dropzone processing');
-                        //sendNotification('addnote',$('#coderequest').val(),false);
-                        console.log('Sent email, without attachments');
-                        // clear summernote
-                        $('#requestnote').summernote('code','');
-                        showNotes( $('#coderequest').val());
-                        modalAlertMultiple('info',makeSmartyLabel('Alert_note_sucess'),'alert-noteadd');
-                    }
-                } else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
-                }
+        if(!$("#btnSendNote").hasClass('disabled')){
+            if (emptynote == 0 && $('#requestnote').summernote('isEmpty')) {
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_empty_note'),'alert-noteadd');
+                return false;
             }
-        });
+
+            if (obtime == 1 && ( $("#totalminutes").val() == 0 || $("#totalminutes").val() == '')) {
+                modalAlertMultiple('danger',makeSmartyLabel('Obrigatory_time'),'alert-noteadd');
+                return false;
+            }
+
+            if ($("#callback").is(":checked")) var callback = '1';
+            else var callback = '0';
+
+            $.ajax({
+                type: "POST",
+                url: path + "/helpdezk/hdkTicket/saveNote",
+                data: {
+                    noteContent: $('#requestnote').summernote('code'),
+                    code_request: $('#coderequest').val(),
+                    totalminutes: $("#totalminutes").val(),
+                    starthour: $("#started").val(),
+                    finishour: $("#finished").val(),
+                    execDate: $("#execdate").val(),
+                    typehour: $("#typehour").val(),
+                    typeNote: $("#typenote").val(),
+                    flagNote: 3
+
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
+                },
+                success: function(ret) {
+
+                    console.log('ajax saveNote, return: ' + ret);
+
+                    if($.isNumeric(ret)) {
+                        idNote = ret ;
+                        console.log('idnote: ' + idNote);
+                        if (myDropzone.getQueuedFiles().length > 0) {
+                            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
+                            myDropzone.options.params = {idNote: idNote };
+                            myDropzone.processQueue();
+                        } else {
+                            console.log('No files, no dropzone processing');
+                            //sendNotification('addnote',$('#coderequest').val(),false);
+                            console.log('Sent email, without attachments');
+                            // clear summernote
+                            $('#requestnote').summernote('code','');
+                            showNotes( $('#coderequest').val());
+                            modalAlertMultiple('info',makeSmartyLabel('Alert_note_sucess'),'alert-noteadd');
+                        }
+                    } else {
+                        modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnSendNote").html("<i class='fa fa-spinner fa-spin' aria-hidden='true'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnSendNote").html("<i class='fa fa-paper-plane' aria-hidden='true'></i> "+ makeSmartyLabel('Send')).removeClass('disabled');
+                }
+            });
+        }
 
         return false;  // <- cancel event
 
