@@ -59,9 +59,8 @@ class cronSystem{
 
         if ((include $pathConfig) == FALSE) {
             die('The config file does not exist: ' . $pathConfig . ' , line '.__LINE__ . '!!!');
-        } else {
-            echo 'OK';
         }
+
         //if ((include './includes/config/config.php') == false) {
         //if ((include $pathConfig) == false) {
         //    die('The config file does not exist: ' . $pathConfig . ' , line '.__LINE__ . '!!!');
