@@ -1806,6 +1806,16 @@ hdk_remove_file = "Remover Arquivo"
 
 Delete_record = "Tem certeza de que deseja excluir este cadastro?"
 
+Alert_import_services_nofile_failure = "Não foi possível importar !! Anexe o arquivo ."
+Drag_import_file_msg = "<br>Arraste o arquivo com os dados <br> ou <br> clique aqui."
+
+Import_services_instructions = "Faça download das instru&ccedil;&otilde;es para importa&ccedil;&atilde;o: "
+Import_services_layout_file = "Layout de Importa&ccedil;&atilde;o de Servi&ccedil;o"
+Import_services_layout = "Layout de Importa&ccedil;&atilde;o de Servi&ccedil;o"
+Import_error_file = "Não foi possível gravar o arquivo para importação."
+Import_not_writable = "Não tem permissão para salvar o arquivo de importação"
+Import_layout_error = "Erro no layout do arquivo de importação - número de colunas errado."
+
 
 [201301014]
 Service_order_number = "N&ordm; do documento"
