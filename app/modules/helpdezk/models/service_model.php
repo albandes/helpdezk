@@ -158,7 +158,7 @@ class service_model extends DynamicService_model{
         return $this->select("select name, idarea from hdk_tbcore_area where status = 'A' order by name");
     }
 
-    public function areaInsert($name,$default) {
+    public function areaInsert($name,$default='msqli') {
         if ($this->database == 'mysqli') {
             $query = "INSERT INTO hdk_tbcore_area (name,`default`) VALUES ('$name','$default')" ;
         } elseif ($this->database == 'oci8po') {

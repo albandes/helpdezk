@@ -378,7 +378,8 @@
 </div>
 
 
-                {include file='modals/newticket/modalAlert.tpl'}
+                {include file='modals/import-services/modalAlert.tpl'}
+                {include file='modals/modal-alert.tpl'}
 
 
 
