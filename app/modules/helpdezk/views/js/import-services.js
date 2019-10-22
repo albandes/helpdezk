@@ -25,21 +25,23 @@ $(document).ready(function () {
     });
 
     myDropzone.on("complete", function(file) {
-        if(file.xhr.response === 'Success'){
+
+        //var obj = jQuery.parseJSON(JSON.stringify(ret));
+        var obj = JSON.parse(file.xhr.response);
+
+        if(obj.status == 'OK' ) {
             $("#btn-modal-ok").attr("href", '');
             $('#modal-notification').html('Curriculum cadastrado com sucesso.');
             $("#tipo-alert").attr('class', 'alert alert-success');
             $('#modal-alert').modal('show');
-
-        }else{
-            var errorMessage = file.xhr.response ;
-            console.log('Error: ' + makeSmartyLabel(errorMessage));
+        } else {
+            console.log('Error: ' + obj.message);
             // deleteCurriculum(global_idcurriculum);
-
             $("#btn-modal-ok").attr("href", '');
-            $('#modal-notification').html(makeSmartyLabel(errorMessage));
+            $('#modal-notification').html(obj.message);
             $("#tipo-alert").attr('class', 'alert alert-danger');
             $('#modal-alert').modal('show');
+
         }
     });
 

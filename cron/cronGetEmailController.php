@@ -601,6 +601,8 @@ class cronGetEmail extends cronCommon {
             $authhost="{".$serverUrl.":".$serverPort."/pop3/notls}INBOX";
         } else if  ( $serverType == 'pop-gmail') {
             $authhost="{imap.gmail.com:993/imap/ssl/novalidate-cert}INBOX";
+        } else if ( $serverType == 'imap-ssl') {
+            $authhost="{".$serverUrl.":".$serverPort."/imap/ssl/novalidate-cert}INBOX";
         }
         return $authhost;
     }
