@@ -821,4 +821,27 @@ class person_model extends DynamicPerson_model
         }
     }
 
+    public function selectPersonFromName($name) {
+
+        $ret = $this->select("select idperson from tbperson where name = TRIM('$name')");
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+        }
+        return $ret->fields['idperson'];
+    }
+
+    public function selectPersonFromLogin($login) {
+        return $this->select("select idperson from tbperson where login = TRIM('$login')");
+    }
+
+    public function getIdTypePerson($id) {
+        $ret = $this->select("select idtypeperson from tbperson where idperson = $id");
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+        }
+        return $ret->fields['idtypeperson'];
+    }
+
 }

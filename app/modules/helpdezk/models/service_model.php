@@ -528,12 +528,12 @@ class service_model extends DynamicService_model{
     }
 
     public function selectPriorityData() {
-        $database = $this->getConfig('db_connect');
-        if ($database == 'mysqlt') {
+
+
             return $this->select("select idpriority,name,`default` as def,limit_hours,limit_days from hdk_tbpriority order by idpriority");
-        }elseif ($database == 'oci8po') {
-            return $this->select("select idpriority,name,default_ as def,limit_hours,limit_days from hdk_tbpriority order by idpriority");
-        }
+
+
+        
     }
 
     public function selectAreaFromName($name) {
