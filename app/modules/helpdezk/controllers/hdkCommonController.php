@@ -1516,7 +1516,7 @@ class hdkCommon extends Controllers  {
     public function _comboServerType()
     {
         $arrRet['ids'] = array("","pop","imap","pop-gmail","imap-gmail","imap-ssl");
-        $arrRet['values'] = array($this->getLanguageWord('Select'),"POP","IMAP","POP - Gmail","IMAP - Gmail");
+        $arrRet['values'] = array($this->getLanguageWord('Select'),"POP","IMAP","POP - Gmail","IMAP - Gmail", "IMAP-SSL");
 
         return $arrRet;
     }
