@@ -404,6 +404,7 @@ class hdkImportServices extends hdkCommon
                     $rs = $this->dbPerson->selectPerson("AND tbp.name = '$val' and tbtp.idtypeperson = 3");
                     if ($rs->RecordCount() == 0) {
                         // pipetodo Parei aqui .
+                        // New 
                         die($val . $langVars['Manage_service_not_registered'] . $i );
                     }
                 }
