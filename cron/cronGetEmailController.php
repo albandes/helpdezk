@@ -396,7 +396,15 @@ class cronGetEmail extends cronCommon {
 
     
             }
-		
+
+            if ($rsGetEmail->fields['ind_delete_server'])
+            {
+                imap_expunge($mbox);
+            }
+
+            imap_close($mbox);
+
+
             $rsGetEmail->MoveNext();
         }
         
