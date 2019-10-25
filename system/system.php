@@ -1483,7 +1483,7 @@ class System {
             $mail->SMTPSecure = "tls";
         }
         */
-        
+
         if ($emconfigs['EM_TLS'])
             $mail->SMTPSecure = 'tls';
 

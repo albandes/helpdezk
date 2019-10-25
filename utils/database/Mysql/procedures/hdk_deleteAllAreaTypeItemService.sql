@@ -8,7 +8,8 @@ DROP PROCEDURE IF EXISTS `hdk_deleteAllAreaTypeItemService`$$
 
 CREATE PROCEDURE `hdk_deleteAllAreaTypeItemService`()
 BEGIN
-  DELETE FROM hdk_tbreason;
+
+  DELETE FROM hdk_tbcore_reason;
   DELETE FROM hdk_tbgroup_has_service;
   DELETE FROM hdk_tbgetemaildepartment;
   DELETE FROM hdk_tbgetemail;
