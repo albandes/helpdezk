@@ -43,6 +43,10 @@ class hdkImportServices extends hdkCommon
         $this->loadModel('groups_model');
         $this->dbGroup = new groups_model();
 
+        $this->loadModel('ticketrules_model');
+        $this->dbTicketRules = new ticketrules_model();
+
+
         $this->_areas = $this->makeArrayAreas();
         $this->_types = $this->makeArrayTypes();
         $this->_itens = $this->makeArrayItens();
@@ -322,7 +326,7 @@ class hdkImportServices extends hdkCommon
 
             // - Start Service
 
-            $name = $dados[3] ;
+           //$name = $dados[3] ;
 
             $rs = $this->dbService->selectService("WHERE `name` = '$service' and iditem = $idItem");
             if(!$rs) {
@@ -403,20 +407,25 @@ class hdkImportServices extends hdkCommon
                 {
                     $rs = $this->dbPerson->selectPerson("AND tbp.name = '$val' and tbtp.idtypeperson = 3");
                     if ($rs->RecordCount() == 0) {
-                        // pipetodo Parei aqui .
-                        // New
-                        die($val . $langVars['Manage_service_not_registered'] . $i );
+                        // New Is not registered or is not attending
+                        $this->dbService->RollbackTrans();
+                        if ($this->log)
+                            $this->logIt("Import Services, file line ".$lineNumber.". New Is not registered or is not operator. Operator: " . $val . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $message = $this->_language['Manage_service_not_registered'] .  $lineNumber . " " .$this->_language['Manage_service_imp_canceled'];
+                        return $this->makeMessage('ERROR',$message) ;
                     }
                 }
                 // DELETAR
 
-                $db_rules = new requestrules_model();
-                $db_rules->BeginTrans();
+                //$db_rules = new requestrules_model();
+                //$db_rules->BeginTrans();
+                $this->dbTicketRules->BeginTrans();
 
-                $rs_rules = $db_rules->deleteUsersApprove($codItem, $idservice);
+
+                $rs_rules = $this->dbTicketRules->deleteUsersApprove($idItem,$idService);
                 if (!$rs_rules) {
-                    $DB->RollbackTrans();
-                    $db_rules->RollbackTrans();
+                    $this->dbService->RollbackTrans();
+                    $this->dbTicketRules->RollbackTrans();
                     die('Falha ao excluir ma tabela hdk_tbapproval_rule. Linha ' . $i . $langVars['Manage_service_imp_canceled']);
                 }
                 $j=1;

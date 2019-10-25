@@ -1478,9 +1478,15 @@ class System {
 
         $mail->Mailer = $mail_method;
         $mail->SMTPAuth = $mail_auth;
+        /*
         if (strpos($mail_username,'gmail') !== false) {
             $mail->SMTPSecure = "tls";
         }
+        */
+        
+        if ($emconfigs['EM_TLS'])
+            $mail->SMTPSecure = 'tls';
+
         $mail->Username = $mail_username;
         $mail->Password = $mail_password;
 

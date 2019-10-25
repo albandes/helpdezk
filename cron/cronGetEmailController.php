@@ -117,7 +117,7 @@ class cronGetEmail extends cronCommon {
                 $from = $headers->sender;
                 $sender = $from[0]->mailbox . "@" .  $from[0]->host;
 
-                $id = $udate."-".$sender;
+                $idEmail = $udate."-".$sender;
                 $EmailDate = $headers->date;
                 $EmailDate = strtotime($EmailDate);
                 $EmailDate = date("d/m/Y H:i:s", $EmailDate);
@@ -155,7 +155,7 @@ class cronGetEmail extends cronCommon {
                 }
 
                 // To check if there is already a request associated with the email id
-                $rsCodeEmail = $this->dbGetEmail->getRequestCodEmail($id);
+                $rsCodeEmail = $this->dbGetEmail->getRequestCodEmail($idEmail);
                 if (!$rsCodeEmail->EOF){
                     if ($deleteFromServer) {
                         imap_delete($mbox, $i);	 // Mark email to delete
@@ -236,7 +236,7 @@ class cronGetEmail extends cronCommon {
 
                     $this->dbTicket->BeginTrans();
 
-                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$body,'',$idPriority,'','',$idCompany,$expireDate,$idPerson,$idStatus,$code_request);
+                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$body,'',$idPriority,'','',$idCompany,$expireDate,$idPerson,$idStatus,$code_request,$idEmail);
                     if(!$rs){
                         $this->dbTicket->RollbackTrans();
                         if($this->log)

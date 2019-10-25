@@ -860,8 +860,9 @@ class ticket_model extends DynamicTicket_model
         return $ret;
     }
 
-    public function insertRequest($idperson_creator, $source, $date, $type, $item, $service, $reason, $way, $subject, $description, $osnumber, $idpriority, $tag, $serial_number, $idjuridical, $expiration_date, $idperson_owner, $idstatus, $code_request)
+    public function insertRequest($idperson_creator, $source, $date, $type, $item, $service, $reason, $way, $subject, $description, $osnumber, $idpriority, $tag, $serial_number, $idjuridical, $expiration_date, $idperson_owner, $idstatus, $code_request, $code_email = NULL)
     {
+            // https://stackoverflow.com/questions/4620391/mysql-and-php-insert-null-rather-than-empty-string
 
             $sql = "
                     insert into hdk_tbrequest  (code_request,
@@ -882,7 +883,8 @@ class ticket_model extends DynamicTicket_model
                                                 expire_date,
                                                 idattendance_way,
                                                 idperson_owner,
-                                                idstatus
+                                                idstatus,
+                                                code_email
                                               )
                                               values
                                               (
@@ -904,7 +906,8 @@ class ticket_model extends DynamicTicket_model
                                               '" . $expiration_date . "',
                                               $way,
                                               $idperson_owner,
-                                              $idstatus
+                                              $idstatus,
+                                              NULLIF('$code_email','')
                                               )
                    ";
 
