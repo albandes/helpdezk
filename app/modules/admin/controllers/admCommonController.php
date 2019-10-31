@@ -225,9 +225,9 @@ class admCommon extends Controllers  {
         return $list;
     }
 
-    public function _comboTypeLogin()
+    public function _comboTypeLogin($where = null,$order = null)
     {
-        $rs = $this->dbPerson->getLoginTypes();
+        $rs = $this->dbPerson->getLoginTypes($where,$order);
         while (!$rs->EOF) {
             $fieldsID[] = $rs->fields['idtypelogin'];
             $values[]   = $rs->fields['name'];
@@ -346,6 +346,12 @@ class admCommon extends Controllers  {
         $arrRet['values'] = $values;
 
         return $arrRet;
+    }
+
+    public function _returnfpdfhdk() {
+        require_once(FPDF . 'fpdfhdk.php');
+        $pdf = new fpdfhdk();
+        return $pdf;
     }
 
 }

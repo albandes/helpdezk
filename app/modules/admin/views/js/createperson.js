@@ -114,12 +114,12 @@ $(document).ready(function () {
             }
             return false ;
         },
-        checkCNPJ: function() {
-            var cityId = $("#cidade").val();
-            $.post(path+"/scm/scmFornecedor/ajaxNeighborhood",{cityId: cityId},
+        changeDepartment: function() {
+            var companyId = $("#company").val(), _token = $("#_token").val();
+            $.post(path+"/admin/person/ajaxDepartment",{companyId: companyId, _token:_token},
                 function(valor){
-                    $("#bairro").html(valor);
-                    $("#bairro").trigger("chosen:updated");
+                    $("#department").html(valor);
+                    $("#department").trigger("chosen:updated");
                     return false;
                 })
             return false ;
@@ -206,6 +206,10 @@ $(document).ready(function () {
 
     $("#ein_cnpj").on('blur',function(){
         objPersonData.checkCPFCNPJ('J',$('#idperson').val(),$('#ein_cnpj').val());
+    });
+
+    $("#company").change(function(){
+        objPersonData.changeDepartment();
     });
 
     /*

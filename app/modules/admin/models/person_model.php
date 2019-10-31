@@ -327,12 +327,12 @@ class person_model extends DynamicPerson_model
         return $ret->fields['name'];
     }
 
-    public function getLoginTypes() 
+    public function getLoginTypes($where = null,$order = null)
 	{		
 		if ($this->database == 'mysqli') {
-			$query = "select idtypelogin,`name` from tbtypelogin";
+			$query = "select idtypelogin,`name` from tbtypelogin $where $order";
 		} elseif ($this->database == 'oci8po') {
-			$query = "select idtypelogin, name from tbtypelogin";
+			$query = "select idtypelogin, name from tbtypelogin $where $order";
         }
 
         $ret = $this->select($query);
@@ -842,6 +842,38 @@ class person_model extends DynamicPerson_model
             $this->error($sError);
         }
         return $ret->fields['idtypeperson'];
+    }
+
+    public function getPersonReportData($where = NULL,  $group = NULL, $order = NULL, $limit = NULL) {
+        $query = "SELECT
+                          a.idperson,
+                          a.login,
+                          a.name,
+                          b.name  AS typeperson,
+                          b.idtypeperson,
+                          IF(b.idtypeperson IN (1,2,3), 
+                            g.name,
+                          (IF(b.idtypeperson IN (6),f.name, NULL ) ) ) AS `company`
+                    FROM tbperson a
+                    JOIN tbtypeperson b
+                      ON a.idtypeperson = b.idtypeperson
+         LEFT OUTER JOIN hdk_tbdepartment_has_person c
+                      ON c.idperson = a.idperson
+         LEFT OUTER JOIN hdk_tbdepartment d
+                      ON d.iddepartment = c.iddepartment
+         LEFT OUTER JOIN hdk_tbgroup e
+                      ON e.idperson = a.idperson
+         LEFT OUTER JOIN tbperson f
+                      ON f.idperson = e.idcustomer
+         LEFT OUTER JOIN tbperson g
+                      ON g.idperson = d.idperson
+                  $where $group $order $limit";
+        $ret = $this->select($query);
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<br>Query: ". $query;
+            $this->error($sError);
+        }
+        return $ret;
     }
 
 }

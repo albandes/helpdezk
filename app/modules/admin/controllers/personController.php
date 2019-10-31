@@ -260,11 +260,11 @@ class Person  extends admCommon {
 
 
         // --- Type Login ---
-        $arrTypeLogin = $this->_comboTypeLogin();
+        $arrTypeLogin = $this->_comboTypeLogin(null,"ORDER BY `name`");
         if ($oper == 'update') {
             $idTypeLoginEnable = $rs->fields['idtypelogin'];
         } elseif ($oper == 'create') {
-            $idTypeLoginEnable = $arrTypeLogin['ids'][0];
+            $idTypeLoginEnable = 3;
         }
         if ($oper == 'echo') {
             $objSmarty->assign('lblTypeLogin',$rs->fields['printablename']);
@@ -1337,6 +1337,29 @@ class Person  extends admCommon {
                 $default = '';
             }
             $select .= "<option value='$indexValue' $default>".$arrStreet['values'][$indexKey]."</option>";
+        }
+
+        echo $select;
+
+    }
+
+    function ajaxDepartment()
+    {
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+        $arrDepartment = $this->_comboDepartment($_POST['companyId']);
+        $select = '';
+
+        foreach ( $arrDepartment['ids'] as $indexKey => $indexValue ) {
+            if ([$indexKey] == 0) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrDepartment['values'][$indexKey]."</option>";
         }
 
         echo $select;
