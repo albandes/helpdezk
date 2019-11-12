@@ -44,6 +44,22 @@
     <!-- Combo Autocomplete -->
     {head_item type="js" src="$path/includes/js/plugins/chosen/" files="chosen.jquery.js"}
     {head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
+
+    <!-- Input Mask-->
+    {head_item type="js" src="$path/includes/js/plugins/jquery-mask/" files="jquery.mask.min.js"}
+
+    <!-- Autocomplete -->
+    {head_item type="js" src="$path/includes/js/plugins/autocomplete/" files="jquery.autocomplete.js"}
+    {head_item type="css" src="$path/includes/js/plugins/autocomplete/" files="jquery.autocomplete.css"}
+
+    <!-- Jquery Validate -->
+    {head_item type="js"  src="$path/includes/js/plugins/validate/" files="jquery.validate.min.js"}
+
+    <!-- Dropzone  -->
+    {head_item type="js"  src="$path/includes/js/plugins/dropzone/" files="dropzone.js"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
+
     {literal}
         <script type="text/javascript">
             var default_lang = "{/literal}{$lang}{literal}",
@@ -51,7 +67,12 @@
                     langName = '{/literal}{$smarty.config.Name}{literal}',
                     theme = '{/literal}{$theme}{literal}',
                     mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                    timesession = '{/literal}{$timesession}{literal}';
+                    timesession = '{/literal}{$timesession}{literal}',
+                id_mask      = '{/literal}{$id_mask}{literal}',
+                ein_mask     = '{/literal}{$ein_mask}{literal}',
+                zip_mask     = '{/literal}{$zip_mask}{literal}',
+                phone_mask     = '{/literal}{$phone_mask}{literal}',
+                cellphone_mask     = '{/literal}{$cellphone_mask}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */

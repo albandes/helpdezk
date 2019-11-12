@@ -27,8 +27,8 @@
     <!-- Jquery UI -->
     {head_item type="js"  src="$path/js/plugins/jquery-ui/" files="jquery-ui.min.js"}
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="ticket.js"}
 
     {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}

@@ -36,11 +36,12 @@
     {head_item type="css" src="$path/css/plugins/jQueryUI/" files="jquery-ui-1.10.4.custom.min.css"}
     *}
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="newticket-operator.js"}
     <!-- Font Awesome -->
-    {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
+    {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     <!-- animate -->
     {head_item type="css" src="$path/css/" files="animate.css"}
     <!-- Helpdezk CSS -->
@@ -197,8 +198,8 @@
                         <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.Source}: </label>
                             {*<div class="col-sm-10"><input type="text" class="form-control input-sm"></div>*}
                             <div class="col-sm-9">
-                                <select class="form-control  form-control-sm" name="-=" id="cmbSource" >
-                                    <option value="0">{$smarty.config.Select} </option>
+                                <select class="form-control  form-control-sm" name="cmbSource" id="cmbSource" >
+                                    <option value="">{$smarty.config.Select} </option>
                                     {html_options values=$sourceids output=$sourcevals selected=$sourcedefault}
                                 </select>
                             </div>
@@ -230,7 +231,7 @@
                             {*<div class="col-sm-10"><input type="text" class="form-control input-sm"></div>*}
                             <div class="col-sm-9">
                                 <select class="form-control  form-control-sm" name="areaId" id="areaId" >
-                                    <option value="0">{$smarty.config.Select} </option>
+                                    <option value="">{$smarty.config.Select} </option>
                                     {html_options values=$areaids output=$areavals selected=$idarea}
                                 </select>
                             </div>
@@ -239,7 +240,7 @@
                         <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.Type}:</label>
                             {*<div class="col-sm-10"><input type="text" class="form-control input-sm"></div>*}
                             <div class="col-sm-9">
-                                <select class="form-control" disabled="disabled" id="typeId" >
+                                <select class="form-control" disabled="disabled" name="typeId" id="typeId" >
                                     <option value="">{$smarty.config.Select} </option>
 
                                 </select>
@@ -248,8 +249,8 @@
                         <!-- Item -->
                         <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.Item}:</label>
                             <div class="col-sm-9">
-                                <select class="form-control  m-b" id="itemId" disabled="disabled">
-                                    <option value="0">{$smarty.config.Select} </option>
+                                <select class="form-control  m-b" name="itemId" id="itemId" disabled="disabled">
+                                    <option value="">{$smarty.config.Select} </option>
                                     {html_options values=$itemids output=$itemvals selected=$iditem}
                                 </select>
                             </div>
@@ -257,8 +258,8 @@
                         <!-- Service -->
                         <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.Service}:</label>
                             <div class="col-sm-9">
-                                <select class="form-control  m-b" id="serviceId" disabled="disabled">
-                                    <option value="0">{$smarty.config.Select} </option>
+                                <select class="form-control  m-b" name="serviceId" id="serviceId" disabled="disabled">
+                                    <option value="">{$smarty.config.Select} </option>
                                     {html_options values=$serviceids output=$servicevals selected=$idservice}
                                 </select>
                             </div>

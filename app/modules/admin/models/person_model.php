@@ -123,11 +123,11 @@ class person_model extends DynamicPerson_model
             return $ret;
     }
 
-    public function updatePersonUser($idPerson, $name, $email, $phone, $branch, $mobile, $location)
+    public function updatePersonUser($idPerson, $name, $email, $phone, $branch, $mobile, $location=null)
     {
-        if(empty($location)) $location = 'NULL';
+        //if(empty($location)) $location = 'NULL';
 
-        $sql = "update tbperson set name = '$name', email = '$email', phone_number = '$phone', branch_number = '$branch', cel_phone = '$mobile', cod_location = '$location' where idperson ='$idPerson'";
+        $sql = "update tbperson set name = '$name', email = '$email', phone_number = '$phone', branch_number = '$branch', cel_phone = '$mobile', cod_location = NULLIF('$location','') where idperson ='$idPerson'";
 
         $this->db->Execute($sql);
 

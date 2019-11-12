@@ -94,3 +94,210 @@ countdown = {
     }
 
 }
+
+
+$(document).ready(function () {
+    console.log(path+"/app/lang/"+default_lang+".txt");
+    // https://harvesthq.github.io/chosen/
+    $("#person_country").chosen({ width: "95%", no_results_text: "Nothing found!"})
+    $("#person_state").chosen({ width: "95%",   no_results_text: "Nothing found!"})
+    $("#person_city").chosen({ width: "95%",    no_results_text: "Nothing found!"})
+    $("#person_neighborhood").chosen({ width: "95%",    no_results_text: "Nothing found!"})
+    $("#person_typestreet").chosen({ width: "95%", no_results_text: "Nothing found!"})
+
+    // Mask
+    $('#person_dtbirth').mask('00/00/0000');
+    $('#person_number').mask('0000');
+    $('#person_phone').mask(phone_mask);
+    $('#person_cellphone').mask(cellphone_mask);
+    $('#person_zipcode').mask(zip_mask);
+    $('#person_ssn_cpf').mask(id_mask);
+
+    // https://xdsoft.net/jqplugins/autocomplete/
+    $("#person_address").autocomplete({
+        source:[{
+            url: path+"/helpdezk/home/completeStreet/search/%QUERY%",
+            type: 'remote'
+        }
+        ],
+        accents: true,
+        replaceAccentsForRemote: false,
+        minLength: 1
+    });
+
+    $("#btnUpdateUserData,.btnEditUserConfig").click(function(){
+        $('#modal-form-persondata').modal('show');
+        //countdown.start(timesession);
+    });
+
+    $("#btnUpdatePhoto").click(function(){
+        $('#modal-person-photo').modal('show');
+        //countdown.start(timesession);
+    });
+
+    // Combos
+    var formPersonData = $(document.getElementById("persondata_form"));
+    var objPersonData = {
+        changeState: function() {
+            var countryId = $("#person_country").val();
+            $.post(path+"/helpdezk/home/ajaxStates",{countryId: countryId},
+                function(valor){
+                    $("#person_state").html(valor);
+                    /*
+                     If you need to update the options in your select field and want Chosen to pick up the changes,
+                     you'll need to trigger the "chosen:updated" event on the field. Chosen will re-build itself based on the updated content.
+                     */
+                    $("#person_state").trigger("chosen:updated");
+                    return objPersonData.changeCity();
+                })
+        },
+        changeCity: function() {
+            var stateId = $("#person_state").val();
+            $.post(path+"/helpdezk/home/ajaxCities",{stateId: stateId},
+                function(valor) {
+                    $("#person_city").html(valor);
+                    $("#person_city").trigger("chosen:updated");
+                    return objPersonData.changeNeighborhood();
+                });
+        },
+        changeNeighborhood: function() {
+            var stateId = $("#person_city").val();
+            $.post(path+"/helpdezk/home/ajaxNeighborhood",{stateId: stateId},
+                function(valor){
+                    $("#person_neighborhood").html(valor);
+                    /*
+                     If you need to update the options in your select field and want Chosen to pick up the changes,
+                     you'll need to trigger the "chosen:updated" event on the field. Chosen will re-build itself based on the updated content.
+                     */
+                    $("#person_neighborhood").trigger("chosen:updated");
+                    return false;
+                })
+            return false ;
+        }
+
+    }
+
+    $("#person_country").change(function(){
+        objPersonData.changeState();
+    });
+
+    $("#person_state").change(function(){
+        objPersonData.changeCity();
+    });
+
+    $("#person_city").change(function(){
+        objPersonData.changeNeighborhood();
+    });
+
+    $("#persondata_form").validate({
+        ignore:[],
+        rules: {
+            person_name: "required",
+            person_email: "required",
+            person_cellphone: "required"
+        },
+        messages: {
+            person_name: makeSmartyLabel('Alert_field_required'),
+            person_email: makeSmartyLabel('Alert_field_required'),
+            person_cellphone: makeSmartyLabel('Alert_field_required')
+        }
+    });
+
+    $("#btnSendUpdateUserData").click(function(){
+        if ($("#persondata_form").valid()) {
+            var $form = jQuery('#persondata_form'),
+                formData = $form.serialize();
+
+            $.ajax({
+                type: "POST",
+                url: path + '/helpdezk/home/updateUserData',
+                dataType: 'text',
+                data: {
+                    idperson: $('#hidden-idperson').val(),
+                    name: $('#person_name').val(),
+                    ssn: $('#person_ssn_cpf').val().replace(/[^0-9]/gi, ''),
+                    gender: $('#person_gender').val(),
+                    dtbirth: $('#person_dtbirth').val(),
+                    email: $('#person_email').val(),
+                    phone: $('#person_phone').val().replace(/[^0-9]/gi, ''),
+                    branch:$('#person_branch').val().replace(/[^0-9]/gi, ''),
+                    cellphone: $('#person_cellphone').val().replace(/[^0-9]/gi, ''),
+                    country: $('#person_country').val(),
+                    state: $('#person_state').val(),
+                    city: $('#person_city').val(),
+                    zipcode: $('#person_zipcode').val().replace(/[^0-9]/gi, ''),
+                    neighb: $('#person_neighborhood').val(),
+                    typestreet: $('#person_typestreet').val(),
+                    street: $('#person_address').val(),
+                    number: $('#person_number').val().replace(/[^0-9]/gi, ''),
+                    complement: $('#person_complement').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-update');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(ret == 'OK') {
+                        console.log('voltou e gravou');
+                        if (userPhotoDropzone.getQueuedFiles().length > 0) {
+                            console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
+
+                            userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
+                            userPhotoDropzone.processQueue();
+                        }else{
+                            $('#modal-form-persondata').modal('hide');
+                            location.href = "" ;
+                        }
+                        modalAlertMultiple('success',makeSmartyLabel('Alert_success_update'),'alert-update');
+
+                    } else if(ret == 'OK-without-address') {
+                        if (userPhotoDropzone.getQueuedFiles().length > 0) {
+                            console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
+
+                            userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
+                            userPhotoDropzone.processQueue();
+                        }else{
+                            $('#modal-form-persondata').modal('hide');
+                            location.href = "" ;
+                        }
+                        modalAlertMultiple('success',makeSmartyLabel('Alert_success_withoutaddress'),'alert-update');
+                    } else {
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-update');
+                    }
+                }
+            });
+        } else {
+            console.log('nao validou');
+            return false;
+        }
+
+    });
+
+    /*
+     * Dropzone
+     */
+    Dropzone.autoDiscover = false;
+    var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
+        method: "post",
+        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('Drag_user_photo_msg'),
+        createImageThumbnails: true,
+        maxFiles: 1,
+        acceptedFiles: '.jpg, .jpeg, .png',
+        parallelUploads: 1,
+        autoProcessQueue: false
+    });
+
+    userPhotoDropzone.on("maxfilesexceeded", function(file) {
+        this.removeFile(file);
+    });
+
+    userPhotoDropzone.on("queuecomplete", function (file) {
+        console.log('Completed the dropzone queue');
+        $('#modal-form-persondata').modal('hide');
+        location.href = "" ;
+        //sendNotification('new-ticket-user',global_coderequest,true);
+        //console.log('Sent email, with attachments');
+    });
+
+
+});

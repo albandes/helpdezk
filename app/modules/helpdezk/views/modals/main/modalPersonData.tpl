@@ -7,7 +7,7 @@
 
         <input type="hidden" id="idperson" value="{$hidden_idperson}" />
 
-        <div class="modal-dialog modal-lg"  role="document"> {*style="width:1250px;"*}
+        <div class="modal-dialog modal-md"  role="document"> {*style="width:1250px;"*}
 
             <div class="modal-content">
 
@@ -28,6 +28,23 @@
                     <form role="form" id="persondata_form" name="persondata_form" method="post">
                         <!-- Hidden -->
                         <input type="hidden"  id="hidden-idperson"      value="{$id_person}"/>
+
+                        <div class="row col-lg-12 ">
+                            <div class="form-group col-sm-4 col-lg-5" style="padding-right: 5px;">
+                                &nbsp;
+                            </div>
+                            <div class="form-group" style="padding-right: 5px;">
+                                <div class="col-sm-4  col-lg-3 text-center">
+                                    <div id="personPhoto">
+                                        <img  alt="image" class="img-circle m-t-xs img-responsive" src="{$person_photo_nav}">
+                                    </div>
+                                    <div class="m-t-xs font-bold">{$person_department}</div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4  col-lg-4" style="padding-right: 5px;">
+                                &nbsp;
+                            </div>
+                        </div>
 
                         <div class="row col-lg-12 ">
                             <div class="form-group col-lg-9" style="padding-right: 5px;">
@@ -174,6 +191,18 @@
                                 </div>
                             </div>
 
+                        </div>
+
+                        <div class="row col-lg-12 ">
+                            <div class="form-group col-lg-12" style="padding-right: 5px;">
+                                <label>{$smarty.config.Lbl_photo}</label>
+                                <div>
+                                    <div class="text-center">
+                                        {*<img alt="image" class="m-t-xs img-thumbnail" src="{$person_photo}">*}
+                                        <div id="userPhotoDropzone" class="dropzone dz-default dz-message" ></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
 

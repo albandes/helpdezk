@@ -23,7 +23,7 @@ class features_model extends DynamicFeatures_model {
 
     public function getConfigs($prefix,$cats) {
         $query = "SELECT conf.idconfig, conf.status, conf.value,conf.name as config_name, cat.smarty as cat_smarty, 
-                         conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate 
+                         conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate, allowremove 
                     FROM {$prefix}_tbconfig conf, {$prefix}_tbconfig_category cat 
                    WHERE conf.idconfigcategory IN($cats) 
                      AND conf.idconfigcategory = cat.idconfigcategory 
@@ -103,7 +103,6 @@ class features_model extends DynamicFeatures_model {
         }
         return $emailConfs;
     }
-	
 	
     public function getTempEmail() {
         $query = "SELECT session_name,description AS value FROM tbconfig WHERE idconfigcategory = 11";
@@ -223,8 +222,8 @@ class features_model extends DynamicFeatures_model {
         return $this->db->Execute("UPDATE tbdeploy SET dtdone = NOW() WHERE iddeploy = '$idDeploy' ") ;
     }
 
-    public function updateConfig($id,$stval) {
-        $query = "UPDATE hdk_tbconfig SET value = '$stval' WHERE idconfig ='$id'";
+    public function updateConfig($prefix,$id,$stval) {
+        $query = "UPDATE {$prefix}_tbconfig SET value = '$stval' WHERE idconfig ='$id'";
 
         $ret = $this->db->Execute($query);
 
@@ -258,5 +257,85 @@ class features_model extends DynamicFeatures_model {
             }
         }        
         return $ret;
+    }
+
+    public function getConfigCategories($table,$where=null,$order=null) {
+        $query = "SELECT idconfigcategory, `name`, smarty FROM $table $where $order";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function insertFeature($table,$name,$description,$idconfigcategory,$sessionName,$fieldType,$smartyVar,$value,$flgDefault) {
+        $query = "INSERT INTO {$table} (`name`,description,idconfigcategory,session_name,field_type,status,smarty,`value`,allowremove) 
+                       VALUES ('$name','$description',$idconfigcategory,'$sessionName','$fieldType','A','$smartyVar','$value','$flgDefault')";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $this->db->Insert_ID();
+        }
+    }
+
+    public function removeConfig($prefix,$id) {
+        $query = "DELETE FROM {$prefix}_tbconfig WHERE idconfig ='$id'";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function checkField($prefix,$fieldName,$value) {
+        $query = "SELECT idconfig FROM {$prefix}_tbconfig WHERE `$fieldName` = '$value'";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function checkCategory($prefix,$value) {
+        $query = "SELECT idconfigcategory FROM {$prefix}_tbconfig_category WHERE `name` = '$value'";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
+    public function insertFeatureCategory($table,$name,$smartyVar,$flgSetup) {
+        $query = "INSERT INTO {$table} (`name`,smarty,flgsetup) 
+                       VALUES ('$name','$smartyVar','$flgSetup')";
+
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $this->db->Insert_ID();
+        }
     }
 }

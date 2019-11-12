@@ -197,6 +197,7 @@ class System {
         if($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1){$smarty->assign('hasadmin', true);}
         $smarty->assign('adminhome', $this->helpdezkUrl.'/admin/home/index');
         $smarty->assign('adminlogo', 'adm_header.png');
+        $smarty->assign('navlogin', $idPerson == 1 ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON']);
 
 
         $smarty->assign('hashelpdezk', $hasHelpdezk);
@@ -233,11 +234,14 @@ class System {
         $smarty->assign('jqgrid_i18nFile', $this->getFileI18n('jqgrid'));
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
 
+        $this->makePersonData($smarty);
+
     }
     public function makeFooterVariables($smarty)
     {
         $smarty->assign('version', $this->helpdezkName);
         $smarty->assign('footer', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/footer-main.tpl');
+        $smarty->assign('configusermodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modalPersonData.tpl');
     }
     public function isActiveHelpdezk()
     {
@@ -3008,8 +3012,18 @@ class System {
 
         $rs = $this->getActiveModules();
         $list = '';
+
+        if($_SESSION['SES_COD_USUARIO'] == 1 || $_SESSION['SES_TYPE_PERSON'] == 1){
+            $cond = " AND tp.idtypeperson = 1";
+        }else{
+            $cond = " AND tp.idtypeperson IN
+                        (SELECT idtypeperson
+                           FROM tbpersontypes
+                          WHERE idperson = '".$_SESSION['SES_COD_USUARIO']."' )";
+        }
+
         while (!$rs->EOF) {
-            $rsCat = $dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
+            $rsCat = $dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule'],$cond);
             if($rsCat->RecordCount() > 0){
                 $list .= "<li class='dropdown-submenu'>
                             <a tabindex='-1' href='#'>". $smarty->getConfigVars($rs->fields['smarty']) ."</a>
@@ -3022,7 +3036,7 @@ class System {
                             <ul class='dropdown-menu'>";
 
                     $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
-                    $groupperm = $dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
+                    $groupperm = $dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule, $cond);
 
                     if($groupperm){
                         while (!$groupperm->EOF) {
@@ -3077,6 +3091,194 @@ class System {
         $smarty->assign('listMenu_Adm',$listRecords);
         $smarty->assign('moduleLogo',$moduleinfo->fields['headerlogo']);
         $smarty->assign('modulePath',$moduleinfo->fields['path']);
+    }
+
+    function makePersonData($smarty)
+    {
+        $cod_usu = $_SESSION['SES_COD_USUARIO'];
+
+        $imgFormat = $this->getImageFileFormat('/app/uploads/photos/'.$cod_usu);
+
+        if ($imgFormat) {
+            $imgPhoto = $cod_usu.'.'.$imgFormat;
+        } else {
+            $imgPhoto = 'default/no_photo.png';
+        }
+
+        $smarty->assign('person_photo_nav', $this->getHelpdezkUrl().'/app/uploads/photos/' . $imgPhoto);
+
+        $rsPerson = $this->getPersonById($cod_usu);
+
+        $address = $rsPerson->fields['street']. ' ' . $rsPerson->fields['number'];
+        if (!empty($rsPerson->fields['complement']))
+            $address .= ' /'.$rsPerson->fields['complement'];
+
+        $smarty->assign('user_name', $rsPerson->fields['name']);
+        $smarty->assign('user_department', $rsPerson->fields['department']);
+        $smarty->assign('user_company', $rsPerson->fields['company']);
+        $smarty->assign('user_city', $rsPerson->fields['city']);
+
+        $smarty->assign('user_number', $rsPerson->fields['number']);
+        $smarty->assign('user_street', $rsPerson->fields['street']);
+        $smarty->assign('user_typestreet', $rsPerson->fields['typestreet']);
+        $smarty->assign('user_complement', $rsPerson->fields['complement']);
+        $smarty->assign('user_city', $rsPerson->fields['city']);
+        $smarty->assign('user_state', $rsPerson->fields['state_abbr']);
+        $zip = $this->formatMask($rsPerson->fields['zipcode'],$this->getConfig('zip_mask'));
+        $smarty->assign('user_zip', $zip);
+        $phone = $this->formatMask($rsPerson->fields['telephone'],$this->getConfig('phone_mask'));
+        $smarty->assign('user_phone',$phone);
+        $cellphone = $this->formatMask($rsPerson->fields['cellphone'],$this->getConfig('cellphone_mask'));
+        $smarty->assign('user_cellphone',$cellphone);
+
+        // Update user data - Screen
+        $personType = $rsPerson->fields['idtypeperson'];
+        $aScreenAccess = $this->getArrayScreenFields(2,$personType,'persondata_form');
+
+        $smarty->assign('login',$_SESSION['SES_LOGIN_PERSON']);
+        $smarty->assign('id_person',$_SESSION['SES_COD_USUARIO']);
+
+        // --- Person Name ---
+        $smarty->assign('person_name_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_name') ? '' : 'disabled') ) ;
+
+        if (empty($rsPerson->fields['name']))
+            $smarty->assign('placeholder_name',$this->getLanguageWord('Placeholder_name'));
+        else
+            $smarty->assign('person_name',$rsPerson->fields('name'));
+
+        // --- SSN (USA) or CPF (Brazil) ---
+        $smarty->assign('ssn_cpf_disabled',($this->getScreenFieldEnable($aScreenAccess,'ssn_cpf') ? '' : 'disabled') ) ;
+
+        if (empty($rsPerson->fields['ssn_cpf']))
+            $smarty->assign('placeholder_ssn_cpf', $this->getLanguageWord('Placeholder_cpf'));
+        $ssnCpf = '';
+        $smarty->assign('ssn_cpf', $rsPerson->fields['ssn_cpf']);
+
+        // --- Gender ---
+        $smarty->assign('person_gender_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_gender') ? '' : 'disabled') ) ;
+        $arrGender = $this->comboGender();
+        $smarty->assign('genderids',  $arrGender['ids']);
+        $smarty->assign('gendervals', $arrGender['values']);
+        $smarty->assign('idgender',   $rsPerson->fields['gender']);
+
+        // --- Email ---
+        $smarty->assign('person_email_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_email') ? '' : 'disabled') ) ;
+        if (empty($rsPerson->fields['email']))
+            $smarty->assign('placeholder_email',$this->getLanguageWord('Placeholder_email'));
+        else
+            $smarty->assign('person_email',$rsPerson->fields['email']);
+
+        // --- Date Birthday ---
+        $smarty->assign('person_dtbirth_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_dtbirth') ? '' : 'disabled') ) ;
+        if (empty($rsPerson->fields['dtbirth']) or $rsPerson->fields['dtbirth'] == '0000-00-00')
+            $smarty->assign('placeholder_dtbirth',$this->getConfig('date_placeholder'));
+        else
+            $smarty->assign('person_dtbirth',$this->formatDate($rsPerson->fields['dtbirth']));
+
+        // --- Phone Number ---
+        $smarty->assign('person_phone_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_phone') ? '' : 'disabled') ) ;
+        if (empty($rsPerson->fields['telephone']))
+            $smarty->assign('placeholder_phone',$this->getLanguageWord('Placeholder_phone'));
+        else
+            $smarty->assign('person_phone',$rsPerson->fields['telephone']);
+
+        // --- Branch Number ---
+        $smarty->assign('person_branch_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_branch') ? '' : 'disabled') ) ;
+        if (empty($rsPerson->fields['branch_number']))
+            $smarty->assign('person_branch','');
+        else
+            $smarty->assign('person_branch',$rsPerson->fields['branch_number']);
+
+        // --- Cellphone Number ---
+        $smarty->assign('person_cellphone_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_cellphone') ? '' : 'disabled') ) ;
+        if (empty($rsPerson->fields['cellphone']))
+            $smarty->assign('placeholder_cellphone',$this->getLanguageWord('Placeholder_cellphone'));
+        else
+            $smarty->assign('person_cellphone',$rsPerson->fields['cellphone']);
+
+        // --- Country ---
+        $smarty->assign('person_country_disabled',($this->getScreenFieldEnable($aScreenAccess,'person_country') ? '' : 'disabled') ) ;
+        if ($rsPerson->fields['idcountry'] <= 1)
+            $idCountryEnable = $this->getIdCountryDefault();
+        else
+            $idCountryEnable = $rsPerson->fields['idcountry'];
+        $arrCountry = $this->comboCountries();
+        $smarty->assign('countryids',  $arrCountry['ids']);
+        $smarty->assign('countryvals', $arrCountry['values']);
+        $smarty->assign('idcountry', $idCountryEnable  );
+
+        // --- State ---
+        if ($rsPerson->fields['idstate'] <= 1)
+            $idStateEnable = $this->getIdStateDefault();
+        else
+            $idStateEnable = $rsPerson->fields['idstate'];
+        $arrCountry = $this->comboStates($idCountryEnable);
+        $smarty->assign('stateids',  $arrCountry['ids']);
+        $smarty->assign('statevals', $arrCountry['values']);
+        $smarty->assign('idstate',   $idStateEnable);
+
+        // --- City ---
+        if ($rsPerson->fields['idcity'] <= 1)
+            $idCityEnable = 1;
+        else
+            $idCityEnable = $rsPerson->fields['idcity'];
+        $arrCity = $this->comboCity($idStateEnable);
+        $smarty->assign('cityids',  $arrCity['ids']);
+        $smarty->assign('cityvals', $arrCity['values']);
+        $smarty->assign('idcity',   $idCityEnable);
+
+        // --- Zipcode ---
+        if (empty($rsPerson->fields['zipcode']))
+            $smarty->assign('placeholder_zipcode',$this->getLanguageWord('Placeholder_zipcode'));
+        else
+            $smarty->assign('person_zipcode',$rsPerson->fields['zipcode']);
+
+        // --- Neighborhood ---
+        if ($rsPerson->fields['idneighborhood'] <= 1)
+            $idNeighborhoodEnable = 1;
+        else
+            $idNeighborhoodEnable = $rsPerson->fields['idneighborhood'];
+        $arrNeighborhood = $this->comboNeighborhood($idCityEnable);
+        $smarty->assign('neighborhoodids',  $arrNeighborhood['ids']);
+        $smarty->assign('neighborhoodvals', $arrNeighborhood['values']);
+        $smarty->assign('idneighborhood',   $idNeighborhoodEnable);
+
+        // --- Type Street ---
+        if ($rsPerson->fields['idtypestreet'] == 'Choose')
+            $idTypeStreetEnable = '';
+        else
+            $idTypeStreetEnable = $rsPerson->fields['idtypestreet'];
+        $arrTypestreet = $this->comboTypeStreet();
+        $smarty->assign('typestreetids',  $arrTypestreet['ids']);
+        $smarty->assign('typestreetvals', $arrTypestreet['values']);
+        $smarty->assign('idtypestreet', $idTypeStreetEnable  );
+
+        // --- Address ---
+        if ($rsPerson->fields['street'] == 'Choose')
+            $smarty->assign('placeholder_address',$this->getLanguageWord('Placeholder_address'));
+        else
+            $smarty->assign('person_address',$rsPerson->fields['street']);
+
+        // --- Number ---
+        $smarty->assign('person_number',$rsPerson->fields['number']);
+
+        // --- Complement ---
+        $smarty->assign('person_complement',$rsPerson->fields['complement']);
+
+    }
+
+    public function comboGender()
+    {
+
+        $fieldsID[] = 'M';
+        $values[]   = 'Masculino';
+        $fieldsID[] = 'F';
+        $values[]   = 'Feminino';
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
     }
 
 }

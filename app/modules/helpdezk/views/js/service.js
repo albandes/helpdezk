@@ -818,7 +818,75 @@ $(document).ready(function () {
     });
 
     /* clean modal's fields */
-    $('.modal').on('hidden.bs.modal', function() { 
+    $('#modal-form-area-update').on('hidden.bs.modal', function() { 
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green'
+        });
+
+        $('#updDefaultArea').iCheck('unCheck');
+
+        $('#area_update_form').trigger('reset');
+        
+    });
+
+    $('#modal-form-area').on('hidden.bs.modal', function() { 
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green'
+        });
+
+        $('#checkDefaultArea').iCheck('unCheck');
+
+        $('#area_form').trigger('reset');
+        
+    });
+
+    $('#modal-form-conf-apprv').on('hidden.bs.modal', function() { 
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green'
+        });
+
+        $('#checkRecalculate').iCheck('unCheck');
+
+        $('#conf_apprv_form').trigger('reset');
+
+        $('#confCmbType').html('').trigger("chosen:updated");
+        $('#confCmbItem').html('').trigger("chosen:updated");
+        $('#confCmbService').html('').trigger("chosen:updated");
+        $('#confCmbUser').html('').trigger("chosen:updated");
+        $("#userslist").html('');
+    });
+
+    $('#modal-form-item').on('hidden.bs.modal', function() { 
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green'
+        });
+
+        $('#checkItemAvailable').iCheck('unCheck');
+        $('#checkItemDefault').iCheck('unCheck');
+        $('#checkItemClassification').iCheck('unCheck');
+
+        $('#item_form').trigger('reset');
+        
+    });
+
+    $('#modal-form-service').on('hidden.bs.modal', function() { 
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green'
+        });
+
+        $('#checkServAvailable').iCheck('unCheck');
+        $('#checkServDefault').iCheck('unCheck');
+        $('#checkServClassification').iCheck('unCheck');
+
+        $('#service_form').trigger('reset');
+    });
+
+    $('#modal-form-type').on('hidden.bs.modal', function() { 
         $('.i-checks').iCheck({
             checkboxClass: 'icheckbox_square-green',
             radioClass: 'iradio_square-green'
@@ -894,6 +962,55 @@ $(document).ready(function () {
         $('#confCmbUser').html('').trigger("chosen:updated");
         $("#userslist").html('');
     });
+
+    $('.modal').on('hidden.bs.modal', function() { 
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green'
+        });
+
+        $('.checkArea').on('ifChecked ifUnchecked',function(e){
+            var idarea = e.target.attributes.value.nodeValue;
+
+            if(e.type == 'ifChecked'){
+                objServices.changeAreaStatus(idarea,'A');
+            }else{
+                objServices.changeAreaStatus(idarea,'N');
+            }
+        });
+
+        $('.checkType').on('ifChecked ifUnchecked',function(e){
+            var idtype = e.target.attributes.value.nodeValue;
+
+            if(e.type == 'ifChecked'){
+                objServices.changeTypeStatus(idtype,'A');
+            }else{
+                objServices.changeTypeStatus(idtype,'N');
+            }
+        });
+
+        $('.checkItem').on('ifChecked ifUnchecked',function(e){
+            var idtype = e.target.attributes.value.nodeValue;
+
+            if(e.type == 'ifChecked'){
+                objServices.changeItemStatus(idtype,'A');
+            }else{
+                objServices.changeItemStatus(idtype,'N');
+            }
+        });
+
+        $('.checkService').on('ifChecked ifUnchecked',function(e){
+            var idtype = e.target.attributes.value.nodeValue;
+
+            if(e.type == 'ifChecked'){
+                objServices.changeServiceStatus(idtype,'A');
+            }else{
+                objServices.changeServiceStatus(idtype,'N');
+            }
+        });
+
+    });
+
 
 
 });

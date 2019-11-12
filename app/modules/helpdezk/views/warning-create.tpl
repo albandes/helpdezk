@@ -30,8 +30,8 @@
 
     {head_item type="css" src="$path/css/" files="admmenu.css"}
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="createwarning.js"}
     <!-- Font Awesome -->
     {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}

@@ -40,4 +40,32 @@ class home_model extends DynamicHome_model
 								AND c.code_request = a.code_request");
         return $ret->fields['count'];
     }
+
+    public function getUserPhoto($iduser){
+        $query = "SELECT idpersonphoto, filename FROM tbpersonphoto WHERE idperson = $iduser";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    public function saveUserPhoto($iduser,$fileName){
+        $query = "INSERT INTO tbpersonphoto (idperson,filename) VALUES ($iduser,'$fileName')";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $this->db->Insert_ID();
+    }
 }

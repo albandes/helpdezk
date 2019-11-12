@@ -87,8 +87,8 @@ class programs_model extends Model {
         return $ret;
     }
 
-    public function selectModules(){
-        $query = "SELECT idmodule, name FROM tbmodule";
+    public function selectModules($where=null,$order=null){
+        $query = "SELECT idmodule, name FROM tbmodule $where $order";
         $ret = $this->db->Execute($query);
 
         if (!$ret) {
@@ -313,14 +313,9 @@ class programs_model extends Model {
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      *
      */
-    public function getModulesCategoryAtive($idperson,$idmodule)
+    public function getModulesCategoryAtive($idperson,$idmodule,$cond=null)
     {
-        if($idperson == 1 ){
-            $cond = " AND tp.idtypeperson = 1";}
-        else{$cond = " AND tp.idtypeperson IN
-                        (SELECT idtypeperson
-                           FROM tbpersontypes
-                          WHERE idperson = '$idperson' )";}
+        
 
         $sql = "(SELECT
                         DISTINCT cat.name              AS category,
@@ -455,85 +450,79 @@ class programs_model extends Model {
     }
 
     */
-    public function getPermissionMenu($idperson,  $andModule)
+    public function getPermissionMenu($idperson,  $andModule, $cond=null)
     {
-        if($idperson == 1 ){
-            $cond = " AND tp.idtypeperson = 1";}
-        else{$cond = " AND tp.idtypeperson IN
-                        (SELECT idtypeperson
-                           FROM tbpersontypes
-                          WHERE idperson = '$idperson' )";}
-
-        $sql=						"
-									(
-									select
-									  m.idmodule           	as idmodule_pai,
-									  m.name               	as module,
-									  m.path				as path,
-									  cat.idmodule          as idmodule_origem,
-									  cat.name              as category,
-									  cat.idprogramcategory as category_pai,
-									  cat.smarty 			as cat_smarty,
-									  pr.idprogramcategory  as idcategory_origem,
-									  pr.name               as program,
-									  pr.controller         as controller,
-									  pr.smarty  			as pr_smarty,
-									  pr.idprogram          as idprogram,
-									  g.allow
-									from tbperson  p,
-									  tbtypepersonpermission  g,
-									  tbaccesstype  a,
-									  tbprogram  pr,
-									  tbmodule  m,
-									  tbprogramcategory  cat,
-									  tbtypeperson  tp
-									WHERE g.idaccesstype = a.idaccesstype
-										and g.idprogram = pr.idprogram
-										and m.idmodule = cat.idmodule
-										and cat.idprogramcategory = pr.idprogramcategory
-										and tp.idtypeperson = g.idtypeperson
-										AND m.status = 'A'
-										AND pr.status = 'A'
-										AND p.idperson = '$idperson'
-										$cond
-										AND g.idaccesstype = '1'
-										AND g.allow = 'Y'
-										AND $andModule
-									)
-									UNION
-									(
-										select
-										  m.idmodule           	as idmodule_pai,
-										  m.name               	as module,
-										  m.path				as path,
-										  cat.idmodule          as idmodule_origem,
-										  cat.name              as category,
-										  cat.idprogramcategory as category_pai,
-										  cat.smarty 			as cat_smarty,
-										  pr.idprogramcategory  as idcategory_origem,
-										  pr.name               as program,
-										  pr.controller         as controller,
-										  pr.smarty  			as pr_smarty,
-										  pr.idprogram          as idprogram,
-										  p.allow
-										from tbperson  per,
-										  tbpermission  p,
-										  tbprogram  pr,
-										  tbmodule  m,
-										  tbprogramcategory  cat,
-										  tbaccesstype  acc
-										where m.idmodule = cat.idmodule
-											and pr.idprogramcategory = cat.idprogramcategory
-											and per.idperson = p.idperson
-											AND pr.idprogram = p.idprogram
-											and m.status = 'A'
-											and pr.status = 'A'
-											AND p.idperson = '$idperson'
-											AND p.idaccesstype = acc.idaccesstype
-											AND p.idaccesstype = '1'
-											AND $andModule
-									)
-                                  ";
+        
+        $sql = "
+                (
+                SELECT
+                    m.idmodule           	as idmodule_pai,
+                    m.name               	as module,
+                    m.path				as path,
+                    cat.idmodule          as idmodule_origem,
+                    cat.name              as category,
+                    cat.idprogramcategory as category_pai,
+                    cat.smarty 			as cat_smarty,
+                    pr.idprogramcategory  as idcategory_origem,
+                    pr.name               as program,
+                    pr.controller         as controller,
+                    pr.smarty  			as pr_smarty,
+                    pr.idprogram          as idprogram,
+                    g.allow
+                FROM tbperson  p,
+                    tbtypepersonpermission  g,
+                    tbaccesstype  a,
+                    tbprogram  pr,
+                    tbmodule  m,
+                    tbprogramcategory  cat,
+                    tbtypeperson  tp
+                WHERE g.idaccesstype = a.idaccesstype
+                  AND g.idprogram = pr.idprogram
+                  AND m.idmodule = cat.idmodule
+                    and cat.idprogramcategory = pr.idprogramcategory
+                    and tp.idtypeperson = g.idtypeperson
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = '$idperson'
+                    $cond
+                    AND g.idaccesstype = '1'
+                    AND g.allow = 'Y'
+                    AND $andModule
+                )
+                UNION
+                (
+                    select
+                        m.idmodule           	as idmodule_pai,
+                        m.name               	as module,
+                        m.path				as path,
+                        cat.idmodule          as idmodule_origem,
+                        cat.name              as category,
+                        cat.idprogramcategory as category_pai,
+                        cat.smarty 			as cat_smarty,
+                        pr.idprogramcategory  as idcategory_origem,
+                        pr.name               as program,
+                        pr.controller         as controller,
+                        pr.smarty  			as pr_smarty,
+                        pr.idprogram          as idprogram,
+                        p.allow
+                    from tbperson  per,
+                        tbpermission  p,
+                        tbprogram  pr,
+                        tbmodule  m,
+                        tbprogramcategory  cat,
+                        tbaccesstype  acc
+                    where m.idmodule = cat.idmodule
+                        and pr.idprogramcategory = cat.idprogramcategory
+                        and per.idperson = p.idperson
+                        AND pr.idprogram = p.idprogram
+                        and m.status = 'A'
+                        and pr.status = 'A'
+                        AND p.idperson = '$idperson'
+                        AND p.idaccesstype = acc.idaccesstype
+                        AND p.idaccesstype = '1'
+                        AND $andModule
+                )
+                ";
         //die($sql);
         $rsGroupperm = $this->select($sql);
         if ($this->db->ErrorNo() != 0) {

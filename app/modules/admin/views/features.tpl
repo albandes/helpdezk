@@ -38,8 +38,8 @@
     {head_item type="css" src="$path/css/plugins/jQueryUI/" files="jquery-ui-1.10.4.custom.min.css"}
     *}
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/admin/views/js/" files="features.js"}
     <!-- Font Awesome -->
     {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
@@ -173,6 +173,21 @@
                                 <select class="form-control input-sm"  id="cmbModule" name="cmbModule" >
                                     {html_options values=$moduleids output=$modulevals selected=$idmodule}
                                 </select>
+                            </div>
+                            <div id="addConf" class="col-sm-6 text-right hide">
+                                <div class="form-group">
+                                    <div class="col-sm-5">
+                                        <button type="button" class="btn btn-primary btn-md " id="btnAddNewConf" >
+                                            <span class="fa fa-plus-square"></span>  &nbsp;{$smarty.config.new_feature}
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-2">&nbsp;</div>
+                                    <div class="col-sm-5">
+                                        <button type="button" class="btn btn-primary btn-md " id="btnAddConfCateg" >
+                                            <span class="fa fa-plus-square"></span>  &nbsp;{$smarty.config.Add_category}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -408,7 +423,7 @@
                                 <div class="row col-sm-12 b-l">
                                     <div class="form-group">
                                         <label  class="col-sm-3 control-label">{$smarty.config.Maintenance}?</label>
-                                        <div class="checkbox i-checks"><label> <input type="checkbox" id="maintenanceChk" name="maintenanceChk" value="S" {if $maintenancecheck == 1}checked="checked"{/if} > </label></div>
+                                        <div class="checkbox i-checks"><label> <input type="checkbox" id="maintenanceChk" name="maintenanceChk" value="S" {$maintenancecheck} > </label></div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-sm-3 control-label">{$smarty.config.Header}:</label>
@@ -420,7 +435,7 @@
 
                             </div>
                             <div  class="panel-footer text-center">
-                                 <button type="button" class="btn btn-primary btn-md " id="btnSaveMaintenance" >
+                                <button type="button" class="btn btn-primary btn-md " id="btnSaveMaintenance" >
                                     <span class="fa fa-save"></span>  &nbsp;{$smarty.config.Save}
                                 </button>
                             </div>
@@ -542,6 +557,8 @@
 
 
     {include file='modals/main/modal-alert.tpl'}
+    {include file='modals/features/modal-add-feature.tpl'}
+    {include file='modals/features/modal-add-category.tpl'}
 
 
 

@@ -61,6 +61,9 @@ class pipeDateTime {
         $plural = array('Years', 'Months', 'Days', 'Hours', 'Minutes', 'Seconds');
 
         $a = $this->getFullTimeDifference($start, $end);
+        if($a['status']=='ERROR')
+            return $a;
+
         $i = 0;
         foreach ($a as $index => $value) {
             if ($value > 0) {
@@ -78,6 +81,7 @@ class pipeDateTime {
         // https://stackoverflow.com/questions/365191/how-to-get-time-difference-in-minutes-in-php
         $uts['start']      =    strtotime( $start );
         $uts['end']        =    strtotime( $end );
+
         if( $uts['start']!==-1 && $uts['end']!==-1 )
         {
             if( $uts['end'] >= $uts['start'] )
@@ -99,13 +103,22 @@ class pipeDateTime {
             }
             else
             {
-                echo "Ending date/time is earlier than the start date/time";
+                return $this->makeMessage("ERROR","Ending date/time is earlier than the start date/time");
             }
         }
         else
         {
-            echo "Invalid date/time data detected";
+            return $this->makeMessage("ERROR","Invalid date/time data detected");
         }
+    }
+
+    function makeMessage($status,$message)
+    {
+        $aRet = array(
+            "status" => $status,
+            "message" => $message
+        );
+        return $aRet;
     }
 
 

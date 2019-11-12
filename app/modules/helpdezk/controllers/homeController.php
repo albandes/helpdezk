@@ -53,8 +53,6 @@ class home extends hdkCommon {
 
         $this->makeDash($smarty);
 
-        $this->makePersonData($smarty);
-
         $this->makeMessages($smarty);
 
         $smarty->assign('jquery_version', $this->jquery);
@@ -86,7 +84,7 @@ class home extends hdkCommon {
 
     }
 
-    function makePersonData($smarty)
+    /*function makePersonData($smarty)
     {
         $cod_usu = $_SESSION['SES_COD_USUARIO'];
 
@@ -248,7 +246,7 @@ class home extends hdkCommon {
         // --- Complement ---
         $smarty->assign('person_complement',$rsPerson->fields['complement']);
 
-    }
+    }*/
 
     function makeMessages($smarty)
     {
@@ -271,9 +269,16 @@ class home extends hdkCommon {
             $aMessages[$i]['sender'] = $rsMessages->fields['name'];
             $aMessages[$i]['text'] = $rsMessages->fields['description'];
             $aMessages[$i]['datetime'] = $this->formatDateHour($rsMessages->fields['entry_date']);
+
             $aElapsed = $clTime->getSingleTime($rsMessages->fields['entry_date'], date('Y-m-d H:i:s'));
-            $idx = $aElapsed['sufix'];
-            $aMessages[$i]['elapsed'] = $aElapsed['value'] . ' ' . $langVars[$idx]  ;
+            if(isset($aElapsed['status'])){
+                if($this->log)
+                    $this->logIt($aElapsed['status'].': '. $aElapsed['message'] . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+            }else{
+                $idx = $aElapsed['sufix'];
+                $aMessages[$i]['elapsed'] = $aElapsed['value'] . ' ' . $langVars[$idx]  ;
+            }
+
             $url = $this->helpdezkUrl .'/helpdezk/hdkTicket/viewrequest/id/' . $rsMessages->fields['code_request'];
             $lnkTicket = '<a href="'.$url.'">'.$this->_editRequest($rsMessages->fields['code_request']).'</a>';
             //$aMessages[$i]['code_request'] =  $this->_editRequest($rsMessages->fields['code_request']);
@@ -290,7 +295,7 @@ class home extends hdkCommon {
     {
         $langVars = $this->getLangVars($smarty);
         $idPerson = $_SESSION['SES_COD_USUARIO'];
-/*
+        /*
         $total = $this->dbHome->getTotalRequestsByPerson($idPerson);
         $newRequests = $this->dbHome->getRequestsCount($idPerson,1);
         $newRequestsPercent = ceil(($newRequests * 100)/$total);
@@ -315,7 +320,7 @@ class home extends hdkCommon {
         $smarty->assign('waiting_aprovall_requests_percent', $waitingApprovalPercent);
         $smarty->assign('approved_requests', $finished);
         $smarty->assign('approved_requests_percent', $finishedPercent);
-*/
+        */
 
 
 
@@ -383,7 +388,7 @@ class home extends hdkCommon {
 
         $dbPerson->BeginTrans();
 
-        $ret = $dbPerson->updatePersonUser($_POST['idperson'],$_POST['name'],$_POST['email'],$_POST['phone'],$_POST['branch'],$_POST['cellphone'],'');
+        $ret = $dbPerson->updatePersonUser($_POST['idperson'],$_POST['name'],$_POST['email'],$_POST['phone'],$_POST['branch'],$_POST['cellphone']);
         if (!$ret) {
             $dbPerson->RollbackTrans();
             if($this->log)
@@ -431,9 +436,11 @@ class home extends hdkCommon {
             $dbPerson->CommitTrans();
             if($this->log)
                 $this->logIt('User update data  - User: '.$_SESSION['SES_LOGIN_PERSON'] ,6,'general');
-            die('OK');
+
 
         }
+
+        die('OK');
 
     }
 
@@ -484,7 +491,49 @@ class home extends hdkCommon {
         echo $this->_checkapproval();
     }
 
+    function savePhoto()
+    {
+        //echo "aqui";
+        $char_search	= array("ã", "á", "à", "â", "é", "ê", "í", "õ", "ó", "ô", "ú", "ü", "ç", "ñ", "Ã", "Á", "À", "Â", "É", "Ê", "Í", "Õ", "Ó", "Ô", "Ú", "Ü", "Ç", "Ñ", "ª", "º", " ", ";", ",");
+		$char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
 
+        $iduser = $_POST['iduser'];
+
+        if (!empty($_FILES)) {
+
+            $fileName = $_FILES['file']['name'];
+            $tempFile = $_FILES['file']['tmp_name'];
+            $extension = strrchr($fileName, ".");
+            $targetPath = $this->helpdezkPath . '/app/uploads/photos/' ;
+            $fileName = str_replace($char_search, $char_replace, $fileName);
+
+            $tmpFormat = $this->getImageFileFormat('/app/uploads/photos/'.$iduser);
+            if($tmpFormat){
+                unlink($targetPath.$iduser.'.'.$tmpFormat);
+            }
+
+            $targetFile = $targetPath.$iduser.$extension;
+            
+            if(!is_dir($targetPath)) {
+                mkdir ($targetPath, 0777 ); // criar o diretorio
+            }
+
+            if (move_uploaded_file($tempFile,$targetFile)){
+                if($this->log){
+                    $this->logIt("Save user photo: # ". $iduser . ' - File: '.$targetFile.' - program: '.$this->program ,7,'general',__LINE__);
+                }
+            }else {
+                if($this->log){
+                    $this->logIt("Can't save user photo: # ". $iduser . ' - File: '.$targetFile.' - program: '.$this->program ,3,'general',__LINE__);
+                }
+                return false;
+            }
+
+        }
+
+        echo "success";
+
+    }
 
 
 }
