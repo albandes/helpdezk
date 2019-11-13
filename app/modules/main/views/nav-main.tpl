@@ -1,3 +1,34 @@
+<!-- Input Mask-->
+{head_item type="js" src="$path/includes/js/plugins/jquery-mask/" files="jquery.mask.min.js"}
+
+<!-- Autocomplete -->
+{head_item type="js" src="$path/includes/js/plugins/autocomplete/" files="jquery.autocomplete.js"}
+{head_item type="css" src="$path/includes/js/plugins/autocomplete/" files="jquery.autocomplete.css"}
+
+<!-- Jquery Validate -->
+{head_item type="js"  src="$path/includes/js/plugins/validate/" files="jquery.validate.min.js"}
+
+<!-- Dropzone  -->
+{head_item type="js"  src="$path/includes/js/plugins/dropzone/" files="dropzone.js"}
+{head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
+{head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
+
+<!-- Combo Autocomplete -->
+{head_item type="js" src="$path/includes/js/plugins/chosen/" files="chosen.jquery.js"}
+{head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
+
+{literal}
+<script type="text/javascript">
+    var     id_mask      = '{/literal}{$id_mask}{literal}',
+        ein_mask     = '{/literal}{$ein_mask}{literal}',
+        zip_mask     = '{/literal}{$zip_mask}{literal}',
+        phone_mask     = '{/literal}{$phone_mask}{literal}',
+        cellphone_mask     = '{/literal}{$cellphone_mask}'{literal};
+
+
+</script>
+{/literal}
+
 <nav class="navbar navbar-static-top" role="navigation">
 
 
@@ -162,10 +193,29 @@
             </li>-->
 
 
-            <li>
+            <!--<li>
                 <a href="{$logout}">
-                    <i class="fa fa-sign-out"></i> {$smarty.config.logout}
+                    <i class="fa fa-sign-out-alt"></i> {$smarty.config.logout}
                 </a>
+            </li>-->
+            <li class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    </span> <span class="text-muted text-xs block">{$navlogin} <b class="caret"></b></span> </span>
+                    <!--<img alt="image" class="img-circle img-thumbnail" src="{$person_photo}" />-->
+                </a>
+                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                    {if !$isroot}
+                        <li><a href="#" class="btnEditUserConfig"><i class="fa fa-wrench"></i> {$smarty.config.Edit_user_config}</a></li>
+                    {else}
+                        <li>&nbsp;</li>
+                    {/if}
+                    <!--<li><a href=""> </a></li>
+                    <li><a href=""> </a></li>-->
+                    <li class="divider"></li>
+                    <li>
+                        <a href="{$logout}"> <i class="fa fa-sign-out-alt"></i> {$smarty.config.logout}</a>
+                    </li>
+                </ul>
             </li>
 
 

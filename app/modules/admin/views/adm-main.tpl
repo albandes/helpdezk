@@ -20,7 +20,8 @@
     {head_item type="js"  src="$path/js/" files="inspinia.js"}
     {head_item type="js"  src="$path/js/plugins/pace/" files="pace.min.js"}
 
-    {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
+    {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     {head_item type="css" src="$path/css/" files="animate.css"}
 
     {head_item type="css" src="$path/css/gn-menu/css/" files="component.css"}
@@ -32,14 +33,32 @@
     {head_item type="css" src="$path/css/" files="admmenu.css"}
 
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/admin/views/js/" files="main.js"}
 
 
     <!-- Personalized style -->
     {head_item type="css" src="$path/css/" files="$theme.css"}
     <!-- Last to be included therefore overwrite others css -->
+    <!-- Input Mask-->
+    {head_item type="js" src="$path/includes/js/plugins/jquery-mask/" files="jquery.mask.min.js"}
+
+    <!-- Autocomplete -->
+    {head_item type="js" src="$path/includes/js/plugins/autocomplete/" files="jquery.autocomplete.js"}
+    {head_item type="css" src="$path/includes/js/plugins/autocomplete/" files="jquery.autocomplete.css"}
+
+    <!-- Combo Autocomplete -->
+    {head_item type="js" src="$path/includes/js/plugins/chosen/" files="chosen.jquery.js"}
+    {head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
+
+    <!-- Jquery Validate -->
+    {head_item type="js"  src="$path/includes/js/plugins/validate/" files="jquery.validate.min.js"}
+
+    <!-- Dropzone  -->
+    {head_item type="js"  src="$path/includes/js/plugins/dropzone/" files="dropzone.js"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
     {literal}
 
         <script type="text/javascript">

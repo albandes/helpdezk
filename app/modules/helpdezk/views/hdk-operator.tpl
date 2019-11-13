@@ -20,7 +20,8 @@
     {head_item type="js"  src="$path/js/" files="inspinia.js"}
     {head_item type="js"  src="$path/js/plugins/pace/" files="pace.min.js"}
 
-    {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
+    {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     {head_item type="css" src="$path/css/" files="animate.css"}
 
     {head_item type="css" src="$path/css/gn-menu/css/" files="component.css"}
@@ -30,8 +31,8 @@
     {head_item type="js"  src="$path/includes/js/plugins/modernizr/" files="modernizr.custom.js"}
 
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="main.js"}
     {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="ticket.js"}
 
@@ -75,6 +76,11 @@
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="bootstrap-datepicker.pt-BR.min.js"}
     <!-- Moment -->
     {head_item type="js"  src="$path/includes/js/plugins/moment/" files="moment-with-locales.min.js"}
+
+    <!-- Dropzone  -->
+    {head_item type="js"  src="$path/includes/js/plugins/dropzone/" files="dropzone.js"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
 
     {literal}
 
@@ -324,7 +330,7 @@
                                     </div>*}
                                     <div class="panel-footer clearfix">
                                         <div class="pull-right">
-                                            <button type="button" class="btn btn-primary" id="btnUpdate">
+                                            <button type="button" class="btn btn-primary" id="btnUpdateUserData">
                                                 {$smarty.config.btn_update_userdata}
                                             </button>
                                         </div>
@@ -349,21 +355,12 @@
 
             </div>
 
-{*
-            <div class="footer">
-                <div class="pull-right">
-                    10GB of <strong>250GB</strong> Free.
-                </div>
-                <div>
-                    <strong>Copyright</strong> Example Company &copy; 2014-2015
-                </div>
-            </div>
-*}
+
             <div class="footer">
                 {include file=$footer}
             </div>
         </div>
     </div>
 
-    {include file='modals/main/modalPersonData.tpl'}
+    {*include file='modals/main/modalPersonData.tpl'*}
 </body>

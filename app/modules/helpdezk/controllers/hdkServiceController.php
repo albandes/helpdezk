@@ -760,7 +760,7 @@ class hdkService extends hdkCommon
             $defaultPriority = 0;
         }
 
-        $arrGroup = $this->_comboGroups();
+        $arrGroup = $this->_comboGroups(null,'ORDER BY tbp.name');
         $grpOptions = '';
         $grpOptions .= "<option value=''>".$this->getLanguageWord('Select_group')."</option>";
 

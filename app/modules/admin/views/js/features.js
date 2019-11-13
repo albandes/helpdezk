@@ -15,11 +15,13 @@ $(document).ready(function () {
     /*
      *  Chosen
      */
-    $("#popType").chosen({        width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#ldaptype").chosen({       width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#cmbModule").chosen({       width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#logHostType").chosen({       width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#cbmDefCountry").chosen({       width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
+    $("#popType").chosen({          width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#ldaptype").chosen({         width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cmbModule").chosen({        width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#logHostType").chosen({      width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cbmDefCountry").chosen({    width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cmbFeatureCat").chosen({    width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cmbFieldTypeMod").chosen({  width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
     
     var objFeatures = {
         updateConfig: function(idConfig,newVal){
@@ -61,8 +63,8 @@ $(document).ready(function () {
             if(idmodule == '1'){
                 $('.mainConfigs').removeClass('hide');
                 $('.moduleConfigs').addClass('hide');
+                $('#addConf').addClass('hide');
             }else{
-                
 
                 $.ajax({
                     type: "POST",
@@ -78,6 +80,13 @@ $(document).ready(function () {
                         if(ret){
                             $(".moduleConfigs").html(ret);
                             $('.moduleConfigs').removeClass('hide');
+                            if(idmodule != '2' && idmodule != '3'){
+                                $('#addConf').removeClass('hide');
+                            }else{
+                                $('#addConf').addClass('hide');
+                            }
+
+
                             $('.mainConfigs').addClass('hide');
 
                             $('.i-checks').iCheck({
@@ -96,10 +105,14 @@ $(document).ready(function () {
                             });
                         
                             $('.changeConfigValue').change(function(e){        
-                                var idConfig = e.target.attributes.id.nodeValue, configVal = $("#"+idConfig).val();
-                                idConfig = idConfig.substring(2);
+                                var idConfig = e.target.attributes.id.nodeValue, configVal = $("#"+idConfig).val();                                
                         
                                 objFeatures.updateConfig(idConfig,configVal);
+                            });
+
+                            $('.removeConfig').click(function(){
+                                console.log($(this).data('id'));
+                                objFeatures.removeConfig($(this).data('id'));
                             });
                         }
                         else {
@@ -133,6 +146,22 @@ $(document).ready(function () {
             }else{
                 $('#logServer').attr('disabled','disabled');
             }
+        },
+        removeConfig: function(idConfig){
+            $.post(path + '/admin/features/removeConfig', {
+                id : idConfig,
+                _token : $('#_token').val()
+            }, function(response) {
+
+                if (response == false) {
+                    $('#modal-notification').html(makeSmartyLabel('Permission_error'));
+                    $("#btn-modal-ok").attr("href", '');
+                    $("#tipo-alert").attr('class', 'alert alert-danger');
+                    $('#modal-alert').modal('show');
+                }else{
+                    objFeatures.viewConfigs();
+                }
+            });
         }
     }
 
@@ -146,6 +175,16 @@ $(document).ready(function () {
 
     $('#logHostType').change(function(){
         objFeatures.changeLogServer();
+    });
+
+    $('#cmbFieldTypeMod').change(function(){
+        if($(this).val() == 'checkbox'){
+            $("#checkVal").removeClass('hide');
+            $("#inputVal").addClass('hide');
+        }else{
+            $("#inputVal").removeClass('hide');
+            $("#checkVal").addClass('hide');
+        }
     });
     
 
@@ -328,6 +367,121 @@ $(document).ready(function () {
 
     });
 
+    $("#btnAddNewConf").click(function(){
+        var moduleID = $("#cmbModule").val(), moduleName = $('#cmbModule').find(":selected").text(),
+            _token = $("#_token").val();
+        
+        
+        $.post(path + '/admin/features/ajaxFeatureCategory', {
+           moduleID: moduleID
+        }, function(response) {
+
+            if (response == false) {
+                showAlert(makeSmartyLabel('Alert_get_data'),'danger','');
+            }else{
+                $("#idmoduleAddFeat").val(moduleID);
+                $("#moduleName").html(moduleName);
+                $("#cmbFeatureCat").html(response);
+                $("#cmbFeatureCat").trigger("chosen:updated");
+                $("#modal-add-feature").modal('show');
+            }
+        });
+
+    });
+
+    $("#btnSaveNewFeat").click(function(){
+
+        if (!$("#feature-add-form").valid()) {
+            return false ;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: path + '/admin/features/saveNewFeature',
+            dataType: 'json',
+            data: $('#feature-add-form').serialize() + "&_token=" + $('#_token').val(),
+            error: function (ret) {
+                modalAlertMultiple('danger', makeSmartyLabel('Alert_failure'),'alert-add-feature');
+            },
+            success: function(ret){
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                if($.isNumeric(obj.idfeature)) {
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-add-feature');
+
+                    setTimeout(function(){
+                        $('#modal-add-feature').modal('hide');
+                        $('#featureDefault').iCheck('unCheck');
+                        $('#feature-add-form').trigger('reset');
+                        objFeatures.viewConfigs();
+                    },2000);
+
+                } else {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-add-feature');
+                }
+            },
+            beforeSend: function(){
+                $("#btnSaveNewFeat").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnCancel").addClass('disabled');
+            },
+            complete: function(){
+                $("#btnSaveNewFeat").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
+                $("#btnCancel").removeClass('disabled');
+            }
+        });
+    });
+
+    $("#btnAddConfCateg").click(function(){
+        var moduleID = $("#cmbModule").val(), moduleName = $('#cmbModule').find(":selected").text();
+
+        $("#idmoduleAddCateg").val(moduleID);
+        $("#moduleNameCateg").html(moduleName);
+        $("#modal-add-category").modal('show');
+
+    });
+
+    $("#btnSaveNewCateg").click(function(){
+
+        if (!$("#categ-feat-add-form").valid()) {
+            return false ;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: path + '/admin/features/saveNewCategory',
+            dataType: 'json',
+            data: $('#categ-feat-add-form').serialize() + "&_token=" + $('#_token').val(),
+            error: function (ret) {
+                modalAlertMultiple('danger', makeSmartyLabel('Alert_failure'),'alert-add-category');
+            },
+            success: function(ret){
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                if($.isNumeric(obj.idcategory)) {
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-add-category');
+
+                    setTimeout(function(){
+                        $('#modal-add-category').modal('hide');
+                        $('#categorySetup').iCheck('unCheck');
+                        $('#categ-feat-add-form').trigger('reset');
+                    },2000);
+
+                } else {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-add-category');
+                }
+            },
+            beforeSend: function(){
+                $("#btnSaveNewCateg").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnCloseNewCateg").addClass('disabled');
+            },
+            complete: function(){
+                $("#btnSaveNewCateg").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
+                $("#btnCloseNewCateg").removeClass('disabled');
+            }
+        });
+    });
+
+
     //Summernote Editor
     $('#emailHeader').summernote(
         {
@@ -388,6 +542,85 @@ $(document).ready(function () {
         }
     );
 
+    /*
+     * Validate
+     */
+    $("#feature-add-form").validate({
+        ignore:[],
+        rules: {
+            txtNewFeature:{
+                required:true,
+                remote:{
+                    url: path+"/admin/features/checkField",
+                    type: 'post',
+                    data: {
+                        searchval:function(){return $('#txtNewFeature').val();},
+                        moduleId:function(){return $('#idmoduleAddFeat').val();},
+                        fieldName:'name'
+                    }
+                }
+            },
+            newFeatureSessionName: {
+                required:true,
+                remote:{
+                    url: path+"/admin/features/checkField",
+                    type: 'post',
+                    data: {
+                        searchval:function(){return $('#newFeatureSessionName').val();},
+                        moduleId:function(){return $('#idmoduleAddFeat').val();},
+                        fieldName:'session_name'
+                    }
+                }
+            },
+            newFeatureSmartyVar:"required",
+            cmbFieldTypeMod:"required",
+            valInputFeature:{required: function(e){return $('#cmbFieldTypeMod').val() == 'input';}}
+        },
+        messages: {
+            txtNewFeature: {required:makeSmartyLabel('Alert_field_required')},
+            newFeatureSessionName: {required:makeSmartyLabel('Alert_field_required')},
+            newFeatureSmartyVar: makeSmartyLabel('Alert_field_required'),
+            cmbFieldTypeMod: makeSmartyLabel('Alert_field_required'),
+            valInputFeature: {required:makeSmartyLabel('Alert_field_required')}
+
+        }
+    });
+
+    $("#categ-feat-add-form").validate({
+        ignore:[],
+        rules: {
+            txtNewCategory:{
+                required:true,
+                remote:{
+                    url: path+"/admin/features/checkCategory",
+                    type: 'post',
+                    data: {
+                        moduleId:function(){return $('#idmoduleAddCateg').val();}
+                    }
+                }
+            },
+            newCategorySmartyVar:"required"
+        },
+        messages: {
+            txtNewCategory: {required: makeSmartyLabel('Alert_field_required')},
+            newCategorySmartyVar: makeSmartyLabel('Alert_field_required')
+
+        }
+    });
+
+    /* clean modal's fields */
+    $('#modal-add-feature').on('hidden.bs.modal', function() { 
+        $('#featureDefault').iCheck('unCheck');
+        $('#feature-add-form').trigger('reset');
+        
+    });
+
+    $('#modal-add-category').on('hidden.bs.modal', function() {
+        $('#modal-add-category').modal('hide');
+        $('#categorySetup').iCheck('unCheck');
+        $('#categ-feat-add-form').trigger('reset');
+    });
+
 
 });
 
@@ -399,5 +632,39 @@ function showAlert(msg,typeAlert,btnOk)
     $('#modal-alert').modal('show');
 
     return false;
+}
+
+function removeFeature(id) {
+    //console.log(id);
+
+    /*$.ajax({
+        type: "POST",
+        url: path + "/helpdezk/hdkService/modalUpdateArea",
+        data:{idarea:id},
+        dataType: 'json',
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
+        },
+        success: function(ret) {
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            //console.log(obj);
+            if(obj) {
+
+                $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green'
+                });
+
+                $('#area_name_upd').val(obj.name);
+                if(obj.default == 1){$('#updDefaultArea').iCheck('check');}
+
+
+            } else {
+                modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
+            }
+        }
+    });*/
+
 }
 

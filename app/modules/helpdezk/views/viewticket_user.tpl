@@ -34,11 +34,12 @@
     {head_item type="css" src="$path/css/plugins/jQueryUI/" files="jquery-ui-1.10.4.custom.min.css"}
     *}
     <!-- Helpdezk -->
-    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
+    {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/helpdezk/views/js/" files="viewticket.js"}
     <!-- Font Awesome -->
-    {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
+    {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     <!-- animate -->
     {head_item type="css" src="$path/css/" files="animate.css"}
     <!-- Helpdezk CSS -->

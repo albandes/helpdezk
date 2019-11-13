@@ -54,7 +54,7 @@ class features  extends admCommon {
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
         $smarty->assign('token', $token) ;
 
-        $arrModules = $this->_comboModule();
+        $arrModules = $this->_comboModule( "WHERE `status` = 'A'","ORDER BY `name`");
         $smarty->assign('moduleids', $arrModules['ids']);
         $smarty->assign('modulevals', $arrModules['values']);
         $smarty->assign('idmodule', 1);
@@ -129,6 +129,11 @@ class features  extends admCommon {
         $smarty->assign('defcountryids', $arrCountries['ids']);
         $smarty->assign('defcountryvals', $arrCountries['values']);
 
+        $arrFieldType['ids'] = array('','checkbox','input','link');
+        $arrFieldType['values'] = array($this->getLanguageWord('Select'),'Checkbox','Input','Link');
+        $smarty->assign('fieldtypeids', $arrFieldType['ids']);
+        $smarty->assign('fieldtypevals', $arrFieldType['values']);
+
 
         $smarty->display('features.tpl');
 
@@ -142,10 +147,12 @@ class features  extends admCommon {
             return false;
         }
 
-        $id = $_POST['id'];
+        $arrID = explode("_",$_POST['id']);
+        $prefix = $arrID[0];
+        $id = $arrID[1];
         $newVal = $_POST['newVal'];
 
-        $updt = $this->dbConfig->updateConfig($id, $newVal);
+        $updt = $this->dbConfig->updateConfig($prefix,$id, $newVal);
         if ($updt) {
             echo 'OK';
         } else {
@@ -596,7 +603,36 @@ class features  extends admCommon {
 
         $prefix = $rsModule->fields['tableprefix'];
 
-        $get = $this->dbConfig->getConfigs($prefix,'1,7,10');
+        if ( $this->dbConfig->tableExists($prefix . '_tbconfig') == 0 ){
+            echo "<div class='alert-warning'>{$this->getLanguageWord('No_result')}</div>";
+            exit;
+        }
+
+        $table = $prefix.'_tbconfig_category';
+        $where = "WHERE flgsetup = 'Y'";
+        $order = "ORDER BY idconfigcategory";
+
+        $rsCategories = $this->dbConfig->getConfigCategories($table,$where,$order);
+        if(!$rsCategories){
+            if($this->log)
+                $this->logIt("Get Module's Confs Categories - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $categoriesID = '';
+        while(!$rsCategories->EOF){
+            $categoriesID .= $rsCategories->fields['idconfigcategory'].',';
+            $rsCategories->MoveNext();
+        }
+
+        $categoriesID = substr($categoriesID,0,-1);
+
+        if ( $categoriesID == '' ){
+            echo "<div class='alert-warning'>{$this->getLanguageWord('No_result')}</div>";
+            exit;
+        }
+
+        $get = $this->dbConfig->getConfigs($prefix,$categoriesID);
         if(!$get){
             if($this->log)
                 $this->logIt("Get Module's Confs - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -605,30 +641,46 @@ class features  extends admCommon {
         $idmoduletmp = 0;
         $i = 1;
         $list = "";
-        //echo"<pre>"; print_r($get); echo"</pre>";
+
         while (!$get->EOF) {
-            //echo $get->fields['idconfig'].'<br>';
+            //echo $get->fields['idconfig'].': '.$get->fields['config_name'].'<br>';
             if ($idmoduletmp != $get->fields["cate"]){
+                $catName = ($get->fields['cat_smarty'] && $get->fields['cat_smarty'] != '')
+                            ? $this->getLanguageWord($get->fields['cat_smarty'])
+                                ? $this->getLanguageWord($get->fields['cat_smarty']) : $get->fields['cat_name']
+                            : $get->fields['cat_name'];
+                
                 if($i != 1)
                     $list .= "</tbody></table></div></div>";
                 
                     $list .= "<div class='panel panel-default'>
                             <div class='panel-heading'>
-                                <i class='fa fa-cog' aria-hidden='true'></i>&nbsp;".$this->getLanguageWord($get->fields['cat_smarty'])."
+                                <i class='fa fa-cog' aria-hidden='true'></i>&nbsp;".$catName."
                             </div>
                             <div class='panel-body'>
                                 <table class='table table-striped'>
                                     <colgroup>
+                                        <col class='col-sm-4'>
+                                        <col class='col-sm-7'>
                                         <col class='col-sm-1'>
-                                        <col class='col-sm-11'>
                                     </colgroup>
                                     <tbody>";
             }
 
             switch($get->fields["field_type"]){
                 case 'input':
-                    $content = "<div>
-                                    <input type='text' value='{$get->fields['value']}' class='text-center form-control input-sm changeConfigValue' id='id{$get->fields['idconfig']}' data-id='{$get->fields['idconfig']}' />
+                    $content = "<div class='row text-center'>
+                                    <div class='form-group '> 
+                                        <div class='col-sm-4'>
+                                            &nbsp;
+                                        </div>
+                                        <div class='col-sm-4 text-center'>
+                                            <input type='text' value='{$get->fields['value']}' class='text-center form-control input-sm changeConfigValue' id='{$prefix}_{$get->fields['idconfig']}' data-id='{$prefix}{$get->fields['idconfig']}' />
+                                        </div> 
+                                        <div class='col-sm-4'>
+                                            &nbsp;
+                                        </div>
+                                    </div>                                     
                                 </div>";
                     break;
                 
@@ -636,23 +688,36 @@ class features  extends admCommon {
                     $checked = $get->fields['value'] == 1 ? "checked='checked'" : "";
                     $content = "<div class='i-checks'>
                                     <label>
-                                        <input type='checkbox' id='id{$get->fields['value']}' $checked class='changeConfigStatus' value='{$get->fields['idconfig']}' />
+                                        <input type='checkbox' id='{$prefix}_{$get->fields['value']}' $checked class='changeConfigStatus' value='{$prefix}_{$get->fields['idconfig']}' />
                                     </label>
                                 </div>";
                     break;
                 
                 default:
+                    $content = "<div>
+                                    <input type='text' value='{$get->fields['value']}' class='text-center form-control input-sm changeConfigValue' id='{$prefix}_{$get->fields['idconfig']}' data-id='{$prefix}{$get->fields['idconfig']}' />                                     
+                                </div>";
                     break;
 
-
             }
+
+            $confName = ($get->fields['smarty'] && $get->fields['smarty'] != '')
+                            ? $this->getLanguageWord($get->fields['smarty'])
+                                ? $this->getLanguageWord($get->fields['smarty']) : $get->fields['config_name']
+                            : $get->fields['config_name'];
+            $removeIco = $get->fields['allowremove'] == 'Y'
+                        ? '<a href="javascript:;" class="btn btn-danger btn-xs tooltip-buttons removeConfig" data-toggle="tooltip" data-placement="top" title="'.$this->getLanguageWord('Feature_remove').'" data-id="'.$prefix.'_'.$get->fields['idconfig'].'"><i class="fa fa-trash-alt"></i></a>'
+                        : "";
             
             $list .= "<tr>
                         <td class='text-center'>
                             $content
                         </td>
-                        <td>
-                            {$this->getLanguageWord($get->fields['smarty'])}
+                        <td >
+                            {$confName}
+                        </td>
+                        <td class='text-center'>
+                            $removeIco
                         </td>
                     </tr>";
             
@@ -662,6 +727,227 @@ class features  extends admCommon {
         }
 
         echo $list;
+    }
+
+    public function ajaxFeatureCategory(){
+
+        $idmodule = $_POST['moduleID'];
+        
+        $rsModule = $this->dbModule->selectModuleData($idmodule);
+        if(!$rsModule){
+            if($this->log)
+                $this->logIt("Get Module's Data - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $table = $idmodule == 1 ? "tbconfig_category" : $rsModule->fields['tableprefix']."_tbconfig_category";
+
+        echo $this->comboFeatureCategoryHtml($table,"WHERE flgsetup = 'Y'","ORDER BY `name`");
+        
+    }
+
+    public function comboFeatureCategory($table,$where=null,$order=null)
+    {
+        $rs = $this->dbConfig->getConfigCategories($table,$where,$order);
+        while (!$rs->EOF) {
+            $fieldsID[] = $rs->fields['idconfigcategory'];
+            $values[]   = $rs->fields['name'];
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+    }
+
+    public function comboFeatureCategoryHtml($table,$where=null,$order=null)
+    {
+
+        $arrType = $this->comboFeatureCategory($table,$where,$order);
+        $select = '';
+
+        foreach ( $arrType['ids'] as $indexKey => $indexValue ) {
+            $select .= "<option value='$indexValue'>".$arrType['values'][$indexKey]."</option>";
+        }
+        return $select;
+    }
+
+    public function saveNewFeature(){
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $idmodule = $_POST['idmoduleAddFeat'];
+        $idconfigcategory = $_POST['cmbFeatureCat'];
+        $name = addslashes($_POST['txtNewFeature']);
+        $description = addslashes($_POST['newFeatureDesc']);
+        $sessionName = addslashes(str_replace(' ','_',$_POST['newFeatureSessionName']));
+        $smartyVar = addslashes(str_replace(' ','_',$_POST['newFeatureSmartyVar']));
+        $fieldType = $_POST['cmbFieldTypeMod'] == 'X' ? '' : $_POST['cmbFieldTypeMod'];
+        $value = $_POST['cmbFieldTypeMod'] == "checkbox"
+                 ? isset($_POST['valCheckFeature']) ? 1 : 0
+                 : addslashes($_POST['valInputFeature']);
+        $flgDefault = isset($_POST['featureDefault']) ? 'N' : 'Y';
+
+        if($idmodule == 1){
+            $table = "tbconfig";
+        }else{
+            $rsModule = $this->dbModule->selectModuleData($idmodule);
+            if(!$rsModule){
+                if($this->log)
+                    $this->logIt("Get Module's Data - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
+
+            $table = $rsModule->fields['tableprefix']."_tbconfig";
+
+            if ( $this->dbConfig->tableExists($table) == 0 ){
+                if($this->log)
+                    $this->logIt("Table " . $table . " doesn't exist - program: ".$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
+        }
+
+        $this->dbConfig->BeginTrans();
+
+        $ins = $this->dbConfig->insertFeature($table,$name,$description,$idconfigcategory,$sessionName,$fieldType,$smartyVar,$value,$flgDefault);
+        if(!$ins){
+            $this->dbConfig->RollbackTrans();
+            if($this->log)
+                $this->logIt('Error to try insert New Feature - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->dbConfig->CommitTrans();
+
+        $aRet = array(
+            "status"   => 'OK',
+            "idfeature" => $ins
+        );
+
+        echo json_encode($aRet);
+    }
+
+    public function removeConfig()
+    {
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $arrID = explode("_",$_POST['id']);
+        $prefix = $arrID[0];
+        $id = $arrID[1];
+
+        $del = $this->dbConfig->removeConfig($prefix,$id);
+        if ($del) {
+            echo 'OK';
+        } else {
+            if($this->log)
+                $this->logIt('Remove Config - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+
+    }
+
+    public function checkField() {
+        $value = $_POST['searchval'];
+        $idmodule = $_POST['moduleId'];
+        $fieldName = $_POST['fieldName'];
+
+        $rsModule = $this->dbModule->selectModuleData($idmodule);
+        if(!$rsModule){
+            if($this->log)
+                $this->logIt("Get Module's Data - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $prefix = $rsModule->fields['tableprefix'];
+
+        $check = $this->dbConfig->checkField($prefix,$fieldName,$value);
+        if ($check->fields) {
+            echo json_encode($this->getLanguageWord('Value_exists'));
+        } else {
+            echo json_encode(true);
+        }
+    }
+
+    public function checkCategory() {
+        $value = $_POST['txtNewCategory'];
+        $idmodule = $_POST['moduleId'];
+
+        $rsModule = $this->dbModule->selectModuleData($idmodule);
+        if(!$rsModule){
+            if($this->log)
+                $this->logIt("Get Module's Data - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $prefix = $rsModule->fields['tableprefix'];
+
+        $check = $this->dbConfig->checkCategory($prefix,$value);
+        if ($check->fields) {
+            echo json_encode($this->getLanguageWord('Value_exists'));
+        } else {
+            echo json_encode(true);
+        }
+    }
+
+    public function saveNewCategory(){
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $idmodule = $_POST['idmoduleAddCateg'];
+        $name = addslashes($_POST['txtNewCategory']);
+        $smartyVar = addslashes($_POST['newCategorySmartyVar']);
+
+        if($idmodule == 1){
+            $table = "tbconfig_category";
+        }else{
+            $rsModule = $this->dbModule->selectModuleData($idmodule);
+            if(!$rsModule){
+                if($this->log)
+                    $this->logIt("Get Module's Data - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
+
+            $table = $rsModule->fields['tableprefix']."_tbconfig_category";
+
+            if ( $this->dbConfig->tableExists($table) == 0 ){
+                if($this->log)
+                    $this->logIt("Table " . $table . " doesn't exist - program: ".$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
+        }
+
+        $this->dbConfig->BeginTrans();
+
+        $ins = $this->dbConfig->insertFeatureCategory($table,$name,$smartyVar,'Y');
+        if(!$ins){
+            $this->dbConfig->RollbackTrans();
+            if($this->log)
+                $this->logIt('Error to try insert New Feature - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->dbConfig->CommitTrans();
+
+        $aRet = array(
+            "status"   => 'OK',
+            "idcategory" => $ins
+        );
+
+        echo json_encode($aRet);
     }
 
 }

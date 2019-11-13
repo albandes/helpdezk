@@ -200,10 +200,20 @@ $(document).ready(function () {
     $("#newticket-form").validate({
         ignore:[],
         rules: {
-            subject: "required"  // simple rule, converted to {required:true}
+            subject: "required",  // simple rule, converted to {required:true}
+            cmbSource: "required",
+            area: "required",
+            typeId: "required",
+            itemId: "required",
+            serviceId: "required"
         },
         messages: {
-            subject: makeSmartyLabel('Alert_empty_subject')
+            subject: makeSmartyLabel('Alert_empty_subject'),
+            cmbSource: makeSmartyLabel('Alert_field_required'),
+            area: makeSmartyLabel('Alert_field_required'),
+            typeId: makeSmartyLabel('Alert_field_required'),
+            itemId: makeSmartyLabel('Alert_field_required'),
+            serviceId: makeSmartyLabel('Alert_field_required')
         }
 
     });
@@ -517,6 +527,10 @@ $(document).ready(function () {
 
     $("#itemId").change(function(){
         objNewTicket.changeService();
+    });
+
+    $("#serviceId").change(function(){
+        objNewTicket.changeReason();
     });
 
     $("input[name='typerep']").on('ifChecked', function() { // bind a function to the change event

@@ -132,9 +132,9 @@ class admCommon extends Controllers  {
         return $arrRet;
     }
 
-    public function _comboModule()
+    public function _comboModule($where=null,$order=null)
     {
-        $rs = $this->dbProgram->selectModules();
+        $rs = $this->dbProgram->selectModules($where,$order);
         while (!$rs->EOF) {
             $fieldsID[] = $rs->fields['idmodule'];
             $values[]   = $rs->fields['name'];
@@ -166,8 +166,19 @@ class admCommon extends Controllers  {
     {
         $rs = $this->getActiveModules();
         $list = '';
-        while (!$rs->EOF) {
-            $rsCat = $this->dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule']);
+        
+        if($_SESSION['SES_COD_USUARIO'] == 1 || $_SESSION['SES_TYPE_PERSON'] == 1){
+            $cond = " AND tp.idtypeperson = 1";
+        }else{
+            $cond = " AND tp.idtypeperson IN
+                        (SELECT idtypeperson
+                           FROM tbpersontypes
+                          WHERE idperson = '".$_SESSION['SES_COD_USUARIO']."' )";
+        }
+
+        while (!$rs->EOF) {            
+            
+            $rsCat = $this->dbProgram->getModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$rs->fields['idmodule'],$cond);
 
             if($rsCat->RecordCount() > 0){
                 $list .= "<li class='dropdown-submenu'>
@@ -181,7 +192,7 @@ class admCommon extends Controllers  {
                                 <ul class='dropdown-menu'>";
 
                     $andModule = " m.idmodule = " . $rs->fields['idmodule'] . " AND cat.idprogramcategory = " . $rsCat->fields['category_id'] ;
-                    $groupperm = $this->dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule);
+                    $groupperm = $this->dbProgram->getPermissionMenu($_SESSION['SES_COD_USUARIO'], $andModule, $cond);
 
                     if($groupperm){
                         while (!$groupperm->EOF) {
@@ -275,7 +286,7 @@ class admCommon extends Controllers  {
         $rs = $this->dbPerson->getTypePerson($where,$group,$order,$limit);
         while (!$rs->EOF) {
             $fieldsID[] = $rs->fields['idtypeperson'];
-            $values[]   = $this->getLanguageWord('type_user_'.$rs->fields['name']);
+            $values[]   = !$this->getLanguageWord('type_user_'.$rs->fields['name']) ? $rs->fields['name'] : $this->getLanguageWord('type_user_'.$rs->fields['name']);
             $rs->MoveNext();
         }
 
