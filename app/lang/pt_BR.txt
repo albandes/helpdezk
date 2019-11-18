@@ -1830,6 +1830,7 @@ Drag_user_photo_msg = "Para atualizar sua foto, <br> arraste o arquivo com a ima
 Edit_user_config = "Editar configurações"
 type_user_EMQ_User = "Usuário Intranet"
 Lbl_photo = "Foto"
+Alert_department_person = "Este Departamento possui usuários vinculados.<br> Para deletá-lo, é necessário mover os usuários para um novo departamento.  <br>Selecione o Departamento destino."
 
 
 [201301014]
