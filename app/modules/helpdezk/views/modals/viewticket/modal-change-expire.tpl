@@ -43,7 +43,7 @@
                                     <div class="input-group clockpicker">
                                         <input type="text" id="requesttime" name="requesttime" class="form-control" value="{$timedefault}" readonly>
                                         <span class="input-group-addon">
-                                        <span class="fa fa-clock-o"></span>
+                                        <span class="fa fa-clock"></span>
                                     </span>
                                     </div>
                                 </div>
