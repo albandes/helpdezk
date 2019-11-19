@@ -172,7 +172,7 @@
                 </div>
                 <div class="col-sm-8 text-right">
                         <button type="button" class="btn btn-default btn-sm" id="button-reload">
-                            <span class="fa fa-refresh"></span> &nbsp;{$smarty.config.reload_request}
+                            <span class="fa fa-sync-alt"></span> &nbsp;{$smarty.config.reload_request}
                         </button>
                 </div>
             </div>

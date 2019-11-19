@@ -1462,17 +1462,17 @@ table.dataTable thead .sorting_desc_disabled {
 }
 table.dataTable thead .sorting_asc:after {
   float: right;
-  font-family: fontawesome;
+  font-family: "Font Awesome 5 Free";
 }
 table.dataTable thead .sorting_desc:after {
   content: "\f0dd";
   float: right;
-  font-family: fontawesome;
+  font-family: "Font Awesome 5 Free";
 }
 table.dataTable thead .sorting:after {
   content: "\f0dc";
   float: right;
-  font-family: fontawesome;
+  font-family: "Font Awesome 5 Free";
   color: rgba(50, 50, 50, 0.5);
 }
 .dataTables_wrapper {

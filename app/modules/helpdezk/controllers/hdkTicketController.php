@@ -619,7 +619,7 @@ class hdkTicket extends hdkCommon {
                 $filename = $rsAttach->fields['file_name'];
                 $ext = strrchr($filename, '.');
                 $idAttach = $rsAttach->fields['idrequest_attachment'];
-                $attach[$filename] = '<button type="button" class="btn btn-default btn-xs" id="'.$idAttach.'" onclick="download('.$idAttach.',\'request\')"><span class="fa fa-file-o"></span>  &nbsp;'.$filename.'</button>';
+                $attach[$filename] = '<button type="button" class="btn btn-default btn-xs" id="'.$idAttach.'" onclick="download('.$idAttach.',\'request\')"><span class="fa fa-file-alt"></span>  &nbsp;'.$filename.'</button>';
                 $rsAttach->MoveNext();
             }
             $attach = implode(" ", $attach);
@@ -1611,7 +1611,7 @@ class hdkTicket extends hdkCommon {
 
             if($idstatus == 3){
                 if ($rsNotes->fields['idtype'] != '3' && $_SESSION['hdk']['SES_IND_DELETE_NOTE'] == '1' && $_SESSION['SES_COD_USUARIO'] == $rsNotes->fields['idperson'] && $rsNotes->fields['flag_opened'] != '0'){
-                    $iconDel = '<button type="button" class="btn btn-danger btn-xs" href="<a href="javascript:;" onclick="deleteNote('.$idNote.','.$code_request.','.$typeperson.');"><span class="fa fa-trash-o"></span></button>';
+                    $iconDel = '<button type="button" class="btn btn-danger btn-xs" href="<a href="javascript:;" onclick="deleteNote('.$idNote.','.$code_request.','.$typeperson.');"><span class="fa fa-trash-alt"></span></button>';
                 } else {
                     $iconDel = "";
                 }
@@ -1639,7 +1639,7 @@ class hdkTicket extends hdkCommon {
                 while(!$rsNoteAttach->EOF){
                     $idNoteAttach = $rsNoteAttach->fields['idnote_attachments'] ;
                     $tooltip = $this->dbTicket->getTicketFile($idNoteAttach,'note');
-                    $iconFile .= '<button type="button" class="btn btn-default btn-xs" id="'.$idNoteAttach.'" onclick="download('.$idNoteAttach.',\'note\')" data-toggle="tooltip" data-container="body" data-placement="right" data-original-title="'.$tooltip.'"><span class="fa fa-file-o"></span></button>&nbsp;';
+                    $iconFile .= '<button type="button" class="btn btn-default btn-xs" id="'.$idNoteAttach.'" onclick="download('.$idNoteAttach.',\'note\')" data-toggle="tooltip" data-container="body" data-placement="right" data-original-title="'.$tooltip.'"><span class="fa fa-file-alt"></span></button>&nbsp;';
                     $rsNoteAttach->MoveNext();
                 }
             } else {
