@@ -740,6 +740,66 @@ $(document).ready(function () {
         return false;  // <- cancel event
     });
 
+    $("#btnDeleteYes").click(function(){
+
+        if(!$("#btnDeleteYes").hasClass('disabled')){
+            var idtarget = $('#idtarget_modal').val(), typetarget = $('#type_delete').val();
+            $.ajax({
+                type: "POST",
+                url: path + "/helpdezk/hdkService/deleteTarget",
+                data: {
+                    idtarget:idtarget,
+                    typetarget:typetarget,
+                    _token:$('#_token').val()
+                },
+                dataType: 'json',
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_deleted_error'),'alert-delete-service');
+                },
+                success: function(ret) {
+                    if(ret){
+                        var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                        if(obj.status == 'OK') {
+                            modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-delete-service');
+                            setTimeout(function(){
+                                $('#modal-dialog-delete').modal('hide');
+                                switch (typetarget) {
+                                    case "area":
+                                        location.href = path + "/helpdezk/hdkService/index" ;
+                                        break;
+                                    case "type":
+                                        location.href = path + "/helpdezk/hdkService/index" ;
+                                        break;
+                                    case "item":
+                                        viewType($("#idtypeHide").val());
+                                        break;
+                                    default:
+                                        viewItem($("#iditemHide").val());
+                                }
+                            },1500);
+
+                        } else {
+                            modalAlertMultiple('danger',makeSmartyLabel('Alert_deleted_error'),'alert-delete-service');
+                        }
+                    }
+                    else {
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_deleted_error'),'alert-delete-service');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnDeleteNo").addClass('disabled');
+                    $("#btnDeleteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnDeleteYes").html("<i class='fa fa-check-circle'></i> "+ makeSmartyLabel('Yes'));
+                }
+            });
+        }
+
+        return false;  // <- cancel event
+    });
+
     //form validations
     $("#area_form").validate({
         ignore:[],
@@ -1359,4 +1419,41 @@ function editService(id) {
         }
     });
 
+}
+
+function deleteTarget(id,type) {
+
+    $.ajax({
+        type: "POST",
+        url: path + "/helpdezk/hdkService/checkDelete",
+        data:{idtarget:id,typetarget:type,_token:$('#_token').val()},
+        dataType: 'json',
+        error: function (ret) {
+            showAlert(makeSmartyLabel('Permission_error'),'danger','');
+        },
+        success: function(ret) {
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            //console.log(obj);
+            if(obj.allowdelete) {
+                $('#deleteTitle').html(makeSmartyLabel('tooltip_delete_'+type));
+                $('#idtarget_modal').val(id);
+                $('#type_delete').val(type);
+                $('#modal-dialog-delete').modal('show');
+
+            } else {
+                showAlert(obj.message,'danger','');
+            }
+        }
+    });
+
+}
+
+function showAlert(msg,typeAlert,btnOk)
+{
+    $('#modal-notification').html(msg);
+    $("#btn-modal-ok").attr("href", btnOk);
+    $("#tipo-alert").attr('class', 'alert alert-'+typeAlert);
+    $('#modal-alert').modal('show');
+
+    return false;
 }

@@ -1831,6 +1831,15 @@ Edit_user_config = "Editar configurações"
 type_user_EMQ_User = "Usuário Intranet"
 Lbl_photo = "Foto"
 Alert_department_person = "Este Departamento possui usuários vinculados.<br> Para deletá-lo, é necessário mover os usuários para um novo departamento.  <br>Selecione o Departamento destino."
+tooltip_delete_area = "Deletar área"
+tooltip_delete_type = "Deletar tipo"
+tooltip_delete_item = "Deletar item"
+tooltip_delete_service = "Deletar serviço"
+
+Alert_dont_delete_area = "Esta área está vinculada a uma ou a várias solicitações.<br> Não é possível realizar esta operação."
+Alert_dont_delete_type = "Este tipo está vinculado a uma ou a várias solicitações.<br> Não é possível realizar esta operação."
+Alert_dont_delete_item = "Este item está vinculado a uma ou a várias solicitações.<br> Não é possível realizar esta operação."
+Alert_dont_delete_service = "Este serviço está vinculado a uma ou a várias solicitações.<br> Não é possível realizar esta operação."
 
 
 [201301014]

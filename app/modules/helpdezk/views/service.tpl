@@ -192,6 +192,7 @@
     {include file='modals/hdkservice/modal-item.tpl'}
     {include file='modals/hdkservice/modal-service.tpl'}
     {include file='modals/hdkservice/modal-conf-approve.tpl'}
+    {include file='modals/hdkservice/modal-dialog-delete.tpl'}
 
 
 </body>
