@@ -626,7 +626,6 @@ class service_model extends DynamicService_model{
         }
 
         return $ret;
-        return $this->db->Execute("");
     }
 
     // Since September 25, 2019
@@ -649,5 +648,109 @@ class service_model extends DynamicService_model{
                   AND a.idservice = $idservice
                 ";
        return $this->db->Execute($sql);
+    }
+
+    //List Ticket with Area, Type, Item or Service
+    public function getTicketService($where=null,$group=null,$order=null,$limit=null)
+    {
+        $sql =   "SELECT code_request FROM hdk_viewRequestData $where $group $order $limit";
+        $ret = $this->db->Execute($sql);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $sql;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    //List Area, Type, Item or Service IDs
+    public function selectTargetIds($field,$cond)
+    {
+        $sql =   "SELECT DISTINCT $field
+                    FROM hdk_tbcore_service a, hdk_tbcore_item b, hdk_tbcore_type c
+                   WHERE a.iditem = b.iditem
+                     AND b.idtype = c.idtype
+                     $cond";
+        $ret = $this->db->Execute($sql);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $sql;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    public function deleteArea($id){
+        $query = "DELETE FROM hdk_tbcore_area WHERE idarea IN ('$id')" ;
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    public function deleteType($id){
+        $query = "DELETE FROM hdk_tbcore_type WHERE idtype IN ('$id')";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    public function deleteItem($id){
+        $query = "DELETE FROM hdk_tbcore_item WHERE iditem IN ('$id')";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    public function deleteService($id){
+        $query = "DELETE FROM hdk_tbcore_service WHERE idservice IN ('$id')";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
+    public function deleteGroupService($id){
+        $query = "DELETE FROM hdk_tbgroup_has_service WHERE idservice IN ('$id')";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
     }
 }
