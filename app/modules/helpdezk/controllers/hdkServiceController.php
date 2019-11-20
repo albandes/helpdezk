@@ -60,16 +60,25 @@ class hdkService extends hdkCommon
     {
         $rsAreas = $this->dbService->selectAreas();
         $tabBody = "<table class='table'>";
+        $txtArea = 'area';
+        $txtType = 'type';
 
         while(!$rsAreas->EOF) {
             $checkedArea = $rsAreas->fields['status'] == 'A' ? 'checked=checked' : '';
+
             $tabBody .= "<tr>
-                            <td colspan='4'>
+                            <td colspan='3'>
                                 <div class='i-checks'>
                                     <input type='checkbox' class='checkArea' name='area_{$rsAreas->fields['idarea']}' value='{$rsAreas->fields['idarea']}' id='area_{$rsAreas->fields['idarea']}' {$checkedArea}>&nbsp; 
                                     <span class='text-service'>{$rsAreas->fields['name']}</span>
                                 </div>
                             </td>
+                            <td>
+                                <div>
+                                    <a href='javascript:;' onclick='deleteTarget({$rsAreas->fields['idarea']},\"{$txtArea}\")' class='btn btn-danger btn-xs  tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('tooltip_delete_area')}'><i class='fa fa-trash-alt'></i></a>
+                                </div>
+                            </td>
+                            <td></td>
                         </tr>";
 
             $rsTypes = $this->dbService->getTypeFromAreas($rsAreas->fields['idarea']);
@@ -92,6 +101,11 @@ class hdkService extends hdkCommon
                                 <td>
                                     <div>
                                     <a href='javascript:;' onclick='viewType({$rsTypes->fields['type']})' class='btn btn-default btn-xs  tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('tooltip_list_items')}'><i class='fa fa-bars'></i></a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                    <a href='javascript:;' onclick='deleteTarget({$rsTypes->fields['type']},\"{$txtType}\")' class='btn btn-danger btn-xs  tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('tooltip_delete_type')}'><i class='fa fa-trash-alt'></i></a>
                                     </div>
                                 </td>
                             </tr>";
@@ -377,7 +391,7 @@ class hdkService extends hdkCommon
             $areaDefault = 0;
         }
 
-        $arrArea = $this->_comboArea();
+        $arrArea = $this->comboServiceArea();
         $select = '';
         $select .= "<option value=''>".$this->getLanguageWord('Select_area')."</option>";
         
@@ -506,6 +520,7 @@ class hdkService extends hdkCommon
             return false;
         }
         $tabBody = "<table class='table'>";
+        $txtItem = "item";
 
         while(!$rsItem->EOF) {
             $checkedItem = $rsItem->fields['item_status'] == 'A' ? 'checked=checked' : '';
@@ -517,7 +532,6 @@ class hdkService extends hdkCommon
                                     </div>
                                 </td>
                                 <td>&nbsp;</td>
-                                <td>&nbsp;</td>
                                 <td>
                                     <div class='pull-right'>
                                         <a href='javascript:;' onclick='editItem({$rsItem->fields['item']})' class='btn btn-default btn-xs tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('Item_edit')}'><i class='fa fa-edit'></i></a>
@@ -526,6 +540,11 @@ class hdkService extends hdkCommon
                                 <td>
                                     <div class='pull-right'>
                                         <a href='javascript:;' onclick='viewItem({$rsItem->fields['item']})' class='btn btn-default btn-xs  tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('tooltip_list_services')}'><i class='fa fa-bars'></i></a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class='pull-right'>
+                                        <a href='javascript:;' onclick='deleteTarget({$rsItem->fields['item']},\"{$txtItem}\")' class='btn btn-danger btn-xs  tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('tooltip_delete_item')}'><i class='fa fa-trash-alt'></i></a>
                                     </div>
                                 </td>
                             </tr>";
@@ -564,6 +583,7 @@ class hdkService extends hdkCommon
             return false;
         }
         $tabBody = "<table class='table'>";
+        $txtService = "service";
 
         while(!$rsService->EOF) {
             $checkedService = $rsService->fields['service_status'] == 'A' ? 'checked=checked' : '';
@@ -577,6 +597,11 @@ class hdkService extends hdkCommon
                                 <td>
                                     <div class='pull-right'>
                                         <a href='javascript:;' onclick='editService({$rsService->fields['service']})' class='btn btn-default btn-xs tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('Service_edit')}'><i class='fa fa-edit'></i></a>
+                                    </div>                                    
+                                </td>
+                                <td>
+                                    <div class='pull-right'>
+                                        <a href='javascript:;' onclick='deleteTarget({$rsService->fields['service']},\"{$txtService}\")' class='btn btn-danger btn-xs tooltip-buttons' data-toggle='tooltip' data-placement='top' title='{$this->getLanguageWord('tooltip_delete_service')}'><i class='fa fa-trash-alt'></i></a>
                                     </div>                                    
                                 </td>
                             </tr>";
@@ -1053,6 +1078,240 @@ class hdkService extends hdkCommon
 
         echo json_encode($aRet);
 
+    }
+
+    public function comboServiceArea()
+    {
+        $rs = $this->dbService->selectAreas();
+        while (!$rs->EOF) {
+            $fieldsID[] = $rs->fields['idarea'];
+            $values[]   = $rs->fields['name'];
+            $rs->MoveNext();
+        }
+
+        $arrRet['ids'] = $fieldsID;
+        $arrRet['values'] = $values;
+
+        return $arrRet;
+    }
+
+    public function checkDelete()
+    {
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $id = $_POST['idtarget'];
+        $type = $_POST['typetarget'];
+        $where = "WHERE ";
+
+        switch ($type){
+            case 'area':
+                $where .= "idarea = $id";
+                $msg = $this->getLanguageWord('Alert_dont_delete_area');
+                break;
+            case 'type':
+                $where .= "idtype = $id";
+                $msg = $this->getLanguageWord('Alert_dont_delete_type');
+                break;
+            case 'item':
+                $where .= "iditem = $id";
+                $msg = $this->getLanguageWord('Alert_dont_delete_item');
+                break;
+            default:
+                $where .= "idservice = $id";
+                $msg = $this->getLanguageWord('Alert_dont_delete_service');
+                break;
+        }
+
+        $rsTickets = $this->dbService->getTicketService($where);
+        if (!$rsTickets) {
+            if($this->log)
+                $this->logIt('Get Tickets with '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $count = $rsTickets->RecordCount();
+        $allow = $count > 0 ? false : true;
+        $msg = $count > 0 ? $msg : '';
+
+        $aRet = array(
+           'allowdelete' => $allow,
+           'message' => $msg
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    public function deleteTarget()
+    {
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $id = $_POST['idtarget'];
+        $type = $_POST['typetarget'];
+
+        //$this->dbService->BeginTrans();
+
+        switch ($type){
+            case 'area':
+                $serviceIDs = $this->getTargetIds('a.idservice',"AND c.idarea = $id");
+                $itemIDs = $this->getTargetIds('a.iditem',"AND c.idarea = $id");
+                $typeIDs = $this->getTargetIds('b.idtype',"AND c.idarea = $id");
+
+                if($serviceIDs){
+                    $delGrpServ = $this->dbService->deleteGroupService($serviceIDs);
+                    if (!$delGrpServ) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Services group by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+
+                    $delService = $this->dbService->deleteService($serviceIDs);
+                    if (!$delService) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Services by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+
+                if($itemIDs){
+                    $delItem = $this->dbService->deleteItem($itemIDs);
+                    if (!$delItem) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Itens by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+
+                if($typeIDs){
+                    $delType = $this->dbService->deleteType($typeIDs);
+                    if (!$delType) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Types by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+
+                $del = $this->dbService->deleteArea($id);
+                break;
+            case 'type':
+                $serviceIDs = $this->getTargetIds('a.idservice',"AND b.idtype = $id");
+                $itemIDs = $this->getTargetIds('a.iditem',"AND b.idtype = $id");
+
+                if($serviceIDs){
+                    $delGrpServ = $this->dbService->deleteGroupService($serviceIDs);
+                    if (!$delGrpServ) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Services group by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+
+                    $delService = $this->dbService->deleteService($serviceIDs);
+                    if (!$delService) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Services by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+
+                if($itemIDs){
+                    $delItem = $this->dbService->deleteItem($itemIDs);
+                    if (!$delItem) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Itens by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+                $del = $this->dbService->deleteType($id);
+                break;
+            case 'item':
+                $serviceIDs = $this->getTargetIds('a.idservice',"AND a.iditem = $id");
+                if($serviceIDs){
+                    $delGrpServ = $this->dbService->deleteGroupService($serviceIDs);
+                    if (!$delGrpServ) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Services group by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+
+                    $delService = $this->dbService->deleteService($serviceIDs);
+                    if (!$delService) {
+                        $this->dbService->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Delete Services by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+
+                $del = $this->dbService->deleteItem($id);
+                break;
+            default:
+                $delGrpServ = $this->dbService->deleteGroupService($id);
+                if (!$delGrpServ) {
+                    $this->dbService->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Delete Services group by '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+
+                $del = $this->dbService->deleteService($id);
+                break;
+        }
+
+
+        if (!$del) {
+            $this->dbService->RollbackTrans();
+            if($this->log)
+                $this->logIt('Delete '.$type.' - ID: '.$id.' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->dbService->CommitTrans();
+
+        $aRet = array(
+            "status" => 'OK'
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    public function getTargetIds($field,$cond)
+    {
+        $rs = $this->dbService->selectTargetIds($field,$cond);
+
+        if (!$rs) {
+            if($this->log)
+                $this->logIt('Can\'t get area, type, item or service ids - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $list = "";
+        $fieldName = substr($rs->fields['idarea'],2);
+
+        while (!$rs->EOF) {
+            $list .= $rs->fields[$fieldName].",";
+            $rs->MoveNext();
+        }
+
+        $list = substr($list,0,-1);
+
+        return $list;
     }
 
 }
