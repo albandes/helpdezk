@@ -499,6 +499,26 @@ class Person  extends admCommon {
 
         /* -- Fim endereco -- */
 
+        // --- Person Groups ---
+        $arrPersonGroups = $arrGrps = $this->_comboGroups('','ORDER BY tbp.name');
+        if ($oper == 'update') {
+            $idPersonGroupsEnable = array();
+            $rsCheck = $this->dbPerson->getPersonGroups($rs->fields['idperson']);
+            while(!$rsCheck->EOF) {
+                array_push($idPersonGroupsEnable,$rsCheck->fields['idgroup']) ;
+                $rsCheck->MoveNext();
+            }
+        } elseif ($oper == 'create') {
+            $idPersonGroupsEnable = array();
+        }
+        if ($oper == 'echo') {
+            $objSmarty->assign('lblTypeLogin',$rs->fields['printablename']);
+        } else {
+            $objSmarty->assign('persongroupsids',  $arrPersonGroups['ids']);
+            $objSmarty->assign('persongroupsvals', $arrPersonGroups['values']);
+            $objSmarty->assign('idpersongroups', $idPersonGroupsEnable  );
+        }
+
 
 
     }
@@ -606,6 +626,19 @@ class Person  extends admCommon {
                         $this->dbPerson->RollbackTrans();
                         if($this->log)
                             $this->logIt('Insert Person / Save Permission Groups  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+            }
+
+            // Since 2019-11
+            if(!empty($_POST['persongroups'])){
+                foreach ($_POST['persongroups'] as $idgroup) {
+                    $insPersonGroups = $this->dbPerson->insertGroupPerson($idgroup, $idperson);
+                    if(!$insPersonGroups) {
+                        $this->dbPerson->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Insert Person, Save Administrator/Operator Groups  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                         return false;
                     }
                 }
@@ -756,6 +789,27 @@ class Person  extends admCommon {
                         $this->dbPerson->RollbackTrans();
                         if($this->log)
                             $this->logIt('Update Person / Update Permission Groups  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+            }
+
+            // Since 2019-11
+            $delGrps = $this->dbPerson->deletePersonGroups($idperson) ;
+            if (!$delGrps) {
+                $this->dbPerson->RollbackTrans();
+                if($this->log)
+                    $this->logIt('Update Person. Delete Administrator/Operator Groups - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
+
+            if(!empty($_POST['persongroups'])){
+                foreach ($_POST['persongroups'] as $idgroup) {
+                    $insPersonGroups = $this->dbPerson->insertGroupPerson($idgroup, $idperson);
+                    if(!$insPersonGroups) {
+                        $this->dbPerson->RollbackTrans();
+                        if($this->log)
+                            $this->logIt('Insert Person, Save Administrator/Operator Groups - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                         return false;
                     }
                 }
