@@ -876,4 +876,30 @@ class person_model extends DynamicPerson_model
         return $ret;
     }
 
+    public function deletePersonGroups($idperson)
+    {
+        $sql = "DELETE FROM hdk_tbgroup_has_person WHERE idperson = '$idperson'";
+        $ret = $this->db->Execute($sql);
+        if (!$ret) {
+            $sError = "Error in:  " . __FILE__ . ", line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "<BR>Query: " . $sql;
+            $this->error($sError);
+        } else {
+            return $ret;
+        }
+    }
+
+    public function insertGroupPerson($group, $person){
+        $query = "INSERT INTO hdk_tbgroup_has_person (idgroup,idperson) VALUES ('$group','$person')";
+
+        $ret = $this->db->Execute($query);
+
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: ".$query;
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret;
+    }
+
 }
