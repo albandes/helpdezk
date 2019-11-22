@@ -21,19 +21,20 @@ $(document).ready(function () {
     /*
      *  Chosen
      */
-    $("#logintype").chosen({        width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#type_company").chosen({     width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#company").chosen({          width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#department").chosen({       width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#type_user").chosen({        width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#location").chosen({         width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#country").chosen({          width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#state").chosen({            width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#city").chosen({             width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#neighborhood").chosen({     width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#type_street").chosen({      width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#address").chosen({      width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#permgroups").chosen({       width: "100%",    no_results_text: "Nada encontrado!", disable_search_threshold: 10});
+    $("#logintype").chosen({        width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#type_company").chosen({     width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#company").chosen({          width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#department").chosen({       width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#type_user").chosen({        width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#location").chosen({         width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#country").chosen({          width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#state").chosen({            width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#city").chosen({             width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#neighborhood").chosen({     width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#type_street").chosen({      width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#address").chosen({          width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#permgroups").chosen({       width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#persongroups").chosen({     width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
 
     /*
      * Combos
@@ -601,6 +602,7 @@ $(document).ready(function () {
             type_company:{required:function(element){return $('input[name="category"]:checked').val() == 'juridical';}},
             email: {required:true,email:true},
             department_default:{required:function(element){return $('input[name="category"]:checked').val() == 'juridical';}},
+            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}}
         },
         messages: {
             login:{required:makeSmartyLabel('Alert_field_required')},
@@ -610,7 +612,8 @@ $(document).ready(function () {
             type_user:{required:makeSmartyLabel('Alert_field_required')},
             type_company:{required:makeSmartyLabel('Alert_field_required')},
             email:{required:makeSmartyLabel('Alert_field_required'),email:makeSmartyLabel('Alert_invalid_email')} ,
-            department_default:{required:makeSmartyLabel('Alert_field_required')}
+            department_default:{required:makeSmartyLabel('Alert_field_required')},
+            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')}
         }
     });
 
@@ -620,13 +623,15 @@ $(document).ready(function () {
             personName: "required",
             type_user:{required:function(element){return $('#category').val() == 'natural';}},
             type_company:{required:function(element){return $('#category').val() == 'juridical';}},
-            email: {required:true,email:true}
+            email: {required:true,email:true},
+            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}}
         },
         messages: {
             personName:      makeSmartyLabel('Alert_field_required'),
             type_user:{required:makeSmartyLabel('Alert_field_required')},
             type_company:{required:makeSmartyLabel('Alert_field_required')},
-            email:{required:makeSmartyLabel('Alert_field_required'),email:makeSmartyLabel('Alert_invalid_email')}
+            email:{required:makeSmartyLabel('Alert_field_required'),email:makeSmartyLabel('Alert_invalid_email')},
+            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')}
         }
     });
 

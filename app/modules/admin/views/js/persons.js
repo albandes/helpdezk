@@ -152,7 +152,7 @@ $(document).ready(function () {
             $("#tipo-alert").attr('class', 'alert alert-warning');
             $('#modal-alert').modal('show');
         } else {
-            if(idtypeperson != 3){
+            if(idtypeperson != 1 && idtypeperson != 3){
                 $("#btn-modal-ok").attr("href", '');
                 $('#modal-notification').html(makeSmartyLabel('Option_only_operator'));
                 $("#tipo-alert").attr('class', 'alert alert-danger');
