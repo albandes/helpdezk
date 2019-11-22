@@ -209,15 +209,7 @@ class ticket_model extends DynamicTicket_model
                 SELECT
                   a.idarea,
                   a.name,
-                  (SELECT
-                    CASE
-                      WHEN b.default = a.idarea
-                      THEN 1
-                      ELSE 0
-                    END
-                  FROM
-                    hdk_tbcore_default b
-                  WHERE b.table = 'area') AS `default`
+                  a.`default`
                 FROM
                   hdk_tbcore_area a
                 WHERE a.status = 'A'
@@ -257,16 +249,7 @@ class ticket_model extends DynamicTicket_model
                 SELECT
                   a.idtype,
                   a.name,
-                  COALESCE ((SELECT
-                    CASE
-                      WHEN b.default = a.idtype
-                      THEN 1
-                      ELSE 0
-                    END
-                  FROM
-                    hdk_tbcore_default b
-                  WHERE b.table = 'type'
-                    AND b.default = a.idtype)  ,0) AS `default`
+                  a.`selected` AS `default`
                 FROM
                   hdk_tbcore_type a
                 WHERE idarea = '$area'
@@ -289,16 +272,7 @@ class ticket_model extends DynamicTicket_model
                 SELECT
                   a.iditem,
                   a.name,
-                  COALESCE ((SELECT
-                    CASE
-                      WHEN b.default = a.iditem
-                      THEN 1
-                      ELSE 0
-                    END
-                  FROM
-                    hdk_tbcore_default b
-                  WHERE b.table = 'item'
-                    AND b.default = a.iditem)  ,0) AS `default`
+                  a.`selected` AS `default`
                 FROM
                   hdk_tbcore_item a
                 WHERE idtype = '$type'
@@ -323,16 +297,7 @@ class ticket_model extends DynamicTicket_model
                 SELECT
                   a.idservice,
                   a.name,
-                  COALESCE ((SELECT
-                    CASE
-                      WHEN b.default = a.idservice
-                      THEN 1
-                      ELSE 0
-                    END
-                  FROM
-                    hdk_tbcore_default b
-                  WHERE b.table = 'service'
-                    AND b.default = a.idservice)  ,0) AS `default`
+                  a.`selected` AS `default`
                 FROM
                   hdk_tbcore_service a
                 WHERE iditem = '$item'
@@ -1867,6 +1832,19 @@ class ticket_model extends DynamicTicket_model
             return false;
         }
         return $ret;
+    }
+
+    public function selectIdAreaDefault()
+    {
+        $sql =  "SELECT idarea FROM hdk_tbcore_area WHERE `default` = 1";
+        $ret = $this->select($sql);
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return $ret->fields['idarea'];
+
     }
 
 }

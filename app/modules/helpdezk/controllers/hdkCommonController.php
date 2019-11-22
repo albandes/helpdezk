@@ -1556,4 +1556,8 @@ class hdkCommon extends Controllers  {
         return $select;
     }
 
+    public function _getIdAreaDefault(){
+        return $this->dbTicket->selectIdAreaDefault();
+    }
+
 }
