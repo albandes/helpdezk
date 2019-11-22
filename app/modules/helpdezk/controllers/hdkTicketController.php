@@ -106,7 +106,7 @@ class hdkTicket extends hdkCommon {
         $smarty->assign('id_company', $_SESSION['SES_COD_EMPRESA']);
 
         $arrArea = $this->_comboArea();
-        $idAreaDefault = $this->_getIdCoreDefault('area');
+        $idAreaDefault = $this->_getIdAreaDefault();
         $smarty->assign('areaids',  $arrArea['ids']);
         $smarty->assign('areavals', $arrArea['values']);
         $smarty->assign('idarea', $idAreaDefault);
@@ -1720,7 +1720,7 @@ class hdkTicket extends hdkCommon {
 
     public function areaDefault()
     {
-        $idArea = $this->_getIdCoreDefault('area');
+        $idArea = $this->_getIdAreaDefault();
         if ($idArea > 0)
             echo $this->_comboTypeHtml($idArea);
         else
