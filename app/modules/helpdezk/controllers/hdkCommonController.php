@@ -434,7 +434,7 @@ class hdkCommon extends Controllers  {
                 $date = date('Y-m-d H:i');
                 $ASSUME = $this->formatDate($date);
 
-                $table = $this->makeNotesTable($code_request);
+                $table = $this->makeNotesTable($code_request,false);
                 $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
@@ -454,7 +454,6 @@ class hdkCommon extends Controllers  {
                 }
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                //$bdop = new operatorview_model();
                 $reqdata = $this->dbTicket->getRequestData("WHERE code_request = $code_request");
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
@@ -485,7 +484,7 @@ class hdkCommon extends Controllers  {
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
 
-                $table = $this->makeNotesTable($code_request);
+                $table = $this->makeNotesTable($code_request,false);
                 $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
@@ -505,7 +504,6 @@ class hdkCommon extends Controllers  {
                 }
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                //$bdop = new operatorview_model();
                 $reqdata = $this->dbTicket->getRequestData("WHERE code_request = $code_request");
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
@@ -530,15 +528,15 @@ class hdkCommon extends Controllers  {
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
 
-                $table = $this->makeNotesTable($code_request);
+                $table = $this->makeNotesTable($code_request,false);
                 $NT_USER = $table;
-
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
-                eval("\$contents = \"$contents\";");
 
                 $motivo = "<u>" . $l_eml["lb_motivo_rejeicao"] . "</u> " . $reason;
                 $goto = ('/helpdezk/hdkTicket/viewrequest/id/' . $code_request);
                 $url = '<a href="' . $this->helpdezkUrl . urlencode($goto) . '">' . $l_eml["link_solicitacao"] . '</a>';
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
 
                 $subject = $rsTemplate->fields['name'];
                 eval("\$subject = \"$subject\";");
@@ -555,12 +553,6 @@ class hdkCommon extends Controllers  {
                     }
                 }
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
-                eval("\$contents = \"$contents\";");
-
-                $subject = $rsTemplate->fields['name'];
-                eval("\$subject = \"$subject\";");
-
 
                 //
                 $FINISH_DATE = $this->formatDate(date('Y-m-d H:i'));
@@ -573,6 +565,15 @@ class hdkCommon extends Controllers  {
                     $LINK_USER = $this->makeLinkUser($code_request);
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+
+                $table = $this->makeNotesTable($code_request,false);
+                $NT_USER = $table;
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
 
 
                 $sentTo = $reqEmail->fields['email'];
@@ -608,7 +609,7 @@ class hdkCommon extends Controllers  {
                 }
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                $reqdata = $this->dbTicket->getRequestData($code_request);
+                $reqdata = $this->dbTicket->getRequestData("WHERE code_request = $code_request");
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
                 $sentTo = $reqEmail->fields['email'];
@@ -620,6 +621,9 @@ class hdkCommon extends Controllers  {
                     $LINK_USER     = $this->makeLinkUser($code_request);
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+
+                $table = $this->makeNotesTable($code_request);
+                $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
                 eval("\$contents = \"$contents\";");
@@ -640,6 +644,10 @@ class hdkCommon extends Controllers  {
                     }
                 }
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $table = $this->makeNotesTable($code_request);
+                $NT_USER = $table;
+
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
@@ -710,24 +718,7 @@ class hdkCommon extends Controllers  {
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $rsGroup = $dbEmailConfig->getGroupInCharge($code_request);
-                $inchType = $rsGroup->fields['type'];
-                $inchid = $rsGroup->fields['id_in_charge'];
-
-                if ($inchType == 'G') {
-                    $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($inchid);
-                    while (!$grpEmails->EOF) {
-                        if (!$sentTo) {
-                            $sentTo = $grpEmails->fields['email'];
-                        } else {
-                            $sentTo .= ";" . $grpEmails->fields['email'];
-                        }
-                        $grpEmails->MoveNext();
-                    }
-                } else {
-                    $userEmail = $dbEmailConfig->getUserEmail($inchid);
-                    $sentTo = $userEmail->fields['email'];
-                }
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
 
                 $subject = $rsTemplate->fields['name'];
                 eval("\$subject = \"$subject\";");
@@ -774,24 +765,7 @@ class hdkCommon extends Controllers  {
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $rsGroup = $dbEmailConfig->getGroupInCharge($code_request);
-                $inchType = $rsGroup->fields['type'];
-                $inchid = $rsGroup->fields['id_in_charge'];
-
-                if ($inchType == 'G') {
-                    $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($inchid);
-                    while (!$grpEmails->EOF) {
-                        if (!$sentTo) {
-                            $sentTo = $grpEmails->Fields('email');
-                        } else {
-                            $sentTo .= ";" . $grpEmails->Fields('email');
-                        }
-                        $grpEmails->MoveNext();
-                    }
-                } else {
-                    $userEmail = $bd->getUserEmail($inchid);
-                    $sentTo = $userEmail->Fields('email');
-                }
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
 
                 $subject = $rsTemplate->fields['name'];
                 eval("\$subject = \"$subject\";");
@@ -808,7 +782,6 @@ class hdkCommon extends Controllers  {
                 }
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                //$bdop = new operatorview_model();
                 $reqdata = $this->dbTicket->getRequestData("WHERE code_request = $code_request");
 
                 $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($_SESSION['hdk']['SES_MAIL_OPERATOR_REJECT_ID']);
@@ -839,24 +812,10 @@ class hdkCommon extends Controllers  {
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);*/
 
-                $notes = $this->dbTicket->getRequestNotes($code_request);
-
-                $table = "<table width='100%'  border='0' cellspacing='3' cellpadding='0'>";
-                $USER = $notes->fields["name"];
-                while (!$notes->EOF) {
-                    $table.= "<tr><td height=28><font size=2 face=arial>";
-                    $table.= $this->formatDate($notes->fields['entry_date']) . " [" . $notes->fields["name"] . "] " . str_replace(chr(10), "<BR>", strip_tags($notes->fields["description"]));
-                    $table.= "</font><br></td></tr>";
-                    $notes->MoveNext();
-                }
-                $table.= "</table>";
-
-                $NT_OPERATOR = $table;
+                $motivo = "<u>" . $l_eml["lb_motivo_rejeicao"] . "</u> " . $reason;
 
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
                 eval("\$contents = \"$contents\";");
-
-                $motivo = "<u>" . $l_eml["lb_motivo_rejeicao"] . "</u> " . $reason;
 
                 $subject = $rsTemplate->fields['name'];
                 eval("\$subject = \"$subject\";");
@@ -985,15 +944,24 @@ class hdkCommon extends Controllers  {
         }
     }
 
-    public function makeNotesTable($code_request)
+    public function makeNotesTable($code_request,$public=true)
     {
         $notes = $this->dbTicket->getRequestNotes($code_request);
 
         $table = "<table width='100%'  border='0' cellspacing='3' cellpadding='0'>";
         while (!$notes->EOF) {
-            $table.= "<tr><td height=28><font size=2 face=arial>";
-            $table.= $this->formatDate($notes->fields['entry_date']) . " [" . $notes->fields["name"] . "] " . str_replace(chr(10), "<BR>", strip_tags($notes->fields["description"]));
-            $table.= "</font><br></td></tr>";
+            if($public){
+                $table.= "<tr><td height=28><font size=2 face=arial>";
+                $table.= $this->formatDate($notes->fields['entry_date']) . " [" . $notes->fields["name"] . "] " . str_replace(chr(10), "<BR>", strip_tags($notes->fields["description"]));
+                $table.= "</font><br></td></tr>";
+            }else{
+                if($notes->fields['idtype'] != '2'){
+                    $table.= "<tr><td height=28><font size=2 face=arial>";
+                    $table.= $this->formatDate($notes->fields['entry_date']) . " [" . $notes->fields["name"] . "] " . str_replace(chr(10), "<BR>", strip_tags($notes->fields["description"]));
+                    $table.= "</font><br></td></tr>";
+                }
+            }
+
             $notes->MoveNext();
         }
         $table.= "</table>";
