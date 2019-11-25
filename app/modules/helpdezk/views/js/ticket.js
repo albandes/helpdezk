@@ -88,7 +88,13 @@ $(document).ready(function () {
             var myCellData = grid.jqGrid('getCell', rowId, 'code_request');
             //alert(myCellData);
              console.log('Redirect to: ' + path + "/helpdezk/hdkTicket/viewrequest/" + myCellData);
-             document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData;
+
+             if(operatorAsUser == '1'){
+                 document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData + "/myticket/1";
+             }else{
+                 document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData;
+             }
+
 
         },
         onSelectRow: function(rowId) {
@@ -296,7 +302,11 @@ function goTicket(grid,rowId)
 {
     var myCellData = grid.jqGrid('getCell', rowId, 'code_request');
     console.log('Redirect to: ' + path + "/helpdezk/hdkTicket/viewrequest/" + myCellData);
-    document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData;
+    if(operatorAsUser == '1'){
+        document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData + "/myticket/1";
+    }else{
+        document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData;
+    }
 
 }
 

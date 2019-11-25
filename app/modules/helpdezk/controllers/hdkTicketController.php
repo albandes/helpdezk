@@ -70,9 +70,11 @@ class hdkTicket extends hdkCommon {
         if($this->getParam('mytickets')){
             $smarty->assign('typeuser',2);
             $smarty->assign('flgoperator',1);
+            $smarty->assign('operatorAsUser',1);
         }else{
             $smarty->assign('typeuser',$_SESSION['SES_TYPE_PERSON']);
             $smarty->assign('flgoperator',0);
+            $smarty->assign('operatorAsUser',0);
         }
 
         $smarty->display('ticket.tpl');
@@ -538,6 +540,7 @@ class hdkTicket extends hdkCommon {
         $idperson = $_SESSION['SES_COD_USUARIO'];
         $typeperson = $_SESSION['SES_TYPE_PERSON'];
         $idowner  = $rsTicket->fields['idperson_owner'];
+        $flgOpeAsUser = $this->getParam('myticket') ? $this->getParam('myticket') : 0;
 
         if($typeperson == 2)
             if($idperson != $idowner) die($langVars['Access_denied']);
@@ -637,7 +640,7 @@ class hdkTicket extends hdkCommon {
         $smarty->assign('notes', $lineNotes);
         //
         // Buttons
-        if($typeperson == 3 &&  $idowner == $idperson){
+        if($typeperson == 3 && $idowner == $idperson && $flgOpeAsUser == 1){
             $typepersontmp = 2;
         }else{
             $typepersontmp = $typeperson;
@@ -743,7 +746,7 @@ class hdkTicket extends hdkCommon {
             }
         }
 
-        if($typeperson == 3 && ($incharge == $idperson || in_array($incharge,$myGroupsIdPersonArr) || in_array($idperson, $arrAuxOpe['ids'])) && $idowner != $idperson){
+        if($typeperson == 3 && ($incharge == $idperson || in_array($incharge,$myGroupsIdPersonArr) || in_array($idperson, $arrAuxOpe['ids'])) && $flgOpeAsUser != 1){
             $smarty->display('viewticket_operator.tpl');
         }else{$smarty->display('viewticket_user.tpl');}
 
@@ -2666,7 +2669,7 @@ class hdkTicket extends hdkCommon {
                     else{
                         //NÃO SOU RESPONSÁVEL POR ESTA SOL
                         $smarty->assign('displaychanges', '0');
-                        if ($_SESSION['SES_IND_ASSUME_OTHER'] == 1) {
+                        if ($_SESSION['hdk']['SES_IND_ASSUME_OTHER'] == 1) {
                             $smarty->assign('displayassume',  '1');
                         }else{
                             $smarty->assign('displayassume',  '0');
