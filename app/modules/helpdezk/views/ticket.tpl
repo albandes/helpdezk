@@ -63,7 +63,8 @@
                 mascDateTime = '{/literal}{$mascdatetime}{literal}',
                 timesession = '{/literal}{$timesession}{literal}',
                 typeuser = '{/literal}{$typeuser}{literal}',
-                flgoperator = '{/literal}{$flgoperator}{literal}';
+                flgoperator = '{/literal}{$flgoperator}{literal}',
+                operatorAsUser = '{/literal}{$operatorAsUser}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
