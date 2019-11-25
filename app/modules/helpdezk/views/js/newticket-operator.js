@@ -302,16 +302,13 @@ $(document).ready(function () {
                 },
                 beforeSend: function(){
                     $("#btnCancel").attr('disabled','disabled');
-                    $("#btnCreateTicket").attr('disabled','disabled');
+                    $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
                     $("#btnRepassTicket").attr('disabled','disabled');
                     $("#btnFinishTicket").attr('disabled','disabled');
                 },
                 complete: function(){
                     $("#btnCancel").removeAttr('disabled');
-                    $("#btnCreateTicket").removeAttr('disabled');
-                    $("#btnRepassTicket").removeAttr('disabled');
-                    $("#btnFinishTicket").removeAttr('disabled');
-
+                    $("#btnCreateTicket").html("<span class='fa fa-check'></span>  " + makeSmartyLabel('Register_btn'));
                 }
 
             });
@@ -411,15 +408,12 @@ $(document).ready(function () {
                     $('#modal-form-repass').modal('hide');
                     $("#btnCancel").attr('disabled','disabled');
                     $("#btnCreateTicket").attr('disabled','disabled');
-                    $("#btnRepassTicket").attr('disabled','disabled');
+                    $("#btnRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
                     $("#btnFinishTicket").attr('disabled','disabled');
                 },
                 complete: function(){
                     $("#btnCancel").removeAttr('disabled');
-                    $("#btnCreateTicket").removeAttr('disabled');
-                    $("#btnRepassTicket").removeAttr('disabled');
-                    $("#btnFinishTicket").removeAttr('disabled');
-
+                    $("#btnRepassTicket").html("<span class='fa fa-share'></span>  " + makeSmartyLabel('Repass_btn'));
                 }
 
             });
@@ -500,13 +494,11 @@ $(document).ready(function () {
                     $("#btnCancel").attr('disabled','disabled');
                     $("#btnCreateTicket").attr('disabled','disabled');
                     $("#btnRepassTicket").attr('disabled','disabled');
-                    $("#btnFinishTicket").attr('disabled','disabled');
+                    $("#btnFinishTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
                 },
                 complete: function(){
                     $("#btnCancel").removeAttr('disabled');
-                    $("#btnCreateTicket").removeAttr('disabled');
-                    $("#btnRepassTicket").removeAttr('disabled');
-                    $("#btnFinishTicket").removeAttr('disabled');
+                    $("#btnFinishTicket").html("<span class='fa fa-times'></span>  " + makeSmartyLabel('Finish_btn'));
 
                 }
 
