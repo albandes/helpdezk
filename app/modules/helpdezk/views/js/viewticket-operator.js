@@ -556,10 +556,10 @@ $(document).ready(function () {
 
             },
             beforeSend: function(){
-                $("#btnSendAssumeTicket").attr('disabled','disabled');
+                $("#btnSendAssumeTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
             },
             complete: function(){
-                $("#btnSendAssumeTicket").removeAttr('disabled');
+                $("#btnSendAssumeTicket").html(makeSmartyLabel('btn_assume'));
             }
 
         });
@@ -655,10 +655,10 @@ $(document).ready(function () {
 
                 },
                 beforeSend: function(){
-                    $("#btnSendRepassTicket").attr('disabled','disabled');
+                    $("#btnSendRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
                 },
                 complete: function(){
-                    $("#btnSendRepassTicket").removeAttr('disabled');
+                    $("#btnSendRepassTicket").html(makeSmartyLabel('Repass_btn'));
                 }
 
             });
@@ -703,7 +703,7 @@ $(document).ready(function () {
                 if(obj.status === "OK") {
                     modalAlertMultiple('success',makeSmartyLabel('Reject_sucess'),'alert-reject-form');
                     setTimeout(function(){
-                        $('#modal-form-assume').modal('hide');
+                        $('#modal-form-reject').modal('hide');
                         location.href = path+"/helpdezk/hdkTicket/index";
                     },2000);
                 } else {
@@ -712,10 +712,10 @@ $(document).ready(function () {
 
             },
             beforeSend: function(){
-                $("#btnSendRejectTicket").attr('disabled','disabled');
+                $("#btnSendRejectTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
             },
             complete: function(){
-                $("#btnSendRejectTicket").removeAttr('disabled');
+                $("#btnSendRejectTicket").html(makeSmartyLabel('Reject_btn'));
             }
 
         });
@@ -744,7 +744,7 @@ $(document).ready(function () {
                 if(obj.status === "OK") {
                     modalAlertMultiple('success',makeSmartyLabel('Alert_close_request'),'alert-close-form');
                     setTimeout(function(){
-                        $('#modal-form-assume').modal('hide');
+                        $('#modal-form-close').modal('hide');
                         location.href = path+"/helpdezk/hdkTicket/index";
                     },2000);
                 } else {
@@ -753,10 +753,10 @@ $(document).ready(function () {
 
             },
             beforeSend: function(){
-                $("#btnSendCloseTicket").attr('disabled','disabled');
+                $("#btnSendCloseTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
             },
             complete: function(){
-                $("#btnSendCloseTicket").removeAttr('disabled');
+                $("#btnSendCloseTicket").html(makeSmartyLabel('Yes'));
             }
 
         });
@@ -830,27 +830,38 @@ $(document).ready(function () {
     $('#cancel_form').submit(function() {
         var dataForm = $('#cancel_form').serialize();
         console.log('Inside');
-        $.ajax({
-            type: "POST",
-            url: path + "/helpdezk/hdkTicket/cancelTicket",
-            data: dataForm,
-            error: function (ret) {
-                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
-            },
-            success: function(ret) {
-                if(ret){
-                    if(ret=='OK') {
-                        modalAlertMultiple('info',makeSmartyLabel('Alert_Cancel_sucess'),'alert-cancel');
-                        $('#btnSendCancel').hide();
-                    } else {
+        if(!$("#btnSendCancel").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + "/helpdezk/hdkTicket/cancelTicket",
+                data: dataForm,
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
+                },
+                success: function(ret) {
+                    if(ret){
+                        if(ret=='OK') {
+                            modalAlertMultiple('info',makeSmartyLabel('Alert_Cancel_sucess'),'alert-cancel');
+                            setTimeout(function(){
+                                $('#modal-form-cancel').modal('hide');
+                                location.reload();
+                            },2000);
+                        } else {
+                            modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
+                        }
+                    }
+                    else {
                         modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
                     }
+                },
+                beforeSend: function(){
+                    $("#btnSendCancel").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnSendCancel").html(makeSmartyLabel('Send'));
                 }
-                else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
-                }
-            }
-        });
+            });
+        }
         return false;  // <- cancel event
     });
 
@@ -875,22 +886,21 @@ $(document).ready(function () {
                         $('#btnSendEvaluate').hide();
                         setTimeout(function(){
                             $('#modal-form-evaluate').modal('hide');
-                        },4000);
+                            location.href = path + "/helpdezk/hdkTicket/viewrequest/id/"+$("#coderequest").val() ;
+                        },3000);
                     } else {
                         modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-evaluate');
                     }
                 }
                 else {
-                  modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-evaluate');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-evaluate');
                 }
             },
             beforeSend: function(){
-                $("#btnSendEvaluate").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
-                $("#btnCancel").addClass('disabled');
+                $("#btnSendEvaluate").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
             },
             complete: function(){
-                $("#btnSendEvaluate").html(makeSmartyLabel('Send')).removeClass('disabled');
-                $("#btnCancel").removeClass('disabled');
+                $("#btnSendEvaluate").html(makeSmartyLabel('Send'));
             }
         });
         return false;  // <- cancel event
@@ -911,6 +921,10 @@ $(document).ready(function () {
                     if(ret=='OK') {
                         modalAlertMultiple('info',makeSmartyLabel('Alert_reopen_sucess'),'alert-reopen');
                         $('#btnSendReopen').hide();
+                        setTimeout(function(){
+                            $('#modal-form-reopen').modal('hide');
+                            location.reload();
+                        },3000);
                     } else {
                         modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-reopen');
                     }
@@ -918,6 +932,12 @@ $(document).ready(function () {
                 else {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-reopen');
                 }
+            },
+            beforeSend: function(){
+                $("#btnSendReopen").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
+            },
+            complete: function(){
+                $("#btnSendReopen").html(makeSmartyLabel('Send'));
             }
         });
         return false;  // <- cancel event

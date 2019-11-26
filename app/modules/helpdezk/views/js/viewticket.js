@@ -214,27 +214,38 @@ $(document).ready(function () {
     $('#cancel_form').submit(function() {
         var dataForm = $('#cancel_form').serialize();
         console.log('Inside');
-        $.ajax({
-            type: "POST",
-            url: path + "/helpdezk/hdkTicket/cancelTicket",
-            data: dataForm,
-            error: function (ret) {
-                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
-            },
-            success: function(ret) {
-                if(ret){
-                    if(ret=='OK') {
-                        modalAlertMultiple('info',makeSmartyLabel('Alert_Cancel_sucess'),'alert-cancel');
-                        $('#btnSendCancel').hide();
-                    } else {
+        if(!$("#btnSendCancel").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + "/helpdezk/hdkTicket/cancelTicket",
+                data: dataForm,
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
+                },
+                success: function(ret) {
+                    if(ret){
+                        if(ret=='OK') {
+                            modalAlertMultiple('info',makeSmartyLabel('Alert_Cancel_sucess'),'alert-cancel');
+                            setTimeout(function(){
+                                $('#modal-form-cancel').modal('hide');
+                                location.reload();
+                            },2000);
+                        } else {
+                            modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
+                        }
+                    }
+                    else {
                         modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
                     }
+                },
+                beforeSend: function(){
+                    $("#btnSendCancel").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnSendCancel").html(makeSmartyLabel('Send'));
                 }
-                else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-cancel');
-                }
-            }
-        });
+            });
+        }
         return false;  // <- cancel event
     });
 
@@ -270,12 +281,10 @@ $(document).ready(function () {
                 }
             },
             beforeSend: function(){
-                $("#btnSendEvaluate").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
-                $("#btnCancel").addClass('disabled');
+                $("#btnSendEvaluate").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
             },
             complete: function(){
-                $("#btnSendEvaluate").html(makeSmartyLabel('Send')).removeClass('disabled');
-                $("#btnCancel").removeClass('disabled');
+                $("#btnSendEvaluate").html(makeSmartyLabel('Send'));
             }
         });
         return false;  // <- cancel event
@@ -296,6 +305,10 @@ $(document).ready(function () {
                     if(ret=='OK') {
                         modalAlertMultiple('info',makeSmartyLabel('Alert_reopen_sucess'),'alert-reopen');
                         $('#btnSendReopen').hide();
+                        setTimeout(function(){
+                            $('#modal-form-reopen').modal('hide');
+                            location.reload();
+                        },3000);
                     } else {
                         modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-reopen');
                     }
@@ -303,6 +316,12 @@ $(document).ready(function () {
                 else {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-reopen');
                 }
+            },
+            beforeSend: function(){
+                $("#btnSendReopen").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
+            },
+            complete: function(){
+                $("#btnSendReopen").html(makeSmartyLabel('Send'));
             }
         });
         return false;  // <- cancel event
