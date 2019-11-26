@@ -152,6 +152,12 @@ $(document).ready(function () {
 
                     }
 
+                },
+                beforeSend: function(){
+                    $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
+                },
+                complete: function(){
+                    $("#btnCreateTicket").html("<span class='fa fa-check'></span>  " + makeSmartyLabel('btn_submit'));
                 }
 
             });
