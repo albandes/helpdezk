@@ -68,8 +68,8 @@ $(document).ready(function () {
         url: jsonUrl,
         datatype: "json",
         mtype: 'POST',
-        sortname: 'code_request', //initially sorted on code_request
-        sortorder: "desc",
+        sortname: sidx, //initially sorted on expire date for attendant, entry date for requester
+        sortorder: sord,
         height: 450,
         autowidth: true,
         shrinkToFit: true,
@@ -286,6 +286,12 @@ $(document).ready(function () {
 
     });
 
+    if(autoRefreshGrid > 0){
+        setInterval(function(){
+            grid.trigger('reloadGrid');
+        },autoRefreshGrid);
+    }
+
 });
 
 function selectTypeView(obj,newst){
@@ -341,3 +347,5 @@ function isPastDateTime( dateTime ) {
     }
     return ret;
 }
+
+

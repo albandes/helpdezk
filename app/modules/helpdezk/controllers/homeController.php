@@ -77,7 +77,21 @@ class home extends hdkCommon {
 
         $smarty->assign('typeuser',$_SESSION['SES_TYPE_PERSON']);
 
-        if($_SESSION['SES_TYPE_PERSON'] == 3){$smarty->display('hdk-operator.tpl');}
+
+        if($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1){
+            //Set Order to columns of Attendant's Grid
+            $sord = isset($_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols'])
+                ? $_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols']
+                : $_SESSION['hdk']['SES_ORDER_ASC'] == 1 ? 'asc' : 'desc';
+            $smarty->assign('sord',$sord);
+
+            //Set Auto Refresh Attendant's Grid
+            $autoRefresh = $_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID']
+                            ?  ($_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID'] * 1000) : 0;
+            $smarty->assign('autorefreshgrid', $autoRefresh);
+
+            $smarty->display('hdk-operator.tpl');
+        }
         else{$smarty->display('hdk-main.tpl');}
 
 
@@ -356,19 +370,17 @@ class home extends hdkCommon {
 
             $mylist[$i]['subject'] = $this->_cutSubject($rsTicket->fields['subject'],55,' ... ');
 
-            $mylist[$i]['expire_date'] = $rsTicket->fields['expire_date'];
             $mylist[$i]['ts_expire'] = $rsTicket->fields['ts_expire'];
 
-            $aTime = $clTime->expireTime($rsTicket->fields['seconds']);
-
-            $mylist[$i]['seconds'] = $aTime['time'] ;
-
-            if ($aTime['status'] == 'ontime') {
-                $mylist[$i]['status'] = '<span class="label label-success pull-left">'.$langVars['on_time'].'</span>';
-            } elseif ($aTime['status'] == 'overdue') {
-                $mylist[$i]['status'] = '<span class="label label-danger pull-left">'.$langVars['overdue'].'</span>';
+            if($_SESSION['hdk']['SES_HIDE_DASH_PERIOD'] == 0){
+                $arrRet = $this->setExpireDateStatusLbl($rsTicket,true,$clTime);
+            }else{
+                $arrRet = $this->setExpireDateStatusLbl($rsTicket,false,$clTime);
             }
 
+            foreach($arrRet as $key =>$value){
+                $mylist[$i][$key] = $value;
+            }
 
             $mylist[$i]['code_request'] = $rsTicket->fields['code_request'];
             $mylist[$i]['code_request_fmt'] = $this->_editRequest($rsTicket->fields['code_request']);
@@ -532,6 +544,42 @@ class home extends hdkCommon {
         }
 
         echo "success";
+
+    }
+
+    /*
+     * Make Expire date and status labels for requester dashboard
+     */
+    function setExpireDateStatusLbl($rs,$visibility,$clTime)
+    {
+        if($visibility){
+            $arrRet['expire_date'] = $rs->fields['expire_date'];
+            $aTime = $clTime->expireTime($rs->fields['seconds']);
+            $arrRet['seconds'] = $aTime['time'] ;
+
+            $arrRet['status'] = $aTime['status'] == 'ontime'
+                ? '<div class="text-center col-sm-12"><span class="label label-success col-xs-12">'.$this->getLanguageWord('on_time').'</span></div>'
+                : $aTime['status'] == 'overdue'
+                    ? '<div class="text-center col-sm-12"><span class="label label-danger col-xs-12">'.$this->getLanguageWord('overdue').'</span></div>'
+                    : '<div class="text-center col-sm-12"><span class="label label-warning col-xs-12">'.$this->getLanguageWord('Not_available_yet').'</span></div>';
+        }else{
+            if($rs->fields['idstatus'] == 1){
+                $arrRet['expire_date'] = $this->getLanguageWord('Not_available_yet');
+                $arrRet['seconds'] = '';
+                $arrRet['status'] = '<div class="text-center col-sm-12"><span class="label label-warning col-xs-12">'.$this->getLanguageWord('Not_available_yet').'</span></div>';
+            }else{
+                $arrRet['expire_date'] = $rs->fields['expire_date'];
+                $aTime = $clTime->expireTime($rs->fields['seconds']);
+                $arrRet['seconds'] = $aTime['time'] ;
+                if($aTime['status'] == 'ontime')
+                    $arrRet['status'] = '<div class="text-center col-sm-12"><span class="label label-success col-xs-12">'.$this->getLanguageWord('on_time').'</span></div>';
+                elseif ($aTime['status'] == 'overdue')
+                    $arrRet['status'] = '<div class="text-center col-sm-12"><span class="label label-danger col-xs-12">'.$this->getLanguageWord('overdue').'</span></div>';
+
+            }
+        }
+
+        return $arrRet;
 
     }
 

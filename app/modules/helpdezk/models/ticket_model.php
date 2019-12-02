@@ -177,7 +177,8 @@ class ticket_model extends DynamicTicket_model
                   pipeFormatDateTime('$lang',a.expire_date) AS expire_date,
                   UNIX_TIMESTAMP(a.expire_date) AS ts_expire,
                   a.code_request,
-                  a.subject
+                  a.subject,
+                  a.idstatus
                 FROM
                   hdk_viewRequestData a   $where  $order  $limit";
 

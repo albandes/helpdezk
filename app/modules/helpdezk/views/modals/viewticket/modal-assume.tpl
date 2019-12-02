@@ -18,7 +18,7 @@
                             <div class="form-group">
                                 <label  class="col-sm-10 control-label">{$smarty.config.Group_still_viewing}:</label>
                                 <div class="col-sm-2">
-                                    <label class="checkbox-inline i-checks"> <input type="checkbox" name="grpkeep" id="grpkeep" value="S"></label>
+                                    <label class="checkbox-inline i-checks"> <input type="checkbox" name="grpkeep" id="grpkeep" value="S" {$checkedassume}></label>
                                 </div>
                             </div>
                         </div>

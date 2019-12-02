@@ -64,7 +64,10 @@
                 timesession = '{/literal}{$timesession}{literal}',
                 typeuser = '{/literal}{$typeuser}{literal}',
                 flgoperator = '{/literal}{$flgoperator}{literal}',
-                operatorAsUser = '{/literal}{$operatorAsUser}{literal}';
+                operatorAsUser = '{/literal}{$operatorAsUser}{literal}',
+                sidx = '{/literal}{$sidx}{literal}',
+                sord = '{/literal}{$sord}{literal}',
+                autoRefreshGrid = '{/literal}{$autorefreshgrid}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
