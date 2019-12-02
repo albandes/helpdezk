@@ -570,7 +570,13 @@ $(document).ready(function () {
     /*
      * Count timer  - Stopwatch
      */
-    $('.timer').countimer();
+    if($('#hidden-timerClock').val() == '1'){
+        $('.timer').countimer();
+    }else{
+        $('.timer').countimer({
+            autoStart: false
+        });
+    }
 
     $("#btnTimer").click(function(){
         var timerStatus = $('.timer').countimer('stopped');
