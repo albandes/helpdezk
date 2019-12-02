@@ -96,7 +96,10 @@
                 zip_mask     = '{/literal}{$zip_mask}{literal}',
                 phone_mask     = '{/literal}{$phone_mask}{literal}',
                 cellphone_mask     = '{/literal}{$cellphone_mask}{literal}',
-                typeuser = '{/literal}{$typeuser}{literal}';
+                typeuser = '{/literal}{$typeuser}{literal}',
+                sidx = '{/literal}{$sidx}{literal}',
+                sord = '{/literal}{$sord}{literal}',
+                autoRefreshGrid = '{/literal}{$autorefreshgrid}{literal}';
         </script>
 
         <style>

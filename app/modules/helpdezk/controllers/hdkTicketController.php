@@ -52,7 +52,7 @@ class hdkTicket extends hdkCommon {
     {
 
         $smarty = $this->retornaSmarty();
-        //echo "<pre>"; print_r($_SESSION); echo "</pre>";
+        //echo "<pre>", print_r($_SESSION,true), "</pre>";
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->_makeNavHdk($smarty);
@@ -76,6 +76,27 @@ class hdkTicket extends hdkCommon {
             $smarty->assign('flgoperator',0);
             $smarty->assign('operatorAsUser',0);
         }
+
+        if(($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1) && !$this->getParam('mytickets')){
+            $sord = isset($_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols'])
+                ? $_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols']
+                : $_SESSION['hdk']['SES_ORDER_ASC'] == 1 ? 'asc' : 'desc';
+
+            $sidx = isset($_SESSION['SES_PERSONAL_USER_CONFIG']['orderfield'])
+                ? $_SESSION['SES_PERSONAL_USER_CONFIG']['orderfield']
+                : 'a.expire_date';
+        }else{
+            $sidx = 'a.entry_date';
+            $sord = 'desc';
+        }
+        $smarty->assign('sidx',$sidx);
+        $smarty->assign('sord',$sord);
+
+        $autoRefresh = ($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1)
+                        ?  $_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID'] ?  ($_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID'] * 1000) : 0
+                        : 0;
+        $smarty->assign('autorefreshgrid', $autoRefresh);
+
 
         $smarty->display('ticket.tpl');
 
@@ -500,12 +521,16 @@ class hdkTicket extends hdkCommon {
         $rsTicket = $this->dbTicket->getRequest($entry_date, $expire_date, $where, $sidx,$sord,$start,$limit,$cod_usu);
         while (!$rsTicket->EOF) {
             $star = ($rsTicket->fields['flag_opened'] == 1 && $rsTicket->fields['status'] != 1) ? '<i class="fa fa-star" />' : '';
+            $expire = $_SESSION['hdk']['SES_HIDE_GRID_PERIOD'] == 0
+                        ? $rsTicket->fields['expire_date']
+                        : $rsTicket->fields['status'] == 1 ? $this->getLanguageWord('Not_available_yet') : $rsTicket->fields['expire_date'];
+
             $rows[] = array(
                 'star' => $star ,
                 'code_request' => $rsTicket->fields['code_request'],
                 'entry_date' => $rsTicket->fields['entry_date'],
                 'subject' => $rsTicket->fields['subject'],
-                'expire_date' => $rsTicket->fields['expire_date'],
+                'expire_date' => $expire,
                 'in_charge' => $rsTicket->fields['in_charge'],
                 'statusview' => '<span style="color:'.$rsTicket->fields['color_status'].'">'.$rsTicket->fields['statusview'].'</span>'
 
@@ -529,7 +554,7 @@ class hdkTicket extends hdkCommon {
 
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
-        //echo "<pre>"; print_r($_SESSION); echo "</pre>";
+        //echo "<pre>", print_r($_SESSION,true), "</pre>";
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->_makeNavHdk($smarty);
@@ -746,7 +771,7 @@ class hdkTicket extends hdkCommon {
             }
         }
 
-        if($typeperson == 3 && ($incharge == $idperson || in_array($incharge,$myGroupsIdPersonArr) || in_array($idperson, $arrAuxOpe['ids'])) && $flgOpeAsUser != 1){
+        if($typeperson == 3 && $flgOpeAsUser != 1){
             $smarty->display('viewticket_operator.tpl');
         }else{$smarty->display('viewticket_user.tpl');}
 
@@ -3604,6 +3629,8 @@ class hdkTicket extends hdkCommon {
 
         if(!$sidx)
             $sidx ='code_request';
+        /*if(!$sord)
+            $sord ='desc';*/
         if(!$sord)
             $sord ='desc';
 

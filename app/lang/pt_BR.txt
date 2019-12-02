@@ -1841,6 +1841,9 @@ Alert_dont_delete_type = "Este tipo está vinculado a uma ou a várias solicita�
 Alert_dont_delete_item = "Este item está vinculado a uma ou a várias solicitações.<br> Não é possível realizar esta operação."
 Alert_dont_delete_service = "Este serviço está vinculado a uma ou a várias solicitações.<br> Não é possível realizar esta operação."
 
+sys_expire_date_user_grid = "Não mostrar prazo de entrega no grid do solicitante até que um atendente tenha assumido a solicitação"
+sys_expire_date_user_dash = "Não mostrar prazo de entrega e status no dashboard do solicitante até que um atendente tenha assumido a solicitação"
+
 
 [201301014]
 Service_order_number = "N&ordm; do documento"
