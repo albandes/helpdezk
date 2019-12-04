@@ -279,7 +279,7 @@ class Person  extends admCommon {
         if ($oper == 'update') {
             $idCompanyEnable = isset($rs->fields['idcompany']) ? $rs->fields['idcompany']: $_SESSION['SES_COD_EMPRESA'];
         } elseif ($oper == 'create') {
-            $idCompanyEnable = $arrCompanies['ids'][0];
+            $idCompanyEnable = 0;
         }
         if ($oper == 'echo') {
             $objSmarty->assign('lblTypeLogin',$rs->fields['printablename']);
@@ -385,9 +385,9 @@ class Person  extends admCommon {
             $objSmarty->assign('pais',$rs->fields['printablename']);
         } else {
             $arrCountry = $this->comboCountries();
-            $objSmarty->assign('countryids',  $arrCountry['ids']);
-            $objSmarty->assign('countryvals', $arrCountry['values']);
-            $objSmarty->assign('idcountry', $idCountryEnable  );
+            $objSmarty->assign('pcountryids',  $arrCountry['ids']);
+            $objSmarty->assign('pcountryvals', $arrCountry['values']);
+            $objSmarty->assign('pidcountry', $idCountryEnable  );
         }
         
         // --- State ---
@@ -400,9 +400,9 @@ class Person  extends admCommon {
             $objSmarty->assign('estado',$rs->fields['estado']);
         } else {
             $arrCountry = $this->comboStates($idCountryEnable);
-            $objSmarty->assign('stateids',  $arrCountry['ids']);
-            $objSmarty->assign('statevals', $arrCountry['values']);
-            $objSmarty->assign('idstate',   $idStateEnable);
+            $objSmarty->assign('pstateids',  $arrCountry['ids']);
+            $objSmarty->assign('pstatevals', $arrCountry['values']);
+            $objSmarty->assign('pidstate',   $idStateEnable);
         }
         
         // --- City ---
@@ -415,9 +415,9 @@ class Person  extends admCommon {
             $objSmarty->assign('cidade', utf8_encode($rs->fields['cidade']));
         } else {
             $arrCity = $this->comboCity($idStateEnable);
-            $objSmarty->assign('cityids',  $arrCity['ids']);
-            $objSmarty->assign('cityvals', $arrCity['values']);
-            $objSmarty->assign('idcity',   $idCityEnable);
+            $objSmarty->assign('pcityids',  $arrCity['ids']);
+            $objSmarty->assign('pcityvals', $arrCity['values']);
+            $objSmarty->assign('pidcity',   $idCityEnable);
         }
 
         // --- Neighborhood ---
@@ -430,21 +430,25 @@ class Person  extends admCommon {
             $objSmarty->assign('bairro', $rs->fields['bairro']);
         } else {
             $arrNeighborhood = $this->comboNeighborhood($idCityEnable);
-            $objSmarty->assign('neighborhoodids',  $arrNeighborhood['ids']);
-            $objSmarty->assign('neighborhoodvals', $arrNeighborhood['values']);
-            $objSmarty->assign('idneighborhood',   $idNeighborhoodEnable);
+            $objSmarty->assign('pneighborhoodids',  $arrNeighborhood['ids']);
+            $objSmarty->assign('pneighborhoodvals', $arrNeighborhood['values']);
+            $objSmarty->assign('pidneighborhood',   $idNeighborhoodEnable);
         }
-        
-        // --- Cep ---
-        if ($oper == 'update' or $oper == 'create' ) {
-            if (empty($rs->fields['zipcode']))
-                $objSmarty->assign('plh_cep', 'Informe o cep.');
-            else
-                $objSmarty->assign('cep', $rs->fields['zipcode']);
-        } elseif ($oper == 'echo'){
-            $objSmarty->assign('cep', $rs->fields['zipcode']);
+
+        // --- ZipCode ---
+        if ($oper == 'update') {
+            if ($oper == 'update') {
+                if (empty($rs->fields['zipcode']))
+                    $objSmarty->assign('plh_zipcode',$this->getLanguageWord('Placeholder_zipcode'));
+                else
+                    $objSmarty->assign('zipcodeVal',$rs->fields['zipcode_fmt']);
+            }
+        } elseif ($oper == 'create') {
+            $objSmarty->assign('plh_zipcode',$this->getLanguageWord('Placeholder_zipcode'));
+        }  elseif ($oper == 'echo'){
+            $objSmarty->assign('zipcodeVal',$rs->fields['zipcode_fmt']);
         }
-        
+
         // --- Type Street ---
         if ($oper == 'update') {
             $idTypeStreetEnable = $rs->fields['idtypestreet'];
@@ -455,9 +459,9 @@ class Person  extends admCommon {
             $objSmarty->assign('tipologradouro', $rs->fields['tipologradouro']);
         } else {
             $arrTypestreet = $this->comboTypeStreet();
-            $objSmarty->assign('typestreetids',  $arrTypestreet['ids']);
-            $objSmarty->assign('typestreetvals', $arrTypestreet['values']);
-            $objSmarty->assign('idtypestreet', $idTypeStreetEnable  );
+            $objSmarty->assign('ptypestreetids',  $arrTypestreet['ids']);
+            $objSmarty->assign('ptypestreetvals', $arrTypestreet['values']);
+            $objSmarty->assign('pidtypestreet', $idTypeStreetEnable  );
         }
         
         // --- Address ---
@@ -470,9 +474,9 @@ class Person  extends admCommon {
             $objSmarty->assign('tipologradouro', $rs->fields['tipologradouro']);
         } else {
             $arrStreet = $this->_comboStreet("","","ORDER BY name");
-            $objSmarty->assign('streetids',  $arrStreet['ids']);
-            $objSmarty->assign('streetvals', $arrStreet['values']);
-            $objSmarty->assign('idstreet', $idStreetEnable  );
+            $objSmarty->assign('pstreetids',  $arrStreet['ids']);
+            $objSmarty->assign('pstreetvals', $arrStreet['values']);
+            $objSmarty->assign('pidstreet', $idStreetEnable  );
         }
 
         // --- Number ---
@@ -537,11 +541,11 @@ class Person  extends admCommon {
         $arrAdminOpe = array(1,3);
 
         $natureperson = $_POST['category'] == 'natural' ? 1 : 2;
-        $login = $natureperson == 1 ? $_POST['login'] : NULL;
+        $login = $natureperson == 1 ? $this->formatLoginToSave($_POST['login']) : NULL;
         $logintype = $natureperson == 1 ? $_POST['logintype'] : 3;
         $password = $natureperson == 1 ? md5($_POST['password']) : NULL;
 
-        $name = addslashes($_POST['personName']);
+        $name = addslashes(trim(preg_replace('!\s+!', ' ', $_POST['personName'])));
         $email = addslashes($_POST['email']);
         $phone = addslashes(str_replace($charSearch,$charReplace,$_POST['phone']));
         $branch = addslashes(str_replace($charSearch,$charReplace,$_POST['branch']));
@@ -609,14 +613,17 @@ class Person  extends admCommon {
                     $this->logIt('Insert Person / Save Natural Data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                 return false;
             }
-            
-            $depart = $this->dbPerson->insertInDepartment($idperson, $department);
-            if (!$depart) {
-                //$this->dbPerson->RollbackTrans();
-                if($this->log)
-                    $this->logIt('Insert Person / Save Natural Department  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return false;
+
+            if(!empty($department)){
+                $depart = $this->dbPerson->insertInDepartment($idperson, $department);
+                if (!$depart) {
+                    $this->dbPerson->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Insert Person / Save Natural Department  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
             }
+
             
             // Since 2016-05-09 - Rogério Albandes
             if(!empty($_POST['permgroups'])){
@@ -692,7 +699,7 @@ class Person  extends admCommon {
         $logintype = $natureperson == 1 ? $_POST['logintype'] : 3;
         $typeuser = $natureperson == 1 ? $_POST['type_user'] : $_POST['type_company'];
 
-        $name = addslashes($_POST['personName']);
+        $name = addslashes(trim(preg_replace('!\s+!', ' ', $_POST['personName'])));
         $email = addslashes($_POST['email']);
         $phone = addslashes(str_replace($charSearch,$charReplace,$_POST['phone']));
         $branch = addslashes(str_replace($charSearch,$charReplace,$_POST['branch']));
@@ -1404,19 +1411,30 @@ class Person  extends admCommon {
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
-        $arrDepartment = $this->_comboDepartment($_POST['companyId']);
-        $select = '';
 
-        foreach ( $arrDepartment['ids'] as $indexKey => $indexValue ) {
-            if ([$indexKey] == 0) {
-                $default = 'selected="selected"';
-            } else {
-                $default = '';
+        $select = '';
+        if ($_POST['companyId']){
+            $arrDepartment = $this->_comboDepartment($_POST['companyId']);
+            foreach ( $arrDepartment['ids'] as $indexKey => $indexValue ) {
+                if ([$indexKey] == 0) {
+                    $default = 'selected="selected"';
+                } else {
+                    $default = '';
+                }
+                $select .= "<option value='$indexValue' $default>".$arrDepartment['values'][$indexKey]."</option>";
             }
-            $select .= "<option value='$indexValue' $default>".$arrDepartment['values'][$indexKey]."</option>";
+        } else{
+            $select .= "<option value=''>".$this->getLanguageWord('Select_department')."</option>";
         }
 
+
         echo $select;
+
+    }
+
+    function formatLoginToSave($login)
+    {
+        return addslashes(strtolower(trim(preg_replace('!\s+!', ' ', $login))));
 
     }
 

@@ -253,12 +253,14 @@
                             <label class="col-sm-2 control-label">{$smarty.config.Company}:</label>
                             <div class="col-sm-4">
                                 <select class="form-control input-sm"  id="company" name="company" data-placeholder="{$plh_module_select}" >
+                                    <option value="">{$smarty.config.Select_company}</option>
                                     {html_options values=$juridicalids output=$juridicalvals selected=$idjuridical}
                                 </select>
                             </div>
                             <label class="col-sm-2 control-label">{$smarty.config.Department}:</label>
                             <div class="col-sm-4">
-                                <select class="form-control input-sm"  id="department" name="department" data-placeholder="{$plh_module_select}" >
+                                <select class="form-control input-sm"  id="department" name="department" data-placeholder="{$smarty.config.Select_department}" >
+                                    <option value="">{$smarty.config.Select_department}</option>
                                     {html_options values=$departmentids output=$departmentvals selected=$iddepartment}
                                 </select>
                             </div>
@@ -346,14 +348,14 @@
                             <div class="col-sm-2">
                                 <select class="form-control input-sm" id="country" name="country" data-placeholder="{$smarty.config.Select_country}">
                                     <option value="1"></option>
-                                    {html_options values=$countryids output=$countryvals selected=$idcountry}
+                                    {html_options values=$pcountryids output=$pcountryvals selected=$pidcountry}
                                 </select>
                             </div>
 
                             <label class="col-sm-1 control-label">{$smarty.config.State}:</label>
                             <div class="col-sm-2">
                                 <select class="form-control input-sm" id="state" name="state">
-                                    {html_options values=$stateids output=$statevals selected=$idstate}
+                                    {html_options values=$pstateids output=$pstatevals selected=$pidstate}
                                 </select>
                             </div>
                             <div class="col-sm-1 ">
@@ -363,7 +365,7 @@
                             <label class="col-sm-1 control-label">{$smarty.config.City}:</label>
                             <div class="col-sm-2">
                                 <select class="form-control input-sm" id="city" name="city">
-                                    {html_options values=$cityids output=$cityvals selected=$idcity}
+                                    {html_options values=$pcityids output=$pcityvals selected=$pidcity}
                                 </select>
                             </div>
                             <div class="col-sm-1 ">
@@ -375,7 +377,7 @@
                             <label class="col-sm-2 control-label">{$smarty.config.Neighborhood}:</label>
                             <div class="col-sm-2 ">
                                 <select class="form-control input-sm" id="neighborhood" name="neighborhood" {$person_neighborhood_disabled}>
-                                    {html_options values=$neighborhoodids output=$neighborhoodvals selected=$idneighborhood}
+                                    {html_options values=$pneighborhoodids output=$pneighborhoodvals selected=$pidneighborhood}
                                 </select>
                             </div>
                             <div class="col-sm-1 ">
@@ -383,12 +385,12 @@
                             </div>
                             <label class="col-sm-1 control-label">{$smarty.config.Zipcode}:</label>
                             <div class="col-sm-2">
-                                <input type="text" name="zipcode" id="zipcode" class="form-control input-sm" data-mask="99999-999"  placeholder="{$plh_cep}" />
+                                <input type="text" name="zipcode" id="zipcode" class="form-control input-sm" data-mask="99999-999"  placeholder="{$plh_zipcode}" value="{$zipcodeVal}" />
                             </div>
                             <label class="col-sm-1 control-label">{$smarty.config.Type_adress}:</label>
                             <div class="col-sm-3">
                                 <select class="form-control input-sm" name="type_street" id="type_street" {$person_typestreet_disabled}>
-                                    {html_options values=$typestreetids output=$typestreetvals selected=$idtypestreet}
+                                    {html_options values=$ptypestreetids output=$ptypestreetvals selected=$pidtypestreet}
                                 </select>
                             </div>
                         </div>
@@ -398,7 +400,7 @@
                             <div class="col-sm-5">
                                 <select class="form-control input-sm" id="address" name="address" data-placeholder=" ">
                                     <option value></option>
-                                    {html_options values=$streetids output=$streetvals selected=$idstreet}
+                                    {html_options values=$pstreetids output=$pstreetvals selected=$pidstreet}
                                 </select>
                             </div>
                             <div class="col-sm-1 ">

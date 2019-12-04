@@ -602,7 +602,9 @@ $(document).ready(function () {
             type_company:{required:function(element){return $('input[name="category"]:checked').val() == 'juridical';}},
             email: {required:true,email:true},
             department_default:{required:function(element){return $('input[name="category"]:checked').val() == 'juridical';}},
-            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}}
+            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}},
+            company:{required:function(element){return $('input[name="category"]:checked').val() == 'natural';}},
+            department:{required:function(element){return $('input[name="category"]:checked').val() == 'natural';}}
         },
         messages: {
             login:{required:makeSmartyLabel('Alert_field_required')},
@@ -613,7 +615,9 @@ $(document).ready(function () {
             type_company:{required:makeSmartyLabel('Alert_field_required')},
             email:{required:makeSmartyLabel('Alert_field_required'),email:makeSmartyLabel('Alert_invalid_email')} ,
             department_default:{required:makeSmartyLabel('Alert_field_required')},
-            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')}
+            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')},
+            company:{required:makeSmartyLabel('Alert_field_required')},
+            department:{required:makeSmartyLabel('Alert_field_required')}
         }
     });
 
@@ -621,17 +625,21 @@ $(document).ready(function () {
         ignore:[],
         rules: {
             personName: "required",
-            type_user:{required:function(element){return $('#category').val() == 'natural';}},
-            type_company:{required:function(element){return $('#category').val() == 'juridical';}},
+            type_user:{required:function(element){return $('#category').val() == '1';}},
+            type_company:{required:function(element){return $('#category').val() == '2';}},
             email: {required:true,email:true},
-            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}}
+            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}},
+            company:{required:function(element){return $('#category').val() == '1';}},
+            department:{required:function(element){return $('#category').val() == '1';}}
         },
         messages: {
             personName:      makeSmartyLabel('Alert_field_required'),
             type_user:{required:makeSmartyLabel('Alert_field_required')},
             type_company:{required:makeSmartyLabel('Alert_field_required')},
             email:{required:makeSmartyLabel('Alert_field_required'),email:makeSmartyLabel('Alert_invalid_email')},
-            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')}
+            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')},
+            company:{required:makeSmartyLabel('Alert_field_required')},
+            department:{required:makeSmartyLabel('Alert_field_required')}
         }
     });
 
