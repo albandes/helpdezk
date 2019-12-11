@@ -82,11 +82,30 @@ class System {
 
     function getLogFile($logType)
     {
-        if ($logType == 'general') {
-            return $this->getHelpdezkPath().'/logs/helpdezk.log';
-        } elseif($logType == 'email') {
-            return $this->getHelpdezkPath().'/logs/email.log';
+        $dirLog = $this->getHelpdezkPath().'/logs/';
+        if(!is_dir($dirLog)) {
+            mkdir ($dirLog, 0777 ); // create dir
+        }else{
+            if(!is_writable($dirLog)) {//validation
+                chmod($dirLog, 0777);
+            }
         }
+
+        if ($logType == 'general') {
+            $file = $dirLog.'helpdezk.log';
+        } elseif($logType == 'email') {
+            $file = $dirLog.'email.log';
+        }
+
+        if (!file_exists($file)) {
+            if($fp = fopen($file, 'a')) { //create log file
+                @fclose($fp);
+            } else {
+                return false;
+            }
+        }
+
+        return $file;
     }
 
     /**
