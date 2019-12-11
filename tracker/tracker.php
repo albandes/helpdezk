@@ -2,6 +2,16 @@
 
 $log = true;
 $logfile = '../logs/tracker.log';
+$path_parts = pathinfo(dirname(__FILE__));
+$cron_path = $path_parts['dirname'] ;
+
+if(!is_dir($cron_path.'/logs/')) {
+    mkdir ($cron_path.'/logs/', 0777 ); // criar o diretorio
+}else{
+    if(!is_writable($cron_path.'/logs/')) {//validação
+        chmod($cron_path.'/logs/', 0777);
+    }
+}
 
 /**
  *
