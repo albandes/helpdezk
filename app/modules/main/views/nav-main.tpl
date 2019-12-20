@@ -23,7 +23,8 @@
         ein_mask     = '{/literal}{$ein_mask}{literal}',
         zip_mask     = '{/literal}{$zip_mask}{literal}',
         phone_mask     = '{/literal}{$phone_mask}{literal}',
-        cellphone_mask     = '{/literal}{$cellphone_mask}'{literal};
+        cellphone_mask     = '{/literal}{$cellphone_mask}'{literal},
+        changepass = '{/literal}{$changepass}'{literal};
 
 
 </script>
@@ -206,6 +207,7 @@
                 <ul class="dropdown-menu animated fadeInRight m-t-xs">
                     {if !$isroot}
                         <li><a href="#" class="btnEditUserConfig"><i class="fa fa-wrench"></i> {$smarty.config.Edit_user_config}</a></li>
+                        <li><a href="#" class="btnEditUserPass"><i class="fa fa-key"></i> {$smarty.config.Change_password}</a></li>
                     {else}
                         <li>&nbsp;</li>
                     {/if}

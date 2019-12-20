@@ -902,4 +902,15 @@ class person_model extends DynamicPerson_model
         return $ret;
     }
 
+    public function getChangePass($idperson){
+        $query = "SELECT change_pass FROM tbperson WHERE idperson = $idperson";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }
+        return $ret->fields['change_pass'];
+    }
+
 }

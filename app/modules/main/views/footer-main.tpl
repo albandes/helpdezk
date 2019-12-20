@@ -6,3 +6,4 @@
 </div>
 
 {include file=$configusermodal}
+{include file=$userpwdmodal}

@@ -261,6 +261,7 @@ class System {
         $smarty->assign('version', $this->helpdezkName);
         $smarty->assign('footer', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/footer-main.tpl');
         $smarty->assign('configusermodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modalPersonData.tpl');
+        $smarty->assign('userpwdmodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modal-change-user-password.tpl');
     }
     public function isActiveHelpdezk()
     {
@@ -3284,6 +3285,9 @@ class System {
         // --- Complement ---
         $smarty->assign('person_complement',$rsPerson->fields['complement']);
 
+        $change_pass = $this->getChangePassById($cod_usu);
+        $smarty->assign('changepass', $change_pass);
+
     }
 
     public function comboGender()
@@ -3298,6 +3302,14 @@ class System {
         $arrRet['values'] = $values;
 
         return $arrRet;
+    }
+
+    public function getChangePassById($idPerson)
+    {
+        $this->loadModel('admin/person_model');
+        $dbSysPerson  = new person_model();
+        $rsChangePwd = $dbSysPerson->getChangePass($idPerson);
+        return $rsChangePwd;
     }
 
 }
