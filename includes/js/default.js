@@ -135,6 +135,10 @@ $(document).ready(function () {
         //countdown.start(timesession);
     });
 
+    $(".btnEditUserPass").click(function(){
+        $('#modal-change-user-password').modal('show');
+    });
+
     // Combos
     var formPersonData = $(document.getElementById("persondata_form"));
     var objPersonData = {
@@ -298,6 +302,64 @@ $(document).ready(function () {
         //sendNotification('new-ticket-user',global_coderequest,true);
         //console.log('Sent email, with attachments');
     });
+
+    $("#change_user_pwd_form").validate({
+        ignore:[],
+        rules: {
+            userconf_password:{
+                required:true,
+                remote:{
+                    url: path+"/helpdezk/home/checkUserPass",
+                    type: 'post',
+                    data: {
+                        personId:function(){return $('#hidden-idperson').val();}
+                    }
+                }
+            },
+            userconf_cpassword:  {equalTo: "#userconf_password"}
+        },
+        messages: {
+            userconf_password:{required:makeSmartyLabel('Alert_field_required')},
+            userconf_cpassword:{equalTo: makeSmartyLabel('Alert_different_passwords')}
+        }
+    });
+
+    $("#btnSaveChangeUserPass").click(function(){
+        if (!$("#change_user_pwd_form").valid()) {
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: path + '/helpdezk/home/changeUserPassword',
+            dataType: 'json',
+            data: { idperson:$('#hidden-idperson').val(),
+                newpassword:$('#userconf_password').val(),
+                changepass:$('#userconf-changePass').val()
+            },
+            error: function (ret) {
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
+            },
+            success: function(ret){
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+                if($.isNumeric(obj.idperson)) {
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_change_password'),'alert-change-user-pass');
+                    setTimeout(function(){
+                        $('#modal-change-user-password').modal('hide');
+                        location.href = "" ;
+                    },2000);
+
+                } else {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
+                }
+            }
+        });
+    });
+
+    if(changepass == '1'){
+        $('#btnCancelUserPass').addClass('hide');
+        $('#modal-change-user-password').modal('show');
+    }
 
 
 });

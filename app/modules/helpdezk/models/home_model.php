@@ -68,4 +68,19 @@ class home_model extends DynamicHome_model
 
         return $this->db->Insert_ID();
     }
+
+    public function checkUserPass($idperson,$newpass){
+        $query = "SELECT idperson, password
+                    FROM tbperson 
+                   WHERE idperson = $idperson 
+                     AND password = '$newpass'";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }
+        return $ret;
+    }
+
 }

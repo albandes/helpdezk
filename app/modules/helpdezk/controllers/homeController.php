@@ -37,6 +37,10 @@ class home extends hdkCommon {
         $this->loadModel('ticket_model');
         $dbTicket = new ticket_model();
         $this-$dbTicket = $dbTicket;
+
+        $this->loadModel('admin/person_model');
+        $dbPerson = new person_model();
+        $this-$dbPerson = $dbPerson;
     }
 
     public function index()
@@ -583,7 +587,47 @@ class home extends hdkCommon {
 
     }
 
+    public function checkUserPass() {
 
+        $idperson = $_POST['personId'];
+        $password = md5($_POST['userconf_password']);
+
+        $ret = $this->dbHome->checkUserPass($idperson, $password);
+        if (!$ret) {
+            if($this->log)
+                $this->logIt('Can\'t password data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        if ($ret->fields) {
+            echo json_encode($this->getLanguageWord('Alert_not_match_new_pass'));
+        } else {
+            echo json_encode(true);
+        }
+
+    }
+
+    public function changeUserPassword() {
+
+        $idperson = $_POST['idperson'];
+        $password = md5($_POST['newpassword']);
+        $changepass = 0;
+
+        $change = $this->dbPerson->changePassword($idperson, $password, $changepass);
+        if (!$change) {
+            if($this->log)
+                $this->logIt('Change Password  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $aRet = array(
+            "idperson" => $idperson,
+            "status"   => 'OK'
+        );
+
+        echo json_encode($aRet);
+
+    }
 }
 
 ?>
