@@ -1746,13 +1746,41 @@ class hdkTicket extends hdkCommon {
         echo $lineNotes;
     }
 
+    public function showDefaults()
+    {
+        if (isset($_SESSION['hdk']['TKT_DONT_SHOW_DEFAULT']) && $_SESSION['hdk']['TKT_DONT_SHOW_DEFAULT'] == 1) {
+            echo 'NO';
+        } else {
+            echo 'YES';
+        }
+    }
+
+
     public function areaDefault()
     {
-        $idArea = $this->_getIdAreaDefault();
-        if ($idArea > 0)
-            echo $this->_comboTypeHtml($idArea);
-        else
+        // Since December 26, 2019
+        if (isset($_SESSION['hdk']['TKT_DONT_SHOW_DEFAULT']) && $_SESSION['hdk']['TKT_DONT_SHOW_DEFAULT'] == 1) {
             echo 'NO';
+        } else {
+            $idArea = $this->_getIdAreaDefault();
+            if ($idArea > 0)
+                //echo $this->_comboTypeHtml($idArea);
+                echo 'YES';
+            else
+                echo 'NO';
+        }
+
+    }
+
+    public function ajaxTypeWithAreaDefault()
+    {
+        $idArea = $this->_getIdAreaDefault();
+        echo $this->_comboTypeHtml($idArea);
+    }
+
+    public function ajaxArea()
+    {
+        echo $this->_comboAreaHtml();
     }
 
     public function ajaxTypes()

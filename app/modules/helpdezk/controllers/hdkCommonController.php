@@ -132,9 +132,28 @@ class hdkCommon extends Controllers  {
 
         $arrRet['ids'] = $fieldsID;
         $arrRet['values'] = $values;
-        //$arrRet['default'] = $default;
+        $arrRet['default'] = $default;
 
         return $arrRet;
+    }
+
+    public function _comboAreaHtml()
+    {
+
+        $arrArea = $this->_comboArea();
+        $select = '';
+
+        foreach ( $arrArea['ids'] as $indexKey => $indexValue ) {
+            if ($arrArea['default'][$indexKey] == 1) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrArea['values'][$indexKey]."</option>";
+        }
+
+        return $select;
+
     }
 
     public function _getIdCoreDefault($table){
@@ -1170,7 +1189,7 @@ class hdkCommon extends Controllers  {
 
         return $arrRet;
     }
-    
+
     public function _comboSource()
     {
         $rs = $this->dbTicket->selectSource();
@@ -1231,7 +1250,7 @@ class hdkCommon extends Controllers  {
                 }
                 break;
         }
-        
+
 
         $arrRet['ids'] = $fieldsID;
         $arrRet['values'] = $values;
@@ -1240,7 +1259,7 @@ class hdkCommon extends Controllers  {
         return $arrRet;
     }
 
-    public function _abilitiesListHtml($type,$rep) {	
+    public function _abilitiesListHtml($type,$rep) {
         $abilities = "";
 		if ($type == 'group') {
             $ret = $this->dbTicket->getAbilityGroup($rep);
@@ -1251,7 +1270,7 @@ class hdkCommon extends Controllers  {
                     $ret->MoveNext();
                 }
                 $abilities .= "</table>";
-            } 
+            }
         }
 		elseif ($type == 'operator') {
             $ret = $this->dbTicket->getAbilityOperator($rep);
@@ -1267,11 +1286,11 @@ class hdkCommon extends Controllers  {
 		return $abilities;
     }
 
-	public function _groupsListHtml($type,$rep) {  
+	public function _groupsListHtml($type,$rep) {
         $groups = "";
         if ($type == 'group') {
             $ret = $this->dbTicket->getGroupOperators($rep);
-            
+
             if ($ret->fields) {
                 $groups = "<table class='table'>";
                 while (!$ret->EOF) {
@@ -1279,7 +1298,7 @@ class hdkCommon extends Controllers  {
                     $ret->MoveNext();
                 }
                 $groups .= "</table>";
-            } 
+            }
         } elseif ($type == 'operator') {
             $ret = $this->dbTicket->getOperatorGroups($rep);
             if ($ret->fields) {

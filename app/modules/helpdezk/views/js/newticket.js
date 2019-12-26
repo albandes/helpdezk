@@ -1,20 +1,32 @@
 var global_coderequest = '';
+var htmlArea = '',
+    showDefs  = '';
+
+
 $(document).ready(function () {
 
     countdown.start(timesession);
 
     new gnMenu( document.getElementById( 'gn-menu' ) );
 
-    // Exists Area Default ?
-    $.post(path + "/helpdezk/hdkTicket/areaDefault",
-        function (valor) {
-            if (valor != 'NO') {
+    htmlArea = makeAreaCombo();
+    showDefs = showDefaults();
+
+    console.log('exist: '+ showDefs);
+
+    if (showDefs == 'YES') {
+        $("#areaId").html(htmlArea);
+        $.post(path + "/helpdezk/hdkTicket/ajaxTypeWithAreaDefault",
+            function (valor) {
                 $('#typeId').removeAttr('disabled');
                 $("#typeId").html(valor);
                 $("#typeId").trigger("chosen:updated");
                 return objNewTicket.changeItem();
-            }
-    })
+            })
+    } else if (showDefs == 'NO') {
+        $("#areaId").html('<option value="X">'+makeSmartyLabel('Select')+'</option>' + htmlArea);
+        $("#areaId").val('X');
+    }
 
 
     $('[data-toggle="tooltip"]').tooltip();
@@ -79,14 +91,27 @@ $(document).ready(function () {
         ignore:[],
         rules: {
             subject: "required",  // simple rule, converted to {required:true}
-            area: "required",
-            typeId: "required",
-            itemId: "required",
-            serviceId: "required"
+            areaId: {
+                required: true,
+                number: true
+            },
+            typeId: {
+                required: true,
+                number: true
+            },
+            itemId: {
+                required: true,
+                number: true
+            },
+            serviceId: {
+                required: true,
+                number: true
+            }
+
         },
         messages: {
             subject: makeSmartyLabel('Alert_empty_subject'),
-            area: makeSmartyLabel('Alert_field_required'),
+            areaId: makeSmartyLabel('Alert_field_required'),
             typeId: makeSmartyLabel('Alert_field_required'),
             itemId: makeSmartyLabel('Alert_field_required'),
             serviceId: makeSmartyLabel('Alert_field_required')
@@ -174,10 +199,18 @@ $(document).ready(function () {
             var areaId = $("#areaId").val();
             $.post(path+"/helpdezk/hdkTicket/ajaxTypes",{areaId: areaId},
                 function(valor){
+
                     $('#typeId').removeAttr('disabled');
-                    $("#typeId").html(valor);
-                    $("#typeId").trigger("chosen:updated");
-                    return objNewTicket.changeItem();
+
+                    if (showDefs == 'YES') {
+                        $("#typeId").html(valor);
+                        $("#typeId").trigger("chosen:updated");
+                        return objNewTicket.changeItem();
+                    } else if (showDefs == 'NO') {
+                        $("#typeId").html('<option value="X">'+makeSmartyLabel('Select')+'</option>' + valor);
+                        $("#typeId").val('X');
+                        $("#typeId").trigger("chosen:updated");
+                    }
                 })
         },
         changeItem: function(){
@@ -185,9 +218,15 @@ $(document).ready(function () {
             $.post(path+"/helpdezk/hdkTicket/ajaxItens",{typeId: typeId},
                 function(valor){
                     $('#itemId').removeAttr('disabled');
-                    $("#itemId").html(valor);
-                    $("#itemId").trigger("chosen:updated");
-                    return objNewTicket.changeService();
+                    if (showDefs == 'YES') {
+                        $("#itemId").html(valor);
+                        $("#itemId").trigger("chosen:updated");
+                        return objNewTicket.changeService();
+                    } else if (showDefs == 'NO') {
+                        $("#itemId").html('<option value="X">'+makeSmartyLabel('Select')+'</option>' + valor);
+                        $("#itemId").val('X');
+                        $("#itemId").trigger("chosen:updated");
+                    }
                 })
         },
         changeService: function(){
@@ -196,9 +235,16 @@ $(document).ready(function () {
             $.post(path+"/helpdezk/hdkTicket/ajaxServices",{itemId: itemId},
                 function(valor){
                     $('#serviceId').removeAttr('disabled');
-                    $("#serviceId").html(valor);
-                    $("#serviceId").trigger("chosen:updated");
-                    return objNewTicket.changeReason();
+                    if (showDefs == 'YES') {
+                        $("#serviceId").html(valor);
+                        $("#serviceId").trigger("chosen:updated");
+                        return objNewTicket.changeReason();
+                    } else if (showDefs == 'NO') {
+                        $("#serviceId").html('<option value="X">'+makeSmartyLabel('Select')+'</option>' + valor);
+                        $("#serviceId").val('X');
+                        $("#serviceId").trigger("chosen:updated");
+                    }
+
                 })
         },
         changeReason: function(){
@@ -257,42 +303,35 @@ $(document).ready(function () {
 
 
 });
-/*
 
-function changeType(paramAreaID)
+function makeAreaCombo()
 {
-    console.log('changeType, areaId: '+ paramAreaID);
-    $.post(path+"/helpdezk/hdkTicket/ajaxTypes",{areaId: paramAreaID},
-        function(valor){
-            $('#typeId').removeAttr('disabled');
-            $("#typeId").html(valor);
-    })
-    return changeItem($("#typeId").val());
+    var result="";
+    $.ajax({
+        url: path+"/helpdezk/hdkTicket/ajaxArea" ,
+        type: "POST",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    return result;
 }
 
-function changeItem(paramTypeID)
+function showDefaults()
 {
-    console.log('changeItem, typeId: '+ paramTypeID);
-    console.log($("#newticket-form").find('#typeId').val());
-    console.log($("#typeId option:first").val());
-    $.post(path+"/helpdezk/hdkTicket/ajaxItens",{typeId: paramTypeID},
-        function(valor){
-            $('#itemId').removeAttr('disabled');
-            $("#itemId").html(valor);
-        })
-    return changeService($("#itemId").val());
-}
+    var result="";
+    $.ajax({
+        url: path+"/helpdezk/hdkTicket/showDefaults" ,
+        type: "POST",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    return result;
 
-function changeService(paramItemID)
-{
-    $.post(path+"/helpdezk/hdkTicket/ajaxServices",{itemId: paramItemID},
-        function(valor){
-            $('#serviceId').removeAttr('disabled');
-            $("#serviceId").html(valor);
-        })
-    return false;
 }
-*/
 
 function makeOptLabel(confName)
 {

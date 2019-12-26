@@ -937,6 +937,8 @@ Other_items = "Other Options"
 sys_workdays_request_approval = "Number of days for the system to automatically approve requests closed [0 = never approve]"
 sys_time_session = "Time that will last the session system. Value in seconds. If not set will be 10 minutes."
 
+sys_dont_show_default = "When open request: Do not show area, type, item service default. User chooses regardless of default value."
+
 #--- Grid Sorting -----
 
 grd_show_only_mine = "Show only mine"

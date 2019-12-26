@@ -1016,6 +1016,9 @@ sys_use_equipment = "Utiliza controle de equipamentos [Etiqueta, Serial e OS]"
 Other_items = "Outros Itens"
 sys_workdays_request_approval="N&uacute;mero de dias &uacute;teis para o sistema aprovar automaticamente as solicita&ccedil;&atilde;es encerradas [0 = Nunca aprovar]"
 sys_time_session = "Tempo que ir&aacute; durar a sess&atilde;o do sistema. Valor em segundos. Se n&atilde;o definido ser&aacute; de 10 minutos."
+
+sys_dont_show_default = "Quando abrir solicitação: Não mostrar área, tipo, item service default. Usuário escolhe independente do valor default."
+
 #--- Grid Sorting -----
 
 grd_show_only_mine = "Mostrar as minhas"

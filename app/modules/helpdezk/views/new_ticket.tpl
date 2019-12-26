@@ -68,17 +68,17 @@
     {head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
     {literal}
     <script type="text/javascript">
-         var     default_lang = "{/literal}{$lang}{literal}",
-                 path = "{/literal}{$path}{literal}",
-                 langName = '{/literal}{$smarty.config.Name}{literal}',
-                 theme = '{/literal}{$theme}{literal}',
-                 mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                 timesession = '{/literal}{$timesession}{literal}',
-                 noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
-                 noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
-                 ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
-                 hdkMaxSize = '{/literal}{$hdkMaxSize}{literal}';
+         var     default_lang           = "{/literal}{$lang}{literal}",
+                 path                   = "{/literal}{$path}{literal}",
+                 langName               = '{/literal}{$smarty.config.Name}{literal}',
+                 theme                  = '{/literal}{$theme}{literal}',
+                 mascDateTime           = '{/literal}{$mascdatetime}{literal}',
+                 timesession            = '{/literal}{$timesession}{literal}',
+                 noteAttMaxFiles        = '{/literal}{$noteattmaxfiles}{literal}',
+                 noteAcceptedFiles      = '{/literal}{$noteacceptedfiles}{literal}',
+                 ticketAttMaxFiles      = '{/literal}{$ticketattmaxfiles}{literal}',
+                 ticketAcceptedFiles    = '{/literal}{$ticketacceptedfiles}{literal}',
+                 hdkMaxSize             = '{/literal}{$hdkMaxSize}{literal}';
 
 
     </script>
@@ -206,9 +206,10 @@
                         <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.Area}: </label>
                             {*<div class="col-sm-10"><input type="text" class="form-control input-sm"></div>*}
                             <div class="col-sm-9">
-                                <select class="form-control  form-control-sm" name="area" id="areaId" >
+                                <select class="form-control  form-control-sm" name="areaId" id="areaId" >
                                     <option value="">{$smarty.config.Select} </option>
-                                    {html_options values=$areaids output=$areavals selected=$idarea}
+                                    {* {html_options values=$areaids output=$areavals selected=$idarea}*}
+
                                 </select>
                             </div>
                         </div>
