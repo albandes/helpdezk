@@ -355,11 +355,11 @@ $(document).ready(function () {
             }
         });
     });
-
+/*
     if(changepass == '1'){
         $('#btnCancelUserPass').addClass('hide');
         $('#modal-change-user-password').modal('show');
     }
-
+*/
 
 });
