@@ -311,7 +311,7 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getHeaderLogo();
-        if(empty($rsLogo->fields['file_name']))
+        if(empty($rsLogo->fields['file_name']) or !file_exists($this->helpdezkPath.'/app/uploads/logos/'. $rsLogo->fields['file_name']))
             return 'default/header.png';
         else
             return $rsLogo->fields['file_name'];
@@ -335,7 +335,7 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getReportsLogo();
-        if(empty($rsLogo->fields['file_name']))
+        if(empty($rsLogo->fields['file_name'])  or !file_exists($this->helpdezkPath.'/app/uploads/logos/'. $rsLogo->fields['file_name'] ))
             return 'default/reports.png';
         else
             return $rsLogo->fields['file_name'];
@@ -360,7 +360,7 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getLoginLogo();
-        if(empty($rsLogo->fields['file_name']))
+        if(empty($rsLogo->fields['file_name']) or !file_exists($this->helpdezkPath.'/app/uploads/logos/'. $rsLogo->fields['file_name']))
             return 'default/login.png';
         else
             return $rsLogo->fields['file_name'];
