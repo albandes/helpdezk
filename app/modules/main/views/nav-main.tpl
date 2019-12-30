@@ -17,6 +17,8 @@
 {head_item type="js" src="$path/includes/js/plugins/chosen/" files="chosen.jquery.js"}
 {head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
 
+{head_item type="js" src="$path/app/modules/main/views/js/" files="nav-main.js"}
+
 {literal}
 <script type="text/javascript">
     var     id_mask      = '{/literal}{$id_mask}{literal}',
@@ -206,7 +208,8 @@
                 </a>
                 <ul class="dropdown-menu animated fadeInRight m-t-xs">
                     {if !$isroot}
-                        <li><a href="#" class="btnEditUserConfig"><i class="fa fa-wrench"></i> {$smarty.config.Edit_user_config}</a></li>
+                        <li><a href="#" class="btnEditUserProfile"><i class="far fa-user"></i> {$smarty.config.user_profile}</a></li>
+                        <li><a href="#" id="btnEditUserConfigExternal"><i class="fas fa-user-cog"></i> {$smarty.config.user_external_settings}</a></li>
                         <li><a href="#" class="btnEditUserPass"><i class="fa fa-key"></i> {$smarty.config.Change_password}</a></li>
                     {else}
                         <li>&nbsp;</li>
@@ -227,3 +230,4 @@
     </div>
 
 </nav>
+
