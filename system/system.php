@@ -262,6 +262,8 @@ class System {
         $smarty->assign('footer', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/footer-main.tpl');
         $smarty->assign('configusermodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modalPersonData.tpl');
         $smarty->assign('userpwdmodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modal-change-user-password.tpl');
+        $smarty->assign('configExternalModal', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/modal/main/modal-config-external.tpl');
+
     }
     public function isActiveHelpdezk()
     {

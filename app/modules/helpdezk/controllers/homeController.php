@@ -36,11 +36,15 @@ class home extends hdkCommon {
 
         $this->loadModel('ticket_model');
         $dbTicket = new ticket_model();
-        $this-$dbTicket = $dbTicket;
+        $this->dbTicket = $dbTicket;
 
         $this->loadModel('admin/person_model');
         $dbPerson = new person_model();
-        $this-$dbPerson = $dbPerson;
+        $this->dbPerson = $dbPerson;
+
+        $this->loadModel('admin/userconfig_model');
+        $this->dbUserConfig = new userconfig_model();
+
     }
 
     public function index()
@@ -509,7 +513,7 @@ class home extends hdkCommon {
 
     function savePhoto()
     {
-        //echo "aqui";
+
         $char_search	= array("ã", "á", "à", "â", "é", "ê", "í", "õ", "ó", "ô", "ú", "ü", "ç", "ñ", "Ã", "Á", "À", "Â", "É", "Ê", "Í", "Õ", "Ó", "Ô", "Ú", "Ü", "Ç", "Ñ", "ª", "º", " ", ";", ",");
 		$char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
 
@@ -604,6 +608,73 @@ class home extends hdkCommon {
         } else {
             echo json_encode(true);
         }
+
+    }
+
+    /**
+     * Method to save External APIs configurations
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
+     * @uses $_POST['idperson'] directly
+     * @uses $_POST['trellokey'] directly
+     * @uses $_POST['trellotoken'] directly
+     *
+     * @since December 29, 2019
+     *
+     * * @return array [
+     *                  'success'       => true| false,
+     *                  'message'       => Error or success message
+     *                  'id'            => Record ID saved in database
+     *                 ]
+     */
+    public function saveConfigExternal()
+    {
+
+        if(!$this->dbUserConfig->existApiConfigTables()) {
+            echo json_encode(array('sucess' => false,'message' => 'There are no external APIs Configuration Tables !','id' => ''));
+            exit;
+        }
+
+
+
+        $idPerson    = $_POST['idperson'];
+        $trelloKey   = $_POST['trellokey'];
+        $trelloToken = $_POST['trellotoken'];
+
+        $arrayParam = array(
+                             array( 'field' => 'key',
+                                    'value' => $trelloKey)
+                             ,
+                             array( 'field' => 'token',
+                                    'value' => $trelloToken)
+                           );
+
+
+        //print_r($arrayParam);
+
+        //$this->dbUserConfig->BeginTrans();
+
+        $arrayReturn = $this->dbUserConfig->insertExternalSettings(50,$idPerson);
+
+        //print_r($arrayReturn);
+
+        if (!$arrayReturn['success']) {
+            echo json_encode($arrayReturn);
+            exit;
+        } else {
+            $idexternalsettings = $arrayReturn['id'] ;
+            foreach ($arrayParam as $row) {
+                $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
+                if (!$arrayReturn['success']) {
+                    echo json_encode($arrayReturn);
+                    exit;
+                }
+            }
+
+        }
+
+        echo json_encode($arrayReturn);
 
     }
 
