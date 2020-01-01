@@ -13,7 +13,7 @@
     {head_item type="css" src="$path/includes/bootstrap/css/" files="bootstrap.min.css"}
     {head_item type="js"  src="$path/includes/bootstrap/js/" files="bootstrap.min.js"}
     <!-- jqGrid -->
-    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="grid.locale-pt-br.js"}
+    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="$jqgrid_i18nFile"}
     {head_item type="js"  src="$path/includes/js/plugins/jqGrid/" files="jquery.jqGrid.min.js"}
     <!-- Custom and plugin javascript -->
     {head_item type="js"  src="$path/js/" files="inspinia.js"}
@@ -84,9 +84,9 @@
 
                             <div class="ibox-content">
 
-                                <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Novo</button>
-                                <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true""></i>&nbsp;Editar</button>
-                                <button id="btnListTopic" type="button" class="btn btn-primary btn-xs"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Ver&nbsp;T&oacute;picos</button>
+                                <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;{$smarty.config.New}</button>
+                                <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true""></i>&nbsp;{$smarty.config.edit}</button>
+                                <button id="btnListTopic" type="button" class="btn btn-primary btn-xs"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;{$smarty.config.View_topics}</button>
                                 <!--<button id="btnEnable" type="button" class="btn btn-primary btn-xs"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;Ativar</button>
                                 <button type="button" class="btn btn-primary btn-xs"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Permissões</button>-->
 

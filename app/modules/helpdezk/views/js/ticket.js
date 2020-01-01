@@ -59,9 +59,6 @@ $(document).ready(function () {
         if(flgoperator == 0){var flgapvrequire = $.ajax({type: "POST",url: path+"/helpdezk/home/checkapproval",async: false}).responseText;}
     }
 
-    //alert(JSON.stringify(grid));
-    //alert(grid['selector']);
-    // alert(grid[0].id);
 
     // Configuration for jqGrid Tickets
     grid.jqGrid({
@@ -82,12 +79,13 @@ $(document).ready(function () {
         caption: makeSmartyLabel('Grid_all_tickets'),
         hidegrid: false,
         toppager:true,
+        search:false,
         //jqModal: false,
         //modal: true,
         ondblClickRow: function(rowId) {
             var myCellData = grid.jqGrid('getCell', rowId, 'code_request');
-            //alert(myCellData);
-             console.log('Redirect to: ' + path + "/helpdezk/hdkTicket/viewrequest/" + myCellData);
+             //alert(myCellData);
+             //console.log('Redirect to: ' + path + "/helpdezk/hdkTicket/viewrequest/" + myCellData);
 
              if(operatorAsUser == '1'){
                  document.location.href = path+"/helpdezk/hdkTicket/viewrequest/id/" + myCellData + "/myticket/1";
@@ -125,26 +123,21 @@ $(document).ready(function () {
     }
 
     // Setup buttons
-    grid.navGrid('#pager_list_tickets',{edit:false,add:false,del:false,search:true,searchtext: makeSmartyLabel('Search'),refreshtext: makeSmartyLabel('Grid_reload'),cloneToTop: true});
-    grid.jqGrid('navGrid','#pager_list_tickets',{search:true,cloneToTop:true});
-/*
-    grid.jqGrid('navButtonAdd', '#' + grid[0].id + '_toppager_left', { // "#list_toppager_left"
-        caption:  makeSmartyLabel('Grid_view'),
-        buttonicon: 'ui-icon-document',
-        onClickButton: function(rowId) {
-            //var myGrid = $("#table_list_tickets");
-            var rowKey = grid.jqGrid('getGridParam',"selrow");
+    grid.navGrid('#pager_list_tickets',
+        {
+            edit:false,
+            add:false,
+            del:false,
+            search:true,
+            searchtext: makeSmartyLabel('Search'),
+            refreshtext: makeSmartyLabel('Grid_reload'),
+            cloneToTop: true
+        });
 
-            if (rowKey)
-                alert("Selected row primary key is: " + rowKey);
-            else
-                //alert("No rows are selected");
-            //$('#myModal').modal('show');
-            $('#myModal').modal({ keyboard: false })
-        }
-    });
-    grid.jqGrid('navSeparatorAdd','#' + grid[0].id + '_toppager_left', { sepclass: 'ui-separator' });
-*/
+    grid.jqGrid('navGrid','#pager_list_tickets',{search:true,cloneToTop:true});
+
+
+
     grid.jqGrid('navButtonAdd', '#' + grid[0].id + '_toppager_left', { // "#list_toppager_left"
         caption: makeSmartyLabel('Grid_all'),
         buttonicon: 'ui-icon-info',

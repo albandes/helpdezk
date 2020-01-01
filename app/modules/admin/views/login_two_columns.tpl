@@ -56,7 +56,7 @@
 
 
 
-                <h2 class="font-bold">Avisos</h2>
+                <h2 class="font-bold">{$smarty.config.important_notices}</h2>
 
 
 
@@ -135,10 +135,10 @@
         <hr/>
         <div class="row">
             <div class="col-md-6">
-                Copyright Pipegrep Conectividade IP
+                Copyright Pipegrep IP Connectivity
             </div>
             <div class="col-md-6 text-right">
-               <small>© 2017-2018</small>
+               <small>© 2018-2020</small>
             </div>
         </div>
     </div>

@@ -97,6 +97,7 @@ class hdkTicket extends hdkCommon {
                         : 0;
         $smarty->assign('autorefreshgrid', $autoRefresh);
 
+        //$smarty->assign('jqgrid_i18nFile', $this->getFileI18n('jqgrid'));
 
         $smarty->display('ticket.tpl');
 
