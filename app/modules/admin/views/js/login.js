@@ -22,7 +22,7 @@ $( document ).ready(function() {
         $this.button('loading');
         lostPasswordAjax($this);
     });
-    console.log('2');
+
     $("#frm-login").submit(function()
     {
         var $self       = $(this),

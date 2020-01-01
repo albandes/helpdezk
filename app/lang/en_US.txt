@@ -1,3 +1,16 @@
+#--- albandes --
+user_profile = "Profile"
+user_external_settings = "External Settings"
+trello = "Trello API Configuration"
+trello_key = "Key"
+trello_token = "Token"
+Alert_external_settings_OK = "Successfully Saved External Settings !!!"
+important_notices = "Important Notices"
+Grid_reload = "Grid Reload"
+Show_groups_services_title = "View groups by service"
+#---
+
+
 adm_Navbar_name = "Admin"
 hdk_Navbar_name = "HelpDEZK"
 
@@ -675,7 +688,7 @@ Select_company      = "Choose a company"
 Select_country_first = "Select Country First"
 Select_department      = "Chose a department"
 Select_group    = "Choose a group"
-Select_group = "Selecione um grupo"
+
 Select_priority = "Choose a priority"
 Select_question     = "Choose a question"
 Select_category     = "Choose a category"

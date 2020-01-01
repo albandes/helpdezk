@@ -250,7 +250,7 @@
 
                     <div class="row wrapper white-bg text-center">
                         <div class="col-sm-12 form-group">
-                            <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> Volta </a>
+                            <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {$smarty.config.Back_btn} </a>
                             <button type="button" class="btn btn-primary btn-md " id="btnImportHoliday" >
                                 <span class="fa fa-download"></span>  &nbsp;{$smarty.config.Import}
                             </button>

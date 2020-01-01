@@ -5,7 +5,7 @@ trello = "Configurações Trello API"
 trello_key = "Chave"
 trello_token = "Token"
 Alert_external_settings_OK = "Configurações Externas Salvas com Sucesso !!!"
-
+important_notices = "Avisos Importantes"
 #---
 
 
