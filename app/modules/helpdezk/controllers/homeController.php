@@ -400,6 +400,28 @@ class home extends hdkCommon {
         $smarty->assign("mylist", $mylist);
     }
 
+    /**
+     * Method to update user data.
+     * This method is utilized from navigation bar, where user can update you data
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
+     * @uses $_POST['idperson'] directly
+     * @uses $_POST['name'] directly
+     * @uses $_POST['email'] directly
+     * @uses $_POST['phone'] directly
+     * @uses $_POST['branch'] directly
+     * @uses $_POST['cellphone'] directly
+     *
+     * @since January 01, 2020
+     *
+     * @return string JSON {
+     *                       "success": "true | false",
+     *                       "message": "Error or success message",
+     *                       "id":       "Record ID saved in database"
+     *                     }
+     *
+     */
     function updateUserData()
     {
 
@@ -413,21 +435,9 @@ class home extends hdkCommon {
             $dbPerson->RollbackTrans();
             if($this->log)
                 $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-            return false;
+            echo json_encode(array('success' => false, 'message' => 'Error changing user data', 'id' => ''));
+            exit;
         }
-
-        // User can include a street
-        /*if (!empty($_POST['street'])) {
-            $idStreet = $dbPerson->insertStreet($_POST['typestreet'],$_POST['street']);
-            if (!$idStreet) {
-                $dbPerson->RollbackTrans();
-                if($this->log)
-                    $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return false;
-            }
-        } else {
-            $idStreet = 1;
-        }*/
 
         $dtbirthday = $this->formatSaveDate($_POST['dtbirth']);
 
@@ -436,9 +446,9 @@ class home extends hdkCommon {
             $dbPerson->RollbackTrans();
             if($this->log)
                 $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
+            echo json_encode(array('success' => false, 'message' => 'Error changing natural person data', 'id' => ''));
+            exit;
         }
-
 
         if (empty ($_POST['city']) or empty($_POST['neighb']) or empty($_POST['street'])){
             $dbPerson->CommitTrans();
@@ -450,17 +460,20 @@ class home extends hdkCommon {
                 $dbPerson->RollbackTrans();
                 if($this->log)
                     $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return false;
+                echo json_encode(array('success' => false, 'message' => 'Error changing user adress data', 'id' => ''));
+                exit;
+                //return false;
             }
 
             $dbPerson->CommitTrans();
             if($this->log)
                 $this->logIt('User update data  - User: '.$_SESSION['SES_LOGIN_PERSON'] ,6,'general');
 
-
         }
 
-        die('OK');
+
+        echo json_encode(array("success" => true, "message" => '', "id" => ''));
+
 
     }
 
@@ -622,11 +635,12 @@ class home extends hdkCommon {
      *
      * @since December 29, 2019
      *
-     * * @return array [
-     *                  'success'       => true| false,
-     *                  'message'       => Error or success message
-     *                  'id'            => Record ID saved in database
-     *                 ]
+     * @return string JSON {
+     *                       "success": "true | false",
+     *                       "message": "Error or success message",
+     *                       "id":       "Record ID saved in database"
+     *                     }
+     *
      */
     public function saveConfigExternal()
     {
@@ -651,13 +665,9 @@ class home extends hdkCommon {
                            );
 
 
-        //print_r($arrayParam);
-
-        //$this->dbUserConfig->BeginTrans();
+        $this->dbUserConfig->BeginTrans();
 
         $arrayReturn = $this->dbUserConfig->insertExternalSettings(50,$idPerson);
-
-        //print_r($arrayReturn);
 
         if (!$arrayReturn['success']) {
             echo json_encode($arrayReturn);
@@ -668,11 +678,14 @@ class home extends hdkCommon {
                 $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
                 if (!$arrayReturn['success']) {
                     echo json_encode($arrayReturn);
+                    $this->dbUserConfig->RollbackTrans();
                     exit;
                 }
             }
 
         }
+
+        $this->dbUserConfig->CommitTrans();
 
         echo json_encode($arrayReturn);
 

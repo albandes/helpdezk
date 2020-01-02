@@ -65,29 +65,19 @@ $(document).ready(function () {
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
-
+                console.log(obj);
+                console.log(obj.success);
                 if(obj.success) {
                     modalAlertMultiple('success',makeSmartyLabel('Alert_external_settings_OK'),'alert-config-external');
                     setTimeout(function(){
-                        $('#modal-change-user-password').modal('hide');
+                        $('#modal-config-external').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-config-external');
                 }
-                /*
-                if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',makeSmartyLabel('Alert_change_password'),'alert-change-user-pass');
-                    setTimeout(function(){
-                        $('#modal-change-user-password').modal('hide');
-                        location.href = "" ;
-                    },2000);
 
-                } else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
-                }
-                */
             }
         });
     });
@@ -175,14 +165,16 @@ $(document).ready(function () {
     });
 
     $("#btnSendUpdateUserData").click(function(){
+
         if ($("#persondata_form").valid()) {
+
             var $form = jQuery('#persondata_form'),
                 formData = $form.serialize();
 
             $.ajax({
                 type: "POST",
                 url: path + '/helpdezk/home/updateUserData',
-                dataType: 'text',
+                dataType: 'json',
                 data: {
                     idperson: $('#hidden-idperson').val(),
                     name: $('#person_name').val(),
@@ -207,39 +199,36 @@ $(document).ready(function () {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-update');
                 },
                 success: function(ret){
+
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
-                    if(ret == 'OK') {
+
+                    if(obj.success) {
                         console.log('voltou e gravou');
                         if (userPhotoDropzone.getQueuedFiles().length > 0) {
                             console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
 
                             userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
                             userPhotoDropzone.processQueue();
-                        }else{
-                            $('#modal-form-persondata').modal('hide');
-                            location.href = "" ;
+                        } else {
+                            modalAlertMultiple('success',makeSmartyLabel('Alert_success_update'),'alert-update');
                         }
-                        modalAlertMultiple('success',makeSmartyLabel('Alert_success_update'),'alert-update');
 
-                    } else if(ret == 'OK-without-address') {
-                        if (userPhotoDropzone.getQueuedFiles().length > 0) {
-                            console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
-
-                            userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
-                            userPhotoDropzone.processQueue();
-                        }else{
-                            $('#modal-form-persondata').modal('hide');
-                            location.href = "" ;
-                        }
-                        modalAlertMultiple('success',makeSmartyLabel('Alert_success_withoutaddress'),'alert-update');
                     } else {
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-update');
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-update');
                     }
+
+                    setTimeout(function(){
+                        $('#modal-form-persondata').modal('hide');
+                        location.href = "" ;
+                    },2000);
+
                 }
             });
+
         } else {
-            console.log('nao validou');
+
             return false;
+
         }
 
     });
@@ -247,7 +236,9 @@ $(document).ready(function () {
     /*
      * Dropzone
      */
+
     Dropzone.autoDiscover = false;
+
     var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
         method: "post",
         dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('Drag_user_photo_msg'),
@@ -259,15 +250,16 @@ $(document).ready(function () {
     });
 
     userPhotoDropzone.on("maxfilesexceeded", function(file) {
+        console.log('Dropzone: Max file size exceeded');
         this.removeFile(file);
     });
 
     userPhotoDropzone.on("queuecomplete", function (file) {
         console.log('Completed the dropzone queue');
+        modalAlertMultiple('success',makeSmartyLabel('Alert_success_update'),'alert-update');
         $('#modal-form-persondata').modal('hide');
         location.href = "" ;
-        //sendNotification('new-ticket-user',global_coderequest,true);
-        //console.log('Sent email, with attachments');
+
     });
 
     $("#change_user_pwd_form").validate({
