@@ -400,6 +400,41 @@ class home extends hdkCommon {
         $smarty->assign("mylist", $mylist);
     }
 
+
+    /**
+     * Method to update user data.
+     * This method is utilized from navigation bar, where user can update you data
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
+     * @uses $_POST['idperson'] directly
+     * @uses $_POST['name'] directly
+     * @uses $_POST['email'] directly
+     * @uses $_POST['phone'] directly
+     * @uses $_POST['branch'] directly
+     * @uses $_POST['cellphone'] directly
+     * @uses $_POST['cellphone'] directly
+     * @uses $_POST['dtbirth'] directly
+     * @uses $_POST['ssn'] directly
+     * @uses $_POST['gender'] directly
+     * @uses $_POST['city'])  directly
+     * @uses $_POST['neighb'] directly
+     * @uses $_POST['street'] directly
+     * @uses $_POST['number'] directly
+     * @uses $_POST['complement'] directly
+     * @uses $_POST['zipcode'] directly
+     * @uses $_POST['typestreet'] directly
+     * @uses $_POST['street'] directly
+     *
+     * @since January 01, 2020
+     *
+     * @return string JSON {
+     *                       "success": "true | false",
+     *                       "message": "Error or success message",
+     *                       "id":       "Record ID saved in database"
+     *                     }
+     *
+     */
     function updateUserData()
     {
 
@@ -413,21 +448,10 @@ class home extends hdkCommon {
             $dbPerson->RollbackTrans();
             if($this->log)
                 $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-            return false;
+            echo json_encode(array('success' => false, 'message' => 'Can not update person data', 'id' => ''));
+            exit;
         }
 
-        // User can include a street
-        /*if (!empty($_POST['street'])) {
-            $idStreet = $dbPerson->insertStreet($_POST['typestreet'],$_POST['street']);
-            if (!$idStreet) {
-                $dbPerson->RollbackTrans();
-                if($this->log)
-                    $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return false;
-            }
-        } else {
-            $idStreet = 1;
-        }*/
 
         $dtbirthday = $this->formatSaveDate($_POST['dtbirth']);
 
@@ -436,21 +460,25 @@ class home extends hdkCommon {
             $dbPerson->RollbackTrans();
             if($this->log)
                 $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
+            echo json_encode(array('success' => false, 'message' => 'Can not update natural data', 'id' => ''));
+            exit;
         }
-
 
         if (empty ($_POST['city']) or empty($_POST['neighb']) or empty($_POST['street'])){
             $dbPerson->CommitTrans();
             if($this->log)
-                $this->logIt('Update user data, without address  - User: '.$_SESSION['SES_LOGIN_PERSON'],6,'general');
+                $this->logIt('Update user data. Incomplete Address: City or neighborhood or street empty  - User: '.$_SESSION['SES_LOGIN_PERSON'],6,'general');
+            echo json_encode(array('success' => false, 'message' => 'Incomplete Address: City or neighborhood or street empty', 'id' => ''));
+            exit;
+
         } else {
             $ret = $dbPerson->updateAdressData($_POST['idperson'],$_POST['city'],$_POST['neighb'],$_POST['number'],$_POST['complement'],$_POST['zipcode'],$_POST['typestreet'],$_POST['street']);
             if (!$ret) {
                 $dbPerson->RollbackTrans();
                 if($this->log)
                     $this->logIt('Update user data  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return false;
+                echo json_encode(array('success' => false, 'message' => 'Can not update adress data', 'id' => ''));
+                exit;
             }
 
             $dbPerson->CommitTrans();
@@ -460,7 +488,7 @@ class home extends hdkCommon {
 
         }
 
-        die('OK');
+        echo json_encode(array('success' => true, 'message' => '', 'id' => ''));
 
     }
 
@@ -500,9 +528,7 @@ class home extends hdkCommon {
             array_push($aRet,$rs->fields['name']);
             $rs->MoveNext();
         }
-        //$array = array_map('htmlentities',$aRet);
-        //$json = html_entity_decode(json_encode($array));
-        //$json = json_encode($aRet);
+
         echo $this->makeJsonUtf8Compat($aRet);
     }
 
@@ -511,11 +537,12 @@ class home extends hdkCommon {
         echo $this->_checkapproval();
     }
 
+
     function savePhoto()
     {
 
         $char_search	= array("ã", "á", "à", "â", "é", "ê", "í", "õ", "ó", "ô", "ú", "ü", "ç", "ñ", "Ã", "Á", "À", "Â", "É", "Ê", "Í", "Õ", "Ó", "Ô", "Ú", "Ü", "Ç", "Ñ", "ª", "º", " ", ";", ",");
-		$char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
+        $char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
 
         $iduser = $_POST['iduser'];
 
@@ -530,14 +557,25 @@ class home extends hdkCommon {
             $tmpFormat = $this->getImageFileFormat('/app/uploads/photos/'.$iduser);
             if($tmpFormat){
                 unlink($targetPath.$iduser.'.'.$tmpFormat);
+
             }
 
             $targetFile = $targetPath.$iduser.$extension;
-            
-            if(!is_dir($targetPath)) {
-                mkdir ($targetPath, 0777 ); // criar o diretorio
-            }
 
+            if(!is_dir($targetPath)) {
+                $this->logIt("Save user photo: # ". $iduser . ' - Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                if (!mkdir ($targetPath, 0777 )) {
+                    $this->logIt("Can't save user photo: # ". $iduser . ' - I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                }
+
+            }
+            if (!is_writable($targetPath)) {
+                $this->logIt("Save user photo: # ". $iduser . ' - Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
+                if (!chmod($targetPath,0777)){
+                    $this->logIt("Can't save user photo: # ". $iduser . ' - Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                }
+
+            }
             if (move_uploaded_file($tempFile,$targetFile)){
                 if($this->log){
                     $this->logIt("Save user photo: # ". $iduser . ' - File: '.$targetFile.' - program: '.$this->program ,7,'general',__LINE__);
@@ -554,6 +592,7 @@ class home extends hdkCommon {
         echo "success";
 
     }
+
 
     /*
      * Make Expire date and status labels for requester dashboard
@@ -636,31 +675,25 @@ class home extends hdkCommon {
             exit;
         }
 
-
-
         $idPerson    = $_POST['idperson'];
         $trelloKey   = $_POST['trellokey'];
         $trelloToken = $_POST['trellotoken'];
 
         $arrayParam = array(
-                             array( 'field' => 'key',
-                                    'value' => $trelloKey)
-                             ,
-                             array( 'field' => 'token',
-                                    'value' => $trelloToken)
-                           );
+            array( 'field' => 'key',
+                'value' => $trelloKey)
+        ,
+            array( 'field' => 'token',
+                'value' => $trelloToken)
+        );
 
-
-        //print_r($arrayParam);
-
-        //$this->dbUserConfig->BeginTrans();
+        $this->dbUserConfig->BeginTrans();
 
         $arrayReturn = $this->dbUserConfig->insertExternalSettings(50,$idPerson);
 
-        //print_r($arrayReturn);
-
         if (!$arrayReturn['success']) {
             echo json_encode($arrayReturn);
+            $this->dbUserConfig->RoolbackTrans();
             exit;
         } else {
             $idexternalsettings = $arrayReturn['id'] ;
@@ -668,11 +701,14 @@ class home extends hdkCommon {
                 $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
                 if (!$arrayReturn['success']) {
                     echo json_encode($arrayReturn);
+                    $this->dbUserConfig->RoolbackTrans();
                     exit;
                 }
             }
 
         }
+
+        $this->dbUserConfig->CommitTrans();
 
         echo json_encode($arrayReturn);
 
