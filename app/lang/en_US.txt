@@ -1,3 +1,21 @@
+#--- albandes --
+user_profile = "Profile"
+user_external_settings = "External Settings"
+trello = "Trello API Configuration"
+trello_key = "Key"
+trello_token = "Token"
+Alert_external_settings_OK = "Successfully Saved External Settings !!!"
+important_notices = "Important Notices"
+
+
+
+# - missing in en_US
+Grid_reload = "Grid Reload"
+Show_groups_services_title = "View groups by service"
+#---
+
+
+
 adm_Navbar_name = "Admin"
 hdk_Navbar_name = "HelpDEZK"
 
