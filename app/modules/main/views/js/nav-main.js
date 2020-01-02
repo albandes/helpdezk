@@ -76,18 +76,7 @@ $(document).ready(function () {
                 } else {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-config-external');
                 }
-                /*
-                if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',makeSmartyLabel('Alert_change_password'),'alert-change-user-pass');
-                    setTimeout(function(){
-                        $('#modal-change-user-password').modal('hide');
-                        location.href = "" ;
-                    },2000);
 
-                } else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
-                }
-                */
             }
         });
     });
@@ -174,6 +163,7 @@ $(document).ready(function () {
         }
     });
 
+
     $("#btnSendUpdateUserData").click(function(){
         if ($("#persondata_form").valid()) {
             var $form = jQuery('#persondata_form'),
@@ -182,7 +172,7 @@ $(document).ready(function () {
             $.ajax({
                 type: "POST",
                 url: path + '/helpdezk/home/updateUserData',
-                dataType: 'text',
+                dataType: 'json',
                 data: {
                     idperson: $('#hidden-idperson').val(),
                     name: $('#person_name').val(),
@@ -208,7 +198,7 @@ $(document).ready(function () {
                 },
                 success: function(ret){
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
-                    if(ret == 'OK') {
+                    if(obj.success) {
                         console.log('voltou e gravou');
                         if (userPhotoDropzone.getQueuedFiles().length > 0) {
                             console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
@@ -216,24 +206,24 @@ $(document).ready(function () {
                             userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
                             userPhotoDropzone.processQueue();
                         }else{
-                            $('#modal-form-persondata').modal('hide');
-                            location.href = "" ;
+                            setTimeout(function(){
+                                $('#modal-form-persondata').modal('hide');
+                                location.href = "" ;
+                            },2000);
                         }
                         modalAlertMultiple('success',makeSmartyLabel('Alert_success_update'),'alert-update');
-
-                    } else if(ret == 'OK-without-address') {
-                        if (userPhotoDropzone.getQueuedFiles().length > 0) {
-                            console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
-
-                            userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
-                            userPhotoDropzone.processQueue();
-                        }else{
+                        setTimeout(function(){
                             $('#modal-form-persondata').modal('hide');
                             location.href = "" ;
-                        }
-                        modalAlertMultiple('success',makeSmartyLabel('Alert_success_withoutaddress'),'alert-update');
+                        },2000);
+
                     } else {
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-update');
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-update');
+                        setTimeout(function(){
+                            $('#modal-form-persondata').modal('hide');
+                            location.href = "" ;
+                        },2000);
+
                     }
                 }
             });
@@ -244,30 +234,53 @@ $(document).ready(function () {
 
     });
 
+
+
+
     /*
      * Dropzone
      */
     Dropzone.autoDiscover = false;
     var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
         method: "post",
-        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('Drag_user_photo_msg'),
+        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('dropzone_user_photot_message'),
         createImageThumbnails: true,
         maxFiles: 1,
         acceptedFiles: '.jpg, .jpeg, .png',
         parallelUploads: 1,
-        autoProcessQueue: false
-    });
+        autoProcessQueue: false,
+        addRemoveLinks: true,
+        dictRemoveFile: makeSmartyLabel('dropzone_remove_file'),
+        maxFilesize: 1024,
+        dictFileTooBig: makeSmartyLabel('dropzone_File_Too_Big'),
 
-    userPhotoDropzone.on("maxfilesexceeded", function(file) {
-        this.removeFile(file);
-    });
-
-    userPhotoDropzone.on("queuecomplete", function (file) {
-        console.log('Completed the dropzone queue');
-        $('#modal-form-persondata').modal('hide');
-        location.href = "" ;
-        //sendNotification('new-ticket-user',global_coderequest,true);
-        //console.log('Sent email, with attachments');
+        success: function (file, response) {
+            this.removeFile(file);
+            userPhotoDropzone.processQueue();
+        },
+        init: function(file) {
+            // Register for the thumbnail callback.
+            // When the thumbnail is created the image dimensions are set.
+            this.on("thumbnail", function(file) {
+                // Do the dimension checks you want to do
+                if (file.width / file.height != 1) {
+                    file.rejectDimensions()
+                }
+                else {
+                    file.acceptDimensions();
+                }
+            });
+        },
+        // Instead of directly accepting / rejecting the file, setup two
+        // functions on the file that can be called later to accept / reject
+        // the file.
+        accept: function(file, done) {
+            file.acceptDimensions = done;
+            file.rejectDimensions = function() { done(makeSmartyLabel('dropzone_invalid_dimension')); };
+            // Of course you could also just put the `done` function in the file
+            // and call it either with or without error in the `thumbnail` event
+            // callback, but I think that this is cleaner.
+        }
     });
 
     $("#change_user_pwd_form").validate({

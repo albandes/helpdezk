@@ -5,6 +5,11 @@ trello = "Configurações Trello API"
 trello_key = "Chave"
 trello_token = "Token"
 Alert_external_settings_OK = "Configurações Externas Salvas com Sucesso !!!"
+important_notices = "Avisos Importantes"
+dropzone_remove_file="Remover arquivo"
+dropzone_File_Too_Big="Excedeu o tamanho máximo {{filesize}}"
+dropzone_invalid_dimension= "A imagem tem que ser quadrada"
+dropzone_user_photot_message = "<br>Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui.<br><br>A imagem tem que ser quadrada !!! "
 
 #---
 
@@ -1841,7 +1846,7 @@ Value_exists = "Valor inserido já está cadastrado"
 Alert_add_config_categ_title = "Não esqueça de acrescentar a entrada da categoria em 'app/lang/[idioma].txt'"
 btn_update_userphoto = "Atualize sua foto"
 
-Drag_user_photo_msg = "Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui."
+#Drag_user_photo_msg = "Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui."
 Edit_user_config = "Editar configurações"
 type_user_EMQ_User = "Usuário Intranet"
 Lbl_photo = "Foto"
