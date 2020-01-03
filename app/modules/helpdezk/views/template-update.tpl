@@ -325,7 +325,7 @@
                     <div class="col-sm-12 b-l">
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> Volta </a>
+                                <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {$smarty.config.Back_btn} </a>
                                 <button type="button" class="btn btn-primary btn-md" id="btnUpdateTemplate" >
                                     <span class="fa fa-save"></span>  &nbsp;{$smarty.config.Save}
                                 </button>
