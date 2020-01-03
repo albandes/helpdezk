@@ -199,23 +199,27 @@ $(document).ready(function () {
                 success: function(ret){
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
                     if(obj.success) {
-                        console.log('voltou e gravou');
+
                         if (userPhotoDropzone.getQueuedFiles().length > 0) {
-                            console.log('have '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
+                            console.log('There are '+ userPhotoDropzone.getQueuedFiles().length + ' file(s)');
 
                             userPhotoDropzone.options.params = {iduser: $("#hidden-idperson").val() };
                             userPhotoDropzone.processQueue();
-                        }else{
-                            setTimeout(function(){
-                                $('#modal-form-persondata').modal('hide');
-                                location.href = "" ;
-                            },2000);
                         }
-                        modalAlertMultiple('success',makeSmartyLabel('Alert_success_update'),'alert-update');
+                        var message;
+                        var exposureTime ;
+                        if (obj.id == 99) {
+                            exposureTime = 5000;
+                            message = makeSmartyLabel('Alert_success_update')+' : '+obj.message;
+                        } else {
+                            exposureTime = 2000;
+                            message = makeSmartyLabel('Alert_success_update');
+                        }
+                        modalAlertMultiple('success',message,'alert-update');
                         setTimeout(function(){
                             $('#modal-form-persondata').modal('hide');
                             location.href = "" ;
-                        },2000);
+                        },exposureTime);
 
                     } else {
                         modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-update');
