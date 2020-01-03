@@ -13,7 +13,7 @@
     {head_item type="css" src="$path/includes/bootstrap/css/" files="bootstrap.min.css"}
     {head_item type="js"  src="$path/includes/bootstrap/js/" files="bootstrap.min.js"}
     <!-- jqGrid -->
-    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="grid.locale-pt-br.js"}
+    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="$jqgrid_i18nFile"}
     {head_item type="js"  src="$path/includes/js/plugins/jqGrid/" files="jquery.jqGrid.min.js"}
     <!-- Custom and plugin javascript -->
     {head_item type="js"  src="$path/js/" files="inspinia.js"}

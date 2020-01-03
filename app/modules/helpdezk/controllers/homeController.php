@@ -72,7 +72,7 @@ class home extends hdkCommon {
         $smarty->assign('lnk_newticket',$this->helpdezkUrl . '/helpdezk/hdkTicket/newTicket');
 
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
-        //echo "<pre>"; print_r($_SESSION); echo "</pre>";
+
         $arrTypeExpDate = $this->_comboTypeExpireDate();
         $smarty->assign('typeexpdateids',  $arrTypeExpDate['ids']);
         $smarty->assign('typeexpdatevals', $arrTypeExpDate['values']);

@@ -555,9 +555,9 @@ class System {
         switch($use){
             case 'jqgrid':
                 if($i18n == 'pt_BR') {
-                    $file = 'grid.locale.pt-br.js';
+                    $file = 'grid.locale-pt-br.js';
                 } elseif( $i18n == 'en_US') {
-                    $file = 'grid.locale.en.js';
+                    $file = 'grid.locale-en.js';
                 } else {
                     $file = false;
                 }
@@ -566,6 +566,7 @@ class System {
                  $file = false;
             break;
         }
+
         return $file ;
     }
 
