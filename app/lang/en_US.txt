@@ -8,6 +8,11 @@ Alert_external_settings_OK = "Successfully Saved External Settings !!!"
 important_notices = "Important Notices"
 
 
+dropzone_remove_file="Remove file"
+dropzone_File_Too_Big="Exceeded maximum size {{filesize}}"
+dropzone_invalid_dimension= "Image must be square"
+dropzone_user_photot_message = "<br> To update your photo, <br> drag the file with the image <br> or <br> click here. <br> <br> The image has to be square !!!"
+
 
 # - missing in en_US
 Grid_reload = "Grid Reload"

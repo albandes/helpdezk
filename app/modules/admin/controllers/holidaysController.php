@@ -287,7 +287,7 @@ class Holidays extends admCommon
         }else{
             $data = array(
                 'holiday_date' => $this->formatSaveDate($_POST['holiday_date']),
-                'holiday_description' => "'".utf8_encode($_POST['holiday_description'])."'"
+                'holiday_description' => "'".addslashes(utf8_encode($_POST['holiday_description']))."'"
             );
         }
 
@@ -335,7 +335,7 @@ class Holidays extends admCommon
         if ($this->database == 'oci8po') {
             $ret = $this->dbHoliday->updateHoliday($idHoliday, utf8_encode($desc), "TO_DATE ('".$holiday_date."','DD/MM/YYYY')");
         }else{
-            $ret = $this->dbHoliday->updateHoliday($idHoliday, utf8_encode($desc), $this->formatSaveDate($holiday_date));
+            $ret = $this->dbHoliday->updateHoliday($idHoliday, addslashes(utf8_encode($desc)), $this->formatSaveDate($holiday_date));
         }
 
         if (!$ret) {
