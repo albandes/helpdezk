@@ -14,7 +14,7 @@
     {head_item type="js"  src="$path/includes/bootstrap/js/" files="bootstrap.min.js"}
     <!-- jqGrid -->
     {*
-    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="grid.locale-pt-br.js"}
+    {head_item type="js"  src="$path/includes/js/plugins/jqGrid/i18n/" files="$jqgrid_i18nFile"}
     {head_item type="js"  src="$path/includes/js/plugins/jqGrid/" files="jquery.jqGrid.min.js"}
     {head_item type="css" src="$path/css/plugins/jqGrid/" files="ui.jqgrid.css"}
     *}
