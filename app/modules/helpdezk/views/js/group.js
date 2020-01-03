@@ -35,10 +35,8 @@ $(document).ready(function () {
         //jqModal: false,
         //modal: true,
         ondblClickRow: function(rowId) {
-            var myCellData = grid.jqGrid('getCell', rowId, 'idmessage');
-            location.href = path + "/helpdezk/hdkGroup/formUpdateGroup" ;
-            console.log(myCellData);
-
+            var myCellData = grid.jqGrid('getCell', rowId, 'idgroup');
+            location.href = path + "/helpdezk/hdkGroup/formUpdateGroup/idgroup/" +  myCellData;
         },
         onSelectRow: function(rowId) {
             var myCellData = grid.jqGrid('getCell', rowId, 'idgroup');
