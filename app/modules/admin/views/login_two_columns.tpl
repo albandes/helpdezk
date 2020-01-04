@@ -56,7 +56,7 @@
 
 
 
-                <h2 class="font-bold">Avisos</h2>
+                <h2 class="font-bold">{$smarty.config.Important_notices}</h2>
 
 
 
@@ -86,7 +86,7 @@
                         </div>
                     {/foreach}
                 {else}
-                    {$smarty.config.No_result}
+                    {$smarty.config.No_notices}
                 {/if}
 
                 <!--     -->

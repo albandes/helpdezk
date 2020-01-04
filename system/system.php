@@ -323,14 +323,22 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getHeaderLogo();
-        return $rsLogo->fields['height'];
+        if(empty($rsLogo->fields['height']))
+            return '35';
+        else
+            return $rsLogo->fields['height'];
+
     }
 
     public function getHeaderLogoWidth()
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getHeaderLogo();
-        return $rsLogo->fields['width'];
+        if(empty($rsLogo->fields['width']))
+            return '97';
+        else
+            return $rsLogo->fields['width'];
+
     }
 
     public function getReportsLogoImage()
@@ -348,14 +356,22 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getReportsLogo();
-        return $rsLogo->fields['height'];
+        if(empty($rsLogo->fields['height']))
+            return '40';
+        else
+            return $rsLogo->fields['height'];
+
     }
 
     public function getReportsLogoWidth()
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getReportsLogo();
-        return $rsLogo->fields['width'];
+        if(empty($rsLogo->fields['width']))
+            return '110';
+        else
+            return $rsLogo->fields['width'];
+
     }
 
     public function getLoginLogoImage()
@@ -371,9 +387,9 @@ class System {
     public function getLoginLogoHeight()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getReportsLogo();
-        if(empty($rsLogo->fields['file_name']))
-            return '102';
+        $rsLogo =  $dbCommon->getLoginLogo();
+        if(empty($rsLogo->fields['height']))
+            return '70';
         else
             return $rsLogo->fields['height'];
     }
@@ -381,9 +397,9 @@ class System {
     public function getLoginLogoWidth()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getReportsLogo();
-        if(empty($rsLogo->fields['file_name']))
-            return '227';
+        $rsLogo =  $dbCommon->getLoginLogo();
+        if(empty($rsLogo->fields['width']))
+            return '154';
         else
             return $rsLogo->fields['width'];
 
