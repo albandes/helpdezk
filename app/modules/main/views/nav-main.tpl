@@ -60,7 +60,7 @@
                                 {if $hashelpdezk }
                                     <li>
                                         <a class="gn-icon" href="{$helpdezkhome}">
-                                            <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$headerlogo}"  >
+                                            <img style="max-width:100px;" src="{$path}/app/uploads/logos/{$headerlogo}"  >
                                             &nbsp;&nbsp;HelpDEZK
                                         </a>
                                     </li>

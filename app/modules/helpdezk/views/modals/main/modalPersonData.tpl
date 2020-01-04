@@ -7,7 +7,7 @@
 
         <input type="hidden" id="idperson" value="{$hidden_idperson}" />
 
-        <div class="modal-dialog modal-md"  role="document"> {*style="width:1250px;"*}
+        <div style="width:800px;" class="modal-dialog modal-md"  role="document"> {*style="width:1250px;"*}
 
             <div class="modal-content">
 
