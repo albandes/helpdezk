@@ -5,13 +5,13 @@ trello = "Trello API Configuration"
 trello_key = "Key"
 trello_token = "Token"
 Alert_external_settings_OK = "Successfully Saved External Settings !!!"
-important_notices = "Important Notices"
+Important_notices = "Important Notices"
+No_notices = "No important notice at the moment."
 
-
-dropzone_remove_file="Remove file"
-dropzone_File_Too_Big="Exceeded maximum size {{filesize}}"
-dropzone_invalid_dimension= "Image must be square"
-dropzone_user_photot_message = "<br> To update your photo, <br> drag the file with the image <br> or <br> click here. <br> <br> The image has to be square !!!"
+dropzone_remove_file="Remover arquivo"
+dropzone_File_Too_Big="Excedeu o tamanho máximo {{filesize}}"
+dropzone_invalid_dimension= "A imagem tem que ser quadrada"
+dropzone_user_photot_message = "<br>Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui.<br><br>A imagem tem que ser quadrada !!! "
 
 
 # - missing in en_US

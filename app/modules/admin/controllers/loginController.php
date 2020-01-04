@@ -105,7 +105,7 @@ class Login extends admCommon {
         $smarty->assign('license', $this->getConfig("license"));
 
 
-		$smarty->display('login_two_columns.tpl.html');
+		$smarty->display('login_two_columns.tpl');
 
     }
 
