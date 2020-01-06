@@ -677,12 +677,38 @@ $(document).ready(function () {
      *   Trello Integration [Start]
      */
 
+    $('#desc-card').summernote(
+        {
+            toolbar:[ ],
+            disableDragAndDrop: true,
+            //minHeight: null,  // set minimum height of editor
+            maxHeight: 150,   // set maximum height of editor
+            height: 150,      // set editor height
+            width: 350,       // set editor width
+            focus: false     // set focus to editable area after initializing summernote
+            //placeholder:  makeSmartyLabel('Editor_Placeholder_insert')
+
+        }
+    );
+
     $("#cmbBoard").change(function(){
         $('#cmbList').removeAttr('disabled');
         getTrelloList();
     });
 
+    $("#cmbList").change(function(){
+        $('#cmbCard').removeAttr('disabled');
+        $('#btnAddCard').removeAttr('disabled');
+        getTrelloCard();
+    });
+
+    $("#btnAddCard").click(function(){
+        $("#add-card").show();
+    });
+
     $("#btnTrello").click(function(){
+        $('#btnAddCard').prop("disabled",true);
+        $("#add-card").hide();
         $('#modal-form-trello').modal('show');
         $('#cmbList').html('');
         $('#cmbList').prop('disabled', 'disabled');
@@ -691,18 +717,21 @@ $(document).ready(function () {
 
     function getTrelloBoards(){
         $.get(path+"/helpdezk/hdkTrello/getBoards", function(valor) {
-
             $("#cmbBoard").html(firstOption+valor);
         });
     }
 
     function getTrelloList(){
-
         $.get(path+"/helpdezk/hdkTrello/getLists/idboard/"+$("#cmbBoard").val(), function(valor) {
             $("#cmbList").html(firstOption+valor);
         });
     }
 
+    function getTrelloCard(){
+        $.get(path+"/helpdezk/hdkTrello/getCards/idlist/"+$("#cmbList").val(), function(valor) {
+            $("#cmbCard").html(firstOption+valor);
+        });
+    }
 
     $("#btnSendTrello").click(function(){
         var type = $('input:radio[name=typerep]:checked').val(),

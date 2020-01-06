@@ -17,10 +17,14 @@
           $this->secret = $secret;
           $this->token = $token;
       }
-
+       public function getCards($listId)
+      {
+          $data = $this->request('GET', ('/1/lists/'.$listId.'/cards?fields=id,name'));
+          return $data;
+      }
       public function getLists($boardId)
       {
-          $data = $this->request('GET', ('/1/boards/'.$boardId.'/lists?cards=open&card_fields=name&filter=open&fields=name'));
+          $data = $this->request('GET', ('/1/boards/'.$boardId.'/lists?cards=open&card_fields=id,name&filter=open&fields=name'));
           return $data;
 
       }
