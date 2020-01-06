@@ -69,7 +69,7 @@ $(document).ready(function () {
                 if(obj.success) {
                     modalAlertMultiple('success',makeSmartyLabel('Alert_external_settings_OK'),'alert-config-external');
                     setTimeout(function(){
-                        $('#modal-change-user-password').modal('hide');
+                        $('#modal-config-external-form').modal('hide');
                         location.href = "" ;
                     },2000);
 

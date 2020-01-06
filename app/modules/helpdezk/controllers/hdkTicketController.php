@@ -554,7 +554,7 @@ class hdkTicket extends hdkCommon {
 
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
-        //echo "<pre>", print_r($_SESSION,true), "</pre>";
+
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->_makeNavHdk($smarty);
@@ -709,6 +709,7 @@ class hdkTicket extends hdkCommon {
         $smarty->assign('emptynote', $emptynote);
         $smarty->assign('request_code', $this->_editRequest($coderequest));
         $smarty->assign('hidden_coderequest', $coderequest);
+        $smarty->assign('hidden_idperson', $idperson);
         $smarty->assign('owner', $owner);
         $smarty->assign('author', $namecreator);
         $smarty->assign('department', $department);
@@ -2862,6 +2863,8 @@ class hdkTicket extends hdkCommon {
                     break;
             }
 
+            // Trello
+            $smarty->assign('displaytrello',   '1');
         }
 
         $smarty->assign('hidden_idstatus',$idswitch_status);

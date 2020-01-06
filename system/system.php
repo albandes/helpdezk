@@ -254,6 +254,7 @@ class System {
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
 
         $this->makePersonData($smarty);
+        $this->makeConfigExternalData($smarty);
 
     }
     public function makeFooterVariables($smarty)
@@ -592,6 +593,23 @@ class System {
         $dbPerson  = new person_model();
         $rsPerson = $dbPerson->selectPerson('AND tbp.idperson='.$idPerson);
         return $rsPerson;
+    }
+
+    /**
+     * Returns Config External APIs Data
+     *
+     * @param int       $idPerson    Person Id
+     * @return resource Recordset
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getConfigExternalById($idPerson)
+    {
+        $this->loadModel('admin/userconfig_model');
+        $dbUserConfig = new userconfig_model();
+
+        $aRet = $dbUserConfig->getExternalSettings($idPerson);
+        return $aRet['id'];
     }
 
     /**
@@ -3130,6 +3148,20 @@ class System {
         $smarty->assign('listMenu_Adm',$listRecords);
         $smarty->assign('moduleLogo',$moduleinfo->fields['headerlogo']);
         $smarty->assign('modulePath',$moduleinfo->fields['path']);
+    }
+
+    function makeConfigExternalData($smarty)
+    {
+        $idPerson = $_SESSION['SES_COD_USUARIO'];
+        $rsExternal = $this->getConfigExternalById($idPerson);
+        while (!$rsExternal->EOF) {
+            if ($rsExternal->fields['idexternalapp'] == 50 && $rsExternal->fields['fieldname'] == 'key' ) {
+                $smarty->assign('trello_key',$rsExternal->fields['value']);
+            } elseif ($rsExternal->fields['idexternalapp'] == 50 && $rsExternal->fields['fieldname'] == 'token' ){
+                $smarty->assign('trello_token',$rsExternal->fields['value']);
+            }
+            $rsExternal->MoveNext();
+        }
     }
 
     function makePersonData($smarty)
