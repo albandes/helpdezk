@@ -461,7 +461,9 @@
             </form>
             <!-- End form area -->
         <!-- Icons -->
-            {if $displayprint != 0 || $displaychanges != 0 || $displayassume != 0 ||  $displayrepass != 0 || $displayreject != 0 || $displayclose != 0 || $displayreopen != 0 || $displayapprove != 0 || $displayreturn != 0 || $displayreprove != 0}
+            {if $displayprint != 0 || $displaychanges != 0 || $displayassume != 0 ||  $displayrepass != 0 ||
+                $displayreject != 0 || $displayclose != 0 || $displayreopen != 0 || $displayapprove != 0 ||
+                $displayreturn != 0 || $displayreprove != 0 || $displaytrello != 0 }
             <div class="row wrapper  white-bg " >
                 <hr style="margin-bottom:3px !important; margin-top:2px !important; margin-right:20px !important; margin-left:2px !important;"/>
             </div>
@@ -540,6 +542,12 @@
                     <!--<button type="button" class="btn btn-default btn-sm" id="btnPrint">
                         <span class="glyphicon glyphicon-print"></span> &nbsp;{$smarty.config.Print}
                     </button>-->
+                {/if}
+
+                {if $displaytrello == 1}
+                    <button type="button" class="btn btn-default btn-sm" id="btnTrello">
+                        <span class="fab fa-trello"></span>  &nbsp;Trello
+                    </button>
                 {/if}
 
             </div>
@@ -740,6 +748,7 @@
     {include file='modals/viewticket/modalReopen.tpl'}
     {include file='modals/viewticket/modalEvaluate.tpl'}
     {include file='modals/viewticket/modalDeleteNote.tpl'}
+    {include file='modals/viewticket/modal-trello.tpl'}
     {include file='modals/main/modal-alert.tpl'}
 
 

@@ -454,6 +454,7 @@ class hdkImportServices extends hdkCommon
 
     function saveType ($db,$idArea,$value,$lineNumber)
     {
+
         if (!isset($this->_types[$idArea]) || !array_key_exists($value, $this->_types[$idArea])) {
             $ins = $db->typeInsert($value, 0, 'A', '1', $idArea) ;
             if ($ins) {
@@ -472,6 +473,7 @@ class hdkImportServices extends hdkCommon
             $idType = $this->_types[$idArea][$value];
             if ($this->log)
                 $this->logIt("Import Services, file line ".$lineNumber.". Type already exists, no need to import: " . $value, 5, 'general');
+
         }
 
         return $idType;

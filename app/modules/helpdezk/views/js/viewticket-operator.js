@@ -1,4 +1,5 @@
 var idRequest = 0;
+var firstOption = "<option value='X' >Select</option>";
 $(document).ready(function () {
 
     countdown.start(timesession);
@@ -148,8 +149,11 @@ $(document).ready(function () {
                     $("#way").html(valor);
                     $("#way").trigger("chosen:updated");
                 })
-        },
+        }
+        //,
     }
+
+
 
     $("#area").change(function(){
         objViewTicket.changeArea();
@@ -667,6 +671,111 @@ $(document).ready(function () {
         }
 
     });
+
+
+    /*
+     *   Trello Integration [Start]
+     */
+
+    $("#cmbBoard").change(function(){
+        $('#cmbList').removeAttr('disabled');
+        getTrelloList();
+    });
+
+    $("#btnTrello").click(function(){
+        $('#modal-form-trello').modal('show');
+        $('#cmbList').html('');
+        $('#cmbList').prop('disabled', 'disabled');
+        getTrelloBoards();
+    });
+
+    function getTrelloBoards(){
+        $.get(path+"/helpdezk/hdkTrello/getBoards", function(valor) {
+
+            $("#cmbBoard").html(firstOption+valor);
+        });
+    }
+
+    function getTrelloList(){
+
+        $.get(path+"/helpdezk/hdkTrello/getLists/idboard/"+$("#cmbBoard").val(), function(valor) {
+            $("#cmbList").html(firstOption+valor);
+        });
+    }
+
+
+    $("#btnSendTrello").click(function(){
+        var type = $('input:radio[name=typerep]:checked').val(),
+            idgrouptrack = 0,
+            view = $('input:radio[name=repoptns]:checked').val(),
+            new_rep = $("#replist").val(),
+            code_request = $("#coderequest").val(),
+            incharge = $("#incharge").val(),
+            typeincharge = $("#typeincharge").val();
+
+        if(typeof(view) =="undefined"){
+            modalAlertMultiple('danger',makeSmartyLabel('Alert_follow_repass'),'alert-repass-form');
+            return false;
+        }
+
+        if (typeincharge == "P"){
+            if(view == "G"){
+                idgrouptrack = $("#cmbOpeGroups").val();
+            }
+        }
+
+        if($("#repass-form").valid()){
+
+            $.ajax({
+                type: "POST",
+                url: path + '/helpdezk/hdkTicket/repassTicket',
+                dataType: 'json',
+                data: {
+                    type: type,
+                    repassto: new_rep,
+                    code_request: code_request,
+                    view: view,
+                    idgrouptrack: idgrouptrack,
+                    incharge: incharge
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-repass-form');
+                },
+                success: function(ret){
+
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+                    if(obj.status === "OK") {
+                        modalAlertMultiple('success',makeSmartyLabel('Alert_sucess_repass'),'alert-repass-form');
+                        setTimeout(function(){
+                            $('#modal-form-repass').modal('hide');
+                            location.href = path+"/helpdezk/hdkTicket/index";
+                        },2000);
+                    } else {
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-repass-form');
+                    }
+
+                },
+                beforeSend: function(){
+                    $("#btnSendRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
+                },
+                complete: function(){
+                    $("#btnSendRepassTicket").html(makeSmartyLabel('Repass_btn'));
+                }
+
+            });
+        } else {
+            return false;
+        }
+
+    });
+
+    /*
+     * Trello Integration [End]
+     */
+
+
+
 
     $("#btnReject").click(function(){
         $('#modal-form-reject').modal('show');

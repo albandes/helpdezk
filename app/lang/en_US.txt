@@ -13,6 +13,9 @@ dropzone_File_Too_Big="Excedeu o tamanho máximo {{filesize}}"
 dropzone_invalid_dimension= "A imagem tem que ser quadrada"
 dropzone_user_photot_message = "<br>Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui.<br><br>A imagem tem que ser quadrada !!! "
 
+trello_integration = "Trello Integration"
+trello_boards = "Boards"
+trello_lists = "Lists"
 
 # - missing in en_US
 Grid_reload = "Grid Reload"

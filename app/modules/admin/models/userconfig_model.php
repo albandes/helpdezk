@@ -27,6 +27,32 @@ class userconfig_model extends DynamicUserconfig_model
 		}
 
 	}
+
+	public function getExternalSettings($idPerson){
+		$sql = "SELECT
+				  a.idexternalapp,
+				  b.idperson,
+				  c.fieldname,
+				  c.value
+				FROM
+				  hdk_tbexternallapp a,
+				  hdk_tbexternalsettings b,
+				  hdk_tbexternalfield c
+				WHERE a.idexternalapp = b.idexternalapp
+				  AND c.idexternalsettings = b.idexternalsetting
+				  AND b.idperson = $idPerson ";
+
+		$rs = $this->db->Execute($sql);
+
+		if ($this->db->ErrorNo() != 0) {
+			return array('success' => false, 'message' => $this->db->ErrorMsg(), 'id' => '');
+		}
+
+		return array('success' => true, 'message' => '', 'id' => $rs);
+
+
+	}
+
 	public function insertExternalSettings($idExternalApp,$idperson)
 	{
 
