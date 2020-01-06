@@ -31,7 +31,7 @@
                             <div class="form-group col-lg-12">
                                 <label class="col-md-4 control-label text-right"><i class="fab fa-trello"></i>&nbsp;&nbsp;{$smarty.config.trello_key}:</label>
                                 <div class="col-md-5">
-                                    <input type="text" id="trello_key" name="trello_key" class="form-control input-sm" value="" >
+                                    <input type="text" id="trello_key" name="trello_key" class="form-control input-sm" value="{$trello_key}" >
                                 </div>
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                             <div class="form-group col-lg-12">
                                 <label class="col-md-4 control-label text-right"><i class="fab fa-trello"></i>&nbsp;&nbsp;{$smarty.config.trello_token}:</label>
                                 <div class="col-md-8">
-                                    <input type="text" id="trello_token" name="trello_token" class="form-control input-sm" value="" >
+                                    <input type="text" id="trello_token" name="trello_token" class="form-control input-sm" value="{$trello_token}" >
                                 </div>
                             </div>
                         </div>
