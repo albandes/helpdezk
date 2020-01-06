@@ -7,6 +7,7 @@
         <input type="hidden" name="idperson" id="idperson" value="{$hidden_idperson}" />
 
         <div class="modal-dialog modal-sm"  role="document" style="width:850px">
+
             <div class="modal-content">
 
                 <div class="modal-header">
@@ -40,6 +41,48 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="row wrapper  white-bg ">
+                        <div class="col-sm-10 b-l">
+                            <div class="form-group">
+                                <label  class="col-sm-4 control-label">{$smarty.config.trello_cards}:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control  form-control-sm" id="cmbCard" data-placeholder=" ">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 ">
+                            <button class="btn btn-default tooltip-buttons" id="btnAddCard" type="button" data-toggle="tooltip" data-placement="top" title="{$smarty.config.tooltip_city}" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+
+                    <div  id="add-card">
+
+                        <div class="row wrapper  white-bg ">
+                            <div class="col-sm-10 b-l">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">{$smarty.config.trello_title}:</label>
+                                    <div class="col-sm-7 b-l">
+                                        <input type="text" id="title-card" class="form-control input-sm" required placeholder="{$plh_holiday_description}" value="" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row wrapper  white-bg ">
+                            <div class="col-sm-10 b-l">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">{$smarty.config.trello_description}:</label>
+                                    <div class="col-sm-7 b-l">
+                                        <div id="desc-card" ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
 
                     <div class="row wrapper  white-bg ">

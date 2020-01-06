@@ -175,9 +175,9 @@ class hdkImportServices extends hdkCommon
 
         foreach ($array as $line) {
 
-            $arrayExplode = explode(';',$line);
+            $arrayExplode = explode(';', $line);
             //$arrayExplode = array_map('cleanEncode', $arrayExplode);
-            
+
             $area = $arrayExplode[0];
             $type = $arrayExplode[1];
             $item = $arrayExplode[2];
@@ -189,7 +189,6 @@ class hdkImportServices extends hdkCommon
 
 
             $company = $arrayExplode[8];
-
 
 
             //$idArea = $this->saveArea($this->dbService,$area,$i);
@@ -206,65 +205,65 @@ class hdkImportServices extends hdkCommon
                     if ($ret) {
                         $idArea = $this->dbService->TableMaxID('hdk_tbcore_area', 'idarea');
                         if ($this->log)
-                            $this->logIt("Import Services, file line ".$lineNumber.". Include area: " . $area . ", idArea = " . $idArea, 5, 'general');
+                            $this->logIt("Import Services, file line " . $lineNumber . ". Include area: " . $area . ", idArea = " . $idArea, 5, 'general');
                     } else {
                         $this->dbService->RollbackTrans();
                         if ($this->log)
-                            $this->logIt("Import Services, file line ".$lineNumber.". Can't include area: " . $area . " - program: " . $this->program, 3, 'general', __LINE__);
-                        $message = $this->_language['Manage_service_area_fail'] .  $area . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                        return $this->makeMessage('ERROR',$message) ;
+                            $this->logIt("Import Services, file line " . $lineNumber . ". Can't include area: " . $area . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $message = $this->_language['Manage_service_area_fail'] . $area . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                        return $this->makeMessage('ERROR', $message);
                     }
                 } else {
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Area already exists, no need to import: " . $area, 5, 'general');
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Area already exists, no need to import: " . $area, 5, 'general');
                 }
             } else {
                 $idArea = $this->_areas[$area];
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Area already exists, no need to import: " . $area, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Area already exists, no need to import: " . $area, 5, 'general');
             }
             // - End Area
 
             // - Start type
             if (!isset($this->_types[$idArea]) || !array_key_exists($type, $this->_types[$idArea])) {
-                $ins = $this->dbService->typeInsert($type, 0, 'A', '1', $idArea) ;
+                $ins = $this->dbService->typeInsert($type, 0, 'A', '1', $idArea);
                 if ($ins) {
-                    $idType = $this->dbService->TableMaxID('hdk_tbcore_type','idtype');
+                    $idType = $this->dbService->TableMaxID('hdk_tbcore_type', 'idtype');
                     $this->_types[$idArea][$type] = $idType;
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Include type: " . $type . ", idtype = " . $idType, 5, 'general');
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Include type: " . $type . ", idtype = " . $idType, 5, 'general');
                 } else {
                     $this->dbService->RollbackTrans();
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Can't include type: " . $type . " - program: " . $this->program, 3, 'general', __LINE__);
-                    $message = $this->_language['Manage_service_type_fail'] .  $type . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Can't include type: " . $type . " - program: " . $this->program, 3, 'general', __LINE__);
+                    $message = $this->_language['Manage_service_type_fail'] . $type . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
                 }
             } else {
                 $idType = $this->_types[$idArea][$type];
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Type already exists, no need to import: " . $type, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Type already exists, no need to import: " . $type, 5, 'general');
             }
             // - End type
 
             // - Start Item
             if (!isset($this->_itens[$idType]) || !array_key_exists($item, $this->_itens[$idType])) {
-                $ins = $this->dbService->insertItem($item, 0, 'A', 0, $idType) ;
+                $ins = $this->dbService->insertItem($item, 0, 'A', 0, $idType);
                 if (!$ins) {
                     $this->dbService->RollbackTrans();
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Can't include item: " . $item . " - program: " . $this->program, 3, 'general', __LINE__);
-                    $message = $this->_language['Manage_service_item_fail'] .  $item . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Can't include item: " . $item . " - program: " . $this->program, 3, 'general', __LINE__);
+                    $message = $this->_language['Manage_service_item_fail'] . $item . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
                 }
-                $idItem = $this->dbService->TableMaxID('hdk_tbcore_item','iditem');
+                $idItem = $this->dbService->TableMaxID('hdk_tbcore_item', 'iditem');
                 $this->_itens[$idType][$item] = $idItem;
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Include item: " . $item . ", iditem = " . $idItem, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Include item: " . $item . ", iditem = " . $idItem, 5, 'general');
             } else {
                 $idItem = $this->_itens[$idType][$item];
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Item already exists, no need to import: " . $item, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Item already exists, no need to import: " . $item, 5, 'general');
             }
             // - End Item
 
@@ -275,39 +274,39 @@ class hdkImportServices extends hdkCommon
                 if (!$idcostumer) {
                     $this->dbService->RollbackTrans();
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Column 8 is required a valid filename company, the company " . $company . ", is not registered! ". " - program: " . $this->program, 3, 'general', __LINE__);
-                    $message = str_replace("%", $company, $this->_language ['Manage_service_company_fail'] );
-                    return $this->makeMessage('ERROR',$message) ;
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Column 8 is required a valid filename company, the company " . $company . ", is not registered! " . " - program: " . $this->program, 3, 'general', __LINE__);
+                    $message = str_replace("%", $company, $this->_language ['Manage_service_company_fail']);
+                    return $this->makeMessage('ERROR', $message);
                 }
                 // Include the group name in person table
                 $idperson = $this->dbPerson->insertPerson('3', '6', '1', '1', $group, NULL, NULL, 'A', 'N', NULL, NULL, NULL);
-                if(!$idperson) {
+                if (!$idperson) {
                     $this->dbService->RollbackTrans();
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Failed to register the group in person table. Group: " . $group . " - program: " . $this->program, 3, 'general', __LINE__);
-                    $message = $this->_language['Manage_service_group_fail'] .  $group . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Failed to register the group in person table. Group: " . $group . " - program: " . $this->program, 3, 'general', __LINE__);
+                    $message = $this->_language['Manage_service_group_fail'] . $group . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
                 }
 
                 $level = 2;
-                $rsGrp = $this->dbGroup->insertGroup($idperson,$level,$idcostumer, 'N');
+                $rsGrp = $this->dbGroup->insertGroup($idperson, $level, $idcostumer, 'N');
                 if (!$rsGrp) {
                     $this->dbService->RollbackTrans();
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Failed to register the service group. Group: " . $group . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Failed to register the service group. Group: " . $group . " - program: " . $this->program, 3, 'general', __LINE__);
 
-                    $message = $this->_language['Manage_service_group_fail2'] .  $group . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                    $message = $this->_language['Manage_service_group_fail2'] . $group . $this->_language['Manage_service_inf_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
                 }
                 //$codGrupo =  $db_grp->InsertID() ;
-                $idGroup = $this->dbService->TableMaxID('hdk_tbgroup','idgroup');
+                $idGroup = $this->dbService->TableMaxID('hdk_tbgroup', 'idgroup');
                 $this->_groups[str_replace(" ", "", $group)] = $idGroup;
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Include group: " . $group . ", idtgroup = " . $idGroup, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Include group: " . $group . ", idtgroup = " . $idGroup, 5, 'general');
             } else {
-                $idGroup =  $this->_groups[str_replace(" ", "", $group)];
+                $idGroup = $this->_groups[str_replace(" ", "", $group)];
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Group already exists, no need to import: " . $group, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Group already exists, no need to import: " . $group, 5, 'general');
             }
             // - End Group
 
@@ -316,7 +315,7 @@ class hdkImportServices extends hdkCommon
             if (!array_key_exists($priority, $this->_prioryties)) {             // Checks priority, if none exists, use the default
                 $idPriority = $this->_prioDefault;
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". It was associated with default priority, because the priority informed does not exist in the system. Priority: " . $priority , 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". It was associated with default priority, because the priority informed does not exist in the system. Priority: " . $priority, 5, 'general');
 
 
             } else {
@@ -326,58 +325,57 @@ class hdkImportServices extends hdkCommon
 
             // - Start Service
 
-           //$name = $dados[3] ;
+            //$name = $dados[3] ;
 
             $rs = $this->dbService->selectService("WHERE `name` = '$service' and iditem = $idItem");
-            if(!$rs) {
+            if (!$rs) {
                 $this->dbService->RollbackTrans();
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Failed to determine the service code. Service: " . $service . " - program: " . $this->program, 3, 'general', __LINE__);
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Failed to determine the service code. Service: " . $service . " - program: " . $this->program, 3, 'general', __LINE__);
 
-                $message = $this->_language['Manage_service_fail_code'] .  $service . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                return $this->makeMessage('ERROR',$message) ;
+                $message = $this->_language['Manage_service_fail_code'] . $service . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                return $this->makeMessage('ERROR', $message);
             }
 
             if ($rs->RecordCount() > 0) {
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Service already exists, no need to import: " . $service, 5, 'general');
-                $idservice = $rs->fields['idservice'] ; // Just read the one already registered (there may be an approval being created now ...).
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Service already exists, no need to import: " . $service, 5, 'general');
+                $idservice = $rs->fields['idservice']; // Just read the one already registered (there may be an approval being created now ...).
             } else {
 
-                if (!is_numeric($numberDays))
-                {
+                if (!is_numeric($numberDays)) {
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Column 6 must contain only numeric value. Number of days: " . $numberDays . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Column 6 must contain only numeric value. Number of days: " . $numberDays . " - program: " . $this->program, 3, 'general', __LINE__);
 
-                    $message = $this->_language['Manage_service_column_6'] .  $numberDays . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                    $message = $this->_language['Manage_service_column_6'] . $numberDays . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
                 }
 
                 // pipetodo Parei aqui .
                 $arrayTime = $this->defineServiceTime($numberHours);
                 if (!$arrayTime) {
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Unable to identify the priority service time: " . $numberHours . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Unable to identify the priority service time: " . $numberHours . " - program: " . $this->program, 3, 'general', __LINE__);
 
-                    $message = $this->_language['Manage_service_not_identify_priority'] .  $numberHours . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                    $message = $this->_language['Manage_service_not_identify_priority'] . $numberHours . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
                 }
 
-                $ins = $this->dbService->serviceInsert($service, 0, 'A', 0 , $idItem, $idPriority ,$arrayTime[1] ,$numberDays , $arrayTime[0]);
+                $ins = $this->dbService->serviceInsert($service, 0, 'A', 0, $idItem, $idPriority, $arrayTime[1], $numberDays, $arrayTime[0]);
 
                 if (!$ins) {
                     $this->dbService->RollbackTrans();
                     if ($this->log)
-                        $this->logIt("Import Services, file line ".$lineNumber.". Can´t include service. Service: " . $service . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $this->logIt("Import Services, file line " . $lineNumber . ". Can´t include service. Service: " . $service . " - program: " . $this->program, 3, 'general', __LINE__);
 
-                    $message = $this->_language['Manage_service_fail_code'] .  $service . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                    return $this->makeMessage('ERROR',$message) ;
+                    $message = $this->_language['Manage_service_fail_code'] . $service . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                    return $this->makeMessage('ERROR', $message);
 
                 }
 
-                $idService = $this->dbService->TableMaxID('hdk_tbcore_service','idservice');
+                $idService = $this->dbService->TableMaxID('hdk_tbcore_service', 'idservice');
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Include service: " . $service . ", idservice = " . $idService, 5, 'general');
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Include service: " . $service . ", idservice = " . $idService, 5, 'general');
 
             }
             // - End Service
@@ -385,34 +383,32 @@ class hdkImportServices extends hdkCommon
             /*
              * links service with care group
              */
-            $ins =  $this->dbService->serviceGroupInsert($idService,$idGroup);
+            $ins = $this->dbService->serviceGroupInsert($idService, $idGroup);
             if (!$ins) {
                 $this->dbService->RollbackTrans();
                 if ($this->log)
-                    $this->logIt("Import Services, file line ".$lineNumber.". Failed to register the relationship between service. Service: " . $idService . " - program: " . $this->program, 3, 'general', __LINE__);
-                $message = $this->_language['Manage_service_fail_rel'] .  $idService . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
-                return $this->makeMessage('ERROR',$message) ;
+                    $this->logIt("Import Services, file line " . $lineNumber . ". Failed to register the relationship between service. Service: " . $idService . " - program: " . $this->program, 3, 'general', __LINE__);
+                $message = $this->_language['Manage_service_fail_rel'] . $idService . $this->_language['Manage_service_on_line'] . $lineNumber . $this->_language['Manage_service_imp_canceled'];
+                return $this->makeMessage('ERROR', $message);
             }
 
             // If the layout is 9 columns, we will have the approver name
-            if (isset($arrayExplode[9]) AND !empty($arrayExplode[9]))
-            {
+            if (isset($arrayExplode[9]) AND !empty($arrayExplode[9])) {
 
                 //$aOperator = explode("|",$dados[9]);
-                $aOperator = explode("|",$arrayExplode[9]);
+                $aOperator = explode("|", $arrayExplode[9]);
                 //$db_per = new person_model();
 
                 // Need to test all operators, because I will delete in table hdk_tbapproval_rule.
-                foreach($aOperator as $key => $val)
-                {
+                foreach ($aOperator as $key => $val) {
                     $rs = $this->dbPerson->selectPerson("AND tbp.name = '$val' and tbtp.idtypeperson = 3");
                     if ($rs->RecordCount() == 0) {
                         // New Is not registered or is not attending
                         $this->dbService->RollbackTrans();
                         if ($this->log)
-                            $this->logIt("Import Services, file line ".$lineNumber.". New Is not registered or is not operator. Operator: " . $val . " - program: " . $this->program, 3, 'general', __LINE__);
-                        $message = $this->_language['Manage_service_not_registered'] .  $lineNumber . " " .$this->_language['Manage_service_imp_canceled'];
-                        return $this->makeMessage('ERROR',$message) ;
+                            $this->logIt("Import Services, file line " . $lineNumber . ". New Is not registered or is not operator. Operator: " . $val . " - program: " . $this->program, 3, 'general', __LINE__);
+                        $message = $this->_language['Manage_service_not_registered'] . $lineNumber . " " . $this->_language['Manage_service_imp_canceled'];
+                        return $this->makeMessage('ERROR', $message);
                     }
                 }
                 // DELETAR
@@ -422,35 +418,36 @@ class hdkImportServices extends hdkCommon
                 $this->dbTicketRules->BeginTrans();
 
 
-                $rs_rules = $this->dbTicketRules->deleteUsersApprove($idItem,$idService);
+                $rs_rules = $this->dbTicketRules->deleteUsersApprove($idItem, $idService);
                 if (!$rs_rules) {
                     $this->dbService->RollbackTrans();
                     $this->dbTicketRules->RollbackTrans();
                     die('Falha ao excluir ma tabela hdk_tbapproval_rule. Linha ' . $i . $langVars['Manage_service_imp_canceled']);
                 }
-                $j=1;
+                $j = 1;
                 // Incluir na tabela hdk_tbapproval_rule
-                foreach($aOperator as $key => $val)
-                {
+                foreach ($aOperator as $key => $val) {
                     $rs = $db_per->selectPerson("AND tbp.name = '$val' ");
                     $ins = $db_rules->insertUsersApprove($codItem, $idservice, $rs->fields['idperson'], $j, 0);
                     if (!$ins) {
                         $DB->RollbackTrans();
                         $db_rules->RollbackTrans();
-                        die('Erro ao gravar na tabela hdk_tbapproval_rule. Atendente '.$val.'Linha ' . $i );
+                        die('Erro ao gravar na tabela hdk_tbapproval_rule. Atendente ' . $val . 'Linha ' . $i);
                     } else {
-                        echo 'Cadastrado aprovador "' . $val . '" ( '. $langVars['Manage_service_line'] . $i . '), '.$langVars['Manage_service_in_service'] . $dados[3]. $langVars['Mange_service_order'] ." ". $j  . '<br>';
+                        echo 'Cadastrado aprovador "' . $val . '" ( ' . $langVars['Manage_service_line'] . $i . '), ' . $langVars['Manage_service_in_service'] . $dados[3] . $langVars['Mange_service_order'] . " " . $j . '<br>';
                     }
                     $j++;
                 }
                 $db_rules->CommitTrans();
 
                 $lineNumber++;
+            }
+
+            $commit = $this->dbService->CommitTrans();
+
         }
-
-        $commit = $this->dbService->CommitTrans();
-
     }
+
 
     function saveType ($db,$idArea,$value,$lineNumber)
     {
