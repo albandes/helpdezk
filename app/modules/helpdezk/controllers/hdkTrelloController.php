@@ -35,6 +35,41 @@ class hdkTrello extends hdkCommon
 
     }
 
+    public function getCards() {
+        $idList = $this->getParam('idlist');
+        $data = $this->trello->getCards($idList);
+        if($data['success']){
+            echo $this->_comboCards($data['return']);
+        } else {
+            print $data['message'];
+        }
+
+    }
+
+    function _comboCards($data)
+    {
+        foreach ($data as $row) {
+            $fieldsID[] = $row['id'];
+            $values[]   = $row['name'];
+        }
+
+        $arrCards['ids']    = $fieldsID;
+        $arrCards['values'] = $values;
+
+        $select = '';
+        foreach ( $arrCards['ids'] as $indexKey => $indexValue ) {
+            if ($arrCards['default'][$indexKey] == 1) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrCards['values'][$indexKey]."</option>";
+        }
+        return $select;
+
+
+    }
+
     public function getLists() {
         $idBoard = $this->getParam('idboard');
         $data = $this->trello->getLists($idBoard);
