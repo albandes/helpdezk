@@ -19,6 +19,7 @@ trello_lists = "Lists"
 trello_cards = "Cards"
 trello_title = "Card Title"
 trello_description = "Card Description"
+
 trello_tooltip_card = "Add new card"
 
 # - missing in en_US

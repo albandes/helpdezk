@@ -35,18 +35,6 @@ class hdkTrello extends hdkCommon
 
     }
 
-    /*
-    public function getCards() {
-        $idList = $this->getParam('idlist');
-        $data = $this->trello->getCards($idList);
-        if($data['success']){
-            echo $this->_comboCards($data['return']);
-        } else {
-            print $data['message'];
-        }
-
-    }
-    */
 
     public function getCards()
     {
@@ -70,6 +58,7 @@ class hdkTrello extends hdkCommon
 
         $arrCards['ids']    = $fieldsID;
         $arrCards['values'] = $values;
+
         $table = '<table class="table"><thead><tr><th>#</th><th>First Name</th></tr></thead><tbody>';
 
         $i = 0;
@@ -81,7 +70,6 @@ class hdkTrello extends hdkCommon
         $table .= '</tbody></table>';
 
         return $table;
-
 
     }
 

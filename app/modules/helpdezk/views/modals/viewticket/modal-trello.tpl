@@ -44,9 +44,12 @@
                     </div>
 
 
+
+
                     <div  id="add-card">
 
                         <div class="row wrapper  white-bg ">
+
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">{$smarty.config.trello_title}:</label>

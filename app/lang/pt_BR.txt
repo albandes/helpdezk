@@ -19,7 +19,9 @@ trello_lists = "Listas"
 trello_cards = "Cartões"
 trello_title = "Título do Cartão"
 trello_description = "Descrição do Cartão"
+
 trello_tooltip_card = "Adicionar novo cartão"
+
 
 #---
 
