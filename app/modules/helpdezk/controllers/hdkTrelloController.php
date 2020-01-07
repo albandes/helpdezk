@@ -35,19 +35,22 @@ class hdkTrello extends hdkCommon
 
     }
 
-    public function getCards() {
+
+    public function getCards()
+    {
         $idList = $this->getParam('idlist');
         $data = $this->trello->getCards($idList);
         if($data['success']){
-            echo $this->_comboCards($data['return']);
+            echo $this->_tableCards($data['return']);
         } else {
             print $data['message'];
         }
 
     }
 
-    function _comboCards($data)
+    function _tableCards($data)
     {
+
         foreach ($data as $row) {
             $fieldsID[] = $row['id'];
             $values[]   = $row['name'];
@@ -56,17 +59,17 @@ class hdkTrello extends hdkCommon
         $arrCards['ids']    = $fieldsID;
         $arrCards['values'] = $values;
 
-        $select = '';
-        foreach ( $arrCards['ids'] as $indexKey => $indexValue ) {
-            if ($arrCards['default'][$indexKey] == 1) {
-                $default = 'selected="selected"';
-            } else {
-                $default = '';
-            }
-            $select .= "<option value='$indexValue' $default>".$arrCards['values'][$indexKey]."</option>";
-        }
-        return $select;
+        $table = '<table class="table"><thead><tr><th>#</th><th>First Name</th></tr></thead><tbody>';
 
+        $i = 0;
+        foreach ( $arrCards['ids'] as $indexKey => $indexValue ) {
+            $i++;
+            $table .= '<tr><td>'.$i.'</td><td>'.$arrCards['values'][$indexKey].'</td></tr>';
+        }
+
+        $table .= '</tbody></table>';
+
+        return $table;
 
     }
 
