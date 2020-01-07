@@ -19,129 +19,98 @@
 
                     <!-- -->
                     <div class="row wrapper  white-bg ">
-                        <div class="col-sm-10 b-l">
+
                             <div class="form-group">
-                                <label  class="col-sm-4 control-label">{$smarty.config.trello_boards}:</label>
-                                <div class="col-sm-7">
+                                <label  class="col-sm-3 control-label">{$smarty.config.trello_boards}:</label>
+                                <div class="col-sm-9">
                                     <select class="form-control  form-control-sm" id="cmbBoard" data-placeholder=" ">
                                     </select>
                                 </div>
 
                             </div>
-                        </div>
+
                     </div>
 
                     <div class="row wrapper  white-bg ">
-                        <div class="col-sm-10 b-l">
+
                             <div class="form-group">
-                                <label  class="col-sm-4 control-label">{$smarty.config.trello_lists}:</label>
-                                <div class="col-sm-7">
+                                <label  class="col-sm-3 control-label">{$smarty.config.trello_lists}:</label>
+                                <div class="col-sm-9">
                                     <select class="form-control  form-control-sm" id="cmbList" data-placeholder=" ">
                                     </select>
                                 </div>
                             </div>
-                        </div>
+
                     </div>
 
-                    <div class="row wrapper  white-bg ">
-                        <div class="col-sm-10 b-l">
-                            <div class="form-group">
-                                <label  class="col-sm-4 control-label">{$smarty.config.trello_cards}:</label>
-                                <div class="col-sm-7">
-                                    <select class="form-control  form-control-sm" id="cmbCard" data-placeholder=" ">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-1 ">
-                            <button class="btn btn-default tooltip-buttons" id="btnAddCard" type="button" data-toggle="tooltip" data-placement="top" title="{$smarty.config.tooltip_city}" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                        </div>
-                    </div>
 
                     <div  id="add-card">
 
                         <div class="row wrapper  white-bg ">
-                            <div class="col-sm-10 b-l">
+
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">{$smarty.config.trello_title}:</label>
-                                    <div class="col-sm-7 b-l">
+                                    <label class="col-sm-3 control-label">{$smarty.config.trello_title}:</label>
+                                    <div class="col-sm-9 b-l">
                                         <input type="text" id="title-card" class="form-control input-sm" required placeholder="{$plh_holiday_description}" value="" >
                                     </div>
                                 </div>
-                            </div>
+
                         </div>
 
                         <div class="row wrapper  white-bg ">
-                            <div class="col-sm-10 b-l">
+
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">{$smarty.config.trello_description}:</label>
-                                    <div class="col-sm-7 b-l">
-                                        <div id="desc-card" ></div>
+                                    <label class="col-sm-3 control-label">{$smarty.config.trello_description}:</label>
+                                    <div class="col-sm-9 b-l">
+                                        <div id="desc-card" class="summernote" ></div>
                                     </div>
                                 </div>
-                            </div>
+
                         </div>
 
 
                     </div>
 
-                    <div class="row wrapper  white-bg ">
-                        <div class="col-sm-10 b-l">
+                    <div id="list-card" class="row wrapper  white-bg ">
+
                             <div class="form-group">
-                                <div class="col-sm-4">
-                                    <button type="button" id="btnAbilities" class="btn btn-default">{$smarty.config.Abilities}</button>
-                                    <button type="button" id="btnGroups" class="btn btn-white off">{$smarty.config.Groups}</button>
-                                </div>
-                                <div class="col-sm-7">
-                                    <div class="panel-group">
-                                        <div id="panelSearch" class="panel panel-primary">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title" id="titleAbiGrp"></h4>
-                                            </div>
-                                            <div id="tabAbiGrp" class="scrollable-panel"></div>
-                                        </div>
-                                    </div>
+                                <label  class="col-sm-3 control-label">{$smarty.config.trello_cards}:</label>
+                                <!-- -->
+                                <div class="col-sm-8" id="tableCard"></div>
+                                <!-- -->
+
+                                <div class="col-sm-1 ">
+                                    <button class="btn btn-default tooltip-buttons" id="btnAddCard" type="button" data-toggle="tooltip" data-placement="top" title="{$smarty.config.trello_tooltip_card}" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
                             </div>
-                        </div>
                     </div>
 
-                    <div class="row wrapper  white-bg ">
-                        <div class="col-sm-10 b-l">
-                            <div class="form-group">
-                                {if $displayViewGroup == 1}
-                                    <div class="col-sm-9"><label class="radio i-checks"> <input type="radio" name="repoptns" id="repoptnsG" value="G" {$checkedassume}>&nbsp;{$smarty.config.Group_still_viewing}</label></div>
-                                    {if $typeincharge == "P"}
-                                    <div id="OpeGroupsList" class="col-sm-12 {if !$checkedassume} hide {/if}">
-                                        <label class="col-sm-2 control-label">{$smarty.config.Group}:</label>
-                                        <div class="col-sm-5">
-                                            <select class="form-control  m-b" name="cmbOpeGroups" id="cmbOpeGroups">
-                                                {html_options values=$grpids output=$grpvals selected=$idgrp}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    {/if}
-                                {/if}
-                                <div class="col-sm-9"><label class="radio i-checks"> <input type="radio" name="repoptns" id="repoptnsP" value="P">&nbsp;{$smarty.config.Still_viewing}</label></div>
-                                <div class="col-sm-9"><label class="radio i-checks"> <input type="radio" name="repoptns" id="repoptnsN" value="N">&nbsp;{$smarty.config.Stop_viewing}</label></div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row wrapper  white-bg ">
-                        <div class="col-lg-12 ">
-                            <div class="form-group">
-                                <div id="alert-repass-form"></div>
-                            </div>
-                        </div>
-                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 </div>
 
                 <div class="modal-footer">
 
                     <button type="button" class="btn btn-default" data-dismiss="modal">{$smarty.config.Close}</button>
-                    <button type="submit" class="btn btn-primary" id="btnSendRepassTicket" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.Repass_btn}</button>
+                    <button type="submit" class="btn btn-primary" id="btnSendRepassTicket" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.btn_save_changes}</button>
 
 
                 </div>

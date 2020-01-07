@@ -681,12 +681,11 @@ $(document).ready(function () {
         {
             toolbar:[ ],
             disableDragAndDrop: true,
-            //minHeight: null,  // set minimum height of editor
+            minHeight: null,  // set minimum height of editor
             maxHeight: 150,   // set maximum height of editor
             height: 150,      // set editor height
-            width: 350,       // set editor width
-            focus: false     // set focus to editable area after initializing summernote
-            //placeholder:  makeSmartyLabel('Editor_Placeholder_insert')
+            focus: false,     // set focus to editable area after initializing summernote
+            placeholder:  makeSmartyLabel('Editor_Placeholder_insert')
 
         }
     );
@@ -698,17 +697,21 @@ $(document).ready(function () {
 
     $("#cmbList").change(function(){
         $('#cmbCard').removeAttr('disabled');
-        $('#btnAddCard').removeAttr('disabled');
+        //$('#btnAddCard').removeAttr('disabled');
+        $('#list-card').show();
+        $("#add-card").hide();
         getTrelloCard();
     });
 
     $("#btnAddCard").click(function(){
         $("#add-card").show();
+        $('#list-card').hide();
     });
 
     $("#btnTrello").click(function(){
-        $('#btnAddCard').prop("disabled",true);
+        //$('#btnAddCard').prop("disabled",true);
         $("#add-card").hide();
+        $('#list-card').hide();
         $('#modal-form-trello').modal('show');
         $('#cmbList').html('');
         $('#cmbList').prop('disabled', 'disabled');
@@ -729,7 +732,8 @@ $(document).ready(function () {
 
     function getTrelloCard(){
         $.get(path+"/helpdezk/hdkTrello/getCards/idlist/"+$("#cmbList").val(), function(valor) {
-            $("#cmbCard").html(firstOption+valor);
+            //$("#cmbCard").html(firstOption+valor);
+            $("#tableCard").html(valor);
         });
     }
 
