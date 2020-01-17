@@ -35,6 +35,12 @@ class hdkTrello extends hdkCommon
 
     }
 
+    public function createCard()
+    {
+        $cardTitle = addslashes($_POST['titlecard']);
+        echo $cardTitle;
+        return array('success' => false, 'message' => '', 'ret' => '');
+    }
 
     public function getCards()
     {

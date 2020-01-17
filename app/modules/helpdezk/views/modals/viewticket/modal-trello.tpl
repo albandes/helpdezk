@@ -54,7 +54,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">{$smarty.config.trello_title}:</label>
                                     <div class="col-sm-9 b-l">
-                                        <input type="text" id="title-card" class="form-control input-sm" required placeholder="{$plh_holiday_description}" value="" >
+                                        <input type="text" id="titlecard" class="form-control input-sm" required placeholder="{$plh_holiday_description}" value="" >
                                     </div>
                                 </div>
 
@@ -90,30 +90,12 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </div>
 
                 <div class="modal-footer">
 
                     <button type="button" class="btn btn-default" data-dismiss="modal">{$smarty.config.Close}</button>
-                    <button type="submit" class="btn btn-primary" id="btnSendRepassTicket" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.btn_save_changes}</button>
+                    <button type="submit" class="btn btn-primary" id="btnSendTrello" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.btn_save_changes}</button>
 
 
                 </div>

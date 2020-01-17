@@ -681,16 +681,26 @@ $(document).ready(function () {
         {
             toolbar:[ ],
             disableDragAndDrop: true,
-
             minHeight: null,  // set minimum height of editor
             maxHeight: 150,   // set maximum height of editor
             height: 150,      // set editor height
             focus: false,     // set focus to editable area after initializing summernote
-            placeholder:  makeSmartyLabel('Editor_Placeholder_insert')
-
+            //placeholder:  makeSmartyLabel('Editor_Placeholder_insert')
 
         }
     );
+
+    $("#trello-form").validate({
+        ignore:[],
+        rules: {
+            titlecard: "required"
+        },
+        messages: {
+            titlecard: makeSmartyLabel('Alert_field_required')
+        }
+
+    });
+
 
     $("#cmbBoard").change(function(){
         $('#cmbList').removeAttr('disabled');
@@ -708,12 +718,10 @@ $(document).ready(function () {
 
     $("#btnAddCard").click(function(){
         $("#add-card").show();
-
         $('#list-card').hide();
     });
 
     $("#btnTrello").click(function(){
-        //$('#btnAddCard').prop("disabled",true);
         $("#add-card").hide();
         $('#list-card').hide();
         $('#modal-form-trello').modal('show');
@@ -743,47 +751,35 @@ $(document).ready(function () {
     }
 
     $("#btnSendTrello").click(function(){
-        var type = $('input:radio[name=typerep]:checked').val(),
-            idgrouptrack = 0,
-            view = $('input:radio[name=repoptns]:checked').val(),
-            new_rep = $("#replist").val(),
-            code_request = $("#coderequest").val(),
-            incharge = $("#incharge").val(),
-            typeincharge = $("#typeincharge").val();
-
-        if(typeof(view) =="undefined"){
-            modalAlertMultiple('danger',makeSmartyLabel('Alert_follow_repass'),'alert-repass-form');
-            return false;
-        }
-
-        if (typeincharge == "P"){
-            if(view == "G"){
-                idgrouptrack = $("#cmbOpeGroups").val();
-            }
-        }
-
-        if($("#repass-form").valid()){
-
+        var idperson = $("#idperson").val(),
+            idboard     = $("#cmbBoard").val(),
+            idlist = $("#cmbList").val(),
+            titlecard = $("#titlecard").val(),
+            desccard  =  $('#desc-card').summernote('code')
+            ;
+alert('entrou: '+$("#titlecard").val());
+        if($("#trello-form").valid())
+        {
             $.ajax({
                 type: "POST",
-                url: path + '/helpdezk/hdkTicket/repassTicket',
+                url: path + '/helpdezk/hdkTrello/createCard',
                 dataType: 'json',
                 data: {
-                    type: type,
-                    repassto: new_rep,
-                    code_request: code_request,
-                    view: view,
-                    idgrouptrack: idgrouptrack,
-                    incharge: incharge
+                    idperson: $("#idperson").val(),
+                    idboard: $("#cmbBoard").val(),
+                    idlist: $("#cmbList").val(),
+                    titlecard: $("#titlecard").val(),
+                    desccard:$('#desc-card').summernote('code')
                 },
                 error: function (ret) {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-repass-form');
                 },
                 success: function(ret){
-
+alert('aa');
+                    //return array('success' => false, 'message' => $this->db->ErrorMsg(), 'id' => '');
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
 
-                    if(obj.status === "OK") {
+                    if(obj.success) {
                         modalAlertMultiple('success',makeSmartyLabel('Alert_sucess_repass'),'alert-repass-form');
                         setTimeout(function(){
                             $('#modal-form-repass').modal('hide');
@@ -795,10 +791,10 @@ $(document).ready(function () {
 
                 },
                 beforeSend: function(){
-                    $("#btnSendRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
+                    //$("#btnSendRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
                 },
                 complete: function(){
-                    $("#btnSendRepassTicket").html(makeSmartyLabel('Repass_btn'));
+                    //$("#btnSendRepassTicket").html(makeSmartyLabel('Repass_btn'));
                 }
 
             });
