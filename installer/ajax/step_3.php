@@ -576,10 +576,10 @@ function isHttps()
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label"><?php echo LANGUAGE ?></label>
+                                    <label class="col-sm-3 control-label"><?php echo THEME ?></label>
                                     <div class="col-sm-6">
                                         <select id="theme_default" class="form-control m-b" name="theme_default">
-                                            <option value="orange" selected="selected"> Orange Theme</option>
+                                            <option value="parracho" selected="selected"> Parracho Theme</option>
                                         </select>
                                     </div>
                                 </div>

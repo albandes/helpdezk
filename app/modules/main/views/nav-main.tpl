@@ -137,7 +137,7 @@
             <ul class="nav navbar-nav">
                 <!-- Admin Menu  -->
                 <li class='dropdown'>
-                    <a aria-expanded='false' role='button' href='#' class='dropdown-toggle' data-toggle='dropdown'>Módulos<span class='caret'></span></a>
+                    <a aria-expanded='false' role='button' href='#' class='dropdown-toggle' data-toggle='dropdown'>{$smarty.config.Modules}<span class='caret'></span></a>
                     <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
                         {$listMenu_Adm}
                     </ul>

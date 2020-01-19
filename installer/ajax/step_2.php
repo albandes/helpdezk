@@ -9,6 +9,7 @@ $install_dir	    = "installer/";
 $upload_dir 		= "app/uploads/";
 $smartycache_dir 	= "system/templates_c/";
 $log_dir			= "logs/";
+$tmp_dir            = "app/tmp";
 $config_file		= "includes/config/config.php" ;
 
 if ( !isset($_POST['i18n']) )
@@ -61,6 +62,7 @@ if (function_exists(mysqli_connect)) {
 }
 
 if (!empty(PDO::getAvailableDrivers())) {
+    $CountDrivers = 0;
     foreach(PDO::getAvailableDrivers() AS $DRIVERS) :
         $CountDrivers++;
         $ARR_DRIVERS[$CountDrivers] = $DRIVERS;
@@ -96,6 +98,11 @@ $lineSmarty = $aReturn['line'];
 
 clearstatcache();
 $aReturn = testeDir($path.$log_dir,3);
+$statLog = $aReturn['stat'];
+$lineLog = $aReturn['line'];
+
+clearstatcache();
+$aReturn = testeDir($path.$tmp_dir,3);
 $statLog = $aReturn['stat'];
 $lineLog = $aReturn['line'];
 

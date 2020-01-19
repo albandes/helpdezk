@@ -545,7 +545,7 @@ class Login extends admCommon {
 
         } else {
             if($this->isActiveHelpdezk()){
-                $_SESSION['SES_NAME_PERSON'] = 'Root';
+                $_SESSION['SES_NAME_PERSON'] = 'admin';
                 $_SESSION['SES_TYPE_PERSON'] = 1;
                 $_SESSION['SES_IND_CODIGO_ANOMES'] = true;
                 $_SESSION['SES_COD_EMPRESA'] = 1;
@@ -561,7 +561,7 @@ class Login extends admCommon {
                 $groups = implode(',', $arr);
                 $_SESSION['SES_PERSON_GROUPS'] = $groups;
             } else {
-                $_SESSION['SES_NAME_PERSON'] = 'Root';
+                $_SESSION['SES_NAME_PERSON'] = 'admin';
                 $_SESSION['SES_TYPE_PERSON'] = 1;
                 $_SESSION['SES_COD_EMPRESA'] = 1;
                 //$_SESSION['SES_COD_TIPO'] = 1;
