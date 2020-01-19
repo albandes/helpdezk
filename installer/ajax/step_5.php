@@ -38,11 +38,11 @@ $_SESSION['db_password'] = $_POST['db_password'];
 
 
     $("#button_step_6").click(function(){
-        //if (!$("#form_admin").valid()) {
-        //    return false ;
-        //} else {
+        if (!$("#form_admin").valid()) {
+            return false ;
+        } else {
             step_6('<?php echo $_POST['i18n'] ?>');
-        //}
+        }
     });
 
 
@@ -73,17 +73,17 @@ $_SESSION['db_password'] = $_POST['db_password'];
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label"><?php echo ADMIN_USERNAME ?></label>
-                                    <div class="col-sm-9"><input type="text" id="admin_username" name="admin_username" class="form-control" value="<?php echo $pageURL ?>" ></div>
+                                    <div class="col-sm-9"><input type="text" id="admin_username" name="admin_username" class="form-control" value="admin" ></div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label"><?php echo ADMIN_PASSWORD ?></label>
-                                    <div class="col-sm-9"><input type="text" id="admin_password" name="admin_password" class="form-control" value="<?php echo $pageURL ?>" ></div>
+                                    <div class="col-sm-9"><input type="text" id="admin_password" name="admin_password" class="form-control" value="1234" ></div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label"><?php echo ADMIN_EMAIL ?></label>
-                                    <div class="col-sm-9"><input type="text" id="admin_email" name="admin_email" class="form-control" value="<?php echo $pageURL ?>" ></div>
+                                    <div class="col-sm-9"><input type="text" id="admin_email" name="admin_email" class="form-control" value="foo@domain.com"></div>
                                 </div>
 
                                 <div class="col-sm-6"></div>

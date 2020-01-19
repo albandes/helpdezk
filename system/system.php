@@ -815,6 +815,9 @@ class System {
         $jquery = $this->getConfig('jquery');
         if (empty($jquery))
             $jquery = 'jquery-2.1.1.js';
+        $jqueryPath = $this->helpdezkPath.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR ;
+        if (!file_exists($jqueryPath . $jquery))
+            die('There is no Jquery file in: ' . $jqueryPath);
         return $jquery;
     }
 
@@ -915,7 +918,7 @@ class System {
     function getlogDateHour()
     {
         $dateHour = $this->getConfig('log_date_format');
-        if (!empty($dateHour)){
+        if (empty($dateHour)){
             return "d/m/Y H:i:s";
         } else {
             return str_replace('%','',$dateHour );
@@ -2685,7 +2688,7 @@ class System {
     public function comboCity($idState)
     {
         $dbCommon = new common();
-
+//die('id'.$idState);
         $rs = $dbCommon->getCity("where idstate = $idState");
         while (!$rs->EOF) {
             $name = $rs->fields['idcity'] != 1 ? $rs->fields['name'] : $this->getLanguageWord('Select_city');
@@ -3003,8 +3006,6 @@ class System {
         $done = $objmail->Send();
         if (!$done) {
             if($this->log AND $_SESSION['EM_FAILURE_LOG'] == '1') {
-                if(!$this->getConfig('test_environment'))
-                    $objmail->SMTPDebug = 5;
                 $objmail->Send();
                 $this->logIt("Error send email, " . $params['msg'] . ' - program: ' . $this->program, 3, 'email', __LINE__);
                 $this->logIt("Error send email, " . $params['msg2'] . ' - Error Info:: ' . $objmail->ErrorInfo . ' - program: ' . $this->program, 3, 'email', __LINE__);
@@ -3293,6 +3294,7 @@ class System {
             $idCityEnable = 1;
         else
             $idCityEnable = $rsPerson->fields['idcity'];
+
         $arrCity = $this->comboCity($idStateEnable);
         $smarty->assign('cityids',  $arrCity['ids']);
         $smarty->assign('cityvals', $arrCity['values']);

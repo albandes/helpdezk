@@ -52,17 +52,17 @@ $_SESSION['timezone_default'] 	= $_POST['timezone_default'];
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label"><?php echo DB_NAME ?></label>
-                                    <div class="col-sm-9"><input type="text" id="db_name" name="db_name" class="form-control"  value="apaga" ></div>
+                                    <div class="col-sm-9"><input type="text" id="db_name" name="db_name" class="form-control"  value="helpdezk" ></div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label"><?php echo DB_USERNAME ?></label>
-                                    <div class="col-sm-9"><input type="text" id="db_username" name="db_username" class="form-control" value="pipeadm" ></div>
+                                    <div class="col-sm-9"><input type="text" id="db_username" name="db_username" class="form-control" value="root" ></div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label"><?php echo DB_PASSWORD ?></label>
-                                    <div class="col-sm-9"><input type="text" id="db_password" name="db_password" class="form-control" value="qpal10" ></div>
+                                    <div class="col-sm-9"><input type="text" id="db_password" name="db_password" class="form-control" value="" ></div>
                                 </div>
 
                                 <div class="col-sm-6"></div>

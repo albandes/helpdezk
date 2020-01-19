@@ -116,7 +116,7 @@
             <div class="wrapper wrapper-content">
                 <div class="row  border-bottom white-bg dashboard-header">
                     <div class="col-sm-5">
-                        <h2>Administração</h2>
+                        <h2>{$smarty.config.admin_dashboard}</h2>
                     </div>
                 </div>
             </div>

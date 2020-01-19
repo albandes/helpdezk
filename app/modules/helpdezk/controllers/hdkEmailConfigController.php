@@ -40,6 +40,7 @@ class hdkEmailConfig extends hdkCommon
 
         $smarty = $this->retornaSmarty();
 
+
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
@@ -95,13 +96,16 @@ class hdkEmailConfig extends hdkCommon
         //
 
         $rsEmailConfs = $this->dbEmailConfig->selectConfigs($where,$order,$limit);
-
+//
+        $smarty = $this->retornaSmarty();
+        $langVars = $this->getLangVars($smarty);
+//
         while (!$rsEmailConfs->EOF) {
             $status_fmt = ($rsEmailConfs->fields['status'] == 'A' ) ? '<span class="label label-info">A</span>' : '<span class="label label-danger">I</span>';
 
             $aColumns[] = array(
                 'id'     => $rsEmailConfs->fields['idconfig'],
-                'name'        => $rsEmailConfs->fields['name'],
+                'name'        => $langVars[$rsEmailConfs->fields['smarty']],
                 'statuslbl'        => $status_fmt,
                 'status'     => $rsEmailConfs->fields['status']
 

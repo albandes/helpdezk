@@ -7,8 +7,7 @@
 
 include ("../lang/". $_POST['i18n'] . ".php" ."");
 session_start() ;
-//echo '<pre';
-//print_r($_SESSION);
+
 
 ?>
 <div id=content class="col-md-12">

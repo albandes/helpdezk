@@ -49,9 +49,10 @@ include ("../lang/". $lang . ".php" );
                                         <select id="field_language" class="form-control m-b" name="field_language">
                                             <option value="en_US">English - U.S.A.</option>
                                             <option value="pt_BR">Portuguese - Brazil </option>
+                                            <!--
                                             <option value="es_ES">Spanish - Spain </option>
                                             <option value="es_PY">Spanish - Paraguay </option>
-
+                                            -->
                                         </select>
                                     </div>
 
