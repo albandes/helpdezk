@@ -70,7 +70,8 @@ class emailconfig_model extends DynamicEmailConfig_model {
     public function updateTemplate($id, $name, $description) {
         $query = "UPDATE hdk_tbtemplate_email SET `name` = '$name', description = '$description' WHERE idtemplate ='$id'";
 
-        $ret = $this->db->Execute($query); echo $query;
+        $ret = $this->db->Execute($query);
+        //echo $query;
 
         if (!$ret) {
             $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg(). "<br>Query: " . $query;

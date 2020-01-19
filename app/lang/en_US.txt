@@ -22,6 +22,8 @@ trello_description = "Card Description"
 
 trello_tooltip_card = "Add new card"
 
+admin_dashboard = "Administration Dashboard"
+
 # - missing in en_US
 Grid_reload = "Grid Reload"
 Show_groups_services_title = "View groups by service"
@@ -900,6 +902,7 @@ Email_request_reopened = "ATENDENTE: Notify operators in charge when a request i
 Email_request_evaluated = "OPERATOR: Notify operator when a request is evaluated."
 Email_request_approve = "OPERATOR: Notify operator in charge when have new request to approve"
 Email_operator_reject = "OPERATOR: Send email for all operator in the group when reject request."
+
 
 #--- Email vars -----
 

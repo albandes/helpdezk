@@ -135,10 +135,10 @@
         <hr/>
         <div class="row">
             <div class="col-md-6">
-                Copyright Pipegrep Conectividade IP
+                Copyright Pipegrep IP Connectivity
             </div>
             <div class="col-md-6 text-right">
-               <small>© 2017-2018</small>
+               <small>© 2020-2025</small>
             </div>
         </div>
     </div>
