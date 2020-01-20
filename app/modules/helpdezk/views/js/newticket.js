@@ -253,8 +253,14 @@ $(document).ready(function () {
             $.post(path+"/helpdezk/hdkTicket/ajaxReasons",{serviceId: serviceId},
                 function(valor){
                     $('#reasonId').removeAttr('disabled');
-                    $("#reasonId").html(valor);
-                    $("#reasonId").trigger("chosen:updated");
+                    if (showDefs == 'YES') {
+                        $("#reasonId").html(valor);
+                        $("#reasonId").trigger("chosen:updated");
+                    } else if (showDefs == 'NO') {
+                        $("#reasonId").html('<option value="X">'+makeSmartyLabel('Select')+'</option>' + valor);
+                        $("#reasonId").val('X');
+                        $("#reasonId").trigger("chosen:updated");
+                    }
                 })
         }
     }
