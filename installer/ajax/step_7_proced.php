@@ -35,8 +35,8 @@ if ($debug) {
 $db = connectDb($host,$user,$pass,$dbname,$port);
 
 // Make tables
-//$retTables = restoreMysqlDB($sqlFileTables, $db);
-//if ($retTables['type'] == "error") die($retTables['message']) ;
+$retTables = restoreMysqlDB($sqlFileTables, $db);
+if ($retTables['type'] == "error") die($retTables['message']) ;
 
 // Make Views
 $retViews  = restoreMysqlDB($sqlFileViews , $db);
@@ -53,7 +53,6 @@ if ($retAdmin['type'] == "error") die($retAdmin['message']) ;
 // Make config file
 $retConfig = makeConfig($jqueryVersion);
 if ($retConfig['type'] == "error") die($retConfig['message']) ;
-//echo '<script type="text/javascript">$("#evolution").html("TESTANDO");</script> ';
 
 
 ?>
