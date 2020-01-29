@@ -1848,4 +1848,29 @@ class ticket_model extends DynamicTicket_model
 
     }
 
+    public function getEmailCron($where)
+    {
+        $query =    "
+                    SELECT
+                       idrequest_emailcron,
+                       code_request,
+                       date_in,
+                       date_out,
+                       send,
+                       operation
+                    FROM hdk_tbrequest_emailcron
+                    $where
+                    ";
+        return $this->db->Execute($query);
+    }
+    public function updateEmailCron($set)
+    {
+        $query =    "
+                    UPDATE hdk_tbrequest_emailcron
+                    $set
+                    ";
+        return $this->db->Execute($query);
+    }
+
+
 }
