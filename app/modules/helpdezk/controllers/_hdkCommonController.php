@@ -6,16 +6,8 @@ require_once(HELPDEZK_PATH . '/includes/classes/pipegrep/syslog.php');
  *  Common methods - Helpdezk Module
  */
 
-if(class_exists('Controllers')) {
-    class DynamichdkCommon extends Controllers {}
-} elseif(class_exists('cronController')) {
-    class DynamichdkCommon extends cronController {}
-} elseif(class_exists('apiController')) {
-    class DynamichdkCommon extends apiController {}
-}
 
-
-class hdkCommon extends DynamichdkCommon {
+class hdkCommon extends Controllers  {
 
     public static $_logStatus;
 
@@ -406,12 +398,10 @@ class hdkCommon extends DynamichdkCommon {
         $table = $this->makeNotesTable($code_request);
         $NT_OPERATOR = $table;
 
-        
-
         switch ($operation) {
 
             // Sends a email to the operator or group of operators when a request is opened
-            case "new-ticket-user":
+            case "record":
 
                 $templateId = $dbEmailConfig->getEmailIdBySession("NEW_REQUEST_OPERATOR_MAIL");
 
@@ -434,7 +424,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Sends email to the user when a request is assumed
-            case 'operator-assume':
+            case 'assume':
                 $templateId = $dbEmailConfig->getEmailIdBySession("NEW_ASSUMED_MAIL");
                 if($this->log) {
                     if (empty($templateId)) {
@@ -466,7 +456,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Sends email to the user, when a request is closed by the attendant.
-            case 'finish-ticket':
+            case 'close':
                 $templateId = $dbEmailConfig->getEmailIdBySession("FINISH_MAIL");
                 if($this->log) {
                     if (empty($templateId)) {
@@ -502,7 +492,7 @@ class hdkCommon extends DynamichdkCommon {
 
                 break;
 
-            case 'operator-reject':
+            case 'reject':
                 $templateId = $dbEmailConfig->getEmailIdBySession("REJECTED_MAIL");
                 if($this->log) {
                     if (empty($templateId)) {
@@ -529,7 +519,7 @@ class hdkCommon extends DynamichdkCommon {
                 $NT_USER = $table;
 
                 $goto = ('/helpdezk/hdkTicket/viewrequest/id/' . $code_request);
-                //$url = '<a href="' . $this->helpdezkUrl . urlencode($goto) . '">' . $l_eml["link_solicitacao"] . '</a>';
+                $url = '<a href="' . $this->helpdezkUrl . urlencode($goto) . '">' . $l_eml["link_solicitacao"] . '</a>';
 
                 $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
                 eval("\$contents = \"$contents\";");
@@ -540,7 +530,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
              // Sends email to user when the request receives a note
-            case 'user-note' :
+            case 'user_note' :
 
                 $templateId = $dbEmailConfig->getEmailIdBySession("USER_NEW_NOTE_MAIL");
 
@@ -595,7 +585,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Sends email to operator when the request receives a note
-            case 'operator-note' :
+            case 'operator_note' :
 
                 $templateId = $dbEmailConfig->getEmailIdBySession("OPERATOR_NEW_NOTE");
                 if($this->log) {
@@ -630,7 +620,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Send email to the attendant, or group of attendants, when a request is reopened by user
-            case 'reopen-ticket':
+            case 'reopen':
 
                 $templateId = $dbEmailConfig->getEmailIdBySession("REQUEST_REOPENED");
                 if($this->log) {
@@ -652,7 +642,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Send email to the attendant, or group of attendants, when a request is evaluated by user
-            case "evaluate-ticket":
+            case "afterevaluate":
 
                 $templateId = $dbEmailConfig->getEmailIdBySession("EM_EVALUATED");
 
@@ -676,7 +666,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Send email to the attendant, or group of attendants, when a request is forwarded
-            case "forward-ticket":
+            case "repass":
                 $templateId = $dbEmailConfig->getEmailIdBySession("REPASS_REQUEST_OPERATOR_MAIL");
                 if($this->log) {
                     if (empty($templateId)) {
@@ -697,7 +687,7 @@ class hdkCommon extends DynamichdkCommon {
                 break;
 
             // Sends email to the user, when a request is closed by  attendant.
-            case 'finish-ticket':
+            case 'close':
                 $templateId = $dbEmailConfig->getEmailIdBySession("FINISH_MAIL");
                 if($this->log) {
                     if (empty($templateId)) {
@@ -794,7 +784,6 @@ class hdkCommon extends DynamichdkCommon {
                         "msg" => $msgLog,
                         "msg2" => $msgLog2,
                         "customHeader" => $customHeader );
-
 
         $done = $this->sendEmailDefault($params);
 
@@ -991,10 +980,20 @@ class hdkCommon extends DynamichdkCommon {
 
     public function  _sendNotification($arrayParam)
     {
+        // $transaction=null,$midia='email',$code_request=null,$hasAttachment=null
+
+        /*
+        $arrayParam = array('transaction' => $transaction,
+            'code_request' => $code_request,
+            'hasAttachment' => $hasAttachment,
+            'media' => 'email') ;
+        */
 
         $transaction    = $arrayParam['transaction'] ;
         $midia          = $arrayParam['media'] ;
         $code_request   = $arrayParam['code_request'] ;
+
+
 
         if ($midia == 'email'){
             $cron = false;
@@ -1002,6 +1001,7 @@ class hdkCommon extends DynamichdkCommon {
         }
 
         $this->logIt(__FUNCTION__ .' - entrou : ' . $code_request . ' - ' . $transaction . ' - ' . $midia ,7,'general');
+
 
         switch($transaction){
 
@@ -1016,7 +1016,7 @@ class hdkCommon extends DynamichdkCommon {
                             } else {
                                 $smtp =  true;
                             }
-                            $messageTo   = 'forward-ticket';
+                            $messageTo   = 'repass';
                             $messagePart = 'Pass the request # ';
                         }
                     }
@@ -1025,6 +1025,7 @@ class hdkCommon extends DynamichdkCommon {
                 }
 
                 break;
+
             // Sends notification to user when the request receives a note, created by operator
             case 'user-note' :
                 if ($midia == 'email') {
@@ -1034,7 +1035,7 @@ class hdkCommon extends DynamichdkCommon {
                         } else {
                             $smtp =  true;
                         }
-                        $messageTo   = 'user-note';
+                        $messageTo   = 'user_note';
                         $messagePart = 'Add note in request # ';
                     }
                 }
@@ -1051,7 +1052,7 @@ class hdkCommon extends DynamichdkCommon {
                             } else {
                                 $smtp =  true;
                             }
-                            $messageTo   = 'operator-note';
+                            $messageTo   = 'operator_note';
                             $messagePart = 'Add note in request # ';
                         }
                     }
@@ -1073,7 +1074,7 @@ class hdkCommon extends DynamichdkCommon {
                             $smtp =  true;
                         }
 
-                        $messageTo   = 'reopen-ticket';
+                        $messageTo   = 'reopen';
                         $messagePart = 'Reopen request # ';
                     }
                 }
@@ -1092,7 +1093,7 @@ class hdkCommon extends DynamichdkCommon {
                             $smtp = true;
                         }
 
-                        $messageTo   = 'evaluate-ticket';
+                        $messageTo   = 'afterevaluate';
                         $messagePart = 'Evaluate request # ';
                     }
 
@@ -1112,7 +1113,7 @@ class hdkCommon extends DynamichdkCommon {
                             $smtp = true;
                         }
 
-                        $messageTo   = 'finish-ticket';
+                        $messageTo   = 'close';
                         $messagePart = 'Closed request # ';
                     }
                 }
@@ -1131,7 +1132,7 @@ class hdkCommon extends DynamichdkCommon {
                             $smtp = true;
                         }
 
-                        $messageTo   = 'operator-assume';
+                        $messageTo   = 'assume';
                         $messagePart = 'Assumed request # ';
                     }
 
@@ -1150,7 +1151,7 @@ class hdkCommon extends DynamichdkCommon {
                         } else {
                             $smtp = true;
                         }
-                        $messageTo   = 'operator-reject';
+                        $messageTo   = 'reject';
                         $messagePart = 'Rejected request # ';
                     }
 
@@ -1169,7 +1170,7 @@ class hdkCommon extends DynamichdkCommon {
                         } else {
                             $smtp = true;
                         }
-                        $messageTo   = 'new-ticket-user';
+                        $messageTo   = 'record';
                         $messagePart = 'Inserted request # ';
                     }
 
@@ -1220,7 +1221,138 @@ class hdkCommon extends DynamichdkCommon {
      * @return boolean true|false
      *
      */
+    public function  _cronSendNotification($transaction=null,$midia='email',$code_request=null,$hasAttachment=null,$byCronJob=false)
+    {
+        if ($midia == 'email'){
+            $cron = false;
+            $smtp = false;
+        }
 
+        $this->logIt('entrou: ' . $code_request . ' - ' . $transaction . ' - ' . $midia ,7,'general');
+
+        switch($transaction){
+
+            case 'addnote':
+                if ($midia == 'email') {
+                    if ($hasAttachment){
+                        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' &&
+                            $_SESSION['hdk']['USER_NEW_NOTE_MAIL'] == '1' &&
+                            $_SESSION['hdk']['SES_ATTACHMENT_OPERATOR_NOTE'] == '1') {  // Send e-mail
+                        }
+
+                    } else {
+                        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' &&
+                            $_SESSION['USER_NEW_NOTE_MAIL'] == '1' ) {  // Send e-mail
+                        }
+                    }
+
+                    if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                        if ($byCronJob == false) {
+                            $cron = true;
+                        } elseif ($byCronJob == true) {
+                            $smtp = true ;
+                        }
+                    } else {
+                        $smtp = true;
+                    }
+
+                    $messageTo   = 'operator_note';
+                    $messagePart = 'Add note in request # ';
+                }
+
+                break;
+
+            case 'reopen-ticket':
+                if ($midia == 'email') {
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' &&
+                        $_SESSION['hdk']['REQUEST_REOPENED'] == '1' ) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            if ($byCronJob == false) {
+                                $cron = true;
+                            } elseif ($byCronJob == true) {
+                                $smtp = true ;
+                            }
+                        } else {
+                            $smtp = true;
+                        }
+
+
+                        $messageTo   = 'reopen';
+                        $messagePart = 'Reopen request # ';
+                    }
+                }
+
+                break;
+
+            case 'evaluate-ticket':
+                if($midia == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' &&
+                        $_SESSION['hdk']['EM_EVALUATED']) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            if ($byCronJob == false) {
+                                $cron = true;
+                            } elseif ($byCronJob == true) {
+                                $smtp = true ;
+                            }
+                        } else {
+                            $smtp = true;
+                        }
+
+
+                        $messageTo   = 'afterevaluate';
+                        $messagePart = 'Evaluate request # ';
+                    }
+
+                }
+
+                break;
+
+            case 'new-ticket-user':
+
+                if($midia == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' &&
+                        $_SESSION['hdk']['NEW_REQUEST_OPERATOR_MAIL']) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            if ($byCronJob == false) {
+                                $cron = true;
+                            } elseif ($byCronJob == true) {
+                                $smtp = true ;
+                            }
+                        } else {
+                            $smtp = true;
+                        }
+
+
+                        $messageTo   = 'record';
+                        $messagePart = 'Insert request # ';
+                    }
+
+                }
+                break;
+
+            default:
+                return false;
+        }
+
+
+        if ($midia == 'email') {
+            if ($cron) {
+                $this->dbTicket->saveEmailCron($code_request, $messageTo );
+                if($this->log)
+                    $this->logIt($messagePart . $code_request . ' - We will perform the method to send e-mail by cron' ,6,'general');
+            } elseif($smtp){
+                if($this->log)
+                    $this->logIt($messagePart . $code_request . ' - We will perform the method to send e-mail' ,6,'general');
+                $this->_sendEmail($messageTo , $code_request);
+            }
+
+        }
+
+        return true ;
+    }
 
     function getSaveCron ()
     {
@@ -1230,7 +1362,6 @@ class hdkCommon extends DynamichdkCommon {
             $smtp = true;
         }
     }
-
     public function _comboRequestUser()
     {
         $order = "ORDER BY person.name";

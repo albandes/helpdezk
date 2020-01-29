@@ -42,7 +42,7 @@ class hdkTicket extends hdkCommon {
         $dbEvaluation = new evaluation_model();
         $this->dbEvaluation = $dbEvaluation;
 
-        $this->logIt("entrou  :".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
+        //$this->logIt("entrou  :".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
 
 
 
@@ -1128,13 +1128,18 @@ class hdkTicket extends hdkCommon {
 
         }
 
-        $this->_sendNotification('evaluate-ticket','email',$code,false);
 
 
         if($this->log)
             $this->logIt("Evaluate request # ". $code . ' - User: ' . $_SESSION['SES_LOGIN_PERSON'],6,'general');
 
         $this->dbTicket->CommitTrans();
+
+        $arrayParam = array( 'transaction' => 'evaluate-ticket',
+                             'code_request' => $code,
+                             'media' => 'email') ;
+
+        $this->_sendNotification($arrayParam);
 
         die ("OK");
 
@@ -1233,7 +1238,11 @@ class hdkTicket extends hdkCommon {
 
         $this->dbTicket->CommitTrans();
 
-        $this->_sendNotification('reopen-ticket','email',$code,false);
+        $arrayParam = array('transaction' => 'reopen-ticket',
+                            'code_request' => $code,
+                            'media' => 'email') ;
+
+        $this->_sendNotification($arrayParam);
 
         die ("OK");
 
@@ -1541,14 +1550,23 @@ class hdkTicket extends hdkCommon {
             if($this->log)
                 $this->logIt("Add note in request # ". $codeRequest . ' - User: ' . $_SESSION['SES_LOGIN_PERSON'],6,'general');
 
-            if ($_SESSION['SES_TYPE_PERSON'] != 2) {
-                if($typeNote == 1){
-                    $this->dbTicket->updateFlag($codeRequest, 1);
-                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['OPERATOR_NEW_NOTE'] == '1') {
-                        $this->_sendEmail('user_note', $codeRequest);
-                    }
+            if ($_SESSION['hdk']['SEND_EMAILS'] == '1') {
+
+                if($_POST['flagNote'] == 3){ // Note created by operator
+                    $transaction = 'user-note' ;
+                } elseif ($_POST['flagNote'] == 2) { // Note created by user
+                    $transaction = 'operator-note';
+                } else {
+                    echo $idNoteInsert;
+                    exit;
                 }
+
+                $arrayParam = array('transaction' => $transaction,
+                    'code_request' => $codeRequest,
+                    'media' => 'email') ;
             }
+
+            $ret = $this->_sendNotification($arrayParam);
 
             echo $idNoteInsert;
         }
@@ -1616,7 +1634,11 @@ class hdkTicket extends hdkCommon {
         if(!empty($_POST['has_attachment']))
             $hasAttachment = $_POST['has_attachment'];
 
-        $ret = $this->_sendNotification($transaction,'email',$code_request,$hasAttachment);
+        $arrayParam = array('transaction' => $transaction,
+                            'code_request' => $code_request,
+                            'hasAttachment' => $hasAttachment,
+                            'media' => 'email') ;
+        $ret = $this->_sendNotification($arrayParam);
         if($ret)
             echo 'OK';
         else
@@ -1755,7 +1777,6 @@ class hdkTicket extends hdkCommon {
             echo 'YES';
         }
     }
-
 
     public function areaDefault()
     {
@@ -3002,9 +3023,11 @@ class hdkTicket extends hdkCommon {
 
         $this->dbTicket->CommitTrans();
 
-        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == 1) {
-            $this->_sendEmail('assume', $code_request);
-        }
+        $arrayParam = array('transaction' => 'operator-assume',
+                            'code_request' => $code_request,
+                            'media' => 'email') ;
+
+        $this->_sendNotification($arrayParam);
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
@@ -3139,13 +3162,13 @@ class hdkTicket extends hdkCommon {
             return false;
         }
 
-        $status = '2'; //REPASSADO
+        $status = '2'; // Redirected ticket
         $reopened = '0';
         $rep = 'Y';
         $this->dbTicket->BeginTrans();
 
         switch($view){
-            case "G": //REPASSAR E GRUPO SEGUIR ACOMPANHANDO
+            case "G": // Redirect ticket, but the group continues to follow
                 if($idgrouptrack == 0){
                     $track = $this->dbTicket->insertInCharge($code_request, $incharge, "G", '0', $rep,  '1');
                     if(!$track){
@@ -3164,7 +3187,7 @@ class hdkTicket extends hdkCommon {
                     }
                 }
                 break;
-            case "P": //REPASSAR E SEGUIR ACOMPANHANDO
+            case "P": // Redirect ticket and continue following
                 $track = $this->dbTicket->insertInCharge($code_request, $_SESSION['SES_COD_USUARIO'], "P", '0', $rep, '1');
                 if(!$track){
                     if($this->log)
@@ -3173,12 +3196,11 @@ class hdkTicket extends hdkCommon {
                     return false;
                 }
                 break;
-            case "N": //NAO ACOMPANHAR
+            case "N": // Do not follow
 
                 break;
         }
 
-        //Log
         $inslog = $this->dbTicket->changeRequestStatus($status, $code_request, $_SESSION['SES_COD_USUARIO'], $reopened); //insere log
         if (!$inslog) {
             if($this->log)
@@ -3260,9 +3282,11 @@ class hdkTicket extends hdkCommon {
 
         $this->dbTicket->CommitTrans();
 
-        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == 1) {
-            $this->_sendEmail('repass', $code_request);
-        }
+        $arrayParam = array('transaction' => 'forward-ticket',
+                            'code_request' => $code_request,
+                            'media' => 'email') ;
+
+        $this->_sendNotification($arrayParam);
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
@@ -3353,15 +3377,22 @@ class hdkTicket extends hdkCommon {
 
         $this->dbTicket->CommitTrans();
 
-        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == 1) {
-            $this->_sendEmail('reject', $code_request);
-        }
+        $arrayParam = array('transaction' => 'operator-reject',
+                            'code_request' => $code_request,
+                            'media' => 'email') ;
 
+        $email = $this->_sendNotification($arrayParam);
+
+
+
+        //  pipetodo [albandes] : Need to review
+        /*
         if($_SESSION['hdk']['SES_MAIL_OPERATOR_REJECT'] && $typeincharge == "G" && $_SESSION['hdk']['SEND_EMAILS'] == '1'){
             $_SESSION['hdk']['SES_MAIL_OPERATOR_REJECT_ID'] = $incharge;
-            $email = $this->_sendEmail('operator_reject', $code_request, $rejectreason);
+            //$email = $this->_sendEmail('operator_reject', $code_request, $rejectreason);
+            $email = $this->_sendNotification('operator-reject','email', $code_request, $rejectreason);
         }
-
+        */
         $aRet = array("status" => "OK");
         echo json_encode($aRet);
 
@@ -3469,9 +3500,11 @@ class hdkTicket extends hdkCommon {
 
         $this->dbTicket->CommitTrans();
 
-        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['FINISH_MAIL'] == 1) {
-            $this->_sendEmail('close', $code_request);
-        }
+        $arrayParam = array('transaction' => 'finish-ticket',
+                            'code_request' => $code_request,
+                            'media' => 'email') ;
+
+        $this->_sendNotification($arrayParam);
 
         $aRet = array("status" => "OK");
         echo json_encode($aRet);

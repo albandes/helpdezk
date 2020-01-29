@@ -105,11 +105,44 @@
                         <div class="form-group">
                             <input name="password" type="password" class="form-control" placeholder="{$smarty.config.Password}" required="">
                         </div>
+                        <!-- -->
+                        {if $demoversion == 1}
+                            <div >
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="panel panel-success">
+                                            <div class="panel-heading">
+                                                Demo Version
+                                            </div>
+                                            <div class="panel-body">
+                                                <b>Demo User</b><br>
+                                                login: user<br>
+                                                password: 1234<br>
+                                                <br>
+                                                <b>Operator User</b><br>
+                                                login: operator<br>
+                                                password: 1234<br>
+                                                <br>
+                                                <b>Admin User</b><br>
+                                                login: admin<br>
+                                                password: 1234<br>
 
+                                                <br>
+                                                <p class="text-muted text-center ">
+                                                    <small>In the demo version, password exchange and email sending are disabled.</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {else}
+                            <br><br><br><br><br><br>
+                        {/if}
+                        <!-- -->
 
-                        <div id="secret" class="form-group"></div>
+                        <!-- <div id="secret" class="form-group"></div> -->
 
-                        <br><br><br><br><br><br>
                         <button  type="submit" class="btn btn-primary block full-width m-b">Login</button>
 
                         <p class="text-muted text-right ">
