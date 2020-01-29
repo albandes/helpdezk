@@ -70,9 +70,13 @@ class Login extends admCommon {
 
         $smarty->assign('version', $this->helpdezkName);
 
-		if($enterprise) {
-			$smarty->assign('site', 'HelpDEZK.com.br');
-			$smarty->assign('urlsite', 'http://www.helpdezk.com.br');
+        // Demo version - Since January 29, 2020
+        $demoVersion = (empty($this->getConfig('demo')) ? false : $this->getConfig('demo')); // returns true
+        $smarty->assign('demoversion', $demoVersion);
+
+		if($this->getConfig('enterprise')) {
+			$smarty->assign('site', 'HelpDEZK.cc');
+			$smarty->assign('urlsite', 'http://www.helpdezk.cc');
 		} else {
 			$smarty->assign('site', 'HelpDEZK.org');
 			$smarty->assign('urlsite', 'http://helpdezk.org');		
@@ -666,6 +670,7 @@ class Login extends admCommon {
 		foreach ($cols as $key => $value) {
 			$_SESSION['SES_PERSONAL_USER_CONFIG'][$value] = $getUserConfig->fields[$value];
 		}
+
 
     }
 

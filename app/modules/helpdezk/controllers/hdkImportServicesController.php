@@ -351,7 +351,7 @@ class hdkImportServices extends hdkCommon
                     return $this->makeMessage('ERROR', $message);
                 }
 
-                // pipetodo Parei aqui .
+                // pipetodo : Parei aqui .
                 $arrayTime = $this->defineServiceTime($numberHours);
                 if (!$arrayTime) {
                     if ($this->log)
