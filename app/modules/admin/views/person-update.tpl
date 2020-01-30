@@ -78,7 +78,8 @@
             noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
             noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
             ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+            demoVersion = '{/literal}{$demoversion}{literal}';
 
 
     </script>
@@ -170,6 +171,7 @@
                 <input type="hidden" name="_token" id= "_token" value="{$token}">
                 <input type="hidden" name="idperson" id= "idperson" value="{$hidden_idperson}">
                 <input type="hidden" name="category" id= "category" value="{$idnatureperson}">
+                <input type="hidden" name="logindemo" id= "logindemo" value="{$hidden_login}"> <!-- Use in demo version -->
 
                 <div class="row wrapper  white-bg ">
 

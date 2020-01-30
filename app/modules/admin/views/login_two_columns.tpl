@@ -129,7 +129,7 @@
 
                                                 <br>
                                                 <p class="text-muted text-center ">
-                                                    <small>In the demo version, password exchange and email sending are disabled.</small>
+                                                    <small>In the demo version, password exchange, some features and email sending are disabled.</small>
                                                 </p>
                                             </div>
                                         </div>

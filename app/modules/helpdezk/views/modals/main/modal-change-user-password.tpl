@@ -25,6 +25,7 @@
                 <form role="form" id="change_user_pwd_form"  method="post" class="form-horizontal">
                     <!-- Hidden -->
                     <input type="hidden" id="hidden-idperson" value="{$id_person}"/>
+                    <input type="hidden" name="logindemo" id= "logindemo" value="{$hidden_login}"> <!-- Use in demo version -->
 
                     <div class="row col-lg-12 ">
                         <div class="row col-lg-12  b-l">
