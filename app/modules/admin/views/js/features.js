@@ -2,6 +2,15 @@ $(document).ready(function () {
 
     countdown.start(timesession);
 
+    /*
+     * Demo version
+     */
+    if (demoVersion == 1){
+        setDemoVersion();
+        $('#cmbModule').removeAttr('disabled');
+        $("#title").append("<p class='text-danger'><b>Disabled in demo version !!!</b></p>");
+    }
+
     new gnMenu( document.getElementById( 'gn-menu' ) );
 
     $('.i-checks').iCheck({
@@ -77,6 +86,7 @@ $(document).ready(function () {
                         showAlert(makeSmartyLabel('Alert_get_data'),'danger','');
                     },
                     success: function(ret) {
+
                         if(ret){
                             $(".moduleConfigs").html(ret);
                             $('.moduleConfigs').removeClass('hide');
@@ -114,6 +124,8 @@ $(document).ready(function () {
                                 console.log($(this).data('id'));
                                 objFeatures.removeConfig($(this).data('id'));
                             });
+
+
                         }
                         else {
                             showAlert(makeSmartyLabel('Alert_get_data'),'danger','');
@@ -134,6 +146,13 @@ $(document).ready(function () {
                             $("#panelGrpsRepass").removeClass('fadeOutUp');
                         }
                         $("#panelGrpsRepass").removeClass('hide').addClass('animated fadeInDown');
+
+                        // Demo Version
+                        if (demoVersion == 1){
+                            setDemoVersion();
+                        }
+
+                        //
                     }
                 });
             }
@@ -634,37 +653,13 @@ function showAlert(msg,typeAlert,btnOk)
     return false;
 }
 
-function removeFeature(id) {
-    //console.log(id);
-
-    /*$.ajax({
-        type: "POST",
-        url: path + "/helpdezk/hdkService/modalUpdateArea",
-        data:{idarea:id},
-        dataType: 'json',
-        error: function (ret) {
-            modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
-        },
-        success: function(ret) {
-
-            var obj = jQuery.parseJSON(JSON.stringify(ret));
-            //console.log(obj);
-            if(obj) {
-
-                $('.i-checks').iCheck({
-                    checkboxClass: 'icheckbox_square-green',
-                    radioClass: 'iradio_square-green'
-                });
-
-                $('#area_name_upd').val(obj.name);
-                if(obj.default == 1){$('#updDefaultArea').iCheck('check');}
-
-
-            } else {
-                modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
-            }
-        }
-    });*/
+function setDemoVersion() {
+    //
+    $(':button').prop('disabled', true);   // Disable all the buttons
+    $(':input').prop('disabled', true);    // Disable all the inputs
+    $(':checkbox').prop('disabled', true); // Disable all the checkbox
+    //
 
 }
+
 

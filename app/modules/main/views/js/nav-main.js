@@ -1,5 +1,14 @@
 $(document).ready(function () {
 
+
+    /*
+    * Demo version
+    */
+    if (demoVersion == 1){
+        if ($('#logindemo').val() == 'user' || $('#logindemo').val() == 'operator' ) {
+            $("#btnSaveChangeUserPass").prop('disabled', true);
+        }
+    }
     // https://harvesthq.github.io/chosen/
     $("#person_country").chosen({ width: "95%", no_results_text: "Nothing found!"})
     $("#person_state").chosen({ width: "95%",   no_results_text: "Nothing found!"})

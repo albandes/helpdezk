@@ -47,6 +47,7 @@ class System {
         $this->helpdezkType = $this->getHelpdezkType();
         $this->helpdezkVersionNumber = $this->getHelpdezkVersionNumber();
         $this->smartyVersion = $this->getSmartyVersion();
+        $this->demoVersion = $this->getConfig('demo');
 
         $this->jquery = $this->getJqueryVersion();
         $this->summernote = $this->getSummerNoteVersion();
@@ -3340,6 +3341,7 @@ class System {
 
         $change_pass = $this->getChangePassById($cod_usu);
         $smarty->assign('changepass', $change_pass);
+
 
     }
 

@@ -196,6 +196,9 @@ class Person  extends admCommon {
         $smarty->assign('hidden_idperson', $idPerson) ;
         $smarty->assign('idnatureperson', $typenature) ;
         $smarty->assign('txtCategory', $this->getLanguageWord($tn->fields['name']));
+        $smarty->assign('hidden_login',$rsPerson->fields['login']) ; // Demo Version
+        $smarty->assign('demoversion', $this->demoVersion); // Demo version
+
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);

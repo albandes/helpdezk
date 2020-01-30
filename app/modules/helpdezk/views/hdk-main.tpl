@@ -80,7 +80,8 @@
                 zip_mask     = '{/literal}{$zip_mask}{literal}',
                 phone_mask     = '{/literal}{$phone_mask}{literal}',
                 cellphone_mask     = '{/literal}{$cellphone_mask}{literal}',
-                typeuser = '{/literal}{$typeuser}{literal}';
+                typeuser = '{/literal}{$typeuser}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
 
         <style>

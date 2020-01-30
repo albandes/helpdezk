@@ -91,7 +91,8 @@
                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
                 obtime =  '{/literal}{$obrigatorytime}{literal}',
                 emptynote = '{/literal}{$emptynote}{literal}',
-                hdkMaxSize = '{/literal}{$hdkMaxSize}{literal}';
+                hdkMaxSize = '{/literal}{$hdkMaxSize}{literal}',
+            demoVersion = '{/literal}{$demoversion}{literal}';
     </script>
     <style>
         /* Additional style to fix warning dialog position */

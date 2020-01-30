@@ -97,6 +97,8 @@ class hdkTicket extends hdkCommon {
                         : 0;
         $smarty->assign('autorefreshgrid', $autoRefresh);
 
+        $smarty->assign('hidden_login',$_SESSION['SES_LOGIN_PERSON']) ; // Demo Version
+        $smarty->assign('demoversion', $this->demoVersion);             // Demo version
 
         $smarty->display('ticket.tpl');
 
@@ -140,7 +142,10 @@ class hdkTicket extends hdkCommon {
 
         $smarty->assign('summernote_version', $this->summernote);
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
-        
+
+        $smarty->assign('hidden_login',$_SESSION['SES_LOGIN_PERSON']) ; // Demo Version
+        $smarty->assign('demoversion', $this->demoVersion);             // Demo version
+
         if($typePerson == 3){
             $arrRequestUser = $this->_comboRequestUser();
             $smarty->assign('userids',  $arrRequestUser['ids']);
@@ -161,6 +166,7 @@ class hdkTicket extends hdkCommon {
             $smarty->assign('timedefault',  date("H:i") );
             $sysdate = date('d/m/Y',strtotime('now'));
             $smarty->assign('datedefault',$sysdate);
+
 
             $smarty->display('new_ticket-operator.tpl');
         }else{            
@@ -757,6 +763,9 @@ class hdkTicket extends hdkCommon {
         $smarty->assign('hdkMaxSize', substr($this->_getTicketAttMaxFileSize(),0,-1) );
 
         $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
+
+        $smarty->assign('hidden_login',$_SESSION['SES_LOGIN_PERSON']) ; // Demo Version
+        $smarty->assign('demoversion', $this->demoVersion);             // Demo version
 
         if($typeperson == 3){
             $smarty->assign('flgoperator',1);

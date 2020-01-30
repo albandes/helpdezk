@@ -92,7 +92,8 @@
                  noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
                  noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
                  ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}'
+                 demoVersion = '{/literal}{$demoversion}{literal}';
 
 
     </script>
@@ -154,8 +155,8 @@
 
             <div class="wrapper wrapper-content">
                 <div class="row wrapper white-bg ibox-title">
-                    <div class="col-sm-4">
-                        <h4>{$smarty.config.cat_config} / <strong>{$smarty.config.pgr_sys_features}</strong></h4>
+                    <div id="title" class="col-sm-8">
+                        <h4>{$smarty.config.cat_config} / <strong>{$smarty.config.pgr_sys_features} </strong> </h4>
                     </div>
                 </div>
 
