@@ -50,6 +50,7 @@ class features  extends admCommon {
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
+
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
         $smarty->assign('token', $token) ;
@@ -134,6 +135,8 @@ class features  extends admCommon {
         $smarty->assign('fieldtypeids', $arrFieldType['ids']);
         $smarty->assign('fieldtypevals', $arrFieldType['values']);
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
 
         $smarty->display('features.tpl');
 

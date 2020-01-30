@@ -78,7 +78,8 @@
                  noteAcceptedFiles      = '{/literal}{$noteacceptedfiles}{literal}',
                  ticketAttMaxFiles      = '{/literal}{$ticketattmaxfiles}{literal}',
                  ticketAcceptedFiles    = '{/literal}{$ticketacceptedfiles}{literal}',
-                 hdkMaxSize             = '{/literal}{$hdkMaxSize}{literal}';
+                 hdkMaxSize             = '{/literal}{$hdkMaxSize}{literal}',
+                 demoVersion = '{/literal}{$demoversion}{literal}';
 
 
     </script>

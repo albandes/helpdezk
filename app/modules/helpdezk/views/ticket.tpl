@@ -67,7 +67,8 @@
                 operatorAsUser = '{/literal}{$operatorAsUser}{literal}',
                 sidx = '{/literal}{$sidx}{literal}',
                 sord = '{/literal}{$sord}{literal}',
-                autoRefreshGrid = '{/literal}{$autorefreshgrid}{literal}';
+                autoRefreshGrid = '{/literal}{$autorefreshgrid}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */

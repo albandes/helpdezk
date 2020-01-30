@@ -71,7 +71,7 @@ class Login extends admCommon {
         $smarty->assign('version', $this->helpdezkName);
 
         // Demo version - Since January 29, 2020
-        $demoVersion = (empty($this->getConfig('demo')) ? false : $this->getConfig('demo')); // returns true
+        $demoVersion = (empty($this->getConfig('demo')) ? false : $this->getConfig('demo'));
         $smarty->assign('demoversion', $demoVersion);
 
 		if($this->getConfig('enterprise')) {

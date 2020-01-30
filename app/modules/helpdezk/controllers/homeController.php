@@ -85,6 +85,9 @@ class home extends hdkCommon {
 
         $smarty->assign('typeuser',$_SESSION['SES_TYPE_PERSON']);
 
+        $smarty->assign('hidden_login',$_SESSION['SES_LOGIN_PERSON']) ; // Demo Version
+        $smarty->assign('demoversion', $this->demoVersion);             // Demo version
+
 
         if($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1){
             //Set Order to columns of Attendant's Grid
