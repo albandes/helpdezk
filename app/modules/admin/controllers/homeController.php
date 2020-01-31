@@ -31,13 +31,10 @@ class Home extends admCommon {
             $this->idmodule = $id ;
         }
 
-        /*$this->loadModel('home_model');
-        $dbHome = new home_model();
-        $this->dbHome = $dbHome;
+        $this->loadModel('home_model');
+        $this->dbHome = new home_model();
 
-        $this->loadModel('ticket_model');
-        $dbTicket = new ticket_model();
-        $this-$dbTicket = $dbTicket;*/
+
     }
 
     public function index() {
@@ -48,6 +45,20 @@ class Home extends admCommon {
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Dashboard
+        $smarty->assign('adm_dashboard', 'admin-dashboard.tpl');    // Set dashboard
+        $haveInstaller = (is_dir($this->helpdezkPath. DIRECTORY_SEPARATOR .'installer') ? true : false) ;
+        $smarty->assign('php_version', phpversion());
+        $smarty->assign('mysql_version',$this->dbHome->getMysqlVersion());
+        $smarty->assign('jquery_version',$this->getJqueryVersion());
+        $smarty->assign('smarty_version', $this->smartyVersion);
+        $smarty->assign('adodb_version', $this->getAdoDbVersion());
+        $smarty->assign('helpdezk_version',$this->helpdezkName);
+        $smarty->assign('helpdezk_path',$this->helpdezkPath);
+        $smarty->assign('have_installer', $haveInstaller);
+
+        $smarty->assign('demoversion', $this->demoVersion);         // Demo version
         $smarty->display('adm-main.tpl');
     }
 
