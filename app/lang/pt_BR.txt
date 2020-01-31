@@ -23,6 +23,19 @@ trello_description = "Descrição do Cartão"
 trello_tooltip_card = "Adicionar novo cartão"
 
 admin_dashboard = "Dashboard Administrativo"
+dsh_warning = "Alerta"
+dsh_installer_dir = "Diretório installer"
+dsh_msg_installer = "Por questões de segurança, por favor, remova o diretório  <b>installer/</b> do seu servidor!!!"
+
+Settings = "Configurações"
+Environment_settings = "Configurações do Ambiente"
+php_version = "Versão do php:"
+mysql_version = "Versão do mysql:"
+jquery_version = "Versão do Jquery:"
+smarty_version = "Versão do Smarty: "
+adodb_version = "Versão do Adodb:"
+helpdezk_version = "Versão do Helpdezk:"
+helpdezk_path = "Caminho do Helpdezk:"
 
 #---
 

@@ -55,6 +55,9 @@
     <!-- Jquery Validate -->
     {head_item type="js"  src="$path/includes/js/plugins/validate/" files="jquery.validate.min.js"}
 
+    <!-- Jquery UI -->
+    {head_item type="js"  src="$path/includes/js/plugins/jquery-ui/" files="jquery-ui.min.js"}
+
     <!-- Dropzone  -->
     {head_item type="js"  src="$path/includes/js/plugins/dropzone/" files="dropzone.js"}
     {head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
@@ -62,16 +65,39 @@
     {literal}
 
         <script type="text/javascript">
-            var default_lang = "{/literal}{$lang}{literal}",
-                path         = "{/literal}{$path}{literal}",
-                langName     = '{/literal}{$smarty.config.Name}{literal}',
-                theme        = '{/literal}{$theme}{literal}',
-                timesession  = '{/literal}{$timesession}{literal}',
-                id_mask      = '{/literal}{$id_mask}{literal}',
-                ein_mask     = '{/literal}{$ein_mask}{literal}',
-                zip_mask     = '{/literal}{$zip_mask}{literal}',
+            var default_lang   = "{/literal}{$lang}{literal}",
+                path           = "{/literal}{$path}{literal}",
+                langName       = '{/literal}{$smarty.config.Name}{literal}',
+                theme          = '{/literal}{$theme}{literal}',
+                timesession    = '{/literal}{$timesession}{literal}',
+                id_mask        = '{/literal}{$id_mask}{literal}',
+                ein_mask       = '{/literal}{$ein_mask}{literal}',
+                zip_mask       = '{/literal}{$zip_mask}{literal}',
                 phone_mask     = '{/literal}{$phone_mask}{literal}',
-                cellphone_mask     = '{/literal}{$cellphone_mask}{literal}' ;
+                cellphone_mask = '{/literal}{$cellphone_mask}{literal}',
+                demoVersion    = '{/literal}{$demoversion}{literal}';
+
+            $(document).ready(function(){
+                <!-- Enable portlets -->
+                WinMove();
+            });
+
+            // Dragable panels
+            window.WinMove = function() {
+                var element = "[class*=col]";
+                var handle = ".ibox-title";
+                var connect = "[class*=col]";
+                $(element).sortable(
+                    {
+                        handle: handle,
+                        connectWith: connect,
+                        tolerance: 'pointer',
+                        forcePlaceholderSize: true,
+                        opacity: 0.8,
+                    })
+                    .disableSelection();
+            };
+
         </script>
 
         <style>
@@ -113,6 +139,7 @@
                 {include file=$navBar}
             </div>
 
+            <!--
             <div class="wrapper wrapper-content">
                 <div class="row  border-bottom white-bg dashboard-header">
                     <div class="col-sm-5">
@@ -120,6 +147,10 @@
                     </div>
                 </div>
             </div>
+            -->
+
+            {include file=$adm_dashboard}
+
 
             <div class="footer">
                 {include file=$footer}

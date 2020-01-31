@@ -1,4 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<?php
+$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+if ($url == "http://demo.helpdezk.org/installer/"){
+    die("Installer don't work in $url") ;
+}
+
+?>
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
