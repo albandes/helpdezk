@@ -68,11 +68,12 @@
                     theme = '{/literal}{$theme}{literal}',
                     mascDateTime = '{/literal}{$mascdatetime}{literal}',
                     timesession = '{/literal}{$timesession}{literal}',
-                id_mask      = '{/literal}{$id_mask}{literal}',
-                ein_mask     = '{/literal}{$ein_mask}{literal}',
-                zip_mask     = '{/literal}{$zip_mask}{literal}',
-                phone_mask     = '{/literal}{$phone_mask}{literal}',
-                cellphone_mask     = '{/literal}{$cellphone_mask}{literal}';
+                    id_mask      = '{/literal}{$id_mask}{literal}',
+                    ein_mask     = '{/literal}{$ein_mask}{literal}',
+                    zip_mask     = '{/literal}{$zip_mask}{literal}',
+                    phone_mask     = '{/literal}{$phone_mask}{literal}',
+                    cellphone_mask     = '{/literal}{$cellphone_mask}{literal}',
+                    demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
