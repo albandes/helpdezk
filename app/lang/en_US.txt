@@ -23,6 +23,18 @@ trello_description = "Card Description"
 trello_tooltip_card = "Add new card"
 
 admin_dashboard = "Administration Dashboard"
+dsh_warning = "Warning"
+dsh_installer_dir = "Installer directory"
+dsh_msg_installer = "For security reasons, please remove <b>installer/</b> directory from your server !!!"
+Settings = "Settings"
+Environment_settings = "Environment Settings"
+php_version = "Php Version:"
+mysql_version = "Mysql Version:"
+jquery_version = "Jquery Version:"
+smarty_version = "Smarty Version:"
+adodb_version = "Adodb Version:"
+helpdezk_version = "Helpdezk Version:"
+helpdezk_path = "Helpdezk Path:"
 
 # - missing in en_US
 Grid_reload = "Grid Reload"

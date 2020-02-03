@@ -11,6 +11,12 @@ class home_model extends DynamicFeatures_model {
 
 //class features_model extends Model {
 
+    public function getMysqlVersion()
+    {
+        $rs = $this->db->Execute("SELECT VERSION() AS mysqlversion");
+        return $rs->fields['mysqlversion'];
+
+    }
     public function getConfigs($cats) {
         return $this->db->Execute("select conf.idconfig, conf.status, conf.value,conf.name as config_name, cat.smarty as cat_smarty, conf.field_type, conf.smarty, cat.name as cat_name, cat.idconfigcategory as cate from hdk_tbconfig conf, hdk_tbconfig_category cat where conf.idconfigcategory in($cats) and conf.idconfigcategory = cat.idconfigcategory order by cate");
     }
