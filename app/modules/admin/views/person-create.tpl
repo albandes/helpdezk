@@ -70,15 +70,16 @@
     {literal}
     <script type="text/javascript">
         var     default_lang = "{/literal}{$lang}{literal}",
-            path = "{/literal}{$path}{literal}",
-            langName = '{/literal}{$smarty.config.Name}{literal}',
-            theme = '{/literal}{$theme}{literal}',
-            mascDateTime = '{/literal}{$mascdatetime}{literal}',
-            timesession = '{/literal}{$timesession}{literal}',
-            noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
-            noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
-            ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+                path = "{/literal}{$path}{literal}",
+                langName = '{/literal}{$smarty.config.Name}{literal}',
+                theme = '{/literal}{$theme}{literal}',
+                mascDateTime = '{/literal}{$mascdatetime}{literal}',
+                timesession = '{/literal}{$timesession}{literal}',
+                noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
+                noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
+                ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
+                ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
 
 
     </script>
