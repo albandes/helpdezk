@@ -36,6 +36,8 @@ adodb_version = "Adodb Version:"
 helpdezk_version = "Helpdezk Version:"
 helpdezk_path = "Helpdezk Path:"
 
+records = "Records"
+
 # - missing in en_US
 Grid_reload = "Grid Reload"
 Show_groups_services_title = "View groups by service"

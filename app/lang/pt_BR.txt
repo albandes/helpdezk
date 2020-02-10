@@ -37,6 +37,8 @@ adodb_version = "Versão do Adodb:"
 helpdezk_version = "Versão do Helpdezk:"
 helpdezk_path = "Caminho do Helpdezk:"
 
+records = "Cadastros"
+
 #---
 
 
