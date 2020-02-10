@@ -817,8 +817,8 @@ class System {
         if (empty($jquery))
             $jquery = 'jquery-2.1.1.js';
         $jqueryPath = $this->helpdezkPath.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR ;
-        if (!file_exists($jqueryPath . $jquery))
-            die('There is no Jquery file in: ' . $jqueryPath);
+        if (!file_exists(trim($jqueryPath . $jquery)))
+            die('There is no Jquery file in: ' . $jqueryPath . $jquery);
         return $jquery;
     }
 
