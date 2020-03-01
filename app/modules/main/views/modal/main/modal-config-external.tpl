@@ -11,7 +11,7 @@
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">{$smarty.config.trello}</h4>
+                <h4 class="modal-title" id="myModalLabel">{$smarty.config.user_external_settings}</h4>
             </div>
 
             <div class="modal-body">
@@ -26,9 +26,12 @@
                     <!-- Hidden -->
                     <input type="hidden" id="hidden-idperson" value="{$id_person}"/>
 
+
                     <div class="row col-lg-12 ">
                         <div class="row col-lg-12  b-l">
                             <div class="form-group col-lg-12">
+                                <h3 class="m-t-none m-b ">{$smarty.config.trello}</h3>
+
                                 <label class="col-md-4 control-label text-right"><i class="fab fa-trello"></i>&nbsp;&nbsp;{$smarty.config.trello_key}:</label>
                                 <div class="col-md-5">
                                     <input type="text" id="trello_key" name="trello_key" class="form-control input-sm" value="{$trello_key}" >
@@ -45,6 +48,26 @@
                         </div>
                     </div>
 
+
+                    <div class="row col-lg-12 ">
+                        <div class="row col-lg-12  b-l">
+                            <div class="form-group col-lg-12">
+                                <h3 class="m-t-none m-b ">{$smarty.config.pushover}</h3>
+                                <label class="col-md-4 control-label text-right"><i class="far fa-bell"></i>&nbsp;&nbsp;{$smarty.config.trello_key}:</label>
+                                <div class="col-md-5">
+                                    <input type="text" id="pushover_key" name="pushover_key"  class="form-control input-sm" value="{$pushover_key}" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row col-lg-12 b-l">
+                            <div class="form-group col-lg-12">
+                                <label class="col-md-4 control-label text-right"><i class="far fa-bell"></i>&nbsp;&nbsp;{$smarty.config.trello_token}:</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="pushover_token" name="pushover_token" class="form-control input-sm" value="{$pushover_token}" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
 
 

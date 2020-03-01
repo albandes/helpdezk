@@ -817,7 +817,7 @@ class System {
         if (empty($jquery))
             $jquery = 'jquery-2.1.1.js';
         $jqueryPath = $this->helpdezkPath.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR ;
-        if (!file_exists(trim($jqueryPath . $jquery)))
+        if (!file_exists($jqueryPath . $jquery))
             die('There is no Jquery file in: ' . $jqueryPath . $jquery);
         return $jquery;
     }
@@ -3161,6 +3161,10 @@ class System {
                 $smarty->assign('trello_key',$rsExternal->fields['value']);
             } elseif ($rsExternal->fields['idexternalapp'] == 50 && $rsExternal->fields['fieldname'] == 'token' ){
                 $smarty->assign('trello_token',$rsExternal->fields['value']);
+            } elseif ($rsExternal->fields['idexternalapp'] == 51 && $rsExternal->fields['fieldname'] == 'key' ) {
+                $smarty->assign('pushover_key',$rsExternal->fields['value']);
+            } elseif ($rsExternal->fields['idexternalapp'] == 51 && $rsExternal->fields['fieldname'] == 'token' ){
+                $smarty->assign('pushover_token',$rsExternal->fields['value']);
             }
             $rsExternal->MoveNext();
         }

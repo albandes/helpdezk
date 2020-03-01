@@ -497,11 +497,13 @@ class home extends hdkCommon {
      * @uses $_POST['idperson'] directly
      * @uses $_POST['trellokey'] directly
      * @uses $_POST['trellotoken'] directly
+     * @uses $_POST['pushoverkey'] directly
+     * @uses $_POST['pushovertoken'] directly
      *
      * @since December 29, 2019
      *
      * * @return array [
-     *                  'success'       => true| false,
+     *                  'success'       => true|false,
      *                  'message'       => Error or success message
      *                  'id'            => Record ID saved in database
      *                 ]
@@ -513,26 +515,24 @@ class home extends hdkCommon {
             echo json_encode(array('sucess' => false,'message' => 'There are no external APIs Configuration Tables !','id' => ''));
             exit;
         }
-
-        $idPerson    = $_POST['idperson'];
-        $trelloKey   = $_POST['trellokey'];
-        $trelloToken = $_POST['trellotoken'];
-
-        $arrayParam = array(
-            array( 'field' => 'key',
-                'value' => $trelloKey)
-        ,
-            array( 'field' => 'token',
-                'value' => $trelloToken)
-        );
+//print_r($_POST); die();
+        $idPerson      = $_POST['idperson'];
+        $trelloKey     = $_POST['trellokey'];
+        $trelloToken   = $_POST['trellotoken'];
+        $pushoverKey   = $_POST['pushoverkey'];
+        $pushoverToken = $_POST['pushovertoken'];
 
         $this->dbUserConfig->BeginTrans();
 
+
+
+        // Trello
+        $arrayParam = array( array( 'field' => 'key', 'value' => $trelloKey) , array( 'field' => 'token','value' => $trelloToken) );
         $arrayReturn = $this->dbUserConfig->insertExternalSettings(50,$idPerson);
 
         if (!$arrayReturn['success']) {
             echo json_encode($arrayReturn);
-            $this->dbUserConfig->RoolbackTrans();
+            //$this->dbUserConfig->RoolbackTrans();
             exit;
         } else {
             $idexternalsettings = $arrayReturn['id'] ;
@@ -540,13 +540,36 @@ class home extends hdkCommon {
                 $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
                 if (!$arrayReturn['success']) {
                     echo json_encode($arrayReturn);
-                    $this->dbUserConfig->RoolbackTrans();
+                    //$this->dbUserConfig->RollbackTrans();
                     exit;
                 }
             }
 
         }
 
+        $arrayParam = array();
+
+        // Pushover
+        $arrayParam = array( array( 'field' => 'key','value' => $pushoverKey) , array( 'field' => 'token', 'value' => $pushoverToken) );
+        $arrayReturn = $this->dbUserConfig->insertExternalSettings(51,$idPerson);
+
+        if (!$arrayReturn['success']) {
+            echo json_encode($arrayReturn);
+            //$this->dbUserConfig->RoolbackTrans();
+            exit;
+        } else {
+            $idexternalsettings = $arrayReturn['id'] ;
+            foreach ($arrayParam as $row) {
+                $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
+                if (!$arrayReturn['success']) {
+                    echo json_encode($arrayReturn);
+                    //$this->dbUserConfig->RoolbackTrans();
+                    exit;
+                }
+            }
+
+        }
+        //
         $this->dbUserConfig->CommitTrans();
 
         echo json_encode($arrayReturn);
