@@ -139,6 +139,12 @@ class cronGetEmail extends cronCommon {
 
                 $login = $this->makeLogin($rsGetEmail->fields['login_layout'],$from);
 
+                // Used only by the client 202001002 that uses uses Wix to send email from a form
+                if ($this->getConfig("license") == '202001002' and $from[0]->host == 'crm.wix.com') {
+                    $login = 'usuario.email';
+                    $this->logIt("Client 202001002, default login : $login",5,'general');
+                }
+
                 if(!$login) {
                     if ($this->log)
                         $this->logIt('Login empty ! ', 5, 'general', __LINE__);
@@ -146,6 +152,9 @@ class cronGetEmail extends cronCommon {
 
                 if($this->log)
                     $this->logIt("Getting ID from login : $login",5,'general');
+
+
+
 
                 $idPerson = $this->getIdPerson($login);
                 if (!$idPerson) {
@@ -236,7 +245,7 @@ class cronGetEmail extends cronCommon {
 
                     $this->dbTicket->BeginTrans();
 
-                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$body,'',$idPriority,'','',$idCompany,$expireDate,$idPerson,$idStatus,$code_request,$idEmail);
+                    $rs = $this->dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,addslashes($body),'',$idPriority,'','',$idCompany,$expireDate,$idPerson,$idStatus,$code_request,$idEmail);
                     if(!$rs){
                         $this->dbTicket->RollbackTrans();
                         if($this->log)

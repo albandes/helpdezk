@@ -4,7 +4,7 @@ app/uploads/files/*
 app/uploads/helpdezk/attachments/*
 app/uploads/helpdezk/dashboard/*
 app/uploads/helpdezk/noteattachments/*
-#app/uploads/tmp/*
+app/uploads/tmp/*
 app/uploads/photos/*
 
 

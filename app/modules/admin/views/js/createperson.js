@@ -612,7 +612,8 @@ $(document).ready(function () {
             type_company:{required:function(element){return $('input[name="category"]:checked').val() == 'juridical';}},
             email: {required:true,email:true},
             department_default:{required:function(element){return $('input[name="category"]:checked').val() == 'juridical';}},
-            "persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}},
+            //"persongroups[]":{required:function(element){return ($('#type_user').val() == '1' || $('#type_user').val() == '3');}},
+            "persongroups[]":{required:function(element){return ($('#category').val() == '1' && ($('#type_user').val() == '1' || $('#type_user').val() == '3'));}},
             company:{required:function(element){return $('input[name="category"]:checked').val() == 'natural';}},
             department:{required:function(element){return $('input[name="category"]:checked').val() == 'natural';}}
         },
@@ -625,7 +626,8 @@ $(document).ready(function () {
             type_company:{required:makeSmartyLabel('Alert_field_required')},
             email:{required:makeSmartyLabel('Alert_field_required'),email:makeSmartyLabel('Alert_invalid_email')} ,
             department_default:{required:makeSmartyLabel('Alert_field_required')},
-            "persongroups[]":{required:makeSmartyLabel('Alert_field_required')},
+            //"persongroups[]":{required:makeSmartyLabel('Alert_field_required')},
+            "persongroups[]":{required:function(element){return ($('#category').val() == '1' && ($('#type_user').val() == '1' || $('#type_user').val() == '3'));}},
             company:{required:makeSmartyLabel('Alert_field_required')},
             department:{required:makeSmartyLabel('Alert_field_required')}
         }

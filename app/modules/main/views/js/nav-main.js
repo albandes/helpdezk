@@ -67,7 +67,10 @@ $(document).ready(function () {
             dataType: 'json',
             data: { idperson:$('#hidden-idperson').val(),
                     trellokey:$('#trello_key').val(),
-                    trellotoken:$('#trello_token').val()
+                    trellotoken:$('#trello_token').val(),
+                    pushoverkey:$('#pushover_key').val(),
+                    pushovertoken:$('#pushover_token').val()
+
             },
             error: function (ret) {
                 modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
