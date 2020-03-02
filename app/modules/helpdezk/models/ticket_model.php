@@ -1712,9 +1712,9 @@ class ticket_model extends DynamicTicket_model
 				  ";
         }
         //die($v_sql);
-        //print $v_sql ;
+        //print $v_sql ; exit;
         //$ret = $this->db->Execute('SET CHARACTER SET utf8');
-        $ret = $this->db->Execute($v_sql);
+        // $ret = $this->db->Execute($v_sql);
         //$ret = $this->select($v_sql);
         if (!$ret) {
             $sError = " Arq: " . __FILE__ . " Line: " . __LINE__ . "DB ERROR: " . $this->db->ErrorMsg() . " SQL: " . $v_sql;
