@@ -245,9 +245,9 @@ class Person  extends admCommon {
         }
 
         if(!empty($rs->fields['ein_cnpj'])){
-            $objSmarty->assign('tipojuridico','checked');
+            $objSmarty->assign('cnpjVal',$rs->fields['ein_cnpj']);
         }else{
-            $objSmarty->assign('tipojuridico','');
+            $objSmarty->assign('cnpjVal','');
         }
         $objSmarty->assign('emailVal',$rs->fields['email']);
         $objSmarty->assign('phoneVal',$rs->fields['telephone']);
@@ -259,7 +259,7 @@ class Person  extends admCommon {
             $objSmarty->assign('mobileVal','');
         }
         if(!empty($rs->fields['fax'])){
-            $objSmarty->assign('faxVal','checked');
+            $objSmarty->assign('faxVal',$rs->fields['fax']);
         }else{
             $objSmarty->assign('faxVal','');
         }
