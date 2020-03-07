@@ -120,9 +120,8 @@ class index_model extends DynamicIndex_model {
     }
 
     public function selectPersonGroups($idperson) {
-        $database = $this->getConfig('db_connect');
-        if ($this->isMysql($database)) {
-            $ret = $this->db->Execute("SELECT pers.name as personname,
+
+        $ret = $this->db->Execute("SELECT pers.name as personname,
                                         pers.idperson,
                                         pers.name as groupname,
                                         grp.idgroup
@@ -135,22 +134,6 @@ class index_model extends DynamicIndex_model {
                                         and pers.idperson = relat.idperson
                                         and pers.idperson = '$idperson'
                                         order by grp.idgroup");
-        } elseif ($database == 'oci8po') {
-            $ret = $this->db->Execute(" SELECT   X.IDGROUP
-                                            FROM   (select pers.name as personname,
-                                                    pers.idperson,
-                                                    pers.name as groupname,
-                                                    grp.idgroup
-                                                    from
-                                                    hdk_tbgroup grp,
-                                                    tbperson pers,
-                                                    hdk_tbgroup_has_person relat
-                                                    where
-                                                    grp.idgroup = relat.idgroup
-                                                    and pers.idperson = relat.idperson
-                                                    and pers.idperson = '$idperson') X
-                                        ORDER BY   X.IDGROUP DESC ");
-        }
 
         if (!$ret) {
             $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
