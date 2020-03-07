@@ -158,7 +158,7 @@ class cronCommon extends cronSystem  {
                             $smtp =  true;
                         }
 
-                        $messageTo   = 'reopen';
+                        $messageTo   = 'reopen-ticket';
                         $messagePart = 'Reopen request # ';
                     }
                 }
@@ -176,7 +176,7 @@ class cronCommon extends cronSystem  {
                             $smtp = true;
                         }
 
-                        $messageTo   = 'afterevaluate';
+                        $messageTo   = 'evaluate-ticket';
                         $messagePart = 'Evaluate request # ';
                     }
 
@@ -196,7 +196,7 @@ class cronCommon extends cronSystem  {
                             $smtp = true;
                         }
 
-                        $messageTo   = 'record';
+                        $messageTo   = 'new-ticket-user';
                         $messagePart = 'Insert request # ';
                     }
 
