@@ -420,13 +420,6 @@ class Login extends admCommon {
 						echo json_encode($maintenance);
 						return;
                     }else{
-                        /*
-                        $success = array( "success" => 1,
-										  "redirect" => path . "/helpdezk/home/index/2"	);
-						echo json_encode($success);
-                        */
-                        //$redirect = path . "/" . $this->getConfig('module_default') . "/home/index" ;
-
                         $redirect = path . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
 
                         $success = array( "success" => 1,
@@ -480,14 +473,40 @@ class Login extends admCommon {
                     }
                     break;
 
-                default:					
-                    //$this->startSession($idperson);
-                    //$this->getConfigSession();
-					$success = array(
-										"success" => false,
-										"redirect" => path . "/admin/login"
-									);
-					echo json_encode($success);
+                default:
+                    if (!$this->dbConfig->tableExists('tbtypeperson_has_module')) {
+                        $error = array( "success" => 0,
+                                         "msg" =>html_entity_decode('There is no table tbtypeperson_has_module.',ENT_COMPAT, 'UTF-8')
+                                      );
+                        echo json_encode($error);
+                        return;
+                    }
+                    $ret = $this->dbIndex->getPathModuleByTypePerson($idtypeperson);
+                    if ($ret) {
+                        if($_SESSION['SES_MAINTENANCE'] == 1){
+                            $maintenance = array(
+                                "success" => 0,
+                                "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
+                            );
+                            echo json_encode($maintenance);
+                        }else{
+                            $success = array(
+                                "success" => 1,
+                                "redirect" => path . "/{$ret}/home/index"
+                            );
+                            echo json_encode($success);
+                            return;
+                        }
+
+                    } else {
+                        $error = array(
+                            "success" => 0,
+                            "msg" =>html_entity_decode('User type has no linked module',ENT_COMPAT, 'UTF-8')
+                        );
+                        echo json_encode($error);
+                        return;
+
+                    }
 					return;
                     break;
             }
