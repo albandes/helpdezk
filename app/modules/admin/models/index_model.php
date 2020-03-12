@@ -143,8 +143,32 @@ class index_model extends DynamicIndex_model {
         return $ret;
     }
 
-    public function getModules()
+    public function getPathModuleByTypePerson($idtypeperson)
     {
+
+        $query = "
+                    SELECT
+                      path
+                    FROM
+                      tbmodule
+                    WHERE idmodule =
+                      (SELECT
+                        idmodule
+                      FROM
+                        tbtypeperson_has_module
+                      WHERE idtypeperson = $idtypeperson)
+                " ;
+
+        $ret = $this->select($query);
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+
+        return $ret->fields['path'];
+
+
 
     }
 
