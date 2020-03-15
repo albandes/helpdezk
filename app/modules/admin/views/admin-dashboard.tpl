@@ -27,7 +27,8 @@
                             <p>{$smarty.config.adodb_version}&nbsp;{$adodb_version}</p>
                             <p>{$smarty.config.helpdezk_version}&nbsp;{$helpdezk_version}</p>
                             <p>{$smarty.config.helpdezk_path}&nbsp;{$helpdezk_path}</p>
-
+                            <p>{$smarty.config.external_ip}&nbsp;{$external_ip}</p>
+                            <p>{$smarty.config.external_hostname}&nbsp;{$external_hostname}</p>
                         </div>
                     </div>
 

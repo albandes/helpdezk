@@ -224,6 +224,8 @@ class System {
         $smarty->assign('helpdezkhome', $this->helpdezkUrl.'/helpdezk/home/index');
         $smarty->assign('logout', $this->helpdezkUrl . '/main/home/logout');
 
+        // Title
+        $smarty->assign('title', $this->getConfig('page_title'));
         // Warnings
         $smarty->assign('total_warnings', $this->getNumNewEwarnings($idPerson));
         // Logo

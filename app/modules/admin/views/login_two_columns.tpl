@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Helpdezk | Parracho</title>
+    <title>{$title|default:'Helpdezk | Open Source'}</title>
 
     {head_item type="js" src="$path/includes/js/" files="$jquery_version"}
 
@@ -105,41 +105,7 @@
                         <div class="form-group">
                             <input name="password" type="password" class="form-control" placeholder="{$smarty.config.Password}" required="">
                         </div>
-                        <!-- -->
-                        {if $demoversion == 1}
-                            <div >
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="panel panel-success">
-                                            <div class="panel-heading">
-                                                Demo Version
-                                            </div>
-                                            <div class="panel-body">
-                                                <b>Demo User</b><br>
-                                                login: user<br>
-                                                password: 1234<br>
-                                                <br>
-                                                <b>Operator User</b><br>
-                                                login: operator<br>
-                                                password: 1234<br>
-                                                <br>
-                                                <b>Admin User</b><br>
-                                                login: admin<br>
-                                                password: 1234<br>
 
-                                                <br>
-                                                <p class="text-muted text-center ">
-                                                    <small>In the demo version, password exchange, some features and email sending are disabled.</small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {else}
-                            <br><br><br><br><br><br>
-                        {/if}
-                        <!-- -->
 
                         <!-- <div id="secret" class="form-group"></div> -->
 
@@ -150,6 +116,43 @@
                                 <small>{$smarty.config.Lost_password}?</small>
                             </a>
                         </p>
+
+
+                    <!-- -->
+                    {if $demoversion == 1}
+                        <div >
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-success">
+                                        <div class="panel-heading">
+                                            Demo Version
+                                        </div>
+                                        <div class="panel-body">
+                                            <b>Demo User</b><br>
+                                            login: user<br>
+                                            password: 1234<br>
+                                            <br>
+                                            <b>Operator User</b><br>
+                                            login: operator<br>
+                                            password: 1234<br>
+                                            <br>
+                                            <b>Admin User</b><br>
+                                            login: admin<br>
+                                            password: 1234<br>
+
+                                            <br>
+                                            <p class="text-muted text-center ">
+                                                <small>In the demo version, password exchange, some features and email sending are disabled.</small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {else}
+                        <br><br><br><br><br><br>
+                    {/if}
+                    <!-- -->
                         <!--
                         <p class="text-muted text-center ">
                             <small>Do not have an account?</small>
