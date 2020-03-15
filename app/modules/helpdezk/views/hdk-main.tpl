@@ -8,7 +8,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Helpdezk | Parracho</title>
+    <title>{$title|default:'Helpdezk | Open Source'}</title>
 
     <!-- Mainly scripts -->
     {head_item type="js" src="$path/includes/js/" files="$jquery_version"}

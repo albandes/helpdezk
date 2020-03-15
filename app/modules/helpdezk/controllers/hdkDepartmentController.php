@@ -38,6 +38,7 @@ class hdkDepartment extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
+        $smarty->assign('title', $this->getConfig('page_title'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
         $smarty->display('department.tpl');
 

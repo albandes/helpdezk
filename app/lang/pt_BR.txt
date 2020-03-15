@@ -37,7 +37,8 @@ smarty_version = "Versão do Smarty: "
 adodb_version = "Versão do Adodb:"
 helpdezk_version = "Versão do Helpdezk:"
 helpdezk_path = "Caminho do Helpdezk:"
-
+external_ip = "Endereço Ip Externo:"
+external_hostname = "Nome do host externo:"
 records = "Cadastros"
 
 #---

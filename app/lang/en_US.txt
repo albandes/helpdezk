@@ -36,7 +36,8 @@ smarty_version = "Smarty Version:"
 adodb_version = "Adodb Version:"
 helpdezk_version = "Helpdezk Version:"
 helpdezk_path = "Helpdezk Path:"
-
+external_ip = "External Ip Address:"
+external_hostname = "External Host Name:"
 records = "Records"
 
 # - missing in en_US
