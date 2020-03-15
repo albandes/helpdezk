@@ -102,6 +102,13 @@ $statLog = $aReturn['stat'];
 $lineLog = $aReturn['line'];
 
 clearstatcache();
+/*
+ * Creation of the tmp folder because it was not in git. As soon as it is placed in git we can remove it.
+ */
+if (!file_exists($path.$tmp_dir)){
+    mkdir ($path.$tmp_dir, 0755);
+}
+
 $aReturn = testeDir($path.$tmp_dir,3);
 $statLog = $aReturn['stat'];
 $lineLog = $aReturn['line'];

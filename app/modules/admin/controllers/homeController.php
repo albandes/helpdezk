@@ -48,7 +48,11 @@ class Home extends admCommon {
 
         // Dashboard
         $smarty->assign('adm_dashboard', 'admin-dashboard.tpl');    // Set dashboard
+
         $haveInstaller = (is_dir($this->helpdezkPath. DIRECTORY_SEPARATOR .'installer') ? true : false) ;
+        $ipAddress = $this->getExternalIpInfo();
+
+
         $smarty->assign('php_version', phpversion());
         $smarty->assign('mysql_version',$this->dbHome->getMysqlVersion());
         $smarty->assign('jquery_version',$this->getJqueryVersion());
@@ -58,8 +62,29 @@ class Home extends admCommon {
         $smarty->assign('helpdezk_path',$this->helpdezkPath);
         $smarty->assign('have_installer', $haveInstaller);
 
+        $smarty->assign('external_ip', $ipAddress);
+        $smarty->assign('external_hostname', gethostbyaddr($ipAddress));
+
+
+
+
         $smarty->assign('demoversion', $this->demoVersion);         // Demo version
         $smarty->display('adm-main.tpl');
+    }
+
+
+
+    /*
+    * Get the external information about Ip Address
+    *
+    * @access public
+    * @param
+    *
+    * @return string External Ip Address
+    */
+    function getExternalIpInfo()
+    {
+        return file_get_contents("https://ifconfig.me/ip");
     }
 
 	public function systemUpdate(){
