@@ -1348,43 +1348,20 @@ class System {
 
         $perm = array();
 
+        $perm = array();
 
-        $first = true;
         while (!$groupperm->EOF) {
-            if ($first)	{
-                $first = false;
-                $flag = false ;
-                $program = $groupperm->fields['programname'];
-            }
-            if ($groupperm->fields['allow'] == 'Y') {
-                $flag = true;
-            }
-            if ($program != $groupperm->fields['programname'] ) {
-                $first = true;
-                if ($flag){
-                    $perm[$program] = 'Y';
-                } else {
-
-                }
-
-            }
-
-
-
-            /*
+            $program = $groupperm->fields['programname'];
+            $perm[$program] = 'N' ;
             if ($perm[$program] != $groupperm->fields['allow'] ) {
                 if ($perm[$program] == 'N') {
                     $perm[$program] = $groupperm->fields['allow'];
                 }
             }
-            */
-
-
 
             $groupperm->MoveNext();
         }
 
-        //print "<pre>"; print_r($perm) ; die();
         $personperm = $bd->selectPersonPermission($user, $idprogram);
 		if ($personperm->fields['allow']) {
 			while (!$personperm->EOF) {
@@ -1397,7 +1374,7 @@ class System {
 				$personperm->MoveNext();
 			}
 		}
-        //print "<pre>"; print_r($perm) ; die();
+
         $string_array = implode('|', $perm);
         $smarty->assign('string_array', $string_array);
         $smarty->assign('access', "string_array.split('|')");
