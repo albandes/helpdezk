@@ -141,7 +141,7 @@ function makeConfig($jqueryVersion)
     array_push($a_arc,"\$config[\"lang\"] \t = \t" . "\"" . $_SESSION['lang_default'] . "\"" . ";" );
     array_push($a_arc,"\$config[\"theme\"] \t = \t" . "\"" . $_SESSION['theme_default'] . "\"" . ";" );
     array_push($a_arc,"\$config[\"page_title\"] \t = \t" . "\" [HELPDEZK] - Parracho - A free open source Helpdesk software! \"" . ";" );
-    array_push($a_arc,"\$config[\"jquery\"] \t = \t" . "\"". $jqueryVersion ." \"" . ";" );
+    array_push($a_arc,"\$config[\"jquery\"] \t = \t" . "\"". $jqueryVersion ."\"" . ";" );
 
     array_push($a_arc, PHP_EOL );
     array_push($a_arc,"//LOCATION CONFIGURATION" );
@@ -251,6 +251,7 @@ function connectDb($host,$user,$pass,$db,$port)
     if (!$mysqli->select_db($db)){
         $sql = "CREATE DATABASE ".$db;
         if ($mysqli->query($sql) === TRUE) {
+            $mysqli->select_db($db);
             if ($debug)
                 echo "Database ".$db." created successfully" . $lineBreak ;
         }else {
