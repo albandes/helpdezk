@@ -8,7 +8,7 @@ CREATE TABLE `bbd_tbmessage` (
   `description` text DEFAULT NULL,
   `dtcreate` datetime DEFAULT NULL,
   `dtstart` datetime DEFAULT NULL,
-  `dtend` datetime DEFAULT NULL,
+  `dtend` datetime DEFAULT NULL,logo
   `sendemail` varchar(1) NOT NULL,
   `showin` varchar(1) NOT NULL,
   `emailsent` int(1) DEFAULT 0,
@@ -2458,6 +2458,9 @@ CREATE TABLE `tblogos` (
   PRIMARY KEY (`idlogo`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
+INSERT INTO `tblogos` (`idlogo`, `name`, `height`, `width`, `file_name`) VALUES('1','header','35','114','');
+INSERT INTO `tblogos` (`idlogo`, `name`, `height`, `width`, `file_name`) VALUES('2','login','70','227','');
+INSERT INTO `tblogos` (`idlogo`, `name`, `height`, `width`, `file_name`) VALUES('3','reports','40','130','');
 
 
 
