@@ -22,6 +22,7 @@ class logos  extends admCommon {
         
         $this->targetPath = $this->helpdezkPath . '/app/uploads/logos/' ;
         $this->targetUrl = $this->helpdezkUrl . '/app/uploads/logos/' ;
+        $this->targetUrlDefault = $this->helpdezkUrl . '/app/uploads/logos/default/';
 
         
     }
@@ -41,17 +42,18 @@ class logos  extends admCommon {
         $smarty->assign('token', $token) ;
         
         $headerlogo = $this->dbLogo->getHeaderLogo();
-        $smarty->assign('headerlogo', $this->targetUrl . $headerlogo->fields['file_name']);
+        $header = (empty($headerlogo->fields['file_name']) ? $this->targetUrlDefault . 'header.png' : $this->targetUrl . $headerlogo->fields['file_name']);
+        $smarty->assign('headerlogo', $header);
         $smarty->assign('headerheight', $headerlogo->fields['height']);
         $smarty->assign('headerwidth', $headerlogo->fields['width']);
 
         $loginlogo = $this->dbLogo->getLoginLogo();
-        $smarty->assign('loginlogo', $this->targetUrl . $loginlogo->fields['file_name']);
-        $smarty->assign('loginheight', $loginlogo->fields['height']);
-        $smarty->assign('loginwidth', $loginlogo->fields['width']);
+        $login = (empty($loginlogo->fields['file_name']) ? $this->targetUrlDefault . 'login.png' : $this->targetUrl . $loginlogo->fields['file_name']);
+        $smarty->assign('loginlogo', $login);
 
         $reportslogo = $this->dbLogo->getReportsLogo();
-        $smarty->assign('reportslogo', $this->targetUrl . $reportslogo->fields['file_name']);
+        $reports = (empty($reportslogo->fields['file_name']) ? $this->targetUrlDefault . 'reports.png' : $this->targetUrl . $reportslogo->fields['file_name']);
+        $smarty->assign('reportslogo', $reports);
         $smarty->assign('reportsheight', $reportslogo->fields['height']);
         $smarty->assign('reportswidth', $reportslogo->fields['width']);
 
