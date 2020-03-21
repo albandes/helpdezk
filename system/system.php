@@ -303,14 +303,19 @@ class System {
     public function getHelpdezkVersion()
     {
         // Read the version.txt file
-        $csvFile = $this->helpdezkPath . "/version.txt";
-        if ($arquivo = fopen($csvFile, "r")) {
-            while (!feof($arquivo)) {
-                $this->_version = fgets($arquivo, 4096);
+        $versionFile = $this->helpdezkPath . "/version.txt" ;
+
+        if (is_readable($versionFile)) {
+            $info = file_get_contents($versionFile,FALSE, NULL, 0, 50);
+            if ($info) {
+                $this->_version = trim($info);
+            } else {
+                $this->_version = '1.0';
             }
         } else {
-            $this->_version = '';
+            $this->_version = '1.0';
         }
+
     }
 
     public function getHeaderLogoImage()
