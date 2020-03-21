@@ -597,8 +597,8 @@ class Login extends admCommon {
     {
 
         session_start();
-
         if (version_compare($this->helpdezkVersionNumber, '1.0.1', '>' )) {
+
             $objModules = $this->getActiveModules();
             while (!$objModules->EOF) {
                 $prefix = $objModules->fields['tableprefix'];
@@ -622,6 +622,7 @@ class Login extends admCommon {
 
                 $objModules->MoveNext();
             }
+
         } else {
             $data = $this->dbIndex->getConfigData();
             if($data) {
@@ -637,25 +638,9 @@ class Login extends admCommon {
             }
         }
 
-        /*echo '<pre>';
-        print_r($_SESSION);
-        die();*/
+
 		$idperson = $_SESSION['SES_COD_USUARIO'];
 
-        // Module config data
-        /*
-        if($data) {
-            while (!$data->EOF) {
-                $ses = $data->fields['session_name'];
-                $val = $data->fields['value'];
-                $_SESSION[$ses] = $val;
-                //
-                $_SESSION[$prefix][$ses] = $val;
-                //
-                $data->MoveNext();
-            }
-        }
-        */
 
         // Global Config Data
         $rsConfig = $this->dbIndex->getConfigGlobalData();
