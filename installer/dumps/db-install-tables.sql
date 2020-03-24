@@ -8,7 +8,7 @@ CREATE TABLE `bbd_tbmessage` (
   `description` text DEFAULT NULL,
   `dtcreate` datetime DEFAULT NULL,
   `dtstart` datetime DEFAULT NULL,
-  `dtend` datetime DEFAULT NULL,logo
+  `dtend` datetime DEFAULT NULL,
   `sendemail` varchar(1) NOT NULL,
   `showin` varchar(1) NOT NULL,
   `emailsent` int(1) DEFAULT 0,
