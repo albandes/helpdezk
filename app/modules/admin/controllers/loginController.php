@@ -452,28 +452,11 @@ class Login extends admCommon {
                     break;
 
                 //  Another modules
-                case "9":      // ERP_User
-                    $this->startSession($idperson);
-
-                    $this->getConfigSession();
-                    if($_SESSION['SES_MAINTENANCE'] == 1){
-                        $maintenance = array(
-                            "success" => 0,
-                            "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
-                        );
-                        echo json_encode($maintenance);
-                    }else{
-                        // Precisa pegar do banco para saber para onde redirecionar
-                        $success = array(
-                            "success" => 1,
-                            "redirect" => path . "/erp/home"
-                        );
-                        echo json_encode($success);
-                        return;
-                    }
-                    break;
-
                 default:
+
+                    $this->startSession($idperson);
+                    $this->getConfigSession();
+
                     if (!$this->dbConfig->tableExists('tbtypeperson_has_module')) {
                         $error = array( "success" => 0,
                                          "msg" =>html_entity_decode('There is no table tbtypeperson_has_module.',ENT_COMPAT, 'UTF-8')
