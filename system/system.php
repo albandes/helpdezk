@@ -216,7 +216,7 @@ class System {
         if($_SESSION['SES_COD_USUARIO'] == 1){$smarty->assign('isroot', true);}
         if($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1){$smarty->assign('hasadmin', true);}
         $smarty->assign('adminhome', $this->helpdezkUrl.'/admin/home/index');
-        $smarty->assign('adminlogo', 'adm_header_rogeiro.png');
+        $smarty->assign('adminlogo', 'adm_header.png');
         $smarty->assign('navlogin', $idPerson == 1 ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON']);
 
 
