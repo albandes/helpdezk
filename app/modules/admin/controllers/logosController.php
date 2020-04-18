@@ -19,12 +19,17 @@ class logos  extends admCommon {
         $this->loadModel('logos_model'); 
         $dbLogo = new logos_model();
         $this->dbLogo = $dbLogo;
-        
-        $this->targetPath = $this->helpdezkPath . '/app/uploads/logos/' ;
-        $this->targetUrl = $this->helpdezkUrl . '/app/uploads/logos/' ;
-        $this->targetUrlDefault = $this->helpdezkUrl . '/app/uploads/logos/default/';
 
-        
+        if ($this->_externalStorage) {
+            $this->targetPath = $this->_externalStoragePath . '/logos/' ;
+            $this->targetUrl = $this->_externalStorageUrl . '/logos/' ;
+            $this->targetUrlDefault = $this->_externalStorageUrl . '/logos/default/';
+        } else{
+            $this->targetPath = $this->helpdezkPath . '/app/uploads/logos/' ;
+            $this->targetUrl = $this->helpdezkUrl . '/app/uploads/logos/' ;
+            $this->targetUrlDefault = $this->helpdezkUrl . '/app/uploads/logos/default/';
+        }
+
     }
 
     public function index()
@@ -50,6 +55,8 @@ class logos  extends admCommon {
         $loginlogo = $this->dbLogo->getLoginLogo();
         $login = (empty($loginlogo->fields['file_name']) ? $this->targetUrlDefault . 'login.png' : $this->targetUrl . $loginlogo->fields['file_name']);
         $smarty->assign('loginlogo', $login);
+        $smarty->assign('loginheight', $loginlogo->fields['height']);
+        $smarty->assign('loginwidth', $loginlogo->fields['width']);
 
         $reportslogo = $this->dbLogo->getReportsLogo();
         $reports = (empty($reportslogo->fields['file_name']) ? $this->targetUrlDefault . 'reports.png' : $this->targetUrl . $reportslogo->fields['file_name']);

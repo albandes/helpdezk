@@ -183,11 +183,11 @@ class home extends hdkCommon {
         $smarty->assign('approved_requests_percent', $finishedPercent);
         */
 
-
-
-
-
-        $imgFormat = $this->getImageFileFormat('/app/uploads/photos/'.$idPerson);
+        if ($this->_externalStorage) {
+            $imgFormat = $this->getImageFileFormat('/photos/'.$idPerson);
+        } else{
+            $imgFormat = $this->getImageFileFormat('/app/uploads/photos/'.$idPerson);
+        }
 
         if ($imgFormat) {
             $imgPhoto = $idPerson.'.'.$imgFormat;
@@ -195,13 +195,17 @@ class home extends hdkCommon {
             $imgPhoto = 'default/no_photo.png';
         }
 
-        $smarty->assign('person_photo', $this->getHelpdezkUrl().'/app/uploads/photos/' . $imgPhoto);
+        // force refresh image -> $imgPhoto."?=".Date('U')
+        if ($this->_externalStorage) {
+            $smarty->assign('person_photo', $this->_externalStorageUrl.'/photos/' . $imgPhoto."?=".Date('U'));
+        } else{
+            $smarty->assign('person_photo', $this->getHelpdezkUrl().'/app/uploads/photos/' . $imgPhoto."?=".Date('U'));
+        }
 
         $smarty->assign('total_requests', $total);
 
 
         /* Table */
-
         $clTime = new pipeDateTime();
         $license = $this->getConfig('license');
 
@@ -387,16 +391,26 @@ class home extends hdkCommon {
 
         if (!empty($_FILES)) {
 
+            if ($this->_externalStorage) {
+                $targetPath = $this->_externalStoragePath . '/photos/' ;
+            } else{
+                $targetPath = $this->helpdezkPath . '/app/uploads/photos/' ;
+            }
+
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
             $extension = strrchr($fileName, ".");
-            $targetPath = $this->helpdezkPath . '/app/uploads/photos/' ;
+
             $fileName = str_replace($char_search, $char_replace, $fileName);
 
-            $tmpFormat = $this->getImageFileFormat('/app/uploads/photos/'.$iduser);
+            if ($this->_externalStorage) {
+                $tmpFormat = $this->getImageFileFormat('/photos/'.$iduser);
+            } else{
+                $tmpFormat = $this->getImageFileFormat('/app/uploads/photos/'.$iduser);
+            }
+
             if($tmpFormat){
                 unlink($targetPath.$iduser.'.'.$tmpFormat);
-
             }
 
             $targetFile = $targetPath.$iduser.$extension;
@@ -515,7 +529,7 @@ class home extends hdkCommon {
             echo json_encode(array('sucess' => false,'message' => 'There are no external APIs Configuration Tables !','id' => ''));
             exit;
         }
-//print_r($_POST); die();
+
         $idPerson      = $_POST['idperson'];
         $trelloKey     = $_POST['trellokey'];
         $trelloToken   = $_POST['trellotoken'];
@@ -523,8 +537,6 @@ class home extends hdkCommon {
         $pushoverToken = $_POST['pushovertoken'];
 
         $this->dbUserConfig->BeginTrans();
-
-
 
         // Trello
         $arrayParam = array( array( 'field' => 'key', 'value' => $trelloKey) , array( 'field' => 'token','value' => $trelloToken) );

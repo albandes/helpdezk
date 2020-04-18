@@ -12,6 +12,26 @@ class System {
     public $_logRemoteServer ;
     public $_logFacility;
 
+    /**
+     * Is set external storage
+     *
+     * @var bool
+     */
+    public $_externalStorage;
+
+    /**
+     * External Storage Path
+     *
+     * @var bool
+     */
+    public $_externalStoragePath;
+
+    /**
+     * External Storage Url
+     *
+     * @var bool
+     */
+    public $_externalStorageUrl;
 
     public function __construct()
     {
@@ -37,8 +57,7 @@ class System {
         // Helpdezk Logos
         //$this->headerLogoImage = $this->getHeaderLogoImage();
 
-        $this->logFile = $this->getLogFile('general');
-        $this->logFileEmail  = $this->getLogFile('email');
+
 
 
         // Version settings
@@ -52,7 +71,121 @@ class System {
         $this->jquery = $this->getJqueryVersion();
         $this->summernote = $this->getSummerNoteVersion();
 
+        // External storage settings
+        $this->_externalStorage     = $this->getExternalStorage();
+        if ($this->_externalStorage) {
+            $this->_externalStoragePath = $this->getExternalStoragePath();
+            $this->_externalStorageUrl = $this->getExternalStorageUrl();
+        }
+
+        $this->logFile = $this->getLogFile('general');
+        $this->logFileEmail  = $this->getLogFile('email');
+
     }
+
+
+    /**
+     * Returns External Storage Url
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return string External Storage Url
+     *
+     */
+    public function getExternalStorageUrl()
+    {
+        $externalStorageUrl = $this->getConfig('external_storage_url') ;
+
+        if (empty($externalStorageUrl))
+            die("The external url is empty in config.php. Method: " . __METHOD__ . ", line: " . __LINE__);
+
+        if (substr($externalStorageUrl, -1) == "/" || substr($externalStorageUrl, -1) == "\\")
+            $externalStorageUrl = substr($externalStorageUrl, 0, -1);
+
+        return $externalStorageUrl ;
+    }
+
+    /**
+     * Returns if external storage is set
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return bool  true|false
+     *
+     */
+    public function getExternalStorage()
+    {
+        $externalStorage = $this->getConfig('external_storage') ;
+        if (empty($externalStorage) || $externalStorage == false)
+            return false;
+        else
+            return $externalStorage ;
+    }
+
+    /**
+     * Returns External Storage Path
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return string External Storage Path
+     *
+     */
+    public function getExternalStoragePath()
+    {
+        $externalStoragePath = $this->getConfig('external_storage_path') ;
+
+        if (substr($externalStoragePath, -1) == "/" || substr($externalStoragePath, -1) == "\\") {
+            $externalStoragePath = substr($externalStoragePath, 0, -1);
+        }
+
+        $array = array( "/files",
+                        "/helpdezk/attachments/",
+                        "/helpdezk/noteattachments/",
+                        "/helpdezk/dashboard/",
+                        "/tmp",
+                        "/logs",
+                        "/icons",
+                        "/logos/default/",
+                        "/photos/default/");
+
+        if (!file_exists($externalStoragePath)) {
+            die ("The external storage directory does not exist: {$externalStoragePath}, method: ". __METHOD__ .", line: ". __LINE__ );
+        } else {
+            $arrayExist = array();
+            $arrayWrite = array();
+            $displayError = false;
+            foreach ($array as $dir) {
+                if (!is_writable($externalStoragePath . $dir)) {
+                    array_push ($arrayWrite , $externalStoragePath . $dir );
+                }
+                if (!file_exists($externalStoragePath . $dir )) {
+                    array_push ($arrayExist , $externalStoragePath . $dir );
+                }
+            }
+            if (count($arrayWrite) > 0 ) {
+                foreach ($arrayWrite as $writeError) {
+                    echo "The external storage sub directory(s) does not exist: {$writeError} <br>";
+                }
+                $displayError = true;
+            }
+
+            if (count($arrayExist) > 0 ) {
+                foreach ($arrayExist as $dirError) {
+                    echo "The external storage sub directory(s) does not exist: {$dirError} <br>";
+                }
+                $displayError = true;
+            }
+
+            if ($displayError)
+                die("method: ". __METHOD__ .", line: ". __LINE__ );
+        }
+
+        return $externalStoragePath;
+    }
+
 
     public function getArrayScreenFields($idModule,$personType,$formId)
     {
@@ -83,11 +216,17 @@ class System {
 
     function getLogFile($logType)
     {
-        $dirLog = $this->getHelpdezkPath().'/logs/';
+
+        if ($this->_externalStorage) {
+            $dirLog = $this->_externalStoragePath . '/logs/';
+        } else{
+            $dirLog = $this->getHelpdezkPath().'/logs/';
+        }
+
         if(!is_dir($dirLog)) {
             mkdir ($dirLog, 0777 ); // create dir
         }else{
-            if(!is_writable($dirLog)) {//validation
+            if(!is_writable($dirLog)) {    //validation
                 chmod($dirLog, 0777);
             }
         }
@@ -168,6 +307,8 @@ class System {
             } else {
                 $file = $this->logFileEmail;
             }
+
+
             file_put_contents( $file, $msg, FILE_APPEND );
 
         } elseif ($this->_logHost == 'remote'){
@@ -229,7 +370,7 @@ class System {
         // Warnings
         $smarty->assign('total_warnings', $this->getNumNewEwarnings($idPerson));
         // Logo
-        $smarty->assign('headerlogo', $this->getHeaderLogoImage());
+        $smarty->assign('headerlogo_url', $this->getHeaderLogoFullUrl());
 
         // JS Variables
         $smarty->assign('path', path);
@@ -319,11 +460,70 @@ class System {
 
     }
 
+    /**
+     * Returns Header logo Url
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return string Header logo Url
+     *
+     */
+    public function getHeaderLogoFullUrl()
+    {
+        $image = $this->getHeaderLogoImage();
+        if ($this->_externalStorage) {
+            return $this->_externalStorageUrl . '/logos/' . $image ;
+        } else{
+            return $this->helpdezkUrl . '/app/uploads/logos/' . $image ;
+        }
+    }
+
+    /**
+     * Returns Login logo Url
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return string Login logo Url
+     *
+     */
+    public function getLoginLogoFullUrl()
+    {
+        $image = $this->getLoginLogoImage();
+        if ($this->_externalStorage) {
+            return $this->_externalStorageUrl . '/logos/' . $image ;
+        } else{
+            return $this->helpdezkUrl . '/app/uploads/logos/' . $image ;
+        }
+    }
+
+    public function getReportsLogoFullUrl()
+    {
+
+    }
+
+    /**
+     * Returns Header logo's Image Path
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return Header logo's Image Path
+     *
+     */
     public function getHeaderLogoImage()
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getHeaderLogo();
-        if(empty($rsLogo->fields['file_name']) or !file_exists($this->helpdezkPath.'/app/uploads/logos/'. $rsLogo->fields['file_name']))
+
+        if($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        } else {
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+        }
+
+        if(empty($rsLogo->fields['file_name']) or !file_exists($pathLogoImage))
             return 'default/header.png';
         else
             return $rsLogo->fields['file_name'];
@@ -333,7 +533,14 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getHeaderLogo();
-        if(empty($rsLogo->fields['height']))
+
+        if($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        } else {
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+        }
+
+        if(empty($rsLogo->fields['height']) or !file_exists($pathLogoImage))
             return '35';
         else
             return $rsLogo->fields['height'];
@@ -344,8 +551,76 @@ class System {
     {
         $dbCommon = new common();
         $rsLogo =  $dbCommon->getHeaderLogo();
-        if(empty($rsLogo->fields['width']))
+
+        if($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        } else {
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+        }
+
+        if(empty($rsLogo->fields['width']) or !file_exists($pathLogoImage))
             return '97';
+        else
+            return $rsLogo->fields['width'];
+
+    }
+
+    /**
+     * Returns login logo's Image Path
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @return Login logo's Image Path
+     *
+     */
+    public function getLoginLogoImage()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getLoginLogo();
+
+        if($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        } else {
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+        }
+
+        if(empty($rsLogo->fields['file_name']) or !file_exists($pathLogoImage))
+            return 'default/login.png';
+        else
+            return $rsLogo->fields['file_name'];
+    }
+
+    public function getLoginLogoHeight()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getLoginLogo();
+
+        if($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        } else {
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+        }
+
+        if(empty($rsLogo->fields['height']) or !file_exists($pathLogoImage))
+            return '70';
+        else
+            return $rsLogo->fields['height'];
+    }
+
+    public function getLoginLogoWidth()
+    {
+        $dbCommon = new common();
+        $rsLogo =  $dbCommon->getLoginLogo();
+
+        if($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        } else {
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+        }
+
+        if(empty($rsLogo->fields['width']) or !file_exists($pathLogoImage))
+            return '154';
         else
             return $rsLogo->fields['width'];
 
@@ -379,37 +654,6 @@ class System {
         $rsLogo =  $dbCommon->getReportsLogo();
         if(empty($rsLogo->fields['width']))
             return '110';
-        else
-            return $rsLogo->fields['width'];
-
-    }
-
-    public function getLoginLogoImage()
-    {
-        $dbCommon = new common();
-        $rsLogo =  $dbCommon->getLoginLogo();
-        if(empty($rsLogo->fields['file_name']) or !file_exists($this->helpdezkPath.'/app/uploads/logos/'. $rsLogo->fields['file_name']))
-            return 'default/login.png';
-        else
-            return $rsLogo->fields['file_name'];
-    }
-
-    public function getLoginLogoHeight()
-    {
-        $dbCommon = new common();
-        $rsLogo =  $dbCommon->getLoginLogo();
-        if(empty($rsLogo->fields['height']))
-            return '70';
-        else
-            return $rsLogo->fields['height'];
-    }
-
-    public function getLoginLogoWidth()
-    {
-        $dbCommon = new common();
-        $rsLogo =  $dbCommon->getLoginLogo();
-        if(empty($rsLogo->fields['width']))
-            return '154';
         else
             return $rsLogo->fields['width'];
 
@@ -538,7 +782,15 @@ class System {
      */
     public function getImageFileFormat($file)
     {
-        $arrImages = glob($this->getHelpdezkPath().$file.'.*');
+        if ($this->_externalStorage) {
+            $target = $this->_externalStoragePath . $file.'.*';
+        } else{
+            $target = $this->getHelpdezkPath() . $file.'.*';
+        }
+
+        //$arrImages = glob($this->getHelpdezkPath().$file.'.*');
+
+        $arrImages = glob($target);
 
         if(empty($arrImages))
             return false ;
@@ -3159,15 +3411,22 @@ class System {
     {
         $cod_usu = $_SESSION['SES_COD_USUARIO'];
 
-        $imgFormat = $this->getImageFileFormat('/app/uploads/photos/'.$cod_usu);
-
-        if ($imgFormat) {
-            $imgPhoto = $cod_usu.'.'.$imgFormat;
-        } else {
-            $imgPhoto = 'default/no_photo.png';
+        if ($this->_externalStorage) {
+            $imgFormat = $this->getImageFileFormat('/photos/'.$cod_usu);
+        } else{
+            $imgFormat = $this->getImageFileFormat('/app/uploads/photos/'.$cod_usu);
         }
 
-        $smarty->assign('person_photo_nav', $this->getHelpdezkUrl().'/app/uploads/photos/' . $imgPhoto);
+        if ($imgFormat)
+            $imgPhoto = $cod_usu.'.'.$imgFormat;
+         else
+            $imgPhoto = 'default/no_photo.png';
+
+        if ($this->_externalStorage) {
+            $smarty->assign('person_photo_nav', $this->_externalStorageUrl.'/photos/'. $imgPhoto."?=".Date('U'));          // force refresh image
+        } else{
+            $smarty->assign('person_photo_nav', $this->getHelpdezkUrl().'/app/uploads/photos/'. $imgPhoto."?=".Date('U'));  //force refresh image
+        }
 
         $rsPerson = $this->getPersonById($cod_usu);
 

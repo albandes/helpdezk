@@ -52,11 +52,18 @@ class Login extends admCommon {
         $this->loadModel('logos_model');
         $db = new logos_model();
 
+        /*
         $rsLogo = $db->getLoginLogo();
 
         $smarty->assign('loginlogo', $this->getLoginLogoImage());
         $smarty->assign('height',    $this->getLoginLogoHeight());
         $smarty->assign('width',     $this->getLoginLogoWidth());
+        */
+
+        // Set Login Logo
+        $smarty->assign('loginLogoUrl',$this->getLoginLogoFullUrl());
+        $smarty->assign('loginheight', $this->getLoginLogoHeight());
+        $smarty->assign('loginwidth', $this->getLoginLogoWidth());
 
         $smarty->assign('path',      path);
         $smarty->assign('lang_default', $this->getConfig('lang'));

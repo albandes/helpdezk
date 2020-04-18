@@ -99,7 +99,13 @@ class hdkImportServices extends hdkCommon
 
 
         if (!empty($_FILES)) {
-            $targetPath = $this->helpdezkPath . '/app/uploads/tmp/' ;
+
+            if ($this->_externalStorage) {
+                $targetPath = $this->_externalStoragePath . '/tmp/' ;
+            } else {
+                $targetPath = $this->helpdezkPath . '/app/uploads/tmp/' ;
+            }
+
 
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
