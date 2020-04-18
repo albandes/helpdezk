@@ -116,9 +116,13 @@ class hdkCommon extends DynamichdkCommon {
         $listRecords = $this->makeMenuByModule($idPerson,$this->idmodule);
         $moduleinfo = $this->getModuleInfo($this->idmodule);
 
-        //$smarty->assign('displayMenu_1',1);
         $smarty->assign('listMenu_1',$listRecords);
-        $smarty->assign('moduleLogo',$this->getHeaderLogoImage());
+
+        // Set Header Logo
+        $smarty->assign('moduleLogo_url',$this->getHeaderLogoFullUrl());
+        $smarty->assign('headerheight', $this->getHeaderLogoHeight());
+        $smarty->assign('headerwidth', $this->getHeaderLogoWidth());
+
         $smarty->assign('modulePath',$moduleinfo->fields['path']);
 
     }

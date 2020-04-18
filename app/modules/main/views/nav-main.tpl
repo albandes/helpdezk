@@ -49,6 +49,8 @@
                 <div class="gn-menu-wrapper">
                     <div class="gn-scroller">
                         <ul class="gn-menu">
+
+
                             {if $isroot}
                                 <li>
                                     <a class="gn-icon" href="{$adminhome}">
@@ -60,12 +62,13 @@
                                 {if $hashelpdezk }
                                     <li>
                                         <a class="gn-icon" href="{$helpdezkhome}">
-                                            <img style="max-width:100px;" src="{$path}/app/uploads/logos/{$headerlogo}"  >
+                                            <img style="max-width:100px;" src="{$headerlogo_url}"  >
                                             &nbsp;&nbsp;HelpDEZK
                                         </a>
                                     </li>
                                 {/if}
                                 {if $hasadmin }
+
                                     <li>
                                         <a class="gn-icon" href="{$adminhome}">
                                             <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
@@ -93,7 +96,7 @@
 
     <div class="navbar-collapse collapse" id="navbar">
         <!-- active module -->
-        <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$path}/app/uploads/logos/{$moduleLogo}"  > </a>
+        <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$moduleLogo_url}" height="{$headerheight}px" width="{$headerwidth}px"  > </a>
 
         {if $featured_1 == 1}
             <ul class="nav navbar-nav">

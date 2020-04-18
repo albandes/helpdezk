@@ -16,10 +16,7 @@
    <!-- {head_item type="js"  src="$path/js/" files="inspinia.js"}-->
 
     <!-- <link href="/parracho/font-awesome/css/font-awesome.css" rel="stylesheet"> -->
-
-
-
-    <link href="/parracho/css/animate.css" rel="stylesheet">
+    <!-- <link href="/parracho/css/animate.css" rel="stylesheet"> -->
 
 
     {head_item type="css" src="$path/css/" files="$theme.css"}
@@ -33,11 +30,10 @@
     <script type="text/javascript">
 
         var default_lang = "{/literal}{$lang}{literal}",
-                path = "{/literal}{$path}{literal}",
-                langName = '{/literal}{$smarty.config.Name}{literal}',
-                theme = '{/literal}{$theme}{literal}',
-                timesession = '{/literal}{$timesession}{literal}';
-
+            path         = "{/literal}{$path}{literal}",
+            langName     = '{/literal}{$smarty.config.Name}{literal}',
+            theme        = '{/literal}{$theme}{literal}',
+            timesession  = '{/literal}{$timesession}{literal}';
 
     </script>
     {/literal}
@@ -51,10 +47,7 @@
 
             <div class="col-lg-7">
 
-                <img src="{$path}/app/uploads/logos/{$loginlogo}" height="{$height}px" width="{$width}px" />
-
-
-
+                <img src="{$loginLogoUrl}" height="{$loginheight}px" width="{$loginwidth}px" />
 
                 <h2 class="font-bold">{$smarty.config.Important_notices}</h2>
 

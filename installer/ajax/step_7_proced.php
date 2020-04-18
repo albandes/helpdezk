@@ -144,6 +144,12 @@ function makeConfig($jqueryVersion)
     array_push($a_arc,"\$config[\"jquery\"] \t = \t" . "\"". $jqueryVersion ."\"" . ";" );
 
     array_push($a_arc, PHP_EOL );
+    array_push($a_arc,"//EXTERNAL STORAGE CONFIGURATION" );
+    array_push($a_arc,"\$config[\"external_storage\"] \t\t = \tfalse ; ");
+    array_push($a_arc,"\$config[\"external_storage_path\"] \t = \t 'puth_external_storage_path_here' ;");
+    array_push($a_arc,"\$config[\"external_storage_url\"] \t = \t 'puth_external_storage_url_here' ; ");
+
+    array_push($a_arc, PHP_EOL );
     array_push($a_arc,"//LOCATION CONFIGURATION" );
     array_push($a_arc,"if(\$config[\"lang\"] == 'en_US') {");
     array_push($a_arc,"\t \$config[\"id_mask\"] \t = \t" . "\"999-99-9999\"" . ";" );

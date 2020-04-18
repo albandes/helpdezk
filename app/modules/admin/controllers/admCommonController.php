@@ -83,6 +83,13 @@ class admCommon extends Controllers  {
 
         $smarty->assign('displayMenu_Adm',1);
         $smarty->assign('listMenu_Adm',$listRecords);
+        //
+        if ($this->_externalStorage) {
+
+        } else {
+
+        }
+        //
         if ($moduleinfo->fields['idmodule'] == 1)
             $smarty->assign('moduleLogo',$this->getHeaderLogoImage());
         else
