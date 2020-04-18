@@ -42,17 +42,13 @@ class hdkTicket extends hdkCommon {
         $dbEvaluation = new evaluation_model();
         $this->dbEvaluation = $dbEvaluation;
 
-        //$this->logIt("entrou  :".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
-
-
-
     }
 
     public function index()
     {
 
         $smarty = $this->retornaSmarty();
-        //echo "<pre>", print_r($_SESSION,true), "</pre>";
+
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->_makeNavHdk($smarty);
@@ -792,21 +788,31 @@ class hdkTicket extends hdkCommon {
         $filename = $this->getParam('id');
         $type = $this->getParam('type');
         $file = $this->dbTicket->getTicketFile($filename,$type);
-        switch ($type) {
-            case 'note':
-                //$res = $dbDownload->getDownloadNote($filename);
-                $pathDownload =  "/app/uploads/helpdezk/noteattachments/";
-                break;
-            case 'request':
-                //$res = $dbDownload->getDownloadRequest($filename);
-                $pathDownload =  "/app/uploads/helpdezk/attachments/";
-                break;
-        }
 
         $name = $file;
         $ext = strrchr($name, '.');
 
-        $file_name = $this->helpdezkPath . $pathDownload . $filename . $ext;
+        switch ($type) {
+            case 'note':
+                if($this->_externalStorage) {
+                    $file_name = $this->_externalStoragePath . '/helpdezk/noteattachments/' . $filename . $ext;
+                } else {
+                    $file_name = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' . $filename . $ext ;
+                }
+                $pathDownload =  "/app/uploads/helpdezk/noteattachments/";
+                break;
+            case 'request':
+                if($this->_externalStorage) {
+                    $file_name = $this->_externalStoragePath . '/helpdezk/attachments/' . $filename . $ext ;
+                } else {
+                    $file_name = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/' . $filename . $ext ;
+                }
+                break;
+        }
+
+
+
+        //$file_name = $this->helpdezkPath . $pathDownload . $filename . $ext;
 
         // required for IE
         if(ini_get('zlib.output_compression')) {
@@ -1287,7 +1293,14 @@ class hdkTicket extends hdkCommon {
             $idAttach = $rsNoteAttach->fields['idnote_attachments'];
             $exp = explode(".",$rsNoteAttach->fields['filename']);
             $ext = $exp[count($exp)-1];
-            $fileAttach = $this->helpdezkPath . "/app/uploads/helpdezk/noteattachments/$idAttach.$ext";
+
+            if($this->_externalStorage) {
+                $fileAttach = $this->_externalStoragePath . "/helpdezk/noteattachments/$idAttach.$ext" ;
+            } else {
+                $fileAttach = $this->helpdezkPath . "/app/uploads/helpdezk/noteattachments/$idAttach.$ext";
+            }
+
+            //$fileAttach = $this->helpdezkPath . "/app/uploads/helpdezk/noteattachments/$idAttach.$ext";
 
             if(!unlink($fileAttach)){
                 if($this->log)
@@ -1591,7 +1604,13 @@ class hdkTicket extends hdkCommon {
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
             $extension = strrchr($fileName, ".");
-            $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' ;
+            if($this->_externalStorage) {
+                $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
+            } else {
+                $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/';
+            }
+
+            //$targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' ;
 
             $idNoteAttachments = $this->dbTicket->saveNoteAttachment($idNote,$fileName);
 
@@ -1619,7 +1638,13 @@ class hdkTicket extends hdkCommon {
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
             $extension = strrchr($fileName, ".");
-            $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/' ;
+            if($this->_externalStorage) {
+                $targetPath = $this->_externalStoragePath . '/helpdezk/attachments/' ;
+            } else {
+                $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/';
+            }
+
+            //$targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/' ;
 
             $idAtt = $this->dbTicket->saveTicketAtt($code_request,$fileName);
 
@@ -2590,7 +2615,12 @@ class hdkTicket extends hdkCommon {
                                 }
                                 $idanswer   = $rsAnswers->fields['idevaluation'];
                                 $answer     = $rsAnswers->fields['name'];
-                                $ico        = $this->helpdezkUrl.'/app/uploads/icons/'. $rsAnswers->fields['icon_name'];
+                                if ($this->_externalStorage) {
+                                    $ico        = $this->_externalUrl .'/app/uploads/icons/'. $rsAnswers->fields['icon_name'];
+                                } else {
+                                    $ico        = $this->helpdezkUrl.'/app/uploads/icons/'. $rsAnswers->fields['icon_name'];
+                                }
+
                                 $name = 'question-' . $idquestion ;
                                 $eval       .=   "<div class='radio i-checks'><label> <input type='radio' name='$name' value='$idanswer' $checked required> <i></i>&nbsp;<img src='$ico' height='14' />&nbsp;$answer</label></div>";
                                 $rsAnswers->MoveNext();
