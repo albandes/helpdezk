@@ -1,1 +1,1 @@
-helpdezk-community-1.2
+helpdezk-community-1.1.7
