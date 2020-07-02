@@ -5,5 +5,8 @@ $(document).ready(function () {
     console.log('adm: main.js');
     new gnMenu( document.getElementById( 'gn-menu' ) );
 
+
+
+
 });
 

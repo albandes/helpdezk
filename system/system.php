@@ -1351,7 +1351,6 @@ class System {
             die('Lang file: ' . $smartConfigFile . ' does not exist !!!!') ;
         }
 
-
         $this->setSmartyVersionNumber(Smarty::SMARTY_VERSION);
 
         if (version_compare($this->getSmartyVersionNumber(), '3', '>=' )) {

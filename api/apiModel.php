@@ -122,6 +122,13 @@ class apiModel extends apiSystem{
         return $exec;
     }
 
+    public function execute($sql)
+    {
+        $exec = $this->db->Execute($sql);
+        return $exec;
+    }
+
+
     public function BeginTrans()
 	{
 		return $this->db->BeginTrans();         

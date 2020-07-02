@@ -76,6 +76,70 @@ class apiSystem {
     public function getHourFormat()	{return $this->hourFormat;}
     public function getApiLog()     {return $this->logFile;}
 
+    /**
+     * Save base64 image
+     *
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.7 First time this was introduced.
+     *
+     * @param string  $base64ImageString            Base64 image string to save
+     * @param string  $outputFileName               Filename to save
+     * @param string  $pth          File path       Path with slash at the end
+     *
+     *
+     * @return boll Sucess|Error
+     *
+     */
+    function saveBase64File($base64ImageString, $outputFileName, $path="" )
+    {
+
+        $splited = explode(',', substr( $base64ImageString , 5 ) , 2);
+        $mime=$splited[0];
+        $data=$splited[1];
+
+        $saved_file = file_put_contents( $path . $outputFileName, base64_decode($data) );
+
+        if (($saved_file === false) || ($saved_file == -1)) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    /**
+     * Teste is string is base64 image
+     *
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since 1.1.7 First time this was introduced.
+     *
+     * @param string  $str            Base64 image string to test
+     *
+     * @return boll Sucess|Error
+     *
+     */
+    function isBase64Encoded($str)
+    {
+        try
+        {
+            $decoded = base64_decode($str, true);
+
+            if ( base64_encode($decoded) === $str ) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch(Exception $e)
+        {
+            // If exception is caught, then it is not a base64 encoded string
+            return false;
+        }
+
+    }
 
 
     /**

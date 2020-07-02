@@ -25,14 +25,16 @@
     {head_item type="css" src="$path/css/gn-menu/css/" files="component.css"}
     {head_item type="js"  src="$path/includes/js/plugins/gnmenu/" files="classie.js"}
     {head_item type="js"  src="$path/includes/js/plugins/gnmenu/" files="gnmenu.js"}
-    {head_item type="css" src="$path/css/" files="admmenu.css"}
 
     {head_item type="js"  src="$path/includes/js/plugins/modernizr/" files="modernizr.custom.js"}
+
+    {head_item type="css" src="$path/css/" files="admmenu.css"}
     <!-- Helpdezk -->
     {head_item type="js" src="$path/includes/js/" files="flex_lang.js"}
     {head_item type="js" src="$path/includes/js/" files="default.js"}
-    {head_item type="js" src="$path/app/modules/admin/views/js/" files="personreport.js"}
+    {head_item type="js" src="$path/app/modules/admin/views/js/" files="createvocabulary.js"}
     <!-- Font Awesome -->
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
     {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     <!-- animate -->
     {head_item type="css" src="$path/css/" files="animate.css"}
@@ -42,6 +44,10 @@
     <!-- Bootstrap3 Dialog  -->
     {head_item type="css" src="$path/includes/js/plugins/bootstrap3-dialog/src/css/" files="bootstrap-dialog.css"}
     {head_item type="js"  src="$path/includes/js/plugins/bootstrap3-dialog/src/js/" files="bootstrap-dialog.js"}
+    <!-- Dropzone  -->
+    {head_item type="js"  src="$path/includes/js/plugins/dropzone/" files="dropzone.js"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
+    {head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
     <!-- Jquery Validate -->
     {head_item type="js"  src="$path/includes/js/plugins/validate/" files="jquery.validate.min.js"}
     <!-- Input Mask-->
@@ -52,29 +58,31 @@
     <!-- Combo Autocomplete -->
     {head_item type="js" src="$path/includes/js/plugins/chosen/" files="chosen.jquery.js"}
     {head_item type="css" src="$path/css/plugins/chosen/" files="chosen.css"}
-    <!-- Helpdezk CSS -->
-    {head_item type="css" src="$path/css/" files="$theme.css"}
     <!-- Datapicker  -->
     {head_item type="css" src="$path/css/plugins/datepicker/" files="datepicker3.css"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/" files="bootstrap-datepicker.js"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="bootstrap-datepicker.pt-BR.min.js"}
     <!-- Moment -->
     {head_item type="js"  src="$path/includes/js/plugins/moment/" files="moment-with-locales.min.js"}
-    <!-- FileDownload -->
-    {head_item type="js"  src="$path/includes/js/plugins/jquery-filedownload/" files="jquery.filedownload.js"}
+    <!-- Helpdezk CSS -->
+    {head_item type="css" src="$path/css/" files="$theme.css"}
 
     {literal}
     <script type="text/javascript">
         var     default_lang = "{/literal}{$lang}{literal}",
-            path = "{/literal}{$path}{literal}",
-            langName = '{/literal}{$smarty.config.Name}{literal}',
-            theme = '{/literal}{$theme}{literal}',
-            mascDateTime = '{/literal}{$mascdatetime}{literal}',
-            timesession = '{/literal}{$timesession}{literal}',
-            noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
-            noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
-            ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+                path = "{/literal}{$path}{literal}",
+                langName = '{/literal}{$smarty.config.Name}{literal}',
+                theme = '{/literal}{$theme}{literal}',
+                mascDateTime = '{/literal}{$mascdatetime}{literal}',
+                timesession = '{/literal}{$timesession}{literal}',
+                noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
+                noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
+                ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
+                ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}',
+                string_array = '{/literal}{$string_array}{literal}',
+                access = {/literal}{$access}{literal};
+
 
     </script>
 
@@ -117,41 +125,10 @@
             max-width: 100% !important;
         }
 
-        /*
-         * Adicional styles to make table scrollable
-         */
-        .hdk-custom-scrollbar {
-            position: relative;
-            height: 600px;
-            overflow: auto;
-        }
-        .hdk-table-wrapper-scroll-y {
-            display: block;
+        #btnCancel{
+            margin-left: 150px;
         }
 
-        /*
-         * Adicional styles to print modal content
-         */
-
-        @media screen {
-            #printSection {
-                display: none;
-            }
-        }
-
-        @media print {
-            body * {
-                visibility:hidden;
-            }
-            #printSection, #printSection * {
-                visibility:visible;
-            }
-            #printSection {
-                position:absolute;
-                left:0;
-                top:0;
-            }
-        }
 
 
     </style>
@@ -171,123 +148,116 @@
 
         <div class="row border-bottom"> </div>
 
-        <div class="wrapper wrapper-content">
+
+
+        <div class="wrapper wrapper-content  ">
+
             <div class="row wrapper white-bg ibox-title">
                 <div class="col-sm-4">
-                    <h4>{$smarty.config.cat_reports} / <strong>{$smarty.config.pgr_person_report}</strong></h4>
+                    <h4>{$smarty.config.records} / {$smarty.config.pgr_vocabulary} / <strong>{$smarty.config.edit}</strong></h4>
                 </div>
             </div>
 
 
-            <div class="row wrapper  border-bottom white-bg ">
-                &nbsp;
-            </div>
+            <div class="row wrapper  border-bottom white-bg ">&nbsp;</div>
 
             <!-- First Line -->
+
 
             <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
 
             <!-- Form area -->
-            <form method="get" class="form-horizontal" id="person-report-form">
+            <form method="get" class="form-horizontal" id="update-vocabulary-form">
 
                 <!-- Hidden -->
                 <input type="hidden" name="_token" id= "_token" value="{$token}">
+                <input type="hidden" name="idvocabulary" id= "idvocabulary" value="{$hidden_vocabulary}">
 
                 <div class="row wrapper  white-bg ">
-                    <div class="col-sm-1 b-l"></div>
 
-                    <div class="col-sm-11 b-l">
+                    <div class="col-sm-1 b-l">
+                    </div>
+
+                    <div class="col-sm-10 b-l">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
-                            <div class="col-sm-5">
-                                <select class="form-control input-sm" name="cmbTypePerson" id="cmbTypePerson" >
+                            <label class="col-sm-2 control-label">{$smarty.config.vocabulary_locale}:</label>
+                            <div class="col-sm-4">
+                                <select class="form-control input-sm" id="cmbLocale" name="cmbLocale">
                                     <option value="">{$smarty.config.Select}</option>
-                                    <option value="ALL">{$smarty.config.all}</option>
-                                    {html_options values=$typepersonids output=$typepersonvals selected=$idtypeperson}
+                                    {html_options values=$localeids output=$localevals selected=$idlocale}
                                 </select>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{$smarty.config.Module}:</label>
+                            <div class="col-sm-4">
+                                <select class="form-control input-sm" id="cmbModule" name="cmbModule" >
+                                    <option value="">{$smarty.config.Select}</option>
+                                    {html_options values=$moduleids output=$modulevals selected=$idmodule}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{$smarty.config.vocabulary_key_name}:</label>
+                            <div class="col-sm-7">
+                                <input type="text" id="keyName" name="keyName" class="form-control input-sm" value="{$keyName}" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{$smarty.config.vocabulary_key_value}:</label>
+                            <div class="col-sm-7">
+                                <input type="text" id="keyValue" name="keyValue" class="form-control input-sm" value="{$keyValue}" >
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
 
                 <div class="row wrapper  white-bg ">
-                    <div class="col-sm-1 b-l"></div>
-
-                    <div class="col-sm-11 b-l">
-                        <div id="alert-person-report"></div>
+                    <div class="col-sm-12 b-l">
+                        <div id="alert-update-vocabulary"></div>
                     </div>
                 </div>
 
-                <div class="row wrapper  border-bottom white-bg ">&nbsp;</div>
+                <div class="row wrapper  border-bottom white-bg ">
+                    &nbsp;
+                </div>
 
                 <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
-                <div class="row wrapper  white-bg ">
 
-                    <div class="col-sm-12 b-l">
-                        <div class="form-group text-center">
-                            <!--<a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-times" aria-hidden="true"></i> Cancela </a>-->
-                            <button type="button" class="btn btn-primary btn-md btnSearch " id="btnSearch" >
-                                <span class="fa fa-search"></span>  &nbsp;{$smarty.config.Search}
+                <div class="row wrapper  white-bg text-center">
+
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {$smarty.config.Back_btn} </a>
+                            <button type="button" class="btn btn-primary btn-md" id="btnUpdateVocabulary" >
+                                <span class="fa fa-save"></span>  &nbsp;{$smarty.config.Save}
                             </button>
-
                         </div>
                     </div>
                 </div>
-
-                <div class="row wrapper  border-bottom white-bg returnBox hide">&nbsp;</div>
-
-                <div class="row wrapper border-bottom white-bg returnBox hide">
-                    <div class="col-sm-12 white-bg" style="height:15px;"></div>
-                    <div class="col-sm-12 b-l">
-                        <div class="form-group text-right">
-                            <button type="button" class="btn btn-primary btn-md btnSave " id="btnSave" >
-                                <span class="fa fa-save"></span> {$smarty.config.Save}
-                            </button>
-                            <button type="button" class="btn btn-primary btn-md btnPrint " id="btnPrint" >
-                                <span class="fa fa-print"></span> {$smarty.config.Print}
-                            </button>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 white-bg" style="height:15px;"></div>
-                    <div class="col-sm-12 b-l">
-                        <div id="divReturn" class="col-sm-12">
-                            <table id="returnTable" class="table table-hover table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th class="col-sm-2 text-center"><h4><strong>{$smarty.config.Login}</strong></h4></th>
-                                        <th class="col-sm-5 text-center"><h4><strong>{$smarty.config.Name}</strong></h4></th>
-                                        <th class="col-sm-2 text-center"><h4><strong>{$smarty.config.Type}</strong></h4></th>
-                                        <th class="col-sm-3 text-center"><h4><strong>{$smarty.config.Company}</strong></h4></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
 
             </form>
             <!-- End form area -->
+            <div class="row border-bottom white-bg ">
+                <div class="footer">
+                    {include file=$footer}
+                </div>
+            </div>
         </div>
 
+        {include file='modals/main/modal-alert.tpl'}
 
-        <div class="footer">
-            {include file=$footer}
-        </div>
     </div>
 </div>
 
-{include file='modals/reports/modal-export.tpl'}
-{include file='modals/reports/modal-web-print.tpl'}
-
-
-
 </body>
 
-</html>
 </html>
 

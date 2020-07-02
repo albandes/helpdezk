@@ -108,7 +108,10 @@ class Auth extends apiController{
 				break;
         }
 
+        $token = hash('sha512',rand(100,1000));
+
         if ($loginOK) {
+
             if($this->_log)
                 $this->log("Remote Addr: " . $this->_getIpAddress() . " - Login OK: " . $login, 'INFO', $this->_logFile);
 
@@ -119,6 +122,7 @@ class Auth extends apiController{
 
             switch ($type->fields['idtypeperson']) {               
 				case "2":
+				     /*
 						$this->startSession($idperson);
                     	$this->getConfigSession();
 						if($_SESSION['SES_MAINTENANCE'] == 1){
@@ -128,21 +132,44 @@ class Auth extends apiController{
                             $setToken = $bd->setToken($idperson,$token);
                             if($setToken){
                                 $check['success'] = array(
-                                                        "token" => $token,
-                                                        "name" => $_SESSION['SES_NAME_PERSON'],
-                                                        "license" => $this->getConfig('license')
+                                                        "token"     => $token,
+                                                        "name"      => $_SESSION['SES_NAME_PERSON'],
+                                                        "idtype"    => $type->fields['idtypeperson'],
+                                                         "typename" => $type->fields['name'],
+                                                        "license"   => $this->getConfig('license')
                                                          );
                             }else{
                                 $check['error'] = "Error generating token, please try again .";
                             }
 						}
-                    break;
+						*/
+
+				    if ($this->setLogin($idperson,$token) != false) {
+                        $check['success'] = array( "token"     => $token,
+                                                   "name"      => $_SESSION['SES_NAME_PERSON'],
+                                                   "idtype"    => $type->fields['idtypeperson'],
+                                                   "typename"  => $type->fields['name'],
+                                                   "license"   => $this->getConfig('license') );
+                    } else {
+                        $check['error'] = "Error generating token, please try again .";
+                    }
+
+				     break;
 
 				case "3":					
 					$check['error'] = "Esta versão não está disponível para atendentes!";
 					break;
 				default:
-                  	$check['error'] = "Esta versão não está disponível para administradores!";
+                    if ($this->setLogin($idperson,$token) != false) {
+                        $check['success'] = array( "token"     => $token,
+                                                   "name"      => $_SESSION['SES_NAME_PERSON'],
+                                                   "idtype"    => $type->fields['idtypeperson'],
+                                                   "typename" => $type->fields['name'],
+                                                   "license"   => $this->getConfig('license') );
+                    } else {
+                        $check['error'] = "Error generating token, please try again .";
+                    }
+
 				break;
 			}
         } else {
@@ -207,4 +234,23 @@ class Auth extends apiController{
             return false;
     }
 
+    function setLogin($idPerson,$token)
+    {
+        $db = new index_model();
+
+        $this->startSession($idPerson);
+        $this->getConfigSession();
+        if($_SESSION['SES_MAINTENANCE'] == 1){
+            $check['error'] = $_SESSION['SES_MAINTENANCE_MSG'];
+        }else{
+
+            $setToken = $db->setToken($idPerson,$token);
+            if($setToken){
+                return $token;
+            }else{
+                return false;
+            }
+        }
+
+    }
 }

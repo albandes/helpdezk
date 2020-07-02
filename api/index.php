@@ -4,10 +4,11 @@
  */
 
 
-//error_reporting(E_ERROR | E_PARSE);
+error_reporting(E_ERROR | E_PARSE);
 error_reporting(E_ALL);
 
 //error_reporting(0);
+
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
@@ -31,10 +32,13 @@ require_once ($sys->_helpdezkPath.'/app/modules/admin/models/index_model.php');
 require_once ($sys->getHelpdezkPath().'/system/common.php');
 require_once ($sys->getHelpdezkPath().'/app/modules/admin/models/features_model.php');
 require_once ($sys->getHelpdezkPath().'/app/modules/admin/models/person_model.php');
+require_once ($sys->_helpdezkPath.'app/modules/admin/models/vocabulary_model.php');
+
 require_once ($sys->_helpdezkPath . 'app/modules/helpdezk/models/ticket_model.php');
 require_once ($sys->_helpdezkPath . 'app/modules/helpdezk/models/ticketrules_model.php');
 require_once ($sys->_helpdezkPath . '/app/modules/helpdezk/models/expiredate_model.php');
 require_once ($sys->_helpdezkPath . '/app/modules/helpdezk/models/groups_model.php');
+
 
 //require_once ($sys->getHelpdezkPath().'/app/modules/helpdezk/models/requestinsert_model.php');
 //require_once ($sys->getHelpdezkPath().'/app/modules/helpdezk/models/operatorview_model.php');
@@ -87,7 +91,7 @@ $app->get('[/{controller}/{action}{params:.*}]', function ($request, $response, 
 
     $ret = call_user_func_array(array($class, "get_" . $action), array($queryParams));
 
-    echo '{"result":' . json_encode($ret, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) . '}';
+    echo '{"result":' . json_encode($ret, JSON_INVALID_UTF8_SUBSTITUTE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) . '}';
 
 });
 
