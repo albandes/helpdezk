@@ -27,6 +27,15 @@ class apiController extends apiSystem {
     }
 
     // New
+    public function _saveTicketAttachment($codeRequest,$fileName)
+    {
+        $dbTicket = new ticket_model();
+        $idTicketAttchment = $dbTicket->saveTicketAtt($codeRequest,$fileName);
+
+        return $idTicketAttchment;
+    }
+
+    // New
     public function _inchargeName($code_request)
     {
         $dbTicket = new ticket_model();
@@ -98,6 +107,56 @@ class apiController extends apiSystem {
     }
 
     // --- New Routes --
+    public function _getVocabulary($aQuery)
+    {
+        $locale     = $aQuery['locale'];
+        $fields     = $aQuery['fields'];
+        $arrayWord  = $aQuery['wordList'];
+
+        $query = '';
+
+        if ($fields == 'all') {
+            $where = "b.name = '{$locale}' AND a.idlocale=b.idlocale";
+        } elseif ($fields == 'wildcard') {
+            $first = true ;
+            foreach ($arrayWord['vocabulary'] as $row) {
+                if ($first) {
+                    $query .= ' LIKE ' . "'".$row['smarty_tag']."'";
+                    $first = false ;
+                    continue;
+                }
+                $query .= ' OR a.key_name LIKE ' . "'".$row['smarty_tag']."'";
+            }
+            $where = "( a.key_name {$query} ) AND b.name = '{$locale}' AND a.idlocale=b.idlocale";
+        } elseif ($fields == 'object') {
+            foreach ($arrayWord['vocabulary'] as $row) {
+                $query .= "'".$row['smarty_tag']."', ";
+            }
+            $trimQuery=  rtrim($query, ", "); // Remove the last character only if it's comma
+            $where = "a.key_name IN ({$trimQuery}) AND b.name = '{$locale}' AND a.idlocale=b.idlocale";
+        }
+
+        $dbVocabulary = new vocabulary_model();
+
+        $rsVocabulary = $dbVocabulary->selectVocabulary($where);
+
+        while (!$rsVocabulary->EOF) {
+            $result[] = array(
+                "key_name" => $rsVocabulary->fields['key_name'],
+                "key_value" => $rsVocabulary->fields['key_value']
+            );
+            $rsVocabulary->MoveNext();
+        }
+
+        $data = array(
+            'locale'  => $locale,
+            'records' => $result
+        );
+
+        return $data;
+
+    }
+
     public function _getArea()
     {
         $dbTicket = new ticket_model();
@@ -459,9 +518,11 @@ class apiController extends apiSystem {
         $idType = $arrRequest['type'];
         $idItem =$arrRequest['item'] ;
         $idService = $arrRequest['service'] ;
-        $idReason = (empty($arrRequest['reason']) ? null : $arrRequest['reason']);
-        $idWay = $arrRequest['way'] ;
-        $idSource = $arrRequest['source'] ;
+
+        $idReason = (empty($arrRequest['reason']) ? "NULL" : $arrRequest['reason']);
+        $idWay    = (empty($arrRequest['way']) ? 1 : $arrRequest['way']);
+        $idSource = (empty($arrRequest['source']) ? 1 : $arrRequest['source']);
+
         $subject = str_replace("'", "`",$arrRequest['subject']);
         $description = str_replace("'", "`",$arrRequest['description']);
         $idPerson = $arrRequest['idperson'];
@@ -536,9 +597,6 @@ class apiController extends apiSystem {
         $startDate = $insertDate." ".$insertHour;
         $expireDate = $this->_getExpireDate($startDate, $idPriority, $idService);
 
-
-
-
         $dbTicket->BeginTrans();
         $rs = $dbTicket->insertRequest($idPersonAuthor,$idSource,$startDate,$idType,$idItem,$idService,$idReason,$idWay,$subject,$description,$numOs,$idPriority,$numTag,$numSerial,$idCompany,$expireDate,$idPerson,$idStatus,$codeRequest);
         if(!$rs){
@@ -546,15 +604,12 @@ class apiController extends apiSystem {
             return false;
         }
 
-
         $idGroup = $dbTicket->getServiceGroup($idService);
         if(!$idGroup){
             $dbTicket->RollbackTrans();
             return false;
         }
         $dbGroup = new groups_model();
-
-
 
         if ($numRules > 0) { // If have one approver for this service
             $count = 1;
@@ -700,6 +755,7 @@ class apiController extends apiSystem {
         }
         *
         */
+
 
         $dbTicket->CommitTrans();
 
@@ -1061,7 +1117,7 @@ class apiController extends apiSystem {
         $data_sum = date("Y-m-d H:i:s",strtotime($data_sum." +".$addNotBussinesDay." days"));
         //VALIDA SE O DIA É UM DIA ÚTIL E NAO É FERIADO
         $data_check_bd = $this->_checkValidBusinessDay($data_sum,$businessDay,$idcompany);
-        //VALIDA SE A HORA ESTÁ NO INTERVALO DE ATNDIMENTO
+        //VALIDA SE A HORA ESTÁ NO INTERVALO DE ATENDIMENTO
         $data_sum = $this->_checkValidBusinessHour($data_check_bd,$businessDay);
         //CASO MUDE O DIA COM O ACRÉSCIMO DA HORA SERÁ CHECADO NOVAMENTE SE O DIA É VALIDO
         if(strtotime(date("Y-m-d",strtotime($data_check_bd))) != strtotime(date("Y-m-d",strtotime($data_sum)))){
@@ -1118,6 +1174,7 @@ class apiController extends apiSystem {
         $i = 0;
         while($i == 0){
             $numWeek = date('w',strtotime($date));
+
             $hour = strtotime(date('H:i:s',strtotime($date)));
             $begin_morning = strtotime($businessDay[$numWeek]['begin_morning']);
             $end_morning = strtotime($businessDay[$numWeek]['end_morning']);

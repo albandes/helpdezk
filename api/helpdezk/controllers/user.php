@@ -93,7 +93,6 @@ class user extends apiController
     public function post_addnote($arrParam)
     {
 
-
         if($this->_log)
             $this->log("Remote Addr: " . $this->_getIpAddress() . " - Run /api/user/addnote - Code: " . $arrParam['code'] , 'INFO', $this->_logFile);
 
@@ -143,6 +142,15 @@ class user extends apiController
 
         // https://stackoverflow.com/questions/28185300/how-to-send-multiple-files-in-postman-restful-web-service
 
+        if($this->_externalStorage) {
+            $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
+        } else {
+            $targetPath = $this->_helpdezkPath . 'app/uploads/helpdezk/noteattachments/';
+        }
+
+        if(!is_dir($targetPath))
+            mkdir ($targetPath, 0777 );
+
         if (!empty($_FILES)) {
 
             foreach ($_FILES["attachment"]["error"] as $key => $error) {
@@ -150,14 +158,6 @@ class user extends apiController
                     $fileName = $_FILES['attachment']['name'][$key];
                     $tempFile = $_FILES['attachment']['tmp_name'][$key];
                     $extension = strrchr($fileName, ".");
-                    if($this->_externalStorage) {
-                        $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
-                    } else {
-                        $targetPath = $this->_helpdezkPath . 'app/uploads/helpdezk/noteattachments/';
-                    }
-
-                    if(!is_dir($targetPath))
-                        mkdir ($targetPath, 0777 );
 
                     $idNoteAttachments = $this->_saveNoteAttachment($idNote,$fileName);
                     if (!$idNoteAttachments){
@@ -176,8 +176,56 @@ class user extends apiController
 
                 }
             }
+
         }
 
+        //using base64 array
+        if(!empty($arrParam['base64'])){
+
+            $arrayBase64 = json_decode($arrParam['base64'],true);
+
+            foreach ($arrayBase64['attach'] as $row) {
+
+                $splited = explode(',', substr( $row['base64'], 5 ) , 2);
+                $mime=$splited[0];
+                $data=$splited[1];
+
+                if($this->isBase64Encoded($data)) {
+
+                    $fileName = $row['filename'] ;
+
+                    $idNoteAttachments = $this->_saveNoteAttachment($idNote,$fileName);
+                    if (!$idNoteAttachments){
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/addnote - Error inserting attachments into database.", 'ERROR', $this->_logFile);
+                        return array('error' => 'Error inserting attachments into database.');
+                    }
+
+
+                    $info = new SplFileInfo($fileName);
+
+                    $fileNameToSave = $idNoteAttachments . '.' . $info->getExtension();
+
+                    $save = $this->saveBase64File($row['base64'], $fileNameToSave, $targetPath) ;
+                    if ( $save ) {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Save attach file: {$fileNameToSave}", 'INFO', $this->_logFile);
+                    }  else {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Error saving attach file: {$fileNameToSave}", 'ERROR', $this->_logFile);
+                        return array("error" => "Error savinga attach file {$fileNameToSave}  .");
+                    }
+
+                } else {
+                    if ($this->_log)
+                        $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Error processing: Wrong base64 .", 'ERROR', $this->_logFile);
+                    return array('error' => 'Error processing: Wrong base64  .');
+                }
+
+            }
+
+
+        }
 
         if ($this->_log)
             $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/addnote - Note inserted successfuly.", 'INFO', $this->_logFile);
@@ -427,13 +475,106 @@ class user extends apiController
             if ($this->_log)
                 $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Error processing request save.", 'ERROR', $this->_logFile);
             return array('error' => 'Error processing save request .');
-
-        } else {
-            if ($this->_log)
-                $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Request included successfully: ".$ret['coderequest'], 'INFO', $this->_logFile);
-            return array('success'=> $ret);
         }
 
+        // --- Attachments ---
+        $code_request = $ret['coderequest'];
+
+        if ($this->_externalStorage) {
+            $targetPath = $this->_externalStoragePath . '/helpdezk/attachments/';
+        } else {
+            $targetPath = $this->_helpdezkPath . '/app/uploads/helpdezk/attachments/';
+        }
+
+        if(!is_dir($targetPath))
+            mkdir ($targetPath, 0777 );
+
+        //using form files
+        if (!empty($_FILES)) {
+            foreach ($_FILES["attachment"]["error"] as $key => $error) {
+                if ($error == UPLOAD_ERR_OK) {
+
+                    $fileName = $_FILES['attachment']['name'][$key];
+                    $tempFile = $_FILES['attachment']['tmp_name'][$key];
+
+                    $info = new SplFileInfo($fileName);
+                    //$extension = strrchr($fileName, ".");
+                    $extension = $info->getExtension();
+
+
+                    $idAtt = $this->_saveTicketAttachment($code_request, $fileName);
+
+                    $targetFile = $targetPath . $idAtt . '.' . $extension;
+
+                    if (move_uploaded_file($tempFile, $targetFile)) {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Save attachment successfully: " . $ret['coderequest'], 'INFO', $this->_logFile);
+                    } else {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Error saving attachment.", 'ERROR', $this->_logFile);
+                    }
+
+                }
+            }
+        }
+
+        //using base64 array
+        if(!empty($arrParam['base64'])){
+
+            $arrayBase64 = json_decode($arrParam['base64'],true);
+
+            foreach ($arrayBase64['attach'] as $row) {
+
+                $splited = explode(',', substr( $row['base64'], 5 ) , 2);
+                $mime=$splited[0];
+                $data=$splited[1];
+
+                if($this->isBase64Encoded($data)) {
+
+                    $fileName = $row['filename'] ;
+
+                    if (empty($fileName)) {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Empty filename.", 'ERROR', $this->_logFile);
+                        return array("error" => "Empty filename.");
+
+                    }
+
+                    $idAtt = $this->_saveTicketAttachment($code_request, $fileName);
+
+                    $info = new SplFileInfo($fileName);
+
+                    $fileNameToSave = $idAtt . '.' . $info->getExtension();
+
+                    $save = $this->saveBase64File($row['base64'], $fileNameToSave, $targetPath) ;
+                    if ( $save ) {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Save attach file: {$fileNameToSave}", 'INFO', $this->_logFile);
+                    }  else {
+                        if ($this->_log)
+                            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Error saving attach file: {$fileNameToSave}", 'ERROR', $this->_logFile);
+                        return array("error" => "Error savinga attach file {$fileNameToSave}  .");
+                    }
+
+                } else {
+                    if ($this->_log)
+                        $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Error processing: Wrong base64 .", 'ERROR', $this->_logFile);
+                    return array('error' => 'Error processing: Wrong base64  .');
+                }
+
+            }
+
+
+        }
+
+
+         // ---
+
+        if ($this->_log)
+            $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/user/saverequest - Request included successfully: ".$ret['coderequest'], 'INFO', $this->_logFile);
+
+
+        return array('success'=> $ret);
 
     }
 
@@ -451,7 +592,8 @@ class user extends apiController
             return array('error' => $this->_getLangVar('API_Error_token'));
         }
 
-        $change = $this->_changePassword($idPerson, $arrParam['new_password']);
+        
+        $change = $this->_changePassword($idPerson, md5($arrParam['new_password']));
 
         if (!$change) {
             if($this->_log)

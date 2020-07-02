@@ -11,6 +11,21 @@ class home_model extends DynamicFeatures_model {
 
 //class features_model extends Model {
 
+    public function getLanguages() {
+
+        if($this->tableExists('tbvocabulary') == 0 || $this->tableExists('tblocale') == 0) {
+            return array('success' => false, 'message' => 'table tbvocabulary and/or tblocale does not exist ! ', 'id' => '');
+        }
+
+        $recordSet =  $this->select("SELECT b.name locale_name,a.key_name, a.key_value FROM tbvocabulary a, tblocale b WHERE a.idlocale = b.idlocale ORDER BY a.idlocale,a.key_name");
+
+        if($recordSet )
+            return array('success' => true, 'message' => '', 'id' => $recordSet);
+        else
+            return array('success' => false, 'message' => $this->db->ErrorMsg(), 'id' => '');
+    }
+
+
     public function getMysqlVersion()
     {
         $rs = $this->db->Execute("SELECT VERSION() AS mysqlversion");
