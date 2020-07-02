@@ -13,6 +13,34 @@ $this->_logFile  = $this->getApiLog();
 
 }
 
+    public function get_vocabulary($arrParam)
+    {
+        if($this->_log)
+            $this->log("Remote Addr: " . $this->_getIpAddress() . " - Run /api/core/vocabulary " , 'INFO', $this->_logFile);
+
+        if(empty($arrParam)) {
+            if ($this->_log)
+                $this->log("Remote Addr: " . $this->_getIpAddress() . " - /api/core/vocabulary - empty parameter" , 'ERROR', $this->_logFile);
+            return array('error' => 'Empty parameter.');
+        }
+
+        
+        $arrayWord = json_decode(stripslashes($arrParam['vocabulary']),true);
+
+        // https://stackoverflow.com/questions/34440610/php-add-single-quotes-to-comma-separated-list
+        //$commaList = "'" . implode ( "', '", $arrayWord ) . "'";
+
+
+        $aQuery = array(
+            'locale'      => $arrParam['locale'],
+            'fields'      => $arrParam['fields'],
+            'wordList'    => $arrayWord
+        );
+
+        return $this->_getVocabulary($aQuery);
+
+    }
+
     public function get_area($arrParam)
     {
         if($this->_log)

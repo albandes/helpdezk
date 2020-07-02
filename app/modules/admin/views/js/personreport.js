@@ -135,7 +135,7 @@ $(document).ready(function () {
         $("#titlePrint").html(makeSmartyLabel('pgr_person_report'));
         $("#subHeader").html('<div class="form-group"><div class="col-sm-12"><label class="control-label">'+makeSmartyLabel('pgr_person_report')+'</label></div></div>');
         $("#returnTablePrint thead").empty();
-        $("#returnTablePrint thead").html("<tr><th class='col-sm-2 text-center'><h4><strong>"+makeSmartyLabel('Login')+"</strong></h4></th><th class='col-sm-5 text-center'><h4><strong>"+makeSmartyLabel('Name')+"</strong></h4></th><th class='col-sm-2 text-center'><h4><strong>"+makeSmartyLabel('type')+"</strong></h4></th><th class='col-sm-3 text-center'><h4><strong>"+makeSmartyLabel('Company')+"</strong></h4></th></tr>");
+        $("#returnTablePrint thead").html("<tr><th class='col-sm-2 text-center'><h4><strong>"+makeSmartyLabel('Login')+"</strong></h4></th><th class='col-sm-5 text-center'><h4><strong>"+makeSmartyLabel('Name')+"</strong></h4></th><th class='col-sm-2 text-center'><h4><strong>"+makeSmartyLabel('Type')+"</strong></h4></th><th class='col-sm-3 text-center'><h4><strong>"+makeSmartyLabel('Company')+"</strong></h4></th></tr>");
         $('#modal-web-print').modal('show');
     });
 

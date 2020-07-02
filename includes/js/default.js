@@ -1,3 +1,12 @@
+function showAlert(msg,typeAlert,btnOk)
+{
+    $('#modal-notification').html(msg);
+    $("#btn-modal-ok").attr("href", btnOk);
+    $("#tipo-alert").attr('class', 'alert alert-'+typeAlert);
+    $('#modal-alert').modal('show');
+
+    return false;
+}
 
 function modalAlert(type,message)
 {

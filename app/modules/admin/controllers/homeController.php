@@ -48,6 +48,8 @@ class Home extends admCommon {
 
         // Dashboard
         $smarty->assign('adm_dashboard', 'admin-dashboard.tpl');    // Set dashboard
+        $smarty->assign('date_updatevocabulary', file_get_contents($this->helpdezkPath.'/logs/updatelanguagefile.txt'));
+        $smarty->assign('date_clearsmartycache', file_get_contents($this->helpdezkPath.'/logs/clearsmartycache.txt'));
 
         $haveInstaller = (is_dir($this->helpdezkPath. DIRECTORY_SEPARATOR .'installer') ? true : false) ;
         $ipAddress = $this->getExternalIpInfo();
@@ -72,8 +74,127 @@ class Home extends admCommon {
         $smarty->display('adm-main.tpl');
     }
 
+    /**
+     * Method that updates language files.
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
+     * @uses $_POST['action'] directly
+     *
+     * @since May 30, 2020
+     *
+     * * @return array [
+     *                  'success'       => true|false,
+     *                  'message'       => Error or success message
+     *                  'id'            => Record ID saved in database
+     *                 ]
+     */
+    public function updateLanguageFile()
+    {
+
+        $action      = $_POST['action'];
+
+        $arrayLanguage = $this->dbHome->getLanguages();
+        if (!$arrayLanguage['success']) {
+            echo json_encode(array('success' => false, 'message' => $arrayLanguage['message'], 'id' => ''));
+
+        }
+
+        $first = true ;
+        $rsLanguage = $arrayLanguage['id'];
+
+        while (!$rsLanguage->EOF) {
+            if ($first) {
+                $first = false ;
+                $localeTest = $rsLanguage->fields['locale_name'];
+                $file = $this->helpdezkPath . '/app/lang/' . $rsLanguage->fields['locale_name'] . '.txt' ;
+                file_put_contents( $file , '# --- Generated at ' . date("F j, Y, g:i a") . ' --- ' . PHP_EOL, LOCK_EX);
+            }
+
+            $localeName = $rsLanguage->fields['locale_name'];
+
+            if($localeTest != $localeName) {
+                $localeTest = $rsLanguage->fields['locale_name'];
+                $file = $this->helpdezkPath . '/app/lang/' . $rsLanguage->fields['locale_name'] . '.txt' ;
+                file_put_contents( $file , '# --- Generated at ' . date("F j, Y, g:i a"). ' --- ' .PHP_EOL, LOCK_EX);
+            }
+
+            $keyName  = $rsLanguage->fields['key_name'];
+            $keyValue = $rsLanguage->fields['key_value'];
+
+            $data = trim($keyName) . ' = ' . '"' . $keyValue .'"' . PHP_EOL ;
+
+            file_put_contents( $file , $data, FILE_APPEND | LOCK_EX);
+
+            $rsLanguage->MoveNext();
+        }
+
+        // Version >= 1.2 does not need to do some tests.
+        $lang_default = $this->getConfig("lang");
+        $license      =  $this->getConfig("license");
+        $smartConfigFile = $this->getHelpdezkPath().'/app/lang/' . $lang_default . '.txt';
+
+        $smarty = $this->retornaSmarty();
+        $smarty->configLoad($smartConfigFile, $license);
+        //
+
+        $arrayReturn = array('success' => true , 'message' => 'Ok !!!', 'id' => '');
+
+        $mascdatetime = str_replace("%","",$this->dateFormat) . " " . str_replace("%","",$this->hourFormat);
+        file_put_contents($this->helpdezkPath."/logs/updatelanguagefile.txt",date($mascdatetime),LOCK_EX );
+
+        echo json_encode($arrayReturn);
+
+    }
+
+    /**
+     * Method to clear Smarty Cache.
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
+     * @uses $_POST['action'] directly
+     *
+     * @since June 21, 2020
+     *
+     * * @return array [
+     *                  'success'       => true|false,
+     *                  'message'       => Error or success message
+     *                  'id'            => Record ID saved in database
+     *                 ]
+     */
+    public function clearSmartyCache()
+    {
+
+        $action      = $_POST['action'];
+        $smarty = $this->retornaSmarty();
+
+        if ($smarty->caching) {
+            if (version_compare($this->getSmartyVersionNumber(), '3', '>=' )) {
+                $smarty->clearAllCache();
+            } else {
+                $smarty->clear_all_cache();
+            }
+
+            $message = "Smarty Cache was successfully cleared: {$smarty->cache_dir}.";
+        } else {
+
+            $files = glob($smarty->compile_dir . '*.php');
+            foreach($files as $file){
+                if(is_file($file))
+                    unlink($file);
+            }
+
+            $message = "The cache is disabled, the directory {$smarty->compile_dir}, was cleaned.";
+        }
+
+        $arrayReturn = array('success' => true , 'message' => $message, 'id' => '');
+
+        $mascdatetime = str_replace("%","",$this->dateFormat) . " " . str_replace("%","",$this->hourFormat);
+        file_put_contents($this->helpdezkPath."/logs/clearsmartycache.txt",date($mascdatetime),LOCK_EX );
+        echo json_encode($arrayReturn);
 
 
+    }
     /*
     * Get the external information about Ip Address
     *

@@ -1,9 +1,62 @@
-
+{head_item type="js" src="$path/app/modules/admin/views/js/" files="dashboard.js"}
 
 
 <div class="wrapper wrapper-content  animated fadeInRight">
     <div class="row" id="sortable-view">
-        <div class="col-lg-6">
+
+        <div class="col-lg-4">
+
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>{$smarty.config.Settings}</h5>
+                </div>
+
+                <div class="ibox-content">
+
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            {$smarty.config.Environment_settings}
+                        </div>
+
+                        <div class="panel-body">
+
+                            <ul class="list-group clear-list m-t">
+
+                                <li class="list-group-item">
+                                <span class="pull-right">
+                                    Last Update
+                                </span>
+                                    Action
+                                </li>
+
+
+                                <li class="list-group-item">
+                                <span class="pull-right">
+                                    {$date_updatevocabulary}
+                                </span>
+                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnUpdateVocabulary">Update vocabulary</button></span> Update vocabulary
+                                </li>
+
+                                <li class="list-group-item">
+                                <span class="pull-right">
+                                    {$date_clearsmartycache}
+                                </span>
+                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnClearSmartyCash">Clear Cache</button></span> Clear Smarty Cache
+                                </li>
+
+
+                            </ul>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
 
 
 
@@ -32,15 +85,12 @@
                         </div>
                     </div>
 
-
-
-
-
                 </div>
             </div>
 
         </div>
-        <div class="col-lg-6">
+
+        <div class="col-lg-4">
             {if $have_installer == 1}
 
                 <div class="ibox ">
@@ -96,5 +146,12 @@
             *}
         </div>
 
+
+
     </div>
 </div>
+
+
+
+{include file='modals/dashboard/modalUpdateLanguageAlert.tpl'}
+{include file='modals/dashboard/modal-alert.tpl'}

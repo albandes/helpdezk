@@ -228,7 +228,7 @@
                             <div class="col-sm-4">
                                 <input type="text" id="cnpj" name="cnpj" class="form-control input-sm" placeholder="{$plh_program_description}" value="{$cnpjVal}" >
                             </div>
-                            <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
+                            <label class="col-sm-2 control-label">{$smarty.config.type}:</label>
                             <div class="col-sm-4">
                                 <select class="form-control input-sm "  id="type_company" name="type_company" data-placeholder="{$plh_module_select}" >
                                     {html_options values=$levelcompanyids output=$levelcompanyvals selected=$idlevelcompany}
