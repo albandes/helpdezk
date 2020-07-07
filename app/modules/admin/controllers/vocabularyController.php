@@ -72,7 +72,7 @@ class Vocabulary  extends admCommon {
                     $searchField = "b.name";
                     break;
                 case 'module_name':
-                    $searchField = "c.name";
+                    $searchField = "a.idmodule";
                     break;
                 default:
                     $searchField = $_POST['searchField'];
@@ -121,7 +121,7 @@ class Vocabulary  extends admCommon {
                 'locale'    => $rsVocabulary->fields['locale_name'],
                 'module'    => $rsVocabulary->fields['module_name'],
                 'key_name'  => $keyName,
-                'key_value' => utf8_encode($keyValue),
+                'key_value' => $keyValue,
                 'status'    => $status_fmt,
                 'statusval' => $rsVocabulary->fields['status']
             );
@@ -146,7 +146,7 @@ class Vocabulary  extends admCommon {
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
         $smarty = $this->retornaSmarty();
 
-        $this->makeScreen($smarty,'','create');
+        $this->makeScreen($smarty,'create');
 
         $smarty->assign('token', $token) ;
         $this->makeNavVariables($smarty,'admin');
@@ -170,13 +170,19 @@ class Vocabulary  extends admCommon {
         $vocabularyID = $this->getParam('idvocabulary');
         $rs = $this->dbVocabulary->getVocabulary("AND idvocabulary = {$vocabularyID}");
         if(is_array($rs) && isset($rs['status'])){
-            $this->dbFingerPrints->RollbackTrans();
             if($this->log)
                 $this->logIt('Can\'t get Vocabulary data. Reason: '.$rs['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
 
-        $this->makeScreen($smarty,$rs,'update');
+        $list = $this->dbVocabulary->getVocabulary("AND a.key_name = '{$rs->fields['key_name']}'");
+        if(is_array($list) && isset($list['status'])){
+            if($this->log)
+                $this->logIt('Can\'t get Vocabulary key_value list. Reason: '.$list['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->makeScreen($smarty,'update',$rs,$list);
 
         $smarty->assign('token', $token) ;
         $smarty->assign('hidden_vocabulary', $vocabularyID) ;
@@ -191,7 +197,7 @@ class Vocabulary  extends admCommon {
         $smarty->display('vocabulary-update.tpl');
     }
     
-    function makeScreen($objSmarty,$rs,$oper)
+    function makeScreen($objSmarty,$oper,$rs=null,$list=null)
     {
         // --- Locale ---
         $arrLocale = $this->comboLocale(null,null, "ORDER BY `name`");
@@ -226,7 +232,18 @@ class Vocabulary  extends admCommon {
         //  --- Key Fields ---
         if ($oper == 'update' || $oper == 'echo') {
             $objSmarty->assign('keyName',  $rs->fields['key_name']);
-            $objSmarty->assign('keyValue', utf8_encode($rs->fields['key_value']));
+
+            while (!$list->EOF) {
+                $aItens[] = array(
+                    'idvocabulary'  => $list->fields['idvocabulary'],
+                    'idlocale'      => $list->fields['idlocale'],
+                    'locale_name'   => $list->fields['locale_name'],
+                    'key_value'     => $list->fields['key_value']
+                );
+                $list->MoveNext();
+            }
+
+            $objSmarty->assign('aItens',$aItens);
         }
     }
 
@@ -238,19 +255,23 @@ class Vocabulary  extends admCommon {
             return false;
         }
 
-        $localeID = $_POST['cmbLocale'];
+        $aLocale = $_POST['localeID'];
         $moduleID = $_POST['cmbModule'];
-        $keyName = $this->formatLoginToSave($_POST['keyName']);
-        $keyValue = utf8_decode($this->formatLoginToSave($_POST['keyValue']));
+        $keyName = $this->formatStringToSave($_POST['keyName']);
+        $aKeyValue = $_POST['keyValue'];
 
         $this->dbVocabulary->BeginTrans();
 
-        $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValue);
-        if(is_array($ins) && isset($ins['status'])){
-            $this->dbVocabulary->RollbackTrans();
-            if($this->log)
-                $this->logIt('Can\'t insert Vocabulary. Reason: '.$ins['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
+        foreach ($aLocale as $key=>$localeID) {
+            $keyValue = $this->formatStringToSave($aKeyValue[$key]);
+
+            $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValue);
+            if(is_array($ins) && isset($ins['status'])){
+                $this->dbVocabulary->RollbackTrans();
+                if($this->log)
+                    $this->logIt('Can\'t insert Vocabulary. Reason: '.$ins['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return false;
+            }
         }
 
         $this->dbVocabulary->CommitTrans();
@@ -271,20 +292,36 @@ class Vocabulary  extends admCommon {
             return false;
         }
 
-        $vocabularyID = $_POST['idvocabulary'];
-        $localeID = $_POST['cmbLocale'];
+        $aID = $_POST['vocabularyID'];
+        $aLocale = $_POST['localeID'];
         $moduleID = $_POST['cmbModule'];
-        $keyName = $this->formatLoginToSave($_POST['keyName']);
-        $keyValue = utf8_decode($this->formatLoginToSave($_POST['keyValue']));
+        $keyName = $this->formatStringToSave($_POST['keyName']);
+        $aKeyValue = $_POST['keyValue'];
 
         $this->dbVocabulary->BeginTrans();
 
-        $upd = $this->dbVocabulary->updateVocabulary($vocabularyID,$localeID,$moduleID,$keyName,$keyValue);
-        if(is_array($upd) && isset($upd['status'])){
-            $this->dbVocabulary->RollbackTrans();
-            if($this->log)
-                $this->logIt("Can't update Vocabulary. ID: {$vocabularyID}. Reason: ".$upd['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
+        foreach ($aLocale as $key=>$localeID) {
+            $keyValue = $this->formatStringToSave($aKeyValue[$key]);
+
+            if($aID[$key] == "0"){
+                $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValue);
+                if(is_array($ins) && isset($ins['status'])){
+                    $this->dbVocabulary->RollbackTrans();
+                    if($this->log)
+                        $this->logIt('Can\'t insert Vocabulary. Reason: '.$ins['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+            }else{
+                $upd = $this->dbVocabulary->updateVocabulary($aID[$key],$localeID,$moduleID,$keyName,$keyValue);
+                if(is_array($upd) && isset($upd['status'])){
+                    $this->dbVocabulary->RollbackTrans();
+                    if($this->log)
+                        $this->logIt("Can't update Vocabulary. ID: {$vocabularyID}. Reason: ".$upd['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+            }
+
+
         }
 
         $this->dbVocabulary->CommitTrans();
@@ -312,9 +349,14 @@ class Vocabulary  extends admCommon {
 
         $check = $this->dbVocabulary->getVocabulary($where);
         if ($check->RecordCount() > 0) {
-            echo json_encode($this->getLanguageWord('vocabulary_key_exists'));
+            echo json_encode(
+                array(
+                    'status' => false,
+                    'message' => $this->getLanguageWord('vocabulary_key_exists') . ". <strong>Key</strong>: {$keyName} - <strong>Locale</strong>: {$_POST['localName']}."
+                )
+            );
         } else {
-            echo json_encode(true);
+            echo json_encode(array('status' => true, 'message' => ''));
         }
     }
 
@@ -345,7 +387,7 @@ class Vocabulary  extends admCommon {
 
     }
 
-    function formatLoginToSave($string)
+    function formatStringToSave($string)
     {
         return addslashes(trim(preg_replace('!\s+!', ' ', $string)));
 
@@ -384,6 +426,63 @@ class Vocabulary  extends admCommon {
         (isset($permissions[6]) && $permissions[6] == "Y") ? $smarty->assign('display_btn_sms', '') : $smarty->assign('display_btn_sms', 'hide');
 
 
+    }
+
+    function ajaxLocale()
+    {
+        echo $this->comboLocaleHtml();
+    }
+
+    public function comboLocaleHtml()
+    {
+        $arrLocale = $this->comboLocale(null,null,"ORDER BY `name`");
+        $select = "<option value=''>".$this->getLanguageWord('Select')."</option>";
+
+        foreach ( $arrLocale['ids'] as $indexKey => $indexValue ) {
+            if ($arrLocale['default'][$indexKey] == 1) {
+                $default = 'selected="selected"';
+            } else {
+                $default = '';
+            }
+            $select .= "<option value='$indexValue' $default>".$arrLocale['values'][$indexKey]."</option>";
+        }
+        return $select;
+    }
+
+    function ajaxSearchCmbLocale()
+    {
+        $arrLocale = $this->comboLocale(null,null,"ORDER BY `name`");
+        $select = "0:".$this->getLanguageWord('Select').";";
+
+        foreach ( $arrLocale['ids'] as $indexKey => $indexValue ) {
+            $select .= "{$indexValue}:{$arrLocale['values'][$indexKey]};";
+        }
+
+        $select = substr($select,0,-1);
+        $aRet = array(
+            "data" => $select,
+            "status" => "OK"
+        );
+
+        echo json_encode($aRet);
+    }
+
+    function ajaxSearchCmbModule()
+    {
+        $arrModule = $this->_comboModule(null,"ORDER BY `name`");
+        $select = "0:".$this->getLanguageWord('Select').";";
+
+        foreach ( $arrModule['ids'] as $indexKey => $indexValue ) {
+            $select .= "{$indexValue}:{$arrModule['values'][$indexKey]};";
+        }
+
+        $select = substr($select,0,-1);
+        $aRet = array(
+            "data" => $select,
+            "status" => "OK"
+        );
+
+        echo json_encode($aRet);
     }
 
 }

@@ -3,6 +3,20 @@ $(document).ready(function () {
     countdown.start(timesession);
     new gnMenu( document.getElementById( 'gn-menu' ) );
 
+    var searchCmbLocale = $.ajax({
+        type: "POST",
+        url: path+"/admin/vocabulary/ajaxSearchCmbLocale",
+        async: false,
+        dataType: 'json'
+    }).responseJSON;
+
+    var searchCmbModule = $.ajax({
+        type: "POST",
+        url: path+"/admin/vocabulary/ajaxSearchCmbModule",
+        async: false,
+        dataType: 'json'
+    }).responseJSON;
+
     var grid = $("#table_list_vocabulary");
 
     grid.jqGrid({
@@ -19,8 +33,8 @@ $(document).ready(function () {
         colNames:['',makeSmartyLabel('vocabulary_locale'),makeSmartyLabel('Module'),makeSmartyLabel('vocabulary_key_name'),makeSmartyLabel('vocabulary_key_value'),makeSmartyLabel('status'),''],
         colModel:[
             {name:'id',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
-            {name:'locale',index:'locale_name',editable: false, width:60, align:"center",sortable: true, search:true, hidden: false},
-            {name:'module',index:'module_name', editable: true, width:80, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
+            {name:'locale',index:'locale_name',editable: false, width:60, align:"center",sortable: true, search:true, hidden: false, sorttype: 'string', searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'], value:searchCmbLocale.data} },
+            {name:'module',index:'module_name', editable: true, width:80, search:true, sorttype: 'string', stype:'select', searchoptions: { sopt: ['eq'], value:searchCmbModule.data} },
             {name:'key_name',index:'key_name', editable: true, width:100, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
             {name:'key_value',index:'key_value', editable: true, width:100, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
             {name:'status',index:'a.status', editable: true, width:40, search:false, align:"center", sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },

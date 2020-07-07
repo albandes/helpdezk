@@ -143,7 +143,7 @@ class apiController extends apiSystem {
         while (!$rsVocabulary->EOF) {
             $result[] = array(
                 "key_name" => $rsVocabulary->fields['key_name'],
-                "key_value" => $rsVocabulary->fields['key_value']
+                "key_value" => utf8_decode($rsVocabulary->fields['key_value'])
             );
             $rsVocabulary->MoveNext();
         }

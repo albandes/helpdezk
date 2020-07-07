@@ -172,6 +172,7 @@
 
                 <!-- Hidden -->
                 <input type="hidden" name="_token" id= "_token" value="{$token}">
+                <input type="hidden" id= "typeAction" value="add">
 
                 <div class="row wrapper  white-bg ">
 
@@ -179,16 +180,6 @@
                     </div>
 
                     <div class="col-sm-10 b-l">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">{$smarty.config.vocabulary_locale}:</label>
-                            <div class="col-sm-4">
-                                <select class="form-control input-sm" id="cmbLocale" name="cmbLocale">
-                                    <option value="">{$smarty.config.Select}</option>
-                                    {html_options values=$localeids output=$localevals selected=$idlocale}
-                                </select>
-                            </div>
-                        </div>
-
                         <div class="form-group">
                             <label class="col-sm-2 control-label">{$smarty.config.Module}:</label>
                             <div class="col-sm-4">
@@ -206,16 +197,54 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">{$smarty.config.vocabulary_key_value}:</label>
-                            <div class="col-sm-7">
-                                <input type="text" id="keyValue" name="keyValue" class="form-control input-sm" placeholder="{$plh_controller_description}" value="" >
-                            </div>
-                        </div>
-
                     </div>
 
                 </div>
+
+                <div class="col-xs-12 white-bg" style="height:30px;"></div>
+
+                <div class="row wrapper  white-bg textcenter">
+                    <div class="col-sm-12 b-l">
+                        <div class="col-sm-2 b-l"></div>
+                        <div class="col-sm-8 b-l">
+                            <table id="localeTab" class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th class="col-sm-3 text-center"><h4><strong>{$smarty.config.vocabulary_locale}</strong></h4></th>
+                                    <th class="col-sm-8 text-center"><h4><strong>{$smarty.config.vocabulary_key_value}</strong></h4></th>
+                                    <th class="col-sm-1 text-center"><h4><strong>{$smarty.config.TMS_Delete}</strong></h4></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-control input-sm cmbLocale" name="localeID[]" id="localeID_1">
+                                            {html_options values=$localeids output=$localevals selected=$idlocale}
+                                        </select>
+                                        <input type="hidden" id="numId" value="1"/>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="keyValue[]" id="keyValue_1" class="form-control input-sm" />
+                                    </td>
+                                    <td class="text-center"><a href="javascript:;" onclick="removeRow(this,'localeTab','new')" class="btn btn-danger bt-xs"><i class="fa fa-times"></i></a></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 b-l">
+                        <div class="col-sm-2 b-l"></div>
+                        <div class="col-sm-8 b-l">
+                            <button type="button" class="btn btn-primary btn-md " id="btnAddKeyValue" >
+                                <span class="fa fa-plus"></span>  &nbsp;{$smarty.config.Add} {$smarty.config.pgr_vocabulary}
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
                 <div class="row wrapper  white-bg ">
                     <div class="col-sm-12 b-l">
