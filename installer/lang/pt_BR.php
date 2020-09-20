@@ -17,8 +17,8 @@ define ('INFO_STEP_2',     	'Antes de prosseguir com a instalação completa, va
 define ('PHP_SETTINGS', 	'Configurações do PHP');
 define ('PHP_MODULES',  	'Módulos do PHP');
 define ('FOLDERS_FILES', 	'Pastas e arquivos');
-define ('WRITABLE',			'Permissssão para Gravação');
-define ('NOT_WRITABLE',		'Sem Permissão para Gravação');
+define ('WRITABLE',			'Permiss&atilde;o para Grava&ccedil;&atilde;o');
+define ('NOT_WRITABLE',		'Sem Permiss&atilde;o para Grava&ccedil;&atilde;o');
 
 define ('PROGRESS_STEP_3', 	'Etapa 3 de 7 - Website URL');
 define ('INFO_STEP_3',     	'Nás já pré-definimos automaticamente a url para acesso ao HELPDEZK. Por favor verifique se está tudo correto antes de continuar para o próximo passo. ');

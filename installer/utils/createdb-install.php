@@ -1,12 +1,44 @@
 <?php
 
-$dbUser = 'root';
-$dbPass = '';
-$dbHost  = 'localhost';
-$dbDatabase = 'hdk-install';
+$dbHost     = '10.42.43.5';
+$dbUser     = 'pipeadm';
+$dbPass     = 'qpal10';
+$dbDatabase = 'instala';
 
-$lineBreak = '<br>';
 $debug = true ;
+
+/*
+ * To run this program, observe mysql so that the lower_case_table_names parameter is equal to 0.
+ * Check with SHOW VARIABLES LIKE '% case%';
+ * The views have uppercase and lowercase characters, the windows mysql, for example, comes by default with
+ * lower_case_table_names = 1, so the views are saved in lowercase.
+ *
+ * They need to be saved respecting the case sensitive, example:
+ * hdk_viewNotesData
+ * hdk_viewRequestData
+ *
+ * 0 : Table names are stored as specified and comparisons are case sensitive.
+ * 1 : Table names are stored in lowercase on disk and comparisons are not case sensitive.
+ * 2 : Table names are stored as given but compared in lowercase.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ * Para rodar este programa observar o mysql para que o parâmetro lower_case_table_names seja igual a 0 .
+ * Verificar com SHOW VARIABLES LIKE '%case%';
+ * As views tem caracteres maiúsculos e minúsculos, o mysql do windows, por exemplo, vem por default com
+ * lower_case_table_names=1, com isto as views são salvas em minúsculo.
+ *
+ * Elas precisam ser salvas respeitando a diferenciação entre maiúsculas e minúsculas, exemplo:
+ * hdk_viewNotesData
+ * hdk_viewRequestData
+ *
+ * 0: Os nomes das tabelas são armazenados conforme especificado e as comparações diferenciam maiúsculas de minúsculas.
+ * 1: Os nomes das tabelas são armazenados em minúsculas no disco e as comparações não diferenciam maiúsculas de minúsculas.
+ * 2: Os nomes das tabelas são armazenados conforme especificado, mas comparados em minúsculas.
+ *
+ */
+$lineBreak = getLineBreak();
+
 
 
 if ($debug)
@@ -261,7 +293,7 @@ function connectDb($host,$user,$pass,$db)
         exit();
     }
 
-    echo "Success: A proper connection to MySQL was made! The my_db database is great." . $lineBreak;
+    echo "Success: A proper connection to MySQL was made! The {$db} database is great." . $lineBreak;
     echo "Host information: " . mysqli_get_host_info($link) . $lineBreak;
 
     return $mysqli;
@@ -277,6 +309,7 @@ function writeFile($fileName,$sql)
 
 function timeElapsed($time_start)
 {
+
     $time_end = microtime(true);
     $execution_time = ($time_end - $time_start);
     if ($execution_time >= 60) {
@@ -285,7 +318,7 @@ function timeElapsed($time_start)
     } else {
         $unit = ' s';
     }
-    return '<b>Total Execution Time:</b> '.round($execution_time).$unit;
+    return 'Total Execution Time: '.round($execution_time).$unit;
 }
 
 function cleanDefinition ($string)
@@ -313,4 +346,12 @@ function cleanDefinition ($string)
     return $newLine;
 
 
+}
+
+function getLineBreak()
+{
+    if (PHP_SAPI === 'cli')
+        return PHP_EOL;
+    else
+        return "<BR/>";
 }

@@ -318,7 +318,6 @@ $(document).ready(function () {
             width: 750,       // set editor width
             focus: false,     // set focus to editable area after initializing summernote
             placeholder:  makeSmartyLabel('Editor_Placeholder_insert')
-
         }
     );
 

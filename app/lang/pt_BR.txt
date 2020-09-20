@@ -1,4 +1,4 @@
-# --- Generated at July 7, 2020, 6:14 pm --- 
+# --- Generated at July 19, 2020, 12:00 am --- 
 Abbreviation = "Sigla"
 Abilities = "Habilidades"
 Access = "Accessar"

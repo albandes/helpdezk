@@ -1,6 +1,6 @@
 
 CREATE
-    VIEW `hdk_viewRequestData`
+    VIEW `hdk_viewrequestData`
     AS
 (
 

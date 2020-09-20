@@ -8,8 +8,8 @@ if(class_exists('Model')) {
     class DynamicVocabulary_model extends apiModel {}
 }
 
-class vocabulary_model extends DynamicVocabulary_model{
-
+class vocabulary_model extends DynamicVocabulary_model
+{
 
     public function selectVocabulary($where = NULL, $order = NULL, $limit = NULL) {
         $sql = "
@@ -34,7 +34,6 @@ class vocabulary_model extends DynamicVocabulary_model{
         }
         return $ret;
     }
-
 
     public function getVocabulary($where=NULL,$group=NULL,$order=NULL,$limit=NULL) {
 
@@ -77,7 +76,6 @@ class vocabulary_model extends DynamicVocabulary_model{
         }
         return $ret;
     }
-
 
     public function insertVocabulary($localeID,$moduleID,$keyName,$keyValue){
         $query = "INSERT INTO tbvocabulary (idlocale,idmodule,key_name,key_value,`status`)
