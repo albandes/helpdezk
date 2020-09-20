@@ -46,6 +46,8 @@ class hdkReason extends hdkCommon
     public function jsonGrid()
     {
         $this->validasessao();
+
+        $this->protectFormInput();
         $smarty = $this->retornaSmarty();
 
         $where = '';

@@ -58,8 +58,6 @@ class System {
         //$this->headerLogoImage = $this->getHeaderLogoImage();
 
 
-
-
         // Version settings
         $this->getHelpdezkVersion();
         $this->helpdezkName = $this->getHelpdezkName();
@@ -83,6 +81,44 @@ class System {
 
     }
 
+    public function protectFormInput()
+    {
+        if(!empty($_POST)) {
+            foreach ($_POST as $mKey => $mValue)
+            {
+                $arrayPOST[ $mKey ] = $this->_protect($mValue);
+            }
+            $_POST = $arrayPOST;
+        }
+
+        if(!empty($_GET)) {
+            foreach ($_GET as $mKey => $mValue)
+            {
+                $arrayGET[ $mKey ] = $this->_protect($mValue);
+            }
+            $_GET  = $arrayGET;
+        }
+    }
+
+    /**
+     * Return a string / Array protected against SQL / Blind / XSS Injection
+     *
+     * @param $str
+     * @return array|string
+     */
+    public function _protect($str) {
+        if( !is_array( $str ) ) {
+            $str = preg_replace( '/(from|select|insert|delete|where|drop|union|order|update|database|FROM|SELECT|INSERT|DELETE|WHERE|DROP|UNION|ORDER|UPDATE|DATABASE|AND|and|HAVING|having|SLEEP|sleep|OR|or)/i', '', $str );
+            $str = preg_replace( '/(&lt;|<)?script(\/?(&gt;|>(.*))?)/i', '', $str );
+            $tbl = get_html_translation_table( HTML_ENTITIES );
+            $tbl = array_flip( $tbl );
+            $str = addslashes( $str );
+            $str = strip_tags( $str );
+            return strtr( $str, $tbl );
+        } else {
+            return array_filter( $str, "_protect" );
+        }
+    }
 
     /**
      * Returns External Storage Url
@@ -732,6 +768,7 @@ class System {
                 $ret = $column . ' >= ' . $search;
                 break;
             case 'bw': // begins with
+                $search = str_replace("_", "\_", $search);
                 $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
                 break;
             case 'bn': //does not begin with
@@ -743,15 +780,19 @@ class System {
                 $ret = "pipeLatinToUtf8(".$column.")" . ' NOT IN ('. "pipeLatinToUtf8('" . $search . "')" . ')';
                 break;
             case 'ew': // ends with
+                $search = str_replace("_", "\_", $search);
                 $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' . "pipeLatinToUtf8('" . '%' . rtrim($search) . "')";
                 break;
             case 'en': // does not end with
+                $search = str_replace("_", "\_", $search);
                 $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . '%' .  rtrim($search) . "')";
                 break;
             case 'cn': // contains
+                $search = str_replace("_", "\_", $search);
                 $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' .  "pipeLatinToUtf8('" . '%' . $search .'%' . "')" ;
                 break;
             case 'nc': // does not contain
+                $search = str_replace("_", "\_", $search);
                 $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' .  "pipeLatinToUtf8('" .'%' . $search . '%' .  "')" ;
                 break;
             case 'nu': //is null
@@ -1271,9 +1312,11 @@ class System {
         }
     }
 
+    // http://localhost/git/helpdezk/admin/login/getWarning/id/0 union select 1,2,password,name,login,6,7,8,9,10,11 from tbperson#
     public function getParam($name = NULL) {
         if ($name != NULL) {
-            return $this->_params[$name];
+            return $this->_protect($this->_params[$name]);
+            //return $this->_params[$name];
         } else {
             return $this->_params;
         }

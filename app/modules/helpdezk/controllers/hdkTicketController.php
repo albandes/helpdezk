@@ -175,6 +175,8 @@ class hdkTicket extends hdkCommon {
 
     public function saveTicket()
     {
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
