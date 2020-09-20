@@ -28,7 +28,6 @@ class Login extends admCommon {
         $this->log = parent::$_logStatus;
     }
 
-
     public function index() {
 
         session_start();

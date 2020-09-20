@@ -65,6 +65,7 @@ class Vocabulary  extends admCommon {
         if(!$sord)
             $sord ='asc';
 
+        $where ='';
         if ($_POST['_search'] == 'true'){
 
             switch ($_POST['searchField']){
@@ -79,7 +80,6 @@ class Vocabulary  extends admCommon {
                     break;
 
             }
-
 
             $where .= ' AND ' . $this->getJqGridOperation($_POST['searchOper'],$searchField ,$_POST['searchString']);
 
@@ -264,8 +264,9 @@ class Vocabulary  extends admCommon {
 
         foreach ($aLocale as $key=>$localeID) {
             $keyValue = $this->formatStringToSave($aKeyValue[$key]);
+            $keyValueHtmlEntities= $this->normalizeChars($keyValue);
 
-            $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValue);
+            $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValueHtmlEntities);
             if(is_array($ins) && isset($ins['status'])){
                 $this->dbVocabulary->RollbackTrans();
                 if($this->log)
@@ -302,9 +303,10 @@ class Vocabulary  extends admCommon {
 
         foreach ($aLocale as $key=>$localeID) {
             $keyValue = $this->formatStringToSave($aKeyValue[$key]);
+            $keyValueHtmlEntities= $this->normalizeChars($keyValue);
 
             if($aID[$key] == "0"){
-                $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValue);
+                $ins = $this->dbVocabulary->insertVocabulary($localeID,$moduleID,$keyName,$keyValueHtmlEntities);
                 if(is_array($ins) && isset($ins['status'])){
                     $this->dbVocabulary->RollbackTrans();
                     if($this->log)
@@ -390,7 +392,6 @@ class Vocabulary  extends admCommon {
     function formatStringToSave($string)
     {
         return addslashes(trim(preg_replace('!\s+!', ' ', $string)));
-
     }
 
     public function comboLocale($where=null,$group=null,$order=null,$limit=null)
@@ -485,4 +486,48 @@ class Vocabulary  extends admCommon {
         echo json_encode($aRet);
     }
 
+    function normalizeChars($s)
+    {
+        $replace = array(
+
+            'Á'=>htmlentities('Á', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'É'=>htmlentities('É', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Í'=>htmlentities('Í', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Ó'=>htmlentities('Ó', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Ú'=>htmlentities('Ú', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'á'=>htmlentities('á', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'é'=>htmlentities('é', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'í'=>htmlentities('í', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ó'=>htmlentities('ó', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ú'=>htmlentities('ú', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'Â'=>htmlentities('Â', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Ê'=>htmlentities('Ê', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Ô'=>htmlentities('Ô', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'â'=>htmlentities('â', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ê'=>htmlentities('ê', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ô'=>htmlentities('ô', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'À'=>htmlentities('À', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'à'=>htmlentities('à', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'Ü'=>htmlentities('Ü', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ü'=>htmlentities('ü', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'Ç'=>htmlentities('Ç', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ç'=>htmlentities('ç', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+            'Ã'=>htmlentities('Ã', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Õ'=>htmlentities('Õ', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'Ñ'=>htmlentities('Ñ', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ã'=>htmlentities('ã', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'õ'=>htmlentities('õ', ENT_NOQUOTES, 'UTF-8', FALSE),
+            'ñ'=>htmlentities('ñ', ENT_NOQUOTES, 'UTF-8', FALSE),
+
+        );
+
+        return strtr($s, $replace);
+    }
 }
