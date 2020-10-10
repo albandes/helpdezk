@@ -125,6 +125,8 @@ class hdkService extends hdkCommon
 
     public function areaChangeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -148,6 +150,8 @@ class hdkService extends hdkCommon
 
     public function typeChangeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -171,6 +175,8 @@ class hdkService extends hdkCommon
 
     public function itemChangeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -194,6 +200,8 @@ class hdkService extends hdkCommon
 
     public function serviceChangeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -254,6 +262,8 @@ class hdkService extends hdkCommon
 
     function createArea()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -301,6 +311,8 @@ class hdkService extends hdkCommon
 
     public function modalUpdateArea()
     {
+        $this->protectFormInput();
+
         $idarea = $_POST['idarea'];
 
         $rsArea = $this->dbService->selectAreaEdit($idarea);
@@ -321,6 +333,9 @@ class hdkService extends hdkCommon
 
     function updateArea()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -364,6 +379,8 @@ class hdkService extends hdkCommon
 
     public function modalType()
     {
+        $this->protectFormInput();
+
         $viewType = $_POST['viewType'];
 
         if($viewType == 'upd'){
@@ -411,6 +428,9 @@ class hdkService extends hdkCommon
 
     function createType()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -456,6 +476,9 @@ class hdkService extends hdkCommon
 
     function updateType()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -502,6 +525,9 @@ class hdkService extends hdkCommon
 
     public function itemList()
     {
+
+        $this->protectFormInput();
+
         $idtype = $_POST['id'];
 
         $name = $this->dbService->selectTypeName($idtype);
@@ -565,6 +591,9 @@ class hdkService extends hdkCommon
 
     public function serviceList()
     {
+
+        $this->protectFormInput();
+
         $iditem = $_POST['id'];
 
         $name = $this->dbService->selectItemName($iditem);
@@ -622,6 +651,8 @@ class hdkService extends hdkCommon
 
     public function modalItem()
     {
+        $this->protectFormInput();
+
         $viewItem = $_POST['viewItem'];
 
         if($viewItem == 'upd'){
@@ -653,6 +684,8 @@ class hdkService extends hdkCommon
 
     function createItem()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -698,6 +731,8 @@ class hdkService extends hdkCommon
 
     function updateItem()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -744,6 +779,8 @@ class hdkService extends hdkCommon
 
     public function modalService()
     {
+        $this->protectFormInput();
+
         $viewService = $_POST['viewService'];
 
         if($viewService == 'upd'){
@@ -815,6 +852,8 @@ class hdkService extends hdkCommon
 
     function createService()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -882,6 +921,8 @@ class hdkService extends hdkCommon
 
     function updateService()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -979,7 +1020,10 @@ class hdkService extends hdkCommon
 
     }
 
-    public function getUsersApprove(){
+    public function getUsersApprove()
+    {
+        $this->protectFormInput();
+
         $iditem = $_POST['iditem'];
         $idservice = $_POST['idservice'];
 
@@ -1033,6 +1077,9 @@ class hdkService extends hdkCommon
 
     function saveConfApproval()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -1097,6 +1144,8 @@ class hdkService extends hdkCommon
 
     public function checkDelete()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -1148,6 +1197,8 @@ class hdkService extends hdkCommon
 
     public function deleteTarget()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);

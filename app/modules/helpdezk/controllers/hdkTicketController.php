@@ -102,6 +102,7 @@ class hdkTicket extends hdkCommon {
 
     public function newTicket()
     {
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
@@ -437,6 +438,8 @@ class hdkTicket extends hdkCommon {
 
     public function json()
     {
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
@@ -846,6 +849,8 @@ class hdkTicket extends hdkCommon {
     public function evaluateTicket()
     {
 
+        $this->protectFormInput();
+
         $person     = $_SESSION['SES_COD_USUARIO'];
         $ipadress   = $_SERVER['REMOTE_ADDR'];
         $code       = $_POST['coderequest'];
@@ -1164,6 +1169,9 @@ class hdkTicket extends hdkCommon {
 
     public function cancelTicket()
     {
+
+        $this->protectFormInput();
+
         $person = $_SESSION['SES_COD_USUARIO'];
         $ipadress = $_SERVER['REMOTE_ADDR'];
         $code = $_POST['coderequest'];
@@ -1210,6 +1218,8 @@ class hdkTicket extends hdkCommon {
 
     public function reopenTicket()
     {
+
+        $this->protectFormInput();
 
         $person     = $_SESSION['SES_COD_USUARIO'];
         $ipadress   = $_SERVER['REMOTE_ADDR'];
@@ -1265,7 +1275,10 @@ class hdkTicket extends hdkCommon {
 
     }
 
-    public function deleteNote(){
+    public function deleteNote()
+    {
+
+        $this->protectFormInput();
 
         $idNote = $_POST['idnote'];
 
@@ -1321,6 +1334,9 @@ class hdkTicket extends hdkCommon {
 
     public function makeReport()
     {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $smarty->getConfigVars();
 
@@ -1522,6 +1538,8 @@ class hdkTicket extends hdkCommon {
 
     public function saveNote()
     {
+        $this->protectFormInput();
+
         $codeRequest     = $_POST['code_request'];
         $noteContent     =  addslashes($_POST['noteContent']);
 
@@ -1600,6 +1618,8 @@ class hdkTicket extends hdkCommon {
     public function saveNoteAttach()
     {
 
+        $this->protectFormInput();
+
         $idNote = $_POST['idNote'];
 
         if (!empty($_FILES)) {
@@ -1634,6 +1654,8 @@ class hdkTicket extends hdkCommon {
 
     public function saveTicketAttachments()
     {
+        $this->protectFormInput();
+
         $code_request = $_POST['coderequest'];
 
         if (!empty($_FILES)) {
@@ -1663,6 +1685,9 @@ class hdkTicket extends hdkCommon {
 
     public function sendNotification()
     {
+
+        $this->protectFormInput();
+
         if(!empty($_POST['transaction']))
             $transaction = $_POST['transaction'];
         if(!empty($_POST['code_request']))
@@ -1800,6 +1825,8 @@ class hdkTicket extends hdkCommon {
 
     public function ajaxNotes()
     {
+        $this->protectFormInput();
+
         $code_request = $_POST['code_request'];
         $lineNotes = $this->makeNotesScreen($code_request);
         echo $lineNotes;
@@ -2127,21 +2154,29 @@ class hdkTicket extends hdkCommon {
 
     public function ajaxRepassList()
     {
+        $this->protectFormInput();
+
         echo $this->_comboRepassListHtml($_POST['typerep']);
     }
 
     public function ajaxAbilitiesList()
     {
+        $this->protectFormInput();
+
         echo $this->_abilitiesListHtml($_POST['type'],$_POST['rep']);
     }
 
     public function ajaxgroupsList()
     {
+        $this->protectFormInput();
+
         echo $this->_groupsListHtml($_POST['type'],$_POST['rep']);
     }
 
     public function openRepassedTicket()
     {
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
         //die($_POST);
@@ -2360,6 +2395,8 @@ class hdkTicket extends hdkCommon {
 
     public function openFinishTicket()
     {
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
         //die($_POST);
@@ -2936,6 +2973,8 @@ class hdkTicket extends hdkCommon {
     public function saveChangesTicket()
     {
 
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -2963,7 +3002,11 @@ class hdkTicket extends hdkCommon {
 
     }
 
-    public function assumeTicket() {
+    public function assumeTicket()
+    {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3077,6 +3120,7 @@ class hdkTicket extends hdkCommon {
 
     public function modalAuxOperator()
     {
+        $this->protectFormInput();
 
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
@@ -3130,6 +3174,8 @@ class hdkTicket extends hdkCommon {
     public function insertAuxOperator()
     {
 
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3156,6 +3202,8 @@ class hdkTicket extends hdkCommon {
     public function deleteAuxOperator()
     {
 
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3179,7 +3227,11 @@ class hdkTicket extends hdkCommon {
 
     }
 
-    public function repassTicket() {
+    public function repassTicket()
+    {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3334,7 +3386,11 @@ class hdkTicket extends hdkCommon {
 
     }
 
-    public function rejectTicket() {
+    public function rejectTicket()
+    {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3439,7 +3495,11 @@ class hdkTicket extends hdkCommon {
 
     }
 
-    public function finishTicket() {
+    public function finishTicket()
+    {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3552,7 +3612,11 @@ class hdkTicket extends hdkCommon {
 
     }
 
-    public function changeExpireDate() {
+    public function changeExpireDate()
+    {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3596,7 +3660,11 @@ class hdkTicket extends hdkCommon {
         echo json_encode($aRet);
     }
 
-    public function saveNewAttWay() {
+    public function saveNewAttWay()
+    {
+
+        $this->protectFormInput();
+
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
 
@@ -3622,7 +3690,11 @@ class hdkTicket extends hdkCommon {
         echo $this->_comboAttWayHtml();
     }
 
-    public function jsonAtt(){
+    public function jsonAtt()
+    {
+
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);

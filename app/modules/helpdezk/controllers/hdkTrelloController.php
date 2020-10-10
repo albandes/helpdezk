@@ -126,7 +126,6 @@ class hdkTrello extends hdkCommon
 
     }
 
-
     function _comboBoards($data)
     {
         foreach ($data as $row) {
@@ -151,8 +150,6 @@ class hdkTrello extends hdkCommon
 
     }
 
-
-
     public function getCredentials()
     {
 
@@ -169,8 +166,12 @@ class hdkTrello extends hdkCommon
         return $arrayRet;
 
     }
+
     public function jsonGrid()
     {
+
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -388,6 +389,8 @@ class hdkTrello extends hdkCommon
 
     function createReason()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -420,6 +423,9 @@ class hdkTrello extends hdkCommon
 
     function updateReason()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -453,6 +459,8 @@ class hdkTrello extends hdkCommon
 
     function deleteReason()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -484,26 +492,36 @@ class hdkTrello extends hdkCommon
 
     public function ajaxTypes()
     {
+        $this->protectFormInput();
+
         echo $this->_comboTypeHtml($_POST['areaId']);
     }
 
     public function ajaxItens()
     {
+        $this->protectFormInput();
+
         echo $this->_comboItemHtml($_POST['typeId']);
     }
 
     public function ajaxServices()
     {
+        $this->protectFormInput();
+
         echo $this->_comboServiceHtml($_POST['itemId']);
     }
 
     public function ajaxDepartments()
     {
+        $this->protectFormInput();
+
         echo $this->_comboDepartmentHtml($_POST['companyId']);
     }
 
     function changeReasonStatus()
     {
+        $this->protectFormInput();
+
         $idreason = $this->getParam('idreason');
         $newStatus = $_POST['newstatus'];
 

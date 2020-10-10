@@ -281,6 +281,8 @@ class home extends hdkCommon {
     function updateUserData()
     {
 
+        $this->protectFormInput();
+
         $this->loadModel('admin/person_model');
         $dbPerson = new person_model();
 
@@ -337,12 +339,14 @@ class home extends hdkCommon {
 
     function ajaxStates()
     {
+        $this->protectFormInput();
         echo $this->comboStatesHtml($_POST['countryId']);
 
     }
 
     function ajaxCities()
     {
+        $this->protectFormInput();
         echo $this->comboCitesHtml($_POST['stateId']);
 
     }
@@ -383,6 +387,8 @@ class home extends hdkCommon {
 
     function savePhoto()
     {
+
+        $this->protectFormInput();
 
         $char_search	= array("ã", "á", "à", "â", "é", "ê", "í", "õ", "ó", "ô", "ú", "ü", "ç", "ñ", "Ã", "Á", "À", "Â", "É", "Ê", "Í", "Õ", "Ó", "Ô", "Ú", "Ü", "Ç", "Ñ", "ª", "º", " ", ";", ",");
         $char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
@@ -483,7 +489,10 @@ class home extends hdkCommon {
 
     }
 
-    public function checkUserPass() {
+    public function checkUserPass()
+    {
+
+        $this->protectFormInput();
 
         $idperson = $_POST['personId'];
         $password = md5($_POST['userconf_password']);
@@ -524,6 +533,8 @@ class home extends hdkCommon {
      */
     public function saveConfigExternal()
     {
+
+        $this->protectFormInput();
 
         if(!$this->dbUserConfig->existApiConfigTables()) {
             echo json_encode(array('sucess' => false,'message' => 'There are no external APIs Configuration Tables !','id' => ''));
@@ -588,7 +599,10 @@ class home extends hdkCommon {
 
     }
 
-    public function changeUserPassword() {
+    public function changeUserPassword()
+    {
+
+        $this->protectFormInput();
 
         $idperson = $_POST['idperson'];
         $password = md5($_POST['newpassword']);

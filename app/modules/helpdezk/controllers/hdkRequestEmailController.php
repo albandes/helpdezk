@@ -45,6 +45,8 @@ class hdkRequestEmail extends hdkCommon
 
     public function jsonGrid()
     {
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -259,6 +261,9 @@ class hdkRequestEmail extends hdkCommon
 
     function createRequestEmail()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -315,6 +320,9 @@ class hdkRequestEmail extends hdkCommon
 
     function updateRequestEmail()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -378,6 +386,8 @@ class hdkRequestEmail extends hdkCommon
 
     function deleteRequestEmail()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);

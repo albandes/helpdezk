@@ -46,6 +46,8 @@ class hdkDepartment extends hdkCommon
 
     public function jsonGrid()
     {
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -192,6 +194,8 @@ class hdkDepartment extends hdkCommon
     function createDepartment()
     {
 
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -236,12 +240,16 @@ class hdkDepartment extends hdkCommon
 
     function updateDepartment()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
-        }        
-        
+        }
+
+
+
         $iddepartment = $_POST['iddepartment'];
         $idcompany = $_POST['idcompany'];
         $department = addslashes($_POST['txtDepartment']);
@@ -280,6 +288,8 @@ class hdkDepartment extends hdkCommon
 
     function changeDepartmentStatus()
     {
+        $this->protectFormInput();
+
         $iddepartment = $this->getParam('iddepartment');
         $newStatus = $_POST['newstatus'];
 
@@ -302,6 +312,9 @@ class hdkDepartment extends hdkCommon
     }
 
     public function checkDepartment() {
+
+        $this->protectFormInput();
+
         $value = $_POST['txtDepartment'];
         $idcompany = $_POST['companyId'];
         $iddepartment = $_POST['departmentId'];
@@ -324,11 +337,16 @@ class hdkDepartment extends hdkCommon
     }
 
     public function modalDelete() {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+
 
         $iddepartment = $_POST['departmentId'];
 
@@ -379,11 +397,16 @@ class hdkDepartment extends hdkCommon
 
     function deleteDepartment()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+
+
         //echo "<pre>", print_r($_POST,true), "</pre>";
         $iddepartment = $_POST['iddepartment'];
         $dephasperson = $_POST['hasperson'];

@@ -54,6 +54,9 @@ class hdkWarning extends hdkCommon
 
     public function jsonGrid()
     {
+
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -273,6 +276,9 @@ class hdkWarning extends hdkCommon
 
     function createWarning()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -341,6 +347,9 @@ class hdkWarning extends hdkCommon
 
     function updateWarning()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -407,17 +416,20 @@ class hdkWarning extends hdkCommon
 
     function ajaxOperatorGroup()
     {
-
+        $this->protectFormInput();
         echo $this->checklistHtml("Groups",$_POST['topicId']);
     }
 
     function ajaxCorporation()
     {
+        $this->protectFormInput();
         echo $this->checklistHtml("Corporations",$_POST['topicId']);
     }
 	
 	function createTopic()
     {
+        $this->protectFormInput();
+
         $title = $_POST['modal_topic_title'];
         switch ($_POST['validity']) {
             case 1:
@@ -500,6 +512,8 @@ class hdkWarning extends hdkCommon
 	
 	function updateTopic()
     {
+        $this->protectFormInput();
+
         $id_topic = $_POST['idtopic'];
 		$title = $_POST['modal_topic_title_upd'];
         switch ($_POST['validity_upd']) {
@@ -592,6 +606,7 @@ class hdkWarning extends hdkCommon
 
     function ajaxTopic()
     {
+        $this->protectFormInput();
         echo $this->selectHtml('Topic');
     }
 
@@ -607,6 +622,8 @@ class hdkWarning extends hdkCommon
 
     public function jsonTopicGrid()
     {
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -715,6 +732,8 @@ class hdkWarning extends hdkCommon
 
     function salvaFoto()
     {
+        $this->protectFormInput();
+
         $idPerson = $_POST['idperson'];
         $this->logIt('Insert Atleta  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
         if (!empty($_FILES)) {
