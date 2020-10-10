@@ -67,8 +67,6 @@ class hdkImportServices extends hdkCommon
     public function index()
     {
 
-
-
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
         $smarty = $this->retornaSmarty();

@@ -45,9 +45,11 @@ class hdkReason extends hdkCommon
 
     public function jsonGrid()
     {
-        $this->validasessao();
 
         $this->protectFormInput();
+
+        $this->validasessao();
+
         $smarty = $this->retornaSmarty();
 
         $where = '';
@@ -264,6 +266,8 @@ class hdkReason extends hdkCommon
 
     function createReason()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -296,6 +300,8 @@ class hdkReason extends hdkCommon
 
     function updateReason()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -329,6 +335,8 @@ class hdkReason extends hdkCommon
 
     function deleteReason()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -380,6 +388,8 @@ class hdkReason extends hdkCommon
 
     function changeReasonStatus()
     {
+        $this->protectFormInput();
+
         $idreason = $this->getParam('idreason');
         $newStatus = $_POST['newstatus'];
 
