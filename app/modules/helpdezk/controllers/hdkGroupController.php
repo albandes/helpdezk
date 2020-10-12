@@ -63,6 +63,8 @@ class hdkGroup extends hdkCommon
 
     public function jsonGrid()
     {
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -78,6 +80,7 @@ class hdkGroup extends hdkCommon
             $sord ='asc';
 
         if ($_POST['_search'] == 'true'){
+            $where = '';
             $where .= ' AND ' . $this->getJqGridOperation($_POST['searchOper'],$_POST['searchField'],$_POST['searchString']);
         }
 
@@ -192,14 +195,13 @@ class hdkGroup extends hdkCommon
             $flgchecked = $rs->fields['repass_only'] == 'Y' ? 'checked=checked' : '';
             $objSmarty->assign('flgchecked',$flgchecked);
         }
-        
-
-
 
     }
 
     function createGroup()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -241,6 +243,9 @@ class hdkGroup extends hdkCommon
 
     function updateGroup()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -290,6 +295,8 @@ class hdkGroup extends hdkCommon
 
     function changeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -332,6 +339,9 @@ class hdkGroup extends hdkCommon
     }
 
     function loadAttendantsByGroup(){
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -375,6 +385,8 @@ class hdkGroup extends hdkCommon
 
     function setAttendantsByGroup()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -429,6 +441,9 @@ class hdkGroup extends hdkCommon
     }
 
     function loadGroupsByService(){
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -449,7 +464,8 @@ class hdkGroup extends hdkCommon
         echo $table;
     }
 
-    function modalSetGroupRepass(){
+    function modalSetGroupRepass()
+    {
         $rsGrpRepass = $this->dbGroup->getGroupsRepass();
         $options = "<option value=''>".$this->getLanguageWord('Select')."</option>";
         $iditemtmp = 0;
@@ -468,7 +484,11 @@ class hdkGroup extends hdkCommon
         echo json_encode($aRet);
     }
 
-    function loadCompaniesRepass(){
+    function loadCompaniesRepass()
+    {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -530,6 +550,9 @@ class hdkGroup extends hdkCommon
 
     function setGroupRepass()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);

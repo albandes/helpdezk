@@ -53,6 +53,9 @@ class hdkEmailConfig extends hdkCommon
 
     public function jsonGrid()
     {
+
+        $this->protectFormInput();
+
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
@@ -189,7 +192,7 @@ class hdkEmailConfig extends hdkCommon
             $objSmarty->assign('plh_title','Informe o título do aviso.');
         }
 
-        // --- Descrição ---
+        // --- Descriotion ---
         if ($oper == 'update') {
             if (empty($rs->fields['description']))
                 $objSmarty->assign('plh_description','Informe a descrição do aviso.');
@@ -199,7 +202,7 @@ class hdkEmailConfig extends hdkCommon
             $objSmarty->assign('plh_description','Informe a descrição do aviso.');
         }
 
-        // --- Data inicio aviso ---
+        // --- Start date ---
         if ($oper == 'update') {
             if ($rs->fields['dtstart'] == '0000-00-00 00:00:00'){
                 $objSmarty->assign('plh_dtstart','Informe a data.');
@@ -217,7 +220,7 @@ class hdkEmailConfig extends hdkCommon
             $objSmarty->assign('plh_timestart',date('H:i'));
         }
 
-        // --- Data encerramento aviso ---
+        // --- Stop date ---
         if ($oper == 'update') {
             if ($rs->fields['dtend'] == '0000-00-00 00:00:00'){
                 $objSmarty->assign('flagUntil','S');
@@ -235,7 +238,7 @@ class hdkEmailConfig extends hdkCommon
             $objSmarty->assign('flagUntil','S');
         }
 
-        // --- Envia Email ---
+        // --- Send email ---
         if ($oper == 'update') {
             if ($rs->fields['sendemail'] == 'N'){
                 $objSmarty->assign('checkedSend','');
@@ -246,7 +249,7 @@ class hdkEmailConfig extends hdkCommon
             $objSmarty->assign('checkedSend','');
         }
 
-        // --- Mostrar em ---
+        // --- Show in ---
         if ($oper == 'update') {
             $idShowinEnable = $rs->fields['showin'];
         } elseif ($oper == 'create') {
@@ -257,11 +260,13 @@ class hdkEmailConfig extends hdkCommon
         $objSmarty->assign('showinvals', $arrShowin['values']);
         $objSmarty->assign('idshowin', $idShowinEnable );
 
-
     }
 
     function createTemplate()
     {
+
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -280,14 +285,14 @@ class hdkEmailConfig extends hdkCommon
 
         if ($database == 'mysqli') {
             $now = "NOW()";
-            if($_POST['warningend'] == "S"){//Até ser encerrado
+            if($_POST['warningend'] == "S"){
                 $dtEnd = "'0000-00-00 00:00:00'";
             }else{
                 $dtEnd = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtend']))." ".$_POST['timeend']."'";
             }
         }elseif ($database == 'oci8po') {
             $now = "SYSDATE";
-            if($_POST['warningend'] == "S"){//Até ser encerrado
+            if($_POST['warningend'] == "S"){
                 $dtEnd = "NULL";
             }else{
                 $dtEnd = $this->formatSaveDateHour($_POST['dtend']." ".$_POST['timeend']);
@@ -330,6 +335,8 @@ class hdkEmailConfig extends hdkCommon
 
     function updateTemplate()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -363,6 +370,8 @@ class hdkEmailConfig extends hdkCommon
 
     function changeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
