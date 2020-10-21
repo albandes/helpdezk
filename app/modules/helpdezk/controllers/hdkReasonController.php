@@ -21,6 +21,7 @@ class hdkReason extends hdkCommon
         // Log settings
         $this->log = parent::$_logStatus;
         $this->program = basename(__FILE__);
+        $this->idprogram =  $this->getIdProgramByController('hdkReason');
 
         $this->loadModel('reason_model');
         $dbReason = new reason_model();
@@ -32,6 +33,12 @@ class hdkReason extends hdkCommon
     {
 
         $smarty = $this->retornaSmarty();
+
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $smarty->assign('token', $this->_makeToken()) ;
 
         $this->makeNavVariables($smarty,'admin');

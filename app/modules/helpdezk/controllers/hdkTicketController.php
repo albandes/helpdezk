@@ -17,8 +17,9 @@ class hdkTicket extends hdkCommon {
 
         // Log settings
         $this->log = parent::$_logStatus;
-
         $this->program  = basename( __FILE__ );
+
+        //$this->idprogram =  $this->getIdProgramByController('hdkTicket');
 
         $this->databaseNow = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
 
@@ -48,6 +49,13 @@ class hdkTicket extends hdkCommon {
     {
 
         $smarty = $this->retornaSmarty();
+
+        /*
+         * The Ticket is not registered as a regular program, as it is not in the menu - it is part of the helpdezk core,
+         * so only the test is done to check if it is a user or operator
+         */
+        if($_SESSION['SES_TYPE_PERSON'] != 2 and $_SESSION['SES_TYPE_PERSON'] != 3)
+            $this->accessDenied();
 
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
@@ -102,9 +110,20 @@ class hdkTicket extends hdkCommon {
 
     public function newTicket()
     {
-
         $this->validasessao();
+
+        /*
+         * The Ticket is not registered as a regular program, as it is not in the menu - it is part of the helpdezk core,
+         * so only the test is done to check if it is a user or operator
+         *
+         */
+        if($_SESSION['SES_TYPE_PERSON'] != 2 and $_SESSION['SES_TYPE_PERSON'] != 3)
+            $this->accessDenied();
+
+        //$this->validasessao();
         $smarty = $this->retornaSmarty();
+
+
         $langVars = $this->getLangVars($smarty);
 
         $this->makeNavVariables($smarty);
