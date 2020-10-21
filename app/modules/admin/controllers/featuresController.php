@@ -11,11 +11,11 @@ class features  extends admCommon {
 
         // Log settings
         $this->log = parent::$_logStatus;
+        $this->idprogram =  $this->getIdProgramByController('features');
 
         $this->program  = basename( __FILE__ );
 
         $this->databaseNow = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
-        
 
         $this->loadModel('features_model'); 
         $dbConfig = new features_model();
@@ -25,28 +25,21 @@ class features  extends admCommon {
         $dbModule = new modules_model();
         $this->dbModule = $dbModule;
 
-        /*$this->loadModel('programs_model');
-        $dbProgram = new programs_model();
-        $this->dbProgram = $dbProgram;
-
-        $this->loadModel('permissions_model');
-        $dbPermissions = new permissions_model();
-        $this->dbPermissions = $dbPermissions;
-
-        $this->loadModel('helpdezk/groups_model');
-        $dbGroups = new groups_model();
-        $this->dbGroups = $dbGroups;*/
-
         $this->logIt("entrou  :".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
     }
 
     public function index()
     {
+
+        $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
-        
-        $smarty = $this->retornaSmarty();
-        
+
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
@@ -74,8 +67,6 @@ class features  extends admCommon {
         $smarty->assign('empassword', $emconfigs['EM_PASSWORD']);
         $smarty->assign('emsender', $emconfigs['EM_SENDER']);
         $smarty->assign('emport', $emconfigs['EM_PORT']);
-        
-        //echo"<pre>"; print_r($sysconfs); echo"</pre>";
 
         $smarty->assign('auth', ($emconfigs['EM_AUTH'] == 1 ? 'checked' : '' ));
         $smarty->assign('successcheck', ($emconfigs['EM_SUCCESS_LOG'] == 1 ? 'checked' : '' ));
@@ -138,6 +129,7 @@ class features  extends admCommon {
         // Demo version
         $smarty->assign('demoversion', $this->demoVersion);
 
+
         $smarty->display('features.tpl');
 
     }
@@ -149,6 +141,8 @@ class features  extends admCommon {
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $arrID = explode("_",$_POST['id']);
         $prefix = $arrID[0];
@@ -174,6 +168,8 @@ class features  extends admCommon {
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $mailtitle = addslashes($_POST['mailtitle']);
         $mailhost = addslashes($_POST['mailhost']);
@@ -323,6 +319,8 @@ class features  extends admCommon {
             return false;
         }
 
+        $this->protectFormInput();
+
         $pophost = addslashes($_POST['pophost']);
         $popType = addslashes($_POST['popType']);
         $popport = addslashes($_POST['popport']);
@@ -372,12 +370,14 @@ class features  extends admCommon {
     }
 	
 	public function saveLdapChanges() {
-        //echo"<pre>"; print_r($_POST); echo"</pre>";
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $ldaptype = addslashes($_POST['ldaptype']);
         $ldapserver = addslashes($_POST['ldapserver']);
@@ -437,12 +437,14 @@ class features  extends admCommon {
     }
     
     public function saveMaintenance(){
-        //echo"<pre>"; print_r($_POST); echo"</pre>";
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $maintenanceChk = isset($_POST['maintenanceChk']) ? 1 : 0;
         $maintenanceMsg = addslashes($_POST['maintenanceMsg']);
@@ -475,12 +477,14 @@ class features  extends admCommon {
     }
 
     public function saveLogChange(){
-        //echo"<pre>"; print_r($_POST); echo"</pre>";
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $logGeneralChk = isset($_POST['logGeneralChk']) ? 1 : 0;
         $logEmailChk = isset($_POST['logEmailChk']) ? 1 : 0;
@@ -542,12 +546,14 @@ class features  extends admCommon {
     }
 
     public function saveMiscChange(){
-        //echo"<pre>"; print_r($_POST); echo"</pre>";
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $TwoFAuthChk = isset($_POST['TwoFAuthChk']) ? 1 : 0;
         $cbmDefCountry = addslashes($_POST['cbmDefCountry']);
@@ -595,6 +601,8 @@ class features  extends admCommon {
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $idmodule = $_POST['idmodule'];
         $rsModule = $this->dbModule->selectModuleData($idmodule);
@@ -784,6 +792,8 @@ class features  extends admCommon {
             return false;
         }
 
+        $this->protectFormInput();
+
         $idmodule = $_POST['idmoduleAddFeat'];
         $idconfigcategory = $_POST['cmbFeatureCat'];
         $name = addslashes($_POST['txtNewFeature']);
@@ -843,6 +853,8 @@ class features  extends admCommon {
             return false;
         }
 
+        $this->protectFormInput();
+
         $arrID = explode("_",$_POST['id']);
         $prefix = $arrID[0];
         $id = $arrID[1];
@@ -860,6 +872,9 @@ class features  extends admCommon {
     }
 
     public function checkField() {
+
+        $this->protectFormInput();
+
         $value = $_POST['searchval'];
         $idmodule = $_POST['moduleId'];
         $fieldName = $_POST['fieldName'];
@@ -882,6 +897,9 @@ class features  extends admCommon {
     }
 
     public function checkCategory() {
+
+        $this->protectFormInput();
+
         $value = $_POST['txtNewCategory'];
         $idmodule = $_POST['moduleId'];
 
@@ -909,6 +927,8 @@ class features  extends admCommon {
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $idmodule = $_POST['idmoduleAddCateg'];
         $name = addslashes($_POST['txtNewCategory']);

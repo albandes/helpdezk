@@ -24,10 +24,15 @@ class Vocabulary  extends admCommon {
 
     public function index()
     {
+        $smarty = $this->retornaSmarty();
+
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
-        $smarty = $this->retornaSmarty();
-        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
 
         $smarty->assign('token', $token) ;
         $this->makeNavVariables($smarty,'admin');
@@ -40,12 +45,7 @@ class Vocabulary  extends admCommon {
         $smarty->assign('demoversion', $this->demoVersion);
 
         $this->displayButtons($smarty,$permissions);
-        if($permissions[0] == "Y"){
-            $smarty->display('vocabulary.tpl');
-        }else{
-            $smarty->assign('href', $this->helpdezkUrl.'/admin/home');
-            $smarty->display($this->helpdezkPath.'/app/modules/main/views/access_denied.tpl');
-        }
+        $smarty->display('vocabulary.tpl');
 
     }
 

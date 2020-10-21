@@ -21,6 +21,7 @@ class Holidays extends admCommon
         // Log settings
         $this->log = parent::$_logStatus;
         $this->program = basename(__FILE__);
+        $this->idprogram =  $this->getIdProgramByController('holidays');
 
         $this->loadModel('holidays_model');
         $dbHoliday = new holidays_model();
@@ -32,6 +33,10 @@ class Holidays extends admCommon
     {
 
         $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
 
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
@@ -46,6 +51,8 @@ class Holidays extends admCommon
     {
         $this->validasessao();
         $smarty = $this->retornaSmarty();
+
+        $this->protectFormInput();
 
         $where = '';
 
@@ -276,6 +283,8 @@ class Holidays extends admCommon
             return false;
         }
 
+        $this->protectFormInput();
+
         $this->dbHoliday->BeginTrans();
 
         if ($this->database == 'oci8po') {
@@ -325,6 +334,8 @@ class Holidays extends admCommon
 
     function updateHoliday()
     {
+        $this->protectFormInput();
+
         $idHoliday = $_POST['idholiday'];
 
         $this->dbHoliday->BeginTrans();
@@ -362,6 +373,8 @@ class Holidays extends admCommon
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
 
+        $this->protectFormInput();
+
         $idholiday = $_POST['idholiday'];
 
         $aRet = array(
@@ -381,6 +394,8 @@ class Holidays extends admCommon
                 $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $id = $_POST['idholiday'];
 
@@ -459,8 +474,11 @@ class Holidays extends admCommon
         return $select;
     }
 
-    public function load() {
+    public function load()
+    {
 		$smarty = $this->retornaSmarty();
+
+        $this->protectFormInput();
 
         $year = $_POST['prevyear'];
         $idcompany = $_POST['companyId'];
@@ -523,7 +541,9 @@ class Holidays extends admCommon
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
-        
+
+        $this->protectFormInput();
+
         $year = $_POST['lastyear'];
 		$nextyear = $_POST['nextyear'];
         $idcompany = $_POST['company'];

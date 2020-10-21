@@ -20,7 +20,10 @@ class Program extends admCommon
 
         // Log settings
         $this->log = parent::$_logStatus;
+
         $this->program = basename(__FILE__);
+        $this->idprogram =  $this->getIdProgramByController('program');
+
 
         $this->loadModel('programs_model');
         $dbProgram = new programs_model();
@@ -34,12 +37,17 @@ class Program extends admCommon
     {
 
         $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
 
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
         $smarty->display('programs.tpl');
 
     }

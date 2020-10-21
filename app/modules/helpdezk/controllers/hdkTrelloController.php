@@ -30,6 +30,8 @@ class hdkTrello extends hdkCommon
         $this->log = parent::$_logStatus;
         $this->program = basename(__FILE__);
 
+        $this->idprogram =  $this->getIdProgramByController('hdkService');
+
         $this->loadModel('admin/userconfig_model');
         $this->dbUserConfig = new userconfig_model();
 
