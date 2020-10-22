@@ -25,6 +25,8 @@ class hdkService extends hdkCommon
         $this->log = parent::$_logStatus;
         $this->program = basename(__FILE__);
 
+        $this->idprogram =  $this->getIdProgramByController('hdkService');
+
         $this->loadModel('service_model');
         $dbService = new service_model();
         $this->dbService = $dbService;
@@ -40,9 +42,15 @@ class hdkService extends hdkCommon
     public function index()
     {
 
+        $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
-        $smarty = $this->retornaSmarty();
+
 
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);

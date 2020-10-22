@@ -13,6 +13,7 @@ class logos  extends admCommon {
         $this->log = parent::$_logStatus;
 
         $this->program  = basename( __FILE__ );
+        $this->idprogram =  $this->getIdProgramByController('vocabulary');
 
         $this->databaseNow = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;        
 
@@ -34,11 +35,16 @@ class logos  extends admCommon {
 
     public function index()
     {
+        $smarty = $this->retornaSmarty();
+
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
-        
-        $smarty = $this->retornaSmarty();
-        
+
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);

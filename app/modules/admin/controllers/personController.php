@@ -13,6 +13,7 @@ class Person  extends admCommon {
         $this->log = parent::$_logStatus;
 
         $this->program  = basename( __FILE__ );
+        $this->idprogram =  $this->getIdProgramByController('person');
 
         $this->databaseNow = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
 
@@ -43,6 +44,10 @@ class Person  extends admCommon {
     {
 
         $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
 
         $this->makeNavVariables($smarty,'admin');
         $this->makeFooterVariables($smarty);

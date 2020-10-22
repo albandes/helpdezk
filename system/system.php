@@ -81,6 +81,21 @@ class System {
 
     }
 
+    /**
+     * Destroys the session and sends it to the login page, used for unauthorized access.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     *
+     * @return void
+     *
+     */
+    public function accessDenied()
+    {
+        $this->sessionDestroy();
+        header('Location:' . $this->helpdezkUrl . '/admin/login');
+
+    }
+
     public function protectFormInput()
     {
         if(!empty($_POST)) {

@@ -20,7 +20,9 @@ class Modules extends admCommon
 
         // Log settings
         $this->log = parent::$_logStatus;
+
         $this->program = basename(__FILE__);
+        $this->idprogram =  $this->getIdProgramByController('modules');
 
         $this->loadModel('modules_model');
         $dbModule = new modules_model();
@@ -32,6 +34,11 @@ class Modules extends admCommon
     {
 
         $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $smarty->assign('token', $this->_makeToken()) ;
 
         $this->makeNavVariables($smarty,'admin');
@@ -39,6 +46,7 @@ class Modules extends admCommon
         $this->_makeNavAdm($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
         $smarty->display('modules.tpl');
 
     }

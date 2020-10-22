@@ -21,6 +21,7 @@ class hdkRequestEmail extends hdkCommon
         // Log settings
         $this->log = parent::$_logStatus;
         $this->program = basename(__FILE__);
+        $this->idprogram =  $this->getIdProgramByController('hdkRequestEmail');
 
         $this->loadModel('requestemail_model');
         $dbRequestEmail = new requestemail_model();
@@ -32,6 +33,12 @@ class hdkRequestEmail extends hdkCommon
     {
 
         $smarty = $this->retornaSmarty();
+
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
+
         $smarty->assign('token', $this->_makeToken()) ;
 
         $this->makeNavVariables($smarty,'admin');
@@ -39,6 +46,7 @@ class hdkRequestEmail extends hdkCommon
         $this->makeNavAdmin($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
         $smarty->display('request-email.tpl');
 
     }
