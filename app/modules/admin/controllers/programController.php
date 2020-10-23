@@ -57,6 +57,8 @@ class Program extends admCommon
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
+        $this->protectFormInput();
+
         $where = '';
 
         // create the query.
@@ -270,6 +272,8 @@ class Program extends admCommon
             return false;
         }
 
+        $this->protectFormInput();
+
         $idc = $_POST['cmbCategory'];
 		$name = $_POST['txtName'];
 		$controller = $_POST['txtController'];
@@ -321,6 +325,9 @@ class Program extends admCommon
 
     function updateProgram()
     {
+
+        $this->protectFormInput();
+
         $id = $_POST['idprogram'];
         $idc = $_POST['cmbCategory'];
 		$name = $_POST['txtName'];
@@ -393,6 +400,8 @@ class Program extends admCommon
             return false;
         }
 
+        $this->protectFormInput();
+
         $module_post = $_POST['cmbModuleMod'];
         $name_post = $_POST['txtNewCategory'];
         
@@ -462,6 +471,8 @@ class Program extends admCommon
 
     function statusProgram()
     {
+        $this->protectFormInput();
+
         $idProgram = $this->getParam('idprogram');
         $newStatus = $_POST['newstatus'];
 
