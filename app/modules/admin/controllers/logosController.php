@@ -13,7 +13,7 @@ class logos  extends admCommon {
         $this->log = parent::$_logStatus;
 
         $this->program  = basename( __FILE__ );
-        $this->idprogram =  $this->getIdProgramByController('vocabulary');
+        $this->idprogram =  $this->getIdProgramByController('logos');
 
         $this->databaseNow = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;        
 

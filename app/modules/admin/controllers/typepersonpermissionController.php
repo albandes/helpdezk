@@ -54,6 +54,8 @@ class typepersonpermission extends admCommon
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
+        $this->protectFormInput();
+
         $where = '';
 
         // create the query.
@@ -128,6 +130,9 @@ class typepersonpermission extends admCommon
     {
         $this->validasessao();
         $smarty = $this->retornaSmarty();
+
+        $this->protectFormInput();
+
         $idprogram = $this->getParam('idprogram');
 
         $where = '';
@@ -263,6 +268,8 @@ class typepersonpermission extends admCommon
 
     public function grantpermission()
     {
+        $this->protectFormInput();
+
         $idprogram = $_POST['idprogram']; 
         $idaccesstype = $_POST['idaccesstype'];
         $idtypeperson = $_POST['idtypeperson'];

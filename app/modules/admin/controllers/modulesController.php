@@ -56,6 +56,8 @@ class Modules extends admCommon
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
+        $this->protectFormInput();
+
         $where = '';
 
         // create the query.
@@ -146,6 +148,8 @@ class Modules extends admCommon
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
 
         $smarty = $this->retornaSmarty();
+
+        $this->protectFormInput();
 
         $idmodule = $this->getParam('idmodule');
         
@@ -246,8 +250,10 @@ class Modules extends admCommon
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
-        }        
-        
+        }
+
+        $this->protectFormInput();
+
         $MODNAME = addslashes($_POST['txtName']);
         $MODPATH = addslashes($_POST['txtPath']);
         $MODPREFIX = addslashes($_POST['txtPrefix']);
@@ -316,6 +322,8 @@ class Modules extends admCommon
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $idmodule = $_POST['idmodule'];
         $MODNAME = addslashes($_POST['txtName']);
@@ -393,6 +401,8 @@ class Modules extends admCommon
 
     function saveLogo()
     {
+        $this->protectFormInput();
+
         //echo "aqui";
         $char_search	= array("ã", "á", "à", "â", "é", "ê", "í", "õ", "ó", "ô", "ú", "ü", "ç", "ñ", "Ã", "Á", "À", "Â", "É", "Ê", "Í", "Õ", "Ó", "Ô", "Ú", "Ü", "Ç", "Ñ", "ª", "º", " ", ";", ",");
 		$char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
@@ -440,6 +450,8 @@ class Modules extends admCommon
 
     function loadImage()
     {
+        $this->protectFormInput();
+
         $idmodule = $_POST['idmodule'];
         $ret = $this->dbModule->selectModuleData($idmodule);
 
@@ -465,6 +477,8 @@ class Modules extends admCommon
 
     function removeLogo()
     {
+        $this->protectFormInput();
+
         $idmodule = $_POST['idmodule'];
         $filename = $_POST['filename'];
 
@@ -492,6 +506,8 @@ class Modules extends admCommon
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
+
+        $this->protectFormInput();
 
         $idmodule = $_POST['idmodule'];
 
