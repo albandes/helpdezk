@@ -3086,6 +3086,9 @@ CREATE TABLE `tblogos` (
   PRIMARY KEY (`idlogo`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
+insert  into `tblogos`(`idlogo`,`name`,`height`,`width`,`file_name`) values (1,'header',35,59,'');
+insert  into `tblogos`(`idlogo`,`name`,`height`,`width`,`file_name`) values (2,'login',70,117,'');
+insert  into `tblogos`(`idlogo`,`name`,`height`,`width`,`file_name`) values (3,'reports',40,88,'');
 
 
 
