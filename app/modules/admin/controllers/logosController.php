@@ -42,6 +42,15 @@ class logos  extends admCommon {
         if($permissions[0] != "Y")
             $this->accessDenied();
 
+        /*
+         * The tblogos table needs to have 3 lines with the logo data: header logo, login logo and repots logo.
+         * This test is necessary to verify that the table has the correct lines.
+         */
+        if (!$this->testLogosTable()) {
+            if($this->log)
+                $this->logIt("There is an error in the tblogos table! - program: ".$this->program ,3,'general',__LINE__);
+        }
+
         $token = $this->_makeToken();
         $this->logIt('token gerado: '.$token.' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
 
@@ -172,7 +181,22 @@ class logos  extends admCommon {
 
 
     }
-    
+
+    public function testLogosTable()
+    {
+        $rsLogo = $this->dbLogo->getLogosData('header');
+        if ($rsLogo->RecordCount() == 0)
+            return false ;
+        $rsLogo = $this->dbLogo->getLogosData('login');
+        if ($rsLogo->RecordCount() == 0)
+            return false ;
+        $rsLogo = $this->dbLogo->getLogosData('reports');
+        if ($rsLogo->RecordCount() == 0)
+            return false ;
+
+        return true;
+
+    }
     public function removeOldImage($prefix)
     {
         switch ($prefix) {
