@@ -95,6 +95,7 @@ class admCommon extends Controllers  {
         else
             $smarty->assign('moduleLogo',$moduleinfo->fields['headerlogo']);
         $smarty->assign('modulePath',$moduleinfo->fields['path']);
+
     }
 
     public function _comboCompany()
