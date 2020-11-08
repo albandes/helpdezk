@@ -122,6 +122,7 @@ class System {
      * @return array|string
      */
     public function _protect($str) {
+        /*
         $allowableTags = '<p><br><span><div><strong><H1><b><u><i>';
         if( !is_array( $str ) ) {
             $str = preg_replace( '/\b(from|select|insert|delete|where|drop|union|order|update|database|FROM|SELECT|INSERT|DELETE|WHERE|DROP|UNION|ORDER|UPDATE|DATABASE|AND|and|HAVING|having|SLEEP|sleep|OR|or)\b/i', '', $str );
@@ -134,6 +135,26 @@ class System {
         } else {
             return array_filter( $str, "_protect" );
         }
+        */
+
+        $allowableTags = '<p><br><span><div><strong><H1><b><u><i>';
+        if( !is_array( $str ) ) {
+            $str = preg_replace( '/\b(from|select|insert|delete|where|drop|union|order|update|database|FROM|SELECT|INSERT|DELETE|WHERE|DROP|UNION|ORDER|UPDATE|DATABASE|AND|and|HAVING|having|SLEEP|sleep|OR|or)\b/i', '', $str );
+            $str = preg_replace( '/\b(&lt;|<)?script(\/?(&gt;|>(.*))?)\b/i', '', $str );
+            $tbl = get_html_translation_table( HTML_ENTITIES );
+            $tbl = array_flip( $tbl );
+            $str = addslashes( $str );
+            $str = strip_tags( $str, $allowableTags );
+            return strtr( $str, $tbl );
+        } else {
+            foreach ($str as $mKey => $mValue)
+            {
+                $str[ $mKey ] = $this->_protect($mValue);
+            }
+            return $str;
+        }
+
+
     }
 
     /**

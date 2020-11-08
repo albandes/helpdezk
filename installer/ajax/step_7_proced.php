@@ -255,7 +255,7 @@ function connectDb($host,$user,$pass,$db,$port)
 
     // If database is not exist create one
     if (!$mysqli->select_db($db)){
-        $sql = "CREATE DATABASE ".$db;
+        $sql = "CREATE DATABASE `{$db}`";
         if ($mysqli->query($sql) === TRUE) {
             $mysqli->select_db($db);
             if ($debug)

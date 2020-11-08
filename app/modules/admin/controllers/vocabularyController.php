@@ -54,6 +54,8 @@ class Vocabulary  extends admCommon {
         $this->validasessao();
         $smarty = $this->retornaSmarty();
 
+        $this->protectFormInput();
+
         // create the query.
         $page  = $_POST['page'];
         $rows  = $_POST['rows'];
@@ -249,6 +251,7 @@ class Vocabulary  extends admCommon {
 
     function createVocabulary()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -287,6 +290,7 @@ class Vocabulary  extends admCommon {
 
     function updateVocabulary()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -318,7 +322,7 @@ class Vocabulary  extends admCommon {
                 if(is_array($upd) && isset($upd['status'])){
                     $this->dbVocabulary->RollbackTrans();
                     if($this->log)
-                        $this->logIt("Can't update Vocabulary. ID: {$vocabularyID}. Reason: ".$upd['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                        $this->logIt("Can't update Vocabulary. ID: {$aID}. Reason: ".$upd['message'].' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
                     return false;
                 }
             }
@@ -344,6 +348,8 @@ class Vocabulary  extends admCommon {
             return false;
         }
 
+        $this->protectFormInput();
+
         $keyName = $_POST['keyName'];
         $where = isset($_POST['vocabularyID'])
                  ? "AND pipeLatinToUtf8(key_name) LIKE  '{$keyName}' AND a.idlocale = {$_POST['localeID']} AND idvocabulary != {$_POST['vocabularyID']}"
@@ -364,6 +370,8 @@ class Vocabulary  extends admCommon {
 
     function changeStatus()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);

@@ -1,15 +1,15 @@
 <?php
 
-$dbHost     = '10.42.43.5';
-$dbUser     = 'pipeadm';
-$dbPass     = 'qpal10';
-$dbDatabase = 'instala';
+$dbHost     = 'hostname';
+$dbUser     = 'user';
+$dbPass     = 'password';
+$dbDatabase = 'database';
 
 $debug = true ;
 
 /*
  * To run this program, observe mysql so that the lower_case_table_names parameter is equal to 0.
- * Check with SHOW VARIABLES LIKE '% case%';
+ * Check with SHOW VARIABLES LIKE '%case%';
  * The views have uppercase and lowercase characters, the windows mysql, for example, comes by default with
  * lower_case_table_names = 1, so the views are saved in lowercase.
  *
