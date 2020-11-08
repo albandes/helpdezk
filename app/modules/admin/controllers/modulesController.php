@@ -435,8 +435,7 @@ class Modules extends admCommon
                 return false;
             }
 
-            $setCond = "headerlogo = '$fileName'";
-            $ret = $this->dbModule->updateModule($idmodule,$setCond);
+            $ret = $this->dbModule->updateModulelogos($idmodule,$fileName);
             if (!$ret) {
                 if($this->log)
                     $this->logIt('Update module logo  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);

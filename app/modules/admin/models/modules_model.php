@@ -136,6 +136,22 @@ class modules_model extends DynamicModule_model {
         }
     }
 
+    public function updateModulelogos($id,$filename){
+
+        $query = "UPDATE tbmodule 
+                     SET headerlogo = '$filename',
+                         reportslogo = '$filename'
+                   WHERE idmodule = '$id'";
+        $ret = $this->db->Execute($query);
+
+        if ($this->db->ErrorNo() != 0) {
+            $this->dbError(__FILE__, __LINE__, __METHOD__, $this->db->ErrorMsg(), $query);
+            return false ;
+        }else{
+            return $ret;
+        }
+    }
+
 }
 
 ?>

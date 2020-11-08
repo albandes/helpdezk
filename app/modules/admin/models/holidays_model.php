@@ -35,16 +35,16 @@ class holidays_model extends Model {
 
     public function insertHoliday(array $dados) {
         $ins = $this->insert('tbholiday', $dados);
-		if($ins) return true;
-		else 	 return false;
+        if($ins) return true;
+        else 	 return false;
     }
-	
-	public function insertHolidayHasCompany(array $dados) {
+
+    public function insertHolidayHasCompany(array $dados) {
         $ins = $this->insert('tbholiday_has_company', $dados);
-		if($ins) return true;
-		else 	 return false;
+        if($ins) return true;
+        else 	 return false;
     }
-	
+
     public function selectHoliday($where = null, $order = null , $group = null , $limit = null){
         $database = $this->getConfig('db_connect');
         if ($database == 'mysqli') {
@@ -63,8 +63,8 @@ class holidays_model extends Model {
         } elseif ($database == 'oci8po') {
             $limit = str_replace('LIMIT', "", $limit);
             $p     = explode(",", $limit);
-            $start = $p[0] + 1; 
-            $end   = $p[0] +  $p[1]; 
+            $start = $p[0] + 1;
+            $end   = $p[0] +  $p[1];
             $core  = "SELECT
 						  tbh.idholiday,
 						  tbh.holiday_date,
@@ -95,8 +95,8 @@ class holidays_model extends Model {
     }
 
     public function countHoliday($where = NULL){
-		$sel = $this->select("SELECT count(IDHOLIDAY) as total from tbholiday $where");
-		return $sel;
+        $sel = $this->select("SELECT count(IDHOLIDAY) as total from tbholiday $where");
+        return $sel;
     }
 
     public function deleteHoliday($where){
@@ -114,9 +114,9 @@ class holidays_model extends Model {
     }
 
     public function selectHolidayByYear($year, $order=NULL){
-    	$database = $this->getConfig('db_connect');
+        $database = $this->getConfig('db_connect');
         if ($database == 'mysqlt') {
-        	return $this->select("
+            return $this->select("
         		SELECT
 				  tbh.idholiday,
 				  tbh.holiday_date,
@@ -130,8 +130,8 @@ class holidays_model extends Model {
 				ON tbp.idperson = tbhc.idperson
 				where tbh.holiday_date LIKE '%$year%'
         		$order") ;
-        } elseif ($database == 'oci8po') {    			
-        	return $this->select("
+        } elseif ($database == 'oci8po') {
+            return $this->select("
         		SELECT
 				  tbh.idholiday,						  
 				  to_char(tbh.holiday_date,'DD/MM/YYYY') holiday_date.
@@ -145,20 +145,20 @@ class holidays_model extends Model {
 				ON tbp.idperson = tbhc.idperson
 				where tbh.holiday_date LIKE '%$year%' 
 				$order");
-        	//return $this->select("SELECT IDHOLIDAY, to_char(holiday_date,'DD/MM/YYYY') holiday_date, HOLIDAY_DESCRIPTION  from tbholiday where HOLIDAY_DATE LIKE '%$year%' $order");
-		}    	
-        
+            //return $this->select("SELECT IDHOLIDAY, to_char(holiday_date,'DD/MM/YYYY') holiday_date, HOLIDAY_DESCRIPTION  from tbholiday where HOLIDAY_DATE LIKE '%$year%' $order");
+        }
+
     }
 
     public function updateHoliday($id,$desc,$date){
         return $this->db->Execute("UPDATE tbholiday set holiday_date=$date, holiday_description='$desc' where idholiday=$id");
     }
 
-	public function getYearsHolidays($and=null)
+    public function getYearsHolidays($and=null)
     {
         $database = $this->getConfig('db_connect');
-        if ($database == 'mysqli') {   
-		    return $this->select("
+        if ($database == 'mysqli') {
+            return $this->select("
                                   SELECT DISTINCT
                                          YEAR(a.holiday_date) AS holiday_year,
                                          b.idperson idcompany
@@ -183,11 +183,11 @@ class holidays_model extends Model {
                                 ");
         }
     }
-    
-	public function holidayDelete($id){
+
+    public function holidayDelete($id){
         return $this->db->Execute("DELETE FROM tbholiday WHERE idholiday=$id");
     }
-    
+
     public function holidayDeleteHasCompany($id){
         return $this->db->Execute("DELETE FROM tbholiday_has_company WHERE idholiday=$id");
     }
