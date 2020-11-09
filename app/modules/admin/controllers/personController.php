@@ -66,6 +66,7 @@ class Person  extends admCommon {
     {
         $this->validasessao();
         $smarty = $this->retornaSmarty();
+        $this->protectFormInput();
 
         // create the query.
         $page  = $_POST['page'];
@@ -544,6 +545,7 @@ class Person  extends admCommon {
 
     function createPerson()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -698,6 +700,7 @@ class Person  extends admCommon {
 
     function updatePerson()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -898,6 +901,7 @@ class Person  extends admCommon {
     }
 
     public function checklogin() {
+        $this->protectFormInput();
         $login = $_POST['login'];
 
         $check = $this->dbPerson->checkLogin($login);
@@ -910,6 +914,7 @@ class Person  extends admCommon {
 
     function statusPerson()
     {
+        $this->protectFormInput();
         $idPerson = $this->getParam('idperson');
         $newStatus = $_POST['newstatus'];
 
@@ -954,6 +959,7 @@ class Person  extends admCommon {
         $this->validasessao();
         $smarty = $this->retornaSmarty();
         $idperson = $this->getParam('idperson');
+        $this->protectFormInput();
 
         $where = '';
 
@@ -1074,6 +1080,8 @@ class Person  extends admCommon {
 
     public function grantpermission()
     {
+        $this->protectFormInput();
+
         $idprogram = $_POST['idprogram'];
         $idaccesstype = $_POST['idaccesstype'];
         $idperson = $_POST['idperson'];
@@ -1100,6 +1108,7 @@ class Person  extends admCommon {
 
     public function modalAttendantGroups()
     {
+        $this->protectFormInput();
 
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
@@ -1160,6 +1169,7 @@ class Person  extends admCommon {
 
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
+        $this->protectFormInput();
 
         $idperson = $_POST['idperson'];
         $idgroup = $_POST['groupid'];
@@ -1186,6 +1196,7 @@ class Person  extends admCommon {
 
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
+        $this->protectFormInput();
 
         $idperson = $_POST['idperson'];
         $idgroup = $_POST['groupid'];
@@ -1208,6 +1219,7 @@ class Person  extends admCommon {
     }
 
     public function changePassword() {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -1235,7 +1247,8 @@ class Person  extends admCommon {
     }
 
     public function insertLocation() {
-    	
+
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -1279,6 +1292,7 @@ class Person  extends admCommon {
 
     function insertState()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -1312,6 +1326,7 @@ class Person  extends admCommon {
 
     function insertCity()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if ($this->log)
                 $this->logIt('Error Token - User: ' . $_SESSION['SES_LOGIN_PERSON'] . ' - program: ' . $this->program . ' - method: ' . __METHOD__, 3, 'general', __LINE__);
@@ -1342,6 +1357,7 @@ class Person  extends admCommon {
 
     function insertNeighborhood()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -1372,6 +1388,7 @@ class Person  extends admCommon {
 
     function insertStreet()
     {
+        $this->protectFormInput();
         if (!$this->_checkToken()) {
             if ($this->log)
                 $this->logIt('Error Token - User: ' . $_SESSION['SES_LOGIN_PERSON'] . ' - program: ' . $this->program . ' - method: ' . __METHOD__, 3, 'general', __LINE__);
@@ -1402,6 +1419,7 @@ class Person  extends admCommon {
 
     function ajaxStreet()
     {
+        $this->protectFormInput();
         $where = "WHERE idtypestreet = ".$_POST['typestreetId'];
         $arrStreet = $this->_comboStreet($where);
         $select = '';

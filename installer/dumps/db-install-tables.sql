@@ -5,13 +5,13 @@ CREATE TABLE `bbd_tbmessage` (
   `idtopic` int(11) NOT NULL,
   `idperson` int(11) NOT NULL,
   `title` varchar(100) DEFAULT NULL,
-  `description` text,
+  `description` text DEFAULT NULL,
   `dtcreate` datetime DEFAULT NULL,
   `dtstart` datetime DEFAULT NULL,
   `dtend` datetime DEFAULT NULL,
   `sendemail` varchar(1) NOT NULL,
   `showin` varchar(1) NOT NULL,
-  `emailsent` int(1) DEFAULT '0',
+  `emailsent` int(1) DEFAULT 0,
   PRIMARY KEY (`idmessage`),
   KEY `fk_bbd_tbmessage_bbd_topic1` (`idtopic`),
   KEY `fk_bbd_tbmessage_tbperson1` (`idperson`),
@@ -52,6 +52,22 @@ INSERT INTO bbd_topic VALUES("1","Servers","","N");
 
 
 
+DROP TABLE IF EXISTS bbd_topiccustomer;
+
+CREATE TABLE `bbd_topiccustomer` (
+  `idtopiccustomer` int(11) NOT NULL,
+  `idperson` int(11) NOT NULL,
+  `idtopic` int(11) NOT NULL,
+  PRIMARY KEY (`idtopiccustomer`),
+  KEY `fk_bbd_topiccustomer_tbperson1` (`idperson`),
+  KEY `fk_bbd_topiccustomer_bbd_topic1` (`idtopic`),
+  CONSTRAINT `fk_bbd_topiccustomer_bbd_topic1` FOREIGN KEY (`idtopic`) REFERENCES `bbd_topic` (`idtopic`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_bbd_topiccustomer_tbperson1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+
 DROP TABLE IF EXISTS bbd_topic_company;
 
 CREATE TABLE `bbd_topic_company` (
@@ -79,22 +95,6 @@ CREATE TABLE `bbd_topic_group` (
   KEY `idgroup` (`idgroup`),
   CONSTRAINT `bbd_topic_group_ibfk_1` FOREIGN KEY (`idtopic`) REFERENCES `bbd_topic` (`idtopic`),
   CONSTRAINT `bbd_topic_group_ibfk_2` FOREIGN KEY (`idgroup`) REFERENCES `hdk_tbgroup` (`idgroup`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
-
-
-DROP TABLE IF EXISTS bbd_topiccustomer;
-
-CREATE TABLE `bbd_topiccustomer` (
-  `idtopiccustomer` int(11) NOT NULL,
-  `idperson` int(11) NOT NULL,
-  `idtopic` int(11) NOT NULL,
-  PRIMARY KEY (`idtopiccustomer`),
-  KEY `fk_bbd_topiccustomer_tbperson1` (`idperson`),
-  KEY `fk_bbd_topiccustomer_bbd_topic1` (`idtopic`),
-  CONSTRAINT `fk_bbd_topiccustomer_bbd_topic1` FOREIGN KEY (`idtopic`) REFERENCES `bbd_topic` (`idtopic`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_bbd_topiccustomer_tbperson1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -166,7 +166,7 @@ DROP TABLE IF EXISTS dsh_tbwidgetusuario;
 CREATE TABLE `dsh_tbwidgetusuario` (
   `idwidgetusuario` int(11) NOT NULL AUTO_INCREMENT,
   `idusuario` int(10) unsigned NOT NULL,
-  `widgets` blob,
+  `widgets` blob DEFAULT NULL,
   PRIMARY KEY (`idwidgetusuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
@@ -229,7 +229,7 @@ CREATE TABLE `hdk_base_knowledge` (
   `idperson` int(11) NOT NULL,
   `date_edit` datetime DEFAULT NULL,
   `idperson_edit` int(11) DEFAULT NULL,
-  `faq` int(1) DEFAULT '0',
+  `faq` int(1) DEFAULT 0,
   PRIMARY KEY (`idbase`),
   KEY `fk_idcategory_hdk_base_category` (`idcategory`),
   KEY `fk_idperson_edit_tbperson` (`idperson_edit`),
@@ -263,8 +263,8 @@ CREATE TABLE `hdk_tbapproval_rule` (
   `iditem` int(3) DEFAULT NULL,
   `idservice` int(3) DEFAULT NULL,
   `idperson` int(10) DEFAULT NULL,
-  `order` int(10) DEFAULT '1',
-  `fl_recalculate` int(1) DEFAULT '0',
+  `order` int(10) DEFAULT 1,
+  `fl_recalculate` int(1) DEFAULT 0,
   PRIMARY KEY (`idapproval`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -290,7 +290,7 @@ DROP TABLE IF EXISTS hdk_tbconfig;
 CREATE TABLE `hdk_tbconfig` (
   `idconfig` int(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(250) DEFAULT NULL,
-  `description` blob,
+  `description` blob DEFAULT NULL,
   `idconfigcategory` int(10) unsigned DEFAULT NULL,
   `session_name` varchar(50) DEFAULT NULL,
   `field_type` varchar(200) DEFAULT NULL,
@@ -450,7 +450,7 @@ CREATE TABLE `hdk_tbcore_area` (
   `idarea` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
-  `default` int(1) DEFAULT '0',
+  `default` int(1) DEFAULT 0,
   PRIMARY KEY (`idarea`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
@@ -464,7 +464,7 @@ DROP TABLE IF EXISTS hdk_tbcore_default;
 CREATE TABLE `hdk_tbcore_default` (
   `idcoredefault` int(11) NOT NULL AUTO_INCREMENT,
   `table` char(50) NOT NULL DEFAULT '',
-  `default` int(11) DEFAULT '0',
+  `default` int(11) DEFAULT 0,
   PRIMARY KEY (`idcoredefault`),
   KEY `table` (`table`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 AVG_ROW_LENGTH=2730;
@@ -485,8 +485,8 @@ CREATE TABLE `hdk_tbcore_item` (
   `idtype` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
-  `selected` int(11) NOT NULL DEFAULT '0',
-  `classify` int(11) NOT NULL DEFAULT '1',
+  `selected` int(11) NOT NULL DEFAULT 0,
+  `classify` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`iditem`),
   KEY `FK_hdk_tbcore_item` (`idtype`),
   CONSTRAINT `FK_hdk_tbcore_item` FOREIGN KEY (`idtype`) REFERENCES `hdk_tbcore_type` (`idtype`)
@@ -532,11 +532,11 @@ CREATE TABLE `hdk_tbcore_service` (
   `idpriority` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
-  `selected` int(11) NOT NULL DEFAULT '0',
-  `classify` int(11) NOT NULL DEFAULT '1',
-  `time_attendance` int(11) NOT NULL DEFAULT '0',
-  `hours_attendance` int(11) NOT NULL DEFAULT '0',
-  `days_attendance` int(11) NOT NULL DEFAULT '0',
+  `selected` int(11) NOT NULL DEFAULT 0,
+  `classify` int(11) NOT NULL DEFAULT 1,
+  `time_attendance` int(11) NOT NULL DEFAULT 0,
+  `hours_attendance` int(11) NOT NULL DEFAULT 0,
+  `days_attendance` int(11) NOT NULL DEFAULT 0,
   `ind_hours_minutes` char(1) NOT NULL DEFAULT 'H',
   PRIMARY KEY (`idservice`),
   KEY `FK_hdk_tbcore_service` (`iditem`),
@@ -633,7 +633,8 @@ CREATE TABLE `hdk_tbdepartment` (
 ) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 INSERT INTO hdk_tbdepartment VALUES("76","1038","0","Infrastructure","A");
-INSERT INTO hdk_tbdepartment VALUES("78","1038","0","Advertising and Marketing","A");
+INSERT INTO hdk_tbdepartment VALUES("77","1038","","Internal Communication","A");
+INSERT INTO hdk_tbdepartment VALUES("78","1038","","Advertising and Marketing","A");
 
 
 
@@ -666,7 +667,7 @@ CREATE TABLE `hdk_tbdownload` (
   `file_url` varchar(250) DEFAULT NULL,
   `version_description` varchar(100) NOT NULL,
   `restricted` char(1) NOT NULL DEFAULT 'N',
-  `instruction` blob,
+  `instruction` blob DEFAULT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
   PRIMARY KEY (`iddownload`),
   KEY `FK_hdk_tbdownload` (`iddownloadcategory`),
@@ -704,7 +705,7 @@ CREATE TABLE `hdk_tbevaluation` (
   `name` varchar(50) NOT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
   `icon_name` varchar(25) NOT NULL,
-  `checked` int(1) DEFAULT '0',
+  `checked` int(1) DEFAULT 0,
   PRIMARY KEY (`idevaluation`),
   KEY `FK_hdk_tbevaluation` (`idquestion`),
   CONSTRAINT `FK_hdk_tbevaluation` FOREIGN KEY (`idquestion`) REFERENCES `hdk_tbevaluationquestion` (`idquestion`)
@@ -714,6 +715,19 @@ INSERT INTO hdk_tbevaluation VALUES("1","2","Ruim","A","ico_ruim.gif","0");
 INSERT INTO hdk_tbevaluation VALUES("2","2","MÃ©dio","A","ico_regular.gif","0");
 INSERT INTO hdk_tbevaluation VALUES("3","2","Bom","A","ico_bom.gif","0");
 INSERT INTO hdk_tbevaluation VALUES("4","2","Muito Bom","A","ico_otimo.gif","1");
+
+
+
+DROP TABLE IF EXISTS hdk_tbevaluationquestion;
+
+CREATE TABLE `hdk_tbevaluationquestion` (
+  `idquestion` int(11) NOT NULL AUTO_INCREMENT,
+  `question` varchar(200) NOT NULL,
+  `status` char(1) NOT NULL DEFAULT 'A',
+  PRIMARY KEY (`idquestion`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+
+INSERT INTO hdk_tbevaluationquestion VALUES("2","Como voce avalia o atendimento feito pelo atendente?","A");
 
 
 
@@ -741,19 +755,6 @@ CREATE TABLE `hdk_tbevaluation_token` (
   CONSTRAINT `FK_code_request` FOREIGN KEY (`code_request`) REFERENCES `hdk_tbrequest` (`code_request`)
 ) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=latin1;
 
-
-
-
-DROP TABLE IF EXISTS hdk_tbevaluationquestion;
-
-CREATE TABLE `hdk_tbevaluationquestion` (
-  `idquestion` int(11) NOT NULL AUTO_INCREMENT,
-  `question` varchar(200) NOT NULL,
-  `status` char(1) NOT NULL DEFAULT 'A',
-  PRIMARY KEY (`idquestion`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
-
-INSERT INTO hdk_tbevaluationquestion VALUES("2","Como voce avalia o atendimento feito pelo atendente?","A");
 
 
 
@@ -829,13 +830,13 @@ CREATE TABLE `hdk_tbgetemail` (
   `emailacct` varchar(100) DEFAULT NULL,
   `user` varchar(80) DEFAULT NULL,
   `password` char(30) DEFAULT NULL,
-  `ind_create_user` int(1) DEFAULT '0',
-  `ind_delete_server` int(1) DEFAULT '1',
+  `ind_create_user` int(1) DEFAULT 0,
+  `ind_delete_server` int(1) DEFAULT 1,
   `idservice` int(11) DEFAULT NULL,
   `filter_from` varchar(200) DEFAULT NULL,
   `filter_subject` varchar(200) DEFAULT NULL,
   `login_layout` varchar(1) DEFAULT NULL,
-  `email_response_as_note` int(1) DEFAULT '0',
+  `email_response_as_note` int(1) DEFAULT 0,
   PRIMARY KEY (`idgetemail`),
   KEY `FK_hdk_tbgetemail` (`idservice`),
   CONSTRAINT `FK_hdk_tbgetemail` FOREIGN KEY (`idservice`) REFERENCES `hdk_tbcore_service` (`idservice`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -994,7 +995,7 @@ CREATE TABLE `hdk_tbnote` (
   `idnote` int(10) NOT NULL AUTO_INCREMENT,
   `code_request` bigint(16) unsigned DEFAULT NULL,
   `idperson` int(10) unsigned DEFAULT NULL,
-  `description` blob,
+  `description` blob DEFAULT NULL,
   `entry_date` datetime DEFAULT NULL,
   `minutes` float DEFAULT NULL,
   `start_hour` varchar(8) DEFAULT NULL,
@@ -1003,10 +1004,10 @@ CREATE TABLE `hdk_tbnote` (
   `execution_date` datetime DEFAULT NULL,
   `hour_type` int(3) unsigned DEFAULT NULL,
   `service_value` float(10,4) DEFAULT NULL,
-  `public` int(1) unsigned DEFAULT '1',
+  `public` int(1) unsigned DEFAULT 1,
   `idtype` int(3) unsigned DEFAULT NULL,
   `ip_adress` varchar(30) DEFAULT NULL,
-  `callback` int(1) DEFAULT '0',
+  `callback` int(1) DEFAULT 0,
   `flag_opened` tinyint(1) DEFAULT NULL,
   `code_email` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`idnote`),
@@ -1068,10 +1069,10 @@ CREATE TABLE `hdk_tbpriority` (
   `name` varchar(45) NOT NULL,
   `order` int(11) NOT NULL,
   `color` varchar(8) NOT NULL,
-  `default` int(11) NOT NULL DEFAULT '0',
-  `vip` int(11) NOT NULL DEFAULT '0',
-  `limit_hours` int(11) NOT NULL DEFAULT '0',
-  `limit_days` int(11) NOT NULL DEFAULT '0',
+  `default` int(11) NOT NULL DEFAULT 0,
+  `vip` int(11) NOT NULL DEFAULT 0,
+  `limit_hours` int(11) NOT NULL DEFAULT 0,
+  `limit_days` int(11) NOT NULL DEFAULT 0,
   `status` char(1) NOT NULL DEFAULT 'A',
   PRIMARY KEY (`idpriority`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
@@ -1103,7 +1104,7 @@ CREATE TABLE `hdk_tbproperty` (
   `purchasing_date` date DEFAULT NULL,
   `receipt_number` varchar(50) DEFAULT NULL,
   `warranty_date` date DEFAULT NULL,
-  `observations` blob,
+  `observations` blob DEFAULT NULL,
   `entry_date` date DEFAULT NULL,
   `idcostcenter` int(11) DEFAULT NULL,
   `days_attendance` int(11) DEFAULT NULL,
@@ -1206,7 +1207,7 @@ CREATE TABLE `hdk_tbrequest` (
   `code_email` varchar(240) DEFAULT NULL,
   `idperson_owner` mediumint(9) NOT NULL COMMENT 'esta coluna o id de quem necessita do serviï¿½o, que pode nao ser o mesmo que abriu',
   `idstatus` tinyint(2) DEFAULT NULL COMMENT 'aqui ficara o id do status atual da solicitacao',
-  `flag_opened` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'essa coluna mostra se o atendente ja viu a solicitacao nova sem assumir',
+  `flag_opened` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'essa coluna mostra se o atendente ja viu a solicitacao nova sem assumir',
   PRIMARY KEY (`idrequest`,`code_request`),
   UNIQUE KEY `request_code` (`code_request`),
   UNIQUE KEY `IDX_CODE_EMAIL` (`code_email`),
@@ -1253,10 +1254,10 @@ CREATE TABLE `hdk_tbrequest_approval` (
   `request_code` bigint(16) NOT NULL,
   `idapproval` int(10) DEFAULT NULL,
   `idnote` int(10) DEFAULT NULL,
-  `idperson` int(10) NOT NULL DEFAULT '0',
-  `order` int(2) NOT NULL DEFAULT '0',
-  `fl_rejected` int(1) NOT NULL DEFAULT '0',
-  `fl_recalculate` int(1) NOT NULL DEFAULT '0',
+  `idperson` int(10) NOT NULL DEFAULT 0,
+  `order` int(2) NOT NULL DEFAULT 0,
+  `fl_rejected` int(1) NOT NULL DEFAULT 0,
+  `fl_recalculate` int(1) NOT NULL DEFAULT 0,
   `idrequestapproval` int(4) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`idrequestapproval`),
   KEY `FK_hdk_tbrequest_approval` (`idapproval`),
@@ -1285,7 +1286,7 @@ DROP TABLE IF EXISTS hdk_tbrequest_change_expire;
 CREATE TABLE `hdk_tbrequest_change_expire` (
   `idchangeexpire` int(11) NOT NULL AUTO_INCREMENT,
   `code_request` varchar(20) NOT NULL,
-  `reason` blob,
+  `reason` blob DEFAULT NULL,
   `idperson` int(11) NOT NULL,
   `changedate` date NOT NULL,
   PRIMARY KEY (`idchangeexpire`),
@@ -1414,8 +1415,8 @@ CREATE TABLE `hdk_tbrequest_in_charge` (
   `type` varchar(1) NOT NULL COMMENT 'aqui sera o tipo de responsï¿½vel, analista ou grupo de atendimento, definido por O(operator) ou G(group)',
   `ind_in_charge` varchar(1) DEFAULT NULL,
   `ind_repass` varchar(1) NOT NULL DEFAULT 'N',
-  `ind_track` smallint(1) DEFAULT '0' COMMENT 'Aqui vai ficar marcado se o grupo continua vizualizando apï¿½s alguï¿½m assumir',
-  `ind_operator_aux` smallint(1) DEFAULT '0',
+  `ind_track` smallint(1) DEFAULT 0 COMMENT 'Aqui vai ficar marcado se o grupo continua vizualizando apï¿½s alguï¿½m assumir',
+  `ind_operator_aux` smallint(1) DEFAULT 0,
   PRIMARY KEY (`idrequest_in_charge`),
   KEY `FK_idrequest` (`code_request`),
   KEY `FK_id_person_in_charge` (`id_in_charge`),
@@ -1502,7 +1503,7 @@ CREATE TABLE `hdk_tbstatus` (
   `user_view` varchar(40) NOT NULL,
   `color` varchar(8) NOT NULL,
   `status` char(1) NOT NULL DEFAULT 'A',
-  `idstatus_source` int(2) NOT NULL DEFAULT '3',
+  `idstatus_source` int(2) NOT NULL DEFAULT 3,
   PRIMARY KEY (`idstatus`),
   KEY `idx_1` (`idstatus_source`)
 ) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
@@ -1522,9 +1523,9 @@ INSERT INTO hdk_tbstatus VALUES("51","5 - Waiting for supplier","5 - In attendan
 DROP TABLE IF EXISTS hdk_tbtemplate_email;
 
 CREATE TABLE `hdk_tbtemplate_email` (
-  `idtemplate` int(3) unsigned NOT NULL DEFAULT '0',
+  `idtemplate` int(3) unsigned NOT NULL DEFAULT 0,
   `name` varchar(100) DEFAULT NULL,
-  `description` blob,
+  `description` blob DEFAULT NULL,
   PRIMARY KEY (`idtemplate`),
   KEY `IX_TEMPLATE_EMAIL_CD_TEMPL` (`idtemplate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1722,7 +1723,7 @@ DROP TABLE IF EXISTS hdk_tbwork_calendar;
 
 CREATE TABLE `hdk_tbwork_calendar` (
   `num_day_week` int(1) unsigned NOT NULL,
-  `business_day` int(1) unsigned DEFAULT '0',
+  `business_day` int(1) unsigned DEFAULT 0,
   `begin_morning` varchar(4) DEFAULT '0800',
   `end_morning` varchar(4) DEFAULT '1200',
   `begin_afternoon` varchar(4) DEFAULT '1300',
@@ -1744,7 +1745,7 @@ DROP TABLE IF EXISTS hdk_tbwork_calendar_new;
 
 CREATE TABLE `hdk_tbwork_calendar_new` (
   `num_day_week` int(1) unsigned NOT NULL,
-  `business_day` int(1) unsigned DEFAULT '0',
+  `business_day` int(1) unsigned DEFAULT 0,
   `begin_morning` time NOT NULL,
   `end_morning` time NOT NULL,
   `begin_afternoon` time NOT NULL,
@@ -1846,7 +1847,7 @@ DROP TABLE IF EXISTS tbconfig;
 CREATE TABLE `tbconfig` (
   `idconfig` int(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(250) DEFAULT NULL,
-  `description` blob,
+  `description` blob DEFAULT NULL,
   `idconfigcategory` int(10) unsigned DEFAULT NULL,
   `session_name` varchar(50) DEFAULT NULL,
   `field_type` varchar(200) DEFAULT NULL,
@@ -2371,7 +2372,7 @@ CREATE TABLE `tbemail` (
   `from` varchar(255) DEFAULT NULL COMMENT 'According to RFC 5321',
   `to` varchar(255) DEFAULT NULL COMMENT 'According to RFC 5321',
   `subject` varchar(255) DEFAULT NULL,
-  `body` blob,
+  `body` blob DEFAULT NULL,
   PRIMARY KEY (`idemail`),
   KEY `IDX_tbemail_from` (`from`),
   KEY `IDX_tbemail_idmodule` (`idmodule`),
@@ -2429,7 +2430,7 @@ CREATE TABLE `tbjuridicalperson` (
   `ein_cnpj` varchar(18) DEFAULT NULL,
   `iestadual` varchar(20) DEFAULT NULL,
   `contact_person` varchar(80) DEFAULT NULL,
-  `observation` blob,
+  `observation` blob DEFAULT NULL,
   PRIMARY KEY (`idjuridicalperson`),
   KEY `fk_tbjuridicalperson_tbperson1` (`idperson`),
   CONSTRAINT `fk_tbjuridicalperson_tbperson1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -3086,9 +3087,6 @@ CREATE TABLE `tblogos` (
   PRIMARY KEY (`idlogo`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
-insert  into `tblogos`(`idlogo`,`name`,`height`,`width`,`file_name`) values (1,'header',35,59,'');
-insert  into `tblogos`(`idlogo`,`name`,`height`,`width`,`file_name`) values (2,'login',70,117,'');
-insert  into `tblogos`(`idlogo`,`name`,`height`,`width`,`file_name`) values (3,'reports',40,88,'');
 
 
 
@@ -3106,7 +3104,8 @@ CREATE TABLE `tbmodule` (
   `reportslogo` varchar(255) DEFAULT NULL,
   `tableprefix` char(3) DEFAULT NULL,
   `defaultmodule` char(4) DEFAULT NULL,
-  PRIMARY KEY (`idmodule`)
+  PRIMARY KEY (`idmodule`),
+  FULLTEXT KEY `defaultmodule` (`defaultmodule`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 INSERT INTO tbmodule VALUES("1","Admin","0","A","admin","adm_Navbar_name","","adm_header.png","","","");
@@ -3208,7 +3207,7 @@ CREATE TABLE `tbperson` (
   `cod_location` int(4) DEFAULT NULL,
   `time_value` float DEFAULT NULL,
   `overtime` float DEFAULT NULL,
-  `change_pass` int(1) DEFAULT '0',
+  `change_pass` int(1) DEFAULT 0,
   `token` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idperson`),
   KEY `fk_tbperson_tblogintype` (`idtypelogin`),
@@ -3225,17 +3224,31 @@ CREATE TABLE `tbperson` (
   CONSTRAINT `fk_tbperson_tbtypeperson1` FOREIGN KEY (`idtypeperson`) REFERENCES `tbtypeperson` (`idtypeperson`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=1079 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
-INSERT INTO tbperson VALUES("1","3","1","1","1","HD Admin","admin","81dc9bdb52d04dc20036dbd8313ed055","foo@domain.com","2011-08-03 18:52:31","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1038","3","4","2","1","Demo Company","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","2019-10-18 13:44:37","A","N","5331994000","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1054","3","6","1","1","IT - Infrastructure","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1055","3","6","1","1","NOC - Network Operations Center","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1058","3","6","1","1","HR - Human Resources","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1059","3","6","1","1","Marketing","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1060","3","6","1","1","Hardware Handling","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1061","3","3","1","1","Demo Operator","operator","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","2019-12-05 17:24:25","A","N","","984014872","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1073","3","6","1","1","Merchandising Operations","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
-INSERT INTO tbperson VALUES("1074","3","6","1","1","Software Handling","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","0","0","0","0","");
+INSERT INTO tbperson VALUES("1","3","1","1","1","HD Admin","admin","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","2011-08-03 18:52:31","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1038","3","4","2","1","Demo Company","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","2019-10-18 13:44:37","A","N","5331994000","","","","","","","0","");
+INSERT INTO tbperson VALUES("1054","3","6","1","1","IT - Infrastructure","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1055","3","6","1","1","NOC - Network Operations Center","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1058","3","6","1","1","HR - Human Resources","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1059","3","6","1","1","Marketing","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1060","3","6","1","1","Hardware Handling","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1061","3","3","1","1","Demo Operator","operator","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","2019-12-05 17:24:25","A","N","","984014872","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1073","3","6","1","1","Merchandising Operations","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
+INSERT INTO tbperson VALUES("1074","3","6","1","1","Software Handling","","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","0000-00-00 00:00:00","A","N","","","","","","0","0","0","");
 INSERT INTO tbperson VALUES("1078","3","2","1","1","Demo User","user","81dc9bdb52d04dc20036dbd8313ed055","demo@helpdezk.cc","2019-12-25 21:41:04","A","N","","","","","1","0","0","0","");
+
+
+
+DROP TABLE IF EXISTS tbpersontypes;
+
+CREATE TABLE `tbpersontypes` (
+  `idperson` int(11) NOT NULL,
+  `idtypeperson` int(11) NOT NULL,
+  PRIMARY KEY (`idperson`,`idtypeperson`),
+  KEY `idtypeperson` (`idtypeperson`),
+  CONSTRAINT `tbpersontypes_ibfk_1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`),
+  CONSTRAINT `tbpersontypes_ibfk_2` FOREIGN KEY (`idtypeperson`) REFERENCES `tbtypeperson` (`idtypeperson`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 
 
@@ -3253,20 +3266,6 @@ CREATE TABLE `tbperson_plus` (
   CONSTRAINT `FK_tbperson_plus` FOREIGN KEY (`idtypepersonplus`) REFERENCES `tbtypeperson_plus` (`idtypepersonplus`) ON DELETE CASCADE,
   CONSTRAINT `FK_tbperson_plus_person_FK` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
-
-
-
-
-DROP TABLE IF EXISTS tbpersontypes;
-
-CREATE TABLE `tbpersontypes` (
-  `idperson` int(11) NOT NULL,
-  `idtypeperson` int(11) NOT NULL,
-  PRIMARY KEY (`idperson`,`idtypeperson`),
-  KEY `idtypeperson` (`idtypeperson`),
-  CONSTRAINT `tbpersontypes_ibfk_1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`),
-  CONSTRAINT `tbpersontypes_ibfk_2` FOREIGN KEY (`idtypeperson`) REFERENCES `tbtypeperson` (`idtypeperson`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 
@@ -3315,13 +3314,13 @@ INSERT INTO tbprogram VALUES("71","Summarized by Operator","relOperator","13","0
 INSERT INTO tbprogram VALUES("72","User Satisfaction","relUserSatisfaction","13","0","A","pgr_user_satisfaction");
 INSERT INTO tbprogram VALUES("73","Warnings","hdkWarning/","2","0","A","pgr_warnings");
 INSERT INTO tbprogram VALUES("74","Widgets","widget/","19","0","A","pgr_dash_widgets");
-INSERT INTO tbprogram VALUES("75","CalendÃ¡rio de Trabalho","workcalendar/","1","0","A","pgr_work_calendar");
-INSERT INTO tbprogram VALUES("76","Improt People","importpeople/","1","0","A","pgr_import_people");
-INSERT INTO tbprogram VALUES("77","SolicitaÃ§Ãµes por Atendentes","relRequestsOperator/","13","0","A","pgr_request_operator");
-INSERT INTO tbprogram VALUES("78","SolicitaÃ§Ãµes Trabalhadas","relWorkedRequests","13","0","A","pgr_worked_requests");
-INSERT INTO tbprogram VALUES("79","Solicitacoes por Email","hdkRequestEmail/","2","0","A","pgr_email_request");
-INSERT INTO tbprogram VALUES("80","System Features","features","17","0","A","pgr_sys_features");
-INSERT INTO tbprogram VALUES("81","Vocabulary ","vocabulary","1","0","A","pgr_vocabulary");
+INSERT INTO tbprogram VALUES("75","CalendÃ¡rio de Trabalho","workcalendar/","1","","A","pgr_work_calendar");
+INSERT INTO tbprogram VALUES("76","Improt People","importpeople/","1","","A","pgr_import_people");
+INSERT INTO tbprogram VALUES("77","SolicitaÃ§Ãµes por Atendentes","relRequestsOperator/","13","","A","pgr_request_operator");
+INSERT INTO tbprogram VALUES("78","SolicitaÃ§Ãµes Trabalhadas","relWorkedRequests","13","","A","pgr_worked_requests");
+INSERT INTO tbprogram VALUES("79","Solicitacoes por Email","hdkRequestEmail/","2","","A","pgr_email_request");
+INSERT INTO tbprogram VALUES("80","System Features","features","17","","A","pgr_sys_features");
+INSERT INTO tbprogram VALUES("81","Vocabulary ","vocabulary","1","","A","pgr_vocabulary");
 
 
 
@@ -3352,7 +3351,7 @@ CREATE TABLE `tbscreen` (
   `idscreen` int(11) NOT NULL AUTO_INCREMENT,
   `idmodule` int(11) DEFAULT NULL,
   `formid` varchar(50) DEFAULT NULL,
-  `description` text,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`idscreen`),
   UNIQUE KEY `UK_tbscreen` (`idmodule`,`formid`),
   CONSTRAINT `FK_tbscreen_tbmodule_idmodule` FOREIGN KEY (`idmodule`) REFERENCES `tbmodule` (`idmodule`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -3512,19 +3511,6 @@ INSERT INTO tbtypeperson VALUES("3","operator","N");
 INSERT INTO tbtypeperson VALUES("4","costumer","N");
 INSERT INTO tbtypeperson VALUES("5","partner","N");
 INSERT INTO tbtypeperson VALUES("6","group","N");
-
-
-
-DROP TABLE IF EXISTS tbtypeperson_plus;
-
-CREATE TABLE `tbtypeperson_plus` (
-  `idtypepersonplus` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idtypepersonplus`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
-
-INSERT INTO tbtypeperson_plus VALUES("1","Google");
-INSERT INTO tbtypeperson_plus VALUES("2","Facebook");
 
 
 
@@ -4259,6 +4245,19 @@ INSERT INTO tbtypepersonpermission VALUES("1027","81","3","6","N");
 INSERT INTO tbtypepersonpermission VALUES("1028","81","4","6","N");
 INSERT INTO tbtypepersonpermission VALUES("1029","81","5","6","N");
 INSERT INTO tbtypepersonpermission VALUES("1030","81","6","6","N");
+
+
+
+DROP TABLE IF EXISTS tbtypeperson_plus;
+
+CREATE TABLE `tbtypeperson_plus` (
+  `idtypepersonplus` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idtypepersonplus`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+INSERT INTO tbtypeperson_plus VALUES("1","Google");
+INSERT INTO tbtypeperson_plus VALUES("2","Facebook");
 
 
 

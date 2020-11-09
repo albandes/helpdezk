@@ -24,6 +24,7 @@ class personReport extends admCommon
         // Log settings
         $this->log = parent::$_logStatus;
         $this->program = basename(__FILE__);
+        $this->idprogram =  $this->getIdProgramByController('personReport');
 
         $this->loadModel('person_model');
         $dbPerson = new person_model();
@@ -39,6 +40,10 @@ class personReport extends admCommon
     {
 
         $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
 
         $this->makeNavVariables($smarty,$this->modulename);
         $this->makeFooterVariables($smarty);
@@ -62,6 +67,8 @@ class personReport extends admCommon
 
     public function getReport()
     {
+        $this->protectFormInput();
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
@@ -105,6 +112,7 @@ class personReport extends admCommon
 
     public function exportReport()
     {
+        $this->protectFormInput();
 
         if (!$this->_checkToken()) {
             if($this->log)
