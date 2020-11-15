@@ -22,11 +22,7 @@ $(document).ready(function () {
     /*
      * Datepicker
      */
-    $('.input-group.date').datepicker({
-        format: "dd/mm/yyyy",
-        language: "pt-BR",
-        autoclose: true
-    });
+    $('.input-group.date').datepicker(datepickerOpts);
 
     /*
      *  Chosen

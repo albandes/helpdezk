@@ -55,6 +55,9 @@ class hdkEmailConfig extends hdkCommon
 
         $smarty->assign('token', $token) ;
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('email-config.tpl');
 
     }
@@ -116,7 +119,7 @@ class hdkEmailConfig extends hdkCommon
 
             $aColumns[] = array(
                 'id'     => $rsEmailConfs->fields['idconfig'],
-                'name'        => $langVars[$rsEmailConfs->fields['smarty']],
+                'name'        => $langVars[$rsEmailConfs->fields['smarty']] ? $langVars[$rsEmailConfs->fields['smarty']] : $rsEmailConfs->fields['name'],
                 'statuslbl'        => $status_fmt,
                 'status'     => $rsEmailConfs->fields['status']
 
@@ -148,6 +151,10 @@ class hdkEmailConfig extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->assign('summernote_version', $this->summernote);
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('template-create.tpl');
     }
 
@@ -172,6 +179,10 @@ class hdkEmailConfig extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->assign('summernote_version', $this->summernote);
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('template-update.tpl');
 
     }

@@ -653,17 +653,18 @@ class features  extends admCommon {
         $i = 1;
         $list = "";
 
-        while (!$get->EOF) {
-            //echo $get->fields['idconfig'].': '.$get->fields['config_name'].'<br>';
-            if ($idmoduletmp != $get->fields["cate"]){
-                $catName = ($get->fields['cat_smarty'] && $get->fields['cat_smarty'] != '')
-                            ? $this->getLanguageWord($get->fields['cat_smarty'])
-                                ? $this->getLanguageWord($get->fields['cat_smarty']) : $get->fields['cat_name']
-                            : $get->fields['cat_name'];
-                
-                if($i != 1)
-                    $list .= "</tbody></table></div></div>";
-                
+        if($get->RecordCount() > 0){
+            while (!$get->EOF) {
+                //echo $get->fields['idconfig'].': '.$get->fields['config_name'].'<br>';
+                if ($idmoduletmp != $get->fields["cate"]){
+                    $catName = ($get->fields['cat_smarty'] && $get->fields['cat_smarty'] != '')
+                        ? $this->getLanguageWord($get->fields['cat_smarty'])
+                            ? $this->getLanguageWord($get->fields['cat_smarty']) : $get->fields['cat_name']
+                        : $get->fields['cat_name'];
+
+                    if($i != 1)
+                        $list .= "</tbody></table></div></div>";
+
                     $list .= "<div class='panel panel-default'>
                             <div class='panel-heading'>
                                 <i class='fa fa-cog' aria-hidden='true'></i>&nbsp;".$catName."
@@ -676,11 +677,11 @@ class features  extends admCommon {
                                         <col class='col-sm-1'>
                                     </colgroup>
                                     <tbody>";
-            }
+                }
 
-            switch($get->fields["field_type"]){
-                case 'input':
-                    $content = "<div class='row text-center'>
+                switch($get->fields["field_type"]){
+                    case 'input':
+                        $content = "<div class='row text-center'>
                                     <div class='form-group '> 
                                         <div class='col-sm-4'>
                                             &nbsp;
@@ -693,34 +694,34 @@ class features  extends admCommon {
                                         </div>
                                     </div>                                     
                                 </div>";
-                    break;
-                
-                case 'checkbox':
-                    $checked = $get->fields['value'] == 1 ? "checked='checked'" : "";
-                    $content = "<div class='i-checks'>
+                        break;
+
+                    case 'checkbox':
+                        $checked = $get->fields['value'] == 1 ? "checked='checked'" : "";
+                        $content = "<div class='i-checks'>
                                     <label>
                                         <input type='checkbox' id='{$prefix}_{$get->fields['value']}' $checked class='changeConfigStatus' value='{$prefix}_{$get->fields['idconfig']}' />
                                     </label>
                                 </div>";
-                    break;
-                
-                default:
-                    $content = "<div>
+                        break;
+
+                    default:
+                        $content = "<div>
                                     <input type='text' value='{$get->fields['value']}' class='text-center form-control input-sm changeConfigValue' id='{$prefix}_{$get->fields['idconfig']}' data-id='{$prefix}{$get->fields['idconfig']}' />                                     
                                 </div>";
-                    break;
+                        break;
 
-            }
+                }
 
-            $confName = ($get->fields['smarty'] && $get->fields['smarty'] != '')
-                            ? $this->getLanguageWord($get->fields['smarty'])
-                                ? $this->getLanguageWord($get->fields['smarty']) : $get->fields['config_name']
-                            : $get->fields['config_name'];
-            $removeIco = $get->fields['allowremove'] == 'Y'
-                        ? '<a href="javascript:;" class="btn btn-danger btn-xs tooltip-buttons removeConfig" data-toggle="tooltip" data-placement="top" title="'.$this->getLanguageWord('Feature_remove').'" data-id="'.$prefix.'_'.$get->fields['idconfig'].'"><i class="fa fa-trash-alt"></i></a>'
-                        : "";
-            
-            $list .= "<tr>
+                $confName = ($get->fields['smarty'] && $get->fields['smarty'] != '')
+                    ? $this->getLanguageWord($get->fields['smarty'])
+                        ? $this->getLanguageWord($get->fields['smarty']) : $get->fields['config_name']
+                    : $get->fields['config_name'];
+                $removeIco = $get->fields['allowremove'] == 'Y'
+                    ? '<a href="javascript:;" class="btn btn-danger btn-xs tooltip-buttons removeConfig" data-toggle="tooltip" data-placement="top" title="'.$this->getLanguageWord('Feature_remove').'" data-id="'.$prefix.'_'.$get->fields['idconfig'].'"><i class="fa fa-trash-alt"></i></a>'
+                    : "";
+
+                $list .= "<tr>
                         <td class='text-center'>
                             $content
                         </td>
@@ -731,10 +732,13 @@ class features  extends admCommon {
                             $removeIco
                         </td>
                     </tr>";
-            
-            $idmoduletmp = $get->fields['cate'];
-            $i++;
-            $get->MoveNext();
+
+                $idmoduletmp = $get->fields['cate'];
+                $i++;
+                $get->MoveNext();
+            }
+        }else{
+            $list .= "<div class='alert-warning'>{$this->getLanguageWord('No_result')}</div>";
         }
 
         echo $list;

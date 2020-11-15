@@ -78,7 +78,8 @@
             noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
             noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
             ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+            demoVersion = '{/literal}{$demoversion}{literal}';
 
 
     </script>
@@ -149,7 +150,7 @@
             <div class="wrapper wrapper-content  ">
                 <div class="row wrapper white-bg ibox-title">
                     <div class="col-sm-4">
-                        <h4>Cadastros / {$smarty.config.Logos_Title} / <strong>{$smarty.config.Add}</strong></h4>
+                        <h4>{$smarty.config.cat_records} / {$smarty.config.Logos_Title} / <strong>{$smarty.config.Add}</strong></h4>
                     </div>
                 </div>
 

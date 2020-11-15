@@ -17,11 +17,7 @@ $(document).ready(function () {
     /*
      * Datepicker
      */
-    $('.input-group.date').datepicker({
-        format: "dd/mm/yyyy",
-        language: "pt-BR",
-        autoclose: true
-    });
+    $('.input-group.date').datepicker(datepickerOpts);
 
     if($('#flagUntil').val() == 'S'){
         $('#line_dtend').hide();
@@ -251,12 +247,12 @@ $(document).ready(function () {
             dataType: 'json',
             data: $('#topic-form').serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel inserir !','alert-topic');
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-topic');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if($.isNumeric(obj.idtopic)) {
-                    modalAlertMultiple('success','T&oacute;pico inclu&iacute;do com sucesso !','alert-topic');
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-topic');
                     objTopicData.changeTopic();
                     setTimeout(function(){
                         $('#modal-form-topic').modal('hide');
@@ -268,7 +264,7 @@ $(document).ready(function () {
                         $('#topic-form').trigger('reset');
                     },2000);
                 } else {
-                    modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel inserir !','alert-topic');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-topic');
                 }
             }
         });

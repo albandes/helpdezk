@@ -170,6 +170,7 @@ class Person  extends admCommon {
 
         // Demo version
         $smarty->assign('demoversion', $this->demoVersion);
+        $this->datepickerSettings($smarty);//set up datepicker options by language
         $smarty->display('person-create.tpl');
     }
 
@@ -216,6 +217,7 @@ class Person  extends admCommon {
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $this->datepickerSettings($smarty);//set up datepicker options by language
         $smarty->display('person-update.tpl');
     }
     
@@ -234,7 +236,8 @@ class Person  extends admCommon {
         }else{
             $objSmarty->assign('cpfVal','');
         }
-        $dtbirth = (!empty($rs->fields['dtbirth']) && $rs->fields['dtbirth'] != '0000-00-00') ? $rs->fields['dtbirth_fmt'] : '';
+        $dtbirth = (!empty($rs->fields['dtbirth']) && $rs->fields['dtbirth'] != '0000-00-00') ? $this->formatDate($rs->fields['dtbirth']) : '';
+
         $objSmarty->assign('dtbirthVal',$dtbirth);
         if(!empty($rs->fields['gender'])){
             if($rs->fields['gender'] == 'F'){

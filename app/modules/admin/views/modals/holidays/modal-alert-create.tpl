@@ -8,20 +8,20 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">{$smarty.config.Holiday} cadastrado
+                    <h4 class="modal-title" id="myModalLabel">{$smarty.config.Notification}
                 </div>
 
                 <div class="modal-body">
 
                     <div class="row">
                         <div class="col-sm-12">
-                            C&oacute;digo:&nbsp; <spam id="modal-idholiday"></spam>
+                            {$smarty.config.ERP_Code}:&nbsp; <spam id="modal-idholiday"></spam>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-sm-12">
-                            Descrição:&nbsp; <spam id="modal-holiday-description"></spam>
+                            {$smarty.config.Holiday_des}:&nbsp; <spam id="modal-holiday-description"></spam>
                         </div>
                     </div>
 

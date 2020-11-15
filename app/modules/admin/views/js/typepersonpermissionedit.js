@@ -31,7 +31,7 @@ $(document).ready(function () {
             {name:"idprogram",index:"idprogram",width:70,align:"center",hidden:true}],
         pager: "#pager_list_typepersonperms",
         viewrecords: true,
-        caption: ' :: '+aLang['Permissions'].replace(/\"/g, "")+'s',
+        caption: ' :: '+aLang['Permissions'].replace(/\"/g, ""),
         hidegrid: false,
         toppager:false,
         //jqModal: false,
@@ -62,7 +62,7 @@ $(document).ready(function () {
     });
 
     // First time, show tBeing attended Tickets, then need to set the label
-    grid.jqGrid('setCaption', ' :: '+aLang['Permissions'].replace(/\"/g, "")+'s');
+    grid.jqGrid('setCaption', ' :: '+aLang['Permissions'].replace(/\"/g, ""));
 
     // Setup buttons
     grid.navGrid('#pager_list_typepersonperms',{edit:false,add:false,del:false,search:false, searchtext: makeSmartyLabel('Search'),refreshtext: makeSmartyLabel('Grid_reload'),cloneToTop: true});

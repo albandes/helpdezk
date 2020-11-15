@@ -143,7 +143,7 @@ $(document).ready(function () {
 
         if (!idTopic) {
             $("#btn-modal-ok").attr("href", '');
-            $('#modal-notification').html('Marque um t&oacute;pico.');
+            $('#modal-notification').html(makeSmartyLabel('Alert_select_one'));
             $("#tipo-alert").attr('class', 'alert alert-danger');
             $('#modal-alert').modal('show');
         } else {
@@ -194,12 +194,12 @@ $(document).ready(function () {
             dataType: 'json',
             data: $('#topic-form').serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel inserir !','alert-topic');
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-topic');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if($.isNumeric(obj.idtopic)) {
-                    modalAlertMultiple('success','T&oacute;pico inclu&iacute;do com sucesso !','alert-topic');
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-topic');
                     setTimeout(function(){
                         $('#modal-form-topic').modal('hide');                        
                         $("input[name='validity']:checked").iCheck('unCheck');
@@ -211,7 +211,7 @@ $(document).ready(function () {
                         grid.trigger('reloadGrid');
                     },2000);
                 } else {
-                    modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel inserir !','alert-topic');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-topic');
                 }
             }
         });
@@ -230,12 +230,12 @@ $(document).ready(function () {
             dataType: 'json',
             data: $('#topic-form-update').serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-topic-update');
+                modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-topic-update');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if(obj.status == 'OK') {
-                    modalAlertMultiple('success','T&oacute;pico atualizado com sucesso !','alert-topic-update');
+                    modalAlertMultiple('success',makeSmartyLabel('Edit_sucess'),'alert-topic-update');
                     setTimeout(function(){
                         $('#modal-form-topic-update').modal('hide');
                         $('input[name=validity_upd]:checked').iCheck('unCheck');
@@ -247,7 +247,7 @@ $(document).ready(function () {
 						grid.trigger('reloadGrid');
                     },2000);					
                 } else {
-                    modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-topic-update');
+                    modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-topic-update');
                 }
             }
         });
@@ -296,7 +296,7 @@ $(document).ready(function () {
         rules: {modal_topic_title: "required"
         },
         messages: {
-            modal_topic_title: "T&iacute;tulo do T&oacute;pico &eacute; obrigat&oacute;rio."
+            modal_topic_title: makeSmartyLabel('Alert_field_required')
         }
     });
 
@@ -305,7 +305,7 @@ $(document).ready(function () {
         rules: {modal_topic_title_upd: "required"
         },
         messages: {
-            modal_topic_title_upd: "T&iacute;tulo do T&oacute;pico &eacute; obrigat&oacute;rio."
+            modal_topic_title_upd: makeSmartyLabel('Alert_field_required')
         }
     });
 

@@ -7,11 +7,7 @@ $(document).ready(function () {
 
     datePick = function(elem)
     {
-        $(elem).datepicker({
-            format: "dd/mm/yyyy",
-            language: "pt-BR",
-            autoclose: true
-        });
+        $(elem).datepicker(datepickerOpts);
 
         $(elem).mask('00/00/0000');
 
@@ -32,7 +28,7 @@ $(document).ready(function () {
         colModel:[
             {name:'id',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
             {name:'holiday_description',index:'holiday_description', editable: true, width:150, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },
-            {name:'holiday_date',index:'holiday_date', width:10, align:"center", sortable: true, editable: false, width:25, sorttype:"date", formatter:"date",formatoptions: { srcformat: 'ISO8601Short', newformat: 'd/m/Y'}, searchoptions: {dataInit:datePick}, searchrules:{required:true,date:true}},
+            {name:'holiday_date',index:'holiday_date', width:10, align:"center", sortable: true, editable: false, width:25, sorttype:"date", formatter:"date",formatoptions: { srcformat: 'ISO8601Short', newformat: dtSearchFmt}, searchoptions: {dataInit:datePick}, searchrules:{required:true,date:true}},
             {name:'company',index:'tbp.name', editable: true, width:25, search:false, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} }
 
         ],

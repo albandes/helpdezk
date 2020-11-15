@@ -72,7 +72,9 @@
     <!-- Datapicker  -->
     {head_item type="css" src="$path/css/plugins/datepicker/" files="datepicker3.css"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/" files="bootstrap-datepicker.js"}
-    {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="bootstrap-datepicker.pt-BR.min.js"}
+    {if $dtpickerLocale != ''}
+        {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="$dtpickerLocale"}
+    {/if}
     <!-- Moment -->
     {head_item type="js"  src="$path/includes/js/plugins/moment/" files="moment-with-locales.min.js"}
     <!-- Summernote Editor -->
@@ -92,7 +94,7 @@
                  noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
                  noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
                  ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}'
+                 ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
                  demoVersion = '{/literal}{$demoversion}{literal}';
 
 
@@ -169,7 +171,7 @@
                 <div class="row wrapper  white-bg ">
                     <div class="row col-sm-12 b-l">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label text-right">{$smarty.config.Type}:</label>
+                            <label class="col-sm-3 control-label text-right">{$smarty.config.type}:</label>
                             <div class="col-sm-3">
                                 <select class="form-control input-sm"  id="cmbModule" name="cmbModule" >
                                     {html_options values=$moduleids output=$modulevals selected=$idmodule}
@@ -319,7 +321,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-sm-3 control-label">{$smarty.config.Type}:</label>
+                                        <label class="col-sm-3 control-label">{$smarty.config.type}:</label>
                                         <div class="col-sm-5">
                                             <select class="form-control input-sm"  id="popType" name="popType" >
                                                 {html_options values=$poptypeids output=$poptypevals selected=$idpoptype}

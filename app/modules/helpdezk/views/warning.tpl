@@ -44,11 +44,12 @@
     {literal}
         <script type="text/javascript">
             var default_lang = "{/literal}{$lang}{literal}",
-                    path = "{/literal}{$path}{literal}",
-                    langName = '{/literal}{$smarty.config.Name}{literal}',
-                    theme = '{/literal}{$theme}{literal}',
-                    mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                    timesession = '{/literal}{$timesession}{literal}';
+                path = "{/literal}{$path}{literal}",
+                langName = '{/literal}{$smarty.config.Name}{literal}',
+                theme = '{/literal}{$theme}{literal}',
+                mascDateTime = '{/literal}{$mascdatetime}{literal}',
+                timesession = '{/literal}{$timesession}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
@@ -78,15 +79,15 @@
                         <div class="ibox ">
 
                             <div class="ibox-title">
-                                <h5>Cadastros / {$smarty.config.pgr_warnings} / <strong>{$smarty.config.Home}</strong></h5>
+                                <h5>{$smarty.config.cat_records} / {$smarty.config.pgr_warnings} / <strong>{$smarty.config.Home}</strong></h5>
 
                             </div>
 
                             <div class="ibox-content">
 
-                                <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Novo</button>
-                                <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true""></i>&nbsp;Editar</button>
-                                <button id="btnListTopic" type="button" class="btn btn-primary btn-xs"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Ver&nbsp;T&oacute;picos</button>
+                                <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;{$smarty.config.New}</button>
+                                <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true""></i>&nbsp;{$smarty.config.edit}</button>
+                                <button id="btnListTopic" type="button" class="btn btn-primary btn-xs"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;{$smarty.config.Topic}s</button>
                                 <!--<button id="btnEnable" type="button" class="btn btn-primary btn-xs"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;Ativar</button>
                                 <button type="button" class="btn btn-primary btn-xs"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Permissões</button>-->
 

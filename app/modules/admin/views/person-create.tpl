@@ -61,7 +61,9 @@
     <!-- Datapicker  -->
     {head_item type="css" src="$path/css/plugins/datepicker/" files="datepicker3.css"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/" files="bootstrap-datepicker.js"}
-    {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="bootstrap-datepicker.pt-BR.min.js"}
+    {if $dtpickerLocale != ''}
+        {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="$dtpickerLocale"}
+    {/if}
     <!-- Moment -->
     {head_item type="js"  src="$path/includes/js/plugins/moment/" files="moment-with-locales.min.js"}
     <!-- Helpdezk CSS -->
@@ -69,17 +71,18 @@
 
     {literal}
     <script type="text/javascript">
-        var     default_lang = "{/literal}{$lang}{literal}",
-                path = "{/literal}{$path}{literal}",
-                langName = '{/literal}{$smarty.config.Name}{literal}',
-                theme = '{/literal}{$theme}{literal}',
-                mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                timesession = '{/literal}{$timesession}{literal}',
-                noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
-                noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
-                ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-                ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
-                demoVersion = '{/literal}{$demoversion}{literal}';
+        var default_lang = "{/literal}{$lang}{literal}",
+            path = "{/literal}{$path}{literal}",
+            langName = '{/literal}{$smarty.config.Name}{literal}',
+            theme = '{/literal}{$theme}{literal}',
+            mascDateTime = '{/literal}{$mascdatetime}{literal}',
+            timesession = '{/literal}{$timesession}{literal}',
+            noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
+            noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
+            ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
+            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+            demoVersion = '{/literal}{$demoversion}{literal}',
+            datepickerOpts = {/literal}{$datepickerOpts}{literal};
 
 
     </script>

@@ -16,7 +16,7 @@ $(document).ready(function () {
         shrinkToFit: true,
         rowNum: 16,
         rowList: [10, 20, 25, 30, 50],
-        colNames:['','',makeSmartyLabel('Name'),makeSmartyLabel('Login'),makeSmartyLabel('email'),makeSmartyLabel('Type'),makeSmartyLabel('Company'),makeSmartyLabel('Department'),makeSmartyLabel('status'),'',''],
+        colNames:['','',makeSmartyLabel('Name'),makeSmartyLabel('Login'),makeSmartyLabel('email'),makeSmartyLabel('type'),makeSmartyLabel('Company'),makeSmartyLabel('Department'),makeSmartyLabel('status'),'',''],
         colModel:[
             {name:'id',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
             {name:'typeicone',editable: false, width:25, align:"center",sortable: false, search:false, hidden: false, fixed:true },

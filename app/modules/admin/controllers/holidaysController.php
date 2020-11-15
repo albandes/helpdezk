@@ -43,6 +43,11 @@ class Holidays extends admCommon
         $this->_makeNavAdm($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+        $this->datepickerSettings($smarty);//set up datepicker options by language
+
         $smarty->display('holidays.tpl');
 
     }
@@ -69,7 +74,10 @@ class Holidays extends admCommon
 
         if ($_POST['_search'] == 'true'){
             if ( $_POST['searchField'] == 'holiday_description') $searchField = 'tbh.holiday_description';
-            if ( $_POST['searchField'] == 'holiday_date') $searchField = "DATE_FORMAT(tbh.holiday_date,'%d/%m/%Y')";
+            if ( $_POST['searchField'] == 'holiday_date'){
+                $searchField = "tbh.holiday_date";
+                $_POST['searchString'] = str_replace("'", "",$this->formatSaveDate($_POST['searchString']));
+            }
             if ( $_POST['searchField'] == 'tbp.name') $searchField = 'tbp.name';
 
             if (empty($where))
@@ -107,7 +115,7 @@ class Holidays extends admCommon
             
             $aColumns[] = array(
                 'id'                  => $rsHolidays->fields['idholiday'],
-                'holiday_description' => utf8_decode($rsHolidays->fields['holiday_description']),
+                'holiday_description' => $rsHolidays->fields['holiday_description'],
                 'holiday_date'        => $rsHolidays->fields['holiday_date'],
                 'company'             => $type_holiday
 
@@ -138,6 +146,7 @@ class Holidays extends admCommon
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+        $this->datepickerSettings($smarty);//set up datepicker options by language
         $smarty->display('holidays-create.tpl');
     }
 
@@ -162,6 +171,11 @@ class Holidays extends admCommon
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+        $this->datepickerSettings($smarty);//set up datepicker options by language
+
         $smarty->display('holidays-update.tpl');
 
     }
@@ -180,6 +194,11 @@ class Holidays extends admCommon
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+        $this->datepickerSettings($smarty);//set up datepicker options by language
+
         $smarty->display('holidays-import.tpl');
 
     }
@@ -287,18 +306,10 @@ class Holidays extends admCommon
 
         $this->dbHoliday->BeginTrans();
 
-        if ($this->database == 'oci8po') {
-            $data = array(
-                'holiday_date' => "TO_DATE ('".$_POST['holiday_date']."','DD/MM/YYYY')",
-                'holiday_description' => "'".utf8_encode($_POST['holiday_description'])."'"
-            );
-
-        }else{
-            $data = array(
-                'holiday_date' => $this->formatSaveDate($_POST['holiday_date']),
-                'holiday_description' => "'".addslashes(utf8_encode($_POST['holiday_description']))."'"
-            );
-        }
+        $data = array(
+            'holiday_date' => $this->formatSaveDate($_POST['holiday_date']),
+            'holiday_description' => "'{$_POST['holiday_description']}'"
+        );
 
         $ins = $this->dbHoliday->insertHoliday($data);
 		if(!$ins){
@@ -336,6 +347,12 @@ class Holidays extends admCommon
     {
         $this->protectFormInput();
 
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
         $idHoliday = $_POST['idholiday'];
 
         $this->dbHoliday->BeginTrans();
@@ -343,11 +360,7 @@ class Holidays extends admCommon
         $desc = $_POST['holiday_description'];
 		$holiday_date = $_POST['holiday_date'];
 
-        if ($this->database == 'oci8po') {
-            $ret = $this->dbHoliday->updateHoliday($idHoliday, utf8_encode($desc), "TO_DATE ('".$holiday_date."','DD/MM/YYYY')");
-        }else{
-            $ret = $this->dbHoliday->updateHoliday($idHoliday, addslashes(utf8_encode($desc)), $this->formatSaveDate($holiday_date));
-        }
+        $ret = $this->dbHoliday->updateHoliday($idHoliday, $desc, $this->formatSaveDate($holiday_date));
 
         if (!$ret) {
             $this->dbHoliday->RollbackTrans();
@@ -441,7 +454,7 @@ class Holidays extends admCommon
         $select = '';
 
         if(sizeof($arrYear['ids']) == 0){
-            $select .= "<option value=''>- Sem feriados para esta empresa -</option>";
+            $select .= "<option value=''>- {$this->getLanguageWord('no_holidays_for_company')} -</option>";
         }else{
             $select .= "<option value='X'>&nbsp;</option>";
             foreach ( $arrYear['ids'] as $indexKey => $indexValue ) {
@@ -517,7 +530,7 @@ class Holidays extends admCommon
             
             $list .= "<tr>
                         <td>".$dataformatada."</td>
-                        <td>".utf8_decode($ret->fields['holiday_description'])."</td>
+                        <td>".$ret->fields['holiday_description']."</td>
                         <td>".$type_holiday."</td>
                     </tr>";
 			$i++;
