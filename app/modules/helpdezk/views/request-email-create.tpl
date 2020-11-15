@@ -65,7 +65,7 @@
 
     {literal}
     <script type="text/javascript">
-        var     default_lang = "{/literal}{$lang}{literal}",
+        var default_lang = "{/literal}{$lang}{literal}",
             path = "{/literal}{$path}{literal}",
             langName = '{/literal}{$smarty.config.Name}{literal}',
             theme = '{/literal}{$theme}{literal}',
@@ -74,7 +74,8 @@
             noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
             noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
             ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+            demoVersion = '{/literal}{$demoversion}{literal}';
 
 
     </script>
@@ -145,7 +146,7 @@
 
                 <div class="row wrapper white-bg ibox-title">
                     <div class="col-sm-4">
-                        <h4>Cadastros / {$smarty.config.pgr_email_request} / <strong>{$smarty.config.Add}</strong></h4>
+                        <h4>{$smarty.config.cat_records} / {$smarty.config.pgr_email_request} / <strong>{$smarty.config.Add}</strong></h4>
                     </div>
                 </div>            
 
@@ -174,7 +175,7 @@
                             </div>
                             
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
+                                <label class="col-sm-2 control-label">{$smarty.config.type}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbSrvType" name="cmbSrvType" data-placeholder="{$plh_module_select}" >
                                         {html_options values=$srvtypeids output=$srvtypevals selected=$idsrvtype}
@@ -214,7 +215,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
+                                <label class="col-sm-2 control-label">{$smarty.config.type}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbType" name="cmbType" data-placeholder="{$plh_category_select}" >
                                         <option value="">{$smarty.config.Select}</option>

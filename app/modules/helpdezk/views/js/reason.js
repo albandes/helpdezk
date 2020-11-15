@@ -16,7 +16,7 @@ $(document).ready(function () {
         shrinkToFit: true,
         rowNum: 10,
         rowList: [10, 20, 25, 30, 50],
-        colNames:['',makeSmartyLabel('Area'),makeSmartyLabel('Type'),makeSmartyLabel('Item'),makeSmartyLabel('Service'),makeSmartyLabel('Reason'),makeSmartyLabel('status'),''],
+        colNames:['',makeSmartyLabel('Area'),makeSmartyLabel('type'),makeSmartyLabel('Item'),makeSmartyLabel('Service'),makeSmartyLabel('Reason'),makeSmartyLabel('status'),''],
         colModel:[
             {name:'id', index:'idreason',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
             {name:'area',index:'area', editable: true, width:120, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },

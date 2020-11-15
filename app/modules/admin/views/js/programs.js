@@ -134,7 +134,7 @@ function postStatus(idprogram,newStatus)
             newstatus: newStatus
         },
         error: function (ret) {
-            modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-program');
+            modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-create-program');
 
         },
         success: function(ret){
@@ -151,7 +151,7 @@ function postStatus(idprogram,newStatus)
                 $("#tipo-alert").attr('class', 'alert alert-success');
                 $('#modal-alert').modal('show');
             } else {
-                modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel atualizar !','alert-create-program');
+                modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-create-program');
             }
         }
 

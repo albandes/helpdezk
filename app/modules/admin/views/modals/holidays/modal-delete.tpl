@@ -55,7 +55,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">{$smarty.config.Close}</button>
-                    <button type="submit" class="btn btn-primary" id="btnSendDelete" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">Sim</button>
+                    <button type="submit" class="btn btn-primary" id="btnSendDelete" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.Yes}</button>
                 </div>
             </div>
         </div>

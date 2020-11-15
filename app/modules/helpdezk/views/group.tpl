@@ -55,11 +55,12 @@
     {literal}
         <script type="text/javascript">
             var default_lang = "{/literal}{$lang}{literal}",
-                    path = "{/literal}{$path}{literal}",
-                    langName = '{/literal}{$smarty.config.Name}{literal}',
-                    theme = '{/literal}{$theme}{literal}',
-                    mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                    timesession = '{/literal}{$timesession}{literal}';
+                path = "{/literal}{$path}{literal}",
+                langName = '{/literal}{$smarty.config.Name}{literal}',
+                theme = '{/literal}{$theme}{literal}',
+                mascDateTime = '{/literal}{$mascdatetime}{literal}',
+                timesession = '{/literal}{$timesession}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
@@ -94,7 +95,7 @@
                         <div class="ibox ">
 
                             <div class="ibox-title">
-                                <h5>Cadastros / {$smarty.config.pgr_groups} / <strong>{$smarty.config.Home}</strong></h5>
+                                <h5>{$smarty.config.cat_records} / {$smarty.config.pgr_groups} / <strong>{$smarty.config.Home}</strong></h5>
                             </div>
 
                             <div class="ibox-content">

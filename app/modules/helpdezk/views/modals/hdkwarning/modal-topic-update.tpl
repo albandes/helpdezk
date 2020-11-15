@@ -119,7 +119,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">{$smarty.config.Close}</button>
-                    <button type="submit" class="btn btn-primary" id="btnSendTopicUpdate" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.Send}</button>
+                    <button type="submit" class="btn btn-primary" id="btnSendTopicUpdate" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}"><i class='fa fa-save'></i> {$smarty.config.Save}</button>
                 </div>
             </div>
         </div>

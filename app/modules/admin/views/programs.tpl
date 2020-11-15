@@ -77,7 +77,7 @@
                         <div class="ibox ">
 
                             <div class="ibox-title">
-                                <h5>Cadastros / {$smarty.config.Programs} / <strong>{$smarty.config.Home}</strong></h5>
+                                <h5>{$smarty.config.records} / {$smarty.config.Programs} / <strong>{$smarty.config.Home}</strong></h5>
 
                             </div>
 

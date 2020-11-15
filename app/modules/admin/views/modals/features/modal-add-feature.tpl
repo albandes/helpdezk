@@ -70,7 +70,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">{$smarty.config.Type}:</label>
+                            <label class="col-sm-3 control-label">{$smarty.config.type}:</label>
                             <div class="col-sm-5">
                                 <select class="form-control input-sm"  id="cmbFieldTypeMod" name="cmbFieldTypeMod" >
                                     {html_options values=$fieldtypeids output=$fieldtypevals selected=$idfieldtype}

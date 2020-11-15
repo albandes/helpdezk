@@ -113,7 +113,7 @@
                                 <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{$smarty.config.edit}</button>
                                 <button id="btnDisable" type="button" class="btn btn-primary btn-xs"><i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{$smarty.config.Deactivate}</button>
                                 <button id="btnEnable" type="button" class="btn btn-primary btn-xs"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;{$smarty.config.Activate}</button>
-                                <button id="btnPerms" type="button" class="btn btn-primary btn-xs"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;{$smarty.config.permissions}</button>
+                                <button id="btnPerms" type="button" class="btn btn-primary btn-xs"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;{$smarty.config.manage_permissions}</button>
                                 <button id="btnGroups" type="button" class="btn btn-primary btn-xs"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;{$smarty.config.View_groups}</button>
 
                                 <p></p>

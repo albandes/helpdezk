@@ -399,7 +399,7 @@ class Vocabulary  extends admCommon {
 
     function formatStringToSave($string)
     {
-        return addslashes(trim(preg_replace('!\s+!', ' ', $string)));
+        return trim(preg_replace('!\s+!', ' ', $string));
     }
 
     public function comboLocale($where=null,$group=null,$order=null,$limit=null)

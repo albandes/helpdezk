@@ -54,6 +54,9 @@ class hdkWarning extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('warning.tpl');
 
     }
@@ -161,6 +164,11 @@ class hdkWarning extends hdkCommon
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
+        $this->datepickerSettings($smarty);//set up datepicker options by language
         $smarty->display('warning-create.tpl');
     }
 
@@ -181,6 +189,11 @@ class hdkWarning extends hdkCommon
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
+        $this->datepickerSettings($smarty);//set up datepicker options by language
         $smarty->display('warning-update.tpl');
 
     }
@@ -227,13 +240,12 @@ class hdkWarning extends hdkCommon
             }else{
                 list($starttmp,$timetmp) = explode(' ',$rs->fields['dtstart']);
                 list($yeartmp,$monthtmp,$daytmp) = explode('-',$starttmp);
-                $startfmt = $daytmp.'/'.$monthtmp.'/'.$yeartmp;
+                $startfmt = $this->formatDate($starttmp);
                 $objSmarty->assign('dtstart',$startfmt);
                 $objSmarty->assign('timestart',$timetmp);
             }
         } elseif ($oper == 'create') {
-            $objSmarty->assign('plh_dtstart',date('d/m/Y
-            '));
+            $objSmarty->assign('plh_dtstart',date(str_replace('%','',$this->getConfig('date_format'))));
             $objSmarty->assign('plh_timestart',date('H:i'));
         }
 
@@ -294,35 +306,20 @@ class hdkWarning extends hdkCommon
         $idperson = $_SESSION['SES_COD_USUARIO'];
         $database = $this->getConfig('db_connect');
 
-        if ($database == 'oci8po') {
-            $dtStart = $this->formatSaveDateHour($_POST['dtstart']." ".$_POST['timestart']);
-            $dtStart = $this->oracleDate($dtStart);
-        }else {
-            $dtStart = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtstart']))." ".$_POST['timestart']."'";
-        }
+        $dtStart = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtstart']))." ".$_POST['timestart']."'";
 
-        if ($database == 'mysqli') {
-            $now = "NOW()";
-            if($_POST['warningend'] == "S"){//Até ser encerrado
-                $dtEnd = "'0000-00-00 00:00:00'";
-            }else{
-                $dtEnd = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtend']))." ".$_POST['timeend']."'";
-            }
-        }elseif ($database == 'oci8po') {
-            $now = "SYSDATE";
-            if($_POST['warningend'] == "S"){//Até ser encerrado
-                $dtEnd = "NULL";
-            }else{
-                $dtEnd = $this->formatSaveDateHour($_POST['dtend']." ".$_POST['timeend']);
-                $dtEnd = $this->oracleDate($dtEnd);
-            }
+        $now = "NOW()";
+        if($_POST['warningend'] == "S"){//Até ser encerrado
+            $dtEnd = "'0000-00-00 00:00:00'";
+        }else{
+            $dtEnd = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtend']))." ".$_POST['timeend']."'";
         }
 
         $data = array(
             "idtopic" 		=> $_POST['topic'],
             "idperson" 		=> $idperson,
-            "title" 		=> "'".addslashes($_POST['title'])."'",
-            "description" 	=> "'".addslashes($_POST['description'])."'",
+            "title" 		=> "'{$_POST['title']}'",
+            "description" 	=> "'{$_POST['description']}'",
             "dtcreate" 		=> $now,
             "dtstart" 		=> $dtStart,
             "dtend" 		=> $dtEnd,
@@ -365,28 +362,13 @@ class hdkWarning extends hdkCommon
         $idWarning = $this->getParam('idwarning');
         $database = $this->getConfig('db_connect');
 
-        if ($database == 'oci8po') {
-            $dtStart = $this->formatSaveDateHour($_POST['dtstart']." ".$_POST['timestart']);
-            $dtStart = $this->oracleDate($dtStart);
-        }else {
-            $dtStart = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtstart']))." ".$_POST['timestart']."'";
-        }
+        $dtStart = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtstart']))." ".$_POST['timestart']."'";
 
-        if ($database == 'mysqli') {
-            $now = "NOW()";
-            if($_POST['warningend'] == "S"){//Até ser encerrado
-                $dtEnd = "'0000-00-00 00:00:00'";
-            }else{
-                $dtEnd = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtend']))." ".$_POST['timeend']."'";
-            }
-        }elseif ($database == 'oci8po') {
-            $now = "SYSDATE";
-            if($_POST['warningend'] == "S"){//Até ser encerrado
-                $dtEnd = "NULL";
-            }else{
-                $dtEnd = $this->formatSaveDateHour($_POST['dtend']." ".$_POST['timeend']);
-                $dtEnd = $this->oracleDate($dtEnd);
-            }
+        $now = "NOW()";
+        if($_POST['warningend'] == "S"){//Até ser encerrado
+            $dtEnd = "'0000-00-00 00:00:00'";
+        }else{
+            $dtEnd = "'".str_replace("'", "",$this->formatSaveDate($_POST['dtend']))." ".$_POST['timeend']."'";
         }
 
         $data = array(
@@ -619,10 +601,18 @@ class hdkWarning extends hdkCommon
     public function formListTopic()
     {
         $smarty = $this->retornaSmarty();
+        // Check the access permission
+        $permissions = array_values($this->access($smarty,$_SESSION['SES_COD_USUARIO'],$this->idprogram,$_SESSION['SES_TYPE_PERSON']));
+        if($permissions[0] != "Y")
+            $this->accessDenied();
 
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('warning-topic-grid.tpl');
     }
 
@@ -736,88 +726,6 @@ class hdkWarning extends hdkCommon
         echo $this->makeJsonUtf8Compat($aRet);
     }
 
-    function salvaFoto()
-    {
-        $this->protectFormInput();
-
-        $idPerson = $_POST['idperson'];
-        $this->logIt('Insert Atleta  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,7,'general',__LINE__);
-        if (!empty($_FILES)) {
-            $fileName = $_FILES['file']['name'];
-            $tempFile = $_FILES['file']['tmp_name'];
-            $extension = strrchr($fileName, ".");
-            $targetPath = $this->helpdezkPath . '/app/uploads/photos/' ;
-
-            //$idAtt = $this->dbTicket->saveTicketAtt($code_request,$fileName);
-
-            $targetFile =  $targetPath.$idPerson.$extension;
-
-            if (move_uploaded_file($tempFile,$targetFile)){
-                if($this->log)
-                    $this->logIt("Save person photo: # ". $idPerson . ' - File: '.$targetFile.' - program: '.$this->program ,7,'general',__LINE__);
-                return 'OK';
-            } else {
-                if($this->log)
-                    $this->logIt("Can't save person photo: # ". $idPerson . ' - File: '.$targetFile.' - program: '.$this->program ,3,'general',__LINE__);
-                return false;
-            }
-
-        }
-    }
-
-    function updateAtleta()
-    {
-        $idPerson = $this->getParam('idperson');
-
-        $this->loadModel('atleta_model');
-        $dbAtleta = new atleta_model();
-
-        $this->loadModel('admin/person_model');
-        $dbPerson = new person_model();
-
-        $dbAtleta->BeginTrans();
-        $dbPerson->BeginTrans();
-
-        $ret = $dbAtleta->updateAtleta($idPerson,$_POST['nome'],$_POST['email'],$_POST['telefone'],$_POST['celular'],$_POST['condicao'],$_POST['departamento'],$_POST['posicao'],$_POST['apelido']);
-        if (!$ret) {
-            $dbAtleta->RollbackTrans();
-            if($this->log)
-                $this->logIt('Update Atleta  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
-        }
-
-        $ret = $dbPerson->updateAdressData($idPerson,$_POST['cidade'],$_POST['bairro'],$_POST['numero'],$_POST['complemento'],$_POST['cep'],$_POST['tipologra'],$_POST['endereco']);
-        if (!$ret) {
-            $dbAtleta->RollbackTrans();
-            if($this->log)
-                $this->logIt('Update Atleta  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
-        }
-
-        if($_POST['dtnasc'])
-            $dtNasc = $this->formatSaveDate($_POST['dtnasc']);
-
-        $ret = $dbPerson->updateNaturalData($idPerson,$_POST['cpf'],$dtNasc,'M');
-        if (!$ret) {
-            $dbAtleta->RollbackTrans();
-            if($this->log)
-                $this->logIt('Update Atleta  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
-        }
-
-        $aRet = array(
-            "idperson" => $idPerson,
-            "status"   => 'OK'
-        );
-
-        $dbAtleta->CommitTrans();
-        $dbPerson->CommitTrans();
-
-        echo json_encode($aRet);
-
-
-    }
-
     function statusAtleta()
     {
         $idPerson = $this->getParam('idperson');
@@ -870,7 +778,7 @@ class hdkWarning extends hdkCommon
                     $values[]   = 'Login';
                     break;
                 default:
-                    $values[]   = 'Ambos';
+                    $values[]   = $this->getLanguageWord('both');
                     break;
             }
 

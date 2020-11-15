@@ -45,6 +45,8 @@ class typepersonpermission extends admCommon
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
         $smarty->display('typepersonpermission.tpl');
 
     }
@@ -263,6 +265,9 @@ class typepersonpermission extends admCommon
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
         $smarty->display('typepersonpermission-edit.tpl');
     }
 

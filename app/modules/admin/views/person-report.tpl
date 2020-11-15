@@ -74,7 +74,8 @@
             noteAttMaxFiles = '{/literal}{$noteattmaxfiles}{literal}',
             noteAcceptedFiles = '{/literal}{$noteacceptedfiles}{literal}',
             ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
-            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}';
+            ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
+            demoVersion = '{/literal}{$demoversion}{literal}';
 
     </script>
 
@@ -199,7 +200,7 @@
 
                     <div class="col-sm-11 b-l">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
+                            <label class="col-sm-2 control-label">{$smarty.config.type}:</label>
                             <div class="col-sm-5">
                                 <select class="form-control input-sm" name="cmbTypePerson" id="cmbTypePerson" >
                                     <option value="">{$smarty.config.Select}</option>
@@ -258,7 +259,7 @@
                                     <tr>
                                         <th class="col-sm-2 text-center"><h4><strong>{$smarty.config.Login}</strong></h4></th>
                                         <th class="col-sm-5 text-center"><h4><strong>{$smarty.config.Name}</strong></h4></th>
-                                        <th class="col-sm-2 text-center"><h4><strong>{$smarty.config.Type}</strong></h4></th>
+                                        <th class="col-sm-2 text-center"><h4><strong>{$smarty.config.type}</strong></h4></th>
                                         <th class="col-sm-3 text-center"><h4><strong>{$smarty.config.Company}</strong></h4></th>
                                     </tr>
                                 </thead>

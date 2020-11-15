@@ -180,7 +180,7 @@ $(document).ready(function () {
 
         if (!idWarning) {
             $("#btn-modal-ok").attr("href", '');
-            $('#modal-notification').html('Marque um aviso.');
+            $('#modal-notification').html(makeSmartyLabel('Alert_select_one'));
             $("#tipo-alert").attr('class', 'alert alert-danger');
             $('#modal-alert').modal('show');
         } else {

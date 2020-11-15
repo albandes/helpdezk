@@ -3694,5 +3694,42 @@ class System {
         return $rsChangePwd;
     }
 
+    /**
+     * @param $smarty
+     *
+     * By default
+     */
+    public function datepickerSettings($smarty)
+    {
+        switch($this->getConfig('lang')){
+            case 'pt_BR':
+                $datepickerOpts = '{format: "dd/mm/yyyy",
+                language:  "pt-BR",
+                autoclose:  true}';
+                $dtpickerLocale = "bootstrap-datepicker.pt-BR.min.js";
+                $dtSearchFmt = 'd/m/Y';
+                break;
+            case 'es_ES':
+                $datepickerOpts = '{format: "dd/mm/yyyy",
+                language:  "es",
+                autoclose:  true}';
+                $dtpickerLocale = "bootstrap-datepicker.es.min.js";
+                $dtSearchFmt = 'd/m/Y';
+                break;
+            default:
+                $datepickerOpts = '{format:  "mm/dd/yyyy",
+                autoclose:  true}';
+                $dtpickerLocale = "";
+                $dtSearchFmt = 'm/d/Y';
+                break;
+
+        }
+
+        $smarty->assign('dtSearchFmt', $dtSearchFmt);
+        $smarty->assign('dtpickerLocale', $dtpickerLocale);
+        $smarty->assign('datepickerOpts', $datepickerOpts);
+
+    }
+
 }
 ?>

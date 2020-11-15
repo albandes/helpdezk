@@ -47,6 +47,9 @@ class hdkDepartment extends hdkCommon
         $smarty->assign('title', $this->getConfig('page_title'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('department.tpl');
 
     }
@@ -174,6 +177,10 @@ class hdkDepartment extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('department-update.tpl');
 
     }

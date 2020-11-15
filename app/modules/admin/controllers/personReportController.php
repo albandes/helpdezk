@@ -61,6 +61,10 @@ class personReport extends admCommon
         $smarty->assign('token', $this->_makeToken()) ;
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('person-report.tpl');
 
     }
