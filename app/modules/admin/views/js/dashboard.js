@@ -8,11 +8,6 @@ $(document).ready(function () {
 
     $("#btnUpdateVocabulary").click(function(){
 
-        //alert('inside');
-
-
-
-
         $.ajax({
             type: "POST",
             url: path + '/admin/home/updateLanguageFile',
@@ -69,6 +64,14 @@ $(document).ready(function () {
             }
         });
     });
+
+    // btnPrintSession
+    $("#btnPrintSession").click(function(){
+
+        $('#modal-session').modal('show');
+
+    });
+
 
 
 });

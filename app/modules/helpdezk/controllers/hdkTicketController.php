@@ -13,13 +13,19 @@ class hdkTicket extends hdkCommon {
 
         parent::__construct();
         session_start();
+
+
+        if (!empty($this->getParam('token'))) {
+            if (!$this->_tokenAuthentication($this->getParam('id'),$this->getParam('token'))) {
+                $this->accessDenied();
+            }
+        }
+
         $this->sessionValidate();
 
         // Log settings
         $this->log = parent::$_logStatus;
         $this->program  = basename( __FILE__ );
-
-        //$this->idprogram =  $this->getIdProgramByController('hdkTicket');
 
         $this->databaseNow = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
 
@@ -120,9 +126,7 @@ class hdkTicket extends hdkCommon {
         if($_SESSION['SES_TYPE_PERSON'] != 2 and $_SESSION['SES_TYPE_PERSON'] != 3)
             $this->accessDenied();
 
-        //$this->validasessao();
         $smarty = $this->retornaSmarty();
-
 
         $langVars = $this->getLangVars($smarty);
 

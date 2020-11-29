@@ -44,6 +44,13 @@
                                     <span ><button type="button" class="btn btn-primary btn-sm" id="btnClearSmartyCash">Clear Cache</button></span> Clear Smarty Cache
                                 </li>
 
+                                <li class="list-group-item">
+                                <span class="pull-right">
+                                    {$date_clearsmartycache}
+                                </span>
+                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnPrintSession">Clear Cache</button></span> Print PHP Session
+                                </li>
+
 
                             </ul>
 
@@ -155,3 +162,5 @@
 
 {include file='modals/dashboard/modalUpdateLanguageAlert.tpl'}
 {include file='modals/dashboard/modal-alert.tpl'}
+
+{include file='modals/dashboard/modal-session.tpl'}

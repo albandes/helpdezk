@@ -23,12 +23,16 @@ class hdkCommon extends DynamichdkCommon {
     {
         parent::__construct();
 
+
         $this->loadModel('ticket_model');
         $dbTicket = new ticket_model();
         $this->dbTicket = $dbTicket;
 
         $this->loadModel('admin/tracker_model');
         $this->dbTracker = $dbTracker = new tracker_model();
+
+        $this->loadModel('helpdezk/emailconfig_model');
+        $this->dbEmailConfig  = new emailconfig_model();
 
         // Log settings
         $objSyslog = new Syslog();
@@ -394,23 +398,21 @@ class hdkCommon extends DynamichdkCommon {
         $arrAttach = array();
 
         // Common data
-        $rsReqData = $this->dbTicket->getRequestData('WHERE code_request = '. $code_request);
-        $EVALUATION = $this->dbTicket->getEvaluationGiven($code_request);
-        $REQUEST = $code_request;
-        $SUBJECT = $rsReqData->fields['subject'];
-        $REQUESTER = $rsReqData->fields['personname'];
-        $RECORD = $this->formatDate($rsReqData->fields['entry_date']);
-        $DESCRIPTION = $rsReqData->fields['description'];
-        $INCHARGE = $rsReqData->fields['in_charge'];
-        $PHONE = $rsReqData->fields['phone'];
-        $BRANCH = $rsReqData->fields['branch'];
-        $LINK_OPERATOR = $this->makeLinkOperator($code_request);
-        $LINK_USER = $this->makeLinkUser($code_request);
+        $rsReqData      = $this->dbTicket->getRequestData('WHERE code_request = '. $code_request);
+        $EVALUATION     = $this->dbTicket->getEvaluationGiven($code_request);
+        $REQUEST        = $code_request;
+        $SUBJECT        = $rsReqData->fields['subject'];
+        $REQUESTER      = $rsReqData->fields['personname'];
+        $RECORD         = $this->formatDate($rsReqData->fields['entry_date']);
+        $DESCRIPTION    = $rsReqData->fields['description'];
+        $INCHARGE       = $rsReqData->fields['in_charge'];
+        $PHONE          = $rsReqData->fields['phone'];
+        $BRANCH         = $rsReqData->fields['branch'];
+        $LINK_OPERATOR  = $this->makeLinkOperator($code_request);
+        $LINK_USER      = $this->makeLinkUser($code_request);
         // Notes
-        $table = $this->makeNotesTable($code_request);
-        $NT_OPERATOR = $table;
-
-        
+        $table          = $this->makeNotesTable($code_request);
+        $NT_OPERATOR    = $table;
 
         switch ($operation) {
 
@@ -789,15 +791,16 @@ class hdkCommon extends DynamichdkCommon {
         $msgLog = "request # ".$REQUEST." - Operation: ".$operation;
         $msgLog2 = "request # ".$REQUEST;
 
-        $params = array("subject" => $subject,
-                        "contents" => $contents,
-                        "address" => $sentTo,
-                        "attachment" => $arrAttach,
-                        "idmodule" => $this->idmodule,
-                        "tracker" => $this->tracker,
-                        "msg" => $msgLog,
-                        "msg2" => $msgLog2,
-                        "customHeader" => $customHeader );
+        $params = array("subject"       => $subject,
+                        "contents"      => $contents,
+                        "address"       => $sentTo,
+                        "attachment"    => $arrAttach,
+                        "idmodule"      => $this->idmodule,
+                        "tracker"       => $this->tracker,
+                        "msg"           => $msgLog,
+                        "msg2"          => $msgLog2,
+                        "customHeader"  => $customHeader,
+                        "code_request"  => $REQUEST);
 
 
         $done = $this->sendEmailDefault($params);
@@ -868,9 +871,96 @@ class hdkCommon extends DynamichdkCommon {
         return $sentTo ;
     }
 
+    public function existsViewByurlTable()
+    {
+        if ( $this->dbTicket->existTableViewByUrl() )
+            return true;
+        else
+            return false;
+    }
+
+    public function setUrlToken($code_request)
+    {
+
+        $rsGroup  = $this->dbEmailConfig->getGroupInCharge($code_request);
+        $inchType = $rsGroup->fields['type'];
+        $inchid   = $rsGroup->fields['id_in_charge'];
+
+        if ($inchType == 'G') {
+
+            $rsGroupIdPerson = $this->dbEmailConfig->getIdPersonfromGroupOperators($inchid);
+
+            if ($rsGroupIdPerson->RecordCount() == 0) {
+
+                if($this->log)
+                    $this->logIt("Group with id # {$inchid} does not have operators! - program: {$this->program} - method: " . __METHOD__ ,3,'general',__LINE__);
+
+                return;
+            }
+
+            while (!$rsGroupIdPerson->EOF) {
+
+                $this->_saveUrlToken($rsGroupIdPerson->fields['idperson'], $code_request);
+                $rsGroupIdPerson->MoveNext();
+
+            }
+
+        } else {
+
+            $this->_saveUrlToken($inchid, $code_request);
+
+        }
+
+
+    }
+
+    function _saveUrlToken($idPerson,$codeRequest)
+    {
+
+        $token =  hash('sha512',rand(100,1000));
+        $this->dbTicket->saveViewByUrl($token,$idPerson,$codeRequest) ;
+        if($this->log)
+            $this->logIt("Generated token for request preview authentication, idperson {$idPerson}, request code {$codeRequest}! - program: {$this->program} - method: " . __METHOD__ ,6,'general',__LINE__);
+
+    }
+
+    function _tokenAuthentication($codeRequest, $token)
+    {
+
+        $this->loadModel('admin/index_model');
+        $this->dbIndex = new index_model();
+
+        $this->loadModel('admin/person_model');
+        $this->dbPerson = new person_model();
+
+        $idPerson = $this->dbIndex->getIdPersonByToken($this->getParam('id'),$this->getParam('token'));
+
+        if ($idPerson ==  false)
+            return false;
+
+        if ($this->dbPerson->getIdTypePerson($idPerson) != 3) // Only operators
+            return false;
+
+        if ($_SESSION['SES_COD_USUARIO'] == $idPerson)
+            return true;
+
+        $this->_startSession($idPerson);
+        $this->_getConfigSession();
+        if($_SESSION['SES_MAINTENANCE'] == 1){
+            $msg = html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8');
+            die($msg);
+        }
+
+        return true;
+    }
+
     public function makeLinkOperator($code_request)
     {
-        return "<a href='".$this->helpdezkUrl."/helpdezk/hdkTicket/viewrequest/id/".$code_request."' target='_blank'>".$code_request."</a>";
+
+        /*
+         * Added the <pipegrep> </pipegrep> tag that will be used to add the authentication token to this link
+         */
+        return "<pipegrep><a href='" . $this->helpdezkUrl . "/helpdezk/hdkTicket/viewrequest/id/{$code_request}' target='_blank'>{$code_request}</a></pipegrep>";
     }
 
     public function makeLinkUser($code_request)
@@ -1005,7 +1095,6 @@ class hdkCommon extends DynamichdkCommon {
             $smtp = false;
         }
 
-        $this->logIt(__FUNCTION__ .' - entrou : ' . $code_request . ' - ' . $transaction . ' - ' . $midia ,7,'general');
 
         switch($transaction){
 
@@ -1029,6 +1118,7 @@ class hdkCommon extends DynamichdkCommon {
                 }
 
                 break;
+
             // Sends notification to user when the request receives a note, created by operator
             case 'user-note' :
                 if ($midia == 'email') {
@@ -1178,6 +1268,14 @@ class hdkCommon extends DynamichdkCommon {
                     }
 
                 }
+
+                // Since November 20, 2020
+                if ($this->existsViewByurlTable()) {
+                    $this->setUrlToken($code_request);
+                } else {
+                    if($this->log)
+                        $this->logIt("hdk_tbviewbyurl table does not exist - program: " . $this->program . ' - method: '. __METHOD__ , 7, 'general', __LINE__);
+                }
                 break;
 
             default:
@@ -1186,7 +1284,9 @@ class hdkCommon extends DynamichdkCommon {
 
 
         if ($midia == 'email') {
+
             if ($cron) {
+
                 $this->dbTicket->saveEmailCron($code_request, $transaction );
                 if($this->log)
                     $this->logIt($messagePart . $code_request . ' - We will perform the method to send e-mail by cron' ,6,'general');

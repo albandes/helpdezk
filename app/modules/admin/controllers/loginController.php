@@ -405,8 +405,8 @@ class Login extends admCommon {
 
             switch  ($idtypeperson) {
                 case "1":
-                    $this->startSession($idperson);
-                    $this->getConfigSession();
+                    $this->_startSession($idperson);
+                    $this->_getConfigSession();
                     $success = array(
                         "success" => 1,
                         "redirect" => path . "/admin/home"
@@ -416,8 +416,8 @@ class Login extends admCommon {
                     break;
 
                 case "2":
-                    $this->startSession($idperson);
-                    $this->getConfigSession();
+                    $this->_startSession($idperson);
+                    $this->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){						
 						$maintenance = array(
 										"success" => 0,
@@ -437,8 +437,8 @@ class Login extends admCommon {
                     break;
 
                 case "3":
-                    $this->startSession($idperson);
-                    $this->getConfigSession();
+                    $this->_startSession($idperson);
+                    $this->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
 						$maintenance = array(
 										"success" => 0,
@@ -449,7 +449,6 @@ class Login extends admCommon {
 						$success = array(
 										"success" => 1,
 										"redirect" => path . "/helpdezk/home/index"
-                                        //"redirect" => path . "/scm/home/index"
 									);
 
 						echo json_encode($success);
@@ -460,8 +459,8 @@ class Login extends admCommon {
                 //  Another modules
                 default:
 
-                    $this->startSession($idperson);
-                    $this->getConfigSession();
+                    $this->_startSession($idperson);
+                    $this->_getConfigSession();
 
                     if (!$this->dbConfig->tableExists('tbtypeperson_has_module')) {
                         $error = array( "success" => 0,
@@ -512,160 +511,9 @@ class Login extends admCommon {
         }        
     }
 
-    public function startSession($idperson)
-    {
-        
-        session_start();
-        $_SESSION['SES_COD_USUARIO'] = $idperson;
-        $_SESSION['REFRESH'] = false;
-
-        //SAVE THE CUSTOMER'S LICENSE
-        $_SESSION['SES_LICENSE'] = $this->getConfig('license');
-        $_SESSION['SES_ENTERPRISE'] = $this->getConfig('enterprise');
-        
-        $_SESSION['SES_ADM_MODULE_DEFAULT'] = $this->pathModuleDefault();
-
-        if ($_SESSION['SES_COD_USUARIO'] != 1) {
-
-            if ($this->isActiveHelpdezk()) {
-                $typeuser = $this->dbIndex->selectDataSession($idperson);
-                $_SESSION['SES_LOGIN_PERSON'] = $typeuser->fields['login'];
-                $_SESSION['SES_NAME_PERSON'] = $typeuser->fields['name'];
-                $_SESSION['SES_TYPE_PERSON'] = $typeuser->fields['idtypeperson'];
-                $_SESSION['SES_IND_CODIGO_ANOMES'] = true;
-                $_SESSION['SES_COD_EMPRESA'] = $typeuser->fields['idjuridical'];
-                $_SESSION['SES_COD_TIPO'] = $typeuser->fields['idtypeperson'];
-                $groups = $this->dbIndex->selectPersonGroups($idperson);
-                $i = "0";
-                while (!$groups->EOF) {
-                    $arr[$i] = $groups->fields['idgroup'];
-                    $i++;
-                    $groups->MoveNext();
-                }
-                $groups = implode(',', $arr);
-                $_SESSION['SES_PERSON_GROUPS'] = $groups;
-
-            } else {
-                $this->loadModel('admin/person_model');
-                $dbPerson = new person_model();
-                $rsPerson = $dbPerson->selectPerson(" AND tbp.idperson = $idperson");
-                $_SESSION['SES_LOGIN_PERSON'] = $rsPerson->fields['login'];
-                $_SESSION['SES_NAME_PERSON'] = $rsPerson->fields['name'];
-                $_SESSION['SES_TYPE_PERSON'] = $rsPerson->fields['idtypeperson'];
-                //$_SESSION['SES_COD_TIPO'] = $rsPerson->fields['idtypeperson'];
-            }
-
-        } else {
-            if($this->isActiveHelpdezk()){
-                $_SESSION['SES_NAME_PERSON'] = 'admin';
-                $_SESSION['SES_TYPE_PERSON'] = 1;
-                $_SESSION['SES_IND_CODIGO_ANOMES'] = true;
-                $_SESSION['SES_COD_EMPRESA'] = 1;
-                $_SESSION['SES_COD_TIPO'] = 1;
-
-                $groups = $this->dbIndex->selectAllGroups();
-                $i = "0";
-                while (!$groups->EOF) {
-                    $arr[$i] = $groups->fields['idgroup'];
-                    $i++;
-                    $groups->MoveNext();
-                }
-                $groups = implode(',', $arr);
-                $_SESSION['SES_PERSON_GROUPS'] = $groups;
-            } else {
-                $_SESSION['SES_NAME_PERSON'] = 'admin';
-                $_SESSION['SES_TYPE_PERSON'] = 1;
-                $_SESSION['SES_COD_EMPRESA'] = 1;
-                //$_SESSION['SES_COD_TIPO'] = 1;
-            }
-        }
-		
-    }
-
-    public function getConfigSession()
-    {
-
-        session_start();
-        if (version_compare($this->helpdezkVersionNumber, '1.0.1', '>' )) {
-
-            $objModules = $this->getActiveModules();
-            while (!$objModules->EOF) {
-                $prefix = $objModules->fields['tableprefix'];
-                if(!empty($prefix)) {
-                    $data = $this->dbIndex->getConfigDataByModule($prefix);
-                    if (!$data) {
-                        if($this->log)
-                            $this->logIt('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory - program: '. $this->program ,3,'general',__LINE__);
-                    }else{
-                        while (!$data->EOF) {
-                            $ses = $data->fields['session_name'];
-                            $val = $data->fields['value'];
-                            //$_SESSION[$ses] = $val;
-                            //
-                            $_SESSION[$prefix][$ses] = $val;
-                            //
-                            $data->MoveNext();
-                        }
-                    }
-                }
-
-                $objModules->MoveNext();
-            }
-
-        } else {
-            $data = $this->dbIndex->getConfigData();
-            if($data) {
-                while (!$data->EOF) {
-                    $ses = $data->fields['session_name'];
-                    $val = $data->fields['value'];
-                    $_SESSION[$ses] = $val;
-                    //
-                    $_SESSION[$prefix][$ses] = $val;
-                    //
-                    $data->MoveNext();
-                }
-            }
-        }
 
 
-		$idperson = $_SESSION['SES_COD_USUARIO'];
 
-
-        // Global Config Data
-        $rsConfig = $this->dbIndex->getConfigGlobalData();
-        while (!$rsConfig->EOF) {
-            $ses = $rsConfig->fields['session_name'];
-            $val = $rsConfig->fields['value'];
-            $_SESSION[$ses] = $val;
-            $rsConfig->MoveNext();
-        }
-
-        // User config data
-        $this->loadModel('userconfig_model');
-		$cf = new userconfig_model();
-		$columns = $cf->getColumns(); //GET COLUMNS OF THE TABLE
-
-        $database = $this->getConfig('db_connect');
-
-		while (!$columns->EOF) {
-            if($this->isMysql($database)) {
-                $cols[] = strtolower($columns->fields['Field']);
-            } elseif($database == 'oci8po') {
-                $cols[] = strtolower($columns->fields['column_name']);
-            }
-            $columns->MoveNext();
-        }
-
-
-		$idconf = $cf->checkConf($idperson); //CHECK IF USER HAVE PERSONAL CONFIG, IF DNO'T HAVE IT'S CREATE
-
-		$getUserConfig = $cf->getConf($cols,$idconf);
-		foreach ($cols as $key => $value) {
-			$_SESSION['SES_PERSONAL_USER_CONFIG'][$value] = $getUserConfig->fields[$value];
-		}
-
-
-    }
 
 	/**
 	* Create the condition for the query of mysql from the dates generated by the calendar of the form

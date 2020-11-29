@@ -101,6 +101,20 @@ class emailconfig_model extends DynamicEmailConfig_model {
 								and grpname.idperson = '$idgroup'");
     }
 
+    public function getIdPersonfromGroupOperators($idgroup) {
+        return $this->select("select
+								  pers.idperson
+								from tbperson pers,
+								  tbperson grpname,
+								  hdk_tbgroup grp,
+								  hdk_tbgroup_has_person pergrp
+								where pers.idperson = pergrp.idperson
+								AND pers.status = 'A'
+								and grp.idgroup = pergrp.idgroup
+								AND grpname.idperson = grp.idperson
+								and grpname.idperson = '$idgroup'");
+    }
+
     public function getUserEmail($iduser) {
         return $this->select("select
                                   pers.email
