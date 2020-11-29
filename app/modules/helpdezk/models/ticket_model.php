@@ -1861,6 +1861,7 @@ class ticket_model extends DynamicTicket_model
                     ";
         return $this->db->Execute($query);
     }
+
     public function updateEmailCron($set)
     {
         $query =    "
@@ -1869,6 +1870,85 @@ class ticket_model extends DynamicTicket_model
                     ";
         return $this->db->Execute($query);
     }
+
+    public function existTableViewByUrl()
+    {
+
+        if ($this->tableExists('hdk_tbviewbyurl') == 0 ) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    public function saveViewByUrl($token,$idPerson, $codeRequest) {
+
+
+        $sql = "
+                INSERT INTO hdk_tbviewbyurl
+                (
+                  idperson
+                 ,code_request
+                 ,token
+                )
+                VALUES
+                (
+                  {$idPerson}
+                 ,'{$codeRequest}' 
+                 ,'{$token}'                  
+                )
+
+                ";
+
+        $ret = $this->db->Execute($sql);
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "query; " . $sql;
+            $this->error($sError);
+            return false;
+        }
+        return $ret;
+    }
+
+    /*
+    public function getUrlToken($idPerson,$codeRequest)
+    {
+        $sql =  "SELECT token FROM hdk_tbviewbyurl WHERE idperson = {$idPerson} AND code_request = '{$codeRequest}' ";
+
+        $ret = $this->select($sql);
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return $ret->fields['token'];
+
+    }
+    */
+
+    public function getUrlTokenByEmail($email,$codeRequest)
+    {
+        $sql =  "
+                SELECT 
+                  b.token
+                FROM
+                  tbperson a,
+                  hdk_tbviewbyurl b 
+                WHERE a.email = '{$email}' 
+                  AND b.code_request = '{$codeRequest}' 
+                  AND a.idperson = b.idperson         
+                ";
+
+        $ret = $this->select($sql);
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return $ret->fields['token'];
+
+    }
+
 
 
 }

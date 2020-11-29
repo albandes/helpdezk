@@ -63,7 +63,11 @@ class admCommon extends Controllers  {
         $this->loadModel('helpdezk/groups_model');
         $dbGroups = new groups_model();
         $this->dbGroups = $dbGroups;
-		
+
+        $this->loadModel('index_model');
+        //$dbIndex = new index_model();
+        $this->dbIndex = new index_model();
+
 		// Tracker Settings
         if($_SESSION['TRACKER_STATUS'] == 1) {
             $this->modulename = 'admin' ;

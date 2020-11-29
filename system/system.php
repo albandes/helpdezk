@@ -1,15 +1,16 @@
 <?php
 
-class System {
+class System
+{
 
     private $_url, $_explode;
     public $_controller, $_action, $_params, $_module, $_config, $_version;
-    public $_smartyVersion ;
+    public $_smartyVersion;
     var $pdfAligns, $pdfWidths, $pdfLeftMargin, $pdfLogo, $pdfTitle, $a_pdfHeaderData, $pdfPage, $pdfFontFamily, $pdfFontStyle, $pdfFontSyze;
 
-    public $_logLevel ;
-    public $_logHost ;
-    public $_logRemoteServer ;
+    public $_logLevel;
+    public $_logHost;
+    public $_logRemoteServer;
     public $_logFacility;
 
     /**
@@ -33,6 +34,12 @@ class System {
      */
     public $_externalStorageUrl;
 
+    /**
+     * Use token on the operator link to view the request
+     * @var bool
+     */
+    public $_tokenOperatorLink;
+
     public function __construct()
     {
         $this->setConfig();
@@ -43,15 +50,15 @@ class System {
         $this->setAction();
         $this->setParams();
 
-        $this->database     = $this->getConfig('db_connect');
-        $this->pathDefault  = $this->getConfig('path_default');
-        $this->dateFormat 	= $this->getConfig('date_format');
-        $this->hourFormat 	= $this->getConfig('hour_format');
-        $this->langDefault  = $this->getConfig('lang');
+        $this->database = $this->getConfig('db_connect');
+        $this->pathDefault = $this->getConfig('path_default');
+        $this->dateFormat = $this->getConfig('date_format');
+        $this->hourFormat = $this->getConfig('hour_format');
+        $this->langDefault = $this->getConfig('lang');
 
-        $this->printDate    = $this->getPrintDate();
-        $this->logDateHour  = $this->getlogDateHour();
-        $this->helpdezkUrl  = $this->getHelpdezkUrl();
+        $this->printDate = $this->getPrintDate();
+        $this->logDateHour = $this->getlogDateHour();
+        $this->helpdezkUrl = $this->getHelpdezkUrl();
         $this->helpdezkPath = $this->getHelpdezkPath();
 
         // Helpdezk Logos
@@ -70,23 +77,41 @@ class System {
         $this->summernote = $this->getSummerNoteVersion();
 
         // External storage settings
-        $this->_externalStorage     = $this->getExternalStorage();
+        $this->_externalStorage = $this->getExternalStorage();
         if ($this->_externalStorage) {
             $this->_externalStoragePath = $this->getExternalStoragePath();
             $this->_externalStorageUrl = $this->getExternalStorageUrl();
         }
 
+        // Use of tokens in the request´s view url by the operator
+        $this->_tokenOperatorLink = $this->getEnabledTokenOperatorLink();
+
         $this->logFile = $this->getLogFile('general');
-        $this->logFileEmail  = $this->getLogFile('email');
+        $this->logFileEmail = $this->getLogFile('email');
 
     }
 
     /**
-     * Destroys the session and sends it to the login page, used for unauthorized access.
+     * Return if use of tokens in the request´s view url by the operator is enabled
+     *
+     * @return bool  true|false
+     *
+     * @since 1.1.7.1 First time this was introduced.
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getEnabledTokenOperatorLink()
+    {
+        return true;
+    }
+
+
+    /**
+     * Destroys the session and sends it to the login page, used for unauthorized access.
      *
      * @return void
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      *
      */
     public function accessDenied()
@@ -98,20 +123,18 @@ class System {
 
     public function protectFormInput()
     {
-        if(!empty($_POST)) {
-            foreach ($_POST as $mKey => $mValue)
-            {
-                $arrayPOST[ $mKey ] = $this->_protect($mValue);
+        if (!empty($_POST)) {
+            foreach ($_POST as $mKey => $mValue) {
+                $arrayPOST[$mKey] = $this->_protect($mValue);
             }
             $_POST = $arrayPOST;
         }
 
-        if(!empty($_GET)) {
-            foreach ($_GET as $mKey => $mValue)
-            {
-                $arrayGET[ $mKey ] = $this->_protect($mValue);
+        if (!empty($_GET)) {
+            foreach ($_GET as $mKey => $mValue) {
+                $arrayGET[$mKey] = $this->_protect($mValue);
             }
-            $_GET  = $arrayGET;
+            $_GET = $arrayGET;
         }
     }
 
@@ -121,7 +144,8 @@ class System {
      * @param $str
      * @return array|string
      */
-    public function _protect($str) {
+    public function _protect($str)
+    {
         /*
         $allowableTags = '<p><br><span><div><strong><H1><b><u><i>';
         if( !is_array( $str ) ) {
@@ -138,18 +162,17 @@ class System {
         */
 
         $allowableTags = '<p><br><span><div><strong><H1><b><u><i>';
-        if( !is_array( $str ) ) {
-            $str = preg_replace( '/\b(from|select|insert|delete|where|drop|union|order|update|database|FROM|SELECT|INSERT|DELETE|WHERE|DROP|UNION|ORDER|UPDATE|DATABASE|AND|and|HAVING|having|SLEEP|sleep|OR|or)\b/i', '', $str );
-            $str = preg_replace( '/\b(&lt;|<)?script(\/?(&gt;|>(.*))?)\b/i', '', $str );
-            $tbl = get_html_translation_table( HTML_ENTITIES );
-            $tbl = array_flip( $tbl );
-            $str = addslashes( $str );
-            $str = strip_tags( $str, $allowableTags );
-            return strtr( $str, $tbl );
+        if (!is_array($str)) {
+            $str = preg_replace('/\b(from|select|insert|delete|where|drop|union|order|update|database|FROM|SELECT|INSERT|DELETE|WHERE|DROP|UNION|ORDER|UPDATE|DATABASE|AND|and|HAVING|having|SLEEP|sleep|OR|or)\b/i', '', $str);
+            $str = preg_replace('/\b(&lt;|<)?script(\/?(&gt;|>(.*))?)\b/i', '', $str);
+            $tbl = get_html_translation_table(HTML_ENTITIES);
+            $tbl = array_flip($tbl);
+            $str = addslashes($str);
+            $str = strip_tags($str, $allowableTags);
+            return strtr($str, $tbl);
         } else {
-            foreach ($str as $mKey => $mValue)
-            {
-                $str[ $mKey ] = $this->_protect($mValue);
+            foreach ($str as $mKey => $mValue) {
+                $str[$mKey] = $this->_protect($mValue);
             }
             return $str;
         }
@@ -160,15 +183,15 @@ class System {
     /**
      * Returns External Storage Url
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return string External Storage Url
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getExternalStorageUrl()
     {
-        $externalStorageUrl = $this->getConfig('external_storage_url') ;
+        $externalStorageUrl = $this->getConfig('external_storage_url');
 
         if (empty($externalStorageUrl))
             die("The external url is empty in config.php. Method: " . __METHOD__ . ", line: " . __LINE__);
@@ -176,76 +199,76 @@ class System {
         if (substr($externalStorageUrl, -1) == "/" || substr($externalStorageUrl, -1) == "\\")
             $externalStorageUrl = substr($externalStorageUrl, 0, -1);
 
-        return $externalStorageUrl ;
+        return $externalStorageUrl;
     }
 
     /**
      * Returns if external storage is set
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return bool  true|false
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getExternalStorage()
     {
-        $externalStorage = $this->getConfig('external_storage') ;
+        $externalStorage = $this->getConfig('external_storage');
         if (empty($externalStorage) || $externalStorage == false)
             return false;
         else
-            return $externalStorage ;
+            return $externalStorage;
     }
 
     /**
      * Returns External Storage Path
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return string External Storage Path
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getExternalStoragePath()
     {
-        $externalStoragePath = $this->getConfig('external_storage_path') ;
+        $externalStoragePath = $this->getConfig('external_storage_path');
 
         if (substr($externalStoragePath, -1) == "/" || substr($externalStoragePath, -1) == "\\") {
             $externalStoragePath = substr($externalStoragePath, 0, -1);
         }
 
-        $array = array( "/files",
-                        "/helpdezk/attachments/",
-                        "/helpdezk/noteattachments/",
-                        "/helpdezk/dashboard/",
-                        "/tmp",
-                        "/logs",
-                        "/icons",
-                        "/logos/default/",
-                        "/photos/default/");
+        $array = array("/files",
+            "/helpdezk/attachments/",
+            "/helpdezk/noteattachments/",
+            "/helpdezk/dashboard/",
+            "/tmp",
+            "/logs",
+            "/icons",
+            "/logos/default/",
+            "/photos/default/");
 
         if (!file_exists($externalStoragePath)) {
-            die ("The external storage directory does not exist: {$externalStoragePath}, method: ". __METHOD__ .", line: ". __LINE__ );
+            die ("The external storage directory does not exist: {$externalStoragePath}, method: " . __METHOD__ . ", line: " . __LINE__);
         } else {
             $arrayExist = array();
             $arrayWrite = array();
             $displayError = false;
             foreach ($array as $dir) {
                 if (!is_writable($externalStoragePath . $dir)) {
-                    array_push ($arrayWrite , $externalStoragePath . $dir );
+                    array_push($arrayWrite, $externalStoragePath . $dir);
                 }
-                if (!file_exists($externalStoragePath . $dir )) {
-                    array_push ($arrayExist , $externalStoragePath . $dir );
+                if (!file_exists($externalStoragePath . $dir)) {
+                    array_push($arrayExist, $externalStoragePath . $dir);
                 }
             }
-            if (count($arrayWrite) > 0 ) {
+            if (count($arrayWrite) > 0) {
                 foreach ($arrayWrite as $writeError) {
                     echo "The external storage sub directory(s) does not exist: {$writeError} <br>";
                 }
                 $displayError = true;
             }
 
-            if (count($arrayExist) > 0 ) {
+            if (count($arrayExist) > 0) {
                 foreach ($arrayExist as $dirError) {
                     echo "The external storage sub directory(s) does not exist: {$dirError} <br>";
                 }
@@ -253,27 +276,27 @@ class System {
             }
 
             if ($displayError)
-                die("method: ". __METHOD__ .", line: ". __LINE__ );
+                die("method: " . __METHOD__ . ", line: " . __LINE__);
         }
 
         return $externalStoragePath;
     }
 
 
-    public function getArrayScreenFields($idModule,$personType,$formId)
+    public function getArrayScreenFields($idModule, $personType, $formId)
     {
         $dbCommon = new common();
-        $rsScreen =  $dbCommon->getScreenFieldEnable($idModule,$personType,$formId);
+        $rsScreen = $dbCommon->getScreenFieldEnable($idModule, $personType, $formId);
         $arrScreen = array();
         while (!$rsScreen->EOF) {
             $arrScreen[$rsScreen->fields['fieldid']] = $rsScreen->fields['enable'];
             $rsScreen->MoveNext();
         }
-        return $arrScreen ;
+        return $arrScreen;
 
     }
 
-    public function  getScreenFieldEnable($arrScreen,$fieldid)
+    public function getScreenFieldEnable($arrScreen, $fieldid)
     {
 
         if (array_key_exists($fieldid, $arrScreen)) {
@@ -292,26 +315,26 @@ class System {
 
         if ($this->_externalStorage) {
             $dirLog = $this->_externalStoragePath . '/logs/';
-        } else{
-            $dirLog = $this->getHelpdezkPath().'/logs/';
+        } else {
+            $dirLog = $this->getHelpdezkPath() . '/logs/';
         }
 
-        if(!is_dir($dirLog)) {
-            mkdir ($dirLog, 0777 ); // create dir
-        }else{
-            if(!is_writable($dirLog)) {    //validation
+        if (!is_dir($dirLog)) {
+            mkdir($dirLog, 0777); // create dir
+        } else {
+            if (!is_writable($dirLog)) {    //validation
                 chmod($dirLog, 0777);
             }
         }
 
         if ($logType == 'general') {
-            $file = $dirLog.'helpdezk.log';
-        } elseif($logType == 'email') {
-            $file = $dirLog.'email.log';
+            $file = $dirLog . 'helpdezk.log';
+        } elseif ($logType == 'email') {
+            $file = $dirLog . 'email.log';
         }
 
         if (!file_exists($file)) {
-            if($fp = fopen($file, 'a')) { //create log file
+            if ($fp = fopen($file, 'a')) { //create log file
                 @fclose($fp);
             } else {
                 return false;
@@ -324,24 +347,24 @@ class System {
     /**
      * Method to write in log file
      *
-     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
-     *
-     * @param string  $str String to write
-     * @param string  $file  Log filename
-     *
-     * @since December 06, 2017
+     * @param string $str String to write
+     * @param string $file Log filename
      *
      * @return string true|false
+     * @since December 06, 2017
+     *
+     * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
+     *
      */
-    function logIt($msg,$logLevel,$logType,$line = null)
+    function logIt($msg, $logLevel, $logType, $line = null)
     {
 
 
         if ($logLevel > $this->_logLevel)
-            return false ;
+            return false;
 
         $levelStr = '';
-        switch ( $logLevel ) {
+        switch ($logLevel) {
             case '0':
                 $levelStr = 'EMERG';
                 break;
@@ -370,27 +393,27 @@ class System {
 
         $date = date($this->logDateHour);
 
-        if($line)
-            $msg .= ' line '. $line;
+        if ($line)
+            $msg .= ' line ' . $line;
 
-        if ($this->_logHost == 'local'){
-            $msg = sprintf( "[%s] [%s]: %s%s", $date, $levelStr, $msg, PHP_EOL );
-            if ($logType == 'general'){
+        if ($this->_logHost == 'local') {
+            $msg = sprintf("[%s] [%s]: %s%s", $date, $levelStr, $msg, PHP_EOL);
+            if ($logType == 'general') {
                 $file = $this->logFile;
             } else {
                 $file = $this->logFileEmail;
             }
 
 
-            file_put_contents( $file, $msg, FILE_APPEND );
+            file_put_contents($file, $msg, FILE_APPEND);
 
-        } elseif ($this->_logHost == 'remote'){
+        } elseif ($this->_logHost == 'remote') {
 
             $rmt = $_SERVER["REMOTE_ADDR"];
-            if  ($rmt == '::1' )
+            if ($rmt == '::1')
                 $rmt = '127.0.0.1';
 
-            $msg = sprintf( "[%s]: %s", $levelStr, $msg);
+            $msg = sprintf("[%s]: %s", $levelStr, $msg);
             $remoteSyslog = new Syslog();
             $remoteSyslog->SetFacility(8);
             $remoteSyslog->SetSeverity(3);
@@ -407,12 +430,10 @@ class System {
         }
 
 
-
-
     }
 
     // Since December, 03
-    public function makeNavVariables($smarty,$module = 'helpdezk')
+    public function makeNavVariables($smarty, $module = 'helpdezk')
     {
 
         $idPerson = $_SESSION['SES_COD_USUARIO'];
@@ -422,20 +443,24 @@ class System {
 
         // Menu
         //if ($this->getConfig('module_default') == 'helpdezk')
-        if($this->isActiveHelpdezk())
+        if ($this->isActiveHelpdezk())
             $hasHelpdezk = true;
         else
             $hasHelpdezk = false;
 
-        if($_SESSION['SES_COD_USUARIO'] == 1){$smarty->assign('isroot', true);}
-        if($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1){$smarty->assign('hasadmin', true);}
-        $smarty->assign('adminhome', $this->helpdezkUrl.'/admin/home/index');
+        if ($_SESSION['SES_COD_USUARIO'] == 1) {
+            $smarty->assign('isroot', true);
+        }
+        if ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) {
+            $smarty->assign('hasadmin', true);
+        }
+        $smarty->assign('adminhome', $this->helpdezkUrl . '/admin/home/index');
         $smarty->assign('adminlogo', 'adm_header.png');
         $smarty->assign('navlogin', $idPerson == 1 ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON']);
 
 
         $smarty->assign('hashelpdezk', $hasHelpdezk);
-        $smarty->assign('helpdezkhome', $this->helpdezkUrl.'/helpdezk/home/index');
+        $smarty->assign('helpdezkhome', $this->helpdezkUrl . '/helpdezk/home/index');
         $smarty->assign('logout', $this->helpdezkUrl . '/main/home/logout');
 
         // Title
@@ -456,12 +481,12 @@ class System {
         $smarty->assign('cellphone_mask', $this->getConfig('cellphone_mask'));
 
         $mascdatetime = $this->dateFormat . ' ' . $this->hourFormat;
-        $smarty->assign('mascdatetime', str_replace('%','',$mascdatetime));
+        $smarty->assign('mascdatetime', str_replace('%', '', $mascdatetime));
 
         $mascdate = $this->dateFormat;
-        $smarty->assign('mascdate', str_replace('%','',$mascdate));
+        $smarty->assign('mascdate', str_replace('%', '', $mascdate));
 
-        if(!$_SESSION['SES_TIME_SESSION'])
+        if (!$_SESSION['SES_TIME_SESSION'])
             $smarty->assign('timesession', 600);
         else
             $smarty->assign('timesession', $_SESSION['SES_TIME_SESSION']);
@@ -469,21 +494,23 @@ class System {
 
         $smarty->assign('jquery_version', $this->jquery);
         $smarty->assign('jqgrid_i18nFile', $this->getFileI18n('jqgrid'));
-        $smarty->assign('navBar', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/nav-main.tpl');
+        $smarty->assign('navBar', 'file:' . $this->getHelpdezkPath() . '/app/modules/main/views/nav-main.tpl');
 
         $this->makePersonData($smarty);
         $this->makeConfigExternalData($smarty);
 
     }
+
     public function makeFooterVariables($smarty)
     {
         $smarty->assign('version', $this->helpdezkName);
-        $smarty->assign('footer', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/footer-main.tpl');
-        $smarty->assign('configusermodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modalPersonData.tpl');
-        $smarty->assign('userpwdmodal', 'file:'.$this->getHelpdezkPath().'/app/modules/helpdezk/views/modals/main/modal-change-user-password.tpl');
-        $smarty->assign('configExternalModal', 'file:'.$this->getHelpdezkPath().'/app/modules/main/views/modal/main/modal-config-external.tpl');
+        $smarty->assign('footer', 'file:' . $this->getHelpdezkPath() . '/app/modules/main/views/footer-main.tpl');
+        $smarty->assign('configusermodal', 'file:' . $this->getHelpdezkPath() . '/app/modules/helpdezk/views/modals/main/modalPersonData.tpl');
+        $smarty->assign('userpwdmodal', 'file:' . $this->getHelpdezkPath() . '/app/modules/helpdezk/views/modals/main/modal-change-user-password.tpl');
+        $smarty->assign('configExternalModal', 'file:' . $this->getHelpdezkPath() . '/app/modules/main/views/modal/main/modal-config-external.tpl');
 
     }
+
     public function isActiveHelpdezk()
     {
 
@@ -500,13 +527,13 @@ class System {
 
     public function getHelpdezkVersionNumber()
     {
-        $exp = explode('-',$this->_version);
+        $exp = explode('-', $this->_version);
         return $exp[2];
     }
 
     public function getHelpdezkType()
     {
-        $exp = explode('-',$this->_version);
+        $exp = explode('-', $this->_version);
         return $exp[1];
     }
 
@@ -518,10 +545,10 @@ class System {
     public function getHelpdezkVersion()
     {
         // Read the version.txt file
-        $versionFile = $this->helpdezkPath . "/version.txt" ;
+        $versionFile = $this->helpdezkPath . "/version.txt";
 
         if (is_readable($versionFile)) {
-            $info = file_get_contents($versionFile,FALSE, NULL, 0, 50);
+            $info = file_get_contents($versionFile, FALSE, NULL, 0, 50);
             if ($info) {
                 $this->_version = trim($info);
             } else {
@@ -536,38 +563,38 @@ class System {
     /**
      * Returns Header logo Url
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return string Header logo Url
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getHeaderLogoFullUrl()
     {
         $image = $this->getHeaderLogoImage();
         if ($this->_externalStorage) {
-            return $this->_externalStorageUrl . '/logos/' . $image ;
-        } else{
-            return $this->helpdezkUrl . '/app/uploads/logos/' . $image ;
+            return $this->_externalStorageUrl . '/logos/' . $image;
+        } else {
+            return $this->helpdezkUrl . '/app/uploads/logos/' . $image;
         }
     }
 
     /**
      * Returns Login logo Url
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return string Login logo Url
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getLoginLogoFullUrl()
     {
         $image = $this->getLoginLogoImage();
         if ($this->_externalStorage) {
-            return $this->_externalStorageUrl . '/logos/' . $image ;
-        } else{
-            return $this->helpdezkUrl . '/app/uploads/logos/' . $image ;
+            return $this->_externalStorageUrl . '/logos/' . $image;
+        } else {
+            return $this->helpdezkUrl . '/app/uploads/logos/' . $image;
         }
     }
 
@@ -579,24 +606,24 @@ class System {
     /**
      * Returns Header logo's Image Path
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return Header logo's Image Path
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getHeaderLogoImage()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getHeaderLogo();
+        $rsLogo = $dbCommon->getHeaderLogo();
 
-        if($this->_externalStorage) {
-            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        if ($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'];
         } else {
-            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'];
         }
 
-        if(empty($rsLogo->fields['file_name']) or !file_exists($pathLogoImage))
+        if (empty($rsLogo->fields['file_name']) or !file_exists($pathLogoImage))
             return 'default/header.png';
         else
             return $rsLogo->fields['file_name'];
@@ -605,15 +632,15 @@ class System {
     public function getHeaderLogoHeight()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getHeaderLogo();
+        $rsLogo = $dbCommon->getHeaderLogo();
 
-        if($this->_externalStorage) {
-            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        if ($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'];
         } else {
-            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'];
         }
 
-        if(empty($rsLogo->fields['height']) or !file_exists($pathLogoImage))
+        if (empty($rsLogo->fields['height']) or !file_exists($pathLogoImage))
             return '35';
         else
             return $rsLogo->fields['height'];
@@ -623,15 +650,15 @@ class System {
     public function getHeaderLogoWidth()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getHeaderLogo();
+        $rsLogo = $dbCommon->getHeaderLogo();
 
-        if($this->_externalStorage) {
-            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        if ($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'];
         } else {
-            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'];
         }
 
-        if(empty($rsLogo->fields['width']) or !file_exists($pathLogoImage))
+        if (empty($rsLogo->fields['width']) or !file_exists($pathLogoImage))
             return '97';
         else
             return $rsLogo->fields['width'];
@@ -641,24 +668,24 @@ class System {
     /**
      * Returns login logo's Image Path
      *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     * @since 1.1.6 First time this was introduced.
-     *
      * @return Login logo's Image Path
      *
+     * @since 1.1.6 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
     public function getLoginLogoImage()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getLoginLogo();
+        $rsLogo = $dbCommon->getLoginLogo();
 
-        if($this->_externalStorage) {
-            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        if ($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'];
         } else {
-            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'];
         }
 
-        if(empty($rsLogo->fields['file_name']) or !file_exists($pathLogoImage))
+        if (empty($rsLogo->fields['file_name']) or !file_exists($pathLogoImage))
             return 'default/login.png';
         else
             return $rsLogo->fields['file_name'];
@@ -667,15 +694,15 @@ class System {
     public function getLoginLogoHeight()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getLoginLogo();
+        $rsLogo = $dbCommon->getLoginLogo();
 
-        if($this->_externalStorage) {
-            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        if ($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'];
         } else {
-            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'];
         }
 
-        if(empty($rsLogo->fields['height']) or !file_exists($pathLogoImage))
+        if (empty($rsLogo->fields['height']) or !file_exists($pathLogoImage))
             return '70';
         else
             return $rsLogo->fields['height'];
@@ -684,15 +711,15 @@ class System {
     public function getLoginLogoWidth()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getLoginLogo();
+        $rsLogo = $dbCommon->getLoginLogo();
 
-        if($this->_externalStorage) {
-            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'] ;
+        if ($this->_externalStorage) {
+            $pathLogoImage = $this->_externalStoragePath . '/logos/' . $rsLogo->fields['file_name'];
         } else {
-            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'] ;
+            $pathLogoImage = $this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name'];
         }
 
-        if(empty($rsLogo->fields['width']) or !file_exists($pathLogoImage))
+        if (empty($rsLogo->fields['width']) or !file_exists($pathLogoImage))
             return '154';
         else
             return $rsLogo->fields['width'];
@@ -702,8 +729,8 @@ class System {
     public function getReportsLogoImage()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getReportsLogo();
-        if(empty($rsLogo->fields['file_name'])  or !file_exists($this->helpdezkPath.'/app/uploads/logos/'. $rsLogo->fields['file_name'] ))
+        $rsLogo = $dbCommon->getReportsLogo();
+        if (empty($rsLogo->fields['file_name']) or !file_exists($this->helpdezkPath . '/app/uploads/logos/' . $rsLogo->fields['file_name']))
             return 'default/reports.png';
         else
             return $rsLogo->fields['file_name'];
@@ -713,8 +740,8 @@ class System {
     public function getReportsLogoHeight()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getReportsLogo();
-        if(empty($rsLogo->fields['height']))
+        $rsLogo = $dbCommon->getReportsLogo();
+        if (empty($rsLogo->fields['height']))
             return '40';
         else
             return $rsLogo->fields['height'];
@@ -724,8 +751,8 @@ class System {
     public function getReportsLogoWidth()
     {
         $dbCommon = new common();
-        $rsLogo =  $dbCommon->getReportsLogo();
-        if(empty($rsLogo->fields['width']))
+        $rsLogo = $dbCommon->getReportsLogo();
+        if (empty($rsLogo->fields['width']))
             return '110';
         else
             return $rsLogo->fields['width'];
@@ -735,7 +762,7 @@ class System {
     /**
      * Returns the modules that the user has access to
      *
-     * @param string    $idPerson   Person Id
+     * @param string $idPerson Person Id
      * @return array    Modules array
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
@@ -754,8 +781,8 @@ class System {
             $data = $dbIndex->getConfigDataByModule($prefix);
 
             if (!$data) {
-                $this->logIt('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory - program: '. $this->program ,3,'general',__LINE__);
-            }else{
+                $this->logIt('Modules do not have config tables: ' . $prefix . '_tbconfig' . ' and ' . $prefix . '_tbconfigcategory - program: ' . $this->program, 3, 'general', __LINE__);
+            } else {
                 $aModules[] = array('idmodule' => $rsModules->fields['idmodule'],
                     'path' => $rsModules->fields['path'],
                     'class' => $rsModules->fields['class'],
@@ -776,21 +803,21 @@ class System {
     /**
      * Returns the sql sintax, according JQgrid types
      *
-     * @param string    $oper    Name of the PqGrid operation
-     * @param string    $column  Field to search
-     * @param string    $search  Column to search
+     * @param string $oper Name of the PqGrid operation
+     * @param string $column Field to search
+     * @param string $search Column to search
      * @return boolean|string    False is not exists ou file extention
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
-    public function getJqGridOperation($oper,$column, $search)
+    public function getJqGridOperation($oper, $column, $search)
     {
-        switch($oper) {
+        switch ($oper) {
             case 'eq' : // equal
-                $ret = "pipeLatinToUtf8(".$column.")" . ' = ' . "pipeLatinToUtf8('" . $search . "')";
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' = ' . "pipeLatinToUtf8('" . $search . "')";
                 break;
             case 'ne': // not equal
-                $ret = "pipeLatinToUtf8(".$column.")" . ' != ' . "pipeLatinToUtf8('" . $search . "')";
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' != ' . "pipeLatinToUtf8('" . $search . "')";
                 break;
             case 'lt': // less
                 $ret = $column . ' < ' . $search;
@@ -806,31 +833,31 @@ class System {
                 break;
             case 'bw': // begins with
                 $search = str_replace("_", "\_", $search);
-                $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
                 break;
             case 'bn': //does not begin with
-                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
             case 'in': // is in
-                $ret = "pipeLatinToUtf8(".$column.")" . ' IN ('. "pipeLatinToUtf8('" . $search . "')" . ')';
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' IN (' . "pipeLatinToUtf8('" . $search . "')" . ')';
                 break;
             case 'ni': // is not in
-                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT IN ('. "pipeLatinToUtf8('" . $search . "')" . ')';
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' NOT IN (' . "pipeLatinToUtf8('" . $search . "')" . ')';
                 break;
             case 'ew': // ends with
                 $search = str_replace("_", "\_", $search);
-                $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' . "pipeLatinToUtf8('" . '%' . rtrim($search) . "')";
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' LIKE ' . "pipeLatinToUtf8('" . '%' . rtrim($search) . "')";
                 break;
             case 'en': // does not end with
                 $search = str_replace("_", "\_", $search);
-                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . '%' .  rtrim($search) . "')";
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . '%' . rtrim($search) . "')";
                 break;
             case 'cn': // contains
                 $search = str_replace("_", "\_", $search);
-                $ret = "pipeLatinToUtf8(".$column.")" . ' LIKE ' .  "pipeLatinToUtf8('" . '%' . $search .'%' . "')" ;
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' LIKE ' . "pipeLatinToUtf8('" . '%' . $search . '%' . "')";
                 break;
             case 'nc': // does not contain
                 $search = str_replace("_", "\_", $search);
-                $ret = "pipeLatinToUtf8(".$column.")" . ' NOT LIKE ' .  "pipeLatinToUtf8('" .'%' . $search . '%' .  "')" ;
+                $ret = "pipeLatinToUtf8(" . $column . ")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . '%' . $search . '%' . "')";
                 break;
             case 'nu': //is null
                 $ret = $column . ' IS NULL';
@@ -839,7 +866,7 @@ class System {
                 $ret = $column . ' IS NOT NULL';
                 break;
             default:
-                die('Operator invalid in grid search !!!' . " File: " . __FILE__ . " Line: " . __LINE__ );
+                die('Operator invalid in grid search !!!' . " File: " . __FILE__ . " Line: " . __LINE__);
                 break;
         }
 
@@ -853,7 +880,7 @@ class System {
      * we do not know what format it is in. The method tests if the file exists and verifies
      * that the format is compatible
      *
-     * @param string    $file    Image file
+     * @param string $file Image file
      * @return boolean|string    False is not exists ou file extention
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
@@ -861,20 +888,20 @@ class System {
     public function getImageFileFormat($file)
     {
         if ($this->_externalStorage) {
-            $target = $this->_externalStoragePath . $file.'.*';
-        } else{
-            $target = $this->getHelpdezkPath() . $file.'.*';
+            $target = $this->_externalStoragePath . $file . '.*';
+        } else {
+            $target = $this->getHelpdezkPath() . $file . '.*';
         }
 
         //$arrImages = glob($this->getHelpdezkPath().$file.'.*');
 
         $arrImages = glob($target);
 
-        if(empty($arrImages))
-            return false ;
+        if (empty($arrImages))
+            return false;
 
         foreach ($arrImages as &$imgFile) {
-            if(in_array( exif_imagetype($imgFile) , array(IMAGETYPE_GIF , IMAGETYPE_JPEG ,IMAGETYPE_PNG , IMAGETYPE_BMP))) {
+            if (in_array(exif_imagetype($imgFile), array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
                 switch (exif_imagetype($imgFile)) {
                     case 1:
                         $ext = 'gif';
@@ -899,7 +926,7 @@ class System {
      *
      * Used because some JS has includes with lowercase and others with uppercase
      *
-     * @param string     $use       Script name
+     * @param string $use Script name
      * @return string|boolen        Name of include or false
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
@@ -908,36 +935,36 @@ class System {
     {
         $i18n = $this->getConfig('lang');
 
-        switch($use){
+        switch ($use) {
             case 'jqgrid':
-                if($i18n == 'pt_BR') {
+                if ($i18n == 'pt_BR') {
                     $file = 'grid.locale-pt-br.js';
-                } elseif( $i18n == 'en_US') {
+                } elseif ($i18n == 'en_US') {
                     $file = 'grid.locale-en.js';
                 } else {
                     $file = false;
                 }
-            break;
+                break;
             default:
-                 $file = false;
-            break;
+                $file = false;
+                break;
         }
 
-        return $file ;
+        return $file;
     }
 
     public function getPersonById($idPerson)
     {
         $this->loadModel('admin/person_model');
-        $dbPerson  = new person_model();
-        $rsPerson = $dbPerson->selectPerson('AND tbp.idperson='.$idPerson);
+        $dbPerson = new person_model();
+        $rsPerson = $dbPerson->selectPerson('AND tbp.idperson=' . $idPerson);
         return $rsPerson;
     }
 
     /**
      * Returns Config External APIs Data
      *
-     * @param int       $idPerson    Person Id
+     * @param int $idPerson Person Id
      * @return resource Recordset
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
@@ -954,8 +981,8 @@ class System {
     /**
      * Returns the number of new warnings (don´t read)
      *
-     * @param int       $idPerson    Person Id
-     * @param int       $idTypePerson
+     * @param int $idPerson Person Id
+     * @param int $idTypePerson
      * @return int      Number of not read warnings
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
@@ -968,9 +995,9 @@ class System {
         $database = $this->getConfig('db_connect');
 
         if ($this->isMysql($database)) {
-            $and = "AND (a.dtend > NOW() OR a.dtend = '0000-00-00 00:00:00') AND (a.idmessage NOT IN(SELECT idmessage FROM bbd_tbread WHERE idperson = $idPerson))" ;
+            $and = "AND (a.dtend > NOW() OR a.dtend = '0000-00-00 00:00:00') AND (a.idmessage NOT IN(SELECT idmessage FROM bbd_tbread WHERE idperson = $idPerson))";
         } elseif ($database == 'oci8po') {
-            $and = "AND (a.dtend > SYSDATE OR a.dtend = '') AND (a.idmessage NOT IN(SELECT idmessage FROM bbd_tbread WHERE idperson = $idPerson))" ;
+            $and = "AND (a.dtend > SYSDATE OR a.dtend = '') AND (a.idmessage NOT IN(SELECT idmessage FROM bbd_tbread WHERE idperson = $idPerson))";
         }
 
         $rsWarning = $dbWarning->selectWarning($and);
@@ -979,24 +1006,24 @@ class System {
             $total = $rsWarning->RecordCount();
         } elseif ($database == 'oci8po') {
             $total = $rsWarning->fields['rnum'];
-            if(!$total) $total = 0;
+            if (!$total) $total = 0;
         }
 
         while (!$rsWarning->EOF) {
-            if($_SESSION['SES_COD_TIPO'] == $this->getIdTypePerson($idPerson)){
-                if($rsWarning->fields['total_company'] > 0){
+            if ($_SESSION['SES_COD_TIPO'] == $this->getIdTypePerson($idPerson)) {
+                if ($rsWarning->fields['total_company'] > 0) {
                     $checkCompany = $dbCommom->checkCompany($rsWarning->fields['idtopic'], $idcompany);
-                    if($checkCompany->fields['check'] == 0){
+                    if ($checkCompany->fields['check'] == 0) {
                         $total--;
                         $rsWarning->MoveNext();
                         continue;
                     }
                 }
-            }else{
+            } else {
                 // by group
-                if($rsWarning->fields['total_group'] > 0){
+                if ($rsWarning->fields['total_group'] > 0) {
                     $checkGroup = $dbCommom->checkGroup($rsWarning->fields['idtopic'], $_SESSION['SES_PERSON_GROUPS']);
-                    if($checkGroup->fields['check'] == 0){
+                    if ($checkGroup->fields['check'] == 0) {
                         $total--;
                         $rsWarning->MoveNext();
                         continue;
@@ -1014,7 +1041,7 @@ class System {
     {
 
         $dbCommon = new common();
-        return $dbCommon->getExtraModulesPerson($idperson,$this->getIdTypePerson($idperson));
+        return $dbCommon->getExtraModulesPerson($idperson, $this->getIdTypePerson($idperson));
     }
 
     public function getIdTypePerson($idperson)
@@ -1028,8 +1055,8 @@ class System {
     {
 
         $hdkUrl = $this->getConfig('hdk_url');
-        if(substr($hdkUrl, 0,1) == '/')
-            $hdkUrl = substr($hdkUrl,0,-1);
+        if (substr($hdkUrl, 0, 1) == '/')
+            $hdkUrl = substr($hdkUrl, 0, -1);
         return $hdkUrl;
     }
 
@@ -1037,20 +1064,20 @@ class System {
     public function getHelpdezkPath()
     {
         $path_default = $this->pathDefault;
-        if(substr($path_default, 0,1)!='/'){
-            $path_default='/'.$path_default;
+        if (substr($path_default, 0, 1) != '/') {
+            $path_default = '/' . $path_default;
         }
         if ($path_default == "/..") {
             $path = "";
         } else {
-            $path =$path_default;
+            $path = $path_default;
         }
         // if in localhost document root is D:/xampp/htdocs
-        $document_root=$_SERVER['DOCUMENT_ROOT'];
-        if(substr($document_root, -1)!='/'){
-            $document_root=$document_root.'/';
+        $document_root = $_SERVER['DOCUMENT_ROOT'];
+        if (substr($document_root, -1) != '/') {
+            $document_root = $document_root . '/';
         }
-        return  realpath($document_root.$path) ;
+        return realpath($document_root . $path);
     }
 
     public function getPersonName($idperson)
@@ -1066,7 +1093,7 @@ class System {
         $phpMailerDir = $this->getHelpdezkPath() . '/includes/classes/phpMailer/class.phpmailer.php';
 
         if (!file_exists($phpMailerDir)) {
-            die ('ERROR: ' .$phpMailerDir . ' , does not exist  !!!!') ;
+            die ('ERROR: ' . $phpMailerDir . ' , does not exist  !!!!');
         }
 
         require_once($phpMailerDir);
@@ -1083,7 +1110,7 @@ class System {
         $phpProtectSql = $this->getHelpdezkPath() . '/includes/classes/ProtectSql/ProtectSql.php';
 
         if (!file_exists($phpProtectSql)) {
-            die ('ERROR: ' .$phpProtectSql . ' , does not exist  !!!!') ;
+            die ('ERROR: ' . $phpProtectSql . ' , does not exist  !!!!');
         }
 
         require_once($phpProtectSql);
@@ -1094,14 +1121,14 @@ class System {
     /**
      * Method to create random passwords
      *
-     * @author Thiago Belem <contato@thiagobelem.net>
-     *
      * @param integer $tamanho Size of the new password
      * @param boolean $maiusculas If it will have capital letters
      * @param boolean $numeros If it will have numbers
-     * @param boolean $simbolos  If it will have symbols
+     * @param boolean $simbolos If it will have symbols
      *
      * @return string A senha gerada
+     * @author Thiago Belem <contato@thiagobelem.net>
+     *
      */
     public function generateRandomPassword($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
     {
@@ -1118,10 +1145,9 @@ class System {
         if ($simbolos) $caracteres .= $simb;
 
         $len = strlen($caracteres);
-        for ($n = 1; $n <= $tamanho; $n++)
-        {
+        for ($n = 1; $n <= $tamanho; $n++) {
             $rand = mt_rand(1, $len);
-            $retorno .= $caracteres[$rand-1];
+            $retorno .= $caracteres[$rand - 1];
         }
         return $retorno;
     }
@@ -1130,7 +1156,7 @@ class System {
     public function getLanguageWord($smartyConfig)
     {
         $smarty = $this->retornaSmarty();
-        return  $smarty->getConfigVars($smartyConfig);
+        return $smarty->getConfigVars($smartyConfig);
     }
 
     // Since October 16, 2017
@@ -1154,7 +1180,7 @@ class System {
         $jquery = $this->getConfig('jquery');
         if (empty($jquery))
             $jquery = 'jquery-2.1.1.js';
-        $jqueryPath = $this->helpdezkPath.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR ;
+        $jqueryPath = $this->helpdezkPath . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR;
         if (!file_exists($jqueryPath . $jquery))
             die('There is no Jquery file in: ' . $jqueryPath . $jquery);
         return $jquery;
@@ -1168,6 +1194,7 @@ class System {
             $summer = '0.0.8';
         return $summer;
     }
+
     /*
     public function setSmartyVersionNumber()
     {
@@ -1176,7 +1203,7 @@ class System {
     */
     public function getSmartyVersion()
     {
-        return 'smarty-3.1.32' ;
+        return 'smarty-3.1.32';
     }
 
     public function setSmartyVersionNumber($version)
@@ -1186,13 +1213,13 @@ class System {
 
     public function getSmartyVersionNumber()
     {
-        return $this->_smartyVersionNumber ;
+        return $this->_smartyVersionNumber;
     }
 
     public function getLangVars($smarty)
     {
 
-        if (version_compare($this->getSmartyVersionNumber(), '3', '>=' ))
+        if (version_compare($this->getSmartyVersionNumber(), '3', '>='))
             $langVars = $smarty->getConfigVars();
         else
             $langVars = $smarty->getConfigVars();
@@ -1212,10 +1239,10 @@ class System {
     {
         $bd = new index_model();
         $data = $bd->getConfigValue($idSession);
-        if($data){
+        if ($data) {
             return $data;
         } else {
-            return false ;
+            return false;
         }
 
     }
@@ -1223,14 +1250,14 @@ class System {
     /**
      * Method to write in log file
      *
-     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
-     *
-     * @param string  $str String to write
-     * @param string  $file  Log filename
-     *
-     * @since April 28, 2017
+     * @param string $str String to write
+     * @param string $file Log filename
      *
      * @return string true|false
+     * @since April 28, 2017
+     *
+     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     *
      */
     /*
     function logit($str, $file)
@@ -1257,10 +1284,10 @@ class System {
     function getlogDateHour()
     {
         $dateHour = $this->getConfig('log_date_format');
-        if (empty($dateHour)){
+        if (empty($dateHour)) {
             return "d/m/Y H:i:s";
         } else {
-            return str_replace('%','',$dateHour );
+            return str_replace('%', '', $dateHour);
         }
 
     }
@@ -1268,62 +1295,70 @@ class System {
     // Since April 28, 2017
     function getPrintDate()
     {
-        return str_replace("%","",$this->dateFormat) . " " . str_replace("%","",$this->hourFormat);
+        return str_replace("%", "", $this->dateFormat) . " " . str_replace("%", "", $this->hourFormat);
 
     }
 
-	public function getConfig($param){
-		return $this->_config[$param];
-	}
-	
-	public function setConfig($type = null, $value = null) {
+    public function getConfig($param)
+    {
+        return $this->_config[$param];
+    }
+
+    public function setConfig($type = null, $value = null)
+    {
 
         if ((include './includes/config/config.php') == false) {
-            die('The config file does not exist: ' . 'includes/config/config.php, line '.__LINE__ . '!!!');
+            die('The config file does not exist: ' . 'includes/config/config.php, line ' . __LINE__ . '!!!');
         }
 
-        if($type && $value){
-        	$this->_config[$type] = $value;
-        }else{
-        	$this->_config = $config;
+        if ($type && $value) {
+            $this->_config[$type] = $value;
+        } else {
+            $this->_config = $config;
         }
 
     }
 
-    private function setUrl() {
+    private function setUrl()
+    {
         $_GET['url'] = (isset($_GET['url']) ? $_GET['url'] : '/admin/');
         $this->_url = $_GET['url'];
         //die($this->_url) ;
-        if ($_GET['url'] == 'admin/' || $_GET['url'] == '/admin/') {        	
-			$path_default = $this->getConfig("path_default");
-			if(substr($path_default, 0,1)!='/'){
-			    $path_default='/'.$path_default;
-			}
-			if ($path_default == "/..") {   
-				$path_default = "";
-			}			
+        if ($_GET['url'] == 'admin/' || $_GET['url'] == '/admin/') {
+            $path_default = $this->getConfig("path_default");
+            if (substr($path_default, 0, 1) != '/') {
+                $path_default = '/' . $path_default;
+            }
+            if ($path_default == "/..") {
+                $path_default = "";
+            }
             header('Location:' . $path_default . '/admin/home');
         }
     }
 
-    private function setExplode() {
+    private function setExplode()
+    {
         $this->_explode = explode('/', $this->_url);
     }
 
-    private function setModule() {
+    private function setModule()
+    {
         $this->_module = $this->_explode[0];
     }
 
-    private function setController() {
+    private function setController()
+    {
         $this->_controller = $this->_explode[1];
     }
 
-    private function setAction() {
+    private function setAction()
+    {
         $ac = (!isset($this->_explode[2]) || $this->_explode[2] == NULL || $this->_explode[2] == "index" ? "index" : $this->_explode[2]);
         $this->_action = $ac;
     }
 
-    private function setParams() {
+    private function setParams()
+    {
         unset($this->_explode[0], $this->_explode[1], $this->_explode[2]);
         if (end($this->_explode) == NULL) {
             array_pop($this->_explode);
@@ -1350,7 +1385,8 @@ class System {
     }
 
     // http://localhost/git/helpdezk/admin/login/getWarning/id/0 union select 1,2,password,name,login,6,7,8,9,10,11 from tbperson#
-    public function getParam($name = NULL) {
+    public function getParam($name = NULL)
+    {
         if ($name != NULL) {
             return $this->_protect($this->_params[$name]);
             //return $this->_params[$name];
@@ -1359,11 +1395,12 @@ class System {
         }
     }
 
-    public function run() {
+    public function run()
+    {
         $controller_path = CONTROLLERS . $this->_controller . 'Controller.php';
 
         if (!file_exists($controller_path)) {
-            die("The controller does not exist: " . $controller_path );
+            die("The controller does not exist: " . $controller_path);
         }
         require_once($controller_path);
 
@@ -1379,41 +1416,41 @@ class System {
     public function retornaSmarty()
     {
 
-        $smartPluginsDir = $this->getHelpdezkPath(). "/system/smarty_plugins/";
+        $smartPluginsDir = $this->getHelpdezkPath() . "/system/smarty_plugins/";
         if (!file_exists($smartPluginsDir)) {
-                die ('ERROR: ' .$smartPluginsDir . ' , does not exist  !!!!') ;
+            die ('ERROR: ' . $smartPluginsDir . ' , does not exist  !!!!');
         }
 
-        $smartCompileDir = $this->getHelpdezkPath(). "/system/templates_c/";
+        $smartCompileDir = $this->getHelpdezkPath() . "/system/templates_c/";
 
         if (!file_exists($smartCompileDir)) {
             if (!mkdir($smartCompileDir, 0777, true)) {
-                die ('ERROR: ' .$smartCompileDir . ' , does not exist and could not be created !!!!') ;
+                die ('ERROR: ' . $smartCompileDir . ' , does not exist and could not be created !!!!');
             }
 
         }
         if (!is_writable($smartCompileDir)) {
-            if (!chmod($smartCompileDir,0777)){
-                die($smartCompileDir . ' is not writable !!!') ;
+            if (!chmod($smartCompileDir, 0777)) {
+                die($smartCompileDir . ' is not writable !!!');
             }
 
         }
 
         switch ($this->smartyVersion) {
             case 'smarty-old':
-                $dirSmarty = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-old/Smarty.class.php';
+                $dirSmarty = $this->getHelpdezkPath() . '/includes/classes/smarty/smarty-old/Smarty.class.php';
                 break;
             case 'smarty-2.6.30':
-                $dirSmarty = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
+                $dirSmarty = $this->getHelpdezkPath() . '/includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
                 break;
             case 'smarty-3.1.32':
-                $dirSmarty = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
-                $dirPluginDefault = $this->getHelpdezkPath().'/includes/classes/smarty/smarty-3.1.32/libs/plugins';
+                $dirSmarty = $this->getHelpdezkPath() . '/includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
+                $dirPluginDefault = $this->getHelpdezkPath() . '/includes/classes/smarty/smarty-3.1.32/libs/plugins';
                 break;
         }
 
         if (!file_exists($dirSmarty))
-            die('Smarty Class doesn´t exists: ' . $dirSmarty . ' file: '. __FILE__);
+            die('Smarty Class doesn´t exists: ' . $dirSmarty . ' file: ' . __FILE__);
 
         require_once($dirSmarty);
 
@@ -1424,37 +1461,37 @@ class System {
         $smarty->compile_dir = $smartCompileDir;
 
         $lang_default = $this->getConfig("lang");
-        $license =  $this->getConfig("license");
+        $license = $this->getConfig("license");
 
-        $smartConfigFile = $this->getHelpdezkPath().'/app/lang/' . $lang_default . '.txt';
+        $smartConfigFile = $this->getHelpdezkPath() . '/app/lang/' . $lang_default . '.txt';
         if (!file_exists($smartConfigFile)) {
-            die('Lang file: ' . $smartConfigFile . ' does not exist !!!!') ;
+            die('Lang file: ' . $smartConfigFile . ' does not exist !!!!');
         }
 
         $this->setSmartyVersionNumber(Smarty::SMARTY_VERSION);
 
-        if (version_compare($this->getSmartyVersionNumber(), '3', '>=' )) {
+        if (version_compare($this->getSmartyVersionNumber(), '3', '>=')) {
             $smarty->configLoad($smartConfigFile, $license);
-            $smarty->setPluginsDir(array($dirPluginDefault,$smartPluginsDir));
+            $smarty->setPluginsDir(array($dirPluginDefault, $smartPluginsDir));
         } else {
             $smarty->config_load($smartConfigFile, $license);
             $smarty->plugins_dir[] = $smartPluginsDir;
         }
 
 
-        $smarty->assign('lang',         $lang_default);
-		$smarty->assign('date_format',  $this->getConfig("date_format"));
-		$smarty->assign('hour_format',  $this->getConfig("hour_format"));
-        $smarty->assign('demo',         $this->getConfig("demo"));
-        $smarty->assign('theme',        $this->getConfig("theme"));
-        $smarty->assign('path',         path);
+        $smarty->assign('lang', $lang_default);
+        $smarty->assign('date_format', $this->getConfig("date_format"));
+        $smarty->assign('hour_format', $this->getConfig("hour_format"));
+        $smarty->assign('demo', $this->getConfig("demo"));
+        $smarty->assign('theme', $this->getConfig("theme"));
+        $smarty->assign('path', path);
         $smarty->assign('id_mask', $this->getConfig('id_mask'));
         $smarty->assign('ein_mask', $this->getConfig('ein_mask'));
         $smarty->assign('zip_mask', $this->getConfig('zip_mask'));
         $smarty->assign('phone_mask', $this->getConfig('phone_mask'));
         $smarty->assign('cellphone_mask', $this->getConfig('cellphone_mask'));
 
-        $smarty->assign('pagetitle',    $this->getConfig("page_title"));
+        $smarty->assign('pagetitle', $this->getConfig("page_title"));
 
         return $smarty;
     }
@@ -1486,7 +1523,8 @@ class System {
     }
 
     // class FPDF with extention to parsehtml
-    public function returnHtml2pdf() {
+    public function returnHtml2pdf()
+    {
         require_once(FPDF . 'html2pdf.php');
         $pdf = new html2Pdf();
         return $pdf;
@@ -1508,72 +1546,78 @@ class System {
         $this->pdfFontSyze = $pdfFontSyze;
     }
 
-    function SetpdfLeftMargin($leftMargin){
-        $this->pdfLeftMargin=$leftMargin;
+    function SetpdfLeftMargin($leftMargin)
+    {
+        $this->pdfLeftMargin = $leftMargin;
     }
 
-    function SetPdfLogo($logo){
-        $this->pdfLogo=$logo;
+    function SetPdfLogo($logo)
+    {
+        $this->pdfLogo = $logo;
     }
 
     public function makePdfLineBlur($objPdf, $text)
     {
-        foreach($text as $k=>$v){
-            $objPdf->SetFillColor(200,220,255);
-            $objPdf->Cell($v['cellWidth'],$v['cellHeight'],$v['title'],0,0,$v['titleAlign'],1);
+        foreach ($text as $k => $v) {
+            $objPdf->SetFillColor(200, 220, 255);
+            $objPdf->Cell($v['cellWidth'], $v['cellHeight'], $v['title'], 0, 0, $v['titleAlign'], 1);
         }
         $objPdf->Ln(6);
     }
 
-    public function makePdfLine($objPdf,$leftMargin, $width)
+    public function makePdfLine($objPdf, $leftMargin, $width)
     {
         $objPdf->Ln(2);
         $objPdf->Cell($leftMargin);
-        $objPdf->Line($objPdf->GetX(),$objPdf->GetY(), $width, $objPdf->GetY());
+        $objPdf->Line($objPdf->GetX(), $objPdf->GetY(), $width, $objPdf->GetY());
         $objPdf->Ln(2);
     }
 
-    function SetPdfPage($page){
-        $this->pdfPage=$page;
+    function SetPdfPage($page)
+    {
+        $this->pdfPage = $page;
     }
 
-    function SetPdfTitle($title){
-        $this->pdfTitle=$title;
+    function SetPdfTitle($title)
+    {
+        $this->pdfTitle = $title;
     }
 
-    function SetPdfHeaderData($a_headerData){
-        $this->a_pdfHeaderData=$a_headerData;
+    function SetPdfHeaderData($a_headerData)
+    {
+        $this->a_pdfHeaderData = $a_headerData;
     }
 
-    public function ReportPdfHeader($pdf){
+    public function ReportPdfHeader($pdf)
+    {
 
-        if(file_exists($this->pdfLogo)) {
+        if (file_exists($this->pdfLogo)) {
             $pdf->Image($this->pdfLogo, 10 + $this->pdfLeftMargin, 8);
         }
 
         $pdf->Ln(2);
 
-        $pdf->SetFont($this->pdfFontFamily,'B',10);
+        $pdf->SetFont($this->pdfFontFamily, 'B', 10);
         $pdf->Cell($this->pdfLeftMargin);
         $pdf->Cell(0, 5, $this->pdfTitle, 0, 0, 'C');
 
-        $pdf->SetFont($this->pdfFontFamily,'I',6);
+        $pdf->SetFont($this->pdfFontFamily, 'I', 6);
         $pdf->Cell(0, 5, $this->pdfPage . ' ' . $pdf->PageNo() . '/{nb}', 0, 0, 'R');
         $pdf->Ln(7);
         $pdf->Cell($this->pdfLeftMargin);
         $pdf->Line($pdf->GetX(), $pdf->GetY(), 198, $pdf->GetY());
 
-        $pdf->SetFont($this->pdfFontFamily,$this->pdfFontStyle,$this->pdfFontSyze);
+        $pdf->SetFont($this->pdfFontFamily, $this->pdfFontStyle, $this->pdfFontSyze);
         $pdf->Cell($this->pdfLeftMargin);
 
         $pdf->Ln(8);
-        return $pdf ;
+        return $pdf;
     }
 
     public function ReportPdfCabec($pdf)
     {
-        $pdf->SetFont($this->pdfFontFamily,$this->pdfFontStyle,$this->pdfFontSyze);
-        $pdf->SetFillColor(211,211,211);
+        $pdf->SetFont($this->pdfFontFamily, $this->pdfFontStyle, $this->pdfFontSyze);
+        $pdf->SetFillColor(211, 211, 211);
         $pdf->Cell($this->pdfLeftMargin);
 
         for ($row = 0; $row < count($this->a_pdfHeaderData); $row++) {
@@ -1581,86 +1625,87 @@ class System {
         }
 
         $pdf->Ln(5);
-        return $pdf ;
+        return $pdf;
     }
 
-    public function ReportPdfRow($pdf,$data){
+    public function ReportPdfRow($pdf, $data)
+    {
         //Calcula a altura da fila
-        $nb=0;
-        for($i=0;$i<count($data);$i++)
-            $nb=max($nb,$this->ReportPdfNbLines($pdf,$this->a_pdfHeaderData[$i]['width'],$data[$i]));
-        $h=5*$nb;
+        $nb = 0;
+        for ($i = 0; $i < count($data); $i++)
+            $nb = max($nb, $this->ReportPdfNbLines($pdf, $this->a_pdfHeaderData[$i]['width'], $data[$i]));
+        $h = 5 * $nb;
         //Insere um salto de página primeiramente se for necessario
-        $this->ReportPdfCheckPageBreak($pdf,$h);
+        $this->ReportPdfCheckPageBreak($pdf, $h);
         //Desenha as células da linha
-        for($i=0;$i<count($data);$i++){
-            $w=$this->a_pdfHeaderData[$i]['width'];
-            $a=isset($this->a_pdfHeaderData[$i]['align']) ? $this->a_pdfHeaderData[$i]['align'] : 'C';
+        for ($i = 0; $i < count($data); $i++) {
+            $w = $this->a_pdfHeaderData[$i]['width'];
+            $a = isset($this->a_pdfHeaderData[$i]['align']) ? $this->a_pdfHeaderData[$i]['align'] : 'C';
             //Salva a posição atual
-            $x=$pdf->GetX();
-            $y=$pdf->GetY();
+            $x = $pdf->GetX();
+            $y = $pdf->GetY();
             //Draw the border
-            $pdf->Rect($x,$y,$w,$h,'F');
+            $pdf->Rect($x, $y, $w, $h, 'F');
             //Imprime o texto
-            $pdf->MultiCell($w,5,$data[$i],0,$a);
+            $pdf->MultiCell($w, 5, $data[$i], 0, $a);
             //Coloca a posição para a direita da célula
-            $pdf->SetXY($x+$w,$y);
+            $pdf->SetXY($x + $w, $y);
         }
         //Va para a próxima linha
         $pdf->Ln($h);
         return $pdf;
     }
 
-    public function ReportPdfCheckPageBreak($pdf,$h){
-        if($pdf->GetY()+$h>$pdf->PageBreakTrigger) {
+    public function ReportPdfCheckPageBreak($pdf, $h)
+    {
+        if ($pdf->GetY() + $h > $pdf->PageBreakTrigger) {
             $pdf->AddPage($pdf->CurOrientation);
             $this->ReportPdfHeader($pdf);
             $this->ReportPdfCabec($pdf);
-            $pdf->SetFillColor(255,255,255);
+            $pdf->SetFillColor(255, 255, 255);
         }
     }
 
-    public function ReportPdfNbLines($pdf,$w,$txt){
+    public function ReportPdfNbLines($pdf, $w, $txt)
+    {
 
-        $cw=&$pdf->CurrentFont['cw'];
-        if($w==0)
-            $w=$this->w-$pdf->rMargin-$pdf->x;
-        $wmax=($w-2*$pdf->cMargin)*1000/$pdf->FontSize;
-        $s=str_replace("\r",'',$txt);
-        $nb=strlen($s);
-        if($nb>0 and $s[$nb-1]=="\n")
+        $cw =& $pdf->CurrentFont['cw'];
+        if ($w == 0)
+            $w = $this->w - $pdf->rMargin - $pdf->x;
+        $wmax = ($w - 2 * $pdf->cMargin) * 1000 / $pdf->FontSize;
+        $s = str_replace("\r", '', $txt);
+        $nb = strlen($s);
+        if ($nb > 0 and $s[$nb - 1] == "\n")
             $nb--;
-        $sep=-1;
-        $i=0;
-        $j=0;
-        $l=0;
-        $nl=1;
-        while($i<$nb){
-            $c=$s[$i];
-            if($c=="\n"){
+        $sep = -1;
+        $i = 0;
+        $j = 0;
+        $l = 0;
+        $nl = 1;
+        while ($i < $nb) {
+            $c = $s[$i];
+            if ($c == "\n") {
                 $i++;
-                $sep=-1;
-                $j=$i;
-                $l=0;
+                $sep = -1;
+                $j = $i;
+                $l = 0;
                 $nl++;
                 continue;
             }
-            if($c==' ')
-                $sep=$i;
-            $l+=$cw[$c];
-            if($l>$wmax){
-                if($sep==-1){
-                    if($i==$j)
+            if ($c == ' ')
+                $sep = $i;
+            $l += $cw[$c];
+            if ($l > $wmax) {
+                if ($sep == -1) {
+                    if ($i == $j)
                         $i++;
-                }
-                else
-                    $i=$sep+1;
-                $sep=-1;
-                $j=$i;
-                $l=0;
+                } else
+                    $i = $sep + 1;
+                $sep = -1;
+                $j = $i;
+                $l = 0;
                 $nl++;
-            }
-            else
+            } else
                 $i++;
         }
         return $nl;
@@ -1668,7 +1713,8 @@ class System {
 
     /* End PDF Methods */
 
-    public function parse_ajax($arr) {
+    public function parse_ajax($arr)
+    {
         $i = 0;
         $line = array();
         foreach ($arr as &$value) {
@@ -1678,10 +1724,11 @@ class System {
         return $line;
     }
 
-    public function access($smarty, $user, $idprogram, $type) {
+    public function access($smarty, $user, $idprogram, $type)
+    {
 
         $bd = new common();
-        $groupperm = $bd->selectGroupPermission($user, $idprogram );
+        $groupperm = $bd->selectGroupPermission($user, $idprogram);
 
         $perm = array();
 
@@ -1689,8 +1736,8 @@ class System {
 
         while (!$groupperm->EOF) {
             $program = $groupperm->fields['programname'];
-            $perm[$program] = 'N' ;
-            if ($perm[$program] != $groupperm->fields['allow'] ) {
+            $perm[$program] = 'N';
+            if ($perm[$program] != $groupperm->fields['allow']) {
                 if ($perm[$program] == 'N') {
                     $perm[$program] = $groupperm->fields['allow'];
                 }
@@ -1700,17 +1747,17 @@ class System {
         }
 
         $personperm = $bd->selectPersonPermission($user, $idprogram);
-		if ($personperm->fields['allow']) {
-			while (!$personperm->EOF) {
-				$program = $personperm->fields['programname'];
+        if ($personperm->fields['allow']) {
+            while (!$personperm->EOF) {
+                $program = $personperm->fields['programname'];
                 if ($perm[$program] != $groupperm->fields['allow']) {
                     $perm[$program] = $groupperm->fields['allow'];
                 }
-				$allow = $personperm->fields['allow'];
-				$perm[$program] = $allow;
-				$personperm->MoveNext();
-			}
-		}
+                $allow = $personperm->fields['allow'];
+                $perm[$program] = $allow;
+                $personperm->MoveNext();
+            }
+        }
 
         $string_array = implode('|', $perm);
         $smarty->assign('string_array', $string_array);
@@ -1719,67 +1766,74 @@ class System {
         return $perm;
     }
 
-	public function noAccess($access){
-		if(count($access) > 0){
-			$permAccess = array_values($access);
-			if($permAccess[0] != "Y"){
-				$smarty = $this->retornaSmarty();
-                $dir = str_replace("\\","/", __DIR__) ;
-                $path_tpl = str_replace("system","",$dir) ;
-                $smarty->display('file:'.$path_tpl.'/app/modules/admin/views/nopermission.tpl.html');
-				die();
-			}
-		}else{
-			$smarty = $this->retornaSmarty();
-			$smarty->display('nopermission.tpl.html');
-			die();
-		}
-	}
+    public function noAccess($access)
+    {
+        if (count($access) > 0) {
+            $permAccess = array_values($access);
+            if ($permAccess[0] != "Y") {
+                $smarty = $this->retornaSmarty();
+                $dir = str_replace("\\", "/", __DIR__);
+                $path_tpl = str_replace("system", "", $dir);
+                $smarty->display('file:' . $path_tpl . '/app/modules/admin/views/nopermission.tpl.html');
+                die();
+            }
+        } else {
+            $smarty = $this->retornaSmarty();
+            $smarty->display('nopermission.tpl.html');
+            die();
+        }
+    }
 
-    public function formatDate($date) {
+    public function formatDate($date)
+    {
         $dbCommon = new common();
         $dateafter = $dbCommon->getDate($date, $this->getConfig("date_format"));
         return $dateafter;
     }
-	
-	public function formatHour($date) {
+
+    public function formatHour($date)
+    {
         $bd = new common();
         $dateafter = $bd->getDate($date, $this->getConfig("hour_format"));
         return $dateafter;
     }
-	
-	public function formatDateHour($date) {
+
+    public function formatDateHour($date)
+    {
         $bd = new common();
-        $dateafter = $bd->getDateTime($date, $this->getConfig("date_format")." ".$this->getConfig("hour_format"));
+        $dateafter = $bd->getDateTime($date, $this->getConfig("date_format") . " " . $this->getConfig("hour_format"));
         return $dateafter;
     }
 
-    public function formatSaveDate($date) {
+    public function formatSaveDate($date)
+    {
 
         $dbCommon = new common();
         $dateafter = $dbCommon->getSaveDate($date, $this->getConfig("date_format"));
-		$database = $this->getConfig('db_connect');
+        $database = $this->getConfig('db_connect');
         if ($this->isMysql($database)) {
-            return "'".$dateafter."'";
+            return "'" . $dateafter . "'";
         } elseif ($database == 'oci8po') {
-			return $dateafter;
+            return $dateafter;
         }
     }
-	
-	public function formatSaveHour($hour) {
+
+    public function formatSaveHour($hour)
+    {
         $bd = new operatorview_model();
         $dateafter = $bd->getSaveHour($hour, $this->getConfig("hour_format"));
         return $dateafter;
     }
 
-	public function formatSaveDateHour($date) {
+    public function formatSaveDateHour($date)
+    {
         $dbCommon = new common();
-        $dateafter = $dbCommon->getSaveDate($date, $this->getConfig("date_format")." ".$this->getConfig("hour_format"));
+        $dateafter = $dbCommon->getSaveDate($date, $this->getConfig("date_format") . " " . $this->getConfig("hour_format"));
         $database = $this->getConfig('db_connect');
         if ($this->isMysql($database)) {
-            return "'".$dateafter."'";
+            return "'" . $dateafter . "'";
         } elseif ($database == 'oci8po') {
-			return $dateafter;
+            return $dateafter;
         }
     }
 
@@ -1789,47 +1843,48 @@ class System {
      * @param String $valor Value
      * @return String Formated Value
      **/
-    function formatSaValue($value)  {
-        $value = str_replace(",",".",str_replace(".","",$value)) ;
+    function formatSaValue($value)
+    {
+        $value = str_replace(",", ".", str_replace(".", "", $value));
         return $value;
     }
 
-	/**
-	* Method to send e-mails
-	*
-	* @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
-	*
-	* @param string  $subject E-mail subject
-	* @param string  $body  E-mail body
-	* @param array   $address Addreaesse 
-	* @param boolean $log If it will log
-	* @param string $log_text Log text 
-	*
-	* @return string true|false 
-	*/
+    /**
+     * Method to send e-mails
+     *
+     * @param string $subject E-mail subject
+     * @param string $body E-mail body
+     * @param array $address Addreaesse
+     * @param boolean $log If it will log
+     * @param string $log_text Log text
+     *
+     * @return string true|false
+     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     *
+     */
     public function sendEmailDefault($params)
-	{
+    {
         $dbCommon = new common();
         $emconfigs = $dbCommon->getEmailConfigs();
         $tempconfs = $dbCommon->getTempEmail();
 
-        $mail_title     = '=?UTF-8?B?'.base64_encode($emconfigs['EM_TITLE']).'?=';
-        $mail_method    = 'smtp';
-        $mail_host      = $emconfigs['EM_HOSTNAME'];
-        $mail_domain    = $emconfigs['EM_DOMAIN'];
-        $mail_auth      = $emconfigs['EM_AUTH'];
-        $mail_username  = $emconfigs['EM_USER'];
-        $mail_password  = $emconfigs['EM_PASSWORD'];
-        $mail_sender    = $emconfigs['EM_SENDER'];
-        $mail_header    = $tempconfs['EM_HEADER'];
-        $mail_footer    = $tempconfs['EM_FOOTER'];
-        $mail_port      = $emconfigs['EM_PORT'];
-        
+        $mail_title = '=?UTF-8?B?' . base64_encode($emconfigs['EM_TITLE']) . '?=';
+        $mail_method = 'smtp';
+        $mail_host = $emconfigs['EM_HOSTNAME'];
+        $mail_domain = $emconfigs['EM_DOMAIN'];
+        $mail_auth = $emconfigs['EM_AUTH'];
+        $mail_username = $emconfigs['EM_USER'];
+        $mail_password = $emconfigs['EM_PASSWORD'];
+        $mail_sender = $emconfigs['EM_SENDER'];
+        $mail_header = $tempconfs['EM_HEADER'];
+        $mail_footer = $tempconfs['EM_FOOTER'];
+        $mail_port = $emconfigs['EM_PORT'];
+
         $mail = $this->returnPhpMailer();
 
         $mail->CharSet = 'utf-8';
 
-        if($params['customHeader'] && $params['customHeader'] != ''){
+        if ($params['customHeader'] && $params['customHeader'] != '') {
             $mail->addCustomHeader($params['customHeader']);
         }
 
@@ -1839,13 +1894,13 @@ class System {
             $mail->addCustomHeader('X-hdkLicence:' . $this->getConfig('license'));
         }
 
-        if($params['sender'] && $params['sender'] != ''){
+        if ($params['sender'] && $params['sender'] != '') {
             $mail_sender = $params['sender'];
             $mail_title = $params['sender_name'];
         }
 
-        if($params['sender_name'] && $params['sender_name'] != ''){
-            $mail_title = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
+        if ($params['sender_name'] && $params['sender_name'] != '') {
+            $mail_title = '=?UTF-8?B?' . base64_encode($params['sender_name']) . '?=';
         }
 
         $mail->From = $mail_sender;
@@ -1871,8 +1926,8 @@ class System {
         $mail->Username = $mail_username;
         $mail->Password = $mail_password;
 
-        $mail->AltBody 	= "HTML";
-        $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
+        $mail->AltBody = "HTML";
+        $mail->Subject = '=?UTF-8?B?' . base64_encode($params['subject']) . '?=';
 
         $mail->SetLanguage('br', $this->helpdezkPath . "/includes/classes/phpMailer/language/");
 
@@ -1887,14 +1942,59 @@ class System {
             "mail_sender" => $mail_sender
         );
 
-        if(sizeof($params['attachment']) > 0){
-            foreach($params['attachment'] as $key=>$value){
+        if (sizeof($params['attachment']) > 0) {
+            foreach ($params['attachment'] as $key => $value) {
                 $mail->AddAttachment($value['filepath'], $value['filename']);  // optional name
             }
         }
 
+        $normalProcedure = true;
         // Tracker
+
+        if ($params['tracker'] or $this->_tokenOperatorLink) {
+
+            $aEmail = $this->makeArrayTracker($params['address']);
+            $body = $mail_header . $params['contents'] . $mail_footer;
+
+            foreach ($aEmail as $key => $sendEmailTo) {
+
+                $mail->AddAddress($sendEmailTo);
+
+                if ($this->_tokenOperatorLink) {
+                    $linkOperatorToken = $this->makeLinkOperatorToken($sendEmailTo, $params['code_request']);
+                    if ($linkOperatorToken == false) {
+                        $this->logIt("Error make link operator with token, request #" . $params['code_request'] . ' - program: ' . $this->program, 3, 'email', __LINE__);
+                    } else {
+                        $newContent = $this->replaceBetweenTags($params['contents'], $linkOperatorToken, 'pipegrep');
+                        $body = $mail_header . $newContent . $mail_footer;
+                    }
+                }
+
+                if($params['tracker']) {
+                    $idEmail = $this->saveTracker($params['idmodule'],$mail_sender,$sendEmailTo,addslashes($params['subject']),addslashes($params['contents']));
+                    if(!$idEmail) {
+                        $this->logIt("Error insert in tbtracker, " . $params['msg'] .' - program: ' . $this->program, 3, 'email', __LINE__);
+                    } else {
+                        $trackerID = '<img src="'.$this->helpdezkUrl.'/tracker/'.$this->modulename.'/'.$idEmail.'.png" height="1" width="1" />' ;
+                        $body = $body . $trackerID;
+                    }
+                }
+
+                $mail->Body = $body;
+
+                // sent email
+                $error_send = $this->isEmailDone($mail, $paramsDone);
+
+                $mail->ClearAddresses();
+
+            }
+
+            $normalProcedure = false;
+
+    }
+/*
         if($params['tracker']) {
+
             $body = $mail_header . $params['contents'] . $mail_footer;
             $aEmail = $this->makeArrayTracker($params['address']);
 
@@ -1910,10 +2010,43 @@ class System {
                 }
                 $mail->ClearAddresses();
             }
-        } else {
+
+            $normalProcedure = false;
+
+        }
+
+        if($this->_tokenOperatorLink) {
+
+            $aEmail = $this->makeArrayTracker($params['address']);
+
+            foreach ($aEmail as $key => $sendEmailTo) {
+                $mail->AddAddress($sendEmailTo);
+                $linkOperatorToken = $this->makeLinkOperatorToken(Email,$params['code_request']);
+
+                if ($linkOperatorToken == false ){
+                    $body = $mail_header . $params['contents'] . $mail_footer;
+                    $this->logIt("Error make link operator with token, request #" . $params['code_request'] .' - program: ' . $this->program, 3, 'email', __LINE__);
+                } else {
+                    $newContent = $this->replaceBetweenTags($params['body'],$linkOperatorToken,'pipegrep');
+                    $body = $mail_header . $newContent . $mail_footer;
+                }
+
+                $mail->Body = $body;
+                // sent email
+                $error_send = $this->isEmailDone($mail,$paramsDone);
+
+                $mail->ClearAddresses();
+            }
+
+            $normalProcedure = false;
+        }
+
+*/
+        if ($normalProcedure){
             //Checks for more than 1 email address at recipient
             $this->makeSentTo($mail,$params['address']);
             $mail->Body = $mail_header . $params['contents'] . $mail_footer;
+            // sent email
             $error_send = $this->isEmailDone($mail,$paramsDone);
         }
 
@@ -1924,7 +2057,55 @@ class System {
             return true;
 
 	}	
-	
+
+	public function makeLinkOperatorToken($email,$codeRequest)
+    {
+
+        $this->loadModel('helpdezk/ticket_model');
+        $dbTicket = new ticket_model();
+
+        $token = $dbTicket->getUrlTokenByEmail($email,$codeRequest);
+        if ($token)
+            return "<a href='".$this->helpdezkUrl."/helpdezk/hdkTicket/viewrequest/id/{$codeRequest}/token/{$token}' target='_blank'>{$codeRequest}</a>";
+        else
+            return false ;
+    }
+
+    /**
+     * Method to replace text between tags and delete the tags
+     *
+     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     *
+     * @param string  $text     Original text
+     * @param string  $replace  New text
+     * @param string   $tag      Tag's string
+     *
+     * @return string           New text without tags
+     */
+    public function replaceBetweenTags($text, $newText, $tag)
+    {
+        return  preg_replace("#(<{$tag}.*?>).*?(</{$tag}>)#", $newText , $text);
+    }
+
+    /**
+     * Method to get text between tags
+     *
+     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     *
+     * @param string  $string   String with tags
+     * @param string   $tag      Tag's string
+     *
+     * @return string           Text between tags
+     */
+    function getBetweenTags($string, $tag)
+    {
+        $pattern = "#<\s*?$tag\b[^>]*>(.*?)</$tag\b[^>]*>#s";
+        preg_match($pattern, $string, $matches);
+
+        return isset($matches[1]) ? $matches[1] : false;
+    }
+
+    /*
     public function sendEmail($operation, $code_request, $reason = NULL) {
 
         $hdk_url = $this->getConfig('hdk_url');
@@ -2724,6 +2905,7 @@ class System {
 
 
     }
+    */
 
     // Since November 03, 2017
     public function sessionValidate($mob = null) {
@@ -3692,6 +3874,172 @@ class System {
         $dbSysPerson  = new person_model();
         $rsChangePwd = $dbSysPerson->getChangePass($idPerson);
         return $rsChangePwd;
+    }
+
+    // Since November 20
+    // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
+    public function _startSession($idperson)
+    {
+
+        $this->loadModel('admin/index_model');
+        $dbIndex = new index_model();
+
+        session_start();
+        $_SESSION['SES_COD_USUARIO'] = $idperson;
+        $_SESSION['REFRESH']         = false;
+
+        //SAVE THE CUSTOMER'S LICENSE
+        $_SESSION['SES_LICENSE']    = $this->getConfig('license');
+        $_SESSION['SES_ENTERPRISE'] = $this->getConfig('enterprise');
+
+        $_SESSION['SES_ADM_MODULE_DEFAULT'] = $this->pathModuleDefault();
+
+        if ($_SESSION['SES_COD_USUARIO'] != 1) {
+
+            if ($this->isActiveHelpdezk()) {
+
+                $typeuser = $this->dbIndex->selectDataSession($idperson);
+                $_SESSION['SES_LOGIN_PERSON']       = $typeuser->fields['login'];
+                $_SESSION['SES_NAME_PERSON']        = $typeuser->fields['name'];
+                $_SESSION['SES_TYPE_PERSON']        = $typeuser->fields['idtypeperson'];
+                $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
+                $_SESSION['SES_COD_EMPRESA']        = $typeuser->fields['idjuridical'];
+                $_SESSION['SES_COD_TIPO']           = $typeuser->fields['idtypeperson'];
+                $groups = $this->dbIndex->selectPersonGroups($idperson);
+                $i = "0";
+                while (!$groups->EOF) {
+                    $arr[$i] = $groups->fields['idgroup'];
+                    $i++;
+                    $groups->MoveNext();
+                }
+                $groups = implode(',', $arr);
+                $_SESSION['SES_PERSON_GROUPS'] = $groups;
+
+            } else {
+
+                $this->loadModel('admin/person_model');
+                $dbPerson = new person_model();
+                $rsPerson = $dbPerson->selectPerson(" AND tbp.idperson = $idperson");
+                $_SESSION['SES_LOGIN_PERSON']   = $rsPerson->fields['login'];
+                $_SESSION['SES_NAME_PERSON']    = $rsPerson->fields['name'];
+                $_SESSION['SES_TYPE_PERSON']    = $rsPerson->fields['idtypeperson'];
+
+            }
+
+        } else {
+
+            if($this->isActiveHelpdezk()){
+
+                $_SESSION['SES_NAME_PERSON']        = 'admin';
+                $_SESSION['SES_TYPE_PERSON']        = 1;
+                $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
+                $_SESSION['SES_COD_EMPRESA']        = 1;
+                $_SESSION['SES_COD_TIPO']           = 1;
+
+                $groups = $this->dbIndex->selectAllGroups();
+                $i = "0";
+                while (!$groups->EOF) {
+                    $arr[$i] = $groups->fields['idgroup'];
+                    $i++;
+                    $groups->MoveNext();
+                }
+                $groups = implode(',', $arr);
+                $_SESSION['SES_PERSON_GROUPS'] = $groups;
+
+            } else {
+
+                $_SESSION['SES_NAME_PERSON'] = 'admin';
+                $_SESSION['SES_TYPE_PERSON'] = 1;
+                $_SESSION['SES_COD_EMPRESA'] = 1;
+
+            }
+        }
+
+    }
+
+    // Since November 20
+    // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
+    public function _getConfigSession()
+    {
+
+        $this->loadModel('admin/index_model');
+        $dbIndex = new index_model();
+
+        session_start();
+        if (version_compare($this->helpdezkVersionNumber, '1.0.1', '>' )) {
+
+            $objModules = $this->getActiveModules();
+            while (!$objModules->EOF) {
+                $prefix = $objModules->fields['tableprefix'];
+                if(!empty($prefix)) {
+                    $data = $this->dbIndex->getConfigDataByModule($prefix);
+                    if (!$data) {
+                        if($this->log)
+                            $this->logIt('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory - program: '. $this->program ,3,'general',__LINE__);
+                    }else{
+                        while (!$data->EOF) {
+                            $ses = $data->fields['session_name'];
+                            $val = $data->fields['value'];
+                            $_SESSION[$prefix][$ses] = $val;
+                            $data->MoveNext();
+                        }
+                    }
+                }
+
+                $objModules->MoveNext();
+            }
+
+        } else {
+            $data = $this->dbIndex->getConfigData();
+            if($data) {
+                while (!$data->EOF) {
+                    $ses = $data->fields['session_name'];
+                    $val = $data->fields['value'];
+                    $_SESSION[$ses] = $val;
+                    $_SESSION[$prefix][$ses] = $val;
+                    $data->MoveNext();
+                }
+            }
+        }
+
+
+        $idperson = $_SESSION['SES_COD_USUARIO'];
+
+
+        // Global Config Data
+        $rsConfig = $this->dbIndex->getConfigGlobalData();
+        while (!$rsConfig->EOF) {
+            $ses = $rsConfig->fields['session_name'];
+            $val = $rsConfig->fields['value'];
+            $_SESSION[$ses] = $val;
+            $rsConfig->MoveNext();
+        }
+
+        // User config data
+        $this->loadModel('admin/userconfig_model');
+        $cf = new userconfig_model();
+        $columns = $cf->getColumns(); //GET COLUMNS OF THE TABLE
+
+        $database = $this->getConfig('db_connect');
+
+        while (!$columns->EOF) {
+            if($this->isMysql($database)) {
+                $cols[] = strtolower($columns->fields['Field']);
+            } elseif($database == 'oci8po') {
+                $cols[] = strtolower($columns->fields['column_name']);
+            }
+            $columns->MoveNext();
+        }
+
+
+        $idconf = $cf->checkConf($idperson); //CHECK IF USER HAVE PERSONAL CONFIG, IF DNO'T HAVE IT'S CREATE
+
+        $getUserConfig = $cf->getConf($cols,$idconf);
+        foreach ($cols as $key => $value) {
+            $_SESSION['SES_PERSONAL_USER_CONFIG'][$value] = $getUserConfig->fields[$value];
+        }
+
+
     }
 
 }

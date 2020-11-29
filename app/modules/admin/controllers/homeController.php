@@ -69,6 +69,7 @@ class Home extends admCommon {
 
 
 
+        $smarty->assign('php_session', htmlspecialchars(print_r($_SESSION, true)));
 
         $smarty->assign('demoversion', $this->demoVersion);         // Demo version
         $smarty->display('adm-main.tpl');

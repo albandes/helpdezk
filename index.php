@@ -92,7 +92,7 @@ if(substr($document_root, -1)!='/'){
 define('DOCUMENT_ROOT',$document_root);
 define('LANGUAGE',$system->getConfig("lang"));
 define('theme',$system->getConfig("theme"));
-define('`PATH_ANEXO','');
+define('PATH_ANEXO','');
 // Since April 18, 2017
 define ('HELPDEZK_PATH', realpath(DOCUMENT_ROOT.path)) ;
 
