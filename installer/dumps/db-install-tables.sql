@@ -3105,7 +3105,9 @@ CREATE TABLE `tbmodule` (
   `tableprefix` char(3) DEFAULT NULL,
   `defaultmodule` char(4) DEFAULT NULL,
   PRIMARY KEY (`idmodule`),
+
   KEY `defaultmodule` (`defaultmodule`)
+
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 INSERT INTO tbmodule VALUES("1","Admin","0","A","admin","adm_Navbar_name","","adm_header.png","","","");

@@ -11,6 +11,38 @@ if(class_exists('Model')) {
 class index_model extends DynamicIndex_model {
 //class index_model extends Model {
 
+    /**
+     * returns the Id of the person if request´s token is OK
+     *
+     * @param  string $codeRequest       Request Code
+     * @param  strin  $token            Token
+     * @return int                      Person´s Id
+     *
+     * @since Version 1.1.7.2
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getIdPersonByToken($codeRequest,$token)
+    {
+        $ret =  $this->select("
+                                SELECT 
+                                  idperson
+                                FROM
+                                  hdk_tbviewbyurl 
+                                WHERE code_request = '{$codeRequest}' 
+                                  AND token = '{$token}' 
+                            ");
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        if ($ret->RecordCount() == 0)
+            return false;
+        else
+            return  $ret->fields['idperson'];
+    }
+
+
     public function selectDataLogin($F_LOGIN, $F_SENHA) {
 		$database = $this->getConfig('db_connect');
 		if ($this->isMysql($database)) {

@@ -751,11 +751,11 @@ class apiSystem {
      *
      * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
      *
-     * @param string  $subject E-mail subject
-     * @param string  $body  E-mail body
-     * @param array   $address Addreaesse
-     * @param boolean $log If it will log
-     * @param string $log_text Log text
+     * @param string  $subject      E-mail subject
+     * @param string  $body         E-mail body
+     * @param array   $address      Addreaesse
+     * @param boolean $log          If it will log
+     * @param string  $log_text     Log text
      *
      * @return string true|false
      */
