@@ -385,7 +385,6 @@ class hdkCommon extends DynamichdkCommon {
 
     public function _sendEmail($operation, $code_request, $reason = NULL) {
 
-        //$mail = $this->returnPhpMailer();
         $this->loadModel('emailconfig_model');
         $dbEmailConfig = new emailconfig_model();
 
@@ -965,15 +964,13 @@ class hdkCommon extends DynamichdkCommon {
 
     public function makeLinkUser($code_request)
     {
-        return "<a href='".$this->helpdezkUrl."/helpdezk/hdkTicket/viewrequest/id/".$code_request."' target='_blank'>".$code_request."</a>";;
+        return "<a href=\" ".$this->helpdezkUrl. "/helpdezk/hdkTicket/viewrequest/id/{$code_request}\" target=\"_blank\">{$code_request}</a>";
     }
 
     public function makeSentTo($mail,$sentTo)
     {
-        //$this->logIt('sentTo: ' . $sentTo,7,'email');
         $jaExiste = array();
         if (preg_match("/;/", $sentTo)) {
-            //$this->logIt('Entrou',7,'email');
             $email_destino = explode(";", $sentTo);
             if (is_array($email_destino)) {
                 for ($i = 0; $i < count($email_destino); $i++) {
@@ -985,11 +982,9 @@ class hdkCommon extends DynamichdkCommon {
                     }
                 }
             } else {
-                //$this->logIt('Entrou ' . $email_destino,7,'email');
                 $mail->AddAddress($email_destino);
             }
         } else {
-            //$this->logIt('Nao Entrou ' . $sentTo,7,'email');
             $mail->AddAddress($sentTo);
         }
     }
