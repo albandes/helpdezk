@@ -1859,7 +1859,7 @@ class System
      * @param string $log_text Log text
      *
      * @return string true|false
-     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      *
      */
     public function sendEmailDefault($params)
@@ -1868,17 +1868,17 @@ class System
         $emconfigs = $dbCommon->getEmailConfigs();
         $tempconfs = $dbCommon->getTempEmail();
 
-        $mail_title = '=?UTF-8?B?' . base64_encode($emconfigs['EM_TITLE']) . '?=';
-        $mail_method = 'smtp';
-        $mail_host = $emconfigs['EM_HOSTNAME'];
-        $mail_domain = $emconfigs['EM_DOMAIN'];
-        $mail_auth = $emconfigs['EM_AUTH'];
-        $mail_username = $emconfigs['EM_USER'];
-        $mail_password = $emconfigs['EM_PASSWORD'];
-        $mail_sender = $emconfigs['EM_SENDER'];
-        $mail_header = $tempconfs['EM_HEADER'];
-        $mail_footer = $tempconfs['EM_FOOTER'];
-        $mail_port = $emconfigs['EM_PORT'];
+        $mail_title     = '=?UTF-8?B?' . base64_encode($emconfigs['EM_TITLE']) . '?=';
+        $mail_method    = 'smtp';
+        $mail_host      = $emconfigs['EM_HOSTNAME'];
+        $mail_domain    = $emconfigs['EM_DOMAIN'];
+        $mail_auth      = $emconfigs['EM_AUTH'];
+        $mail_username  = $emconfigs['EM_USER'];
+        $mail_password  = $emconfigs['EM_PASSWORD'];
+        $mail_sender    = $emconfigs['EM_SENDER'];
+        $mail_header    = $tempconfs['EM_HEADER'];
+        $mail_footer    = $tempconfs['EM_FOOTER'];
+        $mail_port      = $emconfigs['EM_PORT'];
 
         $mail = $this->returnPhpMailer();
 
@@ -1931,16 +1931,16 @@ class System
 
         $mail->SetLanguage('br', $this->helpdezkPath . "/includes/classes/phpMailer/language/");
 
-        $paramsDone = array("msg" => $params['msg'],
-            "msg2" => $params['msg2'],
-            "mail_host" => $mail_host,
-            "mail_domain" => $mail_domain,
-            "mail_auth" => $mail_auth,
-            "mail_port" => $mail_port,
-            "mail_username" => $mail_username,
-            "mail_password" => $mail_password,
-            "mail_sender" => $mail_sender
-        );
+        $paramsDone = array("msg"           => $params['msg'],
+                            "msg2"          => $params['msg2'],
+                            "mail_host"     => $mail_host,
+                            "mail_domain"   => $mail_domain,
+                            "mail_auth"     => $mail_auth,
+                            "mail_port"     => $mail_port,
+                            "mail_username" => $mail_username,
+                            "mail_password" => $mail_password,
+                            "mail_sender"   => $mail_sender
+                          );
 
         if (sizeof($params['attachment']) > 0) {
             foreach ($params['attachment'] as $key => $value) {
@@ -1949,7 +1949,6 @@ class System
         }
 
         $normalProcedure = true;
-        // Tracker
 
         if ($params['tracker'] or $this->_tokenOperatorLink) {
 
