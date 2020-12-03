@@ -60,6 +60,9 @@ class hdkService extends hdkCommon
         $smarty->assign("tabservices",$tabServices);
         $smarty->assign('token', $token) ;
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('service.tpl');
 
     }

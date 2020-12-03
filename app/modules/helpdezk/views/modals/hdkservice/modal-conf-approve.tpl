@@ -28,7 +28,7 @@
                             <div class="col-sm-2 b-l"></div>
                             <div class="col-sm-10 b-l">
                                 <div class="form-group">
-                                    <label  class="col-sm-3 control-label text-right">{$smarty.config.Type}:</label>
+                                    <label  class="col-sm-3 control-label text-right">{$smarty.config.type}:</label>
                                     <div class="col-sm-5">
                                         <select class="form-control form-control-sm" name="confCmbType" id="confCmbType">
                                         </select>

@@ -16,7 +16,7 @@ $(document).ready(function () {
         shrinkToFit: true,
         rowNum: 10,
         rowList: [10, 20, 25, 30, 50],
-        colNames:['',makeSmartyLabel('Server'),makeSmartyLabel('Type'),makeSmartyLabel('email')],
+        colNames:['',makeSmartyLabel('Server'),makeSmartyLabel('type'),makeSmartyLabel('email')],
         colModel:[
             {name:'id', index:'idgetemail',editable: false, width:9, align:"center",sortable: false, search:false, hidden: true },
             {name:'serverurl',index:'serverurl', editable: true, width:120, search:true, sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']} },

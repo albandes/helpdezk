@@ -79,6 +79,8 @@ class logos  extends admCommon {
         $smarty->assign('reportsheight', $reportslogo->fields['height']);
         $smarty->assign('reportswidth', $reportslogo->fields['width']);
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
         $smarty->display('logos.tpl');
 
     }

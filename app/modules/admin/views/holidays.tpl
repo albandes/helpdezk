@@ -44,7 +44,9 @@
     <!-- Datapicker  -->
     {head_item type="css" src="$path/css/plugins/datepicker/" files="datepicker3.css"}
     {head_item type="js"  src="$path/includes/js/plugins/datepicker/" files="bootstrap-datepicker.js"}
-    {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="bootstrap-datepicker.pt-BR.min.js"}
+    {if $dtpickerLocale != ''}
+        {head_item type="js"  src="$path/includes/js/plugins/datepicker/locales/" files="$dtpickerLocale"}
+    {/if}
 
     <!-- Moment -->
     {head_item type="js"  src="$path/includes/js/plugins/moment/" files="moment-with-locales.min.js"}
@@ -55,11 +57,13 @@
     {literal}
         <script type="text/javascript">
             var default_lang = "{/literal}{$lang}{literal}",
-                    path = "{/literal}{$path}{literal}",
-                    langName = '{/literal}{$smarty.config.Name}{literal}',
-                    theme = '{/literal}{$theme}{literal}',
-                    mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                    timesession = '{/literal}{$timesession}{literal}';
+                path = "{/literal}{$path}{literal}",
+                langName = '{/literal}{$smarty.config.Name}{literal}',
+                theme = '{/literal}{$theme}{literal}',
+                mascDateTime = '{/literal}{$mascdatetime}{literal}',
+                timesession = '{/literal}{$timesession}{literal}',
+                datepickerOpts = {/literal}{$datepickerOpts}{literal},
+                dtSearchFmt = '{/literal}{$dtSearchFmt}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
@@ -89,7 +93,7 @@
                         <div class="ibox ">
 
                             <div class="ibox-title">
-                                <h5>Cadastros / {$smarty.config.Holidays} / <strong>{$smarty.config.Home}</strong></h5>
+                                <h5>{$smarty.config.cat_records} / {$smarty.config.Holidays} / <strong>{$smarty.config.Home}</strong></h5>
 
                             </div>
 

@@ -12,9 +12,9 @@ $(document).ready(function () {
     /*
      *  Chosen
      */
-    $("#cmbModule").chosen({ width: "100%",    no_results_text: "Nada encontrado!"});
-    $("#cmbCategory").chosen({ width: "100%",    no_results_text: "Nada encontrado!"});
-    $("#cmbModuleMod").chosen({ width: "100%",    no_results_text: "Nada encontrado!"});
+    $("#cmbModule").chosen({ width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cmbCategory").chosen({ width: "100%",  no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cmbModuleMod").chosen({ width: "100%", no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
 
     var objProgramData = {
         changeModule: function() {
@@ -120,14 +120,10 @@ $(document).ready(function () {
     });
 
     $("#btnAddModule").click(function(){
-        /*objTopicData.getOperatorGroup();
-        objTopicData.getCorporation();*/
         $('#modal-form-module').modal('show');
     });
 
     $("#btnAddCategory").click(function(){
-        /*objTopicData.getOperatorGroup();
-        objTopicData.getCorporation();*/
         $('#modal-form-category').modal('show');
     });
 
@@ -333,8 +329,6 @@ $(document).ready(function () {
 
     myDropzone.on("queuecomplete", function (file) {
         console.log('Completed the dropzone queue');
-        //sendNotification('new-ticket-user',global_coderequest,true);
-        //console.log('Sent email, with attachments');
     });
 
     /* limpa campos modal */

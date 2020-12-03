@@ -7,7 +7,7 @@
             <div class="modal-content">
 
                 <div  class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Cadastro de Aviso
+                    <h4 class="modal-title" id="myModalLabel">{$smarty.config.Notification}
                 </div>
 
                 <div class="modal-body">

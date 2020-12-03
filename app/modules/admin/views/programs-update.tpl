@@ -150,7 +150,7 @@
 
                 <div class="row wrapper white-bg ibox-title">
                     <div class="col-sm-4">
-                        <h4>Cadastros / {$smarty.config.Programs} / <strong>{$smarty.config.edit}</strong></h4>
+                        <h4>{$smarty.config.records} / {$smarty.config.Programs} / <strong>{$smarty.config.edit}</strong></h4>
                     </div>
                 </div>            
 

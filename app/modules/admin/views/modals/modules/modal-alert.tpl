@@ -14,7 +14,7 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div id="tipo-alert" >
-                                <spam id="modal-notification"></spam>
+                                <span id="modal-notification"></span>
                             </div>
                         </div>
                     </div>

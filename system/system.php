@@ -144,6 +144,7 @@ class System
      * @param $str
      * @return array|string
      */
+
     public function _protect($str)
     {
         /*
@@ -162,6 +163,7 @@ class System
         */
 
         $allowableTags = '<p><br><span><div><strong><H1><b><u><i>';
+
         if (!is_array($str)) {
             $str = preg_replace('/\b(from|select|insert|delete|where|drop|union|order|update|database|FROM|SELECT|INSERT|DELETE|WHERE|DROP|UNION|ORDER|UPDATE|DATABASE|AND|and|HAVING|having|SLEEP|sleep|OR|or)\b/i', '', $str);
             $str = preg_replace('/\b(&lt;|<)?script(\/?(&gt;|>(.*))?)\b/i', '', $str);
@@ -3875,6 +3877,42 @@ class System
         return $rsChangePwd;
     }
 
+
+    /**
+     * @param $smarty
+     *
+     * By default
+     */
+    public function datepickerSettings($smarty)
+    {
+        switch($this->getConfig('lang')){
+            case 'pt_BR':
+                $datepickerOpts = '{format: "dd/mm/yyyy",
+                language:  "pt-BR",
+                autoclose:  true}';
+                $dtpickerLocale = "bootstrap-datepicker.pt-BR.min.js";
+                $dtSearchFmt = 'd/m/Y';
+                break;
+            case 'es_ES':
+                $datepickerOpts = '{format: "dd/mm/yyyy",
+                language:  "es",
+                autoclose:  true}';
+                $dtpickerLocale = "bootstrap-datepicker.es.min.js";
+                $dtSearchFmt = 'd/m/Y';
+                break;
+            default:
+                $datepickerOpts = '{format:  "mm/dd/yyyy",
+                autoclose:  true}';
+                $dtpickerLocale = "";
+                $dtSearchFmt = 'm/d/Y';
+                break;
+
+        }
+
+        $smarty->assign('dtSearchFmt', $dtSearchFmt);
+        $smarty->assign('dtpickerLocale', $dtpickerLocale);
+        $smarty->assign('datepickerOpts', $datepickerOpts);
+
     // Since November 20
     // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
     public function _startSession($idperson)
@@ -4037,6 +4075,7 @@ class System
         foreach ($cols as $key => $value) {
             $_SESSION['SES_PERSONAL_USER_CONFIG'][$value] = $getUserConfig->fields[$value];
         }
+
 
 
     }

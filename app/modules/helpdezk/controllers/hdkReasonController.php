@@ -46,6 +46,10 @@ class hdkReason extends hdkCommon
         $this->makeNavAdmin($smarty);
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('reason.tpl');
 
     }
@@ -153,6 +157,10 @@ class hdkReason extends hdkCommon
         $this->makeNavAdmin($smarty);
         
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('reason-create.tpl');
     }
 
@@ -178,6 +186,10 @@ class hdkReason extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('reason-update.tpl');
 
     }

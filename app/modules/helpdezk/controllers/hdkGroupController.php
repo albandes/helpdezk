@@ -64,6 +64,9 @@ class hdkGroup extends hdkCommon
 
         $smarty->assign('token', $token) ;
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('group.tpl');
 
     }
@@ -149,6 +152,10 @@ class hdkGroup extends hdkCommon
         $this->makeScreenGroup($smarty,'','create');
 
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('group-create.tpl');
     }
 
@@ -172,6 +179,10 @@ class hdkGroup extends hdkCommon
         $this->makeNavAdmin($smarty);
         
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('group-update.tpl');
     }
 

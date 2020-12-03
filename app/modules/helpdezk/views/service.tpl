@@ -59,7 +59,8 @@
                     langName = '{/literal}{$smarty.config.Name}{literal}',
                     theme = '{/literal}{$theme}{literal}',
                     mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                    timesession = '{/literal}{$timesession}{literal}';
+                    timesession = '{/literal}{$timesession}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */

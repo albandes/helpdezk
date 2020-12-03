@@ -87,6 +87,9 @@ class hdkImportServices extends hdkCommon
         //$smarty->assign("tabservices",$tabServices);
         $smarty->assign('token', $token) ;
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('import_services.tpl');
 
     }

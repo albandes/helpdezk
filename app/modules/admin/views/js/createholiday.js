@@ -7,18 +7,14 @@ $(document).ready(function () {
     /*
      *  Chosen
      */
-    $("#company").chosen({ width: "100%",   no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#lastyear").chosen({ width: "100%",  no_results_text: "Nada encontrado!", disable_search_threshold: 10});
-    $("#nextyear").chosen({ width: "100%",  no_results_text: "Nada encontrado!", disable_search_threshold: 10});
+    $("#company").chosen({  width: "100%",  no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#lastyear").chosen({ width: "100%",  no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#nextyear").chosen({ width: "100%",  no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
 
     /*
      * Datepicker
      */
-    $('.input-group.date').datepicker({
-        format: "dd/mm/yyyy",
-        language: "pt-BR",
-        autoclose: true
-    });
+    $('.input-group.date').datepicker(datepickerOpts);
 
     /*
      * Combos
@@ -52,7 +48,7 @@ $(document).ready(function () {
                     dataType: 'json',
                     data: {companyId:companyId,prevyear:prevyear},
                     error: function (ret) {
-                        modalAlertMultiple('danger','N&atilde;o foi poss&iacute;vel inserir !','alert-create-pedidocompra');
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_get_data'),'alert-create-pedidocompra');
                     },
                     success: function(ret){
     

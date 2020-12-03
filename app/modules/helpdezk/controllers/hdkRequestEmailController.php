@@ -47,6 +47,9 @@ class hdkRequestEmail extends hdkCommon
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('request-email.tpl');
 
     }
@@ -133,6 +136,10 @@ class hdkRequestEmail extends hdkCommon
         $this->makeNavAdmin($smarty);
         
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('request-email-create.tpl');
     }
 
@@ -158,6 +165,10 @@ class hdkRequestEmail extends hdkCommon
         $this->makeFooterVariables($smarty);
         $this->makeNavAdmin($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('request-email-update.tpl');
 
     }

@@ -33,7 +33,8 @@
     {head_item type="js" src="$path/includes/js/" files="default.js"}
     {head_item type="js" src="$path/app/modules/admin/views/js/" files="typepersonpermission.js"}
 
-    {head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"}
+    {*head_item type="css" src="$path/css/font-awesome/css/" files="font-awesome.css"*}
+    {head_item type="css" src="$path/css/font-awesome-5.9.0/css/" files="all.css"}
     {head_item type="css" src="$path/css/" files="animate.css"}
 
     {head_item type="css" src="$path/css/plugins/jQueryUI/" files="jquery-ui-1.10.4.custom.min.css"}
@@ -43,11 +44,12 @@
     {literal}
         <script type="text/javascript">
             var default_lang = "{/literal}{$lang}{literal}",
-                    path = "{/literal}{$path}{literal}",
-                    langName = '{/literal}{$smarty.config.Name}{literal}',
-                    theme = '{/literal}{$theme}{literal}',
-                    mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                    timesession = '{/literal}{$timesession}{literal}';
+                path = "{/literal}{$path}{literal}",
+                langName = '{/literal}{$smarty.config.Name}{literal}',
+                theme = '{/literal}{$theme}{literal}',
+                mascDateTime = '{/literal}{$mascdatetime}{literal}',
+                timesession = '{/literal}{$timesession}{literal}',
+                demoVersion = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
@@ -77,7 +79,7 @@
                         <div class="ibox ">
 
                             <div class="ibox-title">
-                                <h5>Cadastros / {$smarty.config.pgr_type_permission} / <strong>{$smarty.config.Home}</strong></h5>
+                                <h5>{$smarty.config.cat_records} / {$smarty.config.pgr_type_permission} / <strong>{$smarty.config.Home}</strong></h5>
 
                             </div>
 
@@ -85,7 +87,7 @@
 
                                 <!--<button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{$smarty.config.New}</button>
                                 <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;{$smarty.config.edit}</button>-->
-                                <button id="btnPerms" type="button" class="btn btn-primary btn-xs"><i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{$smarty.config.permissions}</button>
+                                <button id="btnPerms" type="button" class="btn btn-primary btn-xs"><i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{$smarty.config.manage_permissions}</button>
                                 <!--<button id="btnEnable" type="button" class="btn btn-primary btn-xs"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;{$smarty.config.Activate}</button>-->
 
                                 <p></p>
