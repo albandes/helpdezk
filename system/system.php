@@ -3885,7 +3885,7 @@ class System
      */
     public function datepickerSettings($smarty)
     {
-        switch($this->getConfig('lang')){
+        switch ($this->getConfig('lang')) {
             case 'pt_BR':
                 $datepickerOpts = '{format: "dd/mm/yyyy",
                 language:  "pt-BR",
@@ -3912,7 +3912,7 @@ class System
         $smarty->assign('dtSearchFmt', $dtSearchFmt);
         $smarty->assign('dtpickerLocale', $dtpickerLocale);
         $smarty->assign('datepickerOpts', $datepickerOpts);
-
+    }
     // Since November 20
     // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
     public function _startSession($idperson)
