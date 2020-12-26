@@ -141,8 +141,21 @@ class cronGetEmail extends cronCommon {
 
                 // Used only by the client 202001002 that uses uses Wix to send email from a form
                 if ($this->getConfig("license") == '202001002' and $from[0]->host == 'crm.wix.com') {
-                    $login = 'usuario.email';
-                    $this->logIt("Client 202001002, default login : $login",5,'general');
+                    $loginTest = $this->getConfig("login_request_by_email");
+                    if (!$loginTest) {
+                        $this->logIt("Customer 202001002, need login_request_by_email parameter in config.php",3,'general');
+                    }
+                    $login = $loginTest;
+                    $this->logIt("Customer 202001002, default login : $login",5,'general');
+                }
+                // Customer 202001003 uses default login
+                if ($this->getConfig("license") == '202001003') {
+                    $loginTest = $this->getConfig("login_request_by_email");
+                    if (!$loginTest) {
+                        $this->logIt("Customer 202001003, need login_request_by_email parameter in config.php",3,'general');
+                    }
+                    $login = $loginTest;
+                    $this->logIt("Customer 202001003, default login : $login",5,'general');
                 }
 
                 if(!$login) {
@@ -241,7 +254,7 @@ class cronGetEmail extends cronCommon {
                     $idPersonAuthor = $idPerson;
 
                     $idReason = 'NULL';
-                    // pipetodo [albandes]: Put "reason" in the form and databse
+                    // pipetodo [albandes]: Put "reason" in the form and database
 
                     $this->dbTicket->BeginTrans();
 
