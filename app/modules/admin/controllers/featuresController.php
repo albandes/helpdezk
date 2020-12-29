@@ -25,7 +25,7 @@ class features  extends admCommon {
         $dbModule = new modules_model();
         $this->dbModule = $dbModule;
 
-        $this->logIt("entrou  :".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
+
     }
 
     public function index()

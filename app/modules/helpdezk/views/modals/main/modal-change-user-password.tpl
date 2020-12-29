@@ -30,16 +30,16 @@
                     <div class="row col-lg-12 ">
                         <div class="row col-lg-12  b-l">
                             <div class="form-group col-lg-12">
-                                <label class="col-md-4 control-label text-right">{$smarty.config.New_password}:</label>
-                                <div class="col-md-5">
+                                <label class="col-md-5 control-label text-right">{$smarty.config.New_password}:</label>
+                                <div class="col-md-7">
                                     <input type="password" id="userconf_password" name="userconf_password" class="form-control input-sm" value="" >
                                 </div>
                             </div>
                         </div>
                         <div class="row col-lg-12 b-l">
                             <div class="form-group col-lg-12">
-                                <label class="col-md-4 control-label text-right">{$smarty.config.Confirm_password}:</label>
-                                <div class="col-md-5">
+                                <label class="col-md-5 control-label text-right">{$smarty.config.Confirm_password}:</label>
+                                <div class="col-md-7">
                                     <input type="password" id="userconf_cpassword" name="userconf_cpassword" class="form-control input-sm" value="" >
                                 </div>
                             </div>

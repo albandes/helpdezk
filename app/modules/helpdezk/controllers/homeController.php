@@ -114,7 +114,7 @@ class home extends hdkCommon {
         $license = $this->getConfig('license');
         $langVars = $this->getLangVars($smarty);
 
-        $clTime = new pipeDateTime();
+        $clTime = new pipeDateTime($this->langDefault);
 
         $idPerson = $_SESSION['SES_COD_USUARIO'];
         $rsMessages = $this->dbTicket->getNoteMessagesFromOperator($idPerson);
@@ -156,32 +156,64 @@ class home extends hdkCommon {
     {
         $langVars = $this->getLangVars($smarty);
         $idPerson = $_SESSION['SES_COD_USUARIO'];
-        /*
-        $total = $this->dbHome->getTotalRequestsByPerson($idPerson);
-        $newRequests = $this->dbHome->getRequestsCount($idPerson,1);
-        $newRequestsPercent = ceil(($newRequests * 100)/$total);
-        $InProgress  = $this->dbHome->getRequestsCount($idPerson,3);
-        $InProgressPercent = ceil(($InProgress * 100)/$total);
-        $waitingservice = $newRequests - $InProgress;
-        $waitingservicePercent = ceil(($waitingservice * 100)/$total);
-        $finished = $this->dbHome->getRequestsCount($idPerson,5);
-        $finishedPercent = ceil(($finished * 100)/$total);
-        $waitingApproval = $this->dbHome->getRequestsCount($idPerson,4);
-        $waitingApprovalPercent = ceil(($waitingApproval * 100)/$total);
-        $attended = $finished + $waitingApproval;
-        $attendedPercent  =  ceil(($attended * 100)/$total);
 
-        $smarty->assign('inprogress_requests', $InProgress);
-        $smarty->assign('inprogress_requests_percent', $InProgressPercent);
-        $smarty->assign('waiting_service_requests', $newRequests);
-        $smarty->assign('waiting_service_requests_percent', $newRequestsPercent);
-        $smarty->assign('attended_requests', $attended);
-        $smarty->assign('attended_requests_percent', $attendedPercent);
-        $smarty->assign('waiting_aprovall_requests', $waitingApproval);
-        $smarty->assign('waiting_aprovall_requests_percent', $waitingApprovalPercent);
-        $smarty->assign('approved_requests', $finished);
-        $smarty->assign('approved_requests_percent', $finishedPercent);
-        */
+        if ($this->langDefault == 'pt_BR')
+            $locale = 'de_DE'; // Does not format with the pt_BR locale
+        else
+            $locale = $this->langDefault;
+
+        $rsReqStats = $this->dbHome->getRequestStats($idPerson,"AND YEAR(CURRENT_TIMESTAMP) = YEAR(a.entry_date)", $locale);
+
+        if (!$rsReqStats or !$rsReqStats->fields) {
+            if ($this->log)
+                $this->logIt('Error in getRequestStats - program: ' . $this->program . ' - method: ' . __METHOD__, 3, 'general', __LINE__);
+        }
+
+
+        $totalAllUsers =  $rsReqStats->fields['total_requests'];
+        $newRequests   = $rsReqStats->fields['new_requests'];
+
+        $totalTickets        = $rsReqStats->fields['requests'];
+
+        ($totalAllUsers == 0 ? $totalTicketsPercent = 0 : $totalTicketsPercent = ceil(($totalTickets * 100)/$totalAllUsers) ) ;
+
+        $inProgress = $rsReqStats->fields['in_atendance'];
+
+        ($totalTickets == 0 ? $inProgressPercent = 0 : $inProgressPercent = ceil(($inProgress * 100)/$totalTickets) ) ;
+
+        $waitingService = $newRequests;
+
+        ($totalTickets == 0 ? $waitingServicePercent = 0: $waitingServicePercent = ceil(($waitingService * 100)/$totalTickets) );
+
+        $waitingApproval = $rsReqStats->fields['waiting_approval'];
+        $finished  = $rsReqStats->fields['finished'];
+
+        $closedTickets = $finished + $waitingApproval ;
+
+
+        ($totalTickets ==  0 ? $closedTicketsPercent = 0 : $closedTicketsPercent = ceil(($closedTickets * 100)/$totalTickets) );
+        ($closedTickets == 0 ? $waitingApprovalPercent = 0 : $waitingApprovalPercent = ceil(($waitingApproval * 100)/$closedTickets) ) ;
+        ($closedTickets == 0 ? $finishedPercent = 0 : $finishedPercent = ceil(($finished * 100)/$closedTickets));
+
+        $smarty->assign('year', date("Y"));
+        $smarty->assign('total_all_users', $totalAllUsers);
+
+        $smarty->assign('total_tickets', $totalTickets);
+        $smarty->assign('total_tickets_percent', $totalTicketsPercent);
+
+        $smarty->assign('in_progress', $inProgress);
+        $smarty->assign('in_progress_percent', $inProgressPercent);
+
+        $smarty->assign('waiting_service', $waitingService);
+        $smarty->assign('waiting_service_percent', $waitingServicePercent);
+
+        $smarty->assign('closed', $closedTickets);
+        $smarty->assign('closed_percent', $closedTicketsPercent);
+
+        $smarty->assign('finished_requests', $finished);
+        $smarty->assign('finished_percent', $finishedPercent);
+        $smarty->assign('waiting_aprovall', $waitingApproval);
+        $smarty->assign('waiting_aprovall_percent', $waitingApprovalPercent);
 
         if ($this->_externalStorage) {
             $imgFormat = $this->getImageFileFormat('/photos/'.$idPerson);
@@ -202,14 +234,12 @@ class home extends hdkCommon {
             $smarty->assign('person_photo', $this->getHelpdezkUrl().'/app/uploads/photos/' . $imgPhoto."?=".Date('U'));
         }
 
-        $smarty->assign('total_requests', $total);
-
-
         /* Table */
-        $clTime = new pipeDateTime();
+        $clTime = new pipeDateTime($this->langDefault);
+
         $license = $this->getConfig('license');
 
-        $where = "WHERE (a.idstatus = 1 OR a.idstatus = 3) AND a.idperson_creator = $idPerson ";
+        $where = "WHERE a.idstatus IN (1,2,3) AND a.idperson_creator = $idPerson ";
 
         if ($license == '200701006') {
             $where .= " AND iditem <> 124";
@@ -219,7 +249,7 @@ class home extends hdkCommon {
         $i = 1;
         while (!$rsTicket->EOF) {
 
-            $mylist[$i]['subject'] = $this->_cutSubject($rsTicket->fields['subject'],55,' ... ');
+            $mylist[$i]['subject'] = utf8_decode($this->_cutSubject($rsTicket->fields['subject'],55,' ... '));
 
             $mylist[$i]['ts_expire'] = $rsTicket->fields['ts_expire'];
 

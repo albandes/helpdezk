@@ -215,7 +215,7 @@
                             </div>
                         </div>
                         <!-- Type -->
-                        <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.Type}:</label>
+                        <div class="form-group"><label class="col-sm-3 control-label">{$smarty.config.type}:</label>
                             {*<div class="col-sm-10"><input type="text" class="form-control input-sm"></div>*}
                             <div class="col-sm-9">
                                 <select class="form-control  " disabled="disabled" name="typeId" id="typeId" >

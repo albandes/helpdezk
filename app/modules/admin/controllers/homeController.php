@@ -84,14 +84,16 @@ class Home extends admCommon {
      *
      * @since May 30, 2020
      *
-     * * @return array [
-     *                  'success'       => true|false,
-     *                  'message'       => Error or success message
-     *                  'id'            => Record ID saved in database
-     *                 ]
+     * @return array [
+     *                'success'       => true|false,
+     *                'message'       => Error or success message
+     *                'id'            => Record ID saved in database
+     *               ]
      */
     public function updateLanguageFile()
     {
+
+        $this->protectFormInput();
 
         $action      = $_POST['action'];
 
@@ -157,11 +159,11 @@ class Home extends admCommon {
      *
      * @since June 21, 2020
      *
-     * * @return array [
-     *                  'success'       => true|false,
-     *                  'message'       => Error or success message
-     *                  'id'            => Record ID saved in database
-     *                 ]
+     * @return array [
+     *                'success'       => true|false,
+     *                'message'       => Error or success message
+     *                'id'            => Record ID saved in database
+     *               ]
      */
     public function clearSmartyCache()
     {

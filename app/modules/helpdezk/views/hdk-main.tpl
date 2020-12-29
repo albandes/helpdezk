@@ -70,18 +70,18 @@
     {literal}
 
         <script type="text/javascript">
-            var default_lang = "{/literal}{$lang}{literal}",
-                path         = "{/literal}{$path}{literal}",
-                langName     = '{/literal}{$smarty.config.Name}{literal}',
-                theme        = '{/literal}{$theme}{literal}',
-                timesession  = '{/literal}{$timesession}{literal}',
-                id_mask      = '{/literal}{$id_mask}{literal}',
-                ein_mask     = '{/literal}{$ein_mask}{literal}',
-                zip_mask     = '{/literal}{$zip_mask}{literal}',
-                phone_mask     = '{/literal}{$phone_mask}{literal}',
-                cellphone_mask     = '{/literal}{$cellphone_mask}{literal}',
-                typeuser = '{/literal}{$typeuser}{literal}',
-                demoVersion = '{/literal}{$demoversion}{literal}';
+            var default_lang    = "{/literal}{$lang}{literal}",
+                path            = "{/literal}{$path}{literal}",
+                langName        = '{/literal}{$smarty.config.Name}{literal}',
+                theme           = '{/literal}{$theme}{literal}',
+                timesession     = '{/literal}{$timesession}{literal}',
+                id_mask         = '{/literal}{$id_mask}{literal}',
+                ein_mask        = '{/literal}{$ein_mask}{literal}',
+                zip_mask        = '{/literal}{$zip_mask}{literal}',
+                phone_mask      = '{/literal}{$phone_mask}{literal}',
+                cellphone_mask  = '{/literal}{$cellphone_mask}{literal}',
+                typeuser        = '{/literal}{$typeuser}{literal}',
+                demoVersion     = '{/literal}{$demoversion}{literal}';
         </script>
 
         <style>
@@ -144,80 +144,101 @@
                 <!--<div class="container">-->
 
 
-                    {*
+
                     <div class="row">
 
+                        {* -- Total Tickets -- *}
                         <div class="col-md-2">
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    <span class="label label-success pull-right">Today</span>
-                                    <h5>Total</h5>
+                                    <span class="label label-success pull-right">{$year}</span>
+                                    <h5>{$smarty.config.Grid_all_tickets}</h5>
                                 </div>
                                 <div class="ibox-content">
-                                    <h1 class="no-margins">{$total_requests}</h1>
-                                    *}{*<div class="stat-percent font-bold text-success">{$newrequests_percent}% <i class="fa fa-bolt"></i></div>*}{*
-                                    <small>Tickets</small>
+                                    <h1 class="no-margins ">{$total_all_users}</h1>
+
+                                    <div class="font-bold"> <small>{$smarty.config.Tck_title}</small> </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        {* -- User's Tickets -- *}
+                        <div class="col-md-2">
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    <span class="label label-primary pull-right">Today</span>
-                                    <h5>Tickets ativos</h5>
+                                    <span class="label label-success pull-right">{$year}</span>
+                                    <h5>{$smarty.config.User_tickets}</h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <h1 class="no-margins">{$total_tickets}</h1>
+                                    <div class="stat-percent font-bold text-success">{$total_tickets_percent}% <i class="fa fa-bolt"></i></div>
+                                    <div class="font-bold"> <small>{$smarty.config.Tck_title}</small> </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {* -- Active Tickets -- *}
+                        <div class="col-md-3">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <span class="label label-primary pull-right">{$year}</span>
+                                    <h5>{$smarty.config.Active_tickets}</h5>
                                 </div>
                                 <div class="ibox-content">
 
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <h1 class="no-margins">{$inprogress_requests}</h1>
-                                            <div class="font-bold text-navy">{$inprogress_requests_percent}% <i class="fa "></i> <small>Em atendimento</small></div>
+                                            <h1 class="no-margins">{$in_progress}</h1>
+                                            <div class="font-bold text-navy">{$in_progress_percent}% <i class="fa "></i> <small>{$smarty.config.Grid_being_attended}</small></div>
                                         </div>
                                         <div class="col-md-6">
-                                            <h1 class="no-margins">{$waiting_service_requests}</h1>
-                                            <div class="font-bold text-navy">{$waiting_service_requests_percent}% <i class="fa "></i> <small>Aguardando </small></div>
+                                            <span class="pull-right">
+                                            <h1 class="no-margins">{$waiting_service}</h1>
+
+                                            <div class="font-bold text-navy">{$waiting_service_percent}% <i class="fa "></i> <small>{$smarty.config.Waiting} </small></div>
+                                            </span>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
 
 
-
+                        {* -- Closed Tickets -- *}
                         <div class="col-md-2">
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    <span class="label label-success pull-right">Today</span>
-                                    <h5>Fechados</h5>
+                                    <span class="label label-warning pull-right">{$year}</span>
+                                    <h5>{$smarty.config.Closed_tickets}</h5>
                                 </div>
                                 <div class="ibox-content">
-                                    <h1 class="no-margins">{$attended_requests}</h1>
-                                    <div class="stat-percent font-bold text-success">{$attended_requests_percent}% <i class="fa fa-bolt"></i></div>
-                                    <small>Tickets</small>
+                                    <h1 class="no-margins">{$closed}</h1>
+                                    <div class="stat-percent font-bold text-warning">{$closed_percent}% <i class="fa fa-bolt"></i></div>
+                                    <div class="font-bold"> <small>{$smarty.config.Active_tickets}</small> </div>
                                 </div>
                             </div>
                         </div>
 
 
-                        <div class="col-md-4">
+                        {* -- Closed Tickets Status -- *}
+                        <div class="col-md-3">
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    <span class="label label-primary pull-right">Today</span>
-                                    <h5>Status dos fechados</h5>
+                                    <span class="label label-warning pull-right">{$year}</span>
+                                    <h5>{$smarty.config.Closed_status}</h5>
                                 </div>
                                 <div class="ibox-content">
 
                                     <div class="row">
                                         <div class="col-md-7">
-                                            <h1 class="no-margins">{$waiting_aprovall_requests}</h1>
-                                            <div class="font-bold text-navy">{$waiting_aprovall_requests_percent}% <i class="fa "></i> <small>Aguardando aprovacao</small></div>
+                                            <h1 class="no-margins">{$waiting_aprovall}</h1>
+                                            <div class="font-bold text-warning">{$waiting_aprovall_percent}% <i class="fa "></i> <small>{$smarty.config.Waiting_for_approval}</small></div>
                                         </div>
                                         <div class="col-md-5">
-                                            <h1 class="no-margins">{$approved_requests}</h1>
-                                            <div class="font-bold text-navy">{$approved_requests_percent}% <i class="fa "></i> <small>Finalizadas</small></div>
+                                            <span class="pull-right">
+                                            <h1 class="no-margins">{$finished_requests}</h1>
+                                            <div class="font-bold text-warning">{$finished_percent}% <i class="fa "></i> <small>{$smarty.config.Grid_finished}</small></div>
+                                            </span>
                                         </div>
                                     </div>
 
@@ -227,7 +248,7 @@
 
                         </div>
                     </div>
-                    *}
+
 
 
                     <!-- -->
@@ -264,11 +285,11 @@
                                     <table id="dash_table" class="table table-striped table-bordered table-hover dataTables-example" >
                                         <thead>
                                         <tr>
-                                            <th class="text-center">Assunto</th>
-                                            <th class="text-center">Prazo Final</th>
-                                            <th class="text-center">Termina em</th>
-                                            <th class="text-center">Status</th>
-                                            <th class="text-center">No</th>
+                                            <th class="text-center">{$smarty.config.Grid_subject}</th>
+                                            <th class="text-center">{$smarty.config.Grid_expire_date}</th>
+                                            <th class="text-center">{$smarty.config.Ends_in}</th>
+                                            <th class="text-center">{$smarty.config.Grid_status}</th>
+                                            <th class="text-center">{$smarty.config.Number}</th>
 
                                         </tr>
                                         </thead>
@@ -286,11 +307,11 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <th class="text-center">Assunto</th>
-                                                <th class="text-center">Prazo Final</th>
-                                                <th class="text-center">Termina em</th>
-                                                <th class="text-center">Status</th>
-                                                <th class="text-center">No</th>
+                                                <th class="text-center">{$smarty.config.Grid_subject}</th>
+                                                <th class="text-center">{$smarty.config.Grid_expire_date}</th>
+                                                <th class="text-center">{$smarty.config.Ends_in}</th>
+                                                <th class="text-center">{$smarty.config.Grid_status}</th>
+                                                <th class="text-center">{$smarty.config.Number}</th>
 
                                             </tr>
                                         </tfoot>

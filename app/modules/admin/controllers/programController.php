@@ -29,7 +29,7 @@ class Program extends admCommon
         $dbProgram = new programs_model();
         $this->dbProgram = $dbProgram;
 
-        $this->logIt("entrou  :".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
+
 
     }
 
