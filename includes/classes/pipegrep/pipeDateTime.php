@@ -11,8 +11,43 @@ use DateTime;
 
 class pipeDateTime {
 
+    /**
+     * Default language
+     *
+     * @var string
+     */
+    public $_language;
+
+    public $_intervals;
+    public $_intervalPlural;
+
+    function __construct($lang)
+    {
+        $this->_language = $lang;
+        $this->setIntervals();
+    }
+
+    public function setIntervals()
+    {
+
+        switch ($this->_language) {
+            case 'pt_BR':
+                $this->_interval = ['ano', 'mês', 'dia', 'hora', 'minuto'];
+                $this->_intervalPlural =  ['anos', 'meses', 'dias', 'horas', 'minutos'];
+                break;
+            case 'en_US':
+                $this->_interval = ['year', 'month', 'day', 'hour', 'minute'];
+                $this->_intervalPlural =  ['years', 'mounths', 'days', 'hours', 'minutes'];
+                break;
+            default:
+                $this->_interval = ['year', 'month', 'day', 'hour', 'minute'];
+                $this->_intervalPlural =  ['years', 'mounths', 'days', 'hours', 'minutes'];
+        }
+    }
+
     public function expireTime($seconds)
     {
+
         $aRet = array();
 
         if ($seconds < 0) {
@@ -29,26 +64,27 @@ class pipeDateTime {
 
     public function fromSeconds($seconds)
     {
+
+
         $seconds = (int)$seconds;
         $dateTime = new DateTime();
         $dateTime->sub(new DateInterval("PT{$seconds}S"));
         $interval = (new DateTime())->diff($dateTime);
-        //$pieces = explode(' ', $interval->format('%y %m %d %h %i %s'));
-        //$intervals = ['year', 'month', 'day', 'hour', 'minute', 'second'];
         $pieces = explode(' ', $interval->format('%y %m %d %h %i'));
-        //$intervals = ['year', 'month', 'day', 'hour', 'minute'];
-        $intervals = ['ano', 'mês', 'dia', 'hora', 'minuto'];
-        $intervalsPlural = ['anos', 'meses', 'dias', 'horas', 'minutos'];
+
         $result = [];
+
         foreach ($pieces as $i => $value) {
             if (!$value) {
                 continue;
             }
-            $periodName = $intervals[$i];
+
+            $periodName = $this->_intervals[$i];
+
             if ($value > 1) {
-                $periodName = $intervalsPlural[$i];
+                $periodName = $this->_intervalPlural[$i];
             } else {
-                $periodName = $intervals[$i];
+                $periodName = $this->_intervals[$i];
             }
             $result[] = "{$value} {$periodName}";
         }

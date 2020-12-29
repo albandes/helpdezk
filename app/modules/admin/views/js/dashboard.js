@@ -12,7 +12,7 @@ $(document).ready(function () {
             type: "POST",
             url: path + '/admin/home/updateLanguageFile',
             dataType: 'json',
-             data: { action: 'write'},
+            data: { action: 'write'},
             error: function (ret) {
                 showAlert('erroooooo','danger',path + '/admin/home/index');
             },

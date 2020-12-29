@@ -6,13 +6,29 @@ $(document).ready(function () {
     new gnMenu( document.getElementById( 'gn-menu' ) );
 
 
+
+
+    /*
+     * Determines the dataTables plugin file, according to the language
+     */
+    switch (default_lang) {
+        case 'en_US':
+            var langFile='English';
+            break;
+        case 'pt_BR':
+            var langFile='Portuguese-Brasil.json';
+            break;
+        default:
+            var langFile='English';
+    }
+
     // https://github.com/DataTables/Plugins/tree/master/i18n
     // https://datatables.net/plug-ins/filtering/type-based/accent-neutralise
     var table = $('#dash_table').DataTable( {
         responsive: true,
         "lengthMenu": [ 5, 10, 15, 50, 100 ],
         "language": {
-            "url": path + "/includes/js/plugins/dataTables/i18n/Portuguese-Brasil.json"
+            "url": path + "/includes/js/plugins/dataTables/i18n/"+langFile
         }
     });
 
