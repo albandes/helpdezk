@@ -1,4 +1,4 @@
-# --- Generated at December 28, 2020, 2:40 pm --- 
+# --- Generated at December 31, 2020, 8:25 am --- 
 Abbreviation = "Sigla"
 Abilities = "Habilidades"
 Access = "Accessar"
@@ -135,6 +135,7 @@ Area = "&Aacute;rea"
 Area_edit = "Editar &Aacute;rea"
 Area_insert = "Cadastrar &Aacute;rea"
 Area_name = "Nome da &Aacute;rea"
+Assigned = "Atribu&iacute;das"
 Assumed_successfully = "Assumida com sucesso!"
 Assume_request = "Assumir Solicita&ccedil;&atilde;o"
 Attach = "Anexar"

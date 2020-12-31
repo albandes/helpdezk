@@ -147,7 +147,7 @@ class ticket_model extends DynamicTicket_model
 								  AND a.idperson_owner = $iduser
 								  $where
                               ";
-        //echo($query);
+
 		$ret = $this->select($query);
         if(!$ret) {
             $sError = $query . "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg()  ;
@@ -1747,7 +1747,7 @@ class ticket_model extends DynamicTicket_model
 					  AND a.idservice = h.idservice
 					  AND a.idpriority = i.idpriority
 					  $where";
-        //echo($query);
+//echo $query;
         $ret = $this->select($query);
         if(!$ret) {
             $sError = $query . "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg() . "Query: " . $query  ;

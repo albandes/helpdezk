@@ -1,4 +1,4 @@
-# --- Generated at December 28, 2020, 2:40 pm --- 
+# --- Generated at December 31, 2020, 8:25 am --- 
 Abbreviation = "K?saltma"
 Abilities = "Yetenekleri"
 Access = "Eri?im"

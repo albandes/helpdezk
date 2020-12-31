@@ -1,4 +1,4 @@
-# --- Generated at December 28, 2020, 2:40 pm --- 
+# --- Generated at December 31, 2020, 8:25 am --- 
 Abbreviation = "Abbreviation"
 Abilities = "Abilities"
 Access = "Access"
@@ -134,6 +134,7 @@ Area = "Area"
 Area_edit = "Edit Area"
 Area_insert = "Insert Area"
 Area_name = "Area's name"
+Assigned = "Assigned"
 Assumed_successfully = "Assumed successfully!"
 Assume_request = "Assume Request"
 Attach = "Attach"
