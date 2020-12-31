@@ -9,6 +9,8 @@ class home extends hdkCommon {
      *
      * @access public
      */
+
+    var $smarty;
     public function __construct()
     {
         parent::__construct();
@@ -30,6 +32,8 @@ class home extends hdkCommon {
             $this->idmodule = $id ;
         }
 
+
+
         $this->loadModel('home_model');
         $dbHome = new home_model();
         $this->dbHome = $dbHome;
@@ -45,6 +49,7 @@ class home extends hdkCommon {
         $this->loadModel('admin/userconfig_model');
         $this->dbUserConfig = new userconfig_model();
 
+
     }
 
     public function index()
@@ -52,14 +57,15 @@ class home extends hdkCommon {
         $cod_usu = $_SESSION['SES_COD_USUARIO'];
 
         $smarty = $this->retornaSmarty();
-        $langVars = $this->getLangVars($smarty);
+        //$langVars = $this->getLangVars($smarty);
 
         $this->makeNavVariables($smarty,$this->modulename);
         $this->makeFooterVariables($smarty);
 
         $this->_makeNavHdk($smarty);
 
-        $this->makeDash($smarty);
+        //$this->makeDashUser($smarty);
+
 
         $this->makeMessages($smarty);
 
@@ -88,6 +94,7 @@ class home extends hdkCommon {
         $smarty->assign('hidden_login',$_SESSION['SES_LOGIN_PERSON']) ; // Demo Version
         $smarty->assign('demoversion', $this->demoVersion);             // Demo version
 
+        $smarty->assign('show_dashboard', true);
 
         if($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1){
             //Set Order to columns of Attendant's Grid
@@ -101,9 +108,36 @@ class home extends hdkCommon {
                             ?  ($_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID'] * 1000) : 0;
             $smarty->assign('autorefreshgrid', $autoRefresh);
 
+
+            // Operator dashboard
+            if (!isset($_SESSION['hdk']['SES_OPERATOR_DASHBOARD'])) {
+                $this->makeDash('operator',$smarty);
+            } else {
+                if ($_SESSION['hdk']['SES_OPERATOR_DASHBOARD']) {
+                    $this->makeDash('operator',$smarty);
+                } else {
+                    $smarty->assign('show_dashboard', false);
+                }
+            }
+
             $smarty->display('hdk-operator.tpl');
+
+        }  else{
+
+            // User dashboard
+            if (!isset($_SESSION['hdk']['SES_USER_DASHBOARD'])) {
+                $this->makeDash('user',$smarty);
+            } else {
+                if ($_SESSION['hdk']['SES_USER_DASHBOARD']) {
+                     $this->makeDash('user',$smarty);
+                } else {
+                    $smarty->assign('show_dashboard', false);
+                }
+            }
+
+            $smarty->display('hdk-main.tpl');
+
         }
-        else{$smarty->display('hdk-main.tpl');}
 
 
 
@@ -152,9 +186,43 @@ class home extends hdkCommon {
 
     }
 
-    function makeDash($smarty)
+    function makeDashOperator($smarty)
     {
-        $langVars = $this->getLangVars($smarty);
+        $idPerson = $_SESSION['SES_COD_USUARIO'];
+
+        $idPersonGroups = '';
+        if($_SESSION['SES_PERSON_GROUPS']){
+            $rsIdPersonGroups = $this->dbTicket->getIdPersonGroup($_SESSION['SES_PERSON_GROUPS']);
+            while (!$rsIdPersonGroups->EOF) {
+                $idPersonGroups .=  $rsIdPersonGroups->fields['idperson'].",";
+                $rsIdPersonGroups->MoveNext();
+            }
+            $idPersonGroups = substr($idPersonGroups,0,-1);
+        }
+
+        if ($this->langDefault == 'pt_BR')
+            $locale = 'de_DE'; // Does not format with the pt_BR locale
+        else
+            $locale = $this->langDefault;
+
+        $rsReqStats = $this->dbHome->getOperatorRequestStats($idPerson,$idPersonGroups,"AND YEAR(CURRENT_TIMESTAMP) = YEAR(a.entry_date)", $locale);
+
+        if (!$rsReqStats or !$rsReqStats->fields) {
+            if ($this->log)
+                $this->logIt('Error in getRequestStats - program: ' . $this->program . ' - method: ' . __METHOD__, 3, 'general', __LINE__);
+        }
+
+        //echo '<pre>';
+        //print_r($rsReqStats->fields);
+        //die();
+
+    }
+
+    function makeDash($typeUser,$smarty)
+    {
+
+        //$smarty = $this->retornaSmarty();
+
         $idPerson = $_SESSION['SES_COD_USUARIO'];
 
         if ($this->langDefault == 'pt_BR')
@@ -162,7 +230,29 @@ class home extends hdkCommon {
         else
             $locale = $this->langDefault;
 
-        $rsReqStats = $this->dbHome->getRequestStats($idPerson,"AND YEAR(CURRENT_TIMESTAMP) = YEAR(a.entry_date)", $locale);
+        if ($typeUser == 'user') {
+
+            $rsReqStats = $this->dbHome->getUserRequestStats($idPerson,"AND YEAR(CURRENT_TIMESTAMP) = YEAR(a.entry_date)", $locale);
+
+        } elseif ($typeUser == 'operator') {
+
+            $idPersonGroups = '';
+            if($_SESSION['SES_PERSON_GROUPS']){
+                $rsIdPersonGroups = $this->dbTicket->getIdPersonGroup($_SESSION['SES_PERSON_GROUPS']);
+                while (!$rsIdPersonGroups->EOF) {
+                    $idPersonGroups .=  $rsIdPersonGroups->fields['idperson'].",";
+                    $rsIdPersonGroups->MoveNext();
+                }
+                $idPersonGroups = substr($idPersonGroups,0,-1);
+            }
+
+            $rsReqStats = $this->dbHome->getOperatorRequestStats($idPerson,$idPersonGroups,"AND YEAR(CURRENT_TIMESTAMP) = YEAR(a.entry_date)", $locale);
+
+        }
+
+        //echo '<pre>';
+        //print_r($rsReqStats->fields);
+        //die();
 
         if (!$rsReqStats or !$rsReqStats->fields) {
             if ($this->log)
