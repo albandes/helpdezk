@@ -171,7 +171,7 @@
                 <div class="row wrapper  white-bg ">
                     <div class="row col-sm-12 b-l">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label text-right">{$smarty.config.type}:</label>
+                            <label class="col-sm-3 control-label text-right">{$smarty.config.Type}:</label>
                             <div class="col-sm-3">
                                 <select class="form-control input-sm"  id="cmbModule" name="cmbModule" >
                                     {html_options values=$moduleids output=$modulevals selected=$idmodule}
@@ -321,7 +321,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-sm-3 control-label">{$smarty.config.type}:</label>
+                                        <label class="col-sm-3 control-label">{$smarty.config.Type}:</label>
                                         <div class="col-sm-5">
                                             <select class="form-control input-sm"  id="popType" name="popType" >
                                                 {html_options values=$poptypeids output=$poptypevals selected=$idpoptype}

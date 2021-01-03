@@ -301,7 +301,7 @@ CREATE TABLE `hdk_tbconfig` (
   PRIMARY KEY (`idconfig`),
   KEY `FK_hdk_tbconfig` (`idconfigcategory`),
   CONSTRAINT `FK_hdk_tbconfig` FOREIGN KEY (`idconfigcategory`) REFERENCES `hdk_tbconfig_category` (`idconfigcategory`)
-) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 INSERT INTO hdk_tbconfig VALUES("1","USUARIO: Notificar usu&aacuterio quando uma solicita&ccedil&atildeo for assumida.","","3","NEW_ASSUMED_MAIL","checkbox","A","Email_request_assumed","1","N");
 INSERT INTO hdk_tbconfig VALUES("2","USUARIO: Notificar usu&aacuterio ao encerrar a solicita&ccedil&atildeo","","3","FINISH_MAIL","checkbox","A","Email_request_finished","1","N");
@@ -371,6 +371,8 @@ INSERT INTO hdk_tbconfig VALUES("104","Email Port","","5","EM_PORT","","A","em_p
 INSERT INTO hdk_tbconfig VALUES("105","State default","","5","STATE_DEFAULT","input","A","state_default","1","N");
 INSERT INTO hdk_tbconfig VALUES("107","NÃ£o mostrar prazo de entrega e status no dashboard do solicitante atÃ© que um atendente tenha assumido a solicitaÃ§Ã£o","","10","SES_HIDE_DASH_PERIOD","checkbox","A","sys_expire_date_user_dash","1","N");
 INSERT INTO hdk_tbconfig VALUES("108","When open request, do not show area, type, item service default. User chooses regardless of default value.","","1","TKT_DONT_SHOW_DEFAULT","checkbox","A","sys_dont_show_default","0","N");
+INSERT INTO hdk_tbconfig VALUES("109","Show user dashboard","","1","SES_USER_DASHBOARD","checkbox","A","sys_user_dashboard","1","N");
+INSERT INTO hdk_tbconfig VALUES("110","Show operator dashboard","","1","SES_OPERATOR_DASHBOARD","checkbox","A","sys_operator_dashboard","1","N");
 
 
 
@@ -3243,7 +3245,7 @@ INSERT INTO tbprogram VALUES("32","Type Person Permission","typepersonpermission
 INSERT INTO tbprogram VALUES("61","Logos","logos/","17","0","A","pgr_logos");
 INSERT INTO tbprogram VALUES("73","Warnings","hdkWarning/","2","0","A","pgr_warnings");
 INSERT INTO tbprogram VALUES("74","Widgets","widget/","19","0","A","pgr_dash_widgets");
-INSERT INTO tbprogram VALUES("79","Solicitacoes por Email","hdkRequestEmail/","2","","A","pgr_email_request");
+INSERT INTO tbprogram VALUES("79","Requests by email","hdkRequestEmail/","2","","A","pgr_email_request");
 INSERT INTO tbprogram VALUES("81","Vocabulary ","vocabulary","1","","A","pgr_vocabulary");
 INSERT INTO tbprogram VALUES("82","System Features","features","17","","A","pgr_sys_features");
 
@@ -4152,7 +4154,7 @@ CREATE TABLE `tbvocabulary` (
   KEY `FK_tbvocabulary_tbmodule_idmodule` (`idmodule`),
   CONSTRAINT `FK_tbvocabulary_tblocale_idlocale` FOREIGN KEY (`idlocale`) REFERENCES `tblocale` (`idlocale`),
   CONSTRAINT `FK_tbvocabulary_tbmodule_idmodule` FOREIGN KEY (`idmodule`) REFERENCES `tbmodule` (`idmodule`)
-) ENGINE=InnoDB AUTO_INCREMENT=2093 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2176 DEFAULT CHARSET=latin1;
 
 INSERT INTO tbvocabulary VALUES("1","77","2","adm_Navbar_name","Admin","A");
 INSERT INTO tbvocabulary VALUES("2","77","2","APP_apiUrlLabel","Url da API","A");
@@ -4427,7 +4429,7 @@ INSERT INTO tbvocabulary VALUES("270","77","2","Drag_widget","Arraste seus widge
 INSERT INTO tbvocabulary VALUES("271","77","2","dropzone_File_Too_Big","Excedeu o tamanho máximo {{filesize}}","A");
 INSERT INTO tbvocabulary VALUES("272","77","2","dropzone_invalid_dimension","A imagem tem que ser quadrada","A");
 INSERT INTO tbvocabulary VALUES("273","77","2","dropzone_remove_file","Remover arquivo","A");
-INSERT INTO tbvocabulary VALUES("274","77","2","dropzone_user_photot_message","<br>Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui.<br><br>A imagem tem que ser quadrada !!! ","A");
+INSERT INTO tbvocabulary VALUES("274","77","2","dropzone_user_photot_message","<br>Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui.<br><br>A imagem tem que ser quadrada !!!","A");
 INSERT INTO tbvocabulary VALUES("275","77","2","dsh_installer_dir","Diretório installer","A");
 INSERT INTO tbvocabulary VALUES("276","77","2","dsh_msg_installer","Por questões de segurança, por favor, remova o diretório  <b>installer/</b> do seu servidor!!!","A");
 INSERT INTO tbvocabulary VALUES("277","77","2","dsh_warning","Alerta","A");
@@ -5207,7 +5209,7 @@ INSERT INTO tbvocabulary VALUES("1050","19","2","Drag_widget","Drag your widgets
 INSERT INTO tbvocabulary VALUES("1051","19","2","dropzone_File_Too_Big","Excedeu o tamanho máximo {{filesize}}","A");
 INSERT INTO tbvocabulary VALUES("1052","19","2","dropzone_invalid_dimension","A imagem tem que ser quadrada","A");
 INSERT INTO tbvocabulary VALUES("1053","19","2","dropzone_remove_file","Remover arquivo","A");
-INSERT INTO tbvocabulary VALUES("1054","19","2","dropzone_user_photot_message","<br>Para atualizar sua foto, <br> arraste o arquivo com a imagem<br> ou<br> clique aqui.<br><br>A imagem tem que ser quadrada !!! ","A");
+INSERT INTO tbvocabulary VALUES("1054","19","2","dropzone_user_photot_message","<br> To your upload photo, just drag the file with the image click here. <br> <br> The image has to be square !!!","A");
 INSERT INTO tbvocabulary VALUES("1055","19","2","dsh_installer_dir","Installer directory","A");
 INSERT INTO tbvocabulary VALUES("1056","19","2","dsh_msg_installer","For security reasons, please remove <b>installer/</b> directory from your server !!!","A");
 INSERT INTO tbvocabulary VALUES("1057","19","2","dsh_warning","Warning","A");
@@ -5598,7 +5600,7 @@ INSERT INTO tbvocabulary VALUES("1441","19","2","Stop_viewing","Stop viewing thi
 INSERT INTO tbvocabulary VALUES("1442","19","2","Subject","Subject","A");
 INSERT INTO tbvocabulary VALUES("1443","19","2","Success_logs","Success logs","A");
 INSERT INTO tbvocabulary VALUES("1444","19","2","Sunday","Sunday","A");
-INSERT INTO tbvocabulary VALUES("1445","19","2","sys_2FAuthentication","Usar autenticação em duas etapas","A");
+INSERT INTO tbvocabulary VALUES("1445","19","2","sys_2FAuthentication","Use two-step authentication","A");
 INSERT INTO tbvocabulary VALUES("1446","19","2","sys_session_time_lbl","Time System Session Duration","A");
 INSERT INTO tbvocabulary VALUES("1447","19","2","sys_time_session","Time that will last the session system. Value in seconds. If not set will be 10 minutes.","A");
 INSERT INTO tbvocabulary VALUES("1448","19","2","Table_prefix","Table prefix","A");
@@ -5655,7 +5657,6 @@ INSERT INTO tbvocabulary VALUES("1498","19","2","trello_title","Card Title","A")
 INSERT INTO tbvocabulary VALUES("1499","19","2","trello_token","Token","A");
 INSERT INTO tbvocabulary VALUES("1500","19","2","trello_tooltip_card","Add new card","A");
 INSERT INTO tbvocabulary VALUES("1501","19","2","Tuesday","Tuesday","A");
-INSERT INTO tbvocabulary VALUES("1502","19","2","type","Type","A");
 INSERT INTO tbvocabulary VALUES("1503","19","2","Type_adress","Type adress","A");
 INSERT INTO tbvocabulary VALUES("1504","19","2","Type_edit","Type Edit","A");
 INSERT INTO tbvocabulary VALUES("1505","19","2","Type_insert","Insert Type","A");
@@ -6131,7 +6132,6 @@ INSERT INTO tbvocabulary VALUES("1974","559","2","Topic_edit","Konu Düzenleme",
 INSERT INTO tbvocabulary VALUES("1975","559","2","Total_minutes","Toplam dakikalar","A");
 INSERT INTO tbvocabulary VALUES("1976","559","2","Total","Genel Toplam","A");
 INSERT INTO tbvocabulary VALUES("1977","559","2","Total_holidays","Toplam Tatiller","A");
-INSERT INTO tbvocabulary VALUES("1978","559","2","type","tip","A");
 INSERT INTO tbvocabulary VALUES("1979","559","2","Type_adress","Tip adresi","A");
 INSERT INTO tbvocabulary VALUES("1980","559","2","Type_edit","Düzenle Tür","A");
 INSERT INTO tbvocabulary VALUES("1981","559","2","Type_insert","Ekle Tipi","A");
@@ -6246,6 +6246,87 @@ INSERT INTO tbvocabulary VALUES("2089","19","2","Closed_tickets","Closed tickets
 INSERT INTO tbvocabulary VALUES("2090","77","2","Closed_tickets","Tickets fechados","A");
 INSERT INTO tbvocabulary VALUES("2091","19","2","Closed_status","Closed Status","A");
 INSERT INTO tbvocabulary VALUES("2092","77","2","Closed_status","Status dos fechados","A");
+INSERT INTO tbvocabulary VALUES("2093","19","2","Assigned","Assigned","A");
+INSERT INTO tbvocabulary VALUES("2094","77","2","Assigned","Atribu&iacute;das","A");
+INSERT INTO tbvocabulary VALUES("2095","19","1","sys_user_dashboard","Show user dashboard","A");
+INSERT INTO tbvocabulary VALUES("2096","77","1","sys_user_dashboard","Mostrar dashboard do usu&aacute;rio","A");
+INSERT INTO tbvocabulary VALUES("2097","19","1","sys_operator_dashboard","Show operator dashboard","A");
+INSERT INTO tbvocabulary VALUES("2098","77","1","sys_operator_dashboard","Mostrar dashboard do atendente","A");
+INSERT INTO tbvocabulary VALUES("2099","19","1","System_features","System features","A");
+INSERT INTO tbvocabulary VALUES("2100","77","1","System_features","Funcionalidades do Sistema","A");
+INSERT INTO tbvocabulary VALUES("2101","19","1","sys_allow_assume_others","Allow attendants to take on requests passed on assumed by another attendant.","A");
+INSERT INTO tbvocabulary VALUES("2102","77","1","sys_allow_assume_others","Permitir que os atendentes assumam solicita&ccedil&otildees repassadas ou assumidas por outro atendente.","A");
+INSERT INTO tbvocabulary VALUES("2103","19","1","sys_allow_delete_note","Allow attendants to delete notes","A");
+INSERT INTO tbvocabulary VALUES("2104","77","1","sys_allow_delete_note","Permitir que os atendentes excluam apontamentos","A");
+INSERT INTO tbvocabulary VALUES("2105","19","1","sys_dont_show_default","When open request, do not show area, type, item service default. User chooses regardless of default value.","A");
+INSERT INTO tbvocabulary VALUES("2106","77","1","sys_dont_show_default","Ao abrir a solicita&ccedil;&atilde;o, n&atilde;o mostrar &aacute;rea, tipo,item e servi&ccedil;o padr&atilde;o. O usu&aacute;rio escolhe independentemente do valor padr&atilde;o.","A");
+INSERT INTO tbvocabulary VALUES("2107","77","1","sys_use_equipment","Utilizar controle de equipamento (os, etiqueta e serial)","A");
+INSERT INTO tbvocabulary VALUES("2108","19","1","sys_use_equipment","Use equipment control (os, label serial)","A");
+INSERT INTO tbvocabulary VALUES("2109","77","1","sys_allow_reopen_user","Permitir reabertura de solicita&ccedil&otildees por usu&aacuterio","A");
+INSERT INTO tbvocabulary VALUES("2110","19","1","sys_allow_reopen_user","Allow reopening of requests per user","A");
+INSERT INTO tbvocabulary VALUES("2111","77","1","sys_empty_note","Permitir que o atendente insira apontamento sem descri&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2112","19","1","sys_empty_note","Allow the attendant to enter an appointment without a description","A");
+INSERT INTO tbvocabulary VALUES("2113","77","1","sys_open_new_request","Para abrir uma nova solicita&ccedil;&atilde;o o usu&aacute;rio n&atilde;o poder&aacute; ter solicita&ccedil;&otilde;es para aprovar","A");
+INSERT INTO tbvocabulary VALUES("2114","19","1","sys_open_new_request","To open a new request the user will not be able to have requests to approve","A");
+INSERT INTO tbvocabulary VALUES("2115","77","1","sys_prorogation_qt","Qtde de prorroga&ccedil&otildees na data de vencimento (0 = Nunca, [Em branco] = Sem limites, [Acima de 0] = Qtd. de prorroga&ccedil&otildees)","A");
+INSERT INTO tbvocabulary VALUES("2116","19","1","sys_prorogation_qt","Number of extensions on the due date (0 = Never, [Blank] = No limits, [Over 0] = Number of extensions)","A");
+INSERT INTO tbvocabulary VALUES("2117","77","1","sys_allow_reopen","Permitir reabertura de solicita&ccedil&otildees","A");
+INSERT INTO tbvocabulary VALUES("2118","19","1","sys_allow_reopen","Allow request reopening","A");
+INSERT INTO tbvocabulary VALUES("2119","19","1","sys_email_notification","Send email notification when changing the status of requests","A");
+INSERT INTO tbvocabulary VALUES("2120","77","1","sys_email_notification","Enviar notifica&ccedil;&atilde;o por e-mail quando alterar o status das solicita&ccedil;&otilde;es","A");
+INSERT INTO tbvocabulary VALUES("2121","77","1","sys_start_timer","Ao abrir uma nova solicita&ccedil;&atilde;o iniciar o timer","A");
+INSERT INTO tbvocabulary VALUES("2122","19","1","sys_start_timer","When opening a new request start the timer","A");
+INSERT INTO tbvocabulary VALUES("2123","77","1","sys_enter_time","Obrigar o atendente a informar o tempo gasto na tarefas.","A");
+INSERT INTO tbvocabulary VALUES("2124","19","1","sys_enter_time","Force the attendant to report the time spent on tasks.","A");
+INSERT INTO tbvocabulary VALUES("2125","77","1","sys_expire_date_user_dash","N&atilde;o mostrar prazo de entrega e status no dashboard do solicitante at&eacute; que um atendente tenha assumido a solicita&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2126","19","1","sys_expire_date_user_dash","Do not show dead line status on the requester\'s dashboard until an attendant has taken over the request","A");
+INSERT INTO tbvocabulary VALUES("2127","77","1","ses_refresh_opertor_grid","Definir tempo de refresh do grid dos atendentes [0 = n&atilde;o atualizar], em minutos","A");
+INSERT INTO tbvocabulary VALUES("2128","19","1","ses_refresh_opertor_grid","Set grid refresh time for attendants [0 = do not ], in minutes","A");
+INSERT INTO tbvocabulary VALUES("2129","77","1","ses_request_show_phone","Mostrar n&uacute;mero de telefone, ramal e celular na solicita&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2130","19","1","ses_request_show_phone","Show phone number, extension mobile phone number in the request","A");
+INSERT INTO tbvocabulary VALUES("2131","77","1","sys_sort_asc","Ordenar as solicita&ccedil;&otilde;es em sentido ascendente [ASC]","A");
+INSERT INTO tbvocabulary VALUES("2132","19","1","sys_sort_asc","Sort requests upwards [ASC]","A");
+INSERT INTO tbvocabulary VALUES("2133","77","1","sys_expire_date_user_grid","N&atilde;o mostrar prazo de entrega no grid do solicitante at&eacute; que um atendente tenha assumido a solicita&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2134","19","1","sys_expire_date_user_grid","Do not show delivery time on the user\'s grid until an attendant has taken over the request","A");
+INSERT INTO tbvocabulary VALUES("2135","77","1","sys_show_group_view_checkbox","Ao assumir ou repassar solicita&ccedil&otildees, trazer marcada a op&ccedil&atildeo: Desejo que meu grupo continue visualizando a solicita&ccedil&atildeo","A");
+INSERT INTO tbvocabulary VALUES("2136","19","1","sys_show_group_view_checkbox","When accepting forwarding requests, bring the option marked: I wish my group to continue viewing the request","A");
+INSERT INTO tbvocabulary VALUES("2137","77","1","ses_evaluate","Quando uma solicita&ccedil;&atilde;o &eacute; aprovada pelo usu&aacute;rio, solicitar que responda o question&aacute;rio de avalia&ccedil;&atilde;o do atendimento","A");
+INSERT INTO tbvocabulary VALUES("2138","19","1","ses_evaluate","When a request is approved by the user, ask them to answer the service evaluation questionnaire","A");
+INSERT INTO tbvocabulary VALUES("2139","77","1","ses_aprove","Solicitar a aprova&ccedil;&atilde;o do usu&aacute;rio ap&oacute;s o encerramento da solicita&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2140","19","1","ses_aprove","Request user approval after request closure","A");
+INSERT INTO tbvocabulary VALUES("2141","77","1","sys_adm_view_request","Usu&aacute;rio administrador visualiza todas solicita&ccedil;&otilde;es","A");
+INSERT INTO tbvocabulary VALUES("2142","19","1","sys_adm_view_request","Admin user views all requests","A");
+INSERT INTO tbvocabulary VALUES("2143","19","2","Type","Type","A");
+INSERT INTO tbvocabulary VALUES("2144","77","2","Email_request_assumed","USU&Aacute;RIO: Notificar usu&aacuterio quando uma solicita&ccedil&atildeo for assumida.","A");
+INSERT INTO tbvocabulary VALUES("2145","19","2","Email_request_assumed","USER: Notify user when a request is assumed.","A");
+INSERT INTO tbvocabulary VALUES("2146","77","2","Email_request_finished","USU&Aacute;RIO: Notificar o usu&aacuterio quando sua solicita&ccedil&atildeo for encerrada","A");
+INSERT INTO tbvocabulary VALUES("2147","19","2","Email_request_finished","USER: Notify the user when their request is closed","A");
+INSERT INTO tbvocabulary VALUES("2148","77","2","Email_request_rejected","USU&Aacute;RIO: Notificar usu&aacuterio quando sua solicita&ccedil&atildeo for rejeitada","A");
+INSERT INTO tbvocabulary VALUES("2149","19","2","Email_request_rejected","USER: Notify user when their request is rejected","A");
+INSERT INTO tbvocabulary VALUES("2150","77","2","Email_request_evaluated","ATENDENTE: Enviar e-mail quando uma solicita&ccedil;&atilde;o for avaliada","A");
+INSERT INTO tbvocabulary VALUES("2151","19","2","Email_request_evaluated","OPERATOR: Send email when a request is evaluated","A");
+INSERT INTO tbvocabulary VALUES("2152","77","2","Email_request_apont_user","USU&Aacute;RIO: Enviar notifica&ccedil&atildeo quando for inclu&iacute;do um novo apontamento","A");
+INSERT INTO tbvocabulary VALUES("2153","19","2","Email_request_apont_user","USER: Send notification when a new note is added","A");
+INSERT INTO tbvocabulary VALUES("2156","77","2","Email_request_record","ATENDENTE: Notificar atendentes respons&aacuteveis quando uma nova solicitaç&atildeo é criada","A");
+INSERT INTO tbvocabulary VALUES("2157","19","2","Email_request_record","OPERATOR: Notify responsible operators when a new request is created","A");
+INSERT INTO tbvocabulary VALUES("2158","77","2","Email_request_apont_operator","ATENDENTE: Enviar notifica&ccedil&atildeo quando um novo apontamento &eacute; adicionado","A");
+INSERT INTO tbvocabulary VALUES("2159","19","2","Email_request_apont_operator","OPERATOR: Send notification when a new note is added","A");
+INSERT INTO tbvocabulary VALUES("2160","77","2","Email_request_reopened","ATENDENTE: Enviar notifica&ccedil&atildeo quando uma solita&ccedil&atildeo for reaberta","A");
+INSERT INTO tbvocabulary VALUES("2161","19","2","Email_request_reopened","OPERATOR: Send notification when a request is reopened","A");
+INSERT INTO tbvocabulary VALUES("2162","77","2","Email_request_repass","ATENDENTE: Notificar atendentes respons&aacuteveis quando uma solicita&ccedil&atildeo &eacute; repassada","A");
+INSERT INTO tbvocabulary VALUES("2163","19","2","Email_request_repass","OPERATOR: Notify responsible operators when a request is forwarded","A");
+INSERT INTO tbvocabulary VALUES("2164","77","2","Email_request_approve","ATENDENTE: Notificar atendente quando uma solita&ccedil&atildeo for aprovada","A");
+INSERT INTO tbvocabulary VALUES("2165","19","2","Email_request_approve","OPERATOR: Notify the attendant when a request is approved","A");
+INSERT INTO tbvocabulary VALUES("2166","19","1","Language_utilities","Language utilities","A");
+INSERT INTO tbvocabulary VALUES("2167","77","1","Language_utilities","Utilit&aacute;rios de idioma","A");
+INSERT INTO tbvocabulary VALUES("2168","77","1","Last_update","&Uacute;ltima atualiza&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2169","19","1","Last_update","Last","A");
+INSERT INTO tbvocabulary VALUES("2170","19","1","Action","Action","A");
+INSERT INTO tbvocabulary VALUES("2171","77","1","Action","A&ccedil;&atilde;o","A");
+INSERT INTO tbvocabulary VALUES("2172","19","1","Update_vocabulary","Renew Vocabulary","A");
+INSERT INTO tbvocabulary VALUES("2173","77","1","Update_vocabulary","Atualizar Vocabulário","A");
+INSERT INTO tbvocabulary VALUES("2174","19","1","Clear_smarty_cache","Clear Smarty Cache","A");
+INSERT INTO tbvocabulary VALUES("2175","77","1","Clear_smarty_cache","Limpar Cache do Smarty","A");
 
 
 

@@ -312,7 +312,7 @@ class features  extends admCommon {
     }
 
     public function savePopChanges() {
-        //echo"<pre>"; print_r($_POST); echo"</pre>";
+
         if (!$this->_checkToken()) {
             if($this->log)
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);

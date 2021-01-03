@@ -27,7 +27,7 @@ class features_model extends DynamicFeatures_model {
                     FROM {$prefix}_tbconfig conf, {$prefix}_tbconfig_category cat 
                    WHERE conf.idconfigcategory IN($cats) 
                      AND conf.idconfigcategory = cat.idconfigcategory 
-                ORDER BY cate";
+                ORDER BY cate, config_name ";
 
         $ret = $this->db->Execute($query);
 

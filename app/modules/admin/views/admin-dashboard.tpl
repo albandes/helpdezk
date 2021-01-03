@@ -15,7 +15,7 @@
 
                     <div class="panel panel-success">
                         <div class="panel-heading">
-                            {$smarty.config.Environment_settings}
+                            {$smarty.config.Language_utilities}
                         </div>
 
                         <div class="panel-body">
@@ -24,9 +24,9 @@
 
                                 <li class="list-group-item">
                                 <span class="pull-right">
-                                    Last Update
+                                    {$smarty.config.Last_update}
                                 </span>
-                                    Action
+                                    {$smarty.config.Action}
                                 </li>
 
 
@@ -34,23 +34,22 @@
                                 <span class="pull-right">
                                     {$date_updatevocabulary}
                                 </span>
-                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnUpdateVocabulary">Update vocabulary</button></span> Update vocabulary
-                                </li>
+                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnUpdateVocabulary">{$smarty.config.Update_vocabulary}</button></span>                                 </li>
 
                                 <li class="list-group-item">
                                 <span class="pull-right">
                                     {$date_clearsmartycache}
                                 </span>
-                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnClearSmartyCash">Clear Cache</button></span> Clear Smarty Cache
+                                    <span ><button type="button" class="btn btn-primary btn-sm" id="btnClearSmartyCash">{$smarty.config.Clear_smarty_cache}</button></span>
                                 </li>
-
+                                <!--
                                 <li class="list-group-item">
                                 <span class="pull-right">
                                     {$date_clearsmartycache}
                                 </span>
                                     <span ><button type="button" class="btn btn-primary btn-sm" id="btnPrintSession">Clear Cache</button></span> Print PHP Session
                                 </li>
-
+                                -->
 
                             </ul>
 

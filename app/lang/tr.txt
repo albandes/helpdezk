@@ -1,4 +1,4 @@
-# --- Generated at December 31, 2020, 8:25 am --- 
+# --- Generated at January 2, 2021, 7:39 pm --- 
 Abbreviation = "K?saltma"
 Abilities = "Yetenekleri"
 Access = "Eri?im"
@@ -477,7 +477,6 @@ Total = "Genel Toplam"
 Total_holidays = "Toplam Tatiller"
 Total_minutes = "Toplam dakikalar"
 Tuesday = "Sal?"
-type = "tip"
 Type_adress = "Tip adresi"
 Type_edit = "Düzenle Tür"
 Type_insert = "Ekle Tipi"

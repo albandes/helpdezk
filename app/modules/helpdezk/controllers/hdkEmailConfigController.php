@@ -118,10 +118,10 @@ class hdkEmailConfig extends hdkCommon
             $status_fmt = ($rsEmailConfs->fields['status'] == 'A' ) ? '<span class="label label-info">A</span>' : '<span class="label label-danger">I</span>';
 
             $aColumns[] = array(
-                'id'     => $rsEmailConfs->fields['idconfig'],
+                'id'          => $rsEmailConfs->fields['idconfig'],
                 'name'        => $langVars[$rsEmailConfs->fields['smarty']] ? $langVars[$rsEmailConfs->fields['smarty']] : $rsEmailConfs->fields['name'],
-                'statuslbl'        => $status_fmt,
-                'status'     => $rsEmailConfs->fields['status']
+                'statuslbl'   => $status_fmt,
+                'status'      => $rsEmailConfs->fields['status']
 
             );
             $rsEmailConfs->MoveNext();
