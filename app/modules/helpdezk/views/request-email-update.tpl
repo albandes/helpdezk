@@ -176,7 +176,7 @@
                             </div>
                             
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">{$smarty.config.type}:</label>
+                                <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbSrvType" name="cmbSrvType" data-placeholder="{$plh_module_select}" >
                                         {html_options values=$srvtypeids output=$srvtypevals selected=$idsrvtype}
@@ -216,7 +216,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">{$smarty.config.type}:</label>
+                                <label class="col-sm-2 control-label">{$smarty.config.Type}:</label>
                                 <div class="col-sm-5">
                                     <select class="form-control input-sm"  id="cmbType" name="cmbType" data-placeholder="{$plh_category_select}" >
                                         <option value="">{$smarty.config.Select}</option>

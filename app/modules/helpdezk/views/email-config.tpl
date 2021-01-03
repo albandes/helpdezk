@@ -54,13 +54,13 @@
 
     {literal}
         <script type="text/javascript">
-            var default_lang = "{/literal}{$lang}{literal}",
-                path = "{/literal}{$path}{literal}",
-                langName = '{/literal}{$smarty.config.Name}{literal}',
-                theme = '{/literal}{$theme}{literal}',
-                mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                timesession = '{/literal}{$timesession}{literal}',
-                demoVersion = '{/literal}{$demoversion}{literal}';
+            var default_lang    = "{/literal}{$lang}{literal}",
+                path            = "{/literal}{$path}{literal}",
+                langName        = '{/literal}{$smarty.config.Name}{literal}',
+                theme           = '{/literal}{$theme}{literal}',
+                mascDateTime    = '{/literal}{$mascdatetime}{literal}',
+                timesession     = '{/literal}{$timesession}{literal}',
+                demoVersion     = '{/literal}{$demoversion}{literal}';
         </script>
         <style>
             /* Additional style to fix warning dialog position */
