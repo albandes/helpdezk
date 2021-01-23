@@ -129,9 +129,36 @@ class Model extends System{
         return;
     }
 
+
+    /**
+     * Return if table exists in database
+     *
+     * The pipeTableExists function was previously used, however in some versions of mysql case sensitive problems
+     * were reported in the function names. Then, we replace it with a query.
+     *
+     * @param string $tableName Table name
+     * @return bool  true|false
+     *
+     * @since 1.1.10
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
     public function tableExists($tableName)
     {
-        $rs = $this->select("SELECT pipeTableExists('".$tableName."') as exist");
+
+
+        $database = $this->getConfig('db_name');
+
+        $query = "
+                SELECT 
+                  COUNT(*) as exist
+                 FROM
+                  information_schema.tables 
+                WHERE table_schema = '$database' 
+                  AND table_name = '$tableName' ;
+                 ";
+
+        $rs = $this->select($query);
         return $rs->fields['exist'];
     }
 

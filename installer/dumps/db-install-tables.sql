@@ -19,7 +19,7 @@ CREATE TABLE `bbd_tbmessage` (
   CONSTRAINT `fk_bbd_tbmessage_tbperson1` FOREIGN KEY (`idperson`) REFERENCES `tbperson` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
-INSERT INTO bbd_tbmessage VALUES("1","1","1","Email sending issue .","The email service (SMTP) has problems when sending emails. But receiving emails (POP / IMAP) is working normally.Our infrastructure team is working to resolve the issue as quickly as possible.","2016-02-25 19:48:56","2019-12-26 19:48:00","0000-00-00 00:00:00","N","3","0");
+INSERT INTO bbd_tbmessage VALUES("1","1","1","Email sending issue .","The email service (SMTP) has problems when sending emails. But receiving emails (POP / IMAP) is working normally.Our infrastructure team is working to resolve the issue as quickly as possible.","2016-02-25 19:48:56","2019-12-26 19:48:00","2046-10-12 01:00:00","N","3","0");
 
 
 
