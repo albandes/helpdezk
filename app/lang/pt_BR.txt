@@ -1,4 +1,4 @@
-# --- Generated at January 23, 2021, 10:33 am --- 
+# --- Generated at February 2, 2021, 9:51 am --- 
 Abbreviation = "Sigla"
 Abilities = "Habilidades"
 Access = "Accessar"
@@ -49,6 +49,7 @@ Alert_empty_reason = "Preencha o motivo"
 Alert_empty_subject = "Preencha o assunto da solicita&ccedil;&atilde;o"
 Alert_external_settings_OK = "Configurações Externas Salvas com Sucesso !!!"
 Alert_failure = "Não foi possivel inserir"
+Alert_failure_usertypelogin = "Falha ao consultar o tipo de login do usu&aacute;rio."
 Alert_field_required = "Este campo é obrigatório"
 Alert_follow_repass = "Escolha uma das opções sobre o acompanhamento."
 Alert_get_data = "Não foi possível obter os dados"
@@ -56,6 +57,7 @@ Alert_import_services_nofile_failure = "Não foi possível importar !! Anexe o a
 Alert_inserted = "Inserido com sucesso"
 Alert_invalid_email = "Formato de E-mail inválido"
 Alert_note_sucess = "Apontamento inserido com sucesso"
+Alert_not_allowedchangepass = "N&atilde;o &eacute; possivel alterar sua senha. O m&eacute;todo de login n&atilde;o &eacute; local. Consulte o administrador do sistema."
 Alert_not_match_new_pass = "A nova senha não pode ser igual à senha atual!"
 Alert_reopen_sucess = "Solicitação Reaberta com sucesso"
 Alert_select_one = "Por favor, selecione 1 item"

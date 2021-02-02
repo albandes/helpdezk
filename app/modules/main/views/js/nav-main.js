@@ -8,6 +8,10 @@ $(document).ready(function () {
         if ($('#logindemo').val() == 'user' || $('#logindemo').val() == 'operator' ) {
             $("#btnSaveChangeUserPass").prop('disabled', true);
         }
+        if ($('#idperson').val() == 1) {
+            $("#btnSaveChangeRootPass").prop('disabled', true);
+        }
+
     }
     // https://harvesthq.github.io/chosen/
     $("#person_country").chosen({ width: "95%", no_results_text: "Nothing found!"})
@@ -53,6 +57,37 @@ $(document).ready(function () {
 
     $(".btnEditUserPass").click(function(){
         $('#modal-change-user-password').modal('show');
+        $.ajax({
+            type: "POST",
+            url:  path + '/helpdezk/home/getTypeLogin',
+            dataType: 'json',
+            data: {
+                    idperson: $('#hidden-idperson').val()
+            },
+            error: function (ret) {
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
+            },
+            success: function(ret){
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+                if($.isNumeric(obj.idtypelogin)) {
+                    if(obj.idtypelogin != 3 ) {
+                        $('#new-pass').hide();
+                        $('#confirm-pass').hide();
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_not_allowedchangepass'),'alert-change-user-pass');
+                        setTimeout(function(){
+                            $('#modal-change-user-password').modal('hide');
+                            location.href = "" ;
+                        },5000);
+                    }
+                } else {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure_usertypelogin'),'alert-change-user-pass');
+                }
+            }
+        });
+    });
+
+    $(".btnEditRootPass").click(function(){
+        $('#modal-change-root-password').modal('show');
     });
 
     // Save Configure External APIs data
@@ -93,8 +128,8 @@ $(document).ready(function () {
         });
     });
 
-
     // End Buttons
+
     // Combos
     var formPersonData = $(document.getElementById("persondata_form"));
     var objPersonData = {
@@ -253,7 +288,7 @@ $(document).ready(function () {
 
 
 
-    /*
+    /* btnEditRootPass
      * Dropzone
      */
     Dropzone.autoDiscover = false;
@@ -299,6 +334,7 @@ $(document).ready(function () {
         }
     });
 
+    // user - change password
     $("#change_user_pwd_form").validate({
         ignore:[],
         rules: {
@@ -321,6 +357,7 @@ $(document).ready(function () {
     });
 
     $("#btnSaveChangeUserPass").click(function(){
+
         if (!$("#change_user_pwd_form").valid()) {
             return false;
         }
@@ -330,8 +367,7 @@ $(document).ready(function () {
             url: path + '/helpdezk/home/changeUserPassword',
             dataType: 'json',
             data: { idperson:$('#hidden-idperson').val(),
-                newpassword:$('#userconf_password').val(),
-                changepass:$('#userconf-changePass').val()
+                    newpassword:$('#userconf_password').val()
             },
             error: function (ret) {
                 modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
@@ -351,6 +387,53 @@ $(document).ready(function () {
             }
         });
     });
+    // user - change password - end
+
+    // admin - change password
+    $("#change_root_pwd_form").validate({
+        ignore:[],
+        rules: {
+               rootconf_cpassword:  {equalTo: "#rootconf_password"}
+        },
+        messages: {
+            rootconf_password:{required:makeSmartyLabel('Alert_field_required')},
+            rootconf_cpassword:{equalTo: makeSmartyLabel('Alert_different_passwords')}
+        }
+    });
+
+    $("#btnSaveChangeRootPass").click(function(){
+
+        if (!$("#change_root_pwd_form").valid()) {
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: path + '/helpdezk/home/changeRootPassword',
+            dataType: 'json',
+            data: { idperson:       $('#hidden-idperson').val(),
+                    newpassword:    $('#rootconf_password').val()
+            },
+            error: function (ret) {
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
+            },
+            success: function(ret){
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+                if($.isNumeric(obj.idperson)) {
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_change_password'),'alert-change-root-pass');
+                    setTimeout(function(){
+                        $('#modal-change-root-password').modal('hide');
+                        location.href = "" ;
+                    },2000);
+
+                } else {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
+                }
+            }
+        });
+    });
+
+    // admin - change password - end
 
 
 });

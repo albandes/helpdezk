@@ -4,7 +4,7 @@ HelpDEZk is a powerfull software that manages requests/incidents.
 
 ## Demo Version
 
-Check out our online demo version: http://demo.helpdezk.org
+Check out our online demo version: https://demo.helpdezk.org
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ After all the process, just access HelpDEZk by clicking on the generated link (t
 
 That's it, HelpDEZk is ready to use!
 
-Having problems? check out our site: www.helpdezk.org
+Having problems? check out our site: https://helpdezk.org
 
 
 ## Contributing

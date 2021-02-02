@@ -20,16 +20,14 @@
 {head_item type="js" src="$path/app/modules/main/views/js/" files="nav-main.js"}
 
 {literal}
-<script type="text/javascript">
-    var     id_mask      = '{/literal}{$id_mask}{literal}',
-        ein_mask     = '{/literal}{$ein_mask}{literal}',
-        zip_mask     = '{/literal}{$zip_mask}{literal}',
-        phone_mask     = '{/literal}{$phone_mask}{literal}',
-        cellphone_mask     = '{/literal}{$cellphone_mask}'{literal},
-        changepass = '{/literal}{$changepass}'{literal};
-
-
-</script>
+    <script type="text/javascript">
+        var id_mask         = '{/literal}{$id_mask}{literal}',
+            ein_mask        = '{/literal}{$ein_mask}{literal}',
+            zip_mask        = '{/literal}{$zip_mask}{literal}',
+            phone_mask      = '{/literal}{$phone_mask}{literal}',
+            cellphone_mask  = '{/literal}{$cellphone_mask}'{literal},
+            changepass      = '{/literal}{$changepass}'{literal};
+    </script>
 {/literal}
 
 <nav class="navbar navbar-static-top" role="navigation">
@@ -215,6 +213,7 @@
                         <li><a href="#" id="btnEditUserConfigExternal"><i class="fas fa-user-cog"></i> {$smarty.config.user_external_settings}</a></li>
                         <li><a href="#" class="btnEditUserPass"><i class="fa fa-key"></i> {$smarty.config.Change_password}</a></li>
                     {else}
+                        <li><a href="#" class="btnEditRootPass"><i class="fa fa-key"></i> {$smarty.config.Change_password}</a></li>
                         <li>&nbsp;</li>
                     {/if}
                     <!--<li><a href=""> </a></li>
