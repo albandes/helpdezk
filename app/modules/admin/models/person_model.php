@@ -25,12 +25,8 @@ class person_model extends DynamicPerson_model
     }
 
     public function changePassword($id, $password, $change_pass = 0){
-        $database = $this->getConfig('db_connect');
-        if ($this->isMysql($database)) {
-            $query = "update tbperson set password = '$password', change_pass = '$change_pass' where idperson = '$id'";
-        } elseif ($database == 'oci8po') {
-            $query = "update tbperson set password = UPPER('$password'), change_pass = '$change_pass' where idperson = '$id'";
-        }
+
+        $query = "update tbperson set password = '$password', change_pass = '$change_pass' where idperson = '$id'";
 
         $ret = $this->select($query);
         if(!$ret) {
@@ -911,6 +907,36 @@ class person_model extends DynamicPerson_model
             return false ;
         }
         return $ret->fields['change_pass'];
+    }
+
+    /**
+     * returns the login type of the person
+     *
+     * @param  int          $idPerson       Person ID
+     * @return int|boll                     Type login ID
+     */
+    public function getTypeLoginbyIdPerson($idPerson)
+    {
+
+        $rs = $this->select("select idtypelogin from tbperson where idperson = $idPerson");
+
+        if (!$rs) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+
+
+        if ($rs->recordCount() == 0) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>ERROR: Query returned no data.";
+            $this->error($sError);
+            return false;
+        }
+
+        return $rs->fields['idtypelogin'];
+
+
+
     }
 
 }

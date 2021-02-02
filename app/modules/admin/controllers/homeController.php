@@ -67,11 +67,11 @@ class Home extends admCommon {
         $smarty->assign('external_ip', $ipAddress);
         $smarty->assign('external_hostname', gethostbyaddr($ipAddress));
 
-
-
         $smarty->assign('php_session', htmlspecialchars(print_r($_SESSION, true)));
 
+        $smarty->assign('hidden_idperson',$_SESSION['SES_PERSONAL_USER_CONFIG']['idperson']) ; // Demo Version
         $smarty->assign('demoversion', $this->demoVersion);         // Demo version
+
         $smarty->display('adm-main.tpl');
     }
 

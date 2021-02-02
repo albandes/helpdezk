@@ -92,6 +92,31 @@ class System
     }
 
     /**
+     * Returns the login type of the person
+     *
+     * @param int               $idPerson Person Id
+     * @return int|boolean      Type login ID
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getUserTypeLogin($idPerson)
+    {
+
+        $this->loadModel('admin/person_model');
+        $dbPerson = new person_model();
+
+        $idTypeLogin = $dbPerson->getTypeLoginbyIdPerson($idPerson);
+
+        if(!$idTypeLogin) {
+            return false;
+        } else {
+            return $idTypeLogin;
+        }
+
+        return false;
+    }
+
+    /**
      * Return if use of tokens in the request´s view url by the operator is enabled
      *
      * @return bool  true|false
@@ -512,6 +537,7 @@ class System
         $smarty->assign('configusermodal', 'file:' . $this->getHelpdezkPath() . '/app/modules/helpdezk/views/modals/main/modalPersonData.tpl');
         $smarty->assign('userpwdmodal', 'file:' . $this->getHelpdezkPath() . '/app/modules/helpdezk/views/modals/main/modal-change-user-password.tpl');
         $smarty->assign('configExternalModal', 'file:' . $this->getHelpdezkPath() . '/app/modules/main/views/modal/main/modal-config-external.tpl');
+        $smarty->assign('rootpwdmodal', 'file:' . $this->getHelpdezkPath() . '/app/modules/main/views/modal/main/modal-change-root-password.tpl');
 
     }
 

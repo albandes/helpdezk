@@ -632,6 +632,7 @@ class home extends hdkCommon {
 
     }
 
+
     /**
      * Method to save External APIs configurations
      *
@@ -719,6 +720,22 @@ class home extends hdkCommon {
 
     }
 
+    public function getTypeLogin()
+    {
+        $this->protectFormInput();
+
+        $idPerson = $_POST['idperson'];
+
+        $ret =  $this->getUserTypeLogin($idPerson);
+
+        if(!$ret or $ret == false )
+            return false;
+        else
+            echo json_encode(array("idtypelogin" => $ret,  "status"   => 'OK' ));
+
+    }
+
+
     public function changeUserPassword()
     {
 
@@ -735,10 +752,37 @@ class home extends hdkCommon {
             return false;
         }
 
-        $aRet = array(
-            "idperson" => $idperson,
-            "status"   => 'OK'
-        );
+        if($this->log)
+            $this->logIt('Password changed by user '.$_SESSION['SES_LOGIN_PERSON'] ,6,'general',__LINE__);
+
+        $aRet = array("idperson" => $idperson,  "status"   => 'OK' );
+
+        echo json_encode($aRet);
+
+    }
+
+    public function changeRootPassword()
+    {
+
+        $this->protectFormInput();
+
+        $idperson = $_POST['idperson'];
+        $password = md5($_POST['newpassword']);
+
+        $change = $this->dbPerson->changePassword($idperson, $password, 0);
+
+        if (!$change) {
+            if($this->log)
+                $this->logIt('Change Password  - User: admin - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        if($this->log)
+            $this->logIt('Password changed by user '.$_SESSION['SES_LOGIN_PERSON'] ,6,'general',__LINE__);
+
+        $aRet = array( "idperson" => $idperson,
+                       "status"   => 'OK'
+                     );
 
         echo json_encode($aRet);
 
