@@ -56,6 +56,7 @@ $(document).ready(function () {
     });
 
     $(".btnEditUserPass").click(function(){
+
         $('#modal-change-user-password').modal('show');
         $.ajax({
             type: "POST",
