@@ -1655,7 +1655,13 @@ class hdkTicket extends hdkCommon {
                 $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/';
             }
 
-            //$targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' ;
+            if(!is_dir($targetPath)) {
+                $this->logIt("Save note attachments, idNote: # ". $idNote . ' - Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                if (!mkdir ($targetPath, 0777 )) {
+                    $this->logIt("Can't save note attachments: # ". $idNote . ' - I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                }
+
+            }
 
             $idNoteAttachments = $this->dbTicket->saveNoteAttachment($idNote,$fileName);
 
@@ -1691,8 +1697,14 @@ class hdkTicket extends hdkCommon {
                 $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/';
             }
 
-            //$targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/' ;
+            if(!is_dir($targetPath)) {
+                $this->logIt("Save ticket attachments: # ". $code_request . ' - Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                if (!mkdir ($targetPath, 0777 )) {
+                    $this->logIt("Can't save ticket attachments: # ". $code_request . ' - I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                }
 
+            }
+ 
             $idAtt = $this->dbTicket->saveTicketAtt($code_request,$fileName);
 
             $targetFile =  $targetPath.$idAtt.$extension;

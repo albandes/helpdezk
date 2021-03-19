@@ -85,22 +85,22 @@
     {literal}
 
         <script type="text/javascript">
-            var default_lang = "{/literal}{$lang}{literal}",
-                path         = "{/literal}{$path}{literal}",
-                langName     = '{/literal}{$smarty.config.Name}{literal}',
-                theme        = '{/literal}{$theme}{literal}',
-                mascDateTime = '{/literal}{$mascdatetime}{literal}',
-                timesession  = '{/literal}{$timesession}{literal}',
-                id_mask      = '{/literal}{$id_mask}{literal}',
-                ein_mask     = '{/literal}{$ein_mask}{literal}',
-                zip_mask     = '{/literal}{$zip_mask}{literal}',
-                phone_mask     = '{/literal}{$phone_mask}{literal}',
-                cellphone_mask     = '{/literal}{$cellphone_mask}{literal}',
-                typeuser = '{/literal}{$typeuser}{literal}',
-                sidx = '{/literal}{$sidx}{literal}',
-                sord = '{/literal}{$sord}{literal}',
+            var default_lang    = "{/literal}{$lang}{literal}",
+                path            = "{/literal}{$path}{literal}",
+                langName        = '{/literal}{$smarty.config.Name}{literal}',
+                theme           = '{/literal}{$theme}{literal}',
+                mascDateTime    = '{/literal}{$mascdatetime}{literal}',
+                timesession     = '{/literal}{$timesession}{literal}',
+                id_mask         = '{/literal}{$id_mask}{literal}',
+                ein_mask        = '{/literal}{$ein_mask}{literal}',
+                zip_mask        = '{/literal}{$zip_mask}{literal}',
+                phone_mask      = '{/literal}{$phone_mask}{literal}',
+                cellphone_mask  = '{/literal}{$cellphone_mask}{literal}',
+                typeuser        = '{/literal}{$typeuser}{literal}',
+                sidx            = '{/literal}{$sidx}{literal}',
+                sord            = '{/literal}{$sord}{literal}',
                 autoRefreshGrid = '{/literal}{$autorefreshgrid}{literal}',
-                demoVersion = '{/literal}{$demoversion}{literal}';
+                demoVersion     = '{/literal}{$demoversion}{literal}';
         </script>
 
         <style>
@@ -176,5 +176,5 @@
         </div>
     </div>
 
-    {*include file='modals/main/modalPersonData.tpl'*}
+
 </body>

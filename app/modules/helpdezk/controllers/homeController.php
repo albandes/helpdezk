@@ -57,15 +57,11 @@ class home extends hdkCommon {
         $cod_usu = $_SESSION['SES_COD_USUARIO'];
 
         $smarty = $this->retornaSmarty();
-        //$langVars = $this->getLangVars($smarty);
 
         $this->makeNavVariables($smarty,$this->modulename);
         $this->makeFooterVariables($smarty);
 
         $this->_makeNavHdk($smarty);
-
-        //$this->makeDashUser($smarty);
-
 
         $this->makeMessages($smarty);
 
@@ -96,6 +92,7 @@ class home extends hdkCommon {
 
         $smarty->assign('show_dashboard', true);
 
+        // Operator or admin
         if($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1){
             //Set Order to columns of Attendant's Grid
             $sord = isset($_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols'])
@@ -107,7 +104,6 @@ class home extends hdkCommon {
             $autoRefresh = $_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID']
                             ?  ($_SESSION['hdk']['SES_REFRESH_OPERATOR_GRID'] * 1000) : 0;
             $smarty->assign('autorefreshgrid', $autoRefresh);
-
 
             // Operator dashboard
             if (!isset($_SESSION['hdk']['SES_OPERATOR_DASHBOARD'])) {
@@ -122,7 +118,8 @@ class home extends hdkCommon {
 
             $smarty->display('hdk-operator.tpl');
 
-        }  else{
+        }  else {
+            // User
 
             // User dashboard
             if (!isset($_SESSION['hdk']['SES_USER_DASHBOARD'])) {
