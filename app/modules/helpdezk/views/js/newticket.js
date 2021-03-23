@@ -1,6 +1,7 @@
 var global_coderequest = '';
 var htmlArea = '',
     showDefs  = '';
+var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[];
 
 
 $(document).ready(function () {
@@ -53,10 +54,44 @@ $(document).ready(function () {
         this.removeFile(file);
     });
 
-    myDropzone.on("queuecomplete", function (file) {        // https://stackoverflow.com/questions/18765183/how-do-i-refresh-the-page-after-dropzone-js-upload
-        console.log('Completed the dropzone queue');
-        sendNotification('new-ticket-user',global_coderequest,true);
-        console.log('Sent email, with attachments');
+    myDropzone.on("complete", function(file) {
+        
+        if(file.status === "canceled" || file.status === "error"){
+            errorname.push(file.name);
+            flgerror = 1;
+        }else if((file.xhr)){
+            var obj = JSON.parse(file.xhr.response);
+        
+            if(obj.success) {
+                filesended = filesended + 1;
+                upname.push(file.name);
+            } else {
+                errorname.push(file.name);
+                flgerror = 1;
+            }
+        }
+        
+    });
+
+    myDropzone.on("queuecomplete", function (file) {
+        var msg,typeMsg;
+
+        if(errorname.length == 0 && (filesended == dropzonefiles)){
+            saveTicket(upname);            
+        }else{
+            var totalAttach = dropzonefiles - filesended;
+            msg = '<h4>'+makeSmartyLabel('files_not_attach_list')+'</h4><br>';
+            errorname.forEach(element => {
+                msg = msg+element+'<br>';
+            });
+            msg = msg+'<br>'+makeSmartyLabel('hdk_attach_after');
+            typeMsg = 'warning';
+            showNextStep(msg,typeMsg,totalAttach);
+        }        
+        
+        dropzonefiles = 0; 
+        filesended = 0;
+        flgerror = 0;
     });
 
     $('#description').summernote(
@@ -125,70 +160,18 @@ $(document).ready(function () {
         var ticketDescription = $('#description').summernote('code');
 
         if ($("#newticket-form").valid()) {
-            $.ajax({
-                type: "POST",
-                url: path + '/helpdezk/hdkTicket/saveTicket',
-                dataType: 'json',
-                data: {
-                    serial_number: 	$('#serial_number').val(),
-                    os_number: 		$('#os_number').val(),
-                    tag: 			$('#tag').val(),
-                    area: 			$('#areaId').val(),
-                    type: 			$('#typeId').val(),
-                    item:			$('#itemId').val(),
-                    service:		$('#serviceId').val(),
-                    reason:			$('#reasonId').val(),
-                    subject: 		$('#subject').val(),
-                    description: 	$('#description').summernote('code')
-                },
-                error: function (ret) {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-                },
-                success: function(ret){
-
-                    var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                    if($.isNumeric(obj.coderequest)) {
-
-                        var ticket = obj.coderequest;
-
-                        //
-                        if (myDropzone.getQueuedFiles().length > 0) {
-                            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                            global_coderequest = ticket;
-                            myDropzone.options.params = {coderequest: ticket };
-                            myDropzone.processQueue();
-                        } else {
-                            console.log('No files, no dropzone processing');
-                            sendNotification('new-ticket-user',ticket,false);
-                        }
-                        //
-                        $('#modal-coderequest').html(ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6));
-                        $('#modal-expire').html(obj.expire);
-                        $('#modal-incharge').html(obj.incharge);
-
-                        $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
-
-                        $('#modal-form-alert').modal('show');
-
-                    } else {
-
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-
-                    }
-
-                },
-                beforeSend: function(){
-                    $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
-                },
-                complete: function(){
-                    $("#btnCreateTicket").html("<span class='fa fa-check'></span>  " + makeSmartyLabel('btn_submit'));
+            if(!$("#btnCreateTicket").hasClass('disabled')){
+                $("#btnCreateTicket").addClass('disabled')
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    dropzonefiles = myDropzone.getQueuedFiles().length;
+                     myDropzone.processQueue();
+                } else {
+                    saveTicket(upname);
                 }
-
-            });
+            }
         } else {
             return false;
-        } ;
+        } 
 
     });
 
@@ -263,7 +246,7 @@ $(document).ready(function () {
                     }
                 })
         }
-    }
+    };
 
 
     $("#areaId").change(function(){
@@ -307,7 +290,23 @@ $(document).ready(function () {
         })
     });
 
+    $("#btnNextYes").click(function(){
+        
+        $('#modal-next-step').modal('hide');
+        saveTicket(upname);
 
+    });
+
+    $("#btnNextNo").click(function(){
+        if (!$("#btnNextNo").hasClass('disabled')) {
+            $("#btnNextNo").removeClass('disabled');
+            $('#modal-next-step').modal('hide');
+            errorname = [];
+            upname = [];
+            location.href = path + "/helpdezk/hdkTicket/index" ;
+        } 
+
+    });
 });
 
 function makeAreaCombo()
@@ -367,6 +366,86 @@ function sendNotification(transaction,codeRequest,hasAttachments)
         {
 
         }
+    });
+
+    return false ;
+
+}
+
+function showNextStep(msg,typeAlert,totalAttach)
+{
+    $('#nexttotalattach').val(totalAttach);
+    $('#next-step-list').html(msg);
+    $('#next-step-message').html(makeSmartyLabel('open_ticket_anyway_question'));
+    $("#type-alert").attr('class', 'col-sm-12 col-xs-12 bs-callout-'+typeAlert);
+    $('#modal-next-step').modal('show');
+
+    return false;
+}
+
+function saveTicket(aAttachs)
+{
+    var hasAtt = aAttachs.length > 0 ? true : false;
+
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/hdkTicket/saveTicket',
+        dataType: 'json',
+        data: {
+            serial_number: 	$('#serial_number').val(),
+            os_number: 		$('#os_number').val(),
+            tag: 			$('#tag').val(),
+            area: 			$('#areaId').val(),
+            type: 			$('#typeId').val(),
+            item:			$('#itemId').val(),
+            service:		$('#serviceId').val(),
+            reason:			$('#reasonId').val(),
+            subject: 		$('#subject').val(),
+            description: 	$('#description').summernote('code'),
+            attachments:    aAttachs
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+        },
+        success: function(ret){
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+            if($.isNumeric(obj.coderequest)) {
+
+                var ticket = obj.coderequest;
+                global_coderequest = ticket;
+                global_ticket = ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6);
+                global_expire = obj.expire;
+                global_incharge = obj.incharge;
+
+                sendNotification('new-ticket-user',global_coderequest,hasAtt);
+
+                $('#modal-coderequest').html(global_ticket);
+                $('#modal-expire').html(global_expire);
+                $('#modal-incharge').html(global_incharge);
+
+                $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
+
+                $('#modal-form-alert').modal('show');
+                
+                errorname = [];
+                upname = [];
+
+            } else {
+
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+
+            }
+
+        },
+        beforeSend: function(){
+            //$("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
+        },
+        complete: function(){
+            $("#btnCreateTicket").html("<span class='fa fa-check'></span>  " + makeSmartyLabel('btn_submit'));
+        }
+
     });
 
     return false ;
