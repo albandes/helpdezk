@@ -382,7 +382,7 @@
 
 
                 {include file='modals/newticket/modalAlert.tpl'}
-
+                {include file='modals/newticket/modal-next-step.tpl'}
 
 
 
