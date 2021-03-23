@@ -1,6 +1,7 @@
 var global_coderequest = '';
 var htmlArea = '',
     showDefs  = '';
+    var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[],btnClicked="";
 
 $(document).ready(function () {
 
@@ -48,14 +49,51 @@ $(document).ready(function () {
         dictRemoveFile: makeSmartyLabel('hdk_remove_file')
     });
 
-    myDropzone.on("maxfilesexceeded", function(file) {
-        this.removeFile(file);
+    myDropzone.on("complete", function(file) {
+        
+        if(file.status === "canceled" || file.status === "error"){
+            errorname.push(file.name);
+            flgerror = 1;
+        }else if((file.xhr)){
+            var obj = JSON.parse(file.xhr.response);
+        
+            if(obj.success) {
+                filesended = filesended + 1;
+                upname.push(file.name);
+            } else {
+                errorname.push(file.name);
+                flgerror = 1;
+            }
+        }
+        
     });
 
-    myDropzone.on("queuecomplete", function (file) {        // https://stackoverflow.com/questions/18765183/how-do-i-refresh-the-page-after-dropzone-js-upload
-        console.log('Completed the dropzone queue');
-        sendNotification('new-ticket-user',global_coderequest,true);
-        console.log('Sent email, with attachments');
+    myDropzone.on("queuecomplete", function (file) {
+        var msg,typeMsg;
+
+        if(errorname.length == 0 && (filesended == dropzonefiles)){
+            if(btnClicked=="1"){
+                saveTicket(upname);
+            }else if(btnClicked=="2"){
+                saveRepassTicket(upname);
+            }else if(btnClicked=="3"){
+                saveFinishTicket(upname);
+            }
+                        
+        }else{
+            var totalAttach = dropzonefiles - filesended;
+            msg = '<h4>'+makeSmartyLabel('files_not_attach_list')+'</h4><br>';
+            errorname.forEach(element => {
+                msg = msg+element+'<br>';
+            });
+            msg = msg+'<br>'+makeSmartyLabel('hdk_attach_after');
+            typeMsg = 'warning';
+            showNextStep(msg,typeMsg,totalAttach);
+        }        
+        
+        dropzonefiles = 0; 
+        filesended = 0;
+        flgerror = 0;
     });
 
     $('#description').summernote(
@@ -286,78 +324,19 @@ $(document).ready(function () {
             open_time = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
 
         if ($("#newticket-form").valid()) {
-            $.ajax({
-                type: "POST",
-                url: path + '/helpdezk/hdkTicket/saveTicket',
-                dataType: 'json',
-                data: { 
-                    idrequester:    $("#cmbUser").val(),
-                    source:         $("#cmbSource").val(),
-                    serial_number: 	$('#serial_number').val(),
-                    os_number: 		$('#os_number').val(),
-                    tag: 			$('#tag').val(),
-                    date:           $('#requestdate').val(),
-                    time:           $('#requesttime').val(),
-                    area: 			$('#areaId').val(),
-                    type: 			$('#typeId').val(),
-                    item:			$('#itemId').val(),
-                    service:		$('#serviceId').val(),
-                    reason:			$('#reasonId').val(),
-                    way:            $('#attwayId').val(),
-                    subject: 		$('#subject').val(),
-                    description: 	$('#description').summernote('code'),
-                    solution:       $('#solution').summernote('code'),
-                    open_time:     open_time
-                },
-                error: function (ret) {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-                },
-                success: function(ret){
-
-                    var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                    if($.isNumeric(obj.coderequest)) {
-
-                        var ticket = obj.coderequest;
-
-                        //
-                        if (myDropzone.getQueuedFiles().length > 0) {
-                            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                            global_coderequest = ticket;
-                            myDropzone.options.params = {coderequest: ticket };
-                            myDropzone.processQueue();
-                        } else {
-                            console.log('No files, no dropzone processing');
-                            sendNotification('new-ticket-user',ticket,false);
-                        }
-                        //
-                        $('#modal-coderequest').html(ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6));
-                        $('#modal-expire').html(obj.expire);
-                        $('#modal-incharge').html(obj.incharge);
-
-                        $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
-
-                        $('#modal-form-alert').modal('show');
-
-                    } else {
-
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-
-                    }
-
-                },
-                beforeSend: function(){
-                    $("#btnCancel").attr('disabled','disabled');
-                    $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
-                    $("#btnRepassTicket").attr('disabled','disabled');
-                    $("#btnFinishTicket").attr('disabled','disabled');
-                },
-                complete: function(){
-                    $("#btnCancel").removeAttr('disabled');
-                    $("#btnCreateTicket").html("<span class='fa fa-check'></span>  " + makeSmartyLabel('Register_btn'));
+            if(!$("#btnCreateTicket").hasClass('disabled')){
+                $("#btnCancel").addClass('disabled');
+                $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnRepassTicket").addClass('disabled');
+                $("#btnFinishTicket").addClass('disabled');
+                btnClicked = "1";
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    dropzonefiles = myDropzone.getQueuedFiles().length;
+                    myDropzone.processQueue();
+                } else {
+                    saveTicket(upname);
                 }
-
-            });
+            }            
         } else {
             return false;
         } 
@@ -386,87 +365,25 @@ $(document).ready(function () {
             open_time = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
         
         if($("#newticket-form").valid() && $("#repass-form").valid()){
-            
-            $.ajax({
-                type: "POST",
-                url: path + '/helpdezk/hdkTicket/openRepassedTicket',
-                dataType: 'json',
-                data: { 
-                    idrequester:    $("#cmbUser").val(),
-                    source:         $("#cmbSource").val(),
-                    serial_number: 	$('#serial_number').val(),
-                    os_number: 		$('#os_number').val(),
-                    tag: 			$('#tag').val(),
-                    date:           $('#requestdate').val(),
-                    time:           $('#requesttime').val(),
-                    area: 			$('#areaId').val(),
-                    type: 			$('#typeId').val(),
-                    item:			$('#itemId').val(),
-                    service:		$('#serviceId').val(),
-                    reason:			$('#reasonId').val(),
-                    way:            $('#attwayId').val(),
-                    subject: 		$('#subject').val(),
-                    description: 	$('#description').summernote('code'),
-                    solution:       $('#solution').summernote('code'),
-                    open_time:      open_time,
-                    repassto: 		$('#replist').val(),
-                    viewrepass: 	$('input[name="repoptns"]:checked').val(),
-                    typerepass:		$('input[name="typerep"]:checked').val()
-                },
-                error: function (ret) {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-                },
-                success: function(ret){
-                    
-                    var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                    if($.isNumeric(obj.coderequest)) {
-
-                        var ticket = obj.coderequest;
-
-                        //
-                        if (myDropzone.getQueuedFiles().length > 0) {
-                            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                            global_coderequest = ticket;
-                            myDropzone.options.params = {coderequest: ticket };
-                            myDropzone.processQueue();
-                        } else {
-                            console.log('No files, no dropzone processing');
-                            sendNotification('new-ticket-user',ticket,false);
-                        }
-                        //
-                        $('#modal-coderequest').html(ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6));
-                        $('#modal-expire').html(obj.expire);
-                        $('#modal-incharge').html(obj.incharge);
-
-                        $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
-
-                        $('#modal-form-alert').modal('show');
-
-                    } else {
-
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-
-                    }
-
-                },
-                beforeSend: function(){
-                    $('#modal-form-repass').modal('hide');
-                    $("#btnCancel").attr('disabled','disabled');
-                    $("#btnCreateTicket").attr('disabled','disabled');
-                    $("#btnRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
-                    $("#btnFinishTicket").attr('disabled','disabled');
-                },
-                complete: function(){
-                    $("#btnCancel").removeAttr('disabled');
-                    $("#btnRepassTicket").html("<span class='fa fa-share'></span>  " + makeSmartyLabel('Repass_btn'));
+            if(!$("#btnRepassTicket").hasClass('disabled')){
+                $('#modal-form-repass').modal('hide');
+                $("#btnCancel").addClass('disabled');
+                $("#btnCreateTicket").addClass('disabled');
+                $("#btnRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnFinishTicket").addClass('disabled');
+                btnClicked = "2";
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    console.log("files repass");
+                    dropzonefiles = myDropzone.getQueuedFiles().length;
+                     myDropzone.processQueue();
+                } else {
+                    saveRepassTicket(upname);
                 }
-
-            });
+            }            
         } else {
             return false;
         } 
-
+        return false;
     });
 
     $("#btnFinishTicket").click(function(){
@@ -476,79 +393,20 @@ $(document).ready(function () {
             open_time = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
 
         if ($("#newticket-form").valid()) {
-            $.ajax({
-                type: "POST",
-                url: path + '/helpdezk/hdkTicket/openFinishTicket',
-                dataType: 'json',
-                data: { 
-                    idrequester:    $("#cmbUser").val(),
-                    source:         $("#cmbSource").val(),
-                    serial_number: 	$('#serial_number').val(),
-                    os_number: 		$('#os_number').val(),
-                    tag: 			$('#tag').val(),
-                    date:           $('#requestdate').val(),
-                    time:           $('#requesttime').val(),
-                    area: 			$('#areaId').val(),
-                    type: 			$('#typeId').val(),
-                    item:			$('#itemId').val(),
-                    service:		$('#serviceId').val(),
-                    reason:			$('#reasonId').val(),
-                    way:            $('#attwayId').val(),
-                    subject: 		$('#subject').val(),
-                    description: 	$('#description').summernote('code'),
-                    solution:       $('#solution').summernote('code'),
-                    open_time:     open_time
-                },
-                error: function (ret) {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-                },
-                success: function(ret){
-
-                    var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                    if($.isNumeric(obj.coderequest)) {
-
-                        var ticket = obj.coderequest;
-
-                        //
-                        if (myDropzone.getQueuedFiles().length > 0) {
-                            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                            global_coderequest = ticket;
-                            myDropzone.options.params = {coderequest: ticket };
-                            myDropzone.processQueue();
-                        } else {
-                            console.log('No files, no dropzone processing');
-                            sendNotification('new-ticket-user',ticket,false);
-                        }
-                        //
-                        $('#modal-coderequest').html(ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6));
-                        $('#modal-expire').html(obj.expire);
-                        $('#modal-incharge').html(obj.incharge);
-
-                        $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
-
-                        $('#modal-form-alert').modal('show');
-
-                    } else {
-
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
-
-                    }
-
-                },
-                beforeSend: function(){
-                    $("#btnCancel").attr('disabled','disabled');
-                    $("#btnCreateTicket").attr('disabled','disabled');
-                    $("#btnRepassTicket").attr('disabled','disabled');
-                    $("#btnFinishTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');
-                },
-                complete: function(){
-                    $("#btnCancel").removeAttr('disabled');
-                    $("#btnFinishTicket").html("<span class='fa fa-times'></span>  " + makeSmartyLabel('Finish_btn'));
-
+            if(!$("#btnFinishTicket").hasClass('disabled')){
+                $("#btnCancel").addClass('disabled');
+                $("#btnCreateTicket").addClass('disabled');
+                $("#btnRepassTicket").addClass('disabled');
+                $("#btnFinishTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                btnClicked = "3";
+                
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    dropzonefiles = myDropzone.getQueuedFiles().length;
+                    myDropzone.processQueue();
+                } else {
+                    saveFinishTicket(upname);
                 }
-
-            });
+            }
         } else {
             return false;
         } 
@@ -677,7 +535,32 @@ $(document).ready(function () {
     $("#btnNewTck").click(function(){
         location.href = path + "/helpdezk/hdkTicket/newTicket" ;
     });
+    
+    $("#btnNextYes").click(function(){
+        
+        $('#modal-next-step').modal('hide');
+        if(btnClicked=="1"){
+            saveTicket(upname);
+        }else if(btnClicked=="2"){
+            saveRepassTicket(upname);
+        }else if(btnClicked=="3"){
+            saveFinishTicket(upname);
+        }
 
+    });
+
+    $("#btnNextNo").click(function(){
+        if (!$("#btnNextNo").hasClass('disabled')) {
+            $("#btnNextNo").removeClass('disabled');
+            $('#modal-next-step').modal('hide');
+            
+            errorname = [];
+            upname = [];
+
+            location.href = path + "/helpdezk/hdkTicket/index" ;
+        } 
+
+    });
 
 });
 
@@ -739,6 +622,270 @@ function sendNotification(transaction,codeRequest,hasAttachments)
         {
 
         }
+    });
+
+    return false ;
+
+}
+
+function showNextStep(msg,typeAlert,totalAttach)
+{
+    $('#nexttotalattach').val(totalAttach);
+    $('#next-step-list').html(msg);
+    $('#next-step-message').html(makeSmartyLabel('open_ticket_anyway_question'));
+    $("#type-alert").attr('class', 'col-sm-12 col-xs-12 bs-callout-'+typeAlert);
+    $('#modal-next-step').modal('show');
+
+    return false;
+}
+
+function saveTicket(aAttachs)
+{
+    var hasAtt = aAttachs.length > 0 ? true : false,
+    periods =  $('#atttime').val().split(":"), 
+    open_time = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
+
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/hdkTicket/saveTicket',
+        dataType: 'json',
+        data: {
+            idrequester:    $("#cmbUser").val(),
+            source:         $("#cmbSource").val(),
+            serial_number: 	$('#serial_number').val(),
+            os_number: 		$('#os_number').val(),
+            tag: 			$('#tag').val(),
+            date:           $('#requestdate').val(),
+            time:           $('#requesttime').val(),
+            area: 			$('#areaId').val(),
+            type: 			$('#typeId').val(),
+            item:			$('#itemId').val(),
+            service:		$('#serviceId').val(),
+            reason:			$('#reasonId').val(),
+            way:            $('#attwayId').val(),
+            subject: 		$('#subject').val(),
+            description: 	$('#description').summernote('code'),
+            solution:       $('#solution').summernote('code'),
+            open_time:     open_time,
+            attachments:    aAttachs
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+        },
+        success: function(ret){
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+            if($.isNumeric(obj.coderequest)) {
+
+                var ticket = obj.coderequest;
+                global_coderequest = ticket;
+                global_ticket = ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6);
+                global_expire = obj.expire;
+                global_incharge = obj.incharge;
+
+                sendNotification('new-ticket-user',global_coderequest,hasAtt);
+
+                $('#modal-coderequest').html(global_ticket);
+                $('#modal-expire').html(global_expire);
+                $('#modal-incharge').html(global_incharge);
+
+                $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
+
+                $('#modal-form-alert').modal('show');
+                
+                errorname = [];
+                upname = [];
+                
+
+            } else {
+
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+
+            }
+
+        },
+        beforeSend: function(){
+            /*$("#btnCancel").addClass('disabled');
+            $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+            $("#btnRepassTicket").addClass('disabled');
+            $("#btnFinishTicket").addClass('disabled');*/
+        },
+        complete: function(){
+            $("#btnCancel").removeClass('disabled');
+            $("#btnCreateTicket").html("<span class='fa fa-check'></span>  " + makeSmartyLabel('Register_btn'));
+        }
+
+    });
+
+    return false ;
+
+}
+
+function saveRepassTicket(aAttachs)
+{
+    var hasAtt = aAttachs.length > 0 ? true : false,
+    periods =  $('#atttime').val().split(":"), 
+    open_time = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
+
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/hdkTicket/openRepassedTicket',
+        dataType: 'json',
+        data: { 
+            idrequester:    $("#cmbUser").val(),
+            source:         $("#cmbSource").val(),
+            serial_number: 	$('#serial_number').val(),
+            os_number: 		$('#os_number').val(),
+            tag: 			$('#tag').val(),
+            date:           $('#requestdate').val(),
+            time:           $('#requesttime').val(),
+            area: 			$('#areaId').val(),
+            type: 			$('#typeId').val(),
+            item:			$('#itemId').val(),
+            service:		$('#serviceId').val(),
+            reason:			$('#reasonId').val(),
+            way:            $('#attwayId').val(),
+            subject: 		$('#subject').val(),
+            description: 	$('#description').summernote('code'),
+            solution:       $('#solution').summernote('code'),
+            open_time:      open_time,
+            repassto: 		$('#replist').val(),
+            viewrepass: 	$('input[name="repoptns"]:checked').val(),
+            typerepass:		$('input[name="typerep"]:checked').val(),
+            attachments:    aAttachs
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+        },
+        success: function(ret){
+            //$('#modal-form-repass').modal('hide');
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+            if($.isNumeric(obj.coderequest)) {
+
+                var ticket = obj.coderequest;
+                global_coderequest = ticket;
+                global_ticket = ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6);
+                global_expire = obj.expire;
+                global_incharge = obj.incharge;
+
+                sendNotification('new-ticket-user',global_coderequest,hasAtt);
+
+                $('#modal-coderequest').html(global_ticket);
+                $('#modal-expire').html(global_expire);
+                $('#modal-incharge').html(global_incharge);
+
+                $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
+
+                $('#modal-form-alert').modal('show');
+                
+                errorname = [];
+                upname = [];
+                
+
+            } else {
+
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+
+            }
+
+        },
+        beforeSend: function(){
+            /*$('#modal-form-repass').modal('hide');
+            $("#btnCancel").addClass('disabled');
+            $("#btnCreateTicket").addClass('disabled');
+            $("#btnRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+            $("#btnFinishTicket").addClass('disabled');*/
+        },
+        complete: function(){
+            $("#btnCancel").removeClass('disabled');
+            $("#btnRepassTicket").html("<span class='fa fa-share'></span>  " + makeSmartyLabel('Repass_btn'));
+        }
+
+    });
+
+    return false ;
+
+}
+
+function saveFinishTicket(aAttachs)
+{
+    var hasAtt = aAttachs.length > 0 ? true : false,
+    periods =  $('#atttime').val().split(":"), 
+    open_time = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
+
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/hdkTicket/openFinishTicket',
+        dataType: 'json',
+        data: { 
+            idrequester:    $("#cmbUser").val(),
+            source:         $("#cmbSource").val(),
+            serial_number: 	$('#serial_number').val(),
+            os_number: 		$('#os_number').val(),
+            tag: 			$('#tag').val(),
+            date:           $('#requestdate').val(),
+            time:           $('#requesttime').val(),
+            area: 			$('#areaId').val(),
+            type: 			$('#typeId').val(),
+            item:			$('#itemId').val(),
+            service:		$('#serviceId').val(),
+            reason:			$('#reasonId').val(),
+            way:            $('#attwayId').val(),
+            subject: 		$('#subject').val(),
+            description: 	$('#description').summernote('code'),
+            solution:       $('#solution').summernote('code'),
+            open_time:     open_time,
+            attachments:    aAttachs
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+        },
+        success: function(ret){
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+            if($.isNumeric(obj.coderequest)) {
+
+                var ticket = obj.coderequest;
+                global_coderequest = ticket;
+                global_ticket = ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6);
+                global_expire = obj.expire;
+                global_incharge = obj.incharge;
+
+                sendNotification('new-ticket-user',global_coderequest,hasAtt);
+
+                $('#modal-coderequest').html(global_ticket);
+                $('#modal-expire').html(global_expire);
+                $('#modal-incharge').html(global_incharge);
+
+                $("#btnModalAlert").attr("href", path + '/helpdezk/hdkTicket/index');
+
+                $('#modal-form-alert').modal('show');
+                
+                errorname = [];
+                upname = [];
+                
+
+            } else {
+
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
+
+            }
+
+        },
+        beforeSend: function(){
+            /*$("#btnCancel").attr('disabled','disabled');
+            $("#btnCreateTicket").attr('disabled','disabled');
+            $("#btnRepassTicket").attr('disabled','disabled');
+            $("#btnFinishTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).attr('disabled','disabled');*/
+        },
+        complete: function(){
+            $("#btnCancel").removeClass('disabled');
+            $("#btnFinishTicket").html("<span class='fa fa-times'></span>  " + makeSmartyLabel('Finish_btn'));
+        }
+
     });
 
     return false ;
