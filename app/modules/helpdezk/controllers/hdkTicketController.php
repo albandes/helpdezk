@@ -255,7 +255,9 @@ class hdkTicket extends hdkCommon {
         
         $subject 	 = str_replace("'", "`", $_POST["subject"]);
         $description = str_replace("'", "`", $_POST["description"]);
-
+        $aAttachs 	= $_POST["attachments"]; // Attachments
+        $aSize = count($aAttachs); // count attachs files
+        
         $idStatus 	= 1;
 
         $rsRules = $dbRules->getRule($idItem,$idService);
@@ -408,6 +410,17 @@ class hdkTicket extends hdkCommon {
                 $this->logIt("Insert ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
             return false;
         }
+
+        // link attachments to the request
+        if($aSize > 0){
+            $retAttachs = $this->linkTicketAttachments($code_request,$aAttachs);
+            if(!$retAttachs['success']){
+                $this->dbTicket->RollbackTrans();
+                if($this->log)
+                    $this->logIt("{$retAttachs['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program}" ,3,'general',__LINE__);
+                return false;
+            }
+        }        
 
         $date = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
         $description = "<p><b>" . $langVars['Request_opened'] . "</b></p>";
@@ -1687,7 +1700,7 @@ class hdkTicket extends hdkCommon {
 
         $code_request = $_POST['coderequest'];
 
-        if (!empty($_FILES)) {
+        if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
             $extension = strrchr($fileName, ".");
@@ -1698,24 +1711,37 @@ class hdkTicket extends hdkCommon {
             }
 
             if(!is_dir($targetPath)) {
-                $this->logIt("Save ticket attachments: # ". $code_request . ' - Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                $this->logIt('Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
                 if (!mkdir ($targetPath, 0777 )) {
-                    $this->logIt("Can't save ticket attachments: # ". $code_request . ' - I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                    $this->logIt('I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_create')}: {$targetPath}"));
+                    exit;
                 }
-
             }
- 
-            $idAtt = $this->dbTicket->saveTicketAtt($code_request,$fileName);
 
-            $targetFile =  $targetPath.$idAtt.$extension;
+            if (!is_writable($targetPath)) {
+                $this->logIt('Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
+                if (!chmod($targetPath,0777)){
+                    $this->logIt('Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_writable')}: {$targetPath}"));
+                    exit;
+                }
+            }
+
+            $targetFile =  $targetPath.$fileName;
             $this->logIt("Save attachment in request # ". $code_request . ' - File: '.$targetFile.' - program: '.$this->program ,7,'general',__LINE__);
             if (move_uploaded_file($tempFile,$targetFile)){
-                return 'OK';
+                //return 'OK';
+                echo json_encode(array("success"=>true,"message"=>""));
             } else {
-                return false;
+                //return false;
+                echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
             }
 
+        }else{
+            echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
         }
+        exit;
     }
 
     public function sendNotification()
@@ -2274,6 +2300,8 @@ class hdkTicket extends hdkCommon {
             
             $subject 	 = str_replace("'", "`", $_POST["subject"]);
             $description = str_replace("'", "`", $_POST["description"]);
+            $aAttachs 	= $_POST["attachments"]; // Attachments
+            $aSize = count($aAttachs); // count attachs files
 
             $idStatus 	= 2;
 
@@ -2361,6 +2389,17 @@ class hdkTicket extends hdkCommon {
                 if($this->log)
                     $this->logIt("Insert ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                 return false;
+            }
+
+            // link attachments to the request
+            if($aSize > 0){
+                $retAttachs = $this->linkTicketAttachments($code_request,$aAttachs);
+                if(!$retAttachs['success']){
+                    $this->dbTicket->RollbackTrans();
+                    if($this->log)
+                        $this->logIt("{$retAttachs['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program}" ,3,'general',__LINE__);
+                    return false;
+                }
             }
 
             $date = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
@@ -2477,6 +2516,8 @@ class hdkTicket extends hdkCommon {
             
             $subject 	 = str_replace("'", "`", $_POST["subject"]);
             $description = str_replace("'", "`", $_POST["description"]);
+            $aAttachs 	= $_POST["attachments"]; // Attachments
+            $aSize = count($aAttachs); // count attachs files
 
             $idStatus 	= 5;
 
@@ -2555,6 +2596,17 @@ class hdkTicket extends hdkCommon {
                 if($this->log)
                     $this->logIt("Insert ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                 return false;
+            }
+
+            // link attachments to the request
+            if($aSize > 0){
+                $retAttachs = $this->linkTicketAttachments($code_request,$aAttachs);
+                if(!$retAttachs['success']){
+                    $this->dbTicket->RollbackTrans();
+                    if($this->log)
+                        $this->logIt("{$retAttachs['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program}" ,3,'general',__LINE__);
+                    return false;
+                }
             }
 
             $date = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
@@ -3994,6 +4046,39 @@ class hdkTicket extends hdkCommon {
     public function makeLinkCode($id_in_charge,$type_in_charge,$iduser,$ind_track,$code_request)
     {
         return "<a href='".$this->helpdezkUrl."/helpdezk/hdkTicket/viewrequest/id/".$code_request."'>".$this->highlightCodeRequest($id_in_charge,$type_in_charge,$iduser,$ind_track,$code_request)."</a>";
+    }
+
+    public function linkTicketAttachments($code_request,$aAttachs)
+    {
+        foreach($aAttachs as $key=>$val){
+            $extension = strrchr($val, ".");
+            if($this->_externalStorage) {
+                $targetPath = $this->_externalStoragePath . '/helpdezk/attachments/' ;
+            } else {
+                $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/';
+            }
+            $targetOld = $targetPath.$val;
+
+            $idAtt = $this->dbTicket->saveTicketAtt($code_request,$val);
+            if (!$idAtt) {
+                if($this->log)
+                    $this->logIt('Can\'t save attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return array("success"=>false,"message"=>"Can't link file {$val} to request {$code_request}");
+            }
+
+            $targetNew =  $targetPath.$idAtt.$extension;
+
+            if(!rename($targetOld,$targetNew)){
+                $delAtt = $this->dbTicket->deleteTicketAtt($idAtt);
+                if (!$delAtt) {
+                    if($this->log)
+                        $this->logIt('Can\'t delete attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                }
+                return array("success"=>false,"message"=>"Can't link file {$val} to request {$code_request}");
+            }
+        }
+        return array("success"=>true,"message"=>"");
+
     }
 
 }
