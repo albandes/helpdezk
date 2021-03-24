@@ -1454,7 +1454,7 @@ function showNextStep(msg,typeAlert,totalAttach)
 {
     $('#nexttotalattach').val(totalAttach);
     $('#next-step-list').html(msg);
-    $('#next-step-message').html(makeSmartyLabel('open_ticket_anyway_question'));
+    $('#next-step-message').html(makeSmartyLabel('save_note_anyway_question'));
     $("#type-alert").attr('class', 'col-sm-12 col-xs-12 bs-callout-'+typeAlert);
     $('#modal-next-step').modal('show');
 
