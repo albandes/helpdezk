@@ -1,5 +1,6 @@
 var idRequest = 0;
 var firstOption = "<option value='X' >Select</option>";
+var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[];
 $(document).ready(function () {
 
     countdown.start(timesession);
@@ -190,55 +191,15 @@ $(document).ready(function () {
             if ($("#callback").is(":checked")) var callback = '1';
             else var callback = '0';
 
-            $.ajax({
-                type: "POST",
-                url: path + "/helpdezk/hdkTicket/saveNote",
-                data: {
-                    noteContent: $('#requestnote').summernote('code'),
-                    code_request: $('#coderequest').val(),
-                    totalminutes: $("#totalminutes").val(),
-                    starthour: $("#started").val(),
-                    finishour: $("#finished").val(),
-                    execDate: $("#execdate").val(),
-                    typehour: $("#typehour").val(),
-                    typeNote: $("#typenote").val(),
-                    flagNote: 3
+            $("#btnSendNote").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+            if (myDropzone.getQueuedFiles().length > 0) {
+                dropzonefiles = myDropzone.getQueuedFiles().length;
+                myDropzone.processQueue();
+            } else {
+                saveNote(upname,myDropzone);
+            }
 
-                },
-                error: function (ret) {
-                    modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
-                },
-                success: function(ret) {
-
-                    console.log('ajax saveNote, return: ' + ret);
-
-                    if($.isNumeric(ret)) {
-                        idNote = ret ;
-                        console.log('idnote: ' + idNote);
-                        if (myDropzone.getQueuedFiles().length > 0) {
-                            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                            myDropzone.options.params = {idNote: idNote };
-                            myDropzone.processQueue();
-                        } else {
-                            console.log('No files, no dropzone processing');
-                            //sendNotification('addnote',$('#coderequest').val(),false);
-                            console.log('Sent email, without attachments');
-                            // clear summernote
-                            $('#requestnote').summernote('code','');
-                            showNotes( $('#coderequest').val());
-                            modalAlertMultiple('info',makeSmartyLabel('Alert_note_sucess'),'alert-noteadd');
-                        }
-                    } else {
-                        modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
-                    }
-                },
-                beforeSend: function(){
-                    $("#btnSendNote").html("<i class='fa fa-spinner fa-spin' aria-hidden='true'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
-                },
-                complete: function(){
-                    $("#btnSendNote").html("<i class='fa fa-paper-plane' aria-hidden='true'></i> "+ makeSmartyLabel('Send')).removeClass('disabled');
-                }
-            });
+            
         }
 
         return false;  // <- cancel event
@@ -267,15 +228,44 @@ $(document).ready(function () {
             this.removeFile(file);
         });
 
-        myDropzone.on("queuecomplete", function (file) {        // https://stackoverflow.com/questions/18765183/how-do-i-refresh-the-page-after-dropzone-js-upload
-            console.log('Completed the dropzone queue');
-            //sendNotification('addnote',$('#coderequest').val(),true);
-            console.log('Sent email, with attachments');
-            // clear summernote and dropzone
-            $('#requestnote').summernote('code','');
-            myDropzone.removeAllFiles(true);
-            showNotes( $('#coderequest').val());
-            modalAlertMultiple('info',makeSmartyLabel('Alert_note_sucess'),'alert-noteadd');
+        myDropzone.on("complete", function(file) {
+        
+            if(file.status === "canceled" || file.status === "error"){
+                errorname.push(file.name);
+                flgerror = 1;
+            }else if((file.xhr)){
+                var obj = JSON.parse(file.xhr.response);
+            
+                if(obj.success) {
+                    filesended = filesended + 1;
+                    upname.push(file.name);
+                } else {
+                    errorname.push(file.name);
+                    flgerror = 1;
+                }
+            }
+            
+        });
+    
+        myDropzone.on("queuecomplete", function (file) {
+            var msg,typeMsg;
+    
+            if(errorname.length == 0 && (filesended == dropzonefiles)){
+                saveNote(upname,myDropzone);            
+            }else{
+                var totalAttach = dropzonefiles - filesended;
+                msg = '<h4>'+makeSmartyLabel('files_not_attach_list')+'</h4><br>';
+                errorname.forEach(element => {
+                    msg = msg+element+'<br>';
+                });
+                msg = msg+'<br>'+makeSmartyLabel('hdk_attach_after');
+                typeMsg = 'warning';
+                showNextStep(msg,typeMsg,totalAttach);
+            }        
+            
+            dropzonefiles = 0; 
+            filesended = 0;
+            flgerror = 0;
         });
 
 
@@ -1284,6 +1274,29 @@ alert('aa');
         location.href = path + "/helpdezk/hdkTicket/newTicket" ;
     });
 
+    $("#btnNextYes").click(function(){
+        
+        $('#modal-next-step').modal('hide');
+        saveNote(upname,myDropzone);
+
+    });
+
+    $("#btnNextNo").click(function(){
+        if (!$("#btnNextNo").hasClass('disabled')) {
+            $("#btnNextNo").removeClass('disabled');
+            $('#modal-next-step').modal('hide');
+            errorname = [];
+            upname = [];
+            $('#requestnote').summernote('code','');
+            showNotes( $('#coderequest').val());
+            myDropzone.removeAllFiles(true);
+            
+            if($("#btnSendNote").hasClass('disabled'))
+                $("#btnSendNote").html("<i class='fa fa-paper-plane'></i> "+ makeSmartyLabel('Send')).removeClass('disabled');
+        } 
+
+    });
+
 });
 
 function deleteNote(idnote)
@@ -1435,4 +1448,72 @@ function removeAuxOpe(handler){
                 }
             }
         },'json')
+}
+
+function showNextStep(msg,typeAlert,totalAttach)
+{
+    $('#nexttotalattach').val(totalAttach);
+    $('#next-step-list').html(msg);
+    $('#next-step-message').html(makeSmartyLabel('open_ticket_anyway_question'));
+    $("#type-alert").attr('class', 'col-sm-12 col-xs-12 bs-callout-'+typeAlert);
+    $('#modal-next-step').modal('show');
+
+    return false;
+}
+
+function saveNote(aAttachs,myDropzone)
+{
+    var hasAtt = aAttachs.length > 0 ? true : false;
+    if ($("#callback").is(":checked")) var callback = '1';
+    else var callback = '0';
+
+    $.ajax({
+        type: "POST",
+        url: path + "/helpdezk/hdkTicket/saveNote",
+        data: {
+            noteContent: $('#requestnote').summernote('code'),
+            code_request: $('#coderequest').val(),
+            totalminutes: $("#totalminutes").val(),
+            starthour: $("#started").val(),
+            finishour: $("#finished").val(),
+            execDate: $("#execdate").val(),
+            typehour: $("#typehour").val(),
+            typeNote: $("#typenote").val(),
+            flagNote: 3,
+            attachments:    aAttachs
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
+        },
+        success: function(ret) {
+
+            console.log('ajax saveNote, return: ' + ret);
+
+            if($.isNumeric(ret)) {
+                idNote = ret ;
+                console.log('idnote: ' + idNote);
+                //sendNotification('addnote',$('#coderequest').val(),hasAtt);
+                // clear summernote
+                $('#requestnote').summernote('code','');
+                showNotes( $('#coderequest').val());
+                $("#totalminutes").val('');
+                $("#finished").val('');
+                myDropzone.removeAllFiles(true);
+                modalAlertMultiple('info',makeSmartyLabel('Alert_note_sucess'),'alert-noteadd');
+                errorname = [];
+                upname = [];
+            } else {
+                modalAlertMultiple('danger',makeSmartyLabel('Error_insert_note'),'alert-noteadd');
+            }
+        },
+        beforeSend: function(){
+            /*$("#btnSendNote").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');*/
+        },
+        complete: function(){
+            $("#btnSendNote").html("<i class='fa fa-paper-plane'></i> "+ makeSmartyLabel('Send')).removeClass('disabled');
+        }
+    });
+
+    return false ;
+
 }

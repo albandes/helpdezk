@@ -554,6 +554,7 @@
     {include file='modals/viewticket/modalReopen.tpl'}
     {include file='modals/viewticket/modalEvaluate.tpl'}
     {include file='modals/viewticket/modalDeleteNote.tpl'}
+    {include file='modals/newticket/modal-next-step.tpl'}
 
 
 
