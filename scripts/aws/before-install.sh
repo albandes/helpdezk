@@ -5,8 +5,6 @@ if [ -f $FILE ] ; then
         rm  $FILE
 fi
 
-
-
 if ["$APPLICATION_NAME" == "helpdezk-staging"]
 then
   LANG_PATH=/var/www/html/staging/app/lang/
