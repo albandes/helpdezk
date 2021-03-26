@@ -6,10 +6,10 @@ if [ -f $FILE ] ; then
 fi
 
 
-if [${APPLICATION_NAME} == "helpdezk-staging"]
+if [[${APPLICATION_NAME} == "helpdezk-staging"]]
 then
   LANG_PATH=/var/www/html/staging/app/lang/
-elif [${APPLICATION_NAME} == "quintana-helpdezk"]
+elif [[${APPLICATION_NAME} == "quintana-helpdezk"]]
 then
   LANG_PATH=/var/www/html/helpdezk/app/lang/
 fi
