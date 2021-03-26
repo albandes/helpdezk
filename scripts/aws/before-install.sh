@@ -14,6 +14,7 @@ then
   LANG_PATH=/var/www/html/helpdezk/app/lang/
 fi
 
+
 mv {LANG_PATH}pt_BR.txt {LANG_PATH}pt_BR.txt.BAK
 
 
