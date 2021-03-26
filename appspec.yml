@@ -18,4 +18,10 @@ permissions:
     group: apache
     mode: 764
     type:
-      - directory          
+      - directory      
+hooks:
+  BeforeInstall:
+    - location: /var/www/html/staging/scripts/aws/before-install.sh  
+  AfterInstall:
+    - location: /var/www/html/staging/scripts/aws/after-install.sh          
+    
