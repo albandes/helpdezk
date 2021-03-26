@@ -21,7 +21,6 @@ permissions:
       - directory      
 hooks:
   BeforeInstall:
-    - location: /var/www/html/staging/scripts/aws/before-install.sh  
+    - location: scripts/aws/before-install.sh  
   AfterInstall:
-    - location: /var/www/html/staging/scripts/aws/after-install.sh          
-    
+    - location: scripts/aws/after-install.sh          
