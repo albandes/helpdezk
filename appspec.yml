@@ -1,0 +1,21 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/html/staging
+    owner: apache
+    group: apache
+permissions:
+  - object: /
+    pattern: "**"
+    owner: apache
+    group: apache
+    mode: 764
+    type:
+      - file    
+  - object: /
+    owner: apache
+    group: apache
+    mode: 764
+    type:
+      - directory          
