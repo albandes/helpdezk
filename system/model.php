@@ -181,5 +181,42 @@ class Model extends System{
         return $ret->fields['total'];
     }
 
+    public function saveEmailCron($idmodule,$code,$tag)
+    {
+        $sql =    "INSERT INTO tbemailcron(idmodule,code,date_in,tag,send)
+                    VALUES ($idmodule,'$code',NOW(),'$tag',0);
+                    ";
+        $ret = $this->db->Execute($sql);
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+
+    public function getEmailCron($where)
+    {
+        $sql = "SELECT idemailcron, idmodule, code, date_in, date_out, send, tag
+                    FROM tbemailcron
+                    $where";
+        $ret = $this->db->Execute($sql);
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+
+    public function updateEmailCron($set)
+    {
+        $sql = "UPDATE tbemailcron $set";
+        $ret = $this->db->Execute($sql);
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+
 
 }
