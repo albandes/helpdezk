@@ -19,8 +19,3 @@ permissions:
     mode: 764
     type:
       - directory      
-hooks:
-  BeforeInstall:
-    - location: scripts/aws/before-install.sh  
-  AfterInstall:
-    - location: scripts/aws/after-install.sh          
