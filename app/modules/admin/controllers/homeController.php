@@ -56,6 +56,8 @@ class Home extends admCommon {
 
 
         $smarty->assign('php_version', phpversion());
+        $smarty->assign('php_upload_max_filesize', ini_get('upload_max_filesize'));
+
         $smarty->assign('mysql_version',$this->dbHome->getMysqlVersion());
         $smarty->assign('jquery_version',$this->getJqueryVersion());
         $smarty->assign('smarty_version', $this->smartyVersion);
