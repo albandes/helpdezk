@@ -80,6 +80,7 @@
                         </div>
                         <div class="panel-body">
                             <p>{$smarty.config.php_version}&nbsp;{$php_version}</p>
+                            <p>{$smarty.config.php_upload_max}&nbsp;{$php_upload_max_filesize}</p>
                             <p>{$smarty.config.mysql_version}&nbsp;{$mysql_version}</p>
                             <p>{$smarty.config.jquery_version}&nbsp;{$jquery_version}</p>
                             <p>{$smarty.config.smarty_version}&nbsp;{$smarty_version}</p>
