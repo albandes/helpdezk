@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /var/www/html/helpdezk
+    destination: /var/www/html/staging
     owner: apache
     group: apache
 permissions:
@@ -18,4 +18,4 @@ permissions:
     group: apache
     mode: 764
     type:
-      - directory          
+      - directory      

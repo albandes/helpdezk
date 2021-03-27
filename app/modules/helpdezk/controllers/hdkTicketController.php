@@ -1603,6 +1603,9 @@ class hdkTicket extends hdkCommon {
             $hourtype       = $_POST['hourtype'] ;
         }
 
+        $aAttachs 	= $_POST["attachments"]; // Attachments
+        $aSize = count($aAttachs); // count attachs files
+
         $aParam = array();
         $aParam['code_request'] = $codeRequest;
         $aParam['notecontent'] = $noteContent;
@@ -1627,6 +1630,16 @@ class hdkTicket extends hdkCommon {
         } else {
             if($this->log)
                 $this->logIt("Add note in request # ". $codeRequest . ' - User: ' . $_SESSION['SES_LOGIN_PERSON'],6,'general');
+            
+            // link attachments to the request
+            if($aSize > 0){
+                $retAttachs = $this->linkNoteAttachments($idNoteInsert,$aAttachs);
+                if(!$retAttachs['success']){
+                    if($this->log)
+                        $this->logIt("{$retAttachs['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program}" ,3,'general',__LINE__);
+                    return false;
+                }
+            }
 
             if ($_SESSION['hdk']['SEND_EMAILS'] == '1') {
 
@@ -1658,7 +1671,7 @@ class hdkTicket extends hdkCommon {
 
         $idNote = $_POST['idNote'];
 
-        if (!empty($_FILES)) {
+        if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
             $extension = strrchr($fileName, ".");
@@ -1669,28 +1682,39 @@ class hdkTicket extends hdkCommon {
             }
 
             if(!is_dir($targetPath)) {
-                $this->logIt("Save note attachments, idNote: # ". $idNote . ' - Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                $this->logIt('Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
                 if (!mkdir ($targetPath, 0777 )) {
-                    $this->logIt("Can't save note attachments: # ". $idNote . ' - I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                    $this->logIt('I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_create')}: {$targetPath}"));
+                    exit;
                 }
-
             }
 
-            $idNoteAttachments = $this->dbTicket->saveNoteAttachment($idNote,$fileName);
+            if (!is_writable($targetPath)) {
+                $this->logIt('Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
+                if (!chmod($targetPath,0777)){
+                    $this->logIt('Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_writable')}: {$targetPath}"));
+                    exit;
+                }
+            }
 
-            $targetFile =  $targetPath.$idNoteAttachments.$extension;
+            //$idNoteAttachments = $this->dbTicket->saveNoteAttachment($idNote,$fileName);
+
+            $targetFile =  $targetPath.$fileName;
 
             if (move_uploaded_file($tempFile,$targetFile)){
                 $this->logIt('Add attachment #  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
-                return 'OK';
+                echo json_encode(array("success"=>true,"message"=>""));
             } else {
                 $this->logIt('Error attachment #  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-                return false;
+                echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
             }
 
+        }else{
+            echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
         }
-
-
+        exit;
 
     }
 
@@ -4080,6 +4104,36 @@ class hdkTicket extends hdkCommon {
         return array("success"=>true,"message"=>"");
 
     }
+
+
+    public function linkNoteAttachments($idNote,$aAttachs)
+    {
+        foreach($aAttachs as $key=>$val){
+            $extension = strrchr($val, ".");
+            if($this->_externalStorage) {
+                $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
+            } else {
+                $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/';
+            }
+            $targetOld = $targetPath.$val;
+
+            $idAtt = $this->dbTicket->saveNoteAttachment($idNote,$val);
+            if (!$idAtt) {
+                if($this->log)
+                    $this->logIt('Can\'t save attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                return array("success"=>false,"message"=>"Can't link file {$val} to request {$idNote}");
+            }
+
+            $targetNew =  $targetPath.$idAtt.$extension;
+
+            if(!rename($targetOld,$targetNew)){
+                return array("success"=>false,"message"=>"Can't link file {$val} to request {$idNote}");
+            }
+        }
+        return array("success"=>true,"message"=>"");
+
+    }
+
 
 }
 
