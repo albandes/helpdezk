@@ -4105,6 +4105,7 @@ class hdkTicket extends hdkCommon {
 
     }
 
+
     public function linkNoteAttachments($idNote,$aAttachs)
     {
         foreach($aAttachs as $key=>$val){
@@ -4132,6 +4133,7 @@ class hdkTicket extends hdkCommon {
         return array("success"=>true,"message"=>"");
 
     }
+
 
 }
 
