@@ -35,6 +35,34 @@ class System
     public $_externalStorageUrl;
 
     /**
+     * AWS S3 Bucket Storage
+     *
+     * @var bool
+     */
+    public $_s3bucketStorage;
+
+    /**
+     * AWS S3 Access Key
+     *
+     * @var string
+     */
+    public $_s3bucketAccesKey;
+
+    /**
+     * AWS S3 Secret Key
+     *
+     * @var string
+     */
+    public $_s3bucketSecretKey;
+
+    /**
+     * AWS S3 Secret Key
+     *
+     * @var string
+     */
+    public $_s3bucketRegion;
+
+    /**
      * Use token on the operator link to view the request
      * @var bool
      */
@@ -76,11 +104,19 @@ class System
         $this->jquery = $this->getJqueryVersion();
         $this->summernote = $this->getSummerNoteVersion();
 
-        // External storage settings
-        $this->_externalStorage = $this->getExternalStorage();
-        if ($this->_externalStorage) {
-            $this->_externalStoragePath = $this->getExternalStoragePath();
-            $this->_externalStorageUrl = $this->getExternalStorageUrl();
+        // Aws S3 Bucket Storage
+        $this->_s3bucketStorage = $this->getS3bucketStorage();
+        if ($this->_s3bucketStorage) {
+            $this->_s3bucketAccesKey    = $this->getS3bucketAccessKey();
+            $this->_s3bucketSecretKey   = $this->getS3bucketSecretKey();
+            $this->_s3bucketRegion      = $this->getS3bucketRegion();
+        } else {
+            // External storage settings
+            $this->_externalStorage = $this->getExternalStorage();
+            if ($this->_externalStorage) {
+                $this->_externalStoragePath = $this->getExternalStoragePath();
+                $this->_externalStorageUrl = $this->getExternalStorageUrl();
+            }
         }
 
         // Use of tokens in the request´s view url by the operator
@@ -89,6 +125,66 @@ class System
         $this->logFile = $this->getLogFile('general');
         $this->logFileEmail = $this->getLogFile('email');
 
+    }
+
+    /**
+     * Returns if AWS S3 Bucket Storage is set
+     *
+     * @return bool AWS S3 Bucket Storage is set
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getS3bucketStorage()
+    {
+        $s3bucketStorage = $this->getConfig('s3bucket_storage');
+        if (empty($s3bucketStorage) || $s3bucketStorage == false)
+            return false;
+        else
+            return $s3bucketStorage;
+    }
+  
+    /**
+     * Returns AWS S3 Bucket Access Key
+     *
+     * @return string AWS S3 Bucket Access Key
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getS3bucketAccessKey()
+    {
+        return $this->getConfig('s3bucket_access_key');
+    }
+
+    /**
+     * Returns AWS S3 Bucket Secret Key
+     *
+     * @return string AWS S3 Bucket Secret Key
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getS3bucketSecretKey()
+    {
+        return $this->getConfig('s3bucket_secret_key');
+    }
+
+    /**
+     * Returns AWS S3 Bucket Region
+     *
+     * @return string AWS S3 Bucket Region
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getS3bucketRegion()
+    {
+        return $this->getConfig('s3bucket_region');
     }
 
     /**
@@ -266,15 +362,15 @@ class System
             $externalStoragePath = substr($externalStoragePath, 0, -1);
         }
 
-        $array = array("/files",
-            "/helpdezk/attachments/",
-            "/helpdezk/noteattachments/",
-            "/helpdezk/dashboard/",
-            "/tmp",
-            "/logs",
-            "/icons",
-            "/logos/default/",
-            "/photos/default/");
+        $array = array( "/files",
+                        "/helpdezk/attachments/",
+                        "/helpdezk/noteattachments/",
+                        "/helpdezk/dashboard/",
+                        "/tmp",
+                        "/logs",
+                        "/icons",
+                        "/logos/default/",
+                        "/photos/default/");
 
         if (!file_exists($externalStoragePath)) {
             die ("The external storage directory does not exist: {$externalStoragePath}, method: " . __METHOD__ . ", line: " . __LINE__);
