@@ -1,4 +1,4 @@
-# --- Generated at February 2, 2021, 9:51 am --- 
+# --- Generated at March 27, 2021, 9:59 am --- 
 Abbreviation = "Abbreviation"
 Abilities = "Abilities"
 Access = "Access"
@@ -576,6 +576,7 @@ pgr_warnings = "Warnings"
 pgr_worked_requests = "Worked Requests"
 pgr_work_calendar = "Work Calendar"
 Phone = "Phone"
+php_upload_max = "Max upload file size:"
 php_version = "Php Version:"
 Placeholder_subject = "Enter the subject"
 Placeholder_zipcode = "Enter de Zipcode"

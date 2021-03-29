@@ -1,4 +1,4 @@
-# --- Generated at February 2, 2021, 9:51 am --- 
+# --- Generated at March 27, 2021, 9:59 am --- 
 Abbreviation = "Sigla"
 Abilities = "Habilidades"
 Access = "Accessar"
@@ -581,6 +581,7 @@ pgr_warnings = "Avisos"
 pgr_worked_requests = "Solicita&ccedil;&otilde;es Trabalhadas"
 pgr_work_calendar = "Calend&aacute;rio de Trabalho"
 Phone = "Telefone"
+php_upload_max = "Tamanho máximo de arquivo para upload:"
 php_version = "Versão do php:"
 Placeholder_subject = "Insira o assunto"
 Placeholder_zipcode = "Insira o Cep"
