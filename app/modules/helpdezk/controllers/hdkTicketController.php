@@ -810,13 +810,13 @@ class hdkTicket extends hdkCommon {
             $smarty->assign('flgoperator',0);
         }
 
-        if($typeperson == 3){
+        /*if($typeperson == 3){
             $myGroupsIdPerson = $this->dbTicket->getIdPersonGroup($_SESSION['SES_PERSON_GROUPS']);
             while (!$myGroupsIdPerson->EOF) {
                 $myGroupsIdPersonArr[] = $myGroupsIdPerson->fields['idperson'];
                 $myGroupsIdPerson->MoveNext();
             }
-        }
+        }*/
 
         if($typeperson == 3 && $flgOpeAsUser != 1){
             $smarty->display('viewticket_operator.tpl');
