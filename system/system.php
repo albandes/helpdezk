@@ -1,5 +1,7 @@
 <?php
 
+
+
 class System
 {
 
@@ -106,18 +108,14 @@ class System
 
         // Aws S3 Bucket Storage
         $this->_s3bucketStorage = $this->getS3bucketStorage();
-        if ($this->_s3bucketStorage) {
-            $this->_s3bucketAccesKey    = $this->getS3bucketAccessKey();
-            $this->_s3bucketSecretKey   = $this->getS3bucketSecretKey();
-            $this->_s3bucketRegion      = $this->getS3bucketRegion();
-        } else {
-            // External storage settings
-            $this->_externalStorage = $this->getExternalStorage();
-            if ($this->_externalStorage) {
-                $this->_externalStoragePath = $this->getExternalStoragePath();
-                $this->_externalStorageUrl = $this->getExternalStorageUrl();
-            }
+
+        // External storage settings
+        $this->_externalStorage = $this->getExternalStorage();
+        if ($this->_externalStorage) {
+            $this->_externalStoragePath = $this->getExternalStoragePath();
+            $this->_externalStorageUrl = $this->getExternalStorageUrl();
         }
+
 
         // Use of tokens in the request´s view url by the operator
         $this->_tokenOperatorLink = $this->getEnabledTokenOperatorLink();
@@ -125,7 +123,36 @@ class System
         $this->logFile = $this->getLogFile('general');
         $this->logFileEmail = $this->getLogFile('email');
 
+
+
     }
+
+    /**
+     * Get AWS S3 Client
+     *
+     * @return objec AWS S3 Object
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getAwsS3Client()
+    {
+
+        $region    = $this->getConfig('s3bucket_region');
+        $accessKey = $this->getConfig('s3bucket_access_key');
+        $secretKey = $this->getConfig('s3bucket_secret_key');
+
+        require 'includes/classes/pipegrep/awsClass.php';        
+        
+        $aws = new awsClass($region, $accessKey, $secretKey);
+        
+        $s3Client = $aws->getS3Connection;            
+        
+        return $s3Client;
+
+    }
+
 
     /**
      * Returns if AWS S3 Bucket Storage is set
@@ -145,47 +172,6 @@ class System
             return $s3bucketStorage;
     }
   
-    /**
-     * Returns AWS S3 Bucket Access Key
-     *
-     * @return string AWS S3 Bucket Access Key
-     *
-     * @since 1.1.11 First time this was introduced.
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     */
-    public function getS3bucketAccessKey()
-    {
-        return $this->getConfig('s3bucket_access_key');
-    }
-
-    /**
-     * Returns AWS S3 Bucket Secret Key
-     *
-     * @return string AWS S3 Bucket Secret Key
-     *
-     * @since 1.1.11 First time this was introduced.
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     */
-    public function getS3bucketSecretKey()
-    {
-        return $this->getConfig('s3bucket_secret_key');
-    }
-
-    /**
-     * Returns AWS S3 Bucket Region
-     *
-     * @return string AWS S3 Bucket Region
-     *
-     * @since 1.1.11 First time this was introduced.
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     */
-    public function getS3bucketRegion()
-    {
-        return $this->getConfig('s3bucket_region');
-    }
 
     /**
      * Returns the login type of the person

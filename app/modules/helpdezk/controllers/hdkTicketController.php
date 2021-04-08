@@ -48,7 +48,7 @@ class hdkTicket extends hdkCommon {
         $this->loadModel('evaluation_model');
         $dbEvaluation = new evaluation_model();
         $this->dbEvaluation = $dbEvaluation;
-
+        
     }
 
     public function index()
@@ -594,17 +594,17 @@ class hdkTicket extends hdkCommon {
 
     public function viewrequest()
     {
-
+        
         $smarty = $this->retornaSmarty();
         $langVars = $this->getLangVars($smarty);
-
+        
         $this->makeNavVariables($smarty);
         $this->makeFooterVariables($smarty);
         $this->_makeNavHdk($smarty);
-
+        
         $where = 'WHERE code_request = '.$this->getParam('id');
         $rsTicket = $this->dbTicket->getRequestData($where);
-
+        
         $idperson = $_SESSION['SES_COD_USUARIO'];
         $typeperson = $_SESSION['SES_TYPE_PERSON'];
         $idowner  = $rsTicket->fields['idperson_owner'];
@@ -816,6 +816,7 @@ class hdkTicket extends hdkCommon {
                 $myGroupsIdPersonArr[] = $myGroupsIdPerson->fields['idperson'];
                 $myGroupsIdPerson->MoveNext();
             }
+        }
         }*/
 
         if($typeperson == 3 && $flgOpeAsUser != 1){
@@ -833,52 +834,78 @@ class hdkTicket extends hdkCommon {
         $name = $file;
         $ext = strrchr($name, '.');
 
+        $saveMode = " ";
+        if($this->_s3bucketStorage) 
+            $saveMode = "aws-s3";
+        else
+            $saveMode = 'disk';
+
         switch ($type) {
             case 'note':
-                if($this->_externalStorage) {
-                    $file_name = $this->_externalStoragePath . '/helpdezk/noteattachments/' . $filename . $ext;
+                if($saveMode == 'aws-s3') {
+                    $bucket = $this->getConfig('s3bucket_name');
+                    $url = "https://{$bucket}.s3.amazonaws.com/helpdezk/noteattachments/{$filename}{$ext}" ;
+                    if( ! file_put_contents( $this->helpdezkPath . "/app/uploads/tmp/{$filename}{$ext}" ,file_get_contents($url))) {
+                        if($this->log)
+                            $this->logIt("Can\'t save S3 temp file {$filename}{$ext} - program: ".$this->program ,3,'general',__LINE__);
+                    }
+                    $file_name = $this->helpdezkPath . "/app/uploads/tmp/{$filename}{$ext}" ;
                 } else {
-                    $file_name = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' . $filename . $ext ;
+                    if($this->_externalStorage) {
+                        $file_name = $this->_externalStoragePath . '/helpdezk/noteattachments/' . $filename . $ext;
+                    } else {
+                        $file_name = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' . $filename . $ext ;
+                    }
                 }
-                $pathDownload =  "/app/uploads/helpdezk/noteattachments/";
+                
                 break;
-            case 'request':
-                if($this->_externalStorage) {
-                    $file_name = $this->_externalStoragePath . '/helpdezk/attachments/' . $filename . $ext ;
+
+                case 'request':
+                if($saveMode == 'aws-s3') {
+                    $bucket = $this->getConfig('s3bucket_name');
+                    $url = "https://{$bucket}.s3.amazonaws.com/helpdezk/attachments/{$filename}{$ext}" ;
+                    if( ! file_put_contents( $this->helpdezkPath . "/app/uploads/tmp/{$filename}{$ext}" ,file_get_contents($url))) {
+                        if($this->log)
+                            $this->logIt("Can\'t save S3 temp file {$filename}{$ext} - program: ".$this->program ,3,'general',__LINE__);
+                    }
+                    $file_name = $this->helpdezkPath . "/app/uploads/tmp/{$filename}{$ext}" ;
                 } else {
-                    $file_name = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/' . $filename . $ext ;
+                    if($this->_externalStorage) {
+                        $file_name = $this->_externalStoragePath . '/helpdezk/attachments/' . $filename . $ext ;
+                    } else {
+                        $file_name = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/' . $filename . $ext ;
+                    }
                 }
+
                 break;
         }
-
-
-
-        //$file_name = $this->helpdezkPath . $pathDownload . $filename . $ext;
 
         // required for IE
         if(ini_get('zlib.output_compression')) {
             ini_set('zlib.output_compression', 'Off');
         }
 
-        // get the file mime type using the file extension
-        switch(strtolower(substr(strrchr($file_name, '.'), 1))) {
-            case 'pdf': $mime = 'application/pdf'; break;
-            case 'zip': $mime = 'application/zip'; break;
-            case 'jpeg':
-            case 'jpg': $mime = 'image/jpg'; break;
-            default: $mime = 'application/force-download';
-        }
+        // get the file mime type 
+        $mime =  mime_content_type($filename . $ext) ;
+        if (empty($mime))
+            $mime = 'application/force-download';
+
         header('Pragma: public');   // required
         header('Expires: 0');       // no cache
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Last-Modified: '.gmdate ('D, d M Y H:i:s', filemtime ($file_name)).' GMT');
+        header('Last-Modified: ' . gmdate ('D, d M Y H:i:s', filemtime ($file_name)) . ' GMT');
         header('Cache-Control: private',false);
-        header('Content-Type: '.$mime);
-        header('Content-Disposition: attachment; filename="'.basename($name).'"');
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="' . basename($name) . '"');
         header('Content-Transfer-Encoding: binary');
-        header('Content-Length: '.filesize($file_name));  // provide file size
+        header('Content-Length: '. filesize($file_name));  
         header('Connection: close');
-        readfile($file_name);    // push it out
+        // push it out
+        readfile($file_name);    
+        // delete tem file
+        if($saveMode == 'aws-s3') 
+            unlink($file_name);
+        
         exit();
     }
 
@@ -1672,47 +1699,74 @@ class hdkTicket extends hdkCommon {
         $idNote = $_POST['idNote'];
 
         if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
-            $fileName = $_FILES['file']['name'];
-            $tempFile = $_FILES['file']['tmp_name'];
-            $extension = strrchr($fileName, ".");
-            if($this->_externalStorage) {
-                $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
+            
+            $fileName   = $_FILES['file']['name'];
+            $tempFile   = $_FILES['file']['tmp_name'];
+            $extension  = strrchr($fileName, ".");
+
+            $saveMode = " ";
+            if($this->_s3bucketStorage) {
+                $saveMode = "aws-s3";
             } else {
-                $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/';
+                $saveMode = 'disk';
             }
-
-            if(!is_dir($targetPath)) {
-                $this->logIt('Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
-                if (!mkdir ($targetPath, 0777 )) {
-                    $this->logIt('I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
-                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_create')}: {$targetPath}"));
-                    exit;
+            
+            if($saveMode == 'disk') {
+                if($this->_externalStorage) {
+                    $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
+                } else {
+                    $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/';
                 }
-            }
-
-            if (!is_writable($targetPath)) {
-                $this->logIt('Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
-                if (!chmod($targetPath,0777)){
-                    $this->logIt('Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
-                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_writable')}: {$targetPath}"));
-                    exit;
+    
+                if(!is_dir($targetPath)) {
+                    $this->logIt('Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                    if (!mkdir ($targetPath, 0777 )) {
+                        $this->logIt('I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                        echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_create')}: {$targetPath}"));
+                        exit;
+                    }
                 }
-            }
+    
+                if (!is_writable($targetPath)) {
+                    $this->logIt('Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
+                    if (!chmod($targetPath,0777)){
+                        $this->logIt('Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                        echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_writable')}: {$targetPath}"));
+                        exit;
+                    }
+                }
+    
+                $targetFile =  $targetPath.$fileName;
+    
+                if (move_uploaded_file($tempFile,$targetFile)){
+                    $this->logIt('Add attachment #  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
+                    echo json_encode(array("success"=>true,"message"=>""));
+                } else {
+                    $this->logIt('Error attachment #  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                }
+                
+            } else if ($saveMode == "aws-s3") {
+                
+                $aws = $this->getAwsS3Client();
+                $arrayRet = $aws->copyToBucket($tempFile,'helpdezk/noteattachments/'.$fileName);
+                
+                if($arrayRet['success']) {
+                    if($this->log)
+                        $this->logIt("Save temp attachment file " . $fileName . ' - program: '.$this->program ,7,'general',__LINE__);
 
-            //$idNoteAttachments = $this->dbTicket->saveNoteAttachment($idNote,$fileName);
-
-            $targetFile =  $targetPath.$fileName;
-
-            if (move_uploaded_file($tempFile,$targetFile)){
-                $this->logIt('Add attachment #  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,7,'general',__LINE__);
-                echo json_encode(array("success"=>true,"message"=>""));
-            } else {
-                $this->logIt('Error attachment #  - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
-                echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
-            }
+                    echo json_encode(array("success"=>true,"message"=>""));     
+                } else {
+                    if($this->log)
+                        $this->logIt('I could not save the temp file: '.$fileName.' in S3 bucket !! - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                }               
+            }    
 
         }else{
+            
             echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+        
         }
         exit;
 
@@ -1722,50 +1776,110 @@ class hdkTicket extends hdkCommon {
     {
         $this->protectFormInput();
 
-        $code_request = $_POST['coderequest'];
-
+                
         if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
+            
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
             $extension = strrchr($fileName, ".");
-            if($this->_externalStorage) {
-                $targetPath = $this->_externalStoragePath . '/helpdezk/attachments/' ;
+            
+            
+            $saveMode = " ";
+            if($this->_s3bucketStorage) {
+                $saveMode = "aws-s3";
             } else {
-                $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/';
+                $saveMode = 'disk';
             }
 
-            if(!is_dir($targetPath)) {
-                $this->logIt('Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
-                if (!mkdir ($targetPath, 0777 )) {
-                    $this->logIt('I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
-                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_create')}: {$targetPath}"));
-                    exit;
+            if($saveMode == 'disk') {
+
+                if($this->_externalStorage) {
+                    $targetPath = $this->_externalStoragePath . '/helpdezk/attachments/' ;
+                } else {
+                    $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/';
                 }
-            }
 
-            if (!is_writable($targetPath)) {
-                $this->logIt('Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
-                if (!chmod($targetPath,0777)){
-                    $this->logIt('Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
-                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_writable')}: {$targetPath}"));
-                    exit;
+                if(!is_dir($targetPath)) {
+                    if($this->log)
+                        $this->logIt('Directory: '. $targetPath.' does not exists, I will try to create it. - program: '.$this->program ,7,'general',__LINE__);
+                    if (!mkdir ($targetPath, 0777 )) {
+                        $this->logIt('I could not create the directory: '.$targetPath.' - program: '.$this->program ,3,'general',__LINE__);
+                        echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_create')}: {$targetPath}"));
+                        exit;
+                    }
                 }
+                if (!is_writable($targetPath)) {
+                    if($this->log)
+                        $this->logIt('Directory: '. $targetPath.' Is not writable, I will try to make it writable - program: '.$this->program ,7,'general',__LINE__);
+                    if (!chmod($targetPath,0777)){
+                        $this->logIt('Directory: '.$targetPath.' Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                        echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_directory_not_writable')}: {$targetPath}"));
+                        exit;
+                    }
+                }
+
+                $targetFile =  $targetPath.$fileName;
+
+                if($this->log)
+                    $this->logIt("Save attachment in request # ". $code_request . ' - File: '.$targetFile.' - program: '.$this->program ,7,'general',__LINE__);
+                if (move_uploaded_file($tempFile,$targetFile)){
+                    //return 'OK';
+                    echo json_encode(array("success"=>true,"message"=>""));
+                } else {
+                    //return false;
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                }
+                    
+            } else if ($saveMode == "aws-s3") {
+                
+                /*    
+                $s3Obj = $this->getAwsS3Client();
+                $bucket =  'pipegrep-001';
+
+                try{
+                    $result = $s3Obj->putObject([
+                        'Bucket'     => $bucket,
+                        'Key'        => $fileName,
+                        'SourceFile' => $tempFile,
+                        'ACL'       => 'public-read'
+                        
+                    ]);
+                } catch (S3Exception $e) {
+                    if($this->log)
+                        $this->logIt('Error save file to AWS S3 - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));    
+                    //echo $e->getMessage() . "\n";
+                }
+                */
+                $aws = $this->getAwsS3Client();
+
+                $arrayRet = $aws->copyToBucket($tempFile,'helpdezk/attachments/'.$fileName);
+                
+                if($arrayRet['success']) {
+                    if($this->log)
+                        $this->logIt("Save temp attachment file " . $fileName . ' - program: '.$this->program ,7,'general',__LINE__);
+
+                    echo json_encode(array("success"=>true,"message"=>""));     
+                } else {
+                    if($this->log)
+                        $this->logIt('I could not save the temp file: '.$fileName.' in S3 bucket !! - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                }
+                
+                
+
             }
 
-            $targetFile =  $targetPath.$fileName;
-            $this->logIt("Save attachment in request # ". $code_request . ' - File: '.$targetFile.' - program: '.$this->program ,7,'general',__LINE__);
-            if (move_uploaded_file($tempFile,$targetFile)){
-                //return 'OK';
-                echo json_encode(array("success"=>true,"message"=>""));
-            } else {
-                //return false;
-                echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
-            }
+
 
         }else{
+
             echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+
         }
+
         exit;
+
     }
 
     public function sendNotification()
@@ -4074,33 +4188,61 @@ class hdkTicket extends hdkCommon {
 
     public function linkTicketAttachments($code_request,$aAttachs)
     {
-        foreach($aAttachs as $key=>$val){
-            $extension = strrchr($val, ".");
+
+        $saveMode = " ";
+        if($this->_s3bucketStorage) 
+            $saveMode = "aws-s3";
+        else
+            $saveMode = 'disk';
+        
+        if($saveMode == 'disk') {
             if($this->_externalStorage) {
                 $targetPath = $this->_externalStoragePath . '/helpdezk/attachments/' ;
             } else {
                 $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/attachments/';
             }
-            $targetOld = $targetPath.$val;
+        }     
 
-            $idAtt = $this->dbTicket->saveTicketAtt($code_request,$val);
+        foreach($aAttachs as $key=>$fileName){
+            $idAtt = $this->dbTicket->saveTicketAtt($code_request,$fileName);
             if (!$idAtt) {
                 if($this->log)
                     $this->logIt('Can\'t save attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return array("success"=>false,"message"=>"Can't link file {$val} to request {$code_request}");
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to request {$code_request}");
             }
 
-            $targetNew =  $targetPath.$idAtt.$extension;
+            $extension = strrchr($fileName, ".");
 
-            if(!rename($targetOld,$targetNew)){
-                $delAtt = $this->dbTicket->deleteTicketAtt($idAtt);
-                if (!$delAtt) {
-                    if($this->log)
-                        $this->logIt('Can\'t delete attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            if($saveMode == 'disk') {
+                $targetOld = $targetPath.$fileName;
+                $targetNew =  $targetPath.$idAtt.$extension;
+                if(!rename($targetOld,$targetNew)){
+                    $delAtt = $this->dbTicket->deleteTicketAtt($idAtt);
+                    if (!$delAtt) {
+                        if($this->log)
+                            $this->logIt('Can\'t delete attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+                    }
+                    return array("success"=>false,"message"=>"Can't link file {$fileName} to request {$code_request}");
                 }
-                return array("success"=>false,"message"=>"Can't link file {$val} to request {$code_request}");
+                
+            } else if ($saveMode == 'aws-s3') {
+                $aws = $this->getAwsS3Client();
+                $newFile = $idAtt.$extension;
+                $arrayRet = $aws->renameFile('helpdezk/attachments/'.$fileName,'helpdezk/attachments/'.$newFile);
+                if($arrayRet['success']) {
+                    if($this->log)
+                        $this->logIt("Rename attachment file {$fileName} to {$newFile} - program: {$this->program} ",7,'general',__LINE__);
+                } else {
+                    if($this->log)
+                        $this->logIt('I could not save the attchment file: '.$fileName.' in S3 bucket !! - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                }
+            
             }
+
+
         }
+        
         return array("success"=>true,"message"=>"");
 
     }
@@ -4108,28 +4250,56 @@ class hdkTicket extends hdkCommon {
 
     public function linkNoteAttachments($idNote,$aAttachs)
     {
-        foreach($aAttachs as $key=>$val){
-            $extension = strrchr($val, ".");
+        $saveMode = " ";
+        if($this->_s3bucketStorage) 
+            $saveMode = "aws-s3";
+        else
+            $saveMode = 'disk';
+        
+        if($saveMode == 'disk') {
             if($this->_externalStorage) {
                 $targetPath = $this->_externalStoragePath . '/helpdezk/noteattachments/' ;
             } else {
                 $targetPath = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/';
             }
-            $targetOld = $targetPath.$val;
-
-            $idAtt = $this->dbTicket->saveNoteAttachment($idNote,$val);
+        }            
+            
+        foreach($aAttachs as $key=>$fileName){
+            $idAtt = $this->dbTicket->saveNoteAttachment($idNote,$fileName);
             if (!$idAtt) {
                 if($this->log)
                     $this->logIt('Can\'t save attachment into DB - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-                return array("success"=>false,"message"=>"Can't link file {$val} to request {$idNote}");
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to request {$idNote}");
             }
 
-            $targetNew =  $targetPath.$idAtt.$extension;
+            $extension = strrchr($fileName, ".");
 
-            if(!rename($targetOld,$targetNew)){
-                return array("success"=>false,"message"=>"Can't link file {$val} to request {$idNote}");
-            }
+            if($saveMode == 'disk') {
+                $targetOld = $targetPath.$fileName;
+                $targetNew =  $targetPath.$idAtt.$extension;
+
+                if(!rename($targetOld,$targetNew)){
+                    return array("success"=>false,"message"=>"Can't link file {$fileName} to request {$idNote}");
+                }
+            } else if ($saveMode == 'aws-s3') {
+                $aws = $this->getAwsS3Client();
+                $newFile = $idAtt.$extension;
+                $arrayRet = $aws->renameFile("helpdezk/noteattachments/{$fileName}","helpdezk/noteattachments/{$newFile}");
+                if($arrayRet['success']) {
+                    if($this->log)
+                        $this->logIt("Rename attachment file {$fileName} to {$newFile} - program: {$this->program} ",7,'general',__LINE__);
+                } else {
+                    if($this->log)
+                        $this->logIt('I could not save the attchment file: '.$fileName.' in S3 bucket !! - program: '.$this->program ,3,'general',__LINE__);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                }
+            
+            }    
+
         }
+        
+        
+        
         return array("success"=>true,"message"=>"");
 
     }

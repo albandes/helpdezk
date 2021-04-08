@@ -2,6 +2,7 @@
 
 require_once(HELPDEZK_PATH . '/includes/classes/pipegrep/syslog.php');
 
+
 /*
  *  Common methods - Helpdezk Module
  */
@@ -65,7 +66,7 @@ class hdkCommon extends DynamichdkCommon {
         $this->loadModel('admin/person_model');
         $dbPerson = new person_model();
         $this->dbPerson = $dbPerson;
-
+       
     }
 
     public function _saveNote($aParam)
