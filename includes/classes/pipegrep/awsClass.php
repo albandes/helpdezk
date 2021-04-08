@@ -1,9 +1,11 @@
 <?php
 
+
 if(!file_exists('includes/sdks/aws/aws-autoloader.php'))
    die('includes/sdks/aws/aws-autoloader.php not found !!! ');
 else 
     require_once('E:/home/rogerio/htdocs/git/staging'. '/includes/sdks/aws/aws-autoloader.php');
+
 
 use Aws\S3\S3Client;    
 use Aws\Exception\AwsException;
@@ -36,6 +38,7 @@ class aws {
      */
     public function getS3Connection() 
     {
+
         
         $client = new Aws\S3\S3Client([
             'version'     => 'latest',
@@ -45,6 +48,7 @@ class aws {
                 'secret'   => $this->_secretKey,
             ]
         ]);
+
         
         return $client;
                 
