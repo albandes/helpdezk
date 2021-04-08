@@ -48,21 +48,23 @@ class System
      *
      * @var string
      */
-    public $_s3bucketAccesKey;
+    //public $_s3bucketAccesKey;
 
     /**
      * AWS S3 Secret Key
      *
      * @var string
      */
-    public $_s3bucketSecretKey;
+    //public $_s3bucketSecretKey;
 
     /**
      * AWS S3 Secret Key
      *
      * @var string
      */
-    public $_s3bucketRegion;
+    //public $_s3bucketRegion;
+
+ 
 
     /**
      * Use token on the operator link to view the request
@@ -123,8 +125,7 @@ class System
         $this->logFile = $this->getLogFile('general');
         $this->logFileEmail = $this->getLogFile('email');
 
-
-
+        
     }
 
     /**
@@ -142,14 +143,13 @@ class System
         $region    = $this->getConfig('s3bucket_region');
         $accessKey = $this->getConfig('s3bucket_access_key');
         $secretKey = $this->getConfig('s3bucket_secret_key');
+        $bucket    = $this->getConfig('s3bucket_name');
 
-        require 'includes/classes/pipegrep/awsClass.php';        
-        
-        $aws = new awsClass($region, $accessKey, $secretKey);
-        
-        $s3Client = $aws->getS3Connection;            
-        
-        return $s3Client;
+        require_once ($this->getHelpdezkPath() . '/includes/classes/pipegrep/awsClass.php');
+
+        $aws = new aws($region, $accessKey, $secretKey,$bucket);
+        return $aws;
+
 
     }
 
