@@ -4,7 +4,7 @@
 if(!file_exists('includes/sdks/aws/aws-autoloader.php'))
    die('ERROR: includes/sdks/aws/aws-autoloader.php not found !!!');
 else
-    require_once('E:/home/rogerio/htdocs/git/staging'. '/includes/sdks/aws/aws-autoloader.php');
+    require_once('includes/sdks/aws/aws-autoloader.php');
 
 use Aws\S3\S3Client;    
 use Aws\Exception\AwsException;
