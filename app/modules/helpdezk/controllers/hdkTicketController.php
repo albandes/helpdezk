@@ -4228,7 +4228,7 @@ class hdkTicket extends hdkCommon {
             } else if ($saveMode == 'aws-s3') {
                 $aws = $this->getAwsS3Client();
                 $newFile = $idAtt.$extension;
-                $arrayRet = $aws->renameFile('helpdezk/attachments/'.$fileName,'helpdezk/attachments/'.$newFile);
+                $arrayRet = $aws->renameFile("helpdezk/attachments/{$fileName}","helpdezk/attachments/{$newFile}");
                 if($arrayRet['success']) {
                     if($this->log)
                         $this->logIt("Rename attachment file {$fileName} to {$newFile} - program: {$this->program} ",7,'general',__LINE__);

@@ -103,20 +103,31 @@ class aws {
      * 
      * @return array    Array with status and message
      *
-     * @since 1.1.11 First time this was introduced.
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     * @since           1.1.11 First time this was introduced.
+     * @link            https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+     * 
+     * @author          Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
 
     public function renameFile($oldFile, $newFile, $acl = 'public-read')
     {
-                
+
+        $pos = strripos($oldFile, '/');
+        if ($pos !== false) {
+            $firstPart  = substr($oldFile, 0, $pos);
+            $file       = substr($oldFile, $pos+1);
+            $copySource = "{$firstPart}/".urlencode($file);
+        } else {
+            $copySource = urlencode($oldFile);    
+        }    
+
         $s3Obj = $this->getS3Connection();
         
         try{
             $s3Obj->copyObject([
                 'Bucket'     => $this->_bucket,
-                'CopySource' => "{$this->_bucket}/$oldFile",
+//                'CopySource' => "{$this->_bucket}/$oldFile",
+                'CopySource' => "{$this->_bucket}/$copySource",    
                 'Key'        => $newFile,
                 'ACL'        => $acl
                 
