@@ -146,6 +146,36 @@ class aws {
 
     }    
 
+    /**
+     * 
+     * Remove file in the S3 Bucket
+     * 
+     * @param string    $file  Filename that is in the bucket
+     * 
+     * @return array    Array with status and message
+     *
+     * @since           1.1.11 First time this was introduced.
+     * @link            https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+     * 
+     * @author          Valentin Acosta <vilaxr@gmail.com>
+     */
+    public function removeFile($file)
+    {    
+
+        $s3Obj = $this->getS3Connection();
+        
+        try{
+            $s3Obj->deleteObject(array(
+                'Bucket' => $this->_bucket,
+                'Key'    => $file,
+            ));
+        } catch (S3Exception $e) {
+            return array("success"=>false,"message"=>"Error remove file from AWS S3");    
+        }        
+
+        return array("success"=>true, "message"=>"");
+        
+    }
     function s3Download() {
         $s3Obj = $this->getS3Connection();
         $signed_url = $s3Obj->getObjectUrl(
