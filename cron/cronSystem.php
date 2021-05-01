@@ -34,6 +34,7 @@ class cronSystem{
         $this->logDateHour  = $this->getlogDateHour();
         $this->helpdezkUrl  = $this->getHelpdezkUrl();
         //$this->helpdezkPath = $this->getHelpdezkPath();
+        $this->smartyVersion = $this->_getSmartyVersion();
 
     }
 
@@ -740,6 +741,106 @@ class cronSystem{
     {
         return 'smarty-3.1.32' ;
     }
+
+    public function setSmartyVersionNumber($version)
+    {
+        $this->_smartyVersionNumber = $version;
+    }
+
+    public function getSmartyVersionNumber()
+    {
+        return $this->_smartyVersionNumber;
+    }
+
+    public function retornaSmarty()
+    {
+
+        $smartPluginsDir = $this->_getHelpdezkPath() . "/system/smarty_plugins/";
+        if (!file_exists($smartPluginsDir)) {
+            $this->logIt('ERROR: ' . $smartPluginsDir . ' , does not exist  !!!! Method: '. __METHOD__,3,'general',__LINE__);
+            return false;
+        }
+
+        $smartCompileDir = $this->_getHelpdezkPath() . "/system/templates_c/";
+
+        if (!file_exists($smartCompileDir)) {
+            if (!mkdir($smartCompileDir, 0777, true)) {
+                $this->logIt('ERROR: ' . $smartCompileDir . ' , does not exist and could not be created !!!! Method: '. __METHOD__,3,'general',__LINE__);
+                return false;
+            }
+
+        }
+        if (!is_writable($smartCompileDir)) {
+            if (!chmod($smartCompileDir, 0777)) {
+                $this->logIt($smartCompileDir . ' is not writable !!! Method: '. __METHOD__,3,'general',__LINE__);
+                return false;
+            }
+
+        }
+
+        switch ($this->smartyVersion) {
+            case 'smarty-old':
+                $dirSmarty = $this->_getHelpdezkPath() . '/includes/classes/smarty/smarty-old/Smarty.class.php';
+                break;
+            case 'smarty-2.6.30':
+                $dirSmarty = $this->_getHelpdezkPath() . '/includes/classes/smarty/smarty-2.6.30/libs/Smarty.class.php';
+                break;
+            case 'smarty-3.1.32':
+                $dirSmarty = $this->_getHelpdezkPath() . '/includes/classes/smarty/smarty-3.1.32/libs/Smarty.class.php';
+                $dirPluginDefault = $this->_getHelpdezkPath() . '/includes/classes/smarty/smarty-3.1.32/libs/plugins';
+                break;
+        }
+
+        if (!file_exists($dirSmarty)){
+            $this->logIt('Smarty Class doesn´t exists: ' . $dirSmarty . ' file: ' . __FILE__ .' Method: '. __METHOD__,3,'general',__LINE__);
+            return false;
+        }
+            
+
+        require_once($dirSmarty);
+
+        $smarty = new Smarty;
+        $smarty->debugging = false;
+        $smarty->caching = false;
+        $smarty->template_dir = VIEWS;
+        $smarty->compile_dir = $smartCompileDir;
+
+        $lang_default = $this->getConfig("lang");
+        $license = $this->getConfig("license");
+
+        $smartConfigFile = $this->_getHelpdezkPath() . '/app/lang/' . $lang_default . '.txt';
+        if (!file_exists($smartConfigFile)) {
+            $this->logIt('Lang file: ' . $smartConfigFile . ' does not exist !!!! file: ' . __FILE__ .' Method: '. __METHOD__,3,'general',__LINE__);
+            return false;
+        }
+
+        $this->setSmartyVersionNumber(Smarty::SMARTY_VERSION);
+
+        if (version_compare($this->getSmartyVersionNumber(), '3', '>=')) {
+            $smarty->configLoad($smartConfigFile, $license);
+            $smarty->setPluginsDir(array($dirPluginDefault, $smartPluginsDir));
+        } else {
+            $smarty->config_load($smartConfigFile, $license);
+            $smarty->plugins_dir[] = $smartPluginsDir;
+        }
+
+        $smarty->assign('lang', $lang_default);
+        $smarty->assign('date_format', $this->getConfig("date_format"));
+        $smarty->assign('hour_format', $this->getConfig("hour_format"));
+        $smarty->assign('demo', $this->getConfig("demo"));
+        $smarty->assign('theme', $this->getConfig("theme"));
+        $smarty->assign('path', path);
+        $smarty->assign('id_mask', $this->getConfig('id_mask'));
+        $smarty->assign('ein_mask', $this->getConfig('ein_mask'));
+        $smarty->assign('zip_mask', $this->getConfig('zip_mask'));
+        $smarty->assign('phone_mask', $this->getConfig('phone_mask'));
+        $smarty->assign('cellphone_mask', $this->getConfig('cellphone_mask'));
+
+        $smarty->assign('pagetitle', $this->getConfig("page_title"));
+
+        return $smarty;
+    }
+
 }
 
 ?>
