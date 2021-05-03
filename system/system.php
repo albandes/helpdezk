@@ -1,5 +1,7 @@
 <?php
 
+
+
 class System
 {
 
@@ -106,17 +108,13 @@ class System
 
         // Aws S3 Bucket Storage
         $this->_s3bucketStorage = $this->getS3bucketStorage();
-        if ($this->_s3bucketStorage) {
-            $this->_s3bucketAccesKey    = $this->getS3bucketAccessKey();
-            $this->_s3bucketSecretKey   = $this->getS3bucketSecretKey();
-            $this->_s3bucketRegion      = $this->getS3bucketRegion();
-        } else {
-            // External storage settings
-            $this->_externalStorage = $this->getExternalStorage();
-            if ($this->_externalStorage) {
-                $this->_externalStoragePath = $this->getExternalStoragePath();
-                $this->_externalStorageUrl = $this->getExternalStorageUrl();
-            }
+
+
+        // External storage settings
+        $this->_externalStorage = $this->getExternalStorage();
+        if ($this->_externalStorage) {
+            $this->_externalStoragePath = $this->getExternalStoragePath();
+            $this->_externalStorageUrl = $this->getExternalStorageUrl();
         }
 
         // Use of tokens in the request´s view url by the operator
@@ -125,7 +123,53 @@ class System
         $this->logFile = $this->getLogFile('general');
         $this->logFileEmail = $this->getLogFile('email');
 
+
+
     }
+
+    /**
+     * Get AWS S3 Client
+     *
+     * @return objec AWS S3 Object
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getAwsS3Client()
+    {
+
+        $region    = $this->getConfig('s3bucket_region');
+        $accessKey = $this->getConfig('s3bucket_access_key');
+        $secretKey = $this->getConfig('s3bucket_secret_key');
+        $bucket    = $this->getConfig('s3bucket_name');
+        
+        require_once ($this->getHelpdezkPath() . '/includes/classes/pipegrep/awsClass.php');
+
+        $aws = new aws($region, $accessKey, $secretKey,$bucket);
+        return $aws;
+
+    }
+
+
+    /**
+     * Returns if AWS S3 Bucket Storage is set
+     *
+     * @return bool AWS S3 Bucket Storage is set
+     *
+     * @since 1.1.11 First time this was introduced.
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function getS3bucketStorage()
+    {
+        $s3bucketStorage = $this->getConfig('s3bucket_storage');
+        if (empty($s3bucketStorage) || $s3bucketStorage == false)
+            return false;
+        else
+            return $s3bucketStorage;
+    }
+  
 
     /**
      * Returns if AWS S3 Bucket Storage is set
