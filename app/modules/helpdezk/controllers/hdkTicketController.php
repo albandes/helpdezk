@@ -816,7 +816,6 @@ class hdkTicket extends hdkCommon {
                 $myGroupsIdPersonArr[] = $myGroupsIdPerson->fields['idperson'];
                 $myGroupsIdPerson->MoveNext();
             }
-        }
         }*/
 
         if($typeperson == 3 && $flgOpeAsUser != 1){
