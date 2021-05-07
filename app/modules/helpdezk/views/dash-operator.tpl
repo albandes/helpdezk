@@ -103,6 +103,40 @@
     </div>
 </div>
 
+ <div class="row">
+
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h3>{$smarty.config.Tck_title}</h3>
+                </div>
+                <div class="ibox-content">
+                    {if $typeuser == 3}
+                        <div class="row">
+                            <div class="col-sm-3" style="padding-right: 5px;padding-left: 15px;">
+                                <select class="form-control input-sm" id="cmbTypeExpireDate" name="cmbTypeDate" data-placeholder={$smarty.config.Expire_date} >
+                                    {html_options values=$typeexpdateids output=$typeexpdatevals selected=$idtypeexpdate}
+                                </select>
+                            </div>
+                            <div class="col-sm-3" style="padding-right: 7px;padding-left: 5px;">
+                                <select class="form-control input-sm" id="cmbTypeView" name="cmbTypeView">
+                                    {html_options values=$typeviewids output=$typeviewvals selected=$idtypeview}
+                                </select>
+                            </div>
+                        </div>
+                        <p></p>
+                    {/if}
+                    <div class="jqGrid_wrapper">
+                        <table id="table_list_tickets"></table>
+                        <div id="pager_list_tickets"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 <div class="row">
     <!-- messages -->
 
