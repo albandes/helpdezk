@@ -123,9 +123,8 @@ class System
         $this->logFile = $this->getLogFile('general');
         $this->logFileEmail = $this->getLogFile('email');
 
-
-
     }
+
 
     /**
      * Get AWS S3 Client
