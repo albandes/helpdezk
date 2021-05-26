@@ -123,9 +123,8 @@ class System
         $this->logFile = $this->getLogFile('general');
         $this->logFileEmail = $this->getLogFile('email');
 
-
-
     }
+
 
     /**
      * Get AWS S3 Client
@@ -149,25 +148,6 @@ class System
         $aws = new aws($region, $accessKey, $secretKey,$bucket);
         return $aws;
 
-    }
-
-
-    /**
-     * Returns if AWS S3 Bucket Storage is set
-     *
-     * @return bool AWS S3 Bucket Storage is set
-     *
-     * @since 1.1.11 First time this was introduced.
-     *
-     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
-     */
-    public function getS3bucketStorage()
-    {
-        $s3bucketStorage = $this->getConfig('s3bucket_storage');
-        if (empty($s3bucketStorage) || $s3bucketStorage == false)
-            return false;
-        else
-            return $s3bucketStorage;
     }
   
 
