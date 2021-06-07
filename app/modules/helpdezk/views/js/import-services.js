@@ -26,17 +26,17 @@ $(document).ready(function () {
 
     myDropzone.on("complete", function(file) {
 
-        //var obj = jQuery.parseJSON(JSON.stringify(ret));
         var obj = JSON.parse(file.xhr.response);
-
-        if(obj.status == 'OK' ) {
+        $("#btnProcessFile").html("<i class='fa fa-play'></i> "+ makeSmartyLabel('process')).removeClass('disabled');
+        $("#btnCancel").removeClass('disabled');
+        
+        if(obj.status == "OK") {
             $("#btn-modal-ok").attr("href", '');
-            $('#modal-notification').html('Curriculum cadastrado com sucesso.');
+            $('#modal-notification').html(obj.message);
             $("#tipo-alert").attr('class', 'alert alert-success');
             $('#modal-alert').modal('show');
         } else {
-            console.log('Error: ' + obj.message);
-            // deleteCurriculum(global_idcurriculum);
+            //console.log('Error: ' + obj.message);
             $("#btn-modal-ok").attr("href", '');
             $('#modal-notification').html(obj.message);
             $("#tipo-alert").attr('class', 'alert alert-danger');
@@ -59,18 +59,22 @@ $(document).ready(function () {
 
     $("#btnProcessFile").click(function(){
 
-        if (myDropzone.getQueuedFiles().length > 0) {
-            console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-            //myDropzone.options.params = {coderequest: ticket };
-            myDropzone.processQueue();
-        } else {
-            console.log('No files, no dropzone processing');
-            $("#btn-modal-ok").attr("href", '');
-            $('#modal-notification').html(makeSmartyLabel('Alert_import_services_nofile_failure'));
-            $("#tipo-alert").attr('class', 'alert alert-danger');
-            $('#modal-alert').modal('show');
-
+        if(!$("#btnProcessFile").hasClass('disabled')){
+            if (myDropzone.getQueuedFiles().length > 0) {
+                //console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
+                $("#btnProcessFile").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnCancel").addClass('disabled');
+                myDropzone.processQueue();
+            } else {
+                console.log('No files, no dropzone processing');
+                $("#btn-modal-ok").attr("href", '');
+                $('#modal-notification').html(makeSmartyLabel('Alert_import_services_nofile_failure'));
+                $("#tipo-alert").attr('class', 'alert alert-danger');
+                $('#modal-alert').modal('show');
+    
+            }
         }
+        
     });
 
 
