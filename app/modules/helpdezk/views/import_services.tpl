@@ -172,13 +172,13 @@
                     <div class="row wrapper  white-bg ">
                         <div class="col-sm-12 b-l">
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">{$smarty.config.Manage_instructions}:</label>
-                                <div class="col-sm-3 control-text" style="height:210px;">
+                                <label class="col-sm-4 control-label">{$smarty.config.Manage_instructions}</label>
+                                <div class="col-sm-3 form-control-static" style="height:210px;">
                                     <a href="{$path}/app/uploads/admin/import/{$smarty.config.Manage_layout_service_file}"  target="_blank" title="{$smarty.config.Manage_layout_service}">{$smarty.config.Manage_layout_service}</a>
                                 </div>
                                 <label class="col-sm-1 control-label">{$smarty.config.File}:</label>
                                 <div class="col-sm-3">
-                                    <div class="text-center" style="height:50px;">
+                                    <div class="text-center">
 
                                         <div id="myDropzone" class="dropzone dz-default dz-message" ></div>
 
@@ -188,7 +188,8 @@
 
                         </div>
                     </div>
-
+                    
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
                     <div class="row wrapper  white-bg text-center">
                         <div class="col-sm-12 form-group">
@@ -196,13 +197,13 @@
                                 &nbsp;
                             </div>
                             <div class="col-sm-6 form-group">
-                            <a href="" id="btnCancel" class="btn btn-white btn-lg" role="button">
-                                {$smarty.config.btn_cancel}
-                            </a>
-                            {*<button class="btn btn-white btn-lg" type="submit">&nbsp;{$smarty.config.btn_cancel}</button>*}
-                            <button type="button" class="btn btn-primary btn-lg " id="btnProcessFile" >
-                                <span class="fa fa-check"></span>  &nbsp;{$smarty.config.btn_submit}
-                            </button>
+                                <a href="" id="btnCancel" class="btn btn-white btn-lg" role="button">
+                                <span class="fa fa-times-circle"></span> {$smarty.config.btn_cancel}
+                                </a>
+                                {*<button class="btn btn-white btn-lg" type="submit">&nbsp;{$smarty.config.btn_cancel}</button>*}
+                                <button type="button" class="btn btn-primary btn-lg " id="btnProcessFile" >
+                                    <span class="fa fa-play"></span>  &nbsp;{$smarty.config.process}
+                                </button>
                             </div>
                         </div>
                     </div>
