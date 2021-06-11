@@ -78,62 +78,62 @@ class hdkRelSolicitacoes extends hdkCommon
         $aRelType = $this->_comboReportType();
         $smarty->assign('reltypeids', array_keys($aRelType)); // Returns an array with the original keys
         $smarty->assign('reltypevals', array_values($aRelType)); // Returns an array with the values ​​of the original
-        $smarty->assign('idreltype', 'ALL');
+        $smarty->assign('idreltype', '');
 
         // Assign the combo of the Company field // Data are retrieved from Common, directly
          $aRelCompany = $this->_comboCompanies($idCompany);
          $smarty->assign('adviserids', $aRelCompany['ids']); 
          $smarty->assign('adviservals', $aRelCompany['values']); 
-         $smarty->assign('idreltype', 'ALL');
+         $smarty->assign('idcompany', '');
 
         // Assignment of the Attendants field combo // Data is retrieved from Common, directly
         // Called again, to change the list of attendants when a company is selected
          $aRelOperator = $this->_comboRepassUsers('operator');
          $smarty->assign('operatorids', $aRelOperator['ids']); 
          $smarty->assign('operatorvals', $aRelOperator['values']); 
-         $smarty->assign('idreltype', 'ALL');
+         $smarty->assign('idattendance', '');
 
         // Area filter combo assignment // Data is retrieved from Common, directly
          $aRelArea = $this->_comboArea();
          $smarty->assign('areaids', $aRelArea['ids']); 
          $smarty->assign('areavals', $aRelArea['values']); 
-         $smarty->assign('idreltype', 'ALL');
+         $smarty->assign('idarea', '');
 
         // Assign the combo of the Type field // Data is retrieved from Common, directly
          $aRelType = $this->_comboType($idArea);
          $smarty->assign('typeids', $aRelType['ids']); 
          $smarty->assign('typevals', $aRelType['values']); 
-         $smarty->assign('idreltype', 'ALL');
+         $smarty->assign('idtype', '');
 
         // Item combination sign // Data is retrieved from Common, directly
          $aRelItem = $this->_comboItem($idType);
          $smarty->assign('itemids', $aRelItem['ids']); 
          $smarty->assign('itemvals', $aRelItem['values']); 
-         $smarty->assign('idreltype', 'ALL');
+         $smarty->assign('iditem', '');
 
         // Service field combo assignment // Data is retrieved from Common, directly
          $aRelService = $this->_comboService($idItem);
          $smarty->assign('serviceids', $aRelService['ids']); 
          $smarty->assign('servicevals', $aRelService['values']); 
-         $smarty->assign('idreltype', 'ALL');
+         $smarty->assign('idservice', '');
 
         // Reason field combo sign // Data is retrieved from Common, directly
         $aRelReason = $this->_comboReason($idService);
         $smarty->assign('reasonids', $aRelReason['ids']); 
         $smarty->assign('reasonvals', $aRelReason['values']); 
-        $smarty->assign('idreltype', 'ALL');
+        $smarty->assign('idreason', '');
 
         // Assignment of the Attendance field combo // Data is retrieved from Common, directly
         $aRelAttendance = $this->_comboWay();
         $smarty->assign('attendanceids', $aRelAttendance['ids']); 
         $smarty->assign('attendancevals', $aRelAttendance['values']); 
-        $smarty->assign('idreltype', 'ALL');
+        $smarty->assign('idattendance', '');
 
         // Assign the combo of the Period field // Data is retrieved from the created method
         $aRelTime = $this->_comboReportTime();
         $smarty->assign('timeids', array_keys($aRelTime)); 
         $smarty->assign('timevals', array_values($aRelTime)); 
-        $smarty->assign('idreltype', 'ALL');
+        $smarty->assign('idtime', '');
  
         // Security token processing
         $smarty->assign('token', $this->_makeToken()) ;
@@ -169,7 +169,8 @@ class hdkRelSolicitacoes extends hdkCommon
             4=> $this->getLanguageWord('rel_resumidotipo'),
             5=> $this->getLanguageWord('rel_resumidoitem'),
             6=> $this->getLanguageWord('rel_resumidoservico'),
-            7=> $this->getLanguageWord('rel_resumidotipoatend')
+            7=> $this->getLanguageWord('rel_resumidotipoatend'),
+            8=> $this->getLanguageWord('rel_solicitfinal')
         );
 
         return $relTypes;
@@ -211,6 +212,8 @@ class hdkRelSolicitacoes extends hdkCommon
      * @author Marcelo Moreira <marcelo.moreira@marioquintana.com.br>
      */
     public function getReport(){
+
+        //echo "ok";
         
         $this->protectFormInput();
 
@@ -243,6 +246,8 @@ class hdkRelSolicitacoes extends hdkCommon
             "tipo_rel" => $relType, 
             "periodo_rel" => array($dtstart, $dtfinish)
         );
+
+        //echo $relType;
 
         // Cases for the chosen report types
         // In each, the SQL search has different specifications
@@ -339,7 +344,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 //Search specifications
                 $where .= $relArea == "ALL" ? "" : "AND a.idarea = $relArea ";
                 $where .= "AND a.entry_date BETWEEN '$dtstart' AND '$dtfinish' ";
-                $field = "pipeLatinToUtf8(AREA) `area`"; //pipeLatinToUtf8(type) type;
+                $field = "AREA `area`"; //pipeLatinToUtf8(type) type;
                 $group = "GROUP BY a.idarea";
                 
                 // The variable receives the return from SQL
@@ -351,16 +356,28 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
                 
-                // Method to build the table with the collected data
-                $table_data = $this->defineTable($arrTypeTime, $ret['data']);
+                 // If no data is returned for the "Company" field
+                 if($ret['data']->fields[0] == NULL){
+                    
+                    // Modal "Record not found"
+                    echo json_encode(false);
 
-                // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
-                // The final product is a string of the contents of the table body
-                echo json_encode($table_data);
+                }else{
+
+                     // Method to build the table with the collected data
+                    $table_data = $this->defineTable($arrTypeTime, $ret['data']);
+
+                    // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
+                    // The final product is a string of the contents of the table body
+                    echo json_encode($table_data);
+
+                }
 
             break;
 
             case "4": // Summarized by type
+
+                //echo "ok";
 
                 $relArea = $_POST['cmbArea'];
                 $relTipo = $_POST['cmbTipo'];
@@ -369,9 +386,9 @@ class hdkRelSolicitacoes extends hdkCommon
                 $where .= $relArea == "ALL" ? "" : "AND a.idarea = $relArea ";
                 $where .= $relTipo == "ALL" ? "" : "AND a.idtype = $relTipo ";
                 $where .= "AND a.entry_date BETWEEN '$dtstart' AND '$dtfinish'";
-                $field = "pipeLatinToUtf8(AREA) `area`, pipeLatinToUtf8(type) `type`";
+                $field = "`AREA` `area`, `type` `type`";
                 $group = "GROUP BY a.idtype";
-                $order = "ORDER BY area, type";
+                $order = "ORDER BY `area`, `type`";
 
                 // The variable receives the return from SQL
                 $ret = $this->dbRelSolicitacoes->getFormDataArea($field, $where, $group, $order);
@@ -386,10 +403,23 @@ class hdkRelSolicitacoes extends hdkCommon
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("Área"=>$area = $relArea == "ALL" ? "Todos" : $ret['data']->fields['area']);
 
-                // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
-                // The final product is a string of the contents of the table body
-                echo json_encode($table_data);
+                 // If no data is returned for the "Company" field
+                 if($ret['data']->fields[0] == NULL){
+                    
+                    // Modal "Record not found"
+                    echo json_encode(false);
 
+                }else{
+
+                     // Method to build the table with the collected data
+                    $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+
+                    // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
+                    // The final product is a string of the contents of the table body
+                    echo json_encode($table_data);
+
+                }
+                
             break;
 
             case "5": // Summarized by Item
@@ -403,7 +433,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 $where .= $relTipo == "ALL" ? "" : "AND a.idtype = $relTipo ";
                 $where .= $relItem == "ALL" ? "" : "AND a.iditem = $relItem ";
                 $where .= "AND a.entry_date BETWEEN '$dtstart' AND '$dtfinish'";
-                $field = "pipeLatinToUtf8(AREA) `area`, pipeLatinToUtf8(type) `type`, pipeLatinToUtf8(item) `item`";
+                $field = "AREA `area`, type `type`, item `item`";
                 $group = "GROUP BY a.iditem";
                 $order = "ORDER BY area, type, item";
 
@@ -420,12 +450,22 @@ class hdkRelSolicitacoes extends hdkCommon
                 $subcab = array("Área"=>$area = $relArea == "ALL" ? "Todos" : $ret['data']->fields['area'], 
                 "Tipo"=>$tipo = $relTipo == "ALL" ? "Todos" : $ret['data']->fields['type']);
                 
-                // Method to build the table with the collected data
-                $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+                 // If no data is returned for the "Company" field
+                 if($ret['data']->fields[0] == NULL){
+                    
+                    // Modal "Record not found"
+                    echo json_encode(false);
 
-                // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
-                // The final product is a string of the contents of the table body
-                echo json_encode($table_data);
+                }else{
+
+                     // Method to build the table with the collected data
+                    $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+
+                    // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
+                    // The final product is a string of the contents of the table body
+                    echo json_encode($table_data);
+
+                }
 
             break;
 
@@ -442,7 +482,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 $where .= $relItem == "ALL" ? "" : "AND a.iditem = $relItem ";
                 $where .= $relServico = "ALL" ? "" : "AND a.service = $relServico";
                 $where .= "AND a.entry_date BETWEEN '$dtstart' AND '$dtfinish'";
-                $field = "pipeLatinToUtf8(AREA) `area`, pipeLatinToUtf8(type) `type`, pipeLatinToUtf8(item) `item`, pipeLatinToUtf8(service) `service`";
+                $field = "AREA `area`, type `type`, item `item`, service `service`";
                 $group = "GROUP BY a.idservice";
                 $order = "ORDER BY area, type, item, service";
 
@@ -460,23 +500,34 @@ class hdkRelSolicitacoes extends hdkCommon
                 "Tipo"=>$tipo = $relTipo == "ALL" ? "Todos" : $ret['data']->fields['type'], 
                 "Item"=>$item = $relItem == "ALL" ? "Todos" : $ret['data']->fields['item']);
                 
-                // Method to build the table with the collected data
-                $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+                 // If no data is returned for the "Company" field
+                 if($ret['data']->fields[0] == NULL){
+                    
+                    // Modal "Record not found"
+                    echo json_encode(false);
 
-                // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
-                // The final product is a string of the contents of the table body
-                echo json_encode($table_data);
+                }else{
+
+                     // Method to build the table with the collected data
+                    $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+
+                    // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
+                    // The final product is a string of the contents of the table body
+                    echo json_encode($table_data);
+
+                }
 
             break;
 
             case "7": // Summarized by Type of service
 
+                $relCompany = $_POST['cmbEmpresa'];
                 $relAtend = $_POST['cmbTipoatend'];
 
                 // Search specifications
                 $where .= $relAtend == "ALL" ? "" : "AND a.idattendance_way = $relAtend ";
                 $where .= "AND a.entry_date BETWEEN '$dtstart' AND '$dtfinish'";
-                $field = "pipeLatinToUtf8(way_name) `atendimento`";
+                $field = "way_name `atendimento`";
                 $group = "GROUP BY a.idattendance_way";
                 $order = "ORDER BY way_name";
 
@@ -489,12 +540,80 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
                 
-                // Method to build the table with the collected data
-                $table_data = $this->defineTable($arrTypeTime, $ret['data']);
+                 // If no data is returned for the "Company" field
+                 if($ret['data']->fields[0] == NULL){
+                    
+                    // Modal "Record not found"
+                    echo json_encode(false);
 
-                // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
-                // The final product is a string of the contents of the table body
-                echo json_encode($table_data);
+                }else{
+
+                     // Method to build the table with the collected data
+                    $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+
+                    // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
+                    // The final product is a string of the contents of the table body
+                    echo json_encode($table_data);
+
+                }
+
+            break;
+
+            case "8": // Summarized by Finished Requests
+
+                $relEmpresa = $_POST['cmbEmpresa'];
+                $relAtendente = $_POST['cmbAtendente'];
+
+                // Search specifications
+                $where .= "WHERE b.CODE_REQUEST = a.code_request";
+                $where .= " AND c.code_request = b.CODE_REQUEST";
+                $where .= " AND d.idperson = c.id_in_charge";
+                $where .= " AND a.code_request = e.code_request";
+                $where .= " AND c.ind_in_charge = 1";
+                $where .= " AND f.idstatus = a.idstatus";
+                $where .= " AND a.idstatus IN (4, 5)";
+                $where .= " AND e.finish_date BETWEEN '$dtstart 00:00:00' AND '$dtfinish 23:59:59'";
+                //$group = "";
+                $order = "ORDER BY d.name";
+
+                if($relAtendente != "ALL"){
+                    $where .= " AND c.id_in_charge = $relAtendente";
+                }
+
+                // The variable receives the return from SQL
+                $ret = $this->dbRelSolicitacoes->getFinishedRequests($where, $group, $order);
+
+                if (!$ret['success']) {
+                    if($this->log)
+                        $this->logIt("{$ret['message']}\nProgram: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
+                    return false;
+                }
+
+                //SUBCABEÇALHO
+                $Cwhere = $relEmpresa != "ALL" ? " AND a.idperson = {$relEmpresa} " : "";
+                $Cret = $this->dbRelSolicitacoes->getFormData_Rel1($Cwhere);
+
+                // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
+                $subcab = array("Empresa"=>$company = $relEmpresa == "ALL" ? "Todos" : $Cret['data']->fields['company_name'], 
+                "Atendente"=>$operator = $relAtendente == "ALL" ? "Todos" : $ret['data']->fields['Operator']);
+                
+                 // If no data is returned for the "Company" field
+                 if($ret['data']->fields[0] == NULL){
+                    
+                    // Modal "Record not found"
+                    echo json_encode(false);
+
+                }else{
+
+
+                    // Method to build the table with the collected data
+                    $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
+
+                    // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
+                    // The final product is a string of the contents of the table body
+                    echo json_encode($table_data);
+
+                }
 
             break;
 
@@ -527,52 +646,68 @@ class hdkRelSolicitacoes extends hdkCommon
 
             case "1": // Construction of the table "Summarized by company"
 
+                // First, the variable receives a fixed header
+                $tr_list .= "<tr>
+                <th>Empresa</th>
+                <th>Minutos totais</th>
+                <th>Solicitações</th>
+                </tr>";
+
                 $arrList = array();
                 // Construction inside the loop
                 while(!$dados_pesquisa->EOF){
-                    
-                    // First, the variable receives a fixed header
-                    $tr_list .= "<tr>
-                            <th>Empresa</th>
-                            <th>Minutos totais</th>
-                            <th>Solicitações</th>
-                        </tr>";
-                    
+
                     // Now the data that will be used in the table's <td> are rescued
                     $company= "{$dados_pesquisa->fields['company_name']}";
-                    $totalMin = "{$dados_pesquisa->fields['total_min']}";
-                    $totalMinInt = intval($totalMin);
+                    $tempo_total = "{$dados_pesquisa->fields['total_min']}";
                     $totalRequest =  "{$dados_pesquisa->fields['total_request']}";
+                    
+                    // If the total time is more than 60 minutes
+                    // Express time in hour and minute units
+                    if($tempo_total > 60){
+
+                        $horas = intval($tempo_total/60);
+                        $min = intval($tempo_total%60);
+                        $TimeInt = intval($dados_pesquisa->fields['total_min']);
+                        $tempo_total = "$TimeInt - {$horas}h{$min}min"; 
+
+                    }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
+                    
+
                    $tr_list .= "<tr>
                          <td>{$company}</td>
-                         <td>{$totalMin}</td>
-                        <td>{$totalRequest}</td>
+                         <td class = 'text-right'>{$tempo_total}</td>
+                        <td class = 'text-right'>{$totalRequest}</td>
                     </tr>";
                     
                     // This array receives the data used in the table data of the table
-                    array_push($arrList, array($company,$totalMinInt,$totalRequest));
+                    array_push($arrList, array($company,$tempo_total,$totalRequest));
                     
                     // To prevent everlasting loops
                     $dados_pesquisa->MoveNext();
     
                 }
+
+                // Merging two arrays // Key-value pair for the period will be in the first position
+                $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
+                $subcabecalhof = array_merge($periodo, $subcabecalho);
     
-                 // This session is created so that the data can be used in the Export method
-                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
-                 $_SESSION['reportData'] =  array(
-                    "titulo1" => "Resumido por Empresa",
-                    "periodo" => "De {$dtstart} até {$dtfinish}",
-                    "tabhead" => array("Empresa","Minutos","Solicitações"),
-                    "rows" => $arrList,
-                    "wth" => array(100,40,40),
-                    "orientation" => "P",
-                    "wLine" => 200,
-                    "wh2" => 190,
-                    "wrow" => array(100,40,40),
-                    "alignrow" => array("L","C","C")
-                );
+                // This session is created so that the data can be used in the Export method
+                // If not, the data would have to be returned to Ajax, and from itself back to PHP
+                $_SESSION['reportData'] =  array(
+                "titulo1" => "Resumido por Empresa",
+                "subcabecalho" => $subcabecalhof,
+                "tabhead" => array("Empresa","Minutos","Solicitações"),
+                "rows" => $arrList,
+                "wth" => array(100,40,40),
+                "orientation" => "P",
+                "wLine" => 200,
+                "wh2" => 190,
+                "wrow" => array(100,40,40),
+                "alignrow" => array("L","R","R")
+            );
 
             break;
         
@@ -619,11 +754,11 @@ class hdkRelSolicitacoes extends hdkCommon
                             <td>{$atendente}</td>
                             <td>{$departamento}</td>
                             <td>{$empresa}</td>
-                            <td>{$total_tempo}</td>
-                            <td>{$novos}</td>
-                            <td>{$repassados}</td>
-                            <td>{$em_atendimento}</td>
-                            <td>{$finalizado}</td>
+                            <td class = 'text-right'>{$total_tempo}</td>
+                            <td class = 'text-right'>{$novos}</td>
+                            <td class = 'text-right'>{$repassados}</td>
+                            <td class = 'text-right'>{$em_atendimento}</td>
+                            <td class = 'text-right'>{$finalizado}</td>
 
                         </tr>";
 
@@ -633,12 +768,16 @@ class hdkRelSolicitacoes extends hdkCommon
                         // To prevent everlasting loops
                         $dados_pesquisa->MoveNext();
                 }
+
+                // Merging two arrays // Key-value pair for the period will be in the first position
+                $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
+                $subcabecalhof = array_merge($periodo, $subcabecalho);
                 
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
                 "titulo1" => "Resumido por Atendente",
-                "periodo" => "De {$dtstart} até {$dtfinish}",
+                "subcabecalho" => $subcabecalhof,
                 "tabhead" => array("Atendente", "Departamento", "Empresa", "Total de Tempo", "Novos", "Repassados", "Em atendimento", "Finalizado"),
                 "rows" => $arrList,
                 "wth" => array(55,45,42,35,17,23,28,20),
@@ -646,7 +785,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 285,
                 "wh2" => 270,
                 "wrow" => array(55,45,42,35,17,23,28,20),
-                "alignrow" => array("L","C","C","C","C","C","C","C")
+                "alignrow" => array("L","C","C","R","R","R","R","R")
                 );
 
             break;
@@ -680,7 +819,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
                     $tr_list .= "<tr>
                             <td>{$area}</td>
-                            <td>{$tempo_total}</td>
+                            <td class = 'text-right'>{$tempo_total}</td>
                         </tr>";
 
                         // This array receives the data used in the table data of the table
@@ -689,12 +828,16 @@ class hdkRelSolicitacoes extends hdkCommon
                         // To prevent everlasting loops
                         $dados_pesquisa->MoveNext();
                 }
+
+                // Merging two arrays // Key-value pair for the period will be in the first position
+                $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
+                $subcabecalhof = array_merge($periodo, $subcabecalho);
                     
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
                 "titulo1" => "Resumido por Área",
-                "periodo" => "De {$dtstart} até {$dtfinish}",
+                "subcabecalho" => $subcabecalhof,
                 "tabhead" => array("Área", "Tempo Total"),
                 "rows" => $arrList,
                 "wth" => array(120,60),
@@ -702,7 +845,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","C")
+                "alignrow" => array("L","R")
                 );
 
             break;
@@ -729,7 +872,7 @@ class hdkRelSolicitacoes extends hdkCommon
 
                         // A new colspan cell is created that will receive the name of the area
                         $tr_list .= "<tr>
-                                <td colspan='2' style='background-color: #0f0f0f;color: #ffffff'>
+                                <td colspan='2' style='background-color: #0f0f0f;color: #ffffff;'>
                                     <div class='col-sm-12'>
                                         <div class='form-group'>
                                             <label class='form-label col-sm-2'></label>
@@ -760,7 +903,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
                     $tr_list .= "<tr>
                         <td>{$tipo}</td>
-                        <td>{$tempo_total}</td>
+                        <td class = 'text-right'>{$tempo_total}</td>
                     </tr>";
 
                     // This array receives the data used in the table data of the table
@@ -787,7 +930,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","C"),
+                "alignrow" => array("L","R"),
                 "colspan" => true
                 );
 
@@ -823,7 +966,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
                     $tr_list .= "<tr>
                             <td>{$item}</td>
-                            <td>{$tempo_total}</td>
+                            <td class = 'text-right'>{$tempo_total}</td>
                         </tr>";
 
                         // This array receives the data used in the table data of the table
@@ -849,7 +992,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","C")
+                "alignrow" => array("L","R")
                 );
 
             break;
@@ -861,7 +1004,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 // First, the variable receives a fixed header
                 $tr_list .= "<tr>
                     <th>Serviço</th>
-                    <th>Total Tempo</th>
+                    <th class = 'text-right'>Total Tempo</th>
                 </tr>";
 
                 while(!$dados_pesquisa->EOF){
@@ -883,7 +1026,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
                     $tr_list .= "<tr>
                             <td>{$servico}</td>
-                            <td>{$tempo_total}</td>
+                            <td class = 'text-right'>{$tempo_total}</td>
                         </tr>";
 
                         // This array receives the data used in the table data of the table
@@ -909,12 +1052,12 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","C")
+                "alignrow" => array("L","R")
                 );
 
             break;
 
-            case "7": // Construction of the table "Summarized by service"
+            case "7": // Construction of the table "Summarized by Attendance"
 
                 $arrList = array();
 
@@ -943,7 +1086,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
                     $tr_list .= "<tr>
                             <td>{$tipo_atendimento}</td>
-                            <td>{$tempo_total}</td>
+                            <td class = 'text-right'>{$tempo_total}</td>
                         </tr>";
 
                         // This array receives the data used in the table data of the table
@@ -955,13 +1098,13 @@ class hdkRelSolicitacoes extends hdkCommon
 
                 // Add the period to the data array that will form the subheader
                 $periodo = "De {$dtstart} até {$dtfinish}";
-                array_unshift($subcabecalho, $periodo);
+                $subcabecalhof = array_merge($subcabecalho, $periodo);
                     
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
                 "titulo1" => "Resumido por Serviço",
-                "periodo" => "De {$dtstart} até {$dtfinish}",
+                "subcabecalho" => $subcabecalhof,
                 "tabhead" => array("Tipo de atendimento", "Tempo Total"),
                 "rows" => $arrList,
                 "wth" => array(120,60),
@@ -969,7 +1112,76 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","C")
+                "alignrow" => array("L","R")
+                );
+
+            break;
+
+            case "8": // Construction of the table "Finished Requests"
+
+                $arrList = array();
+
+                // First, the variable receives a fixed header
+                $tr_list .= "<tr>
+                    <th>Code</th>
+                    <th>Subject</th>
+                    <th>Operator</th>
+                    <th>Minutes</th>
+                    <th>Status</th>
+                </tr>";
+
+                while(!$dados_pesquisa->EOF){
+
+                    // Now the data that will be used in the table's <td> are rescued
+                    $code = "{$dados_pesquisa->fields['Code']}";
+                    $subject = "{$dados_pesquisa->fields['Subject']}";
+                    $operator = "{$dados_pesquisa->fields['Operator']}";
+                    $tempo_total = "{$dados_pesquisa->fields['Minutes']}";
+                    $status = "{$dados_pesquisa->fields['Status']}";
+
+                    // If the total time is more than 60 minutes
+                    // Express time in hour and minute units
+                    if($tempo_total > 60){
+
+                        $horas = intval($tempo_total/60);
+                        $min = intval($tempo_total%60);
+                        $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
+
+                    }
+
+                    //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
+                    $tr_list .= "<tr>
+                            <td>{$code}</td>
+                            <td>{$subject}</td>
+                            <td>{$operator}</td>
+                            <td class = 'text-right'>{$tempo_total}</td>
+                            <td>{$status}</td>
+                        </tr>";
+
+                        // This array receives the data used in the table data of the table
+                        array_push($arrList, array($code, $subject, $operator, $tempo_total, $status));
+
+                        // To prevent everlasting loops
+                        $dados_pesquisa->MoveNext();
+                }
+
+                // Merging two arrays // Key-value pair for the period will be in the first position
+                $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
+                $subcabecalhof = array_merge($periodo, $subcabecalho);
+                    
+                // This session is created so that the data can be used in the Export method
+                // If not, the data would have to be returned to Ajax, and from itself back to PHP
+                $_SESSION['reportData'] =  array(
+                "titulo1" => "Solicitações Finalizadas",
+                "subcabecalho" => $subcabecalhof,
+                "tabhead" => array("Code", "Subject", "Operator", "Minutes", "Status"),
+                "rows" => $arrList,
+                "wth" => array(35,80,70,30,50),
+                "orientation" => "L",
+                "wLine" => 285,
+                "wh2" => 270,
+                "wrow" => array(35,80,70,30,50),
+                "alignrow" => array("L","C","C","R","C")
                 );
 
             break;

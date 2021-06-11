@@ -75,6 +75,8 @@ $(document).ready(function () {
             case '':
                 //Então os campos dependentes do filtro "tipo de relatório" desaparecem, exceto o próprio
                 $(".relDep").addClass('hide');
+                $("#campoCalendars").addClass('hide');
+
             break;
 
             case '1': //Resumido por empresa
@@ -186,6 +188,22 @@ $(document).ready(function () {
 
         //O campo "Item" aparece
         $("#campoAttendance").removeClass('hide');
+
+    break;
+
+    case '8': //Solicitações Finalizadas
+        
+        //Todos que são dependentes do tipo de rel desaparecem
+        $(".relDep").addClass('hide');
+
+        //Então os campos obrigatórios aparecem, que é únicamente o período
+        $("#campoTimeSelect").removeClass('hide');
+
+        //Então o campo Empresa aparece
+        $("#campoCompany").removeClass('hide');
+
+         //Então o campo Atendente aparece
+         $("#campoOperator").removeClass('hide');
 
     break;
    
@@ -339,6 +357,10 @@ $(document).ready(function () {
 
         switch($(this).val()){
 
+            case '':
+                //Então o campo de Calendários desaparece
+                $("#campoCalendars").addClass('hide');
+            break;
             case '1':
             case '2':
             case '3':
@@ -375,8 +397,6 @@ $(document).ready(function () {
             return false ;
         }
 
-        console.log("Botão de busca foi clicado");
-
         if(!$("#btnSearch").hasClass('disabled')){
             $.ajax({
                 type: "POST",
@@ -390,8 +410,6 @@ $(document).ready(function () {
                     modalAlertMultiple('danger',makeSmartyLabel('Alert_get_data'),'alert-inv-report');
                 },
                 success: function(ret){
-
-                    //console.log("oook"); 
                     
                     //Para evitar sobreposição de conteúdo
                     $("#returnTable tbody").empty();
@@ -401,7 +419,7 @@ $(document).ready(function () {
 
                         $('.returnBox').removeClass('hide');
                         $("#returnTable tbody").html(ret);
-
+                        $("th").css("text-align", "center");
 
                     }else{
                         if(!$('.returnBox').hasClass('hide'))
@@ -536,10 +554,10 @@ $(document).ready(function () {
             cmbTipoPeriodo: "required",
             cmbEmpresa:  {
                 //required quando...
-                required:function(element){ return ($('#cmbRelType').val() == '1' || $('#cmbRelType').val() == '2')}
+                required:function(element){ return ($('#cmbRelType').val() == '1' || $('#cmbRelType').val() == '2' || $('#cmbRelType').val() == '8')}
             },
             cmbAtendente: {
-                required:function(element){ return $('#cmbRelType').val() == '2' && $('#cmbEmpresa').val() != ""}
+                required:function(element){ return $('#cmbRelType').val() == '2' && $('#cmbEmpresa').val() != "" || $('#cmbRelType').val() == '8'}
             },cmbArea:  {
                 required:function(element){ return $('#cmbRelType').val() == '3' || $('#cmbRelType').val() == '4' || $('#cmbRelType').val() == '5' || $('#cmbRelType').val() == '6'}
             },
@@ -553,10 +571,10 @@ $(document).ready(function () {
                 required:function(element){ return $('#cmbRelType').val() == '7'}
             },dtstart: {
                 required:function(element){return $('#cmbTipoPeriodo').val() == '4';},
-                //checkDtStart:function(element){return $('#cmbTipoPeriodo').val() == '4';}
+                checkDtStart:function(element){return $('#cmbTipoPeriodo').val() == '4';}
             },dtfinish: {
                 required:function(element){return $('#cmbTipoPeriodo').val() == '4';},
-                //checkDtFinish:function(element){return $('#cmbTipoPeriodo').val() == '4';}
+                checkDtFinish:function(element){return $('#cmbTipoPeriodo').val() == '4';}
             }
 
             /*cmbMotivo: {
@@ -564,7 +582,7 @@ $(document).ready(function () {
             },*/
         },
         messages: {
-            cmbRelType: {required:makeSmartyLabel('Alert_field_required')}, //old: makeSmartyLabel('Alert_field_required')
+            cmbRelType: {required:makeSmartyLabel('Alert_field_required')}, 
             cmbEmpresa: {required:makeSmartyLabel('Alert_field_required')},
             cmbTipoPeriodo: {required:makeSmartyLabel('Alert_field_required')},
             cmbAtendente: {required:makeSmartyLabel('Alert_field_required')},
@@ -591,9 +609,9 @@ $(document).ready(function () {
 
 
     $.validator.addMethod('checkDtStart', function(dtStart) {
-        //console.log($('#cmbTypeReport').val());
-        /*if($('#cmbTypeReport').val() == '1')
-            return true;*/
+        //console.log($('#cmbTipoPeriodo').val());
+        if($('#cmbTipoPeriodo').val() != '4')
+            return true;
 
         var parts = dtStart.split('/') , dtFinish = $("#dtfinish").val(), partsFinish = dtFinish.split('/');
 
@@ -605,8 +623,8 @@ $(document).ready(function () {
     }, makeSmartyLabel('Alert_start_date_error'));
 
     $.validator.addMethod('checkDtFinish', function(dtFinish) {
-        /*if($('#cmbTypeReport').val() == '1')
-            return true;*/
+        if($('#cmbTipoPeriodo').val() != '4')
+            return true;
 
         var parts = dtFinish.split('/') , dtStart = $("#dtstart").val(), partsStart = dtStart.split('/');
 

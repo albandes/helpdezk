@@ -43,7 +43,7 @@ class relsolicitacoes_model extends DynamicRelsolicitacoes_model{
     public function getFormData_Rel2($dtinterval_note, $dtinterval_request, $where=null,$group=null,$order=null,$limit=null) {
 
         //Esta SQL traz os dados quando o tipo de relatório é igual a 1
-        $sql = " SELECT `pipeLatinToUtf8`(d.name) operator,`pipeLatinToUtf8`(b.name) department, `pipeLatinToUtf8`(c.name)  company,
+        $sql = " SELECT d.name operator,b.name department, c.name company,
         ROUND(SUM(CASE WHEN ($dtinterval_note AND e.minutes > 0) THEN e.minutes END)) TOTAL_TEMPO,
         COUNT(DISTINCT (CASE WHEN (f.idstatus = 1 AND $dtinterval_request AND g.ind_in_charge = 1) THEN (f.code_request) END)) NEW,
         COUNT(DISTINCT (CASE WHEN (f.idstatus = 2 AND $dtinterval_request AND g.ind_in_charge = 1) THEN f.code_request END)) REPASSED,
@@ -58,7 +58,7 @@ class relsolicitacoes_model extends DynamicRelsolicitacoes_model{
         AND e.code_request = f.code_request
         AND f.code_request = g.code_request
         AND a.idperson = g.id_in_charge
-        $where $group $order $limit";
+        $where $group $order $limit"; //echo "$sql\n";
 
         $ret = $this->db->Execute($sql); //echo "{$sql}\n";
 
@@ -71,11 +71,16 @@ class relsolicitacoes_model extends DynamicRelsolicitacoes_model{
 
     public function getFormDataArea($field, $where=null,$group=null,$order=null,$limit=null){
 
+        //echo "ok";
+
         $sql = "SELECT $field, ROUND(SUM(minutes)) total_time
         FROM hdk_viewRequestData a, hdk_tbnote b
-        WHERE a.code_request = b.code_request $where $group $order $limit";
+        WHERE a.code_request = b.code_request $where $group $order $limit"; //echo $sql;
 
         $ret = $this->db->Execute($sql); //echo "{$sql}\n"; 
+        //if($ret != null){
+            //echo "ok"; die();
+        //}
 
         if($ret)
             return array('success' => true, 'message' => '', 'data' => $ret);
@@ -100,6 +105,30 @@ class relsolicitacoes_model extends DynamicRelsolicitacoes_model{
         else
             return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
             
+    }
+
+    public function getFinishedRequests($where=null,$group=null,$order=null,$limit=null){
+
+        $sql = "SELECT 
+        a.code_request AS Code,
+        CONVERT(a.subject USING utf8) AS `Subject`,
+        d.name AS Operator,
+        b.MIN_EXPENDED_TIME AS Minutes,
+        f.name AS Status FROM
+        hdk_tbrequest a,
+        hdk_tbrequest_times b,
+        hdk_tbrequest_in_charge c,
+        tbperson d,
+        hdk_tbrequest_dates e,
+        hdk_tbstatus f $where $group $order $limit";
+
+        $ret = $this->db->Execute($sql); //echo "{$sql}\n"; //$ret = $this->db->Execute($sql)
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+
     }
 
 

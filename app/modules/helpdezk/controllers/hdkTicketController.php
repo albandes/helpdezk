@@ -1580,16 +1580,26 @@ class hdkTicket extends hdkCommon {
         }
 
         $filename = $_SESSION['SES_LOGIN_PERSON'] . "_report_".time().".pdf";
-        $fileNameWrite = $this->helpdezkPath . '/app/tmp/'. $filename ;
-        $fileNameUrl   = $this->helpdezkUrl . '/app/tmp/'. $filename ;
+        $fileNameWrite = $this->helpdezkPath . '/app/downloads/tmp/'. $filename ;
+        $fileNameUrl   = $this->helpdezkUrl . '/app/downloads/tmp/'. $filename ;
 
-        if(!is_writable($this->helpdezkPath . '/app/tmp/')) {
-
-            if( !chmod($this->helpdezkPath . '/app/tmp/', 0777) )
-                $this->logIt("Make report request # ". $rsTicket->fields['code_request'] . ' - Directory ' . $this->helpdezkPath . '/app/tmp/' . ' is not writable ' ,3,'general',__LINE__);
-
+        if(!is_dir($this->helpdezkPath . '/app/downloads/tmp/')) {
+            $this->logIt('Target Directory: '. $this->helpdezkPath . '/app/downloads/tmp/' .' does not exists, I will try to create it. - program: '.$this->program ,6,'general',__LINE__);
+            if (!mkdir ($this->helpdezkPath . '/app/downloads/tmp/', 0777 )) {
+                $this->logIt('I could not create the directory: '. $this->helpdezkPath . '/app/downloads/tmp/' .' - program: '.$this->program ,3,'general',__LINE__);
+                return false;
+            }
         }
 
+        if(!is_writable($this->helpdezkPath . '/app/downloads/tmp/')) {
+            if($this->log)
+                $this->logIt("Target Directory: ".$this->helpdezkPath . '/app/downloads/tmp/'.' is not writable - program: '.$this->program ,3,'general',__LINE__);
+
+            if( !chmod($this->helpdezkPath . '/app/downloads/tmp/', 0777) ){
+                $this->logIt("Make report request # ". $rsTicket->fields['code_request'] . ' - Directory ' . $this->helpdezkPath . '/app/tmp/' . ' is not writable ' ,3,'general',__LINE__);
+                return false;
+            }
+        }
 
         $pdf->Output($fileNameWrite,'F');
         echo $fileNameUrl;
