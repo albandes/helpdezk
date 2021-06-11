@@ -157,6 +157,7 @@
                 left:0;
                 top:0;
             }
+
         }
 
 
@@ -212,8 +213,8 @@
                             <label class="col-sm-2 control-label">{$smarty.config.rel_tiporel}:</label>
                             <div class="col-sm-5">
                                 <select class="form-control input-sm" name="cmbRelType" id="cmbRelType" >
-                                    <option value="">{$smarty.config.Select}</option>
-                                    {html_options values=$reltypeids output=$reltypevals selected=$idAdviser}
+                                    <option value="" disabled hidden selected>{$smarty.config.Select}</option>
+                                    {html_options values=$reltypeids output=$reltypevals selected=$idreltype}
                                 </select>
                             </div>
                         </div>
@@ -368,7 +369,7 @@
                     <!-- Campo escolha tempo -->
                     <div id = "campoTimeSelect" class="col-sm-11 b-l relDep hide">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Período(n_sm):</label>
+                            <label class="col-sm-2 control-label">Período:</label>
                             <div class="col-sm-5">
                                 <select class="form-control input-sm" name="cmbTipoPeriodo" id="cmbTipoPeriodo" >
                                     <option value="">{$smarty.config.Select}</option>
@@ -383,7 +384,7 @@
                     <div class="col-sm-1 b-l"></div>
 
                 <!-- Campo Calendários -->
-                <div id="campoCalendars" class="col-sm-11 b-l relDep hide">
+                <div id="campoCalendars" class="col-sm-11 b-l hide">
                     <div class="form-group campoRel">
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">De:</label>
