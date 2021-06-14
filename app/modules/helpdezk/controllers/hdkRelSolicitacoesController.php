@@ -671,6 +671,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $TimeInt = intval($dados_pesquisa->fields['total_min']);
                         $tempo_total = "$TimeInt - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -742,6 +745,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($total_tempo%60);
                         $total_tempo = "{$dados_pesquisa->fields['TOTAL_TEMPO']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     $novos = "{$dados_pesquisa->fields['NEW']}";
@@ -814,6 +820,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($tempo_total%60);
                         $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -872,13 +881,8 @@ class hdkRelSolicitacoes extends hdkCommon
 
                         // A new colspan cell is created that will receive the name of the area
                         $tr_list .= "<tr>
-                                <td colspan='2' style='background-color: #0f0f0f;color: #ffffff;'>
-                                    <div class='col-sm-12'>
-                                        <div class='form-group'>
-                                            <label class='form-label col-sm-2'></label>
-                                            <div class='col-sm-10'>{$dados_pesquisa->fields['area']}</div>
-                                        </div>
-                                    </div>
+                                <td class = 'text-center' colspan='2' style='background-color: #BEBEBE;color: #000;'>
+                                    {$dados_pesquisa->fields['area']}
                                 </td>
                             </tr>";
                     
@@ -898,6 +902,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($tempo_total%60);
                         $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -961,6 +968,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($tempo_total%60);
                         $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -1021,6 +1031,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($tempo_total%60);
                         $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -1081,6 +1094,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($tempo_total%60);
                         $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -1147,6 +1163,9 @@ class hdkRelSolicitacoes extends hdkCommon
                         $min = intval($tempo_total%60);
                         $tempo_total = "{$dados_pesquisa->fields['total_time']} - {$horas}h{$min}min"; 
 
+                    }else if($tempo_total < 0){
+
+                        $tempo_total = 0;
                     }
 
                     //Now, the variable next to the fixed header you received, adds the structure of the <tds> and their values
@@ -1332,7 +1351,7 @@ class hdkRelSolicitacoes extends hdkCommon
 
         $title =  html_entity_decode(utf8_decode($rowsData['titulo1']),ENT_QUOTES, "ISO8859-1"); //Title //$rowsData['titulo1']?
         $PdfPage = (utf8_decode($this->getLanguageWord('PDF_Page'))) ; //Page numbering
-        $leftMargin = 10; //Left margin = largura total página - largura da tabela /2
+        $leftMargin = 10; 
 
         $logo = array("file" => $this->helpdezkPath . '/app/uploads/logos/' .  $this->getReportsLogoImage(),
             "posx" => $leftMargin + 10,
@@ -1384,7 +1403,7 @@ class hdkRelSolicitacoes extends hdkCommon
             $th[$tb_th] = array("txt"=>html_entity_decode(utf8_decode($rowsData['tabhead'][$tb_th]),ENT_QUOTES, "ISO8859-1"),
                     "width"=> $rowsData['wth'][$tb_th], 
                     "height" => $CelHeight,
-                    "border" => 1,
+                    "border" => 0,
                     "ln"=> $tb_th == ($table_total_col-1) ? 1: 0, //Se for a última coluna, recebe 1, se não, recebe 0
                     "fill"=>1,
                     "align" => 'C');
@@ -1425,10 +1444,10 @@ class hdkRelSolicitacoes extends hdkCommon
                     $area_atual = $rowsData['rows'][$linha][0];
 
                     // The colspan column is created with the value / name of the current area
-                    $pdf->setFillColor(0,0,0);
-                    $pdf->SetTextColor(255,255,255);
+                    $pdf->setFillColor(148,148,148);
+                    $pdf->SetTextColor(0,0,0);
                     $pdf->Cell($leftMargin);            
-                    $pdf->Cell(180,7,html_entity_decode(utf8_decode($area_atual),ENT_QUOTES, "ISO8859-1"),1,1,'P',1);
+                    $pdf->Cell(180,4,html_entity_decode(utf8_decode($area_atual),ENT_QUOTES, "ISO8859-1"),0,1,'C',1);
                 
                 }
             
