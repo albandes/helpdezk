@@ -646,6 +646,7 @@ class hdkRelSolicitacoes extends hdkCommon
 
             case "1": // Construction of the table "Summarized by company"
 
+
                 // First, the variable receives a fixed header
                 $tr_list .= "<tr>
                 <th>Empresa</th>
