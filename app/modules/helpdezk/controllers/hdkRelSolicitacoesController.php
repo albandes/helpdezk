@@ -66,7 +66,7 @@ class hdkRelSolicitacoes extends hdkCommon
         // Processing basic templates
         $this->makeNavVariables($smarty,$this->modulename);
         $this->makeFooterVariables($smarty);
-        $this->_makeNavHdk($smarty);
+        $this->makeNavAdmin($smarty);
 
         // Processing of data from the logos_model class
         $reportslogo = $this->dbLogo->getReportsLogo();
@@ -401,7 +401,8 @@ class hdkRelSolicitacoes extends hdkCommon
                 
                 // Items for the PDF sub-header // Will have item, type, area and period
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
-                $subcab = array("Área"=>$area = $relArea == "ALL" ? "Todos" : $ret['data']->fields['area']);
+                $subcab = array("Tipo"=>$relTipo = $relTipo == "ALL" ? "Todos" : $ret['data']->fields['type'],
+                "Área"=>$area = $relArea == "ALL" ? "Todos" : $ret['data']->fields['area']);
 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -448,7 +449,8 @@ class hdkRelSolicitacoes extends hdkCommon
 
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("Área"=>$area = $relArea == "ALL" ? "Todos" : $ret['data']->fields['area'], 
-                "Tipo"=>$tipo = $relTipo == "ALL" ? "Todos" : $ret['data']->fields['type']);
+                "Tipo"=>$tipo = $relTipo == "ALL" ? "Todos" : $ret['data']->fields['type'],
+                "Item"=>$tipo = $relItem == "ALL" ? "Todos" : $ret['data']->fields['item']);
                 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -458,7 +460,7 @@ class hdkRelSolicitacoes extends hdkCommon
 
                 }else{
 
-                     // Method to build the table with the collected data
+                    // Method to build the table with the collected data
                     $table_data = $this->defineTable($arrTypeTime, $ret['data'], $subcab);
 
                     // Returns, for Ajax, the final content of the concatenation performed in the defineTable() method
@@ -475,12 +477,13 @@ class hdkRelSolicitacoes extends hdkCommon
                 $relTipo = $_POST['cmbTipo'];
                 $relItem = $_POST['cmbItem'];
                 $relServico = $_POST['cmbServico'];
+                $relMotivo = $_POST['cmbMotivo'];
 
                  // Search specifications
                 $where .= $relArea == "ALL" ? "" : "AND a.idarea = $relArea ";
                 $where .= $relTipo == "ALL" ? "" : "AND a.idtype = $relTipo ";
                 $where .= $relItem == "ALL" ? "" : "AND a.iditem = $relItem ";
-                $where .= $relServico = "ALL" ? "" : "AND a.service = $relServico";
+                $where .= $relServico == "ALL" ? "" : "AND a.service = $relServico";
                 $where .= "AND a.entry_date BETWEEN '$dtstart' AND '$dtfinish'";
                 $field = "AREA `area`, type `type`, item `item`, service `service`";
                 $group = "GROUP BY a.idservice";
@@ -498,7 +501,10 @@ class hdkRelSolicitacoes extends hdkCommon
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("Área"=>$area = $relArea == "ALL" ? "Todos" : $ret['data']->fields['area'], 
                 "Tipo"=>$tipo = $relTipo == "ALL" ? "Todos" : $ret['data']->fields['type'], 
-                "Item"=>$item = $relItem == "ALL" ? "Todos" : $ret['data']->fields['item']);
+                "Item"=>$item = $relItem == "ALL" ? "Todos" : $ret['data']->fields['item'],
+                "Serviço"=>$servico = $relServico == "ALL" ? "Todos" : $ret['data']->fields['service']);
+
+                //echo $servico; die();
                 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -645,7 +651,6 @@ class hdkRelSolicitacoes extends hdkCommon
         switch($arrTypeTime['tipo_rel']){
 
             case "1": // Construction of the table "Summarized by company"
-
 
                 // First, the variable receives a fixed header
                 $tr_list .= "<tr>
@@ -882,7 +887,7 @@ class hdkRelSolicitacoes extends hdkCommon
 
                         // A new colspan cell is created that will receive the name of the area
                         $tr_list .= "<tr>
-                                <td class = 'text-center' colspan='2' style='background-color: #BEBEBE;color: #000;'>
+                                <td class = 'text-center' colspan='2' style='background-color: #78909c;color: #000;'>
                                     {$dados_pesquisa->fields['area']}
                                 </td>
                             </tr>";
@@ -954,7 +959,41 @@ class hdkRelSolicitacoes extends hdkCommon
                     <th>Total Tempo</th>
                 </tr>";
 
+                // For creating the table with colspan
+                $areaAtual = "X";
+                $tipoAtual = "X";
                 while(!$dados_pesquisa->EOF){
+
+                    // If the current area is different from the previous area, that is, the "so far current"
+                    if($dados_pesquisa->fields['area'] != $areaAtual){
+
+                        // The previous area becomes the current area
+                        $areaAtual = $dados_pesquisa->fields['area'];
+
+                        // A new colspan cell is created that will receive the name of the area
+                        $tr_list .= "<tr>
+                                <td class = 'text-center' colspan='2' style='background-color: #78909c;color: #000;'>
+                                    {$dados_pesquisa->fields['area']}
+                                </td>
+                            </tr>";
+                    
+                    
+                    }// If not, if the current area is the same as "previous area" (current so far)
+
+                    if($dados_pesquisa->fields['type'] != $tipoAtual){
+
+                        // The previous type becomes the current type
+                        $tipoAtual = $dados_pesquisa->fields['type'];
+
+                        // A new colspan cell is created that will receive the name of the type
+                        $tr_list .= "<tr>
+                                <td class = 'text-center' colspan='2' style='background-color: #90a4ae;color: #000;'>
+                                    {$dados_pesquisa->fields['type']}
+                                </td>
+                            </tr>";
+                    
+                    
+                    }// If not, if the current type is the same as "previous type" (current so far)
 
                     // Now the data that will be used in the table's <td> are rescued
                     $item = "{$dados_pesquisa->fields['item']}";
@@ -981,7 +1020,7 @@ class hdkRelSolicitacoes extends hdkCommon
                         </tr>";
 
                         // This array receives the data used in the table data of the table
-                        array_push($arrList, array($item, $tempo_total));
+                        array_push($arrList, array($areaAtual, $tipoAtual, $item, $tempo_total));
 
                         // To prevent everlasting loops
                         $dados_pesquisa->MoveNext();
@@ -1003,7 +1042,9 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","R")
+                "alignrow" => array("L","R"),
+                "colspan" => true,
+                "subrow_type" => true
                 );
 
             break;
@@ -1018,7 +1059,58 @@ class hdkRelSolicitacoes extends hdkCommon
                     <th class = 'text-right'>Total Tempo</th>
                 </tr>";
 
-                while(!$dados_pesquisa->EOF){
+                 // For creating the table with colspan
+                 $areaAtual = "X";
+                 $tipoAtual = "X";
+                 $itemAtual = "X";
+                 while(!$dados_pesquisa->EOF){
+ 
+                     // If the current area is different from the previous area, that is, the "so far current"
+                     if($dados_pesquisa->fields['area'] != $areaAtual){
+ 
+                         // The previous area becomes the current area
+                         $areaAtual = $dados_pesquisa->fields['area'];
+ 
+                         // A new colspan cell is created that will receive the name of the area
+                         $tr_list .= "<tr>
+                                 <td class = 'text-center' colspan='2' style='background-color: #78909c;color: #000;'>
+                                     {$dados_pesquisa->fields['area']}
+                                 </td>
+                             </tr>";
+                     
+                     
+                     }// If not, if the current area is the same as "previous area" (current so far)
+ 
+                     if($dados_pesquisa->fields['type'] != $tipoAtual){
+ 
+                         // The previous type becomes the current type
+                         $tipoAtual = $dados_pesquisa->fields['type'];
+ 
+                         // A new colspan cell is created that will receive the name of the type
+                         $tr_list .= "<tr>
+                                 <td class = 'text-center' colspan='2' style='background-color: #90a4ae;color: #000;'>
+                                     {$dados_pesquisa->fields['type']}
+                                 </td>
+                             </tr>";
+                     
+                     
+                     }// If not, if the current type is the same as "previous type" (current so far)
+
+                    if($dados_pesquisa->fields['item'] != $itemAtual){
+
+                        // The previous type becomes the current type
+                        $itemAtual = $dados_pesquisa->fields['item'];
+
+                        // A new colspan cell is created that will receive the name of the type
+                        $tr_list .= "<tr>
+                                <td class = 'text-center' colspan='2' style='background-color: #b0bec5;color: #000;'>
+                                    {$dados_pesquisa->fields['item']}
+                                </td>
+                            </tr>";
+                    
+                    
+                    }// If not, if the current type is the same as "previous type" (current so far)
+                     
 
                     // Now the data that will be used in the table's <td> are rescued
                     $servico = "{$dados_pesquisa->fields['service']}";
@@ -1044,7 +1136,7 @@ class hdkRelSolicitacoes extends hdkCommon
                         </tr>";
 
                         // This array receives the data used in the table data of the table
-                        array_push($arrList, array($servico, $tempo_total));
+                        array_push($arrList, array($areaAtual, $tipoAtual, $itemAtual, $servico, $tempo_total));
 
                         // To prevent everlasting loops
                         $dados_pesquisa->MoveNext();
@@ -1066,7 +1158,10 @@ class hdkRelSolicitacoes extends hdkCommon
                 "wLine" => 200,
                 "wh2" => 190,
                 "wrow" => array(120,60),
-                "alignrow" => array("L","R")
+                "alignrow" => array("L","R"),
+                "colspan" => true,
+                "subrow_type" => true,
+                "subrow_item" => true
                 );
 
             break;
@@ -1431,6 +1526,8 @@ class hdkRelSolicitacoes extends hdkCommon
 
         // Creating the table with colspan
         $area_atual = "X";
+        $tipo_atual = "X";
+        $item_atual = "X";
         // $rowsData['rows'] has, in each of its indexes, another data array
         // Each of these data arrays has, in the first position 0, the name of the area
         foreach($rowsData['rows'] as $linha => $value){
@@ -1445,32 +1542,80 @@ class hdkRelSolicitacoes extends hdkCommon
                     $area_atual = $rowsData['rows'][$linha][0];
 
                     // The colspan column is created with the value / name of the current area
-                    $pdf->setFillColor(148,148,148);
+                    $pdf->setFillColor(120,144,156);
                     $pdf->SetTextColor(0,0,0);
                     $pdf->Cell($leftMargin);            
-                    $pdf->Cell(180,4,html_entity_decode(utf8_decode($area_atual),ENT_QUOTES, "ISO8859-1"),0,1,'C',1);
+                    $pdf->Cell(180.1,4,html_entity_decode(utf8_decode($area_atual),ENT_QUOTES, "ISO8859-1"),0,1,'C',1);
+                    
+                }
+            
+            }
+
+            // If there is, in the data array, the key "colspan"
+            if(isset($rowsData['subrow_type'])){
+                // If the field "area" of the current line is different from the previous one
+                // In the first loop will be
+                if($rowsData['rows'][$linha][1] !=  $tipo_atual){
+
+                    // The "area" field of the current line becomes the "area_atual"
+                    $tipo_atual = $rowsData['rows'][$linha][1];
+
+                    // The colspan column is created with the value / name of the current area
+                    $pdf->setFillColor(144,164,174);
+                    $pdf->SetTextColor(0,0,0);
+                    $pdf->Cell($leftMargin);            
+                    $pdf->Cell(180.1,4,html_entity_decode(utf8_decode($tipo_atual),ENT_QUOTES, "ISO8859-1"),0,1,'C',1);
+                
+                }
+            
+            }
+
+            // If there is, in the data array, the key "colspan"
+            if(isset($rowsData['subrow_item'])){
+                // If the field "area" of the current line is different from the previous one
+                // In the first loop will be
+                if($rowsData['rows'][$linha][2] !=  $item_atual){
+
+                    // The "area" field of the current line becomes the "area_atual"
+                    $item_atual = $rowsData['rows'][$linha][2];
+
+                    // The colspan column is created with the value / name of the current area
+                    $pdf->setFillColor(176,190,197);
+                    $pdf->SetTextColor(0,0,0);
+                    $pdf->Cell($leftMargin);            
+                    $pdf->Cell(180.1,4,html_entity_decode(utf8_decode($item_atual),ENT_QUOTES, "ISO8859-1"),0,1,'C',1);
                 
                 }
             
             }
             
-            // If the "colspan" key does not exist or if the current "area" field is the same as the previous one
-            if(!isset($rowsData['colspan']) || $rowsData['rows'][$linha][0] == $area_atual){
-
-                // "Normal" lines are created for listing items
-                // If two data arrays, or more, have data from the same area (same value in its index 0), colspan will remain and they will be listed normally
-                $pdf->setRowFillColor(205,205,205);
-                $pdf->SetTextColor(0,0,0);
-                $pdf->Cell($leftMargin);
-
-            }
+            $pdf->setRowFillColor(205,205,205);
+            $pdf->setRowTextColor(0,0,0);
+            $pdf->Cell($leftMargin);
 
             // Now we go through the data array of the current position
             foreach($value as $k => $v){               
                 
                 // If the colspan key exists, the first field of the line / record has already been used, so if you use only $ v it will be repeated
                 // So, if there is a colspan key, the value must be the one at index + 1 // So index 0 is skipped
-                $td[$k] = html_entity_decode(utf8_decode(isset($rowsData['colspan']) ? $value[$k +1] : $v),ENT_QUOTES, "ISO8859-1");
+                if(isset($rowsData['colspan']) && (!isset($rowsData['subrow_type']) && !isset($rowsData['subrow_item']) && !isset($rowsData['subrow_item']))){
+
+                    $valuetmp = $value[$k +1];
+
+                }else if(isset($rowsData['colspan']) && isset($rowsData['subrow_type']) && !isset($rowsData['subrow_item'])){
+
+                    $valuetmp = $value[$k +2];
+
+                }else if(isset($rowsData['colspan']) && isset($rowsData['subrow_type']) && isset($rowsData['subrow_item'])){
+
+                    $valuetmp = $value[$k +3];
+
+                }else{
+
+                    $valuetmp = $v;
+                }
+
+                $td[$k] = html_entity_decode(utf8_decode($valuetmp),ENT_QUOTES, "ISO8859-1");
             }
 
             $pdf->row($td);
