@@ -753,4 +753,68 @@ class service_model extends DynamicService_model{
 
         return $ret;
     }
+    
+    /**
+     * get link Service with in charge Group
+     *
+     * @param  string $where Conditions to get data
+     * @param  string $order Data ordering
+     * @param  string $group Data grouping
+     * @param  string $limit Amount of data to obtain
+     * @return array         success _true/false_, message (in case query execution fail), data 
+     * 
+     * @author Valentín L Acosta <vilaxr@gmail.com>
+     */
+    public function getServiceGroup($where=null,$order=null,$group=null,$limit=null) {
+        $sql = "SELECT idservice, idgroup FROM `hdk_tbgroup_has_service`
+                $where $group $order $limit";
+
+        $ret = $this->db->Execute($sql); //echo "{$sql}\n";
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+    
+    /**
+     * get Type data by name
+     *
+     * @param  string $typeName Type's name to search data
+     * @param  int    $areaID   Area to search data
+     * @return array            success _true/false_, message (in case query execution fail), data 
+     * 
+     * @author Valentín L Acosta <vilaxr@gmail.com>
+     */
+    public function getTypeByName($typeName,$areaID) {
+        $sql = "SELECT idtype, idarea FROM hdk_tbcore_type WHERE `name` = '$typeName' AND idarea = '$areaID'";
+
+        $ret = $this->db->Execute($sql); //echo "{$sql}\n";
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+    
+    /**
+     * get Item data by name
+     *
+     * @param  mixed $itemName
+     * @param  mixed $typeID
+     * @return array         success _true/false_, message (in case query execution fail), data 
+     * 
+     * @author Valentín L Acosta <vilaxr@gmail.com>
+     */
+    public function getItemByName($itemName,$typeID) {
+        $sql = "SELECT iditem, idtype FROM hdk_tbcore_item WHERE `name` = '$typeName' AND idtype = '$typeID'";
+
+        $ret = $this->db->Execute($sql); //echo "{$sql}\n";
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+
 }
