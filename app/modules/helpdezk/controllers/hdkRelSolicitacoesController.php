@@ -271,6 +271,8 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
 
+                //Subheader
+                // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('hdk_company')}"=>$company = $relEmpresa == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['company_name']);
 
                 // If no data is returned for the "Company" field
@@ -319,9 +321,8 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
 
-                //print_r($ret['data']); die();
-
                 //Subheader
+                // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('hdk_company')}"=>$company = $relAtendenteC == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['company'],
                 "{$this->getLanguageWord('hdk_attendant')}"=>$operator = $relAtendente == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['operator']);
 
@@ -365,6 +366,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 }
 
                 //Subheader
+                // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area']);
                 
                  // If no data is returned for the "Company" field
@@ -410,7 +412,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
                 
-                // Items for the PDF sub-header // Will have item, type, area and period
+                //Subheader
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('APP_typeLabel')}"=>$relTipo = $relTipo == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['type'],
                 "{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area']);
@@ -458,7 +460,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
 
-                // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
+                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area'], 
                 "{$this->getLanguageWord('APP_typeLabel')}"=>$tipo = $relTipo == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['type'],
                 "{$this->getLanguageWord('APP_itemLabel')}"=>$tipo = $relItem == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['item']);
@@ -509,13 +511,12 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
 
+                //Subheader
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area'], 
                 "{$this->getLanguageWord('APP_typeLabel')}"=>$tipo = $relTipo == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['type'], 
                 "{$this->getLanguageWord('APP_itemLabel')}"=>$item = $relItem == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['item'],
                 "{$this->getLanguageWord('hdk_service')}"=>$servico = $relServico == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['service']);
-
-                //echo $servico; die();
                 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -557,12 +558,10 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
 
+                //Subheader
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('hdk_attendance')}"=>$typeattend = $relAtend == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['way_name']);
                 
-                //print_r($ret['data']); die();
-                //print_r($subcab); die();
-
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
                     
@@ -616,6 +615,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 $Cwhere = $relEmpresa != "ALL" ? " AND a.idperson = {$relEmpresa} " : "";
                 $Cret = $this->dbRelSolicitacoes->getFormData_Rel1($Cwhere);
 
+                //Subheader
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('hdk_company')}"=>$company = $relEmpresa == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $Cret['data']->fields['company_name'], 
                 "{$this->getLanguageWord('hdk_attendance')}"=>$operator = $relAtendente == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['Operator']);
@@ -723,17 +723,17 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidoempresa')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('hdk_company')}","{$this->getLanguageWord('hdk_minutes')}","{$this->getLanguageWord('hdk_requests')}"),
-                "rows" => $arrList,
-                "wth" => array(100,40,40),
-                "orientation" => "P",
-                "wLine" => 200,
-                "wh2" => 190,
-                "wrow" => array(100,40,40),
-                "alignrow" => array("L","R","R")
-            );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidoempresa')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('hdk_company')}","{$this->getLanguageWord('hdk_minutes')}","{$this->getLanguageWord('hdk_requests')}"),
+                    "rows" => $arrList,
+                    "wth" => array(100,40,40),
+                    "orientation" => "P",
+                    "wLine" => 200,
+                    "wh2" => 190,
+                    "wrow" => array(100,40,40),
+                    "alignrow" => array("L","R","R")
+                );
 
             break;
         
@@ -752,6 +752,7 @@ class hdkRelSolicitacoes extends hdkCommon
                                 <th>{$this->getLanguageWord('hdk_inattendance')}</th>
                                 <th>{$this->getLanguageWord('hdk_finished')}</th>
                             </tr>";
+
                 while(!$dados_pesquisa->EOF){
 
                     // Now the data that will be used in the table's <td> are rescued
@@ -805,18 +806,18 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidoatendente')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('hdk_attendant')}", "{$this->getLanguageWord('hdk_departament')}", "{$this->getLanguageWord('hdk_company')}", "{$this->getLanguageWord('hdk_totaltime')}", "{$this->getLanguageWord('hdk_pluralnew')}", 
-                "{$this->getLanguageWord('hdk_passedon')}", "{$this->getLanguageWord('hdk_inattendance')}", "{$this->getLanguageWord('hdk_finished')}"),
-                "rows" => $arrList,
-                "wth" => array(55,45,42,35,17,23,28,20),
-                "orientation" => "L",
-                "wLine" => 285,
-                "wh2" => 270,
-                "wrow" => array(55,45,42,35,17,23,28,20),
-                "alignrow" => array("L","C","C","R","R","R","R","R")
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidoatendente')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('hdk_attendant')}", "{$this->getLanguageWord('hdk_departament')}", "{$this->getLanguageWord('hdk_company')}", "{$this->getLanguageWord('hdk_totaltime')}", "{$this->getLanguageWord('hdk_pluralnew')}", 
+                    "{$this->getLanguageWord('hdk_passedon')}", "{$this->getLanguageWord('hdk_inattendance')}", "{$this->getLanguageWord('hdk_finished')}"),
+                    "rows" => $arrList,
+                    "wth" => array(55,45,42,35,17,23,28,20),
+                    "orientation" => "L",
+                    "wLine" => 285,
+                    "wh2" => 270,
+                    "wrow" => array(55,45,42,35,17,23,28,20),
+                    "alignrow" => array("L","C","C","R","R","R","R","R")
+                    );
 
             break;
 
@@ -869,17 +870,17 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidoarea')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('Area')}", "{$this->getLanguageWord('hdk_totaltime')}"),
-                "rows" => $arrList,
-                "wth" => array(120,60),
-                "orientation" => "P",
-                "wLine" => 200,
-                "wh2" => 190,
-                "wrow" => array(120,60),
-                "alignrow" => array("L","R")
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidoarea')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('Area')}", "{$this->getLanguageWord('hdk_totaltime')}"),
+                    "rows" => $arrList,
+                    "wth" => array(120,60),
+                    "orientation" => "P",
+                    "wLine" => 200,
+                    "wh2" => 190,
+                    "wrow" => array(120,60),
+                    "alignrow" => array("L","R")
+                    );
 
             break;
 
@@ -952,18 +953,18 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidotipo')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('APP_typeLabel')}", "{$this->getLanguageWord('hdk_totaltime')}"),
-                "rows" => $arrList,
-                "wth" => array(120,60),
-                "orientation" => "P",
-                "wLine" => 200,
-                "wh2" => 190,
-                "wrow" => array(120,60),
-                "alignrow" => array("L","R"),
-                "colspan" => true
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidotipo')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('APP_typeLabel')}", "{$this->getLanguageWord('hdk_totaltime')}"),
+                    "rows" => $arrList,
+                    "wth" => array(120,60),
+                    "orientation" => "P",
+                    "wLine" => 200,
+                    "wh2" => 190,
+                    "wrow" => array(120,60),
+                    "alignrow" => array("L","R"),
+                    "colspan" => true
+                    );
 
             break;
 
@@ -1051,19 +1052,19 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidoitem')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('APP_itemLabel')}", "{$this->getLanguageWord('hdk_totaltime')}"),
-                "rows" => $arrList,
-                "wth" => array(120,60),
-                "orientation" => "P",
-                "wLine" => 200,
-                "wh2" => 190,
-                "wrow" => array(120,60),
-                "alignrow" => array("L","R"),
-                "colspan" => true,
-                "subrow_type" => true
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidoitem')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('APP_itemLabel')}", "{$this->getLanguageWord('hdk_totaltime')}"),
+                    "rows" => $arrList,
+                    "wth" => array(120,60),
+                    "orientation" => "P",
+                    "wLine" => 200,
+                    "wh2" => 190,
+                    "wrow" => array(120,60),
+                    "alignrow" => array("L","R"),
+                    "colspan" => true,
+                    "subrow_type" => true
+                    );
 
             break;
 
@@ -1161,26 +1162,26 @@ class hdkRelSolicitacoes extends hdkCommon
                 }
 
                  // Merging two arrays // Key-value pair for the period will be in the first position
-                 $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
-                 $subcabecalhof = array_merge($periodo, $subcabecalho);
+                $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
+                $subcabecalhof = array_merge($periodo, $subcabecalho);
                     
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidoservico')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('hdk_service')}", "{$this->getLanguageWord('hdk_totaltime')}"),
-                "rows" => $arrList,
-                "wth" => array(120,60),
-                "orientation" => "P",
-                "wLine" => 200,
-                "wh2" => 190,
-                "wrow" => array(120,60),
-                "alignrow" => array("L","R"),
-                "colspan" => true,
-                "subrow_type" => true,
-                "subrow_item" => true
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidoservico')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('hdk_service')}", "{$this->getLanguageWord('hdk_totaltime')}"),
+                    "rows" => $arrList,
+                    "wth" => array(120,60),
+                    "orientation" => "P",
+                    "wLine" => 200,
+                    "wh2" => 190,
+                    "wrow" => array(120,60),
+                    "alignrow" => array("L","R"),
+                    "colspan" => true,
+                    "subrow_type" => true,
+                    "subrow_item" => true
+                    );
 
             break;
 
@@ -1226,26 +1227,24 @@ class hdkRelSolicitacoes extends hdkCommon
                         $dados_pesquisa->MoveNext();
                 }
 
-                // Add the period to the data array that will form the subheader
+                // Merging two arrays // Key-value pair for the period will be in the first position
                 $periodo = array("periodo"=>"De {$dtstart} até {$dtfinish}");
                 $subcabecalhof = array_merge($periodo, $subcabecalho);
-
-                //print_r($subcabecalhof); die();
                     
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_resumidotipoatend')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('hdk_attendance')}", "{$this->getLanguageWord('hdk_totaltime')}"),
-                "rows" => $arrList,
-                "wth" => array(120,60),
-                "orientation" => "P",
-                "wLine" => 200,
-                "wh2" => 190,
-                "wrow" => array(120,60),
-                "alignrow" => array("L","R")
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_resumidotipoatend')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('hdk_attendance')}", "{$this->getLanguageWord('hdk_totaltime')}"),
+                    "rows" => $arrList,
+                    "wth" => array(120,60),
+                    "orientation" => "P",
+                    "wLine" => 200,
+                    "wh2" => 190,
+                    "wrow" => array(120,60),
+                    "alignrow" => array("L","R")
+                    );
 
             break;
 
@@ -1307,17 +1306,17 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
-                "titulo1" => "{$this->getLanguageWord('rel_solicitfinal')}",
-                "subcabecalho" => $subcabecalhof,
-                "tabhead" => array("{$this->getLanguageWord('PDF_code')}", "{$this->getLanguageWord('hdk_subject')}", "{$this->getLanguageWord('hdk_attendant')}", "{$this->getLanguageWord('hdk_minutes')}", "{$this->getLanguageWord('APP_statusLabel')}"),
-                "rows" => $arrList,
-                "wth" => array(35,80,70,30,50),
-                "orientation" => "L",
-                "wLine" => 285,
-                "wh2" => 270,
-                "wrow" => array(35,80,70,30,50),
-                "alignrow" => array("L","C","C","R","C")
-                );
+                    "titulo1" => "{$this->getLanguageWord('rel_solicitfinal')}",
+                    "subcabecalho" => $subcabecalhof,
+                    "tabhead" => array("{$this->getLanguageWord('PDF_code')}", "{$this->getLanguageWord('hdk_subject')}", "{$this->getLanguageWord('hdk_attendant')}", "{$this->getLanguageWord('hdk_minutes')}", "{$this->getLanguageWord('APP_statusLabel')}"),
+                    "rows" => $arrList,
+                    "wth" => array(35,80,70,30,50),
+                    "orientation" => "L",
+                    "wLine" => 285,
+                    "wh2" => 270,
+                    "wrow" => array(35,80,70,30,50),
+                    "alignrow" => array("L","C","C","R","C")
+                    );
 
             break;
 
@@ -1543,7 +1542,7 @@ class hdkRelSolicitacoes extends hdkCommon
 
         $pdf->SetWidths($rowsData['wrow']); 
         $pdf->SetAligns($rowsData['alignrow']);
-//echo "",print_r($rowsData,true),"\n";
+
         // Creating the table with colspan
         $area_atual = "X";
         $tipo_atual = "X";
@@ -1566,7 +1565,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     $pdf->SetTextColor(0,0,0);
                     $pdf->Cell($leftMargin);            
                     $pdf->Cell(180.1,4,html_entity_decode(utf8_decode($area_atual),ENT_QUOTES, "ISO8859-1"),0,1,'C',1);
-                
+                    
                 }
             
             }
@@ -1609,16 +1608,10 @@ class hdkRelSolicitacoes extends hdkCommon
             
             }
             
-            // If the "colspan" key does not exist or if the current "area" field is the same as the previous one
-            //if(!isset($rowsData['subrow_type']) || $rowsData['rows'][$linha][1] ==  $tipo_atual){
-
-                // "Normal" lines are created for listing items
-                // If two data arrays, or more, have data from the same area (same value in its index 0), colspan will remain and they will be listed normally
-                $pdf->setRowFillColor(205,205,205);
-                $pdf->SetTextColor(0,0,0);
-                $pdf->Cell($leftMargin);
-
-           //}
+            // "Normal" lines are created for listing items
+            $pdf->setRowFillColor(205,205,205);
+            $pdf->SetTextColor(0,0,0);
+            $pdf->Cell($leftMargin);
 
             // Now we go through the data array of the current position
             foreach($value as $k => $v){               
