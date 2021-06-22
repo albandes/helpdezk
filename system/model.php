@@ -40,6 +40,16 @@ class Model extends System{
 			}		
 		}
 
+        //PDO connection
+        $dsn = "mysql:host={$db_hostname};dbname={$db_name}";
+        try{
+            $this->dbPDO = new PDO($dsn,$db_username,$db_password);
+            $this->dbPDO->exec("set names",$this->getConfig('charset'));
+            $this->dbPDO->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+        }catch(PDOException $ex){
+            die("<br>Error connecting to database: " . $ex->getMessage() . " File: " . __FILE__ . " Line: " . __LINE__ );
+        }
+
 
     }
 
@@ -216,6 +226,146 @@ class Model extends System{
             return array('success' => true, 'message' => '', 'data' => $ret);
         else
             return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+
+    /**
+     * Returns the inserted, updated and deleted data to be saved into tblog table
+     * 
+     * @param  string $table    Table name from where to get data
+     * @param  mixed $fields    Fields list (can be an array or string)
+     * @param  string $where    Data query filters
+     * @return array            
+     */
+    public function getDataLog($table,$fields,$where){
+        if(is_array($fields) || is_string($fields)){
+            $fields = is_array($fields) ? implode(',',$fields) : $fields;
+        }else{
+            $fields = "idlog";
+        }
+        
+        $sql = "SELECT {$fields} FROM {$table} {$where}";
+        
+        $this->db->setFetchMode(ADODB_FETCH_ASSOC);
+        $ret = $this->db->Execute($sql);
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+    
+    /**
+     * Insert data into tblog table
+     * 
+     * @param  int $idprogram       Program ID where data was inserted, changed or deleted
+     * @param  int $iduser          User ID who entered, changed or deleted the data
+     * @param  string $tag          Operation performed           
+     * @param  mixed $dataLog       Data
+     * @return array
+     */
+    public function insertLog($idprogram,$iduser,$tag,$dataLog){
+        
+        $sql = "INSERT INTO tblog (idprogram,idperson,tag,dtlog,datalog)
+                VALUES ($idprogram,$iduser,'$tag',NOW(),'$dataLog')";        
+        $ret = $this->db->Execute($sql);
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'id' => $this->db->insert_Id());
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$sql}", 'data' => '');
+    }
+
+    
+    public function selectPDO($sql){
+        try{
+            $sth = $this->dbPDO->prepare($sql);
+            $sth->execute();
+        }catch(PDOException $ex){
+            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+        }
+
+        $aRet = array();
+        while($row = $sth->fetch(PDO::FETCH_ASSOC)){
+            $aRet[] = $row;
+        }
+
+        return array("success"=>true,"message"=>"","data"=>$aRet);
+    }
+    
+    public function insertPDO($obj,$table){
+        try{
+            $sql = "INSERT INTO {$table} (".implode(',',array_keys((array) $obj)).") VALUES (".implode(',',array_values((array) $obj)).")";
+            $sth = $this->dbPDO->prepare($sql);
+            $sth->execute();
+        }catch(PDOException $ex){
+            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+        }
+
+        return array("success"=>true,"message"=>"","id"=>$this->lastPDO($table));
+    }
+
+    public function updatePDO($obj,$cond,$table){
+        try{
+            foreach($obj as $i=>$v){
+                $dados[] = "`$ind` = ". (is_null($v) ? " NULL ": "'{$v}'");
+            }
+
+            foreach($cond as $i=>$v){
+                $where[] = "`$ind`". (is_null($v) ? " IS NULL ": " = '{$v}'");
+            }
+
+            $sql = "UPDATE {$table} SET ".implode(',',$dados)." WHERE ".implode(' AND ',$where);
+            $sth = $this->dbPDO->prepare($sql);
+            $sth->execute();
+        }catch(PDOException $ex){
+            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+        }
+
+        return array("success"=>true,"message"=>"");
+    }
+
+    public function lastPDO($table){
+        try{
+            $sth = $this->dbPDO->prepare("SELECT DISTINCT LAST_INSERT_ID () `last` FROM {$table}");
+            $sth->execute();
+            $row = $sth->fetchObject();
+        }catch(PDOException $ex){
+            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+        }
+
+        return $row->last;
+    }
+
+    public function firstPDO($obj){
+        if(isset($obj[0])){
+            return $obj[0];
+        }else{
+            return null;
+        }
+    }
+
+    public function setObject($obj,$values,$exists=true){
+        if(is_object($obj)){
+            if(count($values) > 0){
+                foreach($values as $i=>$v){
+                    if(property_exists($obj,$i) || $exists){
+                        $obj->$i = $values->$i;
+                    }
+                }
+            }
+        }
+    }
+
+    public function BeginTransPDO(){
+        return $this->dbPDO->beginTransaction();
+    }
+
+    public function RollbackTransPDO(){
+        return $this->dbPDO->rollBack();
+    }
+
+    public function CommitTransPDO(){
+        return $this->dbPDO->commit();
     }
 
 
