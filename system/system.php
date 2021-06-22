@@ -4228,5 +4228,37 @@ class System
 
     }
 
+    /**
+     * Insert data into tblog table.
+     * 
+     * @param  array $params       Array with data to insert into tblog
+     * @return void
+     */
+    public function makeLog($params){
+        $dbCommon = new common();
+
+        $retLog = $dbCommon->getDataLog($params['data2log'][0],$params['data2log'][1],$params['data2log'][2]);
+        if(!$retLog['success']){
+            if($this->log)
+                $this->logIt("{$retLog['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program} - method: ". __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        if(isset($params['adddata']) && count($params['adddata']) > 0){
+            foreach($params['adddata'] as $k=>$v){
+                $retLog['data']->fields[$k] = $v;
+            }
+        }
+
+        $ret = $dbCommon->insertLog($params['programID'],$params['userID'],$params['tag'],json_encode($retLog['data']->fields));
+        if(!$ret['success']){
+            if($this->log)
+                $this->logIt("Can't insert into tblog - {$ret['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program} - method: ". __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+        
+        return true;
+    }
+
 }
 ?>
