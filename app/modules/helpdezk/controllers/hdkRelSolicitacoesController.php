@@ -414,8 +414,10 @@ class hdkRelSolicitacoes extends hdkCommon
                 
                 //Subheader
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
+
                 $subcab = array("{$this->getLanguageWord('APP_typeLabel')}"=>$relTipo = $relTipo == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['type'],
                 "{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area']);
+
 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -460,10 +462,12 @@ class hdkRelSolicitacoes extends hdkCommon
                     return false;
                 }
 
+
                  // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
                 $subcab = array("{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area'], 
                 "{$this->getLanguageWord('APP_typeLabel')}"=>$tipo = $relTipo == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['type'],
                 "{$this->getLanguageWord('APP_itemLabel')}"=>$tipo = $relItem == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['item']);
+
                 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -513,10 +517,11 @@ class hdkRelSolicitacoes extends hdkCommon
 
                 //Subheader
                 // If it is equal to "ALL" the value will be "All", if not the name of the field brought by SQL
+
                 $subcab = array("{$this->getLanguageWord('Area')}"=>$area = $relArea == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['area'], 
                 "{$this->getLanguageWord('APP_typeLabel')}"=>$tipo = $relTipo == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['type'], 
                 "{$this->getLanguageWord('APP_itemLabel')}"=>$item = $relItem == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['item'],
-                "{$this->getLanguageWord('hdk_service')}"=>$servico = $relServico == "ALL" ? "{$this->getLanguageWord('hdk_all')}" : $ret['data']->fields['service']);
+
                 
                  // If no data is returned for the "Company" field
                  if($ret['data']->fields[0] == NULL){
@@ -1052,6 +1057,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
+
                     "titulo1" => "{$this->getLanguageWord('rel_resumidoitem')}",
                     "subcabecalho" => $subcabecalhof,
                     "tabhead" => array("{$this->getLanguageWord('APP_itemLabel')}", "{$this->getLanguageWord('hdk_totaltime')}"),
@@ -1065,6 +1071,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     "colspan" => true,
                     "subrow_type" => true
                     );
+
 
             break;
 
@@ -1168,6 +1175,7 @@ class hdkRelSolicitacoes extends hdkCommon
                 // This session is created so that the data can be used in the Export method
                 // If not, the data would have to be returned to Ajax, and from itself back to PHP
                 $_SESSION['reportData'] =  array(
+
                     "titulo1" => "{$this->getLanguageWord('rel_resumidoservico')}",
                     "subcabecalho" => $subcabecalhof,
                     "tabhead" => array("{$this->getLanguageWord('hdk_service')}", "{$this->getLanguageWord('hdk_totaltime')}"),
@@ -1182,6 +1190,7 @@ class hdkRelSolicitacoes extends hdkCommon
                     "subrow_type" => true,
                     "subrow_item" => true
                     );
+
 
             break;
 
@@ -1595,8 +1604,10 @@ class hdkRelSolicitacoes extends hdkCommon
                 // In the first loop will be
                 if($rowsData['rows'][$linha][2] !=  $item_atual){
 
+
                     // The "area" field of the current line becomes the "area_atual"
                     $item_atual = $rowsData['rows'][$linha][2];
+
 
                     // The colspan column is created with the value / name of the current area
                     $pdf->setFillColor(176,190,197);
@@ -1608,9 +1619,11 @@ class hdkRelSolicitacoes extends hdkCommon
             
             }
             
+
             // "Normal" lines are created for listing items
             $pdf->setRowFillColor(205,205,205);
             $pdf->SetTextColor(0,0,0);
+
             $pdf->Cell($leftMargin);
 
             // Now we go through the data array of the current position
