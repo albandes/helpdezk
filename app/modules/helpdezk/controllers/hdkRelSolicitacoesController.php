@@ -46,8 +46,7 @@ class hdkRelSolicitacoes extends hdkCommon
         $this->dbTicket = new ticket_model();*/
 
     }
-
-        
+  
     /**
      * index
      * smarty processing of the program's home page
