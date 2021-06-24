@@ -42,9 +42,11 @@ class Model extends System{
 
         //PDO connection
         $dsn = "mysql:host={$db_hostname};dbname={$db_name}";
+        $charsetPDO = ($this->getConfig('db_charset') && $this->getConfig('db_charset') != '') ? $this->getConfig('db_charset') : 'utf8';
+        
         try{
             $this->dbPDO = new PDO($dsn,$db_username,$db_password);
-            $this->dbPDO->exec("set names",$this->getConfig('charset'));
+            $this->dbPDO->exec("set names",$charsetPDO);
             $this->dbPDO->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         }catch(PDOException $ex){
             die("<br>Error connecting to database: " . $ex->getMessage() . " File: " . __FILE__ . " Line: " . __LINE__ );
