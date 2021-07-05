@@ -135,6 +135,11 @@ $(document).ready(function () {
                 //O campo "Tipo" aparece, mas desabilitado até que seja escolhida uma área
                 $("#campoType").removeClass('hide');
 
+                if($("#cmbArea").val() != ''){
+
+                    $("#cmbArea").change();
+                }
+
             break;
 
             case '5': //Resumido por item
@@ -153,6 +158,11 @@ $(document).ready(function () {
 
             //O campo "Item" aparece
             $("#campoItem").removeClass('hide');
+
+            if($("#cmbTipo").val() != ''){
+
+                $("#cmbTipo").change();
+            }
 
         break;
 
@@ -176,6 +186,11 @@ $(document).ready(function () {
         //O campo "Item" aparece
         $("#campoService").removeClass('hide');
 
+        if($("#cmbItem").val() != ''){
+
+            $("#cmbItem").change();
+        }
+
     break;
 
     case '7': //Resumido por tipo de atendimento
@@ -188,6 +203,11 @@ $(document).ready(function () {
 
         //O campo "Item" aparece
         $("#campoAttendance").removeClass('hide');
+
+        if($("#cmbServico").val() != ''){
+
+            $("#cmbServico").change();
+        }
 
     break;
 
