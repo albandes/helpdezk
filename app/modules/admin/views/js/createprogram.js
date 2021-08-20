@@ -1,4 +1,17 @@
 var global_idmodule = '';
+var objCbmLocale = {
+    loadLocale: function(id) {
+        $.post(path+"/admin/vocabulary/ajaxLocale",
+            function(res) {
+                $("#localeID_"+id).html(res);
+                $("#localeID_"+id).chosen({    width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+                return false;
+            })
+        return false ;
+    }
+
+}
+
 $(document).ready(function () {
 
     countdown.start(timesession);
@@ -15,13 +28,15 @@ $(document).ready(function () {
     $("#cmbModule").chosen({ width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
     $("#cmbCategory").chosen({ width: "100%",  no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
     $("#cmbModuleMod").chosen({ width: "100%", no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
+    $("#cmbModuleVocab").chosen({ width: "100%", no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
 
     var objProgramData = {
-        changeModule: function() {
-            $.post(path+"/admin/program/ajaxModule",
+        changeModule: function(selectedID) {
+            $.post(path+"/admin/program/ajaxModule",{selectedID:selectedID},
                 function(valor) {
                     $("#cmbModule").html(valor);
                     $("#cmbModule").trigger("chosen:updated");
+                    $("#cmbModule").change();
                     return false;
                 });
         },
@@ -33,12 +48,30 @@ $(document).ready(function () {
                     $("#cmbCategory").trigger("chosen:updated");
                     return false;
                 });
+        },
+        changeModuleCat: function(selectedID) {
+            $.post(path+"/admin/program/ajaxModule",{selectedID:selectedID},
+                function(valor) {
+                    $("#cmbModuleMod").html(valor);
+                    $("#cmbModuleMod").trigger("chosen:updated");
+                    return false;
+                });
+        },
+        changeModuleVocab: function(selectedID) {
+            $.post(path+"/admin/program/ajaxModule",{selectedID:selectedID},
+                function(valor) {
+                    $("#cmbModuleVocab").html(valor);
+                    $("#cmbModuleVocab").trigger("chosen:updated");
+                    return false;
+                });
         }
-    }
+    };
 
     $("#cmbModule").change(function(){
         objProgramData.changeCategory();
     });
+
+    objCbmLocale.loadLocale(1);
  
     /*
      * Buttons
@@ -124,52 +157,77 @@ $(document).ready(function () {
     });
 
     $("#btnAddCategory").click(function(){
+        var newSelected = $('#cmbModule').val();
+        $('#cmbModuleMod option:selected').removeAttr('selected');
+        objProgramData.changeModuleCat(newSelected);
         $('#modal-form-category').modal('show');
     });
 
+    $("#btnAddVocabulary").click(function(){
+        var newSelected = $('#cmbModule').val();
+        $('#cmbModuleMod option:selected').removeAttr('selected');
+        objProgramData.changeModuleVocab(newSelected);
+        $('#modal-form-vocabulary').modal('show');
+    });
+
     $("#btnSendModule").click(function(){
-        console.log('clicou salvar');
+        
         if (!$("#module-form").valid()) {
             console.log('nao validou') ;
             return false;
         }
-        $.ajax({
-            type: "POST",
-            url: path + '/admin/modules/createModule',
-            dataType: 'json',
-            data: $('#module-form').serialize(),
-            error: function (ret) {
-                modalAlertMultiple('danger',aLang['Alert_'].replace (/\"/g, ""),'alert-module');
-            },
-            success: function(ret){
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-                if($.isNumeric(obj.idmodule)) {
-                    modalAlertMultiple('success',aLang['Alert_sucess_module'].replace (/\"/g, ""),'alert-module');
-                    objProgramData.changeModule();
-                    setTimeout(function(){
-                        $('#modal-form-module').modal('hide');
-                    },2000);
-                } else {
-                    modalAlertMultiple('danger',aLang['Alert_'].replace (/\"/g, ""),'alert-module');
+
+        if(!$("#btnSendModule").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/modules/createModule',
+                dataType: 'json',
+                data: $('#module-form').serialize(),
+                error: function (ret) {
+                    modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-module');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if($.isNumeric(obj.idmodule)) {
+                        modalAlertMultiple('success',aLang['Alert_sucess_module'].replace (/\"/g, ""),'alert-module');
+                        objProgramData.changeModule(obj.idmodule);
+                        setTimeout(function(){
+                            $('#modal-form-module').modal('hide');
+                        },2000);
+                    } else {
+                        modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-module');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnbtnSendModule").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                    $("#btnCancelModule").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnbtnSendModule").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
+                    $("#btnCancelModule").removeClass('disabled');
                 }
-            }
-        });
+            });
+        }
 
     });
 
     $("#btnSendCategory").click(function(){
         console.log('clicou salvar');
         if (!$("#category-form").valid()) {
-            console.log('nao validou') ;
             return false;
         }
         $.ajax({
             type: "POST",
             url: path + '/admin/program/categoryinsert',
             dataType: 'json',
-            data: $('#category-form').serialize(),
+            data: {
+                _token: $("#_token").val(),
+                moduleID: $("#cmbModuleMod").val(),
+                categoryName: $("#txtNewCategory").val(),
+                txtSmartyCat: $("#txtCatSmartyVar").val()
+            },
             error: function (ret) {
-                modalAlertMultiple('danger',aLang['Alert_'].replace (/\"/g, ""),'alert-category');
+                modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-category');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
@@ -180,11 +238,107 @@ $(document).ready(function () {
                         $('#modal-form-category').modal('hide');
                     },2000);
                 } else {
-                    modalAlertMultiple('danger',aLang['Alert_'].replace (/\"/g, ""),'alert-category');
+                    modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-category');
                 }
             }
         });
 
+    });
+
+    $("#btnSaveVocabulary").click(function(){
+        if (!$("#vocabulary-form").valid()) {
+            return false;
+        }
+
+        var flgNotSelect = false, flgEmpty = false;
+        $("select[name='localeID[]']").each(function(){
+            var lineID = $(this).attr('id');
+            lineID = lineID.split('_');
+            if($(this).val() == ''){
+                flgNotSelect = true;
+            }else{
+                $.ajax({
+                    type: "POST",
+                     url: path+"/admin/vocabulary/checkKeyName",
+                dataType: 'json',
+                    data: {
+                        '_token' : $("#_token").val(),
+                        'keyName':$("#keyName").val(),
+                        'localeID':$(this).val(),
+                        'localName': $("#localeID_"+ lineID[1] +" option:selected").text()
+                    },
+                   async: false,
+                   error: function (ret) {
+                        modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-create-vocabulary');
+                    },
+                 success: function(ret){
+                        var obj = jQuery.parseJSON(JSON.stringify(ret));
+                        if(!obj.status) {
+                            modalAlertMultiple('danger',obj.message,'alert-create-vocabulary');
+                            return false;
+                        }
+                    }
+                });
+            }
+        });
+
+        if(flgNotSelect){
+            modalAlertMultiple('danger',makeSmartyLabel('one_more_not_select_locale'),'alert-create-vocabulary');
+            return false ;
+        }
+
+        $("input[name='keyValue[]']").each(function(){
+            if(($(this).val() == '' || $(this).val() == ' ')){
+                flgEmpty = true;
+            }
+        });
+
+        if(flgEmpty){
+            modalAlertMultiple('danger',makeSmartyLabel('one_more_no_key_value'),'alert-create-vocabulary');
+            return false ;
+        }
+
+        if(!$("#btnSaveVocabulary").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/vocabulary/createVocabulary',
+                dataType: 'json',
+                data: {
+                    _token: $("#_token").val(),
+                    cmbModule: $("#cmbModuleVocab").val(),
+                    'keyName': $("#keyName").val(),
+                    'localeID': $("select[name='localeID[]']").map(function(){return $(this).val();}).get(),
+                    'keyValue': $("input[name='keyValue[]']").map(function(){return $(this).val();}).get()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-create-vocabulary');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.status) {
+                        modalAlertMultiple('success',aLang['Alert_inserted'].replace (/\"/g, ""),'alert-create-vocabulary');
+                        setTimeout(function(){
+                            $('#modal-form-vocabulary').modal('hide');
+                        },2000);
+                    } else {
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-create-vocabulary');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnSaveVocabulary").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                    $("#btnCancelVocabulary").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnSaveVocabulary").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
+                    $("#btnCancelVocabulary").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
+    $("#btnAddKeyValue").click(function(){
+        duplicateRow('localeTab','add');
     });
 
     /*
@@ -193,13 +347,28 @@ $(document).ready(function () {
     $("#create-program-form").validate({
         ignore:[],
         rules: {
-            txtName:        "required",
+            txtName:        {
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/program/checkProgram",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();},
+                        categoryID: function(element){return $('#cmbCategory').val();}
+                    }
+                }
+            },
             txtController:  "required",
             txtSmarty:      "required",
             cmbCategory:    "required"
         },
         messages: {
-            txtName:        makeSmartyLabel('Alert_field_required'),
+            txtName:        {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            },
             txtController:  makeSmartyLabel('Alert_field_required'),
             txtSmarty:      makeSmartyLabel('Alert_field_required'),
             cmbCategory:    makeSmartyLabel('Alert_field_required')
@@ -209,13 +378,29 @@ $(document).ready(function () {
     $("#update-program-form").validate({
         ignore:[],
         rules: {
-            txtName:        "required",
+            txtName:        {
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "admin/program/checkProgram",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();},
+                        categoryID: function(element){return $('#cmbCategory').val();},
+                        programID: function(element){return $('#idprogram').val();}
+                    }
+                }
+            },
             txtController:  "required",
             txtSmarty:      "required",
             cmbCategory:    "required"
         },
         messages: {
-            txtName:        makeSmartyLabel('Alert_field_required'),
+            txtName:        {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            },
             txtController:  makeSmartyLabel('Alert_field_required'),
             txtSmarty:      makeSmartyLabel('Alert_field_required'),
             cmbCategory:    makeSmartyLabel('Alert_field_required')
@@ -225,28 +410,97 @@ $(document).ready(function () {
     $("#module-form").validate({
         ignore:[],
         rules: {
-            txtName:        "required",
-            txtPath:        "required",
+            txtName:        {
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/modules/checkModule",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();}
+                    }
+                }
+            },
+            txtPath:{
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/modules/checkModulePath",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();}
+                    }
+                }
+            },
             txtSmartyVar:   "required",
-            txtPrefix:      "required"
+            txtPrefix:      {
+                required: true, 
+                equalTo: "#txtPath"
+            }
         },
         messages: {
-            txtName:        makeSmartyLabel('Alert_field_required'),
-            txtPath:        makeSmartyLabel('Alert_field_required'),
+            txtName:       {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            },
+            txtPath:        {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            },
             txtSmartyVar:   makeSmartyLabel('Alert_field_required'),
-            txtPrefix:      makeSmartyLabel('Alert_field_required')
+            txtPrefix:     {
+                required:makeSmartyLabel('Alert_field_required'), 
+                equalTo: makeSmartyLabel('Alert_different_path')
+            }
         }
     });
 
     $("#category-form").validate({
         ignore:[],
         rules: {
-            txtNewCategory:        "required"
+            txtNewCategory: {
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/program/checkCategory",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();},
+                        moduleID: function(element){return $('#cmbModuleMod').val();}
+                    }
+                }
+            }
         },
         messages: {
-            txtNewCategory:        makeSmartyLabel('Alert_field_required')
+            txtNewCategory: {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            }
         }
     });
+
+    $("#vocabulary-form").validate({
+        ignore:[],
+        rules: {
+            cmbModuleVocab:  "required",
+            keyName: {
+                required:true,
+                noAccent:true
+            }
+        },
+        messages: {
+            cmbModule:  makeSmartyLabel('Alert_field_required'),
+            keyName:    {required:makeSmartyLabel('Alert_field_required')}
+        }
+    });
+
+    $.validator.addMethod('noAccent', function(strValue) {
+        var re = new RegExp("^[a-zA-Z0-9_]+$","i");
+        return re.test(strValue);
+    }, makeSmartyLabel('key_no_accents_no_whitespace'));
 
     /*
      * Dropzone
@@ -349,3 +603,50 @@ $(document).ready(function () {
 
 
 });
+
+function duplicateRow(strTableName,ope){
+    // First, lets create the new row using the last one as template...
+    var clonedRow = $( "#" + strTableName + " tr:last" ).clone();
+    // Take the current identifier, some number in the first cell of the row
+    intCurrentRowId = parseInt( $( "#numId:last", clonedRow ).val() );
+    // Set the new ID
+    intNewRowId = intCurrentRowId + 1;
+    // Change the current identifier of the row to the new one
+    $( "#numId:last", clonedRow ).val( intNewRowId );
+
+    // Change the Id / Name or anything you want for the new attribs...
+    //here is where you need to add a lot of stuff to change the id of your variables
+
+    // The following code works without problems on Firefox or IE7
+    $( "#localeID_"+ intCurrentRowId , clonedRow ).attr( { "id" :"localeID_" + intNewRowId, "accesskey" : intNewRowId } );
+    $( "#keyValue_"+ intCurrentRowId , clonedRow ).attr( { "id" :"keyValue_" + intNewRowId, "accesskey" : intNewRowId} );
+    $( "#localeID_"+ intCurrentRowId + "_chosen" , clonedRow ).attr( { "id" :"localeID_" + intNewRowId + "_chosen", "accesskey" : intNewRowId } );
+    if(ope == 'upd')
+        $( "#vocabularyID_"+ intCurrentRowId , clonedRow ).attr( { "id" :"vocabularyID_" + intNewRowId, "accesskey" : intNewRowId, "value" : "0" } );
+
+    // Add to the new row to the original table
+    $( "#" + strTableName ).append( clonedRow );
+
+    $( "#keyValue_"+ intNewRowId).val('');
+    $( "#localeID_"+ intNewRowId + "_chosen").remove();
+    objCbmLocale.loadLocale(intNewRowId);
+
+    // And finally change the ID of the last row to something we can
+    //delete later, not sure why can not be done before the append :S
+    $( "#" + strTableName + " tr:last" ).attr( "id", "detailsTr" + intNewRowId );
+
+
+    $( "#localeID_"+ intNewRowId ).focus();
+}
+
+function removeRow(id,strTableName,ope){
+    var i = id.parentNode.parentNode.rowIndex, msgDiv;
+
+    msgDiv = ope == 'upd' ? 'alert-update-vocabulary' : 'alert-create-vocabulary';
+
+    if($("#"+strTableName+" tbody tr").length == 1){
+        modalAlertMultiple('warning', makeSmartyLabel('Alert_dont_remove_row'),msgDiv);
+    }else{
+        document.getElementById(strTableName).deleteRow(i);
+    }
+}

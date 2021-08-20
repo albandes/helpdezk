@@ -1,14 +1,14 @@
 <?php
 
-/*if(class_exists('Model')) {
-    class DynamicIndex_model extends Model {}
+if(class_exists('Model')) {
+    class DynamicProgram_model extends Model {}
 } elseif(class_exists('cronModel')) {
-    class DynamicIndex_model extends cronModel {}
+    class DynamicProgram_model extends cronModel {}
 } elseif(class_exists('apiModel')) {
-    class DynamicIndex_model extends apiModel {}
-}*/
+    class DynamicProgram_model extends apiModel {}
+}
 
-class programs_model extends Model {
+class programs_model extends DynamicProgram_model {
     public function insertProgram($name,$controller,$smarty,$idpc){
         $query = "INSERT INTO tbprogram (name,controller,smarty,idprogramcategory,status) VALUES('$name','$controller','$smarty','$idpc','A')";
         
@@ -118,8 +118,8 @@ class programs_model extends Model {
         return $this->select("SELECT count(idprogramcategory) from tbprogramcategory where idprogramcategory = $id");
     }
 
-    public function categoryInsert($name,$module){
-       $query = "INSERT INTO tbprogramcategory (name,idmodule) VALUES ('$name',$module)";
+    public function categoryInsert($name,$module,$smarty){
+       $query = "INSERT INTO tbprogramcategory (`name`,idmodule,smarty) VALUES ('$name',$module,'$smarty')";
         
        $ret = $this->db->Execute($query);
 
@@ -533,6 +533,17 @@ class programs_model extends Model {
         }
 
 
+    }
+
+    public function getProgramCategory($where=NULL,$order=NULL,$limit=NULL){
+        $query = "SELECT idprogramcategory, name FROM tbprogramcategory $where $order $limit";
+        
+        $ret = $this->db->Execute($query);
+
+        if($ret)
+            return array('success' => true, 'message' => '', 'data' => $ret);
+        else
+            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$query}", 'data' => '');
     }
 
 }

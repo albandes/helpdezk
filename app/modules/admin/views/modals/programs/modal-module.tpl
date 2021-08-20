@@ -10,7 +10,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times-circle"></i></button>
                     <h4 class="modal-title" id="myModalLabel">{$smarty.config.Module_insert}</h4>
                 </div>
 
@@ -27,39 +27,38 @@
                         <input type="hidden" name="_token" id= "_token" value="{$token}">
 
                         <div class="row col-lg-12 ">
-                            <div class="col-lg-2 b-l"> 
-                                <div class="text-center" style="height:50px;">
-                                    {*<img alt="image" class="m-t-xs img-thumbnail" src="{$person_photo}">*}
+                            <div class="col-lg-3 b-l"> 
+                                <div class="col-lg-12 b-l text-center">
                                     <div id="myDropzone" class="dropzone dz-default dz-message" ></div>
                                 </div>                   
                             </div>
 
-                            <div class="col-lg-10 b-l">
+                            <div class="col-lg-9 b-l">
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label">{$smarty.config.Module_name}:</label>
-                                    <div class="col-sm-5">
+                                    <label class="col-lg-4 control-label">{$smarty.config.Module_name}:</label>
+                                    <div class="col-lg-6">
                                         <input type="text" id="txtName" name="txtName" class="form-control input-sm" required placeholder="{$smarty.config.plh_module_description}" value="" >
                                     </div>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label class="col-lg-2 control-label">{$smarty.config.Module_path}:</label>
-                                    <div class="col-lg-5">
-                                        <input type="text" id="txtPath" name="txtPath" class="form-control input-sm" required placeholder="{$smarty.config.plh_module_path}" value="" >
+                                    <label class="col-lg-4 control-label">{$smarty.config.Module_path}:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" id="txtPath" name="txtPath" maxlength="3" class="form-control input-sm" required placeholder="{$smarty.config.plh_module_path}" value="" >
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-lg-2 control-label">{$smarty.config.Smarty}:</label>
-                                    <div class="col-lg-5">
-                                        <input type="text" id="txtSmartyVar" name="txtSmartyVar" class="form-control input-sm" required placeholder="{$plh_module_smartyvar}" value="" >
+                                    <label class="col-lg-4 control-label">{$smarty.config.Smarty}:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" id="txtSmartyVar" name="txtSmartyVar" class="form-control input-sm lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{$smarty.config.tt_lbl_add_vocabulary_module}" required placeholder="{$plh_module_smartyvar}" value="" >
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-lg-2 control-label">{$smarty.config.Table_prefix}:</label>
-                                    <div class="col-lg-5">
-                                        <input type="text" id="txtPrefix" name="txtPrefix" class="form-control input-sm" required placeholder="{$plh_module_prefix}" value="" >
+                                    <label class="col-lg-4 control-label">{$smarty.config.Table_prefix}:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" id="txtPrefix" name="txtPrefix" maxlength="3" class="form-control input-sm" required placeholder="{$smarty.config.plh_module_prefix}" value="" >
                                     </div>
                                 </div>
 
@@ -89,8 +88,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{$smarty.config.Close}</button>
-                    <button type="submit" class="btn btn-primary" id="btnSendModule" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.Send}</button>
+                    <button type="button" class="btn btn-default" id="btnCancelModule" data-dismiss="modal"><i class='fa fa-times'></i> {$smarty.config.Close}</button>
+                    <button type="submit" class="btn btn-primary" id="btnSendModule"><i class='fa fa-save'></i> {$smarty.config.Save}</button>
                 </div>
             </div>
         </div>

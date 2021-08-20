@@ -844,28 +844,36 @@ class hdkCommon extends DynamichdkCommon {
     {
         $sentTo = '';
 
-        $rsGroup = $dbEmailConfig->getGroupInCharge($code_request);
-        $inchType = $rsGroup->fields['type'];
-        $inchid = $rsGroup->fields['id_in_charge'];
+        $rsInCharge = $dbEmailConfig->getInCharge($code_request);
+        if(!$rsInCharge['success']){
+            if($this->log)
+                $this->logIt("Can't get in charge data,  ticket # {$code_request}. - {$rsInCharge['message']} - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
+        }
 
-        if ($inchType == 'G') {
-            //$this->logIt("Entrou G " . ' - program: ' . $this->program, 7, 'email', __LINE__);
-            $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($inchid);
-            while (!$grpEmails->EOF) {
-                if (!$sentTo) {
-                    $sentTo = $grpEmails->fields['email'];
-                    //$this->logIt("Entrou G, sentTo:  " . $sentTo . ' - program: ' . $this->program, 7, 'email', __LINE__);
-                } else {
-                    $sentTo .= ";" . $grpEmails->fields['email'];
-                    //$this->logIt("Entrou G, sentTo:  " . $sentTo . ' - program: ' . $this->program, 7, 'email', __LINE__);
+        foreach($rsInCharge['data'] as $key=>$val){
+            
+            $inchType = $val['type'];
+            $inchid = $val['id_in_charge'];
+    
+            if ($inchType == 'G') {                
+                $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($inchid);
+                if(!$grpEmails['success']){
+                    if($this->log)
+                        $this->logIt("Can't get in charge data [group],  ticket # {$code_request}. - {$grpEmails['message']} - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
                 }
-                $grpEmails->MoveNext();
+                //echo "",print_r($grpEmails,true), "\n";
+                foreach($grpEmails['data'] as $k=>$v){
+                    $sentTo .= (!$sentTo) ? $v['email'] : ";{$v['email']}";
+                }
+            } else {
+                $userEmail = $dbEmailConfig->getUserEmail($inchid);
+                if(!$userEmail['success']){
+                    if($this->log)
+                        $this->logIt("Can't get in charge data,  ticket # {$code_request}. - {$userEmail['message']} - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
+                }
+
+                $sentTo .= (!$sentTo) ? $userEmail['data'][0]['email'] : ";{$userEmail['data'][0]['email']}";      
             }
-        } else {
-            //$this->logIt("NAO entrou G " . ' - program: ' . $this->program, 7, 'email', __LINE__);
-            $userEmail = $dbEmailConfig->getUserEmail($inchid);
-            $sentTo = $userEmail->fields['email'];
-            //$this->logIt("Nao entrou G, sentTo:  " . $sentTo . ' - program: ' . $this->program, 7, 'email', __LINE__);
         }
 
         return $sentTo ;

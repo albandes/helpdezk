@@ -48,6 +48,9 @@ class Program extends admCommon
         $smarty->assign('lang_default', $this->getConfig('lang'));
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
 
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('programs.tpl');
 
     }
@@ -143,6 +146,10 @@ class Program extends admCommon
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+
         $smarty->display('programs-create.tpl');
     }
 
@@ -167,6 +174,10 @@ class Program extends admCommon
         $this->makeFooterVariables($smarty);
         $this->_makeNavAdm($smarty);
         $smarty->assign('navBar', 'file:'.$this->helpdezkPath.'/app/modules/main/views/nav-main.tpl');
+
+        // Demo version
+        $smarty->assign('demoversion', $this->demoVersion);
+        
         $smarty->display('programs-update.tpl');
 
     }
@@ -402,12 +413,13 @@ class Program extends admCommon
 
         $this->protectFormInput();
 
-        $module_post = $_POST['cmbModuleMod'];
-        $name_post = $_POST['txtNewCategory'];
+        $module_post = $_POST['moduleID'];
+        $name_post = strip_tags($_POST['categoryName']);
+        $smarty_post = strip_tags($_POST['txtNewCategory']);
         
         $this->dbProgram->BeginTrans();
 
-        $ret = $this->dbProgram->categoryInsert($name_post, $module_post);
+        $ret = $this->dbProgram->categoryInsert($name_post,$module_post,$smarty_post);
         if(!$ret){
 			$this->dbProgram->RollbackTrans();
 			return false;
@@ -417,7 +429,7 @@ class Program extends admCommon
 
         $aRet = array(
             "idcategory" => $categoryid,
-            "status" => "ok"
+            "success" => true
         );
 
         $this->dbProgram->CommitTrans();
@@ -436,11 +448,7 @@ class Program extends admCommon
         $select = '';
         
         foreach ( $arrModule['ids'] as $indexKey => $indexValue ) {
-            if ($arrModule['default'][$indexKey] == 1) {
-                $default = 'selected="selected"';
-            } else {
-                $default = '';
-            }
+            $default = $indexValue == $_POST['selectedID'] ? "selected='selected'" : "";
             $select .= "<option value='$indexValue' $default>".$arrModule['values'][$indexKey]."</option>";
         }
 
@@ -492,6 +500,59 @@ class Program extends admCommon
 
         echo json_encode($aRet);
 
+    }
+
+    public function checkProgram() {
+        $this->protectFormInput();
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $categoryID = $_POST['categoryID'];
+        $programName = strip_tags($_POST['txtName']);
+
+        $where = "AND tbp.name = '{$programName}' AND tbp.idprogramcategory = {$categoryID}"; //echo $where;
+        $where .= isset($_POST['programID']) ? " AND tbp.idprogram != {$_POST['programID']}" : "";
+
+        $check = $this->dbProgram->selectProgram($where);
+        if ($check->RecordCount() > 0) {            
+            echo json_encode($this->getLanguageWord("Alert_record_exist"));
+        } else {
+            echo json_encode(true);
+        }
+    }
+
+    public function checkCategory() {
+        $this->protectFormInput();
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $categoryName = strip_tags($_POST['txtNewCategory']);
+        $moduleID = strip_tags($_POST['moduleID']);
+
+        $where = "WHERE idmodule = {$moduleID} AND `name` = '{$categoryName}'";
+        $where .= isset($_POST['categoryID']) ? " AND idprogramcategory != {$_POST['categoryID']}" : "";
+
+        $check = $this->dbProgram->getProgramCategory($where);
+        if (!$check['success']) {
+            if($this->log)
+                $this->logIt("Change Program Status - {$check['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
+            echo json_encode($this->getLanguageWord("failed_query_database"));
+            exit;
+        }
+
+        if ($check['data']->RecordCount() > 0) {            
+            echo json_encode($this->getLanguageWord("Alert_record_exist"));
+        } else {
+            echo json_encode(true);
+        }
     }
 
 }

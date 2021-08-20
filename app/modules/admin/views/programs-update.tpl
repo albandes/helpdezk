@@ -123,12 +123,6 @@
             max-width: 100% !important;
         }
 
-        #btnCancel{
-            margin-left: 150px;
-        }
-
-
-
     </style>
 
     {/literal}
@@ -180,7 +174,9 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-1 ">
-                                    <button class="btn btn-default" id="btnAddModule" type="button" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    <button class="btn btn-default lbltooltip" id="btnAddModule" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{$smarty.config.tt_add_module_btn}">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -192,7 +188,9 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-1 ">
-                                    <button class="btn btn-default" id="btnAddCategory" type="button" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    <button class="btn btn-default lbltooltip" id="btnAddCategory" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{$smarty.config.tt_add_category_btn}">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -212,8 +210,13 @@
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{$smarty.config.Smarty}:</label>
-                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="right" title="{$smarty.config.Alert_add_program_title}">
+                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{$smarty.config.tt_lbl_add_vocabulary_program}">
                                     <input type="text" id="txtSmarty" name="txtSmarty" class="form-control input-sm" required placeholder="{$plh_module_smartyvar}" value="{$smartyvar}" >
+                                </div>
+                                <div class="col-sm-1 ">
+                                    <button class="btn btn-default lbltooltip" id="btnAddVocabulary" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{$smarty.config.tt_add_vocabulary_btn}">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </div>
 

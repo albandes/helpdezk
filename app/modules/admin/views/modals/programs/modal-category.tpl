@@ -10,7 +10,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times-circle"></i></button>
                     <h4 class="modal-title" id="myModalLabel">{$smarty.config.Category_insert}</h4>
                 </div>
 
@@ -45,6 +45,13 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">{$smarty.config.Smarty}:</label>
+                                <div class="col-lg-5">
+                                    <input type="text" id="txtCatSmartyVar" name="txtCatSmartyVar" class="form-control input-sm lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{$smarty.config.tt_lbl_add_vocabulary_category}" required placeholder="{$plh_module_smartyvar}" value="" >
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row col-lg-12 ">
@@ -66,8 +73,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{$smarty.config.Close}</button>
-                    <button type="submit" class="btn btn-primary" id="btnSendCategory" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> {$smarty.config.Processing}">{$smarty.config.Send}</button>
+                    <button type="button" class="btn btn-default" id="btnCancelCategory" data-dismiss="modal"><i class='fa fa-times'></i> {$smarty.config.Close}</button>
+                    <button type="submit" class="btn btn-primary" id="btnSendCategory"><i class='fa fa-save'></i> {$smarty.config.Save}</button>
                 </div>
             </div>
         </div>

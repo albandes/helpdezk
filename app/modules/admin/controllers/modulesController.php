@@ -546,4 +546,48 @@ class Modules extends admCommon
 
     }
 
+    public function checkModule() {
+        $this->protectFormInput();
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $moduleName = strip_tags($_POST['txtName']);
+
+        $where = "WHERE `name` = '{$moduleName}'";
+        $where .= isset($_POST['moduleID']) ? " AND idmodule != {$_POST['moduleID']}" : "";
+
+        $check = $this->dbModule->selectModule($where);
+        if ($check->RecordCount() > 0) {            
+            echo json_encode($this->getLanguageWord("Alert_record_exist"));
+        } else {
+            echo json_encode(true);
+        }
+    }
+
+    public function checkModulePath() {
+        $this->protectFormInput();
+
+        if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $modulePath = strip_tags($_POST['txtPath']);
+
+        $where = "WHERE `path` = '{$modulePath}'";
+        $where .= isset($_POST['moduleID']) ? " AND idmodule != {$_POST['moduleID']}" : "";
+
+        $check = $this->dbModule->selectModule($where);
+        if ($check->RecordCount() > 0) {            
+            echo json_encode($this->getLanguageWord("Alert_record_exist"));
+        } else {
+            echo json_encode(true);
+        }
+    }
+
 }
