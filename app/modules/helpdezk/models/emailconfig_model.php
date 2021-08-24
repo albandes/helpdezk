@@ -167,12 +167,7 @@ class emailconfig_model extends DynamicEmailConfig_model {
                     WHERE (ind_in_charge = 1 OR ind_track = 1 OR ind_operator_aux = 1) 
                     AND code_request = '$ticketID'";
         //echo "{$query}\n";
-        $ret = $this->db->Execute($query);
-
-        if($ret)
-            return array('success' => true, 'message' => '', 'data' => $ret);
-        else
-            return array('success' => false, 'message' => "{$this->db->ErrorMsg()}\t{$query}", 'data' => '');
+        return $this->selectPDO($query);
     }
 
 }

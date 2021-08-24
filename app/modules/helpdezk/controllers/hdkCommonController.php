@@ -783,6 +783,26 @@ class hdkCommon extends DynamichdkCommon {
 
                 break;
 
+            // Send email to the attendant, or group of attendants, when a auxiliar attendant is added
+            case "add-aux-operator":
+                $templateId = $dbEmailConfig->getEmailIdBySession("MAIL_AUX_OPERATOR");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                break;
+
         }
 
 
@@ -857,22 +877,23 @@ class hdkCommon extends DynamichdkCommon {
     
             if ($inchType == 'G') {                
                 $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($inchid);
-                if(!$grpEmails['success']){
+                if(!$grpEmails){
                     if($this->log)
-                        $this->logIt("Can't get in charge data [group],  ticket # {$code_request}. - {$grpEmails['message']} - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
+                        $this->logIt("Can't get in charge data [group],  ticket # {$code_request}. - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
                 }
                 //echo "",print_r($grpEmails,true), "\n";
-                foreach($grpEmails['data'] as $k=>$v){
-                    $sentTo .= (!$sentTo) ? $v['email'] : ";{$v['email']}";
+                while($grpEmails->EOF){
+                    $sentTo .= (!$sentTo) ? $grpEmails->fields['email'] : ";{$grpEmails->fields['email']}";
+                    $grpEmails->MoveNext();
                 }
             } else {
                 $userEmail = $dbEmailConfig->getUserEmail($inchid);
-                if(!$userEmail['success']){
+                if(!$userEmail){
                     if($this->log)
-                        $this->logIt("Can't get in charge data,  ticket # {$code_request}. - {$userEmail['message']} - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
+                        $this->logIt("Can't get in charge data,  ticket # {$code_request}. - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
                 }
 
-                $sentTo .= (!$sentTo) ? $userEmail['data'][0]['email'] : ";{$userEmail['data'][0]['email']}";      
+                $sentTo .= (!$sentTo) ? $userEmail->fields['email'] : ";{$userEmail->fields['email']}";      
             }
         }
 
@@ -1281,7 +1302,23 @@ class hdkCommon extends DynamichdkCommon {
                         $this->logIt("hdk_tbviewbyurl table does not exist - program: " . $this->program . ' - method: '. __METHOD__ , 7, 'general', __LINE__);
                 }
                 break;
+            
+            // Send email to the attendant, or group of attendants, when a auxiliar attendant is add
+            case 'add-aux-operator':
+                if ($midia == 'email') {
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1') {
+                        if ( $_SESSION['EM_BY_CRON'] == '1') {
+                            $cron = true;
+                        } else {
+                            $smtp =  true;
+                        }
+                        $messageTo   = 'add-aux-operator';
+                        $messagePart = 'A auxiliar attendant was added to the request # ';
+                    }
+                }
 
+                break;  
+                
             default:
                 return false;
         }
