@@ -29,7 +29,7 @@ class modules_model extends DynamicModule_model {
 
         $database = $this->getConfig('db_connect');
         if ($database == 'mysqli') {
-            $ret = $this->select("SELECT idmodule, name, status from tbmodule $where $order $limit");
+            $ret = $this->select("SELECT idmodule, name, status FROM tbmodule $where $order $limit");
         } elseif ($database == 'oci8po') {
             $limit = str_replace('LIMIT', "", $limit);
             $p     = explode(",", $limit);
@@ -49,7 +49,7 @@ class modules_model extends DynamicModule_model {
     }
 
     public function countModule($where = NULL, $order = NULL, $limit = NULL){
-        $sel = $this->select("SELECT count(idmodule) as total from tbmodule $where $order $limit");
+        $sel = $this->select("SELECT count(idmodule) as total FROM tbmodule $where $order $limit");
         return $sel;
     }
     

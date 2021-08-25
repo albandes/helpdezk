@@ -3424,12 +3424,43 @@ class hdkTicket extends hdkCommon {
                 $this->logIt("Insert Aux Operator ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
             return false;
         }
+        //Insert Note
+        $date = ($this->database == 'oci8po' ? 'sysdate' : 'now()') ;
+        $name = $this->dbPerson->selectPersonName($idauxoperator);
+        $description = "<p><b>" . $langVars['hdk_aux_operator_added'] . "</b>: {$name}</p>";
+
+        $serviceVal = 'NULL';
+        $public     = 1;
+        $typeNote   = 3;
+        $callback   = 0;
+        $execDate   = '0000-00-00 00:00:00';
+
+        $totalminutes   = 0 ;
+        $starthour      = 0;
+        $finishour      = 0;
+        $hourtype       = 0 ;
+
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+
+        $ret = $this->dbTicket->insertNote($code_request, $_SESSION["SES_COD_USUARIO"], $description, $date, $totalminutes, $starthour, $finishour, $execDate, $hourtype, $serviceVal, $public, $typeNote, $ipAddress, $callback, 'NULL' );
+        if(!$ret){
+            $this->dbTicket->RollbackTrans();
+            if($this->log)
+                $this->logIt("Insert Note - Assume ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+            return false;
+        }
 
         $this->dbTicket->CommitTrans();
 
         $aRet = $this->makeAuxOperatorScreen($code_request);
 
         echo json_encode($aRet);
+
+        $arrayParam = array('transaction' => "add-aux-operator",
+        'code_request' => $code_request,
+        'media' => 'email') ;
+
+        $this->_sendNotification($arrayParam);
 
     }
 
