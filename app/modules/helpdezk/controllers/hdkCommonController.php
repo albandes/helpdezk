@@ -882,7 +882,7 @@ class hdkCommon extends DynamichdkCommon {
                         $this->logIt("Can't get in charge data [group],  ticket # {$code_request}. - Program: {$this->program} - Method: ". __METHOD__ ,3,'general',__LINE__);
                 }
                 //echo "",print_r($grpEmails,true), "\n";
-                while($grpEmails->EOF){
+                while(!$grpEmails->EOF){
                     $sentTo .= (!$sentTo) ? $grpEmails->fields['email'] : ";{$grpEmails->fields['email']}";
                     $grpEmails->MoveNext();
                 }
