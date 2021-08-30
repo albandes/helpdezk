@@ -450,8 +450,10 @@ class hdkCommon extends DynamichdkCommon {
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $sentTo = $reqEmail->fields['email'];
                 $typeuser = $reqEmail->fields['idtypeperson'];
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+                $sentTo .= (!$sentTo) ? "{$reqEmail->fields['email']}" : ";{$reqEmail->fields['email']}";
 
                 $LINK_OPERATOR = $this->makeLinkOperator($code_request);
 
@@ -483,8 +485,10 @@ class hdkCommon extends DynamichdkCommon {
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $sentTo = $reqEmail->fields['email'];
                 $typeuser = $reqEmail->fields['idtypeperson'];
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+                $sentTo .= (!$sentTo) ? "{$reqEmail->fields['email']}" : ";{$reqEmail->fields['email']}";
 
                 $date = date('Y-m-d H:i');
                 $FINISH_DATE = $this->formatDate($date);
@@ -518,7 +522,8 @@ class hdkCommon extends DynamichdkCommon {
                 $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $sentTo = $reqEmail->fields['email'];
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+                $sentTo .= (!$sentTo) ? "{$reqEmail->fields['email']}" : ";{$reqEmail->fields['email']}";
 
                 $typeuser = $reqEmail->fields['idtypeperson'];
 
@@ -577,8 +582,8 @@ class hdkCommon extends DynamichdkCommon {
 
                 $subject = $rsTemplate->fields['name'];
                 eval("\$subject = \"$subject\";");
-
-                $sentTo = $this->setSendTo($code_request);
+                
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
                 $sentTo .= (!$sentTo) ? "{$reqEmail->fields['email']}" : ";{$reqEmail->fields['email']}";
 
                 //if($_SESSION['hdk']['SES_ATTACHMENT_OPERATOR_NOTE']){
