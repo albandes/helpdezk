@@ -578,7 +578,8 @@ class hdkCommon extends DynamichdkCommon {
                 $subject = $rsTemplate->fields['name'];
                 eval("\$subject = \"$subject\";");
 
-                $sentTo = $reqEmail->fields['email'];
+                $sentTo = $this->setSendTo($code_request);
+                $sentTo .= (!$sentTo) ? "{$reqEmail->fields['email']}" : ";{$reqEmail->fields['email']}";
 
                 //if($_SESSION['hdk']['SES_ATTACHMENT_OPERATOR_NOTE']){
                     $rsAttachs = $this->dbTicket->getNoteAttchByCodeRequest($code_request);
