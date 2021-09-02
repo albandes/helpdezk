@@ -10,16 +10,17 @@ $(document).ready(function () {
         url: path+"/admin/person/jsonPermissionGrid/idperson/"+idperson,
         datatype: "json",
         mtype: 'POST',
-        sortname: 'tbp.name', //initially sorted on code_request
+        sortname: 'tbm.name,tbp.name', //initially sorted on code_request
         sortorder: "asc",
         height: 450,
         autowidth: true,
         shrinkToFit: true,
         rowNum: 15,
         rowList: [10, 20, 25, 30, 50],
-        colNames: ['',makeSmartyLabel('Program'),makeSmartyLabel('Access'),makeSmartyLabel('New'),makeSmartyLabel('Edit_btn'),makeSmartyLabel('Delete'),makeSmartyLabel('Export'),'E-mail','SMS',''],
+        colNames: ['',makeSmartyLabel('Module'),makeSmartyLabel('Program'),makeSmartyLabel('Access'),makeSmartyLabel('New'),makeSmartyLabel('Edit_btn'),makeSmartyLabel('Delete'),makeSmartyLabel('Export'),'E-mail','SMS',''],
         colModel: [ 
             {name:"idprogram",index:"idprogram",width:80,key:true,hidden:true},
+            {name:"modulename",index:"tbm.name",search:true,width:130,sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']}},
             {name:"programname",index:"tbp.name",search:true,width:130,sorttype: 'string',searchoptions: { sopt: ['eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en']}},
             {name:"access",search:false,width:70,align:"center"},
             {name:"new",search:false,width:70,align:"center"}, 

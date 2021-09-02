@@ -114,6 +114,7 @@
                                 <button id="btnUpdate" type="button" class="btn btn-primary btn-xs {$display_btn_edit}"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{$smarty.config.edit}</button>
                                 <button id="btnDisable" type="button" class="btn btn-primary btn-xs {$display_btn_disable} disabled"><i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{$smarty.config.Deactivate}</button>
                                 <button id="btnEnable" type="button" class="btn btn-primary btn-xs {$display_btn_enable} disabled"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;{$smarty.config.Activate}</button>
+                                <button id="btnUpdVocab" type="button" class="btn btn-primary btn-xs"><i class="fas fa-sync-alt" aria-hidden="true"></i>&nbsp;{$smarty.config.Update_vocabulary}</button>
                                 <p></p>
 
                                 <div class="jqGrid_wrapper">

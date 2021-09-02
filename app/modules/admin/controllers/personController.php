@@ -973,9 +973,9 @@ class Person  extends admCommon {
         $sord  = $_POST['sord'];
 
         if(!$sidx)
-            $sidx ='tbp.name';
+            $sidx ='tbm.name,tbp.name';
         if(!$sord)
-            $sord ='asc';
+            $sord ='ASC';
 
         if ($_POST['_search'] == 'true'){
             if ( $_POST['searchField'] == 'tbp.name') $searchField = 'tbp.name';
@@ -1004,8 +1004,10 @@ class Person  extends admCommon {
 
             $program = $sel->fields['idprogram'];
             $name_pgr = ($sel->fields['smarty']) ? $this->getLanguageWord($sel->fields['smarty']) : $sel->fields['name'];
+            $moduleName = ($sel->fields['module_smarty']) ? $this->getLanguageWord($sel->fields['module_smarty']) : $sel->fields['module'];
 
             $defPerms = $this->dbPermissions->getDefaultPerms($program);
+            $defP = array();
             while (!$defPerms->EOF) {
                 $defP[$defPerms->fields['idaccesstype']] = $defPerms->fields['idaccesstype'];
                 $defPerms->MoveNext();
@@ -1054,16 +1056,17 @@ class Person  extends admCommon {
             }
 
             $aColumns[] = array(
-                'idprogram'      => $program,
-                'programname'    => $name_pgr,
-                'access'            => $acc,
-                'new'               => $new,
-                'edit'              => $edit,
-                'delete'            => $delete,
-                'export'            => $export,
-                'email'             => $email,
-                'sms'               => $sms,
-                'idperson'         => $idperson
+                'idprogram'     => $program,
+                'modulename'    => $moduleName,
+                'programname'   => $name_pgr,
+                'access'        => $acc,
+                'new'           => $new,
+                'edit'          => $edit,
+                'delete'        => $delete,
+                'export'        => $export,
+                'email'         => $email,
+                'sms'           => $sms,
+                'idperson'      => $idperson
             );
 
             $sel->MoveNext();

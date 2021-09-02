@@ -188,6 +188,11 @@
                                     {html_options values=$moduleids output=$modulevals selected=$idmodule}
                                 </select>
                             </div>
+                            <div class="col-sm-1 ">
+                                <button class="btn btn-default lbltooltip" id="btnAddModule" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{$smarty.config.tt_add_module_btn}">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -281,6 +286,7 @@
         </div>
 
         {include file='modals/main/modal-alert.tpl'}
+        {include file='modals/programs/modal-module.tpl'}
 
     </div>
 </div>
