@@ -244,5 +244,23 @@
           );
           return $curl_error_codes[$code];
       }
+
+      public function getITCards($boardID)
+      {
+          $data = $this->request('GET', ('/1/boards/'.$boardID.'/cards/all'));
+          return $data;
+      }
+
+      public function getITLists($listID)
+      {
+          $data = $this->request('GET', ('/1/list/'.$listID));
+          return $data;
+      }
+
+      public function getChecklist($checklistID)
+      {
+          $data = $this->request('GET', ('/1/checklists/'.$checklistID));
+          return $data;
+      }
   }
 ?>
