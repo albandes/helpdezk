@@ -91,13 +91,19 @@ class home extends hdkCommon {
         $smarty->assign('demoversion', $this->demoVersion);             // Demo version
 
         $smarty->assign('show_dashboard', true);
+        $smarty->assign('display_transparency', $_SESSION['hdk']['SES_DISPLAY_TRANSPARENCY']);
+        $smarty->assign('display_user_data', $_SESSION['hdk']['SES_DISPLAY_USER_SECTION']);
+        $smarty->assign('statsHtml', $this->makeITTicketsStats(date("Y")));
+        $smarty->assign('timeline_dev', $this->makeITDevTimeline());
+        $smarty->assign('cmbYear', $this->makeCmbYear());
+        $smarty->assign('curYear', date("Y"));
 
         // Operator or admin
         if($_SESSION['SES_TYPE_PERSON'] == 3 || $_SESSION['SES_TYPE_PERSON'] == 1){
             //Set Order to columns of Attendant's Grid
             $sord = isset($_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols'])
                 ? $_SESSION['SES_PERSONAL_USER_CONFIG']['ordercols']
-                : $_SESSION['hdk']['SES_ORDER_ASC'] == 1 ? 'asc' : 'desc';
+                : ($_SESSION['hdk']['SES_ORDER_ASC'] == 1 ? 'asc' : 'desc');
             $smarty->assign('sord',$sord);
 
             //Set Auto Refresh Attendant's Grid
@@ -126,7 +132,7 @@ class home extends hdkCommon {
                 $this->makeDash('user',$smarty);
             } else {
                 if ($_SESSION['hdk']['SES_USER_DASHBOARD']) {
-                     $this->makeDash('user',$smarty);
+                    //$this->makeDash('user',$smarty);
                 } else {
                     $smarty->assign('show_dashboard', false);
                 }
@@ -783,6 +789,170 @@ class home extends hdkCommon {
 
         echo json_encode($aRet);
 
+    }
+
+    function makeITTicketsStats($year)
+    {
+        $where = "WHERE stats_year = {$year}";        
+        
+        $rsStats = $this->dbHome->getITTicketStats($where);
+        if (!$rsStats['success']) {
+            if($this->log)
+                $this->logIt("Error: {$rsStats['message']}.\n User: {$_SESSION['SES_LOGIN_PERSON']}. Program: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
+            $html = "<tr><td colspan='2'>{$this->getLanguageWord('No_result')}</td></tr>";
+        }else{
+            if(count($rsStats['data']) <= 0){
+                $html = "<tr><td colspan='2'>{$this->getLanguageWord('No_result')}</td></tr>";
+            }else{
+                foreach($rsStats['data'] as $key=>$val) {
+                    $html .= "<tr>
+                                <td>
+                                    <span style='color:{$val['color']}'>
+                                        {$val['status_name']}
+                                    </span>
+                                </td>
+                                <td class='text-right'>
+                                    <span style='color:{$val['color']}'>
+                                        <strong>{$val['total']}</strong>
+                                    </span>
+                                </td>
+                              </tr>";
+                }   
+            }
+        }
+
+        $aRet['html'] = $html;     
+
+        return $aRet;
+
+    }
+
+    public function ajaxITChart()
+    {
+        $year = $_POST['year'];
+        $where = "WHERE stats_year = {$year}";     
+        
+        $rsStats = $this->dbHome->getITTicketStats($where);
+        if (!$rsStats['success']) {
+            if($this->log)
+                $this->logIt("Error: {$rsStats['message']}.\n User: {$_SESSION['SES_LOGIN_PERSON']}. Program: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $aLabel = array();
+        $aData = array();
+        $aBG = array();
+        $aBorder = array();
+        
+        foreach($rsStats['data'] as $key=>$val) {
+            array_push($aLabel,$val['status_name']);
+            array_push($aData,$val['total']);
+            array_push($aBG,$this->hex2rgba(strtoupper(trim($val['color']))));
+            array_push($aBorder,$this->hex2rgba(strtoupper(trim($val['color'])),1));
+        }
+        
+        $aRet = array(
+            "labels" => $aLabel,
+            "datasets" => array(
+                array(
+                    "label" => "Teste",
+                    "data" => $aData,
+                    "fill" => false,
+                    "backgroundColor" => $aBG,
+                    "borderColor" => $aBorder,
+                    "borderWidth" => 1
+                )
+
+            )
+        );
+        
+        echo json_encode($aRet); 
+    }
+
+    /* Convert hexdec color string to rgb(a) string */
+    public function hex2rgba($color, $opacity = false) {
+
+        $default = 'rgb(0,0,0)';
+
+        //Return default if no color provided
+        if(empty($color))
+            return $default;
+        
+        //Sanitize $color if "#" is provided
+        if ($color[0] == '#' ) {            
+            $color = substr($color,1);
+        }
+        
+        //Check if color has 6 or 3 characters and get values
+        if (strlen($color) == 6) {
+            $hex = array( $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] );
+        } elseif ( strlen( $color ) == 3 ) {
+            $hex = array( $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] );
+        } else {
+            return $default;
+        }
+
+        //Convert hexadec to rgb
+        $rgb =  array_map('hexdec', $hex);
+        
+        //Check if opacity is set(rgba or rgb)
+        if($opacity){
+            $output = 'rgba('.implode(",",$rgb).','.$opacity.')';
+        } else {
+            $output = 'rgb('.implode(",",$rgb).')';
+        }
+
+        //Return rgb(a) color string
+        return $output;
+    }
+
+    function makeITDevTimeline()
+    {
+        $ret =$this->dbHome->getItCardData(null,"ORDER BY card_group DESC, dtdue ASC");
+        if (!$ret['success']) {
+            if($this->log)
+                $this->logIt("Error: {$ret['message']}.\n User: {$_SESSION['SES_LOGIN_PERSON']}. Program: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        foreach($ret['data'] as $key=>$val){
+
+            $ret['data'][$key]['fmt_dtdue'] = (!$val['dtdue']) ? $this->getLanguageWord("Not_available_yet") : $val['fmt_dtdue'];
+
+        }
+        //echo "<pre>",print_r($ret['data'],true),"</pre>";
+        return $ret['data'];
+
+    }
+
+    function makeCmbYear()
+    {
+        $startyear = date("Y");
+        $aRet = array();
+        for($i=$startyear; $i > ($startyear - 3); $i--){
+            $bus = array(
+                "id"=>$i,
+                "year"=>$i,
+                "active"=>(($i == $startyear) ? "active": "")
+            );
+            array_push($aRet,$bus);
+        }        
+    
+        return $aRet;
+
+    }
+
+    public function ajaxITStats()
+    {
+        $year = $_POST['year'];
+        $ret = $this->makeITTicketsStats($year);
+        
+        $aRet = array(
+            "success" => true,
+            "data" => $ret
+        );
+
+        echo json_encode($aRet);
     }
 }
 

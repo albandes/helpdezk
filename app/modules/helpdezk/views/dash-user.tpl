@@ -5,7 +5,7 @@
         <div class="ibox float-e-margins">
             <div class="ibox-title">
                 <span class="label label-success pull-right">{$year}</span>
-                <h5>{$smarty.config.Grid_all_tickets}</h5>
+                <h5>{$smarty.config.home_all_tickets}</h5>
             </div>
             <div class="ibox-content">
                 <h1 class="no-margins ">{$total_all_users}</h1>
@@ -102,8 +102,153 @@
     </div>
 </div>
 
-<!-- -->
+<!-- IT Tranparency -->
+{if $display_transparency == true}
+<style>
+    .scrollable-timelime {
+        max-height: 691px;
+        overflow: auto;
+    }
 
+    .scrollable-timelime::-webkit-scrollbar {
+        width: 16px;
+    }
+    
+    .scrollable-timelime::-webkit-scrollbar-track {
+        background-color: #e4e4e4;
+        border-radius: 100px;
+    }
+    
+    .scrollable-timelime::-webkit-scrollbar-thumb {
+        background-color: #d4d4d4;
+        border-radius: 100px;
+    }
+</style>
+<div class="row">
+    <!-- left side -->
+    <div class="col-sm-3 col-lg-3">
+        <div class="form-group">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>{$smarty.config.tickets_it_stats}</h5>
+                        <div class="ibox-tools">
+                            <span class="label label-warning-light" id="chartYear">{$curYear}</span>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fas fa-filter"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                {foreach $cmbYear as $key => $value}
+                                <li id="li-chart-{$value.year}" {if $value.active}class="active"{/if}>
+                                    <a onclick="loadITChart('{$value.year}')">{$value.year}</a>
+                                </li>
+                                {/foreach}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div>
+                            <canvas id="itTicketsChart" height="700"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>{$smarty.config.tickets_it_stats}</h5>
+                        <div class="ibox-tools">
+                            <span class="label label-warning-light" id="statsYear">{$curYear}</span>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fas fa-filter"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                {foreach $cmbYear as $key => $value}
+                                <li id="li-{$value.year}" {if $value.active}class="active"{/if}>
+                                    <a onclick="loadITStats('{$value.year}')">{$value.year}</a>
+                                </li>
+                                {/foreach}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div>
+                            <table id="statList" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="col-sm-8 text-center"><h4><strong>{$smarty.config.status}</strong></h4></th>
+                                        <th class="col-sm-4 text-center"><h4><strong>{$smarty.config.Total}</strong></h4></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {$statsHtml.html}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- right side -->
+    <div class="col-sm-9 col-lg-9">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>{$smarty.config.hdk_it_dev_timeline}</h5>
+                    <!--
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">Config option 1</a>
+                            </li>
+                            <li><a href="#">Config option 2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                    -->
+                </div>
+                <div class="ibox-content">
+                    <div id="vertical-timeline" class="vertical-container scrollable-timelime">
+                        {foreach $timeline_dev as $tkey => $tvalue}
+                        <div class="vertical-timeline-block">                            
+                            <div class="vertical-timeline-icon {$tvalue.icon_bg}">
+                                <i class="fa {$tvalue.list_icon}"></i>
+                            </div>
+                            
+                            <div class="vertical-timeline-content">
+                                <h2>{$tvalue.name}</h2>
+                                <p>{$tvalue.description}</p>
+                                <!--<a class="btn btn-sm btn-primary" onclick="loadITCardInfo('{$tvalue.iditcard}')">{$smarty.config.more_info}</a>-->
+                                <span class="vertical-date">
+                                    {$smarty.config.timeline_due_date} <br/>
+                                    <small>{$tvalue.fmt_dtdue}</small>
+                                </span>
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{/if}
+
+<!-- Tickets list, messages and user data -->
+{if $display_user_data == true}
 <div class="row">
 
     <div class="col-lg-12">
@@ -330,3 +475,8 @@
     </div>
 
 </div>
+{/if}
+
+{if $display_transparency == true}
+{include file='modals/main/modal-it-card-info.tpl'}
+{/if}

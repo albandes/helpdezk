@@ -1,4 +1,4 @@
-
+var itChart;
 $(document).ready(function () {
 
     countdown.start(timesession);
@@ -70,13 +70,13 @@ $(document).ready(function () {
 
 
     if(typeuser != '3'){
-        $.post(path + "/helpdezk/home/checkapproval", {}, function(data) {
+        /*$.post(path + "/helpdezk/home/checkapproval", {}, function(data) {
             if(data > 0){
                 $('#tipo-alert-apvrequire').addClass('alert alert-info')
                 $('#apvrequire-notification').html(makeSmartyLabel('Alert_approve'));
                 $('#modal-approve-require').modal('show');
             }
-        })
+        })*/
 
         $("#btnSendApvReqYes").click(function(){
             location.href = path + "/helpdezk/hdkTicket/index" ;
@@ -96,8 +96,43 @@ $(document).ready(function () {
 
     }
 
+    /** Get data for chart **/
+    var curyear = new Date();
+    curyear = curyear.getFullYear();
+    var itChar = $.ajax({
+        type: "POST",
+        url: path+"/helpdezk/home/ajaxITChart",
+        data: {year: curyear},
+        async: false,
+        dataType: 'json'
+    }).responseJSON;
 
+    /** chart's settings **/
+    var optionMedia = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                align: 'start',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {  
+                        var dataset = context.dataset.data,
+                            currentValue = context.parsed,
+                            reducer = (accumulator, curr) => Number(accumulator) + Number(curr),
+                            total = dataset.reduce(reducer);
+                        
+                        return Math.floor(((currentValue/total) * 100)+0.5) + "%";
+                    }
+                }
+            }
+        }
+    };
 
+    /** chart's create **/
+    var ctx = document.getElementById("itTicketsChart").getContext("2d");
+    itChart = new Chart(ctx,{type: 'pie',data: itChar,options: optionMedia});
 
 });
 
@@ -185,3 +220,101 @@ $(document).ready(function () {
     };
 
 }());
+
+function loadITStats(year)
+{
+    var activeYear = $("#statsYear").html();
+    
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/home/ajaxITStats',
+        dataType: 'json',
+        data: {
+            year: year
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-news-update');
+        },
+        success: function(ret){
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+
+            if(obj.success) {
+                $('#statList tbody').html(obj.data.html);
+            }
+        },
+        beforeSend: function(){
+            $("#statsYear").html(year);
+            $("#li-"+activeYear).removeClass("active");
+            $("#li-"+year).addClass("active");
+        },
+        complete: function(){
+
+        }
+    });
+}
+
+function loadITChart(year)
+{
+    var activeYear = $("#chartYear").html();
+    
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/home/ajaxITChart',
+        dataType: 'json',
+        data: {
+            year: year
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-news-update');
+        },
+        success: function(ret){
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            //console.log(ret);
+            itChart.data = obj;
+            itChart.update();
+        },
+        beforeSend: function(){
+            $("#chartYear").html(year);
+            $("#li-chart-"+activeYear).removeClass("active");
+            $("#li-chart-"+year).addClass("active");
+        },
+        complete: function(){
+
+        }
+    });
+}
+
+function loadITCardInfo(cardID)
+{
+    $('#modal-it-card-info').modal('show');
+    /*var activeYear = $("#chartYear").html();
+    
+    $.ajax({
+        type: "POST",
+        url: path + '/helpdezk/home/ajaxITChart',
+        dataType: 'json',
+        data: {
+            year: year
+        },
+        error: function (ret) {
+            modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-news-update');
+        },
+        success: function(ret){
+
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            //console.log(ret);
+            itChart.data = obj;
+            itChart.update();
+        },
+        beforeSend: function(){
+            $("#chartYear").html(year);
+            $("#li-chart-"+activeYear).removeClass("active");
+            $("#li-chart-"+year).addClass("active");
+        },
+        complete: function(){
+
+        }
+    });*/
+}

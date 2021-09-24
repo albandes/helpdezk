@@ -13,7 +13,7 @@ var objCbmData = {
         return false ;
     }
 
-}
+};
 
 $(document).ready(function () {
 
@@ -48,6 +48,17 @@ $(document).ready(function () {
     if($("#typeAction").val() == 'upd')
         $(".cmbLocale").chosen({    width: "100%",    no_results_text: makeSmartyLabel('No_result'), disable_search_threshold: 10});
 
+    var objProgramData = {
+        changeModule: function(selectedID) {
+            $.post(path+"/admin/program/ajaxModule",{selectedID:selectedID},
+                function(valor) {
+                    $("#cmbModule").html(valor);
+                    $("#cmbModule").trigger("chosen:updated");
+                    $("#cmbModule").change();
+                    return false;
+                });
+        }
+    };
     /*
      * Buttons
      */
@@ -66,22 +77,28 @@ $(document).ready(function () {
             if($(this).val() == ''){
                 flgNotSelect = true;
             }else{
-                $.post(path+"/admin/vocabulary/checkKeyName",
-                    {
-                        '_token' :$("#_token").val(),
+                $.ajax({
+                    type: "POST",
+                     url: path+"/admin/vocabulary/checkKeyName",
+                dataType: 'json',
+                    data: {
+                        '_token' : $("#_token").val(),
                         'keyName':$("#keyName").val(),
                         'localeID':$(this).val(),
                         'localName': $("#localeID_"+ lineID[1] +" option:selected").text()
                     },
-                    function(res) {
-                        var obj = jQuery.parseJSON(JSON.stringify(res));
+                   async: false,
+                   error: function (ret) {
+                        modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-create-vocabulary');
+                    },
+                 success: function(ret){
+                        var obj = jQuery.parseJSON(JSON.stringify(ret));
                         if(!obj.status) {
                             modalAlertMultiple('danger',obj.message,'alert-create-vocabulary');
                             return false;
                         }
-                    },
-                    'json'
-                )
+                    }
+                });
             }
         });
 
@@ -145,23 +162,29 @@ $(document).ready(function () {
             if($(this).val() == ''){
                 flgNotSelect = true;
             }else{
-                $.post(path+"/admin/vocabulary/checkKeyName",
-                    {
-                        '_token' :$("#_token").val(),
+                $.ajax({
+                    type: "POST",
+                     url: path+"/admin/vocabulary/checkKeyName",
+                dataType: 'json',
+                    data: {
+                        '_token' : $("#_token").val(),
                         'keyName':$("#keyName").val(),
                         'vocabularyID':$("#vocabularyID_" + lineID[1]).val(),
                         'localeID':$(this).val(),
                         'localName': $("#localeID_"+ lineID[1] +" option:selected").text()
                     },
-                    function(res) {
-                        var obj = jQuery.parseJSON(JSON.stringify(res));
+                   async: false,
+                   error: function (ret) {
+                        modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-create-vocabulary');
+                    },
+                 success: function(ret){
+                        var obj = jQuery.parseJSON(JSON.stringify(ret));
                         if(!obj.status) {
-                            modalAlertMultiple('danger',obj.message,'alert-update-vocabulary');
+                            modalAlertMultiple('danger',obj.message,'alert-create-vocabulary');
                             return false;
                         }
-                    },
-                    'json'
-                )
+                    }
+                });
             }
         });
 
@@ -216,6 +239,51 @@ $(document).ready(function () {
         duplicateRow('localeTab',$('#typeAction').val());
     });
 
+    $("#btnAddModule").click(function(){
+        $('#modal-form-module').modal('show');
+    });
+
+    $("#btnSendModule").click(function(){
+        
+        if (!$("#module-form").valid()) {
+            console.log('nao validou') ;
+            return false;
+        }
+
+        if(!$("#btnSendModule").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/modules/createModule',
+                dataType: 'json',
+                data: $('#module-form').serialize(),
+                error: function (ret) {
+                    modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-module');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if($.isNumeric(obj.idmodule)) {
+                        modalAlertMultiple('success',aLang['Alert_sucess_module'].replace (/\"/g, ""),'alert-module');
+                        objProgramData.changeModule(obj.idmodule);
+                        setTimeout(function(){
+                            $('#modal-form-module').modal('hide');
+                        },2000);
+                    } else {
+                        modalAlertMultiple('danger',aLang['Alert_failure'].replace (/\"/g, ""),'alert-module');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnbtnSendModule").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                    $("#btnCancelModule").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnbtnSendModule").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
+                    $("#btnCancelModule").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
     /*
      * Validate
      */
@@ -249,6 +317,56 @@ $(document).ready(function () {
         }
     });
 
+    $("#module-form").validate({
+        ignore:[],
+        rules: {
+            txtName:        {
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/modules/checkModule",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();}
+                    }
+                }
+            },
+            txtPath:{
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/modules/checkModulePath",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();}
+                    }
+                }
+            },
+            txtSmartyVar:   "required",
+            txtPrefix:      {
+                required: true, 
+                equalTo: "#txtPath"
+            }
+        },
+        messages: {
+            txtName:       {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            },
+            txtPath:        {
+                required:makeSmartyLabel('Alert_field_required'), 
+                minlength:makeSmartyLabel('Alert_word_min_letters')
+            },
+            txtSmartyVar:   makeSmartyLabel('Alert_field_required'),
+            txtPrefix:     {
+                required:makeSmartyLabel('Alert_field_required'), 
+                equalTo: makeSmartyLabel('Alert_different_path')
+            }
+        }
+    });
+
     $.validator.addMethod('noAccent', function(strValue) {
         var re = new RegExp("^[a-zA-Z0-9_]+$","i");
         return re.test(strValue);
@@ -256,6 +374,94 @@ $(document).ready(function () {
 
     // tooltips
     $('.tooltip-buttons').tooltip();
+
+    /*
+     * Dropzone
+     */
+    Dropzone.autoDiscover = false;
+    var myDropzone = new Dropzone("#myDropzone", {  url: path + "/admin/modules/saveLogo/",
+        method: "post",
+        dictDefaultMessage: aLang['Drag_image_msg'].replace (/\"/g, ""),
+        createImageThumbnails: true,
+        maxFiles: 1,
+        acceptedFiles: '.jpg, .jpeg, .png, .gif',
+        parallelUploads: 1,
+        autoProcessQueue: false,
+        addRemoveLinks: true,
+        init: function () {
+            //console.log($('#idproduto').val());
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: path + '/admin/modules/loadImage',
+                data: {
+                    idmodule:  $('#idmodule').val()
+                },
+                success: function(response){
+                    var existingFileCount = 0;
+                    console.log(response.length);
+                    $.each(response, function(  key, value ) {
+                        var arquivos = {
+                            idmodule: value.idmodule,
+                            name: value.filename,
+                            size: value.size,
+                            url: path +"/app/uploads/logos/"
+                        };
+                        myDropzone.emit("addedfile", arquivos);
+                        myDropzone.files.push(arquivos);
+                        myDropzone.emit("thumbnail", arquivos, arquivos.url+arquivos.name);
+                        myDropzone.emit("success", arquivos);
+                        myDropzone.emit("complete", arquivos);
+                        //myDropzone.uploadFiles([arquivos]);
+
+                        existingFileCount = existingFileCount + 1; // The number of files already uploaded
+
+                    });
+                    myDropzone.options.maxFiles = myDropzone.options.maxFiles - existingFileCount;
+                    console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
+                    console.log(path);
+                },
+                error: function (response) {
+                    console.log("Erro no Dropzone!");
+                }
+            });
+        }
+    });
+
+    myDropzone.on("maxfilesexceeded", function(file) {
+        this.removeFile(file);
+    });
+
+    myDropzone.on("removedfile", function(file) {
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: path + '/admin/modules/removeLogo',
+            data: {
+                idmodule:  file.idmodule,
+                filename: file.name
+            },
+            success: function(response){
+                var obj = jQuery.parseJSON(JSON.stringify(response));
+                if(obj.status == 'OK'){
+                    myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
+                }
+            },
+            error: function (response) {
+                console.log("Erro no Dropzone!");
+            }
+        });
+
+    });
+
+    myDropzone.on("queuecomplete", function (file) {
+        console.log('Completed the dropzone queue');
+    });
+
+    /* clean modal's fields */
+    $('.modal').on('hidden.bs.modal', function() {
+        $('#module-form').trigger('reset');
+    });
 
 });
 

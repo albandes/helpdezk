@@ -148,7 +148,36 @@ $(document).ready(function () {
         }
     });
 
+    $("#btnUpdVocab").click(function(){
 
+        if(!$("#btnUpdVocab").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/home/updateLanguageFile',
+                dataType: 'json',
+                data: { action: 'write'},
+                error: function (ret) {
+                    showAlert(makeSmartyLabel('generic_error_msg'),'danger','');
+                },
+                success: function(ret){    
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+    
+                    if(obj.success) {
+                        showAlert(makeSmartyLabel('success_language_file_generated'),'success','');
+                    } else {
+                        showAlert(makeSmartyLabel('error_language_file_generated')+obj.message,'');
+                    }    
+                },
+                beforeSend: function(){
+                    $("#btnUpdVocab").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnUpdVocab").html("<i class='fas fa-sync-alt'></i> "+ makeSmartyLabel('Update_vocabulary')).removeClass('disabled');
+                }
+            });
+        }
+
+    });
 
 });
 

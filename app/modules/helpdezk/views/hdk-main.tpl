@@ -67,6 +67,9 @@
     {head_item type="css" src="$path/css/plugins/dropzone/" files="basic.css"}
     {head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
 
+    <!-- ChartJS-->
+    {head_item type="js" src="$path/includes/js/plugins/chartJs/" files="chart.min.js"}
+
     {literal}
 
         <script type="text/javascript">

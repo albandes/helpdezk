@@ -585,10 +585,11 @@ $(document).ready(function () {
         console.log('Completed the dropzone queue');
     });
 
-    /* limpa campos modal */
+    /* clean modal's fields */
     $('.modal').on('hidden.bs.modal', function() {
         $('#module-form').trigger('reset');
         $('#category-form').trigger('reset');
+        $('#vocabulary-form').trigger('reset');
     });
 
     $('#flagPerm').on('ifChecked ifUnchecked',function(e){

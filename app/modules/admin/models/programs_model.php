@@ -27,7 +27,12 @@ class programs_model extends DynamicProgram_model {
         $database = $this->getConfig('db_connect');
 
         if ($database == 'mysqli') {
-            $query = "SELECT tbp.idprogram, tbp.name, tbp.controller, tbm.name as module, tbp.status, tbtp.name as category, tbp.smarty from tbprogram as tbp, tbmodule as tbm, tbprogramcategory as tbtp where tbtp.idmodule = tbm.idmodule and tbtp.idprogramcategory = tbp.idprogramcategory $where $order $limit";
+            $query = "SELECT tbp.idprogram, tbp.name, tbp.controller, tbm.name AS module, tbp.status, tbtp.name AS category, 
+                                tbp.smarty, tbm.smarty module_smarty
+                        FROM tbprogram AS tbp, tbmodule AS tbm, tbprogramcategory AS tbtp 
+                       WHERE tbtp.idmodule = tbm.idmodule 
+                         AND tbtp.idprogramcategory = tbp.idprogramcategory 
+                         $where $order $limit";
         } elseif ($database == 'oci8po') {
             $limit = str_replace('LIMIT', "", $limit);
             $p     = explode(",", $limit);
