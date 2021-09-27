@@ -288,33 +288,38 @@ function loadITChart(year)
 
 function loadITCardInfo(cardID)
 {
-    $('#modal-it-card-info').modal('show');
-    /*var activeYear = $("#chartYear").html();
-    
     $.ajax({
         type: "POST",
-        url: path + '/helpdezk/home/ajaxITChart',
+        url: path + '/helpdezk/home/viewDetail',
         dataType: 'json',
         data: {
-            year: year
+            cardID: cardID
         },
         error: function (ret) {
             modalAlertMultiple('danger',makeSmartyLabel('Edit_failure'),'alert-news-update');
         },
         success: function(ret){
-
             var obj = jQuery.parseJSON(JSON.stringify(ret));
-            //console.log(ret);
-            itChart.data = obj;
-            itChart.update();
+            if(obj.success){
+                $('#taskLine').html(obj.cardName);
+                $('#activityLine').html(obj.activities);
+
+                $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green',
+                });
+                
+                $('#modal-it-card-info').modal('show');
+            }else{
+
+            }
+            
         },
         beforeSend: function(){
-            $("#chartYear").html(year);
-            $("#li-chart-"+activeYear).removeClass("active");
-            $("#li-chart-"+year).addClass("active");
+            
         },
         complete: function(){
 
         }
-    });*/
+    });
 }

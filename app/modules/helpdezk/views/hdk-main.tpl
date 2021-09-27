@@ -68,7 +68,11 @@
     {head_item type="css" src="$path/css/plugins/dropzone/" files="pipe.dropzone.css"}
 
     <!-- ChartJS-->
-    {head_item type="js" src="$path/includes/js/plugins/chartJs/" files="chart.min.js"}
+    {head_item type="js" src="$path/includes/js/plugins/chartJs/" files="Chart.min.js"}
+
+    <!-- Icheck, used in checkbox and radio -->
+    {head_item type="css" src="$path/css/plugins/iCheck/" files="custom.css"}
+    {head_item type="js"  src="$path/includes/js/plugins/iCheck/" files="icheck.min.js"}
 
     {literal}
 

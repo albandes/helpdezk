@@ -954,6 +954,42 @@ class home extends hdkCommon {
 
         echo json_encode($aRet);
     }
+
+    public function viewDetail()
+    {
+        $cardID = $_POST['cardID'];
+        $ret =$this->dbHome->getItCardData("WHERE a.iditcard = {$cardID}");
+        if (!$ret['success']) {
+            if($this->log)
+                $this->logIt("Error: {$ret['message']}.\n User: {$_SESSION['SES_LOGIN_PERSON']}. Program: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
+            echo json_encode(array('success'=>false,'message'=>$this->getLanguageWord('generic_error_msg')));
+            exit;
+        }
+
+        $retAct =$this->dbHome->getActivityData("WHERE iditcard = {$cardID}");
+        if (!$retAct['success']) {
+            if($this->log)
+                $this->logIt("Error: {$retAct['message']}.\n User: {$_SESSION['SES_LOGIN_PERSON']}. Program: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
+            echo json_encode(array('success'=>false,'message'=>$this->getLanguageWord('generic_error_msg')));
+            exit;
+        }
+
+        $html = "";
+        if(count($retAct['data']) <= 0){
+            $html .= "<p class='text-danger form-control-static'>{$this->getLanguageWord('no_activities')}</p>";
+        }else{
+            foreach($retAct['data'] as $key=>$val){
+                $checked = $val['complete'] == 1 ? "checked=checked" : "";
+                $html .= "<div class='checkbox i-checks col-sm-12 col-md-12 col-lg-12'><input type='checkbox' $checked disabled='disabled'><i></i> &nbsp;{$val['description']}</div>";           
+            }
+        }        
+
+        echo json_encode(array(
+            'success'=>true,
+            'cardName'=>$ret['data'][0]['name'],
+            'activities'=>$html
+        ));
+    }
 }
 
 ?>

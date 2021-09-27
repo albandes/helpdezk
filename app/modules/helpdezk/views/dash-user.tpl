@@ -106,7 +106,7 @@
 {if $display_transparency == true}
 <style>
     .scrollable-timelime {
-        max-height: 691px;
+        max-height: 620px;
         overflow: auto;
     }
 
@@ -230,9 +230,15 @@
                             <div class="vertical-timeline-content">
                                 <h2>{$tvalue.name}</h2>
                                 <p>{$tvalue.description}</p>
-                                <!--<a class="btn btn-sm btn-primary" onclick="loadITCardInfo('{$tvalue.iditcard}')">{$smarty.config.more_info}</a>-->
+                                <p><b>{$smarty.config.Grid_incharge}</b>: {$tvalue.in_charge}</p>
+                                <small class="text-primary">{$tvalue.card_percentage}%</small>
+                                <div class="progress progress-bar-default">
+                                    <div style="width: {$tvalue.card_percentage}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="{$tvalue.card_percentage}" role="progressbar" class="progress-bar">
+                                    </div>
+                                </div>
+                                <a class="btn btn-sm btn-primary" onclick="loadITCardInfo('{$tvalue.iditcard}')">{$smarty.config.more_info}</a>
                                 <span class="vertical-date">
-                                    {$smarty.config.timeline_due_date} <br/>
+                                    <b>{$smarty.config.timeline_due_date}</b> <br/>
                                     <small>{$tvalue.fmt_dtdue}</small>
                                 </span>
                             </div>
