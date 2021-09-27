@@ -334,16 +334,26 @@ class home_model extends DynamicHome_model
       return $this->selectPDO($query);
     }
 
-    public function getItCardData($where=null,$order=null,$limit=null,$group=null) {
-      $query = "SELECT iditcard, id, a.`name`, `description`, a.iditlist, dtstart, dtdue,
-			                 IF(dtdue IS NULL, 0 ,1) card_group, 
-                       DATE_FORMAT(dtstart,'%d/%m/%Y %H:%i:%s') fmt_dtstart, 
-                       DATE_FORMAT(dtdue,'%d/%m/%Y %H:%i:%s') fmt_dtdue, 
-                       icon list_icon, icon_bg
+    public function getItCardData($where=null,$order=null,$limit=null) {
+      $query = "SELECT a.iditcard, a.id, a.`name`, a.`description`, a.iditlist, a.dtstart, a.dtdue,
+                        IF(a.dtdue IS NULL, 0 ,1) card_group, 
+                        DATE_FORMAT(a.dtstart,'%d/%m/%Y %H:%i:%s') fmt_dtstart, 
+                        DATE_FORMAT(a.dtdue,'%d/%m/%Y %H:%i:%s') fmt_dtdue, 
+                        icon list_icon, icon_bg, 
+                        ROUND(((COUNT(DISTINCT (CASE WHEN (c.complete = 1) THEN (c.idactivity) END))/COUNT(c.idactivity))*100)) card_percentage,
+                        GROUP_CONCAT(DISTINCT e.name) in_charge
                   FROM `hdk_tbitcard` a
        LEFT OUTER JOIN hdk_tbitlist b
                     ON b.iditlist = a.iditlist
-                  $where $group $order $limit";
+       LEFT OUTER JOIN hdk_tbitcard_activity c
+                    ON c.iditcard = a.iditcard
+       LEFT OUTER JOIN hdk_tbitcard_has_person d
+                    ON d.iditcard = a.iditcard
+       LEFT OUTER JOIN tbperson e
+                    ON e.idperson = d.idperson
+                $where
+              GROUP BY a.iditcard
+                $order $limit";
       //echo "{$query}\n";
       return $this->selectPDO($query);
     }
@@ -368,7 +378,7 @@ class home_model extends DynamicHome_model
           return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
       }
 
-      return array("success"=>true,"message"=>"","id"=>$this->lastPDO('lgp_tbitcard'));
+      return array("success"=>true,"message"=>"","id"=>$this->lastPDO('hdk_tbitcard'));
     }
 
     public function updateITCard($cardID,$id,$name,$description,$listID,$start,$due){
@@ -390,6 +400,109 @@ class home_model extends DynamicHome_model
           $sth->bindParam(":listID",$listID);
           $sth->bindParam(":start",$start);
           $sth->bindParam(":due",$due);
+          $sth->bindParam(":cardID",$cardID);
+          $sth->execute();
+          $this->CommitTransPDO();
+      }catch(PDOException $ex){
+          $this->RollbackTransPDO();
+          return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+      }
+
+      return array("success"=>true,"message"=>"","data"=>"");
+    }
+
+    public function getActivityData($where=null,$order=null,$limit=null,$group=null) {
+      $query = "SELECT idactivity,iditcard,id,`description`,id_in_charge,dtdue,complete
+                  FROM hdk_tbitcard_activity
+                  $where $group $order $limit";
+      //echo "{$query}\n";
+      return $this->selectPDO($query);
+    }
+
+    public function insertActivity($cardID,$id,$description,$id_in_charge,$due,$complete){
+      $sql = "INSERT INTO hdk_tbitcard_activity(iditcard,id,`description`,id_in_charge,dtdue,complete) 
+                VALUES(:cardID,:id,:description,:id_in_charge,:due,:complete)";
+
+      try{
+          $this->BeginTransPDO();            
+          $sth = $this->dbPDO->prepare($sql);
+          $sth->bindParam(":cardID",$cardID);
+          $sth->bindParam(":id",$id);
+          $sth->bindParam(":description",$description);
+          $sth->bindParam(":id_in_charge",$id_in_charge);
+          $sth->bindParam(":due",$due);
+          $sth->bindParam(":complete",$complete);
+          $sth->execute();
+          $this->CommitTransPDO();
+      }catch(PDOException $ex){
+          $this->RollbackTransPDO();
+          return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+      }
+
+      return array("success"=>true,"message"=>"","id"=>$this->lastPDO('lgp_tbitcard'));
+    }
+
+    public function updateActivity($activityID,$id,$description,$id_in_charge,$due,$complete){
+      $sql = "UPDATE hdk_tbitcard_activity
+                 SET id = :id,
+                     `description` = :description,
+                     id_in_charge = :id_in_charge,
+                     dtdue = :due,
+                     complete = :complete
+               WHERE idactivity = :activityID";
+      //echo "{$sql}\n";
+      try{
+          $this->BeginTransPDO();            
+          $sth = $this->dbPDO->prepare($sql);
+          $sth->bindParam(":id",$id);
+          $sth->bindParam(":description",$description);
+          $sth->bindParam(":id_in_charge",$id_in_charge);
+          $sth->bindParam(":due",$due);
+          $sth->bindParam(":complete",$complete);
+          $sth->bindParam(":activityID",$activityID);
+          $sth->execute();
+          $this->CommitTransPDO();
+      }catch(PDOException $ex){
+          $this->RollbackTransPDO();
+          return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+      }
+
+      return array("success"=>true,"message"=>"","data"=>"");
+    }
+
+    public function getPersonID($where=null,$order=null,$limit=null,$group=null) {
+      $query = "SELECT idperson, `name`,`login`
+                  FROM tbperson
+                  $where $group $order $limit";
+      //echo "{$query}\n";
+      return $this->selectPDO($query);
+    }
+
+    public function insertITCardMember($cardID,$memberID){
+      $sql = "INSERT INTO hdk_tbitcard_has_person(iditcard,idperson) 
+                VALUES(:cardID,:memberID)";
+
+      try{
+          $this->BeginTransPDO();            
+          $sth = $this->dbPDO->prepare($sql);
+          $sth->bindParam(":cardID",$cardID);
+          $sth->bindParam(":memberID",$memberID);
+          $sth->execute();
+          $this->CommitTransPDO();
+      }catch(PDOException $ex){
+          $this->RollbackTransPDO();
+          return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+      }
+
+      return array("success"=>true,"message"=>"","data"=>"");
+    }
+
+    public function deleteCardMembers($cardID){
+      $sql = "DELETE FROM hdk_tbitcard_has_person WHERE iditcard = :cardID";
+
+      try{
+          $this->BeginTransPDO();            
+          $sth = $this->dbPDO->prepare($sql);
           $sth->bindParam(":cardID",$cardID);
           $sth->execute();
           $this->CommitTransPDO();
