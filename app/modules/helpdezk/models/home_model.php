@@ -339,9 +339,10 @@ class home_model extends DynamicHome_model
                         IF(a.dtdue IS NULL, 0 ,1) card_group, 
                         DATE_FORMAT(a.dtstart,'%d/%m/%Y %H:%i:%s') fmt_dtstart, 
                         DATE_FORMAT(a.dtdue,'%d/%m/%Y %H:%i:%s') fmt_dtdue, 
-                        icon list_icon, icon_bg, 
+                        icon list_icon, icon_bg, b.name list_name, 
                         ROUND(((COUNT(DISTINCT (CASE WHEN (c.complete = 1) THEN (c.idactivity) END))/COUNT(c.idactivity))*100)) card_percentage,
-                        GROUP_CONCAT(DISTINCT e.name) in_charge
+                        GROUP_CONCAT(DISTINCT e.name) in_charge,
+                        TIMESTAMPDIFF(YEAR,CURDATE(),a.dtdue) AS difference
                   FROM `hdk_tbitcard` a
        LEFT OUTER JOIN hdk_tbitlist b
                     ON b.iditlist = a.iditlist
