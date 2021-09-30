@@ -231,6 +231,7 @@
                             <div class="vertical-timeline-content">
                                  <h2>{$tvalue.name}</h2>
                                 <p>{$tvalue.description}</p>
+                                <p><b>{$smarty.config.Grid_status}</b>: {$tvalue.list_name}</p>
                                 <p><b>{$smarty.config.Grid_incharge}</b>: {$tvalue.in_charge}</p>
                                 <small class="text-primary">{$tvalue.card_percentage}%</small>
                                 <div class="progress progress-bar-default">

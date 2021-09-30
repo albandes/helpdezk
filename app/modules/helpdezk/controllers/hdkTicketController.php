@@ -1692,9 +1692,9 @@ class hdkTicket extends hdkCommon {
                     'code_request' => $codeRequest,
                     'media' => 'email') ;
             }
-
+            
             $ret = $this->_sendNotification($arrayParam);
-
+            
             echo $idNoteInsert;
         }
 
@@ -3101,7 +3101,7 @@ class hdkTicket extends hdkCommon {
                     else{
                         //NÃO SOU RESPONSÁVEL POR ESTA SOL
                         $smarty->assign('displaychanges', '0');
-                        if ($_SESSION['hdk']['SES_IND_ASSUME_OTHER'] == 1) {
+                        if ($_SESSION['hdk']['SES_IND_ASSUME_OTHER'] == 1 && !in_array($idperson, $arrayAux)) {
                             $smarty->assign('displayassume',  '1');
                         }else{
                             $smarty->assign('displayassume',  '0');
@@ -3109,7 +3109,7 @@ class hdkTicket extends hdkCommon {
                         $smarty->assign('displayopaux',   '0');
                         $smarty->assign('displayrepass',  '0');
                         $smarty->assign('displayreject',  '0');
-                        $smarty->assign('displayclose',   '0');
+                        $smarty->assign('displayclose',   ((isset($_SESSION['hdk']['SES_AUX_OPERATOR_CLOSE_TICKET']) && $_SESSION['hdk']['SES_AUX_OPERATOR_CLOSE_TICKET'] == 1) && in_array($idperson, $arrayAux)) ? '1' : '0');
                         $smarty->assign('displayreopen',  '0');
                         $smarty->assign('displaycancel',  '0');
                         $smarty->assign('displayaux', 	  '0');

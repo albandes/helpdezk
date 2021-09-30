@@ -908,7 +908,7 @@ class home extends hdkCommon {
 
     function makeITDevTimeline()
     {
-        $ret =$this->dbHome->getItCardData(null,"ORDER BY card_group DESC, dtdue ASC");
+        $ret =$this->dbHome->getItCardData("WHERE a.iditlist IN (1,2,3) ","ORDER BY dtdue ASC");
         if (!$ret['success']) {
             if($this->log)
                 $this->logIt("Error: {$ret['message']}.\n User: {$_SESSION['SES_LOGIN_PERSON']}. Program: {$this->program}. Method: ". __METHOD__ ,3,'general',__LINE__);
@@ -917,7 +917,8 @@ class home extends hdkCommon {
 
         foreach($ret['data'] as $key=>$val){
 
-            $ret['data'][$key]['fmt_dtdue'] = (!$val['dtdue']) ? $this->getLanguageWord("Not_available_yet") : $val['fmt_dtdue'];
+            $ret['data'][$key]['in_charge'] = (!$val['in_charge']) ? $this->getLanguageWord("Not_available_yet") : str_replace(',','<br>',$val['in_charge']);
+            $ret['data'][$key]['fmt_dtdue'] = (!$val['dtdue'] || ($val['dtdue'] && $val['difference'] > 2)) ? $this->getLanguageWord("Not_available_yet") : $val['fmt_dtdue'];
 
         }
         //echo "<pre>",print_r($ret['data'],true),"</pre>";

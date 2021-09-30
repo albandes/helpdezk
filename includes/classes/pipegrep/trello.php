@@ -262,5 +262,11 @@
           $data = $this->request('GET', ('/1/checklists/'.$checklistID));
           return $data;
       }
+
+      public function getMemberData($memberID)
+      {
+          $data = $this->request('GET', ('/1/members/'.$memberID));
+          return $data;
+      }
   }
 ?>
