@@ -340,7 +340,7 @@ class home_model extends DynamicHome_model
                         DATE_FORMAT(a.dtstart,'%d/%m/%Y %H:%i:%s') fmt_dtstart, 
                         DATE_FORMAT(a.dtdue,'%d/%m/%Y %H:%i:%s') fmt_dtdue, 
                         icon list_icon, icon_bg, b.name list_name, 
-                        ROUND(((COUNT(DISTINCT (CASE WHEN (c.complete = 1) THEN (c.idactivity) END))/COUNT(c.idactivity))*100)) card_percentage,
+                        IFNULL(ROUND(((COUNT(DISTINCT (CASE WHEN (c.complete = 1) THEN (c.idactivity) END))/COUNT(c.idactivity))*100)),0) card_percentage,
                         GROUP_CONCAT(DISTINCT e.name) in_charge,
                         TIMESTAMPDIFF(YEAR,CURDATE(),a.dtdue) AS difference
                   FROM `hdk_tbitcard` a
@@ -473,7 +473,7 @@ class home_model extends DynamicHome_model
 
     public function getPersonID($where=null,$order=null,$limit=null,$group=null) {
       $query = "SELECT idperson, `name`,`login`
-                  FROM tbperson
+                  FROM tbperson a
                   $where $group $order $limit";
       //echo "{$query}\n";
       return $this->selectPDO($query);
@@ -513,6 +513,16 @@ class home_model extends DynamicHome_model
       }
 
       return array("success"=>true,"message"=>"","data"=>"");
+    }
+
+    public function getCardMemberID($where=null,$order=null,$limit=null,$group=null) {
+      $query = "SELECT a.idperson, `name`,`login`
+                  FROM tbperson a
+       LEFT OUTER JOIN hdk_tbitcardmember b
+                    ON b.idperson = a.idperson
+                  $where $group $order $limit";
+      //echo "{$query}\n";
+      return $this->selectPDO($query);
     }
 
 }
