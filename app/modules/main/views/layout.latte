@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{$lang}">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>{block title}{/block}</title>
+	
+	<!-- bootstrap -->
+	<link href="{$path}/public/assets/css/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/css/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+
+	<!-- helpdezk theme -->
+	<link href="{$path}/public/assets/css/{!isset($theme) ? $_ENV['THEME'] : $theme}.css" rel="stylesheet">
+	<link href="{$path}/public/assets/css/animate.css" rel="stylesheet">
+
+	<!-- menu -->
+	<link href="{$path}/public/assets/css/gn-menu/css/component.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/js/plugins/gnmenu/classie.js" defer></script>
+    <script src="{$path}/public/assets/js/plugins/gnmenu/gnmenu.js" defer></script>
+
+	<!-- fontawesome -->
+	<link rel="stylesheet" href="{$path}/public/assets/css/fontawesome/css/all.css" rel="stylesheet" />
+	
+	<!-- jquery -->
+	<script src="{$path}/public/assets/js/jquery-3.6.0.min.js"></script>
+
+</head>
+
+{block content}{/block}
+
+</html>
