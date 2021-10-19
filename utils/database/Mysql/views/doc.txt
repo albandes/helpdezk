@@ -1,8 +1,0 @@
-
-View Name                       Description
-----------------------------    --------------------------------------------------------------------------
-util_viewListAllTables          List all tables in schema
-                                use: SELECT * FROM util_viewListAllTables WHERE table_schema = 'table_name'
-
-hdk_viewNotesData               List note´s data
-hdk_viewRequestData             List Requests´s data
