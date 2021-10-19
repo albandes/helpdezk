@@ -1,0 +1,24 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row border-bottom white-bg dashboard-header">
+                <div class="col-sm-5">
+                    <h2>Admin</h2>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+</body>
+
+{/block}
