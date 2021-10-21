@@ -33,8 +33,11 @@ class App
     {
         $_GET['url'] = (isset($_GET['url']) ? $_GET['url'] : '/admin/');
         
-        if ($_GET['url'] == 'admin/' || $_GET['url'] == '/admin/') {
-            $path_default = isset($_ENV["PATH_DEFAULT"]) ? $_ENV["PATH_DEFAULT"] : '..';
+        $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
+        $path_default = str_replace($docRoot,'',dirname(__DIR__,PATHINFO_BASENAME));
+
+        if ($_GET['url'] == 'admin/' || $_GET['url'] == '/admin/') {            
+            
             if (substr($path_default, 0, 1) != '/') {
                 $path_default = '/' . $path_default;
             }
@@ -81,26 +84,26 @@ class App
         require './app/modules/'. $url[0]  .'/controllers/' . $this->controller . '.php';
         $this->controller = new $this->controller();
     }
-
-	/**
-	* Este método verifica se o array informado possui dados na psoição 1 (método)
-	* caso exista, verifica se o método existe naquele determinado controlador
-	* e atribui a variável $method da classe.
-	*
-	* @param  array  $url   Array contendo informações ou não do controlador, método e parâmetros
-	*/
-	private function setMethod($url)
-	{
-		if ( !empty($url[2]) && isset($url[2]) ) {
-			if ( method_exists($this->controller, $url[2]) && !$this->page404) {
-				$this->method = $url[2];
-			} else {
-				// caso a classe ou o método informado não exista, o método pageNotFound
-				// do Controller é chamado.
-				$this->method = 'pageNotFound';
-			}
-		}
-	}
+    
+    /**
+     * Este método verifica se o array informado possui dados na posição 2 (método)
+     * caso exista, verifica se o método existe naquele determinado controlador
+     * e atribui a variável $method da classe.
+     *
+     * @param  array  $url   Array contendo informações ou não do controlador, método e parâmetros
+     */
+    private function setMethod($url)
+    {
+        if ( !empty($url[2]) && isset($url[2]) ) {
+            if ( method_exists($this->controller, $url[2]) && !$this->page404) {
+                $this->method = $url[2];
+            } else {
+                // caso a classe ou o método informado não exista, o método pageNotFound
+                // do Controller é chamado.
+                $this->method = 'pageNotFound';
+            }
+        }
+    }
     
     /**
      * Este método verifica se o array informador possui a quantidade de elementos maior que 3
