@@ -22,11 +22,11 @@ class Controller
     
     public function __construct()
     {
-        //$appSrc = new appServices();
+        $appSrc = new appServices();
         
-        //$this->logger = new Logger('importacao_excel'); echo "ola";
-        //$rotating = new RotatingFileHandler($appSrc->_getHelpdezkPath(). "/storage/logs/helpdezk.log", 0, Logger::DEBUG);
-        //$this->logger->pushHandler($rotating);
+        $this->logger = new Logger('helpdezk'); 
+        $rotating = new RotatingFileHandler($appSrc->_getHelpdezkPath(). "/storage/logs/helpdezk.log", 0, Logger::DEBUG);
+        $this->logger->pushHandler($rotating);
     }
     
     /**

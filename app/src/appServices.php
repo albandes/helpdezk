@@ -30,7 +30,9 @@ class appServices
 
 	public function _getPath()
     {
-        $path_default = isset($_ENV["PATH_DEFAULT"]) ? $_ENV["PATH_DEFAULT"] : "..";
+        $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
+        $path_default = str_replace($docRoot,'',dirname(__DIR__,PATHINFO_BASENAME));
+
         if (substr($path_default, 0, 1) != '/') {
             $path_default = '/' . $path_default;
         }

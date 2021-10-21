@@ -11,6 +11,12 @@ use App\src\appServices;
 
 class Login extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->logger->info('logger ready');
+    }
+
     /**
      * en_us Renders the login screen template
      *
@@ -18,7 +24,7 @@ class Login extends Controller
      */
     public function index()
     {
-        session_start()
+        session_start();
         session_unset();
         session_destroy();
         
