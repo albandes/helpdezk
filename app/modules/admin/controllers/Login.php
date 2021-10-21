@@ -1,20 +1,24 @@
 <?php
 
 use App\core\Controller;
+
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\leatureDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\src\loginServices;
 use App\src\appServices;
 
+
 class Login extends Controller
 {
-    /*
-	* chama a view index.php do  /home   ou somente   /
-	*/
-	public function index()
-	{
-		session_start();
+    /**
+     * en_us Renders the login screen template
+     *
+     * pt_br Renderiza o template da tela de login
+     */
+    public function index()
+    {
+        session_start()
         session_unset();
         session_destroy();
         
@@ -22,36 +26,36 @@ class Login extends Controller
         $appSrc = new appServices();
         $aLogo = $loginSrc->_getLoginLogoData();
         $params = $appSrc->_getDefaultParams();
-		$params['warning'] = "";
+        $params['warning'] = "";
         $params['loginLogoUrl'] = $aLogo['image'];
         $params['loginheight'] = $aLogo['height'];
         $params['loginwidth'] = $aLogo['width'];
         
-		$this->view(
-			'admin',
-			'login',
-			$params
-		);
-		
-	}
-
-	public function auth() {
-
+        $this->view('admin','login',$params);
+    }
+        
+    /**
+     * auth
+     *
+     * @return void
+     */
+    public function auth()
+    {
         $frm_login = $_POST['login'];
         $frm_password = $_POST['password'];
         $passwordMd5 = md5($_POST['password']);
         $form_token = $_POST['token'];
-
+        
         $loginDAO = new LoginDAO();
         $personDAO = new PersonDAO();
         $featDAO = new FeatureDAO();
 
         $rsLogintype = $loginDAO->getLoginType($frm_login);
-		$logintype = $rsLogintype['idtypelogin'];
-
-		if(!$logintype){
+        $logintype = $rsLogintype['idtypelogin'];
+        
+        if(!$logintype){
             $license =  $_ENV["LICENSE"];
-
+           
             if($license != '201601001') {
                 // Return with error message
                 $success = array(

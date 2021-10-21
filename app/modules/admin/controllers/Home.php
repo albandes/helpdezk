@@ -1,26 +1,24 @@
 <?php
 
 use App\core\Controller;
+use App\src\appServices;
 
 class Home extends Controller
 {
-	/*
-	* chama a view index.php do  /home   ou somente   /
-	*/
+	/**
+	 *  en_us Calls the method that renders the module's home template
+	 * 
+	 *  pt_br Chama o método que renderiza o template da home do módulo
+	 */
 	public function index()
 	{
+		$appSrc = new appServices();
+		$params = $appSrc->_getDefaultParams();
+
 		$this->view(
 			'admin',
 			'main',
-			array(
-				"path"		=> $this->getPath(),
-				"lang"		=> strtolower($_ENV['LANG']),
-				"title" 	=> "Teste Título",
-				"layout"	=> $this->getLayoutTemplate(),
-				"version" 	=> "helpdezk-community-1.1.10",
-				"navBar"	=> $this->getNavbarTemplate(),
-				"footer"	=> $this->getFooterTemplate()
-			)
+			$params
 		);
 		
 	}
