@@ -1,7 +1,9 @@
 <?php
 
 namespace App\modules\admin\dao\mysql;
+
 use App\core\Database;
+use App\modules\admin\models\mysql\loginModel;
 
 class LoginDAO extends Database
 {
@@ -31,6 +33,9 @@ class LoginDAO extends Database
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
+        $login = new loginModel();
+        $login->set
+
         return array("success"=>true,"message"=>"","idtypelogin"=>$aRet['idtypelogin']);
     }
 
@@ -44,7 +49,7 @@ class LoginDAO extends Database
     public function getUserByLogin(string $login): array
     {
         
-        $sql = "SELECT idperson, idtypelogin, `name`, login, idtypeperson FROM tbperson login = :login";
+        $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson login = :login";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -69,7 +74,7 @@ class LoginDAO extends Database
     public function getUser(string $login,string $password): array
     {
         
-        $sql = "SELECT idperson, idtypelogin, `name`, login, idtypeperson 
+        $sql = "SELECT idperson, `name`, login, idtypeperson 
                   FROM tbperson 
                  WHERE (login = :login 
                         AND (password = :password OR password IS NULL)

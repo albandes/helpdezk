@@ -24,27 +24,13 @@ class appServices
 
     public function _getHelpdezkPath()
     {
-        $path_default = $_ENV["PATH_DEFAULT"];
-        if (substr($path_default, 0, 1) != '/') {
-            $path_default = '/' . $path_default;
-        }
-        if ($path_default == "/..") {
-            $path = "";
-        } else {
-            $path = $path_default;
-        }
-        
-		// if in localhost document root is D:/xampp/htdocs
-        $document_root = $_SERVER['DOCUMENT_ROOT'];
-        if (substr($document_root, -1) != '/') {
-            $document_root = $document_root . '/';
-        }
-        return realpath($document_root . $path);
+        $pathInfo = pathinfo(dirname(__DIR__));
+        return $pathInfo['dirname'];
     }
 
 	public function _getPath()
     {
-        $path_default = $_ENV["PATH_DEFAULT"];
+        $path_default = isset($_ENV["PATH_DEFAULT"]) ? $_ENV["PATH_DEFAULT"] : "..";
         if (substr($path_default, 0, 1) != '/') {
             $path_default = '/' . $path_default;
         }

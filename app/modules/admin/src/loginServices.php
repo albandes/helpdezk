@@ -32,7 +32,7 @@ class loginServices
             $pathLogoImage = $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' . $objLogo->getFileName();
         } else {
             
-            $pathLogoImage = $appSrc->_getPath() . '/storage/uploads/logos/' . $objLogo->getFileName();
+            $pathLogoImage = $appSrc->_getHelpdezkPath() . '/storage/uploads/logos/' . $objLogo->getFileName();
         }
 		
         if (empty($objLogo->getFileName()) or !file_exists($pathLogoImage)){
