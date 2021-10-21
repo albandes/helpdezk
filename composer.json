@@ -7,7 +7,7 @@
     },
     "require": {
         "vlucas/phpdotenv": "4.2.1",
-        "monolog/monolog": "^2.3",
+        "monolog/monolog": "2.3.2",
         "latte/latte": "^2.8",
         "nette/utils": "^3.2"
     },
