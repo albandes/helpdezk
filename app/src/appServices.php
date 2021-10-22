@@ -31,7 +31,8 @@ class appServices
     public function _getPath()
     {
         $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
-        $path_default = str_replace($docRoot,'',dirname(__DIR__,PATHINFO_BASENAME));
+        $dirName = str_replace("\\","/",dirname(__DIR__,PATHINFO_BASENAME));
+        $path_default = str_replace($docRoot,'',$dirName);
         
         if (substr($path_default, 0, 1) != '/') {
             $path_default = '/' . $path_default;
