@@ -5,7 +5,9 @@ namespace App\core;
 use App\src\localeServices;
 use App\src\appServices;
 use Monolog\Logger;
-use Monolog\Handler\RotatingFileHandler;
+//use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
 
 
 /**
@@ -19,14 +21,39 @@ class Controller
      * @var object
      */
     protected $logger;
+    /**
+     * @var object
+     */
+    protected $emailLogger;
     
     public function __construct()
     {
         $appSrc = new appServices();
         
-        $this->logger = new Logger('helpdezk'); 
-        $rotating = new RotatingFileHandler($appSrc->_getHelpdezkPath(). "/storage/logs/helpdezk.log", 0, Logger::DEBUG);
-        $this->logger->pushHandler($rotating);
+        // create a log channel
+        $dateFormat = "d/m/Y H:i:s";
+        //$output = "%datetime% > %level_name% > %message% %context% %extra%\n";
+        $output = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
+
+        $formatter = new LineFormatter(null, $dateFormat);
+
+        $stream = new StreamHandler('logs/helpdezk.log', Logger::WARNING);
+        $stream->setFormatter($formatter);
+
+
+        $this->logger  = new Logger('helpdezk');
+        $this->logger->pushHandler($stream);
+
+        //$this->logger->pushHandler(new StreamHandler('logs/helpdezk.log', Logger::WARNING));
+        
+        // Clone the first one to only change the channel
+        $this->emailLogger = $this->logger->withName('email');
+
+
+        // add records to the log
+        $this->logger->warning('Teste');
+        $this->emailLogger->warning('Email');
+
     }
     
     /**
