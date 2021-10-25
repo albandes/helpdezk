@@ -15,6 +15,8 @@ class Home extends Controller
 		$appSrc = new appServices();
 		$params = $appSrc->_getDefaultParams();
 
+		$this->logger->info('Run ', ['Class' => __CLASS__, 'Method' => __METHOD__]);
+
 		$this->view(
 			'admin',
 			'main',

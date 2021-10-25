@@ -13,7 +13,7 @@ cache/latte/*
 includes/config/config.php
 system/templates_c/*.php
 
-#logs/* 
+logs/* 
 
 .env
 

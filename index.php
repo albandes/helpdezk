@@ -10,4 +10,6 @@ use App\core\Database;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
+date_default_timezone_set($_ENV['TIME_ZONE']);
+
 $app = new App();

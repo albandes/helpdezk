@@ -32,27 +32,35 @@ class Controller
         
         // create a log channel
         $dateFormat = "d/m/Y H:i:s";
-        //$output = "%datetime% > %level_name% > %message% %context% %extra%\n";
-        $output = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
-
         $formatter = new LineFormatter(null, $dateFormat);
 
-        $stream = new StreamHandler('logs/helpdezk.log', Logger::WARNING);
+        $stream = new StreamHandler('logs/helpdezk.log', Logger::DEBUG);
         $stream->setFormatter($formatter);
 
 
         $this->logger  = new Logger('helpdezk');
         $this->logger->pushHandler($stream);
 
-        //$this->logger->pushHandler(new StreamHandler('logs/helpdezk.log', Logger::WARNING));
+        //$this->logger->pushHandler(new StreamHandler('logs/helpdezk.log', Logger::DEBUG));
         
         // Clone the first one to only change the channel
         $this->emailLogger = $this->logger->withName('email');
 
 
-        // add records to the log
-        $this->logger->warning('Teste');
-        $this->emailLogger->warning('Email');
+        
+        
+        // Erro do DAO
+        //$this->logger->error('Error updating scheduler ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $apiService->getDaoError($arrDao)]);
+        
+        // Erro comum
+        //$this->logger->error('Error updating scheduler ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        // Info
+        //$this->logger->info('Add new user ', ['username' => 'albandes']);
+        //$this->logger->info('Run ', ['Class' => __CLASS__, 'Method' => __METHOD__]);
+        // Email 
+        // Tem que criar um getEmailError
+        //->error('Error sending email ', ['message' => $retSmtp['push']['result']['error'][0]['message']]);
+
 
     }
     
