@@ -68,13 +68,13 @@ class loginServices
 
             if ($this->_isActiveHelpdezk()) {
                 
-                $typeuser = $loginDAO->fetchDataSession($idperson);
-                $_SESSION['SES_LOGIN_PERSON']       = $typeuser['data']->getLogin();
-                $_SESSION['SES_NAME_PERSON']        = $typeuser['data']->getName();
-                $_SESSION['SES_TYPE_PERSON']        = $typeuser['data']->getIdtypeperson();
+                $userData = $loginDAO->getDataSession($idperson);
+                $_SESSION['SES_LOGIN_PERSON']       = (!is_null($userData) && !empty($userData)) ? $userData->getLogin() : "";
+                $_SESSION['SES_NAME_PERSON']        = (!is_null($userData) && !empty($userData)) ? $userData->getName() : "";
+                $_SESSION['SES_TYPE_PERSON']        = (!is_null($userData) && !empty($userData)) ? $userData->getIdtypeperson() : "";
                 $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
-                $_SESSION['SES_COD_EMPRESA']        = $typeuser['data']->getIdcompany();
-                $_SESSION['SES_COD_TIPO']           = $typeuser['data']->getIdtypeperson();
+                $_SESSION['SES_COD_EMPRESA']        = (!is_null($userData) && !empty($userData)) ? $userData->getIdcompany() : "";
+                $_SESSION['SES_COD_TIPO']           = (!is_null($userData) && !empty($userData)) ? $userData->getIdtypeperson() : "";
                 
                 $groups = $loginDAO->getPersonGroups($idperson);
                 $_SESSION['SES_PERSON_GROUPS'] = $groups['data']->getGroupId();
@@ -202,8 +202,8 @@ class loginServices
     public function _isActiveHelpdezk()
     {
         $loginDAO = new loginDAO();
-        $ret = $loginDAO->isActiveHelpdezk();
-        return $ret['data']->getIsActiveHdk();
+        $isActiveHdk = $loginDAO->isActiveHelpdezk();
+        return (!is_null($isActiveHdk) && !empty($isActiveHdk)) ? $isActiveHdk->getIsActiveHdk() : false;
     }
 
     public function _getHelpdezkVersionNumber()

@@ -16,9 +16,9 @@ class loginDAO extends Database
      * Return an array with login type
      *
      * @param  string $login
-     * @return array
+     * @return loginModel
      */
-    public function getLoginType(string $login): array
+    public function getLoginType(string $login): ?loginModel
     {
         
         $sql = "SELECT idtypelogin FROM tbperson WHERE login = :login";
@@ -28,15 +28,16 @@ class loginDAO extends Database
             $stmt->bindParam(':login', $login);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         $login = new loginModel();
         $login->setLogintype($aRet['idtypelogin']);
-
-        return array("success"=>true,"message"=>"","data"=>$login);
+        
+        return $login;
     }
 
         
@@ -75,9 +76,9 @@ class loginDAO extends Database
      *
      * @param  string $login
      * @param  string $password
-     * @return array
+     * @return loginModel
      */
-    public function getUser(string $login,string $password): array
+    public function getUser(string $login,string $password): ?loginModel
     {
         
         $sql = "SELECT idperson, `name`, login, idtypeperson 
@@ -92,7 +93,8 @@ class loginDAO extends Database
             $stmt->bindParam(':password', $password);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting user ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -103,7 +105,7 @@ class loginDAO extends Database
               ->setLogin($aRet['login'])
               ->setIdtypeperson($aRet['idtypeperson']);
 
-        return array("success"=>true,"message"=>"","data"=>$login);
+        return $login;
     }
 
     public function getRequestsByUser(string $userID): array
@@ -164,7 +166,7 @@ class loginDAO extends Database
         return array("success"=>true,"message"=>"","data"=>$status);
     }
 
-    public function getDataSession(int $userID): array
+    public function getDataSession(int $userID): ?loginModel
     {        
         $sql = "SELECT person.idtypeperson as idtypeperson, person.name as name,  person.login as login,
                         juridical.idperson  as idjuridical, juridical.name as company
@@ -179,7 +181,8 @@ class loginDAO extends Database
             $stmt->bindParam(':userID', $userID);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting user data session ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -190,7 +193,7 @@ class loginDAO extends Database
               ->setIdcompany($aRet['idjuridical'])
               ->setCompanyName($aRet['company']);
 
-        return array("success"=>true,"message"=>"","data"=>$login);
+        return $login;
     }
 
     public function getPersonGroups(int $userID): array
@@ -223,7 +226,7 @@ class loginDAO extends Database
         return array("success"=>true,"message"=>"","data"=>$login);
     }
 
-    public function isActiveHelpdezk(): array
+    public function isActiveHelpdezk(): ?loginModel
 	{
 		$sql =  "SELECT idmodule FROM tbmodule WHERE tableprefix = 'hdk' AND `status` = 'A'";
 
@@ -231,7 +234,8 @@ class loginDAO extends Database
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error check is helpdezk active ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);        
@@ -239,7 +243,7 @@ class loginDAO extends Database
         $login = new loginModel();
         $login->setIsActiveHdk((count($row)  > 0 && is_array($row)) ? true : false);
 
-        return array("success"=>true,"message"=>"","data"=>$login);
+        return $login;
 
 	}
 
