@@ -46,15 +46,13 @@ class loginServices
 		}
         
 		return $aRet;
-    }
-
-	
+    }	
 
     // Since November 20
     // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
     public function _startSession($idperson)
     {
-        $loginDAO = new LoginDAO();
+        $loginDAO = new loginDAO();
 
         session_start();
         $_SESSION['SES_COD_USUARIO'] = $idperson;
@@ -68,23 +66,23 @@ class loginServices
 
         if ($_SESSION['SES_COD_USUARIO'] != 1) {
 
-            if ($this->isActiveHelpdezk()) {
-
-                $typeuser = $loginDAO->selectDataSession($idperson);
-                $_SESSION['SES_LOGIN_PERSON']       = $typeuser['data']['login'];
-                $_SESSION['SES_NAME_PERSON']        = $typeuser['data']['name'];
-                $_SESSION['SES_TYPE_PERSON']        = $typeuser['data']['idtypeperson'];
-                $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
-                $_SESSION['SES_COD_EMPRESA']        = $typeuser['data']['idjuridical'];
-                $_SESSION['SES_COD_TIPO']           = $typeuser['data']['idtypeperson'];
+            if ($this->_isActiveHelpdezk()) {
                 
-                $groups = $loginDAO->selectPersonGroups($idperson);
-                $_SESSION['SES_PERSON_GROUPS'] = $groups['data'];
+                $typeuser = $loginDAO->fetchDataSession($idperson);
+                $_SESSION['SES_LOGIN_PERSON']       = $typeuser['data']->getLogin();
+                $_SESSION['SES_NAME_PERSON']        = $typeuser['data']->getName();
+                $_SESSION['SES_TYPE_PERSON']        = $typeuser['data']->getIdtypeperson();
+                $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
+                $_SESSION['SES_COD_EMPRESA']        = $typeuser['data']->getIdcompany();
+                $_SESSION['SES_COD_TIPO']           = $typeuser['data']->getIdtypeperson();
+                
+                $groups = $loginDAO->getPersonGroups($idperson);
+                $_SESSION['SES_PERSON_GROUPS'] = $groups['data']->getGroupId();
 
             } else {
-
+               
                 $personDAO = new PersonDAO();
-                $rsPerson = $personDAO->selectPersonByID(" AND tbp.idperson = $idperson");
+                $rsPerson = $personDAO->getPersonByID($idperson);
                 $_SESSION['SES_LOGIN_PERSON']   = $rsPerson->fields['login'];
                 $_SESSION['SES_NAME_PERSON']    = $rsPerson->fields['name'];
                 $_SESSION['SES_TYPE_PERSON']    = $rsPerson->fields['idtypeperson'];
@@ -93,7 +91,7 @@ class loginServices
 
         } else {
 
-            if($this->isActiveHelpdezk()){
+            if($this->_isActiveHelpdezk()){
 
                 $_SESSION['SES_NAME_PERSON']        = 'admin';
                 $_SESSION['SES_TYPE_PERSON']        = 1;
@@ -101,7 +99,7 @@ class loginServices
                 $_SESSION['SES_COD_EMPRESA']        = 1;
                 $_SESSION['SES_COD_TIPO']           = 1;
 
-                $groups = $LoginDAO->selectAllGroups();
+                $groups = $loginDAO->selectAllGroups();
                 $_SESSION['SES_PERSON_GROUPS'] = $groups['data'];
 
             } else {
@@ -201,20 +199,20 @@ class loginServices
         return $rs['data']['path'];
     }
 
-    public function isActiveHelpdezk()
+    public function _isActiveHelpdezk()
     {
-        $LoginDAO = new LoginDAO();
-        $ret = $LoginDAO->isActiveHelpdezk();
-        return $ret['isactive'];
+        $loginDAO = new loginDAO();
+        $ret = $loginDAO->isActiveHelpdezk();
+        return $ret['data']->getIsActiveHdk();
     }
 
-    public function getHelpdezkVersionNumber()
+    public function _getHelpdezkVersionNumber()
     {
         $exp = explode('-', $this->getHelpdezkVersion());
         return $exp[2];
     }
 
-    public function getActiveModules()
+    public function _getActiveModules()
     {
         $LoginDAO = new LoginDAO();
         $ret = $LoginDAO->getActiveModules();

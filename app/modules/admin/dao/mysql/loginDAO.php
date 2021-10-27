@@ -5,7 +5,7 @@ namespace App\modules\admin\dao\mysql;
 use App\core\Database;
 use App\modules\admin\models\mysql\loginModel;
 
-class LoginDAO extends Database
+class loginDAO extends Database
 {
     public function __construct()
     {
@@ -34,9 +34,9 @@ class LoginDAO extends Database
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         $login = new loginModel();
-        $login->set
+        $login->setLogintype($aRet['idtypelogin']);
 
-        return array("success"=>true,"message"=>"","idtypelogin"=>$aRet['idtypelogin']);
+        return array("success"=>true,"message"=>"","data"=>$login);
     }
 
         
@@ -61,7 +61,13 @@ class LoginDAO extends Database
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        $login = new loginModel();
+        $login->setIdperson($aRet['idperson'])
+              ->setName($aRet['name'])
+              ->setLogin($aRet['login'])
+              ->setIdtypeperson($aRet['idtypeperson']);
+
+        return array("success"=>true,"message"=>"","data"=>$login);
     }
     
     /**
@@ -91,7 +97,13 @@ class LoginDAO extends Database
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        $login = new loginModel();
+        $login->setIdperson($aRet['idperson'])
+              ->setName($aRet['name'])
+              ->setLogin($aRet['login'])
+              ->setIdtypeperson($aRet['idtypeperson']);
+
+        return array("success"=>true,"message"=>"","data"=>$login);
     }
 
     public function getRequestsByUser(string $userID): array
@@ -152,7 +164,7 @@ class LoginDAO extends Database
         return array("success"=>true,"message"=>"","data"=>$status);
     }
 
-    public function selectDataSession(int $userID): array
+    public function getDataSession(int $userID): array
     {        
         $sql = "SELECT person.idtypeperson as idtypeperson, person.name as name,  person.login as login,
                         juridical.idperson  as idjuridical, juridical.name as company
@@ -171,11 +183,17 @@ class LoginDAO extends Database
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        $login = new loginModel();
+        $login->setName($aRet['name'])
+              ->setLogin($aRet['login'])
+              ->setIdtypeperson($aRet['idtypeperson'])
+              ->setIdcompany($aRet['idjuridical'])
+              ->setCompanyName($aRet['company']);
+
+        return array("success"=>true,"message"=>"","data"=>$login);
     }
 
-    public function selectPersonGroups(int $userID): array
+    public function getPersonGroups(int $userID): array
     {        
         $sql = "SELECT pers.name as personname, pers.idperson, pers.name as groupname, grp.idgroup
                   FROM hdk_tbgroup as grp, tbperson as pers, hdk_tbgroup_has_person as relat
@@ -199,7 +217,10 @@ class LoginDAO extends Database
         
         $groups = substr($groups,0,-1);
 
-        return array("success"=>true,"message"=>"","data"=>$groups);
+        $login = new loginModel();
+        $login->setGroupId($groups);
+
+        return array("success"=>true,"message"=>"","data"=>$login);
     }
 
     public function isActiveHelpdezk(): array
@@ -214,8 +235,11 @@ class LoginDAO extends Database
         }
         
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);        
-		$isactive = (count($row)  > 0) ? true : false;
-        return array("success"=>true,"message"=>"","isactive"=>$isactive);
+		
+        $login = new loginModel();
+        $login->setIsActiveHdk((count($row)  > 0 && is_array($row)) ? true : false);
+
+        return array("success"=>true,"message"=>"","data"=>$login);
 
 	}
 
