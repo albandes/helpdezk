@@ -28,6 +28,26 @@ final class loginModel
      * @var int
      */
     private $idtypeperson;
+    
+    /**
+     * @var bool
+     */
+    private $isActiveHdk;
+    
+    /**
+     * @var int
+     */
+    private $idcompany;
+    
+    /**
+     * @var string
+     */
+    private $companyName;
+    
+    /**
+     * @var string
+     */
+    private $groupId;
 
     /**
      * Get the value of idperson
@@ -136,6 +156,102 @@ final class loginModel
     public function setIdtypeperson(int $idtypeperson): self
     {
         $this->idtypeperson = $idtypeperson;
+        return $this;
+    }
+
+    /**
+     * Get the value of isActiveHdk
+     *
+     * @return  bool
+     */ 
+    public function getIsActiveHdk(): bool
+    {
+        return $this->isActiveHdk;
+    }
+
+    /**
+     * Set the value of isActiveHdk
+     *
+     * @param  bool  $isActiveHdk
+     *
+     * @return  self
+     */ 
+    public function setIsActiveHdk(bool $isActiveHdk): self
+    {
+        $this->isActiveHdk = $isActiveHdk;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idcompany
+     *
+     * @return  int
+     */ 
+    public function getIdcompany(): int
+    {
+        return $this->idcompany;
+    }
+
+    /**
+     * Set the value of idcompany
+     *
+     * @param  int  $idcompany
+     *
+     * @return  self
+     */ 
+    public function setIdcompany(int $idcompany): self
+    {
+        $this->idcompany = $idcompany;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of companyName
+     *
+     * @return  string
+     */ 
+    public function getCompanyName(): string
+    {
+        return $this->companyName;
+    }
+
+    /**
+     * Set the value of companyName
+     *
+     * @param  string  $companyName
+     *
+     * @return  self
+     */ 
+    public function setCompanyName(string $companyName): self
+    {
+        $this->companyName = $companyName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupId
+     *
+     * @return  string
+     */ 
+    public function getGroupId(): string
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * Set the value of groupId
+     *
+     * @param  string  $groupId
+     *
+     * @return  self
+     */ 
+    public function setGroupId(string $groupId): self
+    {
+        $this->groupId = $groupId;
+
         return $this;
     }
 }

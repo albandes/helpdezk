@@ -3,7 +3,7 @@
 use App\core\Controller;
 
 use App\modules\admin\dao\mysql\loginDAO;
-use App\modules\admin\dao\mysql\leatureDAO;
+use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\src\loginServices;
 use App\src\appServices;
@@ -52,16 +52,17 @@ class Login extends Controller
         $passwordMd5 = md5($_POST['password']);
         $form_token = $_POST['token'];
         
-        $loginDAO = new LoginDAO();
-        $personDAO = new PersonDAO();
-        $featDAO = new FeatureDAO();
+        $loginDAO = new loginDAO();
+        $personDAO = new personDAO();
+        $featDAO = new featureDAO();
+        $loginSrc = new loginServices();
 
         $rsLogintype = $loginDAO->getLoginType($frm_login);
-        $logintype = $rsLogintype['idtypelogin'];
+        $logintype = $rsLogintype['data']->getLogintype();
         
         if(!$logintype){
             $license =  $_ENV["LICENSE"];
-           
+            
             if($license != '201601001') {
                 // Return with error message
                 $success = array(
@@ -70,20 +71,18 @@ class Login extends Controller
                 );
                 echo json_encode($success);
                 return;
-
-           } else {
-                /*
-                 *  Client 201601001
-                 *  Create a new user, if don't exists
-                 *  Set type login to 4 [autenticate by request number]
+            } else {
+                /**
+                 * Client 201601001
+                 * Create a new user, if don't exists
+                 * Set type login to 4 [autenticate by request number]
                  */
-
+                
                 $dbPerson->BeginTrans();
-
                 $dtcreate = date('Y-m-d H:i:s');
                 $logintype = 4 ; // Need in the first access
                 $iddepartment =  '72' ;
-
+                
                 $idNewPerson = $dbPerson->insertPerson('4','2','1','1',$login,$login,$dtcreate,'A','N','','','',$login);
                 if (!$idNewPerson) {
                     $error = true ;
@@ -100,8 +99,7 @@ class Login extends Controller
                         $error = true ;
                     }
                 }
-
-
+                
                 if($error){
                     $dbPerson->RollbackTrans();
                     $success = array(
@@ -111,132 +109,61 @@ class Login extends Controller
                     echo json_encode($success);
                     return;
                 } else {
-
                     $dbPerson->CommitTrans();
                 }
-
             }
 		}
         
         switch ($logintype) {
             case '4': // Request
-
+                
                 $login = $this->requestAuth($frm_login,$frm_password);
-				$rsUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $rsUser['data']['idperson'];
-                $idtypeperson = $rsUser['data']['idtypeperson'];
+                $rsUser = $loginDAO->getUserByLogin($frm_login);
+                $idperson = $rsUser['data']->getIdperson();
+                $idtypeperson = $rsUser['data']->getIdtypeperson();
                 break;
-
-            case '3': // HelpDEZk   
-
+            
+            case '3': // HelpDEZk
+                
                 $login = $this->helpdezkAuth($frm_login,$passwordMd5);
                 $rsUser = $loginDAO->getUser($frm_login, $passwordMd5);
-                $idperson = $rsUser['data']['idperson'];
-                $idtypeperson = $rsUser['data']['idtypeperson'];
+                $idperson = $rsUser['data']->getIdperson();
+                $idtypeperson = $rsUser['data']->getIdtypeperson();
                 break;
-
+            
             case '1': // Pop/Imap Server
                 if (!function_exists('imap_open')) {
                     $login = false ;
                     $msg = "IMAP functions are not available!!!";
                     break;
-                } 
+                }
+                
                 $login = $this->imapAuth($frm_login,$frm_password);
                 $rsUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $rsUser['data']['idperson'];
-                $idtypeperson = $rsUser['data']['idtypeperson'];
+                $idperson = $rsUser['data']->getIdperson();
+                $idtypeperson = $rsUser['data']->getIdtypeperson();
                 break;
-
-            case '2': // AD/LDAP				
-				if (!function_exists('ldap_connect')) {
-					$login = false ;
-					$msg = "LDAP functions are not available!!!";
-					break;
-				}
-
+            
+            case '2': // AD/LDAP
+                if (!function_exists('ldap_connect')) {
+                    $login = false;
+                    $msg = "LDAP functions are not available!!!";
+                    break;
+                }
+                
                 $login = $this->ldapAuth($frm_login,$frm_password);
                 $rsUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $rsUser['data']['idperson'];
-                $idtypeperson = $rsUser['data']['idtypeperson'];
+                $idperson = $rsUser['data']->getIdperson();
+                $idtypeperson = $rsUser['data']->getIdtypeperson();
                 break;
         }
-
+        
         if ($login) {
-
-            /*
-             *
-             *   Login with google authenticator
-             *   Second authentication
-             *
-             */
-
-            $retGoogle2fa = $featDAO->getConfigValue('SES_GOOGLE_2FA'); 
-            $google2fa = $retGoogle2fa['data']['value'];
-
-            if (empty($google2fa))  // if don't exists in hdk_tbconfig [old versions before 1.02]
-                $google2fa = 0 ;
-
-            /*
-             *
-             */
-            if ($google2fa) {
-                if ($idperson != 1)
-                {
-                    if($this->getConfig("license") == '200701006') {
-                        $iddepartment = $this->dbIndex->getIdPersonDepartment($frm_login) ; //die('id: ' . $iddepartment) ;
-                        //$typePerson   = $dbPerson->getIdTypePerson($idperson) ;
-                        if($iddepartment == '314') {
-                            $makeSecret = true;
-                        } else {
-                            $makeSecret = false;
-                        }
-                        //elseif($typePerson == 3) {
-                        //    $makeSecret = false;
-                        // }
-                    } else {
-                        $makeSecret = true ;
-                    }
-                }
-                elseif ($idperson == 1)  // root user
-                {
-                    $makeSecret = false ;
-                }
-
-                if ($makeSecret)
-                {
-                    if ((include 'includes/classes/GoogleAuthenticator/GoogleAuthenticator.php') == false) {
-                        die("Don't include the class GoogleAuthenticator.php, line ".__LINE__ . "!!!");
-                    }
-
-                    $ga = new PHPGangsta_GoogleAuthenticator();
-
-                    $oneCode = $form_token ;
-                    $token = $dbPerson->getPersonSecret($idperson) ;
-
-                    if ($token) {
-                        $checkResult = $ga->verifyCode($token, $oneCode, 2);
-
-                        if(!$checkResult){
-                            $success = array(
-                                "success" => 0,
-                                "msg"     => html_entity_decode($langVars['Login_error_secret'],ENT_COMPAT, 'UTF-8')
-                            );
-                            echo json_encode($success);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        // Person don´t have secret in database,
-                        //  On your screen will show the modal to record the secret
-                    }
-                }
-            }
-
+            
             switch  ($idtypeperson) {
                 case "1":
-                    $this->_startSession($idperson);
-                    $this->_getConfigSession();
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
                     $success = array(
                         "success" => 1,
                         "redirect" => path . "/admin/home"
@@ -246,20 +173,22 @@ class Login extends Controller
                     break;
 
                 case "2":
-                    $this->_startSession($idperson);
-                    $this->_getConfigSession();
-                    if($_SESSION['SES_MAINTENANCE'] == 1){						
-						$maintenance = array(
-										"success" => 0,
-										"msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
-									);					
-						echo json_encode($maintenance);
-						return;
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
+                    if($_SESSION['SES_MAINTENANCE'] == 1){
+                        $maintenance = array(
+                            "success" => 0,
+                            "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
+                        );		
+                        echo json_encode($maintenance);
+                        return;
                     }else{
                         $redirect = path . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
-
-                        $success = array( "success" => 1,
-                                          "redirect" => $redirect	);
+                        
+                        $success = array(
+                            "success" => 1,
+                            "redirect" => $redirect
+                        );
                         echo json_encode($success);
 
                         return;
@@ -267,8 +196,8 @@ class Login extends Controller
                     break;
 
                 case "3":
-                    $this->_startSession($idperson);
-                    $this->_getConfigSession();
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
 						$maintenance = array(
 										"success" => 0,
@@ -288,10 +217,10 @@ class Login extends Controller
 
                 //  Another modules
                 default:
-
-                    $this->_startSession($idperson);
-                    $this->_getConfigSession();
-
+                
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
+                    
                     if (!$this->dbConfig->tableExists('tbtypeperson_has_module')) {
                         $error = array( "success" => 0,
                                          "msg" =>html_entity_decode('There is no table tbtypeperson_has_module.',ENT_COMPAT, 'UTF-8')
@@ -338,14 +267,14 @@ class Login extends Controller
 							 "msg" => $msg );
 			echo json_encode($success);
 			return;
-        }        
+        }
     }
-
-	public function requestAuth($login,$password)
+    
+    public function requestAuth($login,$password)
     {
 		$loginDAO = new LoginDAO();
 		$rsUser = $loginDAO->getUserByLogin($login);
-        $idperson = $rsUser['data']['idperson'];
+        $idperson = $rsUser['data']->getIdperson();
 
         if($idperson){
             $rsRequest = $loginDAO->getRequestsByUser($idperson);
@@ -364,14 +293,14 @@ class Login extends Controller
     {
         $loginDAO = new LoginDAO();
         $rsUser = $loginDAO->getUser($login,$passwordMd5);
-        $idperson = $rsUser['data']['idperson'];
+        $idperson = $rsUser['data']->getIdperson();
         return ($idperson) ? true : false;
     }
 
     public function imapAuth($login,$password)
     {
-        $featDAO = new FeatureDAO();
-        $popconfigs = $featDAO->getPopConfigs() ;
+        $featDAO = new featureDAO();
+        $popconfigs = $featDAO->fetchPopConfigs() ;
 
         $host = $popconfigs['data']['POP_HOST'];
         $port = $popconfigs['data']['POP_PORT'];
@@ -401,8 +330,8 @@ class Login extends Controller
 
     public function ldapAuth($login,$password)
     {
-        $featDAO = new FeatureDAO();
-        $ldapconfigs = $featDAO->getArrayConfigs(13);
+        $featDAO = new featureDAO();
+        $ldapconfigs = $featDAO->fetchArrayConfigs(13);
 
         $type 	= $ldapconfigs['data']['SES_LDAP_AD']; //1 LDAP / 2 AD
         $server = $ldapconfigs['data']['SES_LDAP_SERVER'];

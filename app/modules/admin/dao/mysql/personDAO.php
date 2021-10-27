@@ -1,7 +1,9 @@
 <?php
 
 namespace App\modules\admin\dao\mysql;
+
 use App\core\Database;
+use App\modules\admin\models\mysql\personModel;
 
 class personDAO extends Database
 {
@@ -10,7 +12,7 @@ class personDAO extends Database
         parent::__construct(); 
     }
 
-    public function selectPersonByID(string $userID): array
+    public function getPersonByID(string $userID): array
     {        
         $sql = "SELECT tbp.idperson, tbp.name, tbp.login, tbp.email, tbp.status, tbp.user_vip, tbp.phone_number AS telephone,
                         tbp.branch_number, tbp.cel_phone AS cellphone, tbtp.name AS typeperson, tbtp.idtypeperson, 
@@ -48,8 +50,53 @@ class personDAO extends Database
             return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        $person = new Person();
+        $person->setIdperson($rows['idperson'])
+               ->setName($rows['name'])
+               ->setLogin($rows['login'])
+               ->setEmail($rows['email'])
+               ->setStatus($rows['status'])
+               ->setUserVip($rows['user_vip'])
+               ->setTelephone($rows['telephone'])
+               ->setBranchNumber($rows['branch_number'])
+               ->setCellphone($rows['cellphone'])
+               ->setTypeperson($rows['typeperson'])
+               ->setIdtypeperson($rows['idtypeperson'])
+               ->setCountry($rows['country'])
+               ->setIdcountry($rows['idcountry'])
+               ->setState($rows['state'])
+               ->setStateAbbr($rows['state_abbr'])
+               ->setIdstate($rows['idstate'])
+               ->setNeighborhood($rows['neighborhood'])
+               ->setIdneighborhood($rows['idneighborhood'])
+               ->setCity($rows['city'])
+               ->setIdcity($rows['idcity'])
+               ->setTypestreet($rows['typestreet'])
+               ->setIdtypestreet($rows['idtypestreet'])
+               ->setStreet($rows['street'])
+               ->setNumber($rows['number'])
+               ->setComplement($rows['complement'])
+               ->setZipcode($rows['zipcode'])
+               ->setZipcodeFmt($rows['zipcode_fmt'])
+               ->setSsnCpf($rows['ssn_cpf'])
+               ->setCpfFmt($rows['cpf_fmt'])
+               ->setSsnFmt($rows['ssn_fmt'])
+               ->setRg($rows['rg'])
+               ->setRgoexp($rows['rgoexp'])
+               ->setDtbirth($rows['dtbirth'])
+               ->setMother($rows['mother'])
+               ->setFather($rows['father'])
+               ->setGender($rows['gender'])
+               ->setIddepartment($rows['iddepartment'])
+               ->setDepartment($rows['department'])
+               ->setCompany($rows['company'])
+               ->setIdcompany($rows['idcompany'])
+               ->setIdtypelogin($rows['idtypelogin'])
+               ->setDtbirthFmt($rows['dtbirth_fmt'])
+               ->setIdstreet($rows['idstreet']);
 
-        return array("success"=>true,"message"=>"","idtypelogin"=>$aRet['idtypelogin']);
+        return array("success"=>true,"message"=>"","data"=>$person);
     }
 }
