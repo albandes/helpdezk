@@ -2,6 +2,11 @@
 
 namespace App\core;
 
+use Monolog\Logger;
+//use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
+
 
 class Database
 {
@@ -32,6 +37,17 @@ class Database
         }catch(\PDOException $ex){
             die("<br>Error connecting to database: " . $ex->getMessage() . " File: " . __FILE__ . " Line: " . __LINE__ );
         }
+
+        // create a log channel
+        $dateFormat = "d/m/Y H:i:s";
+        $formatter = new LineFormatter(null, $dateFormat);
+
+        $streamDB = new StreamHandler('storage/logs/helpdezk.log', Logger::DEBUG);
+        $streamDB->setFormatter($formatter);
+
+
+        $this->loggerDB  = new Logger('helpdezk');
+        $this->loggerDB->pushHandler($streamDB);
     }
 
 }

@@ -56,11 +56,10 @@ class Login extends Controller
         $personDAO = new personDAO();
         $featDAO = new featureDAO();
         $loginSrc = new loginServices();
-
-        $rsLogintype = $loginDAO->getLoginType($frm_login);
-        $logintype = $rsLogintype['data']->getLogintype();
         
-        if(!$logintype){
+        $loginType = $loginDAO->getLoginType($frm_login);
+        
+        if(is_null($loginType)){
             $license =  $_ENV["LICENSE"];
             
             if($license != '201601001') {
@@ -114,7 +113,7 @@ class Login extends Controller
             }
 		}
         
-        switch ($logintype) {
+        switch ($loginType->getLogintype()) {
             case '4': // Request
                 
                 $login = $this->requestAuth($frm_login,$frm_password);
@@ -125,8 +124,8 @@ class Login extends Controller
             
             case '3': // HelpDEZk
                 
-                $login = $this->helpdezkAuth($frm_login,$passwordMd5);
-                $rsUser = $loginDAO->getUser($frm_login, $passwordMd5);
+                $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5); echo "{$isLogin}\n";
+                $loginUser = $loginDAO->getUser($frm_login, $passwordMd5);
                 $idperson = $rsUser['data']->getIdperson();
                 $idtypeperson = $rsUser['data']->getIdtypeperson();
                 break;
@@ -158,7 +157,7 @@ class Login extends Controller
                 break;
         }
         
-        if ($login) {
+        if ($isLogin) {
             
             switch  ($idtypeperson) {
                 case "1":
@@ -258,7 +257,7 @@ class Login extends Controller
                     break;
             }
         } else {
-			if ($logintype == 1 or $logintype == 3 or $logintype == 4) { // Pop, HD  ou REQUEST login
+			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
 				$rs = $loginDAO->checkUser($login);
 				if($rs['data'] == "A") $msg = $langVars['Login_error_error'];
 				elseif($rs['data'] == "I") $msg = $langVars['Login_user_inactive'];
@@ -292,9 +291,9 @@ class Login extends Controller
     public function helpdezkAuth($login,$passwordMd5)
     {
         $loginDAO = new LoginDAO();
-        $rsUser = $loginDAO->getUser($login,$passwordMd5);
-        $idperson = $rsUser['data']->getIdperson();
-        return ($idperson) ? true : false;
+        $loginUser = $loginDAO->getUser($login,$passwordMd5);
+        
+        return (!is_null($loginUser) && !empty($loginUser)) ? true : false;
     }
 
     public function imapAuth($login,$password)
