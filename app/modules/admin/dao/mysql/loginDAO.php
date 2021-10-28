@@ -196,7 +196,7 @@ class loginDAO extends Database
         return $login;
     }
 
-    public function getPersonGroups(int $userID): array
+    public function getPersonGroups(int $userID): ?loginModel
     {        
         $sql = "SELECT pers.name as personname, pers.idperson, pers.name as groupname, grp.idgroup
                   FROM hdk_tbgroup as grp, tbperson as pers, hdk_tbgroup_has_person as relat
@@ -210,7 +210,8 @@ class loginDAO extends Database
             $stmt->bindParam(':userID', $userID);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting user data session ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -223,7 +224,7 @@ class loginDAO extends Database
         $login = new loginModel();
         $login->setGroupId($groups);
 
-        return array("success"=>true,"message"=>"","data"=>$login);
+        return $login;
     }
 
     public function isActiveHelpdezk(): ?loginModel
@@ -247,7 +248,7 @@ class loginDAO extends Database
 
 	}
 
-    public function selectAllGroups(): array
+    public function fetchAllGroups(): ?loginModel
     {        
         $sql = "SELECT pers.idperson, pers.name groupname, grp.idgroup
                   FROM hdk_tbgroup  grp, tbperson 	 pers
@@ -259,7 +260,8 @@ class loginDAO extends Database
             $stmt->bindParam(':userID', $userID);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -269,44 +271,12 @@ class loginDAO extends Database
 
         $groups = substr($groups,0,-1);
 
-        return array("success"=>true,"message"=>"","data"=>$groups);
+        $login = new loginModel();
+        $login->setGroupId($groups);
+
+        return $login;
     }
 
-    public function getActiveModules(): array
-    {        
-        $sql = "SELECT idmodule,`name`,`index`,path,smarty,headerlogo,reportslogo,tableprefix 
-                  FROM tbmodule
-                 WHERE `status` = 'A'";
-        
-        try{
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-        }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
-        }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        return array("success"=>true,"message"=>"","data"=>$aRet);
-    }
-
-    public function getConfigDataByModule(string $prefix): array
-    {        
-        $prefix = $prefix . '_tbconfig';
-        $sql = "SELECT session_name, value FROM :prefix";
-        
-        try{
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':prefix', $prefix);
-            $stmt->execute();
-        }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
-        }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        return array("success"=>true,"message"=>"","data"=>$aRet);
-    }
 
     public function getConfigData(): array
     {        

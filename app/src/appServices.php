@@ -2,6 +2,9 @@
 
 namespace App\src;
 
+use App\modules\admin\dao\mysql\loginDAO;
+use App\modules\admin\dao\mysql\moduleDAO;
+
 class appServices
 {
     public function _getHelpdezkVersion(): string
@@ -73,5 +76,19 @@ class appServices
             "footer"		=> $this->_getFooterTemplate(),
             "demoVersion" 	=> empty($_ENV['DEMO']) ? 0 : $_ENV['DEMO'] // Demo version - Since January 29, 2020
         );
+    }
+
+    public function _getHelpdezkVersionNumber()
+    {
+        $exp = explode('-', $this->_getHelpdezkVersion());
+        return $exp[2];
+    }
+
+    public function _getActiveModules()
+    {
+        $moduleDAO = new moduleDAO();
+        $activeModules = $moduleDAO->fetchActiveModules();
+        return (!is_null($activeModules) && !empty($activeModules)) ? $activeModules : false;
+
     }
 }

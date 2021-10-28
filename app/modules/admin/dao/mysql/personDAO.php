@@ -11,8 +11,14 @@ class personDAO extends Database
     {
         parent::__construct(); 
     }
-
-    public function getPersonByID(string $userID): array
+    
+    /**
+     * getPersonByID
+     *
+     * @param  string $userID
+     * @return personModel
+     */
+    public function getPersonByID(string $userID): ?personModel
     {        
         $sql = "SELECT tbp.idperson, tbp.name, tbp.login, tbp.email, tbp.status, tbp.user_vip, tbp.phone_number AS telephone,
                         tbp.branch_number, tbp.cel_phone AS cellphone, tbtp.name AS typeperson, tbtp.idtypeperson, 
@@ -47,7 +53,8 @@ class personDAO extends Database
             $stmt->bindParam(':userID', $userID);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting person data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -97,6 +104,6 @@ class personDAO extends Database
                ->setDtbirthFmt($rows['dtbirth_fmt'])
                ->setIdstreet($rows['idstreet']);
 
-        return array("success"=>true,"message"=>"","data"=>$person);
+        return $person;
     }
 }
