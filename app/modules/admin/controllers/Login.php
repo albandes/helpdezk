@@ -124,10 +124,10 @@ class Login extends Controller
             
             case '3': // HelpDEZk
                 
-                $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5); echo "{$isLogin}\n";
+                $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5);
                 $loginUser = $loginDAO->getUser($frm_login, $passwordMd5);
-                $idperson = $rsUser['data']->getIdperson();
-                $idtypeperson = $rsUser['data']->getIdtypeperson();
+                $idperson = $loginUser->getIdperson();
+                $idtypeperson = $loginUser->getIdtypeperson();
                 break;
             
             case '1': // Pop/Imap Server
@@ -195,7 +195,7 @@ class Login extends Controller
                     break;
 
                 case "3":
-                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_startSession($idperson);  
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
 						$maintenance = array(

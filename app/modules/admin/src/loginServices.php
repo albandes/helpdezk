@@ -61,31 +61,35 @@ class loginServices
         //SAVE THE CUSTOMER'S LICENSE
         $_SESSION['SES_LICENSE']    = $_ENV['LICENSE'];
         $_SESSION['SES_ENTERPRISE'] = $_ENV['ENTERPRISE'];
-
-        $_SESSION['SES_ADM_MODULE_DEFAULT'] = $this->pathModuleDefault();
-
+        
+        $_SESSION['SES_ADM_MODULE_DEFAULT'] = $this->_pathModuleDefault();
+        
         if ($_SESSION['SES_COD_USUARIO'] != 1) {
 
             if ($this->_isActiveHelpdezk()) {
                 
                 $userData = $loginDAO->getDataSession($idperson);
-                $_SESSION['SES_LOGIN_PERSON']       = (!is_null($userData) && !empty($userData)) ? $userData->getLogin() : "";
-                $_SESSION['SES_NAME_PERSON']        = (!is_null($userData) && !empty($userData)) ? $userData->getName() : "";
-                $_SESSION['SES_TYPE_PERSON']        = (!is_null($userData) && !empty($userData)) ? $userData->getIdtypeperson() : "";
-                $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
-                $_SESSION['SES_COD_EMPRESA']        = (!is_null($userData) && !empty($userData)) ? $userData->getIdcompany() : "";
-                $_SESSION['SES_COD_TIPO']           = (!is_null($userData) && !empty($userData)) ? $userData->getIdtypeperson() : "";
+                if(!is_null($userData) && !empty($userData)){
+                    $_SESSION['SES_LOGIN_PERSON']       = $userData->getLogin();
+                    $_SESSION['SES_NAME_PERSON']        = $userData->getName();
+                    $_SESSION['SES_TYPE_PERSON']        = $userData->getIdtypeperson();
+                    $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
+                    $_SESSION['SES_COD_EMPRESA']        = $userData->getIdcompany();
+                    $_SESSION['SES_COD_TIPO']           = $userData->getIdtypeperson();
                 
-                $groups = $loginDAO->getPersonGroups($idperson);
-                $_SESSION['SES_PERSON_GROUPS'] = $groups['data']->getGroupId();
+                    $userGroups = $loginDAO->getPersonGroups($idperson);
+                    $_SESSION['SES_PERSON_GROUPS']  = (!is_null($userGroups) && !empty($userGroups)) ? $userGroups->getGroupId() : "";
+                }
 
             } else {
-               
-                $personDAO = new PersonDAO();
-                $rsPerson = $personDAO->getPersonByID($idperson);
-                $_SESSION['SES_LOGIN_PERSON']   = $rsPerson->fields['login'];
-                $_SESSION['SES_NAME_PERSON']    = $rsPerson->fields['name'];
-                $_SESSION['SES_TYPE_PERSON']    = $rsPerson->fields['idtypeperson'];
+                
+                $personDAO = new personDAO();
+                $userData = $personDAO->getPersonByID($idperson);
+                if(!is_null($userData) && !empty($userData)){
+                    $_SESSION['SES_LOGIN_PERSON']   = $userData->getLogin();
+                    $_SESSION['SES_NAME_PERSON']    = $userData->getName();
+                    $_SESSION['SES_TYPE_PERSON']    = $userData->getIdtypeperson();
+                }                
 
             }
 
@@ -99,8 +103,8 @@ class loginServices
                 $_SESSION['SES_COD_EMPRESA']        = 1;
                 $_SESSION['SES_COD_TIPO']           = 1;
 
-                $groups = $loginDAO->selectAllGroups();
-                $_SESSION['SES_PERSON_GROUPS'] = $groups['data'];
+                $userGroups = $loginDAO->fetchAllGroups();
+                $_SESSION['SES_PERSON_GROUPS'] = (!is_null($userGroups) && !empty($userGroups)) ? $userGroups->getGroupId() : "";
 
             } else {
 
@@ -117,26 +121,25 @@ class loginServices
     // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
     public function _getConfigSession()
     {
-        $loginDAO = new LoginDAO();
+        $appSrc = new appServices();
+        $moduleDAO = new moduleDAO();
 
-        session_start();
-        if (version_compare($this->getHelpdezkVersionNumber(), '1.0.1', '>' )) {
-
-            $objModules = $this->getActiveModules();
+        session_start(); 
+        if (version_compare($appSrc->_getHelpdezkVersionNumber(), '1.0.1', '>' )) {
             
-            foreach($objModules as $k=>$v) {
-                $prefix = $v['tableprefix'];
-                if(!empty($prefix)) {
-                    $data = $LoginDAO->getConfigDataByModule($prefix);
-                    if (!$data['success']) {
-                        //TODO: code for new log with monolog
-                        /*if($this->log)
-                            $this->logIt('Modules do not have config tables: ' . $prefix.'_tbconfig'. ' and ' . $prefix.'_tbconfigcategory - program: '. $this->program ,3,'general',__LINE__);*/
-                    }else{
-                        foreach($data['data'] as $key=>$val) {
-                            $ses = $val['session_name'];
-                            $val = $val['value'];
-                            $_SESSION[$prefix][$ses] = $val;
+            $activeModules = $appSrc->_getActiveModules();
+            
+            if($activeModules){
+                foreach($activeModules as $k=>$v) {
+                    $prefix = $v['tableprefix'];
+                    if(!empty($prefix)) {
+                        $modSettings = $moduleDAO->fetchConfigDataByModule($prefix);
+                        if (!is_null($activeModules) && !empty($activeModules)){
+                            foreach($modSettings as $key=>$val) {
+                                $ses = $val['session_name'];
+                                $val = $val['value'];
+                                $_SESSION[$prefix][$ses] = $val;
+                            }
                         }
                     }
                 }
@@ -154,7 +157,7 @@ class loginServices
                 }
             }
         }
-
+        
         $idperson = $_SESSION['SES_COD_USUARIO'];
 
         // Global Config Data
@@ -192,11 +195,11 @@ class loginServices
 
     }
 
-    public function pathModuleDefault()
+    public function _pathModuleDefault()
     {
-        $moduleDAO = new ModuleDAO();
-        $rs = $moduleDAO->getModuleDefault();
-        return $rs['data']['path'];
+        $moduleDAO = new moduleDAO(); 
+        $moduleDefault = $moduleDAO->getModuleDefault(); 
+        return (!is_null($moduleDefault) && !empty($moduleDefault)) ? $moduleDefault->getPath() : false;
     }
 
     public function _isActiveHelpdezk()
@@ -206,17 +209,4 @@ class loginServices
         return (!is_null($isActiveHdk) && !empty($isActiveHdk)) ? $isActiveHdk->getIsActiveHdk() : false;
     }
 
-    public function _getHelpdezkVersionNumber()
-    {
-        $exp = explode('-', $this->getHelpdezkVersion());
-        return $exp[2];
-    }
-
-    public function _getActiveModules()
-    {
-        $LoginDAO = new LoginDAO();
-        $ret = $LoginDAO->getActiveModules();
-        return $ret['data'];
-
-    }
 }
