@@ -295,4 +295,21 @@ class loginDAO extends Database
         
         return array("success"=>true,"message"=>"","data"=>$aRet);
     }
+
+    public function fetchConfigGlobalData(): array
+    {        
+        $sql = "SELECT session_name, `value` from tbconfig";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $row;
+    }
 }

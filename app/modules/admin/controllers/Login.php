@@ -28,6 +28,13 @@ class Login extends Controller
         session_unset();
         session_destroy();
         
+        $params = $this->makeScreenLogin();
+        
+        $this->view('admin','login',$params);
+    }
+
+    public function makeScreenLogin()
+    {
         $loginSrc = new loginServices();
         $appSrc = new appServices();
         $aLogo = $loginSrc->_getLoginLogoData();
@@ -36,8 +43,8 @@ class Login extends Controller
         $params['loginLogoUrl'] = $aLogo['image'];
         $params['loginheight'] = $aLogo['height'];
         $params['loginwidth'] = $aLogo['width'];
-        
-        $this->view('admin','login',$params);
+
+        return $params;
     }
         
     /**
@@ -56,6 +63,7 @@ class Login extends Controller
         $personDAO = new personDAO();
         $featDAO = new featureDAO();
         $loginSrc = new loginServices();
+        $appSrc = new appServices();
         
         $loginType = $loginDAO->getLoginType($frm_login);
         
@@ -139,8 +147,8 @@ class Login extends Controller
                 
                 $login = $this->imapAuth($frm_login,$frm_password);
                 $rsUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $rsUser['data']->getIdperson();
-                $idtypeperson = $rsUser['data']->getIdtypeperson();
+                $idperson = $loginUser->getIdperson();
+                $idtypeperson = $loginUser->getIdtypeperson();
                 break;
             
             case '2': // AD/LDAP
@@ -206,7 +214,7 @@ class Login extends Controller
 					}else{
 						$success = array(
 										"success" => 1,
-										"redirect" => path . "/helpdezk/home/index"
+										"redirect" => $appSrc->_getPath() . "/helpdezk/home/index"
 									);
 
 						echo json_encode($success);
@@ -299,7 +307,16 @@ class Login extends Controller
     public function imapAuth($login,$password)
     {
         $featDAO = new featureDAO();
-        $popconfigs = $featDAO->fetchPopConfigs() ;
+        $popConfigs = $featDAO->fetchPopConfigs() ;
+        echo "",print_r($popConfigs),"\n";
+        die();
+        if (!is_null($popConfigs) && !empty($popConfigs)){
+            foreach($globalConfig as $key=>$val) {
+                $ses = $val['session_name'];
+                $val = $val['value'];
+                $_SESSION[$ses] = $val;
+            }
+        }
 
         $host = $popconfigs['data']['POP_HOST'];
         $port = $popconfigs['data']['POP_PORT'];

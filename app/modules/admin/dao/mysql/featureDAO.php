@@ -10,7 +10,7 @@ class featureDAO extends Database
         parent::__construct(); 
     }
 
-    public function getPopConfigs(): array
+    public function fetchPopConfigs(): array
     {
         
         $sql = "SELECT session_name, `value` FROM tbconfig WHERE idconfigcategory = 12";
@@ -19,17 +19,17 @@ class featureDAO extends Database
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
-        $aRet = array();
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
-            $ses = $row['session_name'];
-            $val = $row['value'];
-            $confs[$ses] = $val;            
+        $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        foreach($row as $k=>$v){
+            echo "{$k}\n";
+            //$groups = "{$v['idgroup']},";           
         }
 
-        return array("success"=>true,"message"=>"","data"=>$confs);
+        //return $rows;
     }
 
     public function getArrayConfigs(int $confCategoryID): array
@@ -70,5 +70,26 @@ class featureDAO extends Database
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         return array("success"=>true,"message"=>"","data"=>$aRet);
+    }
+
+    public function fetchUserSettings(int $userID): array
+    {        
+        $sql = "SELECT idconfiguser,idperson,lang,theme,grid_operator,grid_operator_width,
+                        grid_user,grid_user_width
+                  FROM hdk_tbconfig_user
+                 WHERE idperson = :userID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':userID', $userID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $rows;
     }
 }

@@ -6,6 +6,7 @@ use App\modules\admin\dao\mysql\logoDAO;
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\personDAO;
+use App\modules\admin\dao\mysql\featureDAO;
 use App\src\appServices;
 
 class loginServices
@@ -50,7 +51,7 @@ class loginServices
 
     // Since November 20
     // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
-    public function _startSession($idperson)
+    public function _startSession($idperson): void
     {
         $loginDAO = new loginDAO();
 
@@ -119,10 +120,12 @@ class loginServices
 
     // Since November 20
     // Used in user authentication methods. It comes here because it will be used in both admin and helpdezk.
-    public function _getConfigSession()
+    public function _getConfigSession(): void
     {
         $appSrc = new appServices();
         $moduleDAO = new moduleDAO();
+        $loginDAO = new loginDAO();
+        $featureDAO = new featureDAO();
 
         session_start(); 
         if (version_compare($appSrc->_getHelpdezkVersionNumber(), '1.0.1', '>' )) {
@@ -146,14 +149,13 @@ class loginServices
             }
 
         } else {
-            $data = $this->dbIndex->getConfigData();
-            if($data) {
-                while (!$data->EOF) {
-                    $ses = $data->fields['session_name'];
-                    $val = $data->fields['value'];
+            $modSettings = $moduleDAO->fetchConfigDataByModule('hdk');
+            if (!is_null($modSettings) && !empty($modSettings)){
+                foreach($modSettings as $key=>$val) {
+                    $ses = $val['session_name'];
+                    $val = $val['value'];
                     $_SESSION[$ses] = $val;
-                    $_SESSION[$prefix][$ses] = $val;
-                    $data->MoveNext();
+                    $_SESSION['hdk'][$ses] = $val;
                 }
             }
         }
@@ -161,37 +163,25 @@ class loginServices
         $idperson = $_SESSION['SES_COD_USUARIO'];
 
         // Global Config Data
-        $rsConfig = $this->dbIndex->getConfigGlobalData();
-        while (!$rsConfig->EOF) {
-            $ses = $rsConfig->fields['session_name'];
-            $val = $rsConfig->fields['value'];
-            $_SESSION[$ses] = $val;
-            $rsConfig->MoveNext();
-        }
-
-        // User config data
-        $this->loadModel('admin/userconfig_model');
-        $cf = new userconfig_model();
-        $columns = $cf->getColumns(); //GET COLUMNS OF THE TABLE
-
-        $database = $this->getConfig('db_connect');
-
-        while (!$columns->EOF) {
-            if($this->isMysql($database)) {
-                $cols[] = strtolower($columns->fields['Field']);
-            } elseif($database == 'oci8po') {
-                $cols[] = strtolower($columns->fields['column_name']);
+        $globalConfig = $loginDAO->fetchConfigGlobalData();
+        if (!is_null($globalConfig) && !empty($globalConfig)){
+            foreach($globalConfig as $key=>$val) {
+                $ses = $val['session_name'];
+                $val = $val['value'];
+                $_SESSION[$ses] = $val;
             }
-            $columns->MoveNext();
+        }               
+        
+        // User config data
+        $userSettings = $featureDAO->fetchUserSettings($idperson); //GET COLUMNS OF THE TABLE hdk_tbconfig_user
+        if (!is_null($userSettings) && !empty($userSettings)){
+            foreach($userSettings as $key=>$val) {
+                foreach($val as $k=>$v) {
+                    $_SESSION['SES_PERSONAL_USER_CONFIG'][$k] = $v;
+                }                
+            }
         }
-
-
-        $idconf = $cf->checkConf($idperson); //CHECK IF USER HAVE PERSONAL CONFIG, IF DNO'T HAVE IT'S CREATE
-
-        $getUserConfig = $cf->getConf($cols,$idconf);
-        foreach ($cols as $key => $value) {
-            $_SESSION['SES_PERSONAL_USER_CONFIG'][$value] = $getUserConfig->fields[$value];
-        }
+        echo "",print_r($_SESSION,true),"\n";
 
     }
 
