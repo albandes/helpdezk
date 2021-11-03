@@ -1,7 +1,10 @@
 <?php
 
 namespace App\modules\admin\dao\mysql;
+
 use App\core\Database;
+use App\modules\admin\models\mysql\popConfigModel;
+use App\modules\admin\models\mysql\moduleModel;
 
 class featureDAO extends Database
 {
@@ -10,7 +13,7 @@ class featureDAO extends Database
         parent::__construct(); 
     }
 
-    public function fetchPopConfigs(): array
+    public function fetchPopConfigs(): ?popConfigModel
     {
         
         $sql = "SELECT session_name, `value` FROM tbconfig WHERE idconfigcategory = 12";
@@ -24,12 +27,28 @@ class featureDAO extends Database
         }
         
         $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $popSettings = new popConfigModel();
+        
         foreach($row as $k=>$v){
-            echo "{$k}\n";
-            //$groups = "{$v['idgroup']},";           
+            switch($v['session_name']){
+                case 'POP_HOST':
+                    $popSettings->setHost($v['value']);
+                    break;
+                case 'POP_PORT':
+                    $popSettings->setPort($v['value']);
+                    break;
+                case 'POP_TYPE':
+                    $popSettings->setType($v['value']);
+                    break;
+                case 'POP_DOMAIN':
+                    $popSettings->setDomain($v['value']);
+                    break;
+                default:
+                    break;
+            }          
         }
-
-        //return $rows;
+        
+        return $popSettings;
     }
 
     public function getArrayConfigs(int $confCategoryID): array
@@ -91,5 +110,50 @@ class featureDAO extends Database
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         return $rows;
+    }
+
+    public function tableExists(string $tableName)
+    {        
+        $sql = "SELECT COUNT(*) as exist
+                  FROM information_schema.tables 
+                 WHERE table_schema = '{$_ENV['DB_NAME']}' 
+                   AND table_name = :tableName";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':tableName', $tableName);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error checking table exists ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $row['exist'];
+    }
+
+    public function getPathModuleByTypePerson(int $typePerson): ?moduleModel
+    {        
+        $sql = "SELECT `path`
+                  FROM tbmodule a
+       LEFT OUTER JOIN tbtypeperson_has_module b
+                    ON b.idmodule = a.idmodule
+                 WHERE b.idtypeperson =  :typePerson";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':typePerson', $typePerson);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting module's path", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $module = new moduleModel(); 
+        $module->setPath($row['path']);
+
+        return $module;
     }
 }

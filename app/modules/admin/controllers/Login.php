@@ -68,68 +68,16 @@ class Login extends Controller
         $loginType = $loginDAO->getLoginType($frm_login);
         
         if(is_null($loginType)){
-            $license =  $_ENV["LICENSE"];
-            
-            if($license != '201601001') {
-                // Return with error message
-                $success = array(
-                    "success" => 0,
-                    "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
-                );
-                echo json_encode($success);
-                return;
-            } else {
-                /**
-                 * Client 201601001
-                 * Create a new user, if don't exists
-                 * Set type login to 4 [autenticate by request number]
-                 */
-                
-                $dbPerson->BeginTrans();
-                $dtcreate = date('Y-m-d H:i:s');
-                $logintype = 4 ; // Need in the first access
-                $iddepartment =  '72' ;
-                
-                $idNewPerson = $dbPerson->insertPerson('4','2','1','1',$login,$login,$dtcreate,'A','N','','','',$login);
-                if (!$idNewPerson) {
-                    $error = true ;
-                }
-                if (!$error) {
-                    $insNatural = $dbPerson->insertNaturalData($idNewPerson, '', '', '');
-                    if (!$insNatural) {
-                        $error = true;
-                    }
-                }
-                if (!$error) {
-                    $depart = $dbPerson->insertInDepartment($idNewPerson, $iddepartment);
-                    if (!$depart) {
-                        $error = true ;
-                    }
-                }
-                
-                if($error){
-                    $dbPerson->RollbackTrans();
-                    $success = array(
-                        "success" => 0,
-                        "msg" => html_entity_decode($langVars['Login_cant_create_user'],ENT_COMPAT, 'UTF-8')
-                    );
-                    echo json_encode($success);
-                    return;
-                } else {
-                    $dbPerson->CommitTrans();
-                }
-            }
+            // Return with error message
+            $success = array(
+                "success" => 0,
+                "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
+            );
+            echo json_encode($success);
+            return;
 		}
         
         switch ($loginType->getLogintype()) {
-            case '4': // Request
-                
-                $login = $this->requestAuth($frm_login,$frm_password);
-                $rsUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $rsUser['data']->getIdperson();
-                $idtypeperson = $rsUser['data']->getIdtypeperson();
-                break;
-            
             case '3': // HelpDEZk
                 
                 $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5);
@@ -145,23 +93,10 @@ class Login extends Controller
                     break;
                 }
                 
-                $login = $this->imapAuth($frm_login,$frm_password);
-                $rsUser = $loginDAO->getUserByLogin($frm_login);
+                $isLogin = $this->imapAuth($frm_login,$frm_password);
+                $loginUser = $loginDAO->getUserByLogin($frm_login);
                 $idperson = $loginUser->getIdperson();
-                $idtypeperson = $loginUser->getIdtypeperson();
-                break;
-            
-            case '2': // AD/LDAP
-                if (!function_exists('ldap_connect')) {
-                    $login = false;
-                    $msg = "LDAP functions are not available!!!";
-                    break;
-                }
-                
-                $login = $this->ldapAuth($frm_login,$frm_password);
-                $rsUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $rsUser['data']->getIdperson();
-                $idtypeperson = $rsUser['data']->getIdtypeperson();
+                $idtypeperson = $loginUser->getIdtypeperson(); 
                 break;
         }
         
@@ -173,7 +108,7 @@ class Login extends Controller
                     $loginSrc->_getConfigSession();
                     $success = array(
                         "success" => 1,
-                        "redirect" => path . "/admin/home"
+                        "redirect" => $appSrc->_getPath() .  "/admin/home"
                     );
                     echo json_encode($success);
                     return;
@@ -190,7 +125,7 @@ class Login extends Controller
                         echo json_encode($maintenance);
                         return;
                     }else{
-                        $redirect = path . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
+                        $redirect = $appSrc->_getPath() .  "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
                         
                         $success = array(
                             "success" => 1,
@@ -228,15 +163,20 @@ class Login extends Controller
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     
-                    if (!$this->dbConfig->tableExists('tbtypeperson_has_module')) {
+                    $existsTable = $featDAO->tableExists('tbtypeperson_has_module');
+                    
+                    if (is_null($existsTable) || empty($existsTable) || !$existsTable) {
                         $error = array( "success" => 0,
                                          "msg" =>html_entity_decode('There is no table tbtypeperson_has_module.',ENT_COMPAT, 'UTF-8')
                                       );
                         echo json_encode($error);
                         return;
                     }
-                    $ret = $this->dbIndex->getPathModuleByTypePerson($idtypeperson);
-                    if ($ret) {
+                    
+                    $pathModule = $featDAO->getPathModuleByTypePerson($idtypeperson);
+                    if (!is_null($pathModule) && !empty($pathModule)) {
+                        $modPath = $pathModule->getPath();
+
                         if($_SESSION['SES_MAINTENANCE'] == 1){
                             $maintenance = array(
                                 "success" => 0,
@@ -246,7 +186,7 @@ class Login extends Controller
                         }else{
                             $success = array(
                                 "success" => 1,
-                                "redirect" => path . "/{$ret}/home/index"
+                                "redirect" => $appSrc->_getPath() . "/{$modPath}/home/index"
                             );
                             echo json_encode($success);
                             return;
@@ -264,11 +204,14 @@ class Login extends Controller
 					return;
                     break;
             }
-        } else {
+        } else {  
 			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
-				$rs = $loginDAO->checkUser($login);
-				if($rs['data'] == "A") $msg = $langVars['Login_error_error'];
-				elseif($rs['data'] == "I") $msg = $langVars['Login_user_inactive'];
+                echo "ola\n". __LINE__;
+				$userStatus = $loginDAO->checkUser($login); 
+                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I')
+                    $msg = $langVars['Login_user_inactive'];
+				elseif($userStatus->getUserStatus() == "A") 
+                    $msg = $langVars['Login_error_error'];
 			}
 			$success = array("success" => 0,
 							 "msg" => $msg );
@@ -306,103 +249,37 @@ class Login extends Controller
 
     public function imapAuth($login,$password)
     {
-        $featDAO = new featureDAO();
+        $featDAO = new featureDAO(); 
         $popConfigs = $featDAO->fetchPopConfigs() ;
-        echo "",print_r($popConfigs),"\n";
-        die();
+        
         if (!is_null($popConfigs) && !empty($popConfigs)){
-            foreach($globalConfig as $key=>$val) {
-                $ses = $val['session_name'];
-                $val = $val['value'];
-                $_SESSION[$ses] = $val;
+            $host = $popConfigs->getHost();
+            $port = $popConfigs->getPort();
+            $type = $popConfigs->getType();
+            $domain = $popConfigs->getDomain();
+            if(!empty($domain)) $domain = '@'.$domain;
+            
+            if ($type == 'POP'){
+                $hostname = '{' . $host . ':'.$port.'/pop3}INBOX' ;
+            } elseif ($type == 'GMAIL') {
+                $hostname = '{imap.gmail.com:'.$port.'/imap/ssl/novalidate-cert}INBOX';
             }
-        }
-
-        $host = $popconfigs['data']['POP_HOST'];
-        $port = $popconfigs['data']['POP_PORT'];
-        $type = $popconfigs['data']['POP_TYPE'];
-        $domain = $popconfigs['data']['POP_DOMAIN'];
-        if(!empty($domain)) $domain = '@'.$domain;
-
-        if ($type == 'POP'){
-            $hostname = '{' . $host . ':'.$port.'/pop3}INBOX' ;
-        } elseif ($type == 'GMAIL') {
-            $hostname = '{imap.gmail.com:'.$port.'/imap/ssl/novalidate-cert}INBOX';
-        }
-        //function_exists()
-        if (!function_exists('imap_open'))
-            die("IMAP functions are not available.<br />\n");
-
-        /* try to connect */
-        $mbox = imap_open($hostname,$login.$domain,$password) ;
-        if($mbox) {
-            imap_close($mbox);
-            return true;
-        } else {
-            return false ;
+            //function_exists()
+            if (!function_exists('imap_open'))
+                die("IMAP functions are not available.<br />\n");
+            
+            /* try to connect */
+            $mbox = imap_open($hostname,$login.$domain,$password) ;
+            if($mbox) {
+                imap_close($mbox);
+                return true;
+            } else {
+                return false ;
+            }
+        }else{
+            return false;
         }
 
     }
 
-    public function ldapAuth($login,$password)
-    {
-        $featDAO = new featureDAO();
-        $ldapconfigs = $featDAO->fetchArrayConfigs(13);
-
-        $type 	= $ldapconfigs['data']['SES_LDAP_AD']; //1 LDAP / 2 AD
-        $server = $ldapconfigs['data']['SES_LDAP_SERVER'];
-        $dn     = $ldapconfigs['data']['SES_LDAP_DN'];
-        $domain = $ldapconfigs['data']['SES_LDAP_DOMAIN'];
-        $object = $ldapconfigs['data']['SES_LDAP_FIELD'];
-
-        //$server ="ldap.testathon.net";
-        //$user   = "carol";
-        //$senha  = "carol";
-        //$dn     = "OU=users,DC=testathon,DC=net";
-
-        // =================
-
-        $dn  = $object."=".$login.",$dn";
-
-        $userdomain = $login."@".$domain;
-        //$AD = @ldap_connect($server) ;
-
-        if (!($AD = @ldap_connect($server))) {
-            $msg = "Can't connecto to LDAP server !";
-            return false;
-        }
-
-
-        ldap_set_option($AD, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option($AD, LDAP_OPT_REFERRALS, 0);
-
-        /**
-         ** The only way to test the connection is to actually call ldap_bind( $ds, $username, $password ).
-         ** But if that fails, is it because you have the wrong username/password or is it because the connection is down?
-         ** As far as I can see there isn't any way to tell.
-         **/
-
-        $ret =  $this->LdapValidate($AD, $dn, $password, $userdomain, $type) ;
-
-        /*
-         * Search for user informations in ldap
-         *
-        $busca = ldap_search($AD, $dn , "(".$object."=".$_POST['login'].")");
-        $result = ldap_get_entries($AD, $busca);
-        for ($item = 0; $item < $result['count']; $item++){
-            for ($attribute = 0; $attribute < $result[$item]['count']; $attribute++){
-                  $data = $result[$item][$attribute];
-                echo $data. ": ".$result[$item][$data][0]."<br>";
-            }
-        }
-        */
-
-        if ( $ret != '0') {
-            $msg = $ret ;
-            return false;
-        } else {
-            return true;
-        }
-
-    }
 }

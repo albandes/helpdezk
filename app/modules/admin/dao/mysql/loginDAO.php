@@ -45,19 +45,20 @@ class loginDAO extends Database
      * Return an array with user data
      *
      * @param  string $login
-     * @return array
+     * @return loginModel
      */
-    public function getUserByLogin(string $login): array
+    public function getUserByLogin(string $login): ?loginModel
     {
         
-        $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson login = :login";
+        $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson WHERE login = :login";
         
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':login', $login);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -67,8 +68,8 @@ class loginDAO extends Database
               ->setName($aRet['name'])
               ->setLogin($aRet['login'])
               ->setIdtypeperson($aRet['idtypeperson']);
-
-        return array("success"=>true,"message"=>"","data"=>$login);
+        
+        return $login;
     }
     
     /**
@@ -145,7 +146,7 @@ class loginDAO extends Database
         return array("success"=>true,"message"=>"","data"=>$aRet);
     }
 
-    public function checkUser(string $login): array
+    public function checkUser(string $login): ?loginModel
     {        
         $sql = "SELECT login, status FROM tbperson WHERE login = :login";
         
@@ -154,16 +155,15 @@ class loginDAO extends Database
             $stmt->bindParam(':login', $login);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error("Error checking user data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $login = new loginModel();
+        $login->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
         
-        if (count($aRet) > 0) {
-            $status = ($aRet['status'] == "A") ? "A" : "I";
-        }
-
-        return array("success"=>true,"message"=>"","data"=>$status);
+        return $login;
     }
 
     public function getDataSession(int $userID): ?loginModel

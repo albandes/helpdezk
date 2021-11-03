@@ -48,6 +48,11 @@ final class loginModel
      * @var string
      */
     private $groupId;
+    
+    /**
+     * @var string
+     */
+    private $userStatus;
 
     /**
      * Get the value of idperson
@@ -251,6 +256,30 @@ final class loginModel
     public function setGroupId(string $groupId): self
     {
         $this->groupId = $groupId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userStatus
+     *
+     * @return  string
+     */ 
+    public function getUserStatus(): string
+    {
+        return $this->userStatus;
+    }
+
+    /**
+     * Set the value of userStatus
+     *
+     * @param  string  $userStatus
+     *
+     * @return  self
+     */ 
+    public function setUserStatus(string $userStatus): self
+    {
+        $this->userStatus = $userStatus;
 
         return $this;
     }
