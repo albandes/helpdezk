@@ -1,15 +1,6 @@
 var twoFactorAuth = false ;
 $(document).ready(function() {
 
-    // Check if use Google 2FA
-    /*$.getJSON('login/getGoogle2fa/', function (data) {
-        console.log(data);
-        if(data.success == 1) {
-            var secret = "<input name='token' type='text' class='form-control' placeholder='Token' required=''>"
-            $('#secret').html(secret);
-        }
-    });*/
-
     $('#username').val('')
 
     $('#urlLostPasssword').click(function(){
@@ -43,7 +34,7 @@ $(document).ready(function() {
             } else if(data.success == 1){
                 self.location = data.redirect;
             }
-        },"json").complete(function(){
+        },"json").done(function(){
             $(".loaderLogin").hide();
         });
         return false;

@@ -181,7 +181,7 @@ class loginServices
                 }                
             }
         }
-        echo "",print_r($_SESSION,true),"\n";
+        //echo "",print_r($_SESSION,true),"\n";
 
     }
 
