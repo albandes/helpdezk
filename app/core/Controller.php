@@ -28,6 +28,7 @@ class Controller
     
     public function __construct()
     {
+        session_start();
         $appSrc = new appServices();
         
         // create a log channel

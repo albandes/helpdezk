@@ -9,7 +9,7 @@ use App\modules\admin\src\loginServices;
 use App\src\appServices;
 
 
-class Login extends Controller
+class Holidays extends Controller
 {
     public function __construct()
     {
@@ -28,21 +28,16 @@ class Login extends Controller
         session_unset();
         session_destroy();
         
-        $params = $this->makeScreenLogin();
+        $params = $this->makeScreenHolidays();
         
         $this->view('admin','login',$params);
     }
 
     public function makeScreenLogin()
     {
-        $loginSrc = new loginServices();
         $appSrc = new appServices();
         $aLogo = $loginSrc->_getLoginLogoData();
         $params = $appSrc->_getDefaultParams();
-        $params['warning'] = "";
-        $params['loginLogoUrl'] = $aLogo['image'];
-        $params['loginheight'] = $aLogo['height'];
-        $params['loginwidth'] = $aLogo['width'];
 
         return $params;
     }

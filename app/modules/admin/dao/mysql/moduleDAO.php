@@ -82,4 +82,131 @@ class moduleDAO extends Database
         
         return $aRet;
     }
+
+    public function fetchModulesCategoryAtive(int $userID, int $userType, int $moduleID): array
+    {        
+        if($userID == 1 || $userType == 1){
+            $cond = " AND tp.idtypeperson = 1";
+        }else{
+            $cond = " AND tp.idtypeperson IN
+                        (SELECT idtypeperson
+                           FROM tbpersontypes
+                          WHERE idperson = '{$userID}')";
+        }
+        
+        $sql = "(SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty
+                   FROM tbperson p, tbtypepersonpermission g, tbaccesstype a, tbprogram pr, tbmodule m,
+                        tbprogramcategory cat, tbtypeperson tp
+                  WHERE g.idaccesstype = a.idaccesstype
+                    AND g.idprogram = pr.idprogram
+                    AND m.idmodule = cat.idmodule
+                    AND cat.idprogramcategory = pr.idprogramcategory
+                    AND tp.idtypeperson = g.idtypeperson
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = :userID
+                    $cond
+                    AND g.idaccesstype = '1'
+                    AND g.allow = 'Y'
+                    AND m.idmodule = :moduleID)
+                  UNION
+                (SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty
+                   FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc
+                  WHERE m.idmodule = cat.idmodule
+                    AND pr.idprogramcategory = cat.idprogramcategory
+                    AND per.idperson = p.idperson
+                    AND pr.idprogram = p.idprogram
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = :userID
+                    AND p.idaccesstype = acc.idaccesstype
+                    AND p.idaccesstype = '1'
+                    AND p.allow = 'Y'
+                    AND m.idmodule = :moduleID)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':moduleID', $moduleID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting module's active categories", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return null;
+        }
+        
+        return $aRet;
+    }
+
+    public function fetchPermissionMenu(int $userID, int $userType, int $moduleID, int $categoryID): array
+    {        
+        if($userID == 1 || $userType == 1){
+            $cond = " AND tp.idtypeperson = 1";
+        }else{
+            $cond = " AND tp.idtypeperson IN
+                        (SELECT idtypeperson
+                           FROM tbpersontypes
+                          WHERE idperson = '{$userID}')";
+        }
+
+        $andModule = " m.idmodule = {$moduleID} AND cat.idprogramcategory = {$categoryID}";
+        
+        $sql = "(SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
+                        cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
+                        pr.idprogramcategory as idcategory_origem, pr.name as program, pr.controller as controller,
+                        pr.smarty   as pr_smarty, pr.idprogram as idprogram, g.allow
+                   FROM tbperson p, tbtypepersonpermission g, tbaccesstype a, tbprogram pr, tbmodule m,
+                        tbprogramcategory cat, tbtypeperson tp
+                  WHERE g.idaccesstype = a.idaccesstype
+                    AND g.idprogram = pr.idprogram
+                    AND m.idmodule = cat.idmodule
+                    AND cat.idprogramcategory = pr.idprogramcategory
+                    AND tp.idtypeperson = g.idtypeperson
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = :userID
+                    $cond
+                    AND g.idaccesstype = '1'
+                    AND g.allow = 'Y'
+                    AND $andModule)
+                  UNION
+                (SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
+                        cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
+                        pr.idprogramcategory as idcategory_origem, pr.name as program, pr.controller as controller,
+                        pr.smarty as pr_smarty, pr.idprogram as idprogram, p.allow
+                   FROM tbperson per, tbpermission p, tbprogram  pr, tbmodule  m, tbprogramcategory  cat, tbaccesstype  acc
+                  WHERE m.idmodule = cat.idmodule
+                    AND pr.idprogramcategory = cat.idprogramcategory
+                    AND per.idperson = p.idperson
+                    AND pr.idprogram = p.idprogram
+                    AND m.status = 'A'
+                    AND pr.status = 'A'
+                    AND p.idperson = :userID
+                    AND p.idaccesstype = acc.idaccesstype
+                    AND p.idaccesstype = '1'
+                    AND $andModule
+            )";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':userID', $userID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting module's active categories", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return null;
+        }
+        
+        return $aRet;
+    }
 }

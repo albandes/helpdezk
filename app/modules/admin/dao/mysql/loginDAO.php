@@ -99,6 +99,10 @@ class loginDAO extends Database
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return null;
+        }
 
         $login = new loginModel();
         $login->setIdperson($aRet['idperson'])
@@ -160,8 +164,12 @@ class loginDAO extends Database
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $login = new loginModel();
         
+        if(!$aRet){
+            return null;
+        }
+
+        $login = new loginModel();        
         $login->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
         
         return $login;

@@ -2,9 +2,17 @@
 
 use App\core\Controller;
 use App\src\appServices;
+use App\modules\admin\src\adminServices;
 
 class Home extends Controller
 {
+	public function __construct()
+    {
+        parent::__construct();
+		
+        
+    }
+
 	/**
 	 *  en_us Calls the method that renders the module's home template
 	 * 
@@ -14,9 +22,9 @@ class Home extends Controller
 	{
 		$appSrc = new appServices();
 		$params = $appSrc->_getDefaultParams();
-
-		$this->logger->info('Run ', ['Class' => __CLASS__, 'Method' => __METHOD__]);
-
+		
+		$params = $this->makeScreenAdmHome();
+		
 		$this->view(
 			'admin',
 			'main',
@@ -24,5 +32,15 @@ class Home extends Controller
 		);
 		
 	}
+
+	public function makeScreenAdmHome()
+    {
+        $appSrc = new appServices();
+		$adminSrc = new adminServices();
+		$params = $appSrc->_getDefaultParams();
+		$adminSrc->_makeNavAdm();
+
+        return $params;
+    }
 
 }
