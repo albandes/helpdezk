@@ -206,11 +206,11 @@ class Login extends Controller
             }
         } else {  
 			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
-                echo "ola\n". __LINE__;
-				$userStatus = $loginDAO->checkUser($login); 
-                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I')
+               
+				$userStatus = $loginDAO->checkUser($login);
+                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
                     $msg = $langVars['Login_user_inactive'];
-				elseif($userStatus->getUserStatus() == "A") 
+				}elseif($userStatus->getUserStatus() == "A") 
                     $msg = $langVars['Login_error_error'];
 			}
 			$success = array("success" => 0,

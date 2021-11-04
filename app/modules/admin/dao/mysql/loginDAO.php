@@ -161,6 +161,7 @@ class loginDAO extends Database
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
         $login = new loginModel();
+        
         $login->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
         
         return $login;
