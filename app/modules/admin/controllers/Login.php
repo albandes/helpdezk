@@ -80,10 +80,10 @@ class Login extends Controller
         switch ($loginType->getLogintype()) {
             case '3': // HelpDEZk
                 
-                $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5);
-                $loginUser = $loginDAO->getUser($frm_login, $passwordMd5);
-                $idperson = $loginUser->getIdperson();
-                $idtypeperson = $loginUser->getIdtypeperson();
+                $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5); 
+                $loginUser = $loginDAO->getUser($frm_login, $passwordMd5); 
+                $idperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdperson() : '';
+                $idtypeperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdtypeperson() : '';
                 break;
             
             case '1': // Pop/Imap Server
@@ -95,15 +95,15 @@ class Login extends Controller
                 
                 $isLogin = $this->imapAuth($frm_login,$frm_password);
                 $loginUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = $loginUser->getIdperson();
-                $idtypeperson = $loginUser->getIdtypeperson(); 
+                $idperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdperson() : '';
+                $idtypeperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdtypeperson() : ''; 
                 break;
         }
         
         if ($isLogin) {
             
             switch  ($idtypeperson) {
-                case "1":
+                case "1": // admin
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     $success = array(
@@ -114,7 +114,7 @@ class Login extends Controller
                     return;
                     break;
 
-                case "2":
+                case "2": // user
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
@@ -137,7 +137,7 @@ class Login extends Controller
                     }
                     break;
 
-                case "3":
+                case "3": // operator
                     $loginSrc->_startSession($idperson);  
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
@@ -157,8 +157,7 @@ class Login extends Controller
 					}
                     break;
 
-                //  Another modules
-                default:
+                default: // others types
                 
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
@@ -204,11 +203,10 @@ class Login extends Controller
 					return;
                     break;
             }
-        } else {  
+        } else { 
 			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
-               
-				$userStatus = $loginDAO->checkUser($login);
-                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
+				$userStatus = $loginDAO->checkUser($login); 
+        if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
                     $msg = $langVars['Login_user_inactive'];
 				}elseif($userStatus->getUserStatus() == "A") 
                     $msg = $langVars['Login_error_error'];
@@ -222,7 +220,7 @@ class Login extends Controller
     
     public function requestAuth($login,$password)
     {
-		$loginDAO = new LoginDAO();
+		$loginDAO = new loginDAO();
 		$rsUser = $loginDAO->getUserByLogin($login);
         $idperson = $rsUser['data']->getIdperson();
 
