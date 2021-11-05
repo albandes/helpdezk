@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-sm static-top" role="navigation">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
         </button>
 
         <ul id="gn-menu" class="navbar-nav gn-menu-main">
@@ -21,77 +21,85 @@
             <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$moduleLogo_url}" height="{$headerheight}px" width="{$headerwidth}px"  > </a>
 
             {if $featured_1 == 1}
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
                         <a aria-expanded="false" role="button" href="{$lnk_featured_1}"> {$featured_label_1} </a>
                     </li>
                 </ul>
             {/if}
 
             {if $featured_2 == 1}
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
                         <a aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_2}"> {$featured_label_2} </a>
                     </li>
                 </ul>
             {/if}
 
             {if $featured_3 == 1}
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
                         <a aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_3}"> {$featured_label_3} </a>
                     </li>
                 </ul>
             {/if}
 
-            <ul class="nav navbar-nav">
+            <ul class="navbar-nav">
                 <!-- Modules Menu -->
                 {$listMenu_1}
 
             </ul>
 
             {if $displayMenu_Adm == 1}
-                <ul class="nav navbar-nav">
+                <ul class="navbar-nav">
                     <!-- Admin Menu  -->
                     <li class='nav-item dropdown'>
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {='Modules'|translate}<span class='caret'></span>
-                        </a>
-                        <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="navbarDropdown">
-                            {$listMenu_Adm}
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"> {='Modules'|translate} </a>
+                        <ul class="dropdown-menu">
+                        {foreach $listMenu_Adm as $k=>$v}
+                            <li>
+                                <a class="dropdown-item" href="#">{$k}</a>
+                                <ul class="submenu dropdown-menu">
+                                {foreach $v as $subk=>$subv}
+                                <li>
+                                    <a class="dropdown-item" href="#">{$subk}</a>
+                                    <ul class="submenu dropdown-menu">
+                                    {foreach $subv as $subkl=>$subvl}
+                                        <li><a class="dropdown-item" href="{$subvl['url']}">{$subvl['program_name']}</a></li>
+                                    {/foreach}
+                                    </ul>
+                                </li>
+                                {/foreach}
+                                </ul>
+                        </div>
+                        {/foreach}
                         </ul>
                     </li>
                 </ul>
             {/if}
 
-            <span class="navbar-text">
-                {='timeouttext'|translate}: <span id="numberCountdown"></span>
-            </span>
-            <span class="navbar-text me-2">
-                <ul class="nav navbar-nav">
-                   <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="text-muted text-xs block">{$navlogin} <b class="caret"></b></span>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs" aria-labelledby="navbarDropdown">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">{='timeouttext'|translate}: <span id="numberCountdown"></span></li>
+                <li class="nav-item dropdown">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-bs-toggle="dropdown"> {$navlogin} </a>
+                        <ul class="dropdown-menu dropdown-menu-left">
                             {if !$isroot}
-                                <li><a href="#" class="btnEditUserProfile dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
-                                <li><a href="#" id="btnEditUserConfigExternal dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
-                                <li><a href="#" class="btnEditUserPass dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                                <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
+                                <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
+                                <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
                             {else}
-                                <li><a href="#" class="btnEditRootPass dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                                <li><a href="#" id="btnEditRootPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
                                 <li>&nbsp;</li>
                             {/if}
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a href="{$logout}"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
+                                <a href="{$logout}" class="dropdown-item"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
                             </li>
                         </ul>
                     </li>
-
-
-                </ul>
-            </span>
+                </li>
+            </ul>
             
         </div>
     </div>    

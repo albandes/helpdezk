@@ -49,11 +49,12 @@ class adminServices
 
     }
 
-    public function _makeMenuAdm(): string
+    public function _makeMenuAdm(): array
     {
         $list = '';
         $moduleDAO = new moduleDAO(); 
         $activeModules = $moduleDAO->fetchActiveModules();
+        $aModules = array();
         
         if(!is_null($activeModules) && !empty($activeModules)){
             foreach($activeModules as $k=>$v) {      
@@ -61,14 +62,13 @@ class adminServices
                 $activeCategories = $moduleDAO->fetchModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$v['idmodule']);
                 
                 if(!is_null($activeCategories) && !empty($activeCategories)){
-                    $list .= "<li class='dropdown-submenu'>
-                                <a tabindex='-1' href='#'>". $v['smarty'] ."</a>
-                                <ul class='dropdown-menu'>";
+                    $list .= "<li>
+                                <a class='dropdown-item' href='#'>". $v['smarty'] ."</a>
+                                <ul class='submenu dropdown-menu'>";
                     
                     foreach($activeCategories as $idx=>$val) {
-                        $list .= "<li class='dropdown-item dropdown-submenu'>
-                                    <a tabindex='-1' href='#'>". $val['cat_smarty'] ."</a>
-                                    <ul class='dropdown-menu'>";
+                        $list .= "<li><a class='dropdown-item' href='#'>". $val['cat_smarty'] ."</a>
+                                    <ul class='submenu dropdown-menu'>";
                         $permissionsMod = $moduleDAO->fetchPermissionMenu($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$v['idmodule'],$val['category_id']);
                         
                         if(!is_null($permissionsMod) && !empty($permissionsMod)){
@@ -90,8 +90,8 @@ class adminServices
                                     $this->loggerAdmSrc->error("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                                 }else{
                                     if ($allow == 'Y') {
-
-                                        $list .="<li><a class='dropdown-item' href='" . $_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index' >" . $prsmarty . "</a></li>";
+                                        $aModules[$v['smarty']][$val['cat_smarty']][$prsmarty] = array("url"=>$_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index", "program_name"=>$prsmarty);
+                                        $list .="<li><a class='dropdown-item' href='" . $_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index'>" . $prsmarty . "</a></li>";
                                     }
                                 }
                             }
@@ -102,7 +102,8 @@ class adminServices
                 }
             }
         }
-        return $list;
+        //return $list;
+        return $aModules;
     }
 
     /**
