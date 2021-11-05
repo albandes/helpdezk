@@ -1,0 +1,51 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='Holidays'|translate} / <strong>{='Home'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+
+                            <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='New'|translate}</button>
+                            <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{='edit'|translate}</button>
+                            <button id="btnImport"   type="button" class="btn btn-primary btn-xs"><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{='Holiday_import'|translate}</button>
+                            <button id="btnDelete" type="button" class="btn btn-primary btn-xs"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;{='Delete'|translate}</button>
+
+                            <p></p>
+
+                            <div class="jqGrid_wrapper">
+                                <table id="table_list_holidays"></table>
+                                <div id="pager_list_holidays"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+</body>
+
+	<!-- menu -->
+	<link href="{$path}/public/assets/css/gn-menu/css/component.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/js/gnmenu/classie.js"></script>
+    <script src="{$path}/public/assets/js/gnmenu/gnmenu.js"></script>
+
+{/block}

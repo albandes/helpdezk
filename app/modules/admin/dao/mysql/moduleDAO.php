@@ -137,7 +137,7 @@ class moduleDAO extends Database
         $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
         if(!$aRet){
-            return null;
+            return array();
         }
         
         return $aRet;
@@ -208,5 +208,44 @@ class moduleDAO extends Database
         }
         
         return $aRet;
+    }
+
+    public function getModuleInfoByName(string $moduleName): ?moduleModel
+    {        
+        $sql = "SELECT idmodule, `name`, IFNULL(`index`,0) `index`, `status`, path, smarty, 
+                        IFNULL(class,'') class,IFNULL(headerlogo,'') headerlogo, IFNULL(reportslogo,'') reportslogo, 
+                        IFNULL(tableprefix,'') tableprefix,IFNULL(defaultmodule,'NO') defaultmodule
+                  FROM tbmodule
+                 WHERE `name` = :moduleName";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':moduleName', $moduleName);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error getting module info ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if(!$aRet){
+            return null;
+        }
+
+        $module = new moduleModel(); 
+        $module->setIdmodule($aRet['idmodule'])
+               ->setName($aRet['name'])
+               ->setIndex($aRet['index'])
+               ->setStatus($aRet['status'])
+               ->setPath($aRet['path'])
+               ->setSmarty($aRet['smarty'])
+               ->setClass($aRet['class'])
+               ->setHeaderlogo($aRet['headerlogo'])
+               ->setReportslogo($aRet['reportslogo'])
+               ->setTableprefix($aRet['tableprefix'])
+               ->setIsdefault($aRet['defaultmodule']); 
+        
+        return $module;
     }
 }

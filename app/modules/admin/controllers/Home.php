@@ -25,11 +25,7 @@ class Home extends Controller
 		
 		$params = $this->makeScreenAdmHome();
 		
-		$this->view(
-			'admin',
-			'main',
-			$params
-		);
+		$this->view('admin','main',$params);
 		
 	}
 
@@ -38,8 +34,8 @@ class Home extends Controller
         $appSrc = new appServices();
 		$adminSrc = new adminServices();
 		$params = $appSrc->_getDefaultParams();
-		$adminSrc->_makeNavAdm();
-
+		$params = $adminSrc->_makeNavAdm($params);
+		
         return $params;
     }
 

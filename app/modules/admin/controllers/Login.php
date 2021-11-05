@@ -103,7 +103,7 @@ class Login extends Controller
         if ($isLogin) {
             
             switch  ($idtypeperson) {
-                case "1":
+                case "1": // admin
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     $success = array(
@@ -114,7 +114,7 @@ class Login extends Controller
                     return;
                     break;
 
-                case "2":
+                case "2": // user
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
@@ -137,7 +137,7 @@ class Login extends Controller
                     }
                     break;
 
-                case "3":
+                case "3": // operator
                     $loginSrc->_startSession($idperson);  
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
@@ -157,8 +157,7 @@ class Login extends Controller
 					}
                     break;
 
-                //  Another modules
-                default:
+                default: // others types
                 
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
@@ -221,7 +220,7 @@ class Login extends Controller
     
     public function requestAuth($login,$password)
     {
-		$loginDAO = new LoginDAO();
+		$loginDAO = new loginDAO();
 		$rsUser = $loginDAO->getUserByLogin($login);
         $idperson = $rsUser['data']->getIdperson();
 

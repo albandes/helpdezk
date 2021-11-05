@@ -53,96 +53,46 @@
             {if $displayMenu_Adm == 1}
                 <ul class="nav navbar-nav">
                     <!-- Admin Menu  -->
-                    <li class='dropdown'>
-                        <a aria-expanded='false' role='button' href='#' class='dropdown-toggle' data-toggle='dropdown'>{$smarty.config.Modules}<span class='caret'></span></a>
-                        <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
+                    <li class='nav-item dropdown'>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {='Modules'|translate}<span class='caret'></span>
+                        </a>
+                        <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="navbarDropdown">
                             {$listMenu_Adm}
                         </ul>
                     </li>
                 </ul>
             {/if}
 
-            <ul class="nav navbar-top-links navbar-right">
-                <li>
-                    {='timeouttext'|translate}: <span id="numberCountdown"></span>
-                </li>
-
-                <!--<li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell"></i>  <span class="label label-primary">{$total_warnings}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-alerts">
-                        <li>
-                            <a href="mailbox.html">
-                                <div>
-                                    <i class="fa fa-envelope fa-fw"></i> You have {$total_warnings} messages
-                                    <span class="pull-right text-muted small">4 minutes ago</span>
-                                </div>
-                            </a>
-                        </li>
-                        {*
-                        <li class="divider"></li>
-                        <li>
-                            <a href="profile.html">
-                                <div>
-                                    <i class="fa fa-twitter fa-fw"></i> 3 New Followers
-                                    <span class="pull-right text-muted small">12 minutes ago</span>
-                                </div>
-                            </a>
-                        </li>
-                        *}
-                        <li class="divider"></li>
-                        <li>
-                            <a href="grid_options.html">
-                                <div>
-                                    <i class="fa fa-upload fa-fw"></i> Server Rebooted
-                                    <span class="pull-right text-muted small">2d 4h 12min ago</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <div class="text-center link-block">
-                                <a href="notifications.html">
-                                    <strong>See All Alerts</strong>
-                                    <i class="fa fa-angle-right"></i>
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </li>-->
+            <span class="navbar-text">
+                {='timeouttext'|translate}: <span id="numberCountdown"></span>
+            </span>
+            <span class="navbar-text me-2">
+                <ul class="nav navbar-nav">
+                   <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="text-muted text-xs block">{$navlogin} <b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs" aria-labelledby="navbarDropdown">
+                            {if !$isroot}
+                                <li><a href="#" class="btnEditUserProfile dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
+                                <li><a href="#" id="btnEditUserConfigExternal dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
+                                <li><a href="#" class="btnEditUserPass dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                            {else}
+                                <li><a href="#" class="btnEditRootPass dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                                <li>&nbsp;</li>
+                            {/if}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a href="{$logout}"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
+                            </li>
+                        </ul>
+                    </li>
 
 
-                <!--<li>
-                    <a href="{$logout}">
-                        <i class="fa fa-sign-out-alt"></i> {$smarty.config.logout}
-                    </a>
-                </li>-->
-                <li class="dropdown">
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                        </span> <span class="text-muted text-xs block">{$navlogin} <b class="caret"></b></span> </span>
-                        <!--<img alt="image" class="img-circle img-thumbnail" src="{$person_photo}" />-->
-                    </a>
-                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        {if !$isroot}
-                            <li><a href="#" class="btnEditUserProfile"><i class="far fa-user"></i> {$smarty.config.user_profile}</a></li>
-                            <li><a href="#" id="btnEditUserConfigExternal"><i class="fas fa-user-cog"></i> {$smarty.config.user_external_settings}</a></li>
-                            <li><a href="#" class="btnEditUserPass"><i class="fa fa-key"></i> {$smarty.config.Change_password}</a></li>
-                        {else}
-                            <li><a href="#" class="btnEditRootPass"><i class="fa fa-key"></i> {$smarty.config.Change_password}</a></li>
-                            <li>&nbsp;</li>
-                        {/if}
-                        <!--<li><a href=""> </a></li>
-                        <li><a href=""> </a></li>-->
-                        <li class="divider"></li>
-                        <li>
-                            <a href="{$logout}"> <i class="fa fa-sign-out-alt"></i> {$smarty.config.logout}</a>
-                        </li>
-                    </ul>
-                </li>
-
-
-            </ul>
+                </ul>
+            </span>
+            
         </div>
     </div>    
 

@@ -4,6 +4,7 @@ namespace App\src;
 
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
+use App\modules\admin\dao\mysql\logoDAO;
 use App\modules\admin\src\loginServices;
 
 class appServices
@@ -107,5 +108,40 @@ class appServices
         $activeModules = $moduleDAO->fetchActiveModules();
         return (!is_null($activeModules) && !empty($activeModules)) ? $activeModules : false;
 
+    }
+
+    /**
+     * Returns header's logo data
+	 * 
+     * @return array header's logo data (path, width, height)
+     */
+	public function _getHeaderData(): array 
+    {
+        $aRet = [];
+        
+		$logoDAO = new logoDao(); 
+        $logo = $logoDAO->getLogoByName("header");
+        
+        $objLogo = $logo['data'];
+        if ($_ENV['EXTERNAL_STORAGE']) {
+            $pathLogoImage = $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' . $objLogo->getFileName();
+        } else {
+            
+            $pathLogoImage = $this->_getHelpdezkPath() . '/storage/uploads/logos/' . $objLogo->getFileName();
+        }
+		
+        if (empty($objLogo->getFileName()) or !file_exists($pathLogoImage)){
+            $aRet['image'] 	= ($_ENV['EXTERNAL_STORAGE'] ? $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' : $_ENV['HDK_URL'] . '/storage/uploads/logos/') . 'default/login.png';
+			$aRet['width'] 	= "227";
+			$aRet['height'] = "70";
+            $aRet['filename'] = 'default/login.png';
+        }else{
+            $aRet['image'] 	= ($_ENV['EXTERNAL_STORAGE'] ? $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' : $_ENV['HDK_URL'] . '/storage/uploads/logos/') . $objLogo->getFileName();
+			$aRet['width'] 	= $objLogo->getWidth();
+			$aRet['height'] = $objLogo->getHeight();
+            $aRet['filename'] = $objLogo->getFileName();
+		}
+        
+		return $aRet;
     }
 }
