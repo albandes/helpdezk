@@ -206,7 +206,7 @@ class Login extends Controller
         } else { 
 			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
 				$userStatus = $loginDAO->checkUser($login); 
-                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
+        if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
                     $msg = $langVars['Login_user_inactive'];
 				}elseif($userStatus->getUserStatus() == "A") 
                     $msg = $langVars['Login_error_error'];
