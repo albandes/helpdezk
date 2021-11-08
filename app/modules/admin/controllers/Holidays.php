@@ -6,6 +6,7 @@ use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\src\loginServices;
+use App\modules\admin\src\adminServices;
 use App\src\appServices;
 
 
@@ -26,7 +27,7 @@ class Holidays extends Controller
     {
         $params = $this->makeScreenHolidays();
 		
-		$params = $this->makeScreenAdmHome();
+		$params = $this->makeScreenHolidays();
 		
 		$this->view('admin','holidays',$params);
     }

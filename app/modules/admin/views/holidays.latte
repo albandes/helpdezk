@@ -20,11 +20,27 @@
                         </div>
 
                         <div class="ibox-content">
-
-                            <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='New'|translate}</button>
-                            <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{='edit'|translate}</button>
-                            <button id="btnImport"   type="button" class="btn btn-primary btn-xs"><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{='Holiday_import'|translate}</button>
-                            <button id="btnDelete" type="button" class="btn btn-primary btn-xs"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;{='Delete'|translate}</button>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-btn">
+                                            <button id="btnFilters" type="button" class="btn btn-warning"><i class="fa fa-filter" aria-hidden="true"></i></button>
+                                        </span>
+                                        <input type="text" id="txtSearch" name="txtSearch" class="form-control" placeholder="{='quick_search'|translate}">
+                                        <span class="input-group-btn">
+                                            <button id="btnSearch" type="button" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">
+                                    <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='New'|translate}</button>
+                                    <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{='edit'|translate}</button>
+                                    <button id="btnImport"   type="button" class="btn btn-primary btn-xs"><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{='Holiday_import'|translate}</button>
+                                    <button id="btnDelete" type="button" class="btn btn-primary btn-xs"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;{='Delete'|translate}</button>
+                                </div>                                
+                                
+                            </div>
+                            
 
                             <p></p>
 
@@ -47,5 +63,6 @@
 	<link href="{$path}/public/assets/css/gn-menu/css/component.css" rel="stylesheet" />
 	<script src="{$path}/public/assets/js/gnmenu/classie.js"></script>
     <script src="{$path}/public/assets/js/gnmenu/gnmenu.js"></script>
+    <script src="{$path}/app/modules/admin/views/js/holidays.js"></script>
 
 {/block}

@@ -1,6 +1,8 @@
-<nav class="navbar navbar-expand-sm static-top" role="navigation">
+
+
+<nav class="navbar navbar-expand-lg" role="navigation">
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"  aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -11,7 +13,7 @@
                     <div class="gn-scroller">
                         <ul class="gn-menu">
                         </ul>
-                    </div><!-- /gn-scroller -->
+                    </div> /gn-scroller 
                 </div>
             </li>
         </ul>
@@ -58,11 +60,11 @@
                         <ul class="dropdown-menu">
                         {foreach $listMenu_Adm as $k=>$v}
                             <li>
-                                <a class="dropdown-item" href="#">{$k}</a>
+                                <a class="dropdown-item" href="#">{$k} &raquo;</a>
                                 <ul class="submenu dropdown-menu">
                                 {foreach $v as $subk=>$subv}
                                 <li>
-                                    <a class="dropdown-item" href="#">{$subk}</a>
+                                    <a class="dropdown-item" href="#">{$subk} &raquo;</a>
                                     <ul class="submenu dropdown-menu">
                                     {foreach $subv as $subkl=>$subvl}
                                         <li><a class="dropdown-item" href="{$subvl['url']}">{$subvl['program_name']}</a></li>
@@ -71,7 +73,6 @@
                                 </li>
                                 {/foreach}
                                 </ul>
-                        </div>
                         {/foreach}
                         </ul>
                     </li>
@@ -81,23 +82,21 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">{='timeouttext'|translate}: <span id="numberCountdown"></span></li>
                 <li class="nav-item dropdown">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link  dropdown-toggle" href="#" data-bs-toggle="dropdown"> {$navlogin} </a>
-                        <ul class="dropdown-menu dropdown-menu-left">
-                            {if !$isroot}
-                                <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
-                                <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
-                                <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
-                            {else}
-                                <li><a href="#" id="btnEditRootPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
-                                <li>&nbsp;</li>
-                            {/if}
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a href="{$logout}" class="dropdown-item"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
-                            </li>
-                        </ul>
-                    </li>
+                    <a class="nav-link  dropdown-toggle" href="#" data-bs-toggle="dropdown"> {$navlogin} </a>
+                    <ul class="dropdown-menu dropdown-menu-left">
+                        {if !$isroot}
+                            <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
+                            <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
+                            <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                        {else}
+                            <li><a href="#" id="btnEditRootPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                            <li>&nbsp;</li>
+                        {/if}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a href="{$logout}" class="dropdown-item"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
             
