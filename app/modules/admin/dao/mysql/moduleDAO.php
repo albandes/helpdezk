@@ -248,4 +248,52 @@ class moduleDAO extends Database
         
         return $module;
     }
+
+    public function fetchExtraModulesPerson(int $userID): array
+    {        
+        $sql = "SELECT DISTINCT temp.idmodule, temp.name, temp.index, temp.path, temp.smarty, temp.class, temp.headerlogo,
+                        temp.reportslogo, temp.tableprefix
+                  FROM ((SELECT m.idmodule, m.name, m.index, m.path, m.smarty, m.class, m.headerlogo, m.reportslogo,  m.tableprefix
+                           FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc
+                          WHERE m.idmodule = cat.idmodule
+                            AND pr.idprogramcategory = cat.idprogramcategory
+                            AND per.idperson = p.idperson
+                            AND pr.idprogram = p.idprogram
+                            AND m.status = 'A'
+                            AND pr.status = 'A'
+                            AND p.idperson = :userID
+                            AND p.allow = 'Y'
+                            AND p.idaccesstype = acc.idaccesstype
+                            AND p.idaccesstype = '1'
+                            AND m.idmodule > 3
+                       GROUP BY m.idmodule)
+                          UNION
+                        (SELECT d.idmodule, d.name, d.index, d.path, d.smarty, d.class, d.headerlogo, d.reportslogo, d.tableprefix
+                           FROM tbtypepersonpermission a, tbprogram b, tbprogramcategory c, tbmodule d
+                          WHERE a.idtypeperson IN (SELECT idtypeperson FROM tbpersontypes WHERE idperson = :userID)
+                            AND a.allow = 'Y'
+                            AND d.status = 'A'
+                            AND d.idmodule > 3
+                            AND a.idprogram = b.idprogram
+                            AND c.idprogramcategory = b.idprogramcategory
+                            AND d.idmodule = c.idmodule
+                       GROUP BY d.idmodule)) AS temp";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':userID', $userID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return null;
+        }
+        
+        return $aRet;
+    }
 }

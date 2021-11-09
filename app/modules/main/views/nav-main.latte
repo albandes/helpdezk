@@ -1,5 +1,3 @@
-
-
 <nav class="navbar navbar-expand-lg" role="navigation">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"  aria-expanded="false" aria-label="Toggle navigation">
@@ -12,8 +10,43 @@
                 <div class="gn-menu-wrapper">
                     <div class="gn-scroller">
                         <ul class="gn-menu">
+                            {if $isroot}
+                                <li>
+                                    <a class="gn-icon" href="{$adminhome}">
+                                        <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
+                                        &nbsp;&nbsp;Admin
+                                    </a>
+                                </li>
+                            {else}
+                                {if $hashelpdezk }
+                                    <li>
+                                        <a class="gn-icon" href="{$helpdezkhome}">
+                                            <img style="max-width:100px;" src="{$headerlogo_url}"  >
+                                            &nbsp;&nbsp;HelpDEZK
+                                        </a>
+                                    </li>
+                                {/if}
+                                {if $hasadmin }
+
+                                    <li>
+                                        <a class="gn-icon" href="{$adminhome}">
+                                            <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
+                                            &nbsp;&nbsp;Admin
+                                        </a>
+                                    </li>
+                                {/if}
+                                {foreach from=$modules key=myId item=i}
+                                    <li>
+                                        <a class="gn-icon" href="{$path}/{$i.path}/home">
+                                            <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$i.headerlogo}"  >
+                                            &nbsp;&nbsp;{$i.varsmarty}
+                                        </a>
+                                    </li>
+                                {/foreach}
+
+                            {/if}
                         </ul>
-                    </div> /gn-scroller 
+                    </div><!-- /gn-scroller -->
                 </div>
             </li>
         </ul>

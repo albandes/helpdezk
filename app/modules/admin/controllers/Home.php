@@ -28,7 +28,12 @@ class Home extends Controller
 		$this->view('admin','main',$params);
 		
 	}
-
+	
+	/**
+	 *  en_us Configure program screens
+	 * 
+	 *  pt_br Configura as telas do programa
+	 */
 	public function makeScreenAdmHome()
     {
         $appSrc = new appServices();
