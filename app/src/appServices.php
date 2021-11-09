@@ -92,7 +92,8 @@ class appServices
             "cellphone_mask"    => $_ENV['CELLPHONE_MASK'],
             "mascdatetime"      => str_replace('%', '', "{$_ENV['DATE_FORMAT']} {$_ENV['HOUR_FORMAT']}"),
             "mascdate"          => str_replace('%', '', $_ENV['DATE_FORMAT']),
-            "timesession"       => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION']
+            "timesession"       => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
+            "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO'])
         );
     }
 
@@ -143,5 +144,39 @@ class appServices
 		}
         
 		return $aRet;
+    }
+
+    /**
+     * Returns modules data
+	 * 
+     * @return array 
+     */
+	public function _getModulesByUser(int $userID): array 
+    {
+        $aRet = [];
+		$moduleDAO = new moduleDao(); 
+        $aModule = $moduleDAO->fetchExtraModulesPerson($userID);
+        if(!is_null($aModule) && !empty($aModule)){
+            foreach($aModule as $k=>$v) {
+                $prefix = $v['tableprefix'];
+                if(!empty($prefix)) {
+                    $modSettings = $moduleDAO->fetchConfigDataByModule($prefix);
+                    if (!is_null($modSettings) && !empty($modSettings)){
+                        $aRet[] = array(
+                            'idmodule' => $v['idmodule'],
+                            'path' => $v['path'],
+                            'class' => $v['class'],
+                            'headerlogo' => $v['headerlogo'],
+                            'reportslogo' => $v['reportslogo'],
+                            'varsmarty' => $v['smarty']
+                        );
+                    }
+                }
+            }
+        }else{
+            return array();
+        }
+        
+        return $aRet;
     }
 }

@@ -27,8 +27,6 @@ class Holidays extends Controller
     {
         $params = $this->makeScreenHolidays();
 		
-		$params = $this->makeScreenHolidays();
-		
 		$this->view('admin','holidays',$params);
     }
 

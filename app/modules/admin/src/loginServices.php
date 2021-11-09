@@ -137,7 +137,7 @@ class loginServices
                     $prefix = $v['tableprefix'];
                     if(!empty($prefix)) {
                         $modSettings = $moduleDAO->fetchConfigDataByModule($prefix);
-                        if (!is_null($activeModules) && !empty($activeModules)){
+                        if (!is_null($modSettings) && !empty($modSettings)){
                             foreach($modSettings as $key=>$val) {
                                 $ses = $val['session_name'];
                                 $val = $val['value'];

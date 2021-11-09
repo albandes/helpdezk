@@ -291,7 +291,7 @@ class moduleDAO extends Database
         $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
         if(!$aRet){
-            return null;
+            return array();
         }
         
         return $aRet;

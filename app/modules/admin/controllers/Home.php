@@ -20,9 +20,6 @@ class Home extends Controller
 	 */
 	public function index()
 	{
-		$appSrc = new appServices();
-		$params = $appSrc->_getDefaultParams();
-		
 		$params = $this->makeScreenAdmHome();
 		
 		$this->view('admin','main',$params);
