@@ -488,7 +488,7 @@ body-small.fixed-sidebar.mini-navbar .top-navigation #page-wrapper {
   margin-left: 0 !important;
 }
 .top-navigation .wrapper.wrapper-content {
-  padding: 40px;
+  padding: 80px;
 }
 .top-navigation.body-small .wrapper.wrapper-content,
 .body-small .top-navigation .wrapper.wrapper-content {
@@ -498,7 +498,7 @@ body-small.fixed-sidebar.mini-navbar .top-navigation #page-wrapper {
 
 .navbar-toggle {
   background-color: #1ab394;
-  //background-color: #fff;
+  /*background-color: #fff;*/
   color: #fff;
   padding: 6px 12px;
   font-size: 14px;
@@ -5125,34 +5125,6 @@ select, #btnTimer,
 }	
 /* ============ small devices .end// ============ */
 
-
-/* sidebar menu */
-#offcanvasMenu ul li a {
-  font-size: 18px;
-  text-decoration: none;
-  display: block;
-  padding: 6px 10px;
-  transition: 0.5s;
-  color: #1ab394;
-}
-#offcanvasMenu ul li a:hover {
-  background-color: #eeeeee;
-  border-radius: 4px;
-}
-#offcanvasMenu .offcanvas {
-  width: 320px;
-  border: none;
-}
-#offcanvasMenu .offcanvas ul li a span {
-  font-size: 12px;
-  position: relative;
-  top: -4px;
-  transition: 0.5s;
-}
-#offcanvasMenu .offcanvas.show ul li a:hover span {
-  padding-left: 10px;
-}
-#offcanvasMenu .dropdown-toggle::after {
-  position: relative;
-  top: 3px;
+.navbar .navbar-light{
+  background-color: #ffffff;
 }

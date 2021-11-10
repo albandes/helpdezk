@@ -1,15 +1,10 @@
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="offcanvasMenuLabel">&nbsp;</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
+<div id="sideNav">
     <ul class="navbar-nav">
     {if $isroot}
         <li>
             <a href="{$adminhome}">
                 <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
-                &nbsp;&nbsp;<span class="item-text">Admin</span>
+                &nbsp;&nbsp;<span>Admin</span>
             </a>
         </li>
     {else}
@@ -17,7 +12,7 @@
         <li>
             <a href="{$helpdezkhome}">
                 <img style="max-width:60px;" src="{$headerlogo_url}"  >
-                &nbsp;&nbsp;<span class="item-text">HelpDEZK</span>
+                &nbsp;&nbsp;<span>HelpDEZK</span>
             </a>
         </li>
         {/if}
@@ -25,7 +20,7 @@
         <li>
             <a href="{$adminhome}">
                 <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
-                &nbsp;&nbsp;<span class="item-text">Admin</span>
+                &nbsp;&nbsp;<span>Admin</span>
             </a>
         </li>
         {/if}
@@ -33,25 +28,25 @@
         <li>
             <a href="{$path}/{$i['path']}/home">
                 <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
-                &nbsp;&nbsp;<span class="item-text">{$i['varsmarty']}</span>
+                &nbsp;&nbsp;<span>{$i['varsmarty']}</span>
             </a>
         </li>
         {/foreach}
 
     {/if}
     </ul>
-  </div>
 </div>
 
-<nav class="navbar navbar-expand-lg" role="navigation">
+<nav id=""class="navbar fixed-top navbar-expand-lg navbar-light" role="navigation">
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"  aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbar">
-            <i class="btn fa fa-bars fa-2x text-navy" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu"></i>
-            
+            <!--<i class="btn fa fa-bars fa-2x text-navy" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu"></i>-->
+            <i class="btn fa fa-bars fa-2x text-navy" id="btn-menu"></i>
+
             <!-- active module -->
             <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$moduleLogo_url}" height="{$headerheight}px" width="{$headerwidth}px"  > </a>
 
