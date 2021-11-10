@@ -1,44 +1,45 @@
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
+    <h5 class="offcanvas-title" id="offcanvasMenuLabel">&nbsp;</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
+    <ul class="navbar-nav">
     {if $isroot}
         <li>
-            <a class="gn-icon" href="{$adminhome}">
-                <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
-                &nbsp;&nbsp;Admin
+            <a href="{$adminhome}">
+                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
+                &nbsp;&nbsp;<span class="item-text">Admin</span>
             </a>
         </li>
     {else}
         {if $hashelpdezk }
-            <li>
-                <a class="gn-icon" href="{$helpdezkhome}">
-                    <img style="max-width:100px;" src="{$headerlogo_url}"  >
-                    &nbsp;&nbsp;HelpDEZK
-                </a>
-            </li>
+        <li>
+            <a href="{$helpdezkhome}">
+                <img style="max-width:60px;" src="{$headerlogo_url}"  >
+                &nbsp;&nbsp;<span class="item-text">HelpDEZK</span>
+            </a>
+        </li>
         {/if}
         {if $hasadmin }
-
-            <li>
-                <a class="gn-icon" href="{$adminhome}">
-                    <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
-                    &nbsp;&nbsp;Admin
-                </a>
-            </li>
+        <li>
+            <a href="{$adminhome}">
+                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
+                &nbsp;&nbsp;<span class="item-text">Admin</span>
+            </a>
+        </li>
         {/if}
         {foreach $modules as $myId=>$i}
-            <li>
-                <a class="gn-icon" href="{$path}/{$i['path']}/home">
-                    <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
-                    &nbsp;&nbsp;{$i['varsmarty']}
-                </a>
-            </li>
+        <li>
+            <a href="{$path}/{$i['path']}/home">
+                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
+                &nbsp;&nbsp;<span class="item-text">{$i['varsmarty']}</span>
+            </a>
+        </li>
         {/foreach}
 
     {/if}
+    </ul>
   </div>
 </div>
 
@@ -49,55 +50,8 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbar">
-            <button class="btn btn-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
-                <i class="fa fa-bars text-success"></i>
-            </button>
-            <ul id="gn-menu" class="navbar-nav gn-menu-main">
-                <li class="gn-trigger">
-                    <a class="gn-icon gn-icon-menu"><span>Menu</span></a>
-                    <div class="gn-menu-wrapper">
-                        <div class="gn-scroller">
-                            <ul class="gn-menu">
-                                {if $isroot}
-                                    <li>
-                                        <a class="gn-icon" href="{$adminhome}">
-                                            <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
-                                            &nbsp;&nbsp;Admin
-                                        </a>
-                                    </li>
-                                {else}
-                                    {if $hashelpdezk }
-                                        <li>
-                                            <a class="gn-icon" href="{$helpdezkhome}">
-                                                <img style="max-width:100px;" src="{$headerlogo_url}"  >
-                                                &nbsp;&nbsp;HelpDEZK
-                                            </a>
-                                        </li>
-                                    {/if}
-                                    {if $hasadmin }
-
-                                        <li>
-                                            <a class="gn-icon" href="{$adminhome}">
-                                                <img style="max-width:60px;" src="{$path}/app/uploads/logos/{$adminlogo}"  >
-                                                &nbsp;&nbsp;Admin
-                                            </a>
-                                        </li>
-                                    {/if}
-                                    {foreach $modules as $myId=>$i}
-                                        <li>
-                                            <a class="gn-icon" href="{$path}/{$i['path']}/home">
-                                                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
-                                                &nbsp;&nbsp;{$i['varsmarty']}
-                                            </a>
-                                        </li>
-                                    {/foreach}
-
-                                {/if}
-                            </ul>
-                        </div><!-- /gn-scroller -->
-                    </div>
-                </li>
-            </ul>
+            <i class="btn fa fa-bars fa-2x text-navy" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu"></i>
+            
             <!-- active module -->
             <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$moduleLogo_url}" height="{$headerheight}px" width="{$headerwidth}px"  > </a>
 
@@ -128,7 +82,6 @@
             <ul class="navbar-nav">
                 <!-- Modules Menu -->
                 {$listMenu_1}
-
             </ul>
 
             {if $displayMenu_Adm == 1}
@@ -139,14 +92,14 @@
                         <ul class="dropdown-menu">
                         {foreach $listMenu_Adm as $k=>$v}
                             <li>
-                                <a class="dropdown-item" href="#">{$k} &raquo;</a>
+                                <a class="dropdown-item" href="#">{=$k|translate} <i class="fa fa-caret-right text-end"></i></a>
                                 <ul class="submenu dropdown-menu">
                                 {foreach $v as $subk=>$subv}
                                 <li>
-                                    <a class="dropdown-item" href="#">{$subk} &raquo;</a>
+                                    <a class="dropdown-item" href="#">{=$subk|translate} <i class="fa fa-caret-right"></i></a>
                                     <ul class="submenu dropdown-menu">
                                     {foreach $subv as $subkl=>$subvl}
-                                        <li><a class="dropdown-item" href="{$subvl['url']}">{$subvl['program_name']}</a></li>
+                                        <li><a class="dropdown-item" href="{$subvl['url']}">{=$subvl['program_name']|translate}</a></li>
                                     {/foreach}
                                     </ul>
                                 </li>
