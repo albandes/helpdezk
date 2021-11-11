@@ -80,6 +80,7 @@ class appServices
             "demoVersion" 	    => empty($_ENV['DEMO']) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
             "isroot"            => ($_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
             "hasadmin"          => ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) ? true : false,
+            "navlogin"          => ($_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
             "adminhome"         => $_ENV['HDK_URL'].'/admin/home/index',
             "adminlogo"         => 'adm_header.png',
             "hashelpdezk"       => $loginSrc->_isActiveHelpdezk(),
@@ -146,11 +147,15 @@ class appServices
 		return $aRet;
     }
 
-    /**
-     * Returns modules data
-	 * 
-     * @return array 
-     */
+	
+	/**
+	 * en_us Returns an array with module data for the side menu
+     *
+     * pt_br Retorna um array com os dados dos módulos para o menu lateral
+	 *
+	 * @param  int $userID
+	 * @return array
+	 */
 	public function _getModulesByUser(int $userID): array 
     {
         $aRet = [];
@@ -178,5 +183,42 @@ class appServices
         }
         
         return $aRet;
+    }
+
+    /**
+     * en_us Check if the user is logged in
+     *
+     * pt_br Verifica se o usuário está logado
+     *
+     * @param  mixed $mob
+     * @return void
+     * 
+     * @since November 03, 2017
+     */
+    public function _sessionValidate($mob=null) {
+        if (!isset($_SESSION['SES_COD_USUARIO'])) {
+            if($mob){
+                echo 1;
+            }else{
+                $this->_sessionDestroy();
+                header('Location:' . $_ENV['HDK_URL'] . '/admin/login');
+            }
+        }
+    }
+        
+    /**
+     * en_us Clear the session variable
+     *
+     * pt_br Limpa a variável de sessão
+     * 
+     * @return void
+     * 
+     * @since November 03, 2017
+     */
+    public function _sessionDestroy()
+    {
+        session_start();
+        session_unset();
+        session_destroy();
     }
 }

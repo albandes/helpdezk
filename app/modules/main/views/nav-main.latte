@@ -37,7 +37,7 @@
     </ul>
 </div>
 
-<nav id=""class="navbar fixed-top navbar-expand-lg navbar-light" role="navigation">
+<nav id=""class="navbar fixed-top navbar-expand-lg navbar-light bg-white" role="navigation">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -107,10 +107,10 @@
             {/if}
 
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">{='timeouttext'|translate}: <span id="numberCountdown"></span></li>
+                <li class="nav-item nav-text"><a class="nav-link" href="#">{='timeouttext'|translate}: <span id="numberCountdown"></span></a></li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-bs-toggle="dropdown"> {$navlogin} </a>
-                    <ul class="dropdown-menu dropdown-menu-left">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"> {$navlogin} </a>
+                    <ul class="dropdown-menu animated fadeInRigth">
                         {if !$isroot}
                             <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
                             <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>

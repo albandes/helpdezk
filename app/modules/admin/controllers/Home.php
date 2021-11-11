@@ -9,6 +9,9 @@ class Home extends Controller
 	public function __construct()
     {
         parent::__construct();
+
+		$appSrc = new appServices();
+		$appSrc->_sessionValidate();
 		
         
     }
