@@ -39,13 +39,12 @@
 
 <nav id=""class="navbar fixed-top navbar-expand-lg navbar-light bg-white" role="navigation">
     <div class="container-fluid">
+        <i class="btn fa fa-bars fa-2x text-navy" id="btn-menu"></i>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbar">
-            <!--<i class="btn fa fa-bars fa-2x text-navy" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu"></i>-->
-            <i class="btn fa fa-bars fa-2x text-navy" id="btn-menu"></i>
+        <div class="collapse navbar-collapse" id="navbar">            
 
             <!-- active module -->
             <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$moduleLogo_url}" height="{$headerheight}px" width="{$headerwidth}px"  > </a>
@@ -109,8 +108,8 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item nav-text"><a class="nav-link" href="#">{='timeouttext'|translate}: <span id="numberCountdown"></span></a></li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"> {$navlogin} </a>
-                    <ul class="dropdown-menu animated fadeInRigth">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><strong>{$navlogin}</strong></a>
+                    <ul class="dropdown-menu dropdown-menu-end">
                         {if !$isroot}
                             <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
                             <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
