@@ -2,12 +2,12 @@
 
 use App\core\Controller;
 
-use App\modules\admin\dao\mysql\loginDAO;
-use App\modules\admin\dao\mysql\featureDAO;
-use App\modules\admin\dao\mysql\personDAO;
-use App\modules\admin\src\loginServices;
+
+use App\modules\admin\dao\mysql\holidayDAO;
+
 use App\modules\admin\src\adminServices;
 use App\src\appServices;
+use App\src\localeServices;
 
 
 class Holidays extends Controller
@@ -30,6 +30,11 @@ class Holidays extends Controller
 		$this->view('admin','holidays',$params);
     }
 
+    /**
+	 *  en_us Configure program screens
+	 * 
+	 *  pt_br Configura as telas do programa
+	 */
     public function makeScreenHolidays()
     {
         $appSrc = new appServices();
@@ -39,5 +44,39 @@ class Holidays extends Controller
 		
         return $params;
     }
+
+    public function jsonGrid()
+    {
+        $translator = new localeServices();
+        $holidayDao = new holidayDao();
+        $holidays = $holidayDao->fetchHolidays();
+        //echo "",print_r($_GET),"\n";
+        if(!is_null($holidays) && !empty($holidays)){
+            foreach($holidays as $k=>$v) {
+                if(isset($v['idperson'])){
+                    $type_holiday = $v['name'];
+                }else{
+                    $type_holiday = $translator->translate('National_holiday');
+                }
+
+                $data[] = array(
+                    'id'                  => $v['idholiday'],
+                    'holiday_description' => $v['holiday_description'],
+                    'holiday_date'        => $v['holiday_date'],
+                    'company'             => $type_holiday
+    
+                );
+            }
+            
+            echo json_encode($data);
+        }else{
+            echo json_encode(array());
+        }
+        
+
+        
+    }
+
+
 
 }
