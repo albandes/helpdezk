@@ -488,7 +488,7 @@ body-small.fixed-sidebar.mini-navbar .top-navigation #page-wrapper {
   margin-left: 0 !important;
 }
 .top-navigation .wrapper.wrapper-content {
-  padding: 40px;
+  padding: 80px;
 }
 .top-navigation.body-small .wrapper.wrapper-content,
 .body-small .top-navigation .wrapper.wrapper-content {
@@ -498,7 +498,7 @@ body-small.fixed-sidebar.mini-navbar .top-navigation #page-wrapper {
 
 .navbar-toggle {
   background-color: #1ab394;
-  //background-color: #fff;
+  /*background-color: #fff;*/
   color: #fff;
   padding: 6px 12px;
   font-size: 14px;
@@ -5091,3 +5091,36 @@ select, #btnTimer,
   border: 1px solid transparent;
   border-radius: 4px;
 }
+
+/* multilevel dropdown menu*/
+/* ============ desktop view ============ */
+@media all and (min-width: 992px) {
+
+	.dropdown-menu li{
+		position: relative;
+	}
+	.dropdown-menu .submenu{ 
+		display: none;
+		position: absolute;
+		left:100%; top:-7px;
+	}
+	.dropdown-menu .submenu-left{ 
+		right:100%; left:auto;
+	}
+
+	.dropdown-menu > li:hover{ background-color: #f1f1f1 }
+	.dropdown-menu > li:hover > .submenu{
+		display: block;
+	}
+}	
+/* ============ desktop view .end// ============ */
+
+/* ============ small devices ============ */
+@media (max-width: 991px) {
+
+.dropdown-menu .dropdown-menu{
+		margin-left:0.7rem; margin-right:0.7rem; margin-bottom: .5rem;
+}
+
+}	
+/* ============ small devices .end// ============ */

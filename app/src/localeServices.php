@@ -11,9 +11,10 @@ class localeServices implements Translator{
 	 * @param  mixed  ...$parameters
 	 */
 	function translate($message, ...$parameters): string{
-		/*$retDAO = new VocabularyDAO(); 
-		$ret = $retDAO->getVocabulary($message,$_ENV['LANG']);
-		echo "<pre>",print_r($ret,true),"</pre>";*/
-        return $message;
+		$lang = (!isset($parameters['lang'])) ? $_ENV['DEFAULT_LANG'] : $parameters['lang'];
+		$vocabularyDAO = new vocabularyDAO(); 
+		$translate = $vocabularyDAO->getVocabulary($message,$lang);
+		
+        return (!is_null($translate) && !empty($translate)) ? $translate->getKeyValue() : $message;
     }
 }

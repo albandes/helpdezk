@@ -11,8 +11,9 @@ use Monolog\Formatter\LineFormatter;
 
 
 /**
-* Esta classe é responsável por instanciar um model e chamar a view correta
-* passando os dados que serão usados.
+* en_us This class is responsible for instantiating a model and calling the correct view passing the data that will be used.
+* 
+* pt_br Esta classe é responsável por instanciar um model e chamar a view correta passando os dados que serão usados.
 */
 class Controller
 {

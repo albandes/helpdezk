@@ -23,7 +23,7 @@ class Database
 
     public function __construct()
     {
-        // Quando essa classe é instanciada, é atribuido a variável $db a conexão com o db
+        // When this class is instantiated, the variable $db is assigned the connection to the db
         $this->DB_NAME = $_ENV['DB_NAME'];
         $this->DB_USER = $_ENV['DB_USERNAME'];
         $this->DB_PASSWORD = $_ENV['DB_PASSWORD'];

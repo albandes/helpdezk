@@ -1,97 +1,130 @@
-<nav class="navbar navbar-expand-sm static-top" role="navigation">
+<div id="sideNav">
+    <ul class="navbar-nav">
+    {if $isroot}
+        <li>
+            <a href="{$adminhome}">
+                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
+                &nbsp;&nbsp;<span>Admin</span>
+            </a>
+        </li>
+    {else}
+        {if $hashelpdezk }
+        <li>
+            <a href="{$helpdezkhome}">
+                <img style="max-width:60px;" src="{$headerlogo_url}"  >
+                &nbsp;&nbsp;<span>HelpDEZK</span>
+            </a>
+        </li>
+        {/if}
+        {if $hasadmin }
+        <li>
+            <a href="{$adminhome}">
+                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
+                &nbsp;&nbsp;<span>Admin</span>
+            </a>
+        </li>
+        {/if}
+        {foreach $modules as $myId=>$i}
+        <li>
+            <a href="{$path}/{$i['path']}/home">
+                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
+                &nbsp;&nbsp;<span>{$i['varsmarty']}</span>
+            </a>
+        </li>
+        {/foreach}
+
+    {/if}
+    </ul>
+</div>
+
+<nav id=""class="navbar fixed-top navbar-expand-lg navbar-light bg-white" role="navigation">
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+        <i class="btn fa fa-bars fa-2x text-navy" id="btn-menu"></i>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
 
-        <ul id="gn-menu" class="navbar-nav gn-menu-main">
-            <li class="gn-trigger">
-                <a class="gn-icon gn-icon-menu "><span>Menu</span></a>
-                <div class="gn-menu-wrapper">
-                    <div class="gn-scroller">
-                        <ul class="gn-menu">
-                        </ul>
-                    </div><!-- /gn-scroller -->
-                </div>
-            </li>
-        </ul>
+        <div class="collapse navbar-collapse" id="navbar">            
 
-        <div class="collapse navbar-collapse" id="navbar">
             <!-- active module -->
             <a class="nav navbar-nav" href="{$path}/{$modulePath}/home" ><img style="max-width:90px; margin-top: 5px;" src="{$moduleLogo_url}" height="{$headerheight}px" width="{$headerwidth}px"  > </a>
 
             {if $featured_1 == 1}
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
                         <a aria-expanded="false" role="button" href="{$lnk_featured_1}"> {$featured_label_1} </a>
                     </li>
                 </ul>
             {/if}
 
             {if $featured_2 == 1}
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
                         <a aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_2}"> {$featured_label_2} </a>
                     </li>
                 </ul>
             {/if}
 
             {if $featured_3 == 1}
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
                         <a aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_3}"> {$featured_label_3} </a>
                     </li>
                 </ul>
             {/if}
 
-            <ul class="nav navbar-nav">
+            <ul class="navbar-nav">
                 <!-- Modules Menu -->
                 {$listMenu_1}
-
             </ul>
 
             {if $displayMenu_Adm == 1}
-                <ul class="nav navbar-nav">
+                <ul class="navbar-nav">
                     <!-- Admin Menu  -->
                     <li class='nav-item dropdown'>
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {='Modules'|translate}<span class='caret'></span>
-                        </a>
-                        <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="navbarDropdown">
-                            {$listMenu_Adm}
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"> {='Modules'|translate} </a>
+                        <ul class="dropdown-menu">
+                        {foreach $listMenu_Adm as $k=>$v}
+                            <li>
+                                <a class="dropdown-item" href="#">{=$k|translate} <i class="fa fa-caret-right text-end"></i></a>
+                                <ul class="submenu dropdown-menu">
+                                {foreach $v as $subk=>$subv}
+                                <li>
+                                    <a class="dropdown-item" href="#">{=$subk|translate} <i class="fa fa-caret-right"></i></a>
+                                    <ul class="submenu dropdown-menu">
+                                    {foreach $subv as $subkl=>$subvl}
+                                        <li><a class="dropdown-item" href="{$subvl['url']}">{=$subvl['program_name']|translate}</a></li>
+                                    {/foreach}
+                                    </ul>
+                                </li>
+                                {/foreach}
+                                </ul>
+                        {/foreach}
                         </ul>
                     </li>
                 </ul>
             {/if}
 
-            <span class="navbar-text">
-                {='timeouttext'|translate}: <span id="numberCountdown"></span>
-            </span>
-            <span class="navbar-text me-2">
-                <ul class="nav navbar-nav">
-                   <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="text-muted text-xs block">{$navlogin} <b class="caret"></b></span>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs" aria-labelledby="navbarDropdown">
-                            {if !$isroot}
-                                <li><a href="#" class="btnEditUserProfile dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
-                                <li><a href="#" id="btnEditUserConfigExternal dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
-                                <li><a href="#" class="btnEditUserPass dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
-                            {else}
-                                <li><a href="#" class="btnEditRootPass dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
-                                <li>&nbsp;</li>
-                            {/if}
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a href="{$logout}"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
-                            </li>
-                        </ul>
-                    </li>
-
-
-                </ul>
-            </span>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item nav-text"><a class="nav-link" href="#">{='timeouttext'|translate}: <span id="numberCountdown"></span></a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><strong>{$navlogin}</strong></a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {if !$isroot}
+                            <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
+                            <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
+                            <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                        {else}
+                            <li><a href="#" id="btnEditRootPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                            <li>&nbsp;</li>
+                        {/if}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a href="{$logout}" class="dropdown-item"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
             
         </div>
     </div>    

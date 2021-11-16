@@ -5,8 +5,10 @@ use App\core\Controller;
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\personDAO;
+
 use App\modules\admin\src\loginServices;
 use App\src\appServices;
+use App\src\localeServices;
 
 
 class Login extends Controller
@@ -33,6 +35,11 @@ class Login extends Controller
         $this->view('admin','login',$params);
     }
 
+    /**
+	 *  en_us Configure program screens
+	 * 
+	 *  pt_br Configura as telas do programa
+	 */
     public function makeScreenLogin()
     {
         $loginSrc = new loginServices();
@@ -64,6 +71,7 @@ class Login extends Controller
         $featDAO = new featureDAO();
         $loginSrc = new loginServices();
         $appSrc = new appServices();
+        $translator = new localeServices();
         
         $loginType = $loginDAO->getLoginType($frm_login);
         
@@ -71,7 +79,7 @@ class Login extends Controller
             // Return with error message
             $success = array(
                 "success" => 0,
-                "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
+                "msg" => html_entity_decode($translator->translate('Login_user_not_exist'),ENT_COMPAT, 'UTF-8')
             );
             echo json_encode($success);
             return;
@@ -206,10 +214,10 @@ class Login extends Controller
         } else { 
 			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
 				$userStatus = $loginDAO->checkUser($login); 
-        if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
-                    $msg = $langVars['Login_user_inactive'];
+                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
+                    $msg = $translator->translate('Login_user_inactive');
 				}elseif($userStatus->getUserStatus() == "A") 
-                    $msg = $langVars['Login_error_error'];
+                    $msg = $translator->translate('Login_error_error');
 			}
 			$success = array("success" => 0,
 							 "msg" => $msg );

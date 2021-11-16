@@ -20,18 +20,47 @@
                         </div>
 
                         <div class="ibox-content">
-
-                            <button id="btnCreate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='New'|translate}</button>
-                            <button id="btnUpdate" type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{='edit'|translate}</button>
-                            <button id="btnImport"   type="button" class="btn btn-primary btn-xs"><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{='Holiday_import'|translate}</button>
-                            <button id="btnDelete" type="button" class="btn btn-primary btn-xs"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;{='Delete'|translate}</button>
-
-                            <p></p>
-
-                            <div class="jqGrid_wrapper">
-                                <table id="table_list_holidays"></table>
-                                <div id="pager_list_holidays"></div>
+                            <div class="row">
+                                <!--<div class="col-sm-5">
+                                </div>-->
+                                <div class="col-sm-7">
+                                    <button id="btnCreate" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='New'|translate}</button>
+                                    <button id="btnUpdate" type="button" class="btn btn-primary btn-sm"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{='edit'|translate}</button>
+                                    <button id="btnImport"   type="button" class="btn btn-primary btn-sm"><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{='Holiday_import'|translate}</button>
+                                    <button id="btnDelete" type="button" class="btn btn-primary btn-sm"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;{='Delete'|translate}</button>
+                                </div>                                
+                                
                             </div>
+                            <div id="toolbar" class="row">
+                                <div class="input-group input-group-sm mb-3">
+                                    <button id="btnFilters" class="btn btn-warning" type="button"><i class="fa fa-filter"></i></button>
+                                    <input type="text" id="txtSearch" name="txtSearch" class="form-control form-control-sm" placeholder="{='quick_search'|translate}">
+                                    <button id="btnSearch" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+
+                            <table
+                                id="holidaysList"
+                                data-toolbar="#toolbar"
+                                data-show-refresh="true"
+                                data-show-toggle="true"
+                                data-show-fullscreen="true"
+                                data-show-columns="true"
+                                data-show-columns-toggle-all="true"
+                                data-show-export="true"
+                                data-click-to-select="true"
+                                data-detail-formatter="detailFormatter"
+                                data-minimum-count-columns="2"
+                                data-show-pagination-switch="true"
+                                data-pagination="true"
+                                data-id-field="id"
+                                data-page-list="[10, 25, 50, 100, all]"
+                                data-show-footer="true"
+                                data-side-pagination="server"
+                                data-url="{$path}/admin/holidays/jsonGrid"
+                                data-response-handler="responseHandler">
+                                
+                            </table>
 
                         </div>
                     </div>
@@ -42,10 +71,10 @@
         {include $footer}	
 	</div>
 </body>
-
-	<!-- menu -->
-	<link href="{$path}/public/assets/css/gn-menu/css/component.css" rel="stylesheet" />
-	<script src="{$path}/public/assets/js/gnmenu/classie.js"></script>
+    <link href="{$path}/public/assets/css/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+	<link href="{$path}/public/assets/css/bootstrap-table/bootstrap-table.min.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/js/bootstrap-table/bootstrap-table.js"></script>
     <script src="{$path}/public/assets/js/gnmenu/gnmenu.js"></script>
+    <script src="{$path}/app/modules/admin/views/js/holidays.js"></script>
 
 {/block}

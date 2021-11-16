@@ -23,6 +23,23 @@
 	<!-- js -->
 	<script src="{$path}/public/assets/js/default.js"></script>
 
+	<!-- menu -->
+	<link rel="stylesheet" href="{$path}/public/assets/css/gnmenu/gnmenu.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/js/gnmenu/gnmenu.js"></script>
+	<script src="{$path}/app/modules/admin/views/js/home.js"></script>
+
+	<script type="text/javascript">
+		var default_lang   = {$lang_default},
+			path           = {$path},
+			timesession    = {$timesession},
+			id_mask        = {$id_mask},
+			ein_mask       = {$ein_mask},
+			zip_mask       = {$zip_mask},
+			phone_mask     = {$phone_mask},
+			cellphone_mask = {$cellphone_mask},
+			demoVersion    = {$demoVersion};
+	</script>
+
 </head>
 
 {block content}{/block}

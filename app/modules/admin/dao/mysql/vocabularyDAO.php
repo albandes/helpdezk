@@ -1,7 +1,9 @@
 <?php
 
 namespace App\modules\admin\dao\mysql;
+
 use App\core\Database;
+use App\modules\admin\models\mysql\vocabularyModel;
 
 class vocabularyDAO extends Database
 {
@@ -10,7 +12,7 @@ class vocabularyDAO extends Database
         parent::__construct(); 
     }
 
-    public function getVocabulary(string $keyName, string $locale): array
+    public function getVocabulary(string $keyName, string $locale): ?vocabularyModel
     {
 
         $sql = "SELECT idvocabulary, key_name, key_value
@@ -25,11 +27,21 @@ class vocabularyDAO extends Database
             $stmt->bindParam(':locale', $locale);
             $stmt->execute();
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $this->loggerDB->error("Error getting vocabulary ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC); 
 
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        if(!$aRet){
+            return null;
+        }
+
+        $vocabulary = new vocabularyModel(); 
+        $vocabulary->setIdvocabulary($aRet['idvocabulary'])
+                   ->setKeyName($aRet['key_name'])
+                   ->setKeyValue($aRet['key_value']); 
+        
+        return $vocabulary;
     }
 }

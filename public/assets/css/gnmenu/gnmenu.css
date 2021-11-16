@@ -1,0 +1,169 @@
+/************************************************************************************
+*
+* Google Nexus Menu
+*
+/************************************************************************************/
+
+
+html.cursor { cursor: pointer; }
+
+#sideNav a {
+  color: #1ab394;
+  text-decoration: none;
+  display: block;
+  padding: 10px 30px;
+  height: 80%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  line-height: 35px;
+}
+
+#sideNav a:hover {
+  color: #ffffff;
+  background-color: #1ab394;
+}
+
+#sideNav,  #sideNav.showHalfMenu,  #sideNav.showFullMenu,  #sideNav ul ul li,  #sideNav.showFullMenu ul ul li {
+  -webkit-transition: 0.2s ease;
+  -moz-transition: 0.2s ease;
+  -ms-transition: 0.2s ease;
+  transition: 0.2s ease;
+}
+
+#sideNav {
+  position: fixed;
+  left: -60px;
+  top: 59px;
+  width: 60px;
+  height: 100%;
+  /* 		border-right:1px solid #ddd;						 */
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+#sideNav.showHalfMenu { left: 0; }
+
+#sideNav.showFullMenu {
+  left: 0;
+  width: 311px;
+}
+
+#sideNav.showFullMenu ul ul li { height: 59px; }
+
+#sideNav > ul {
+  width: 100%;
+  padding-bottom: 60px;
+}
+
+#sideNav ul li {
+  width: 100%;
+  margin: 0;
+  font-weight: 300;
+}
+
+#sideNav ul li a {
+  border-bottom: 1px solid #ddd;
+  padding-left: 70px;
+}
+
+#sideNav ul li span {
+  position: relative;
+  top: 3px;
+  font-size: 20px;
+}
+
+#sideNav ul ul li {
+  overflow: hidden;
+  height: 0;
+}
+
+#sideNav input.search {
+  font-family: 'Roboto', sans-serif;
+  border: 0;
+  outline: 0;
+  font-weight: 300;
+  background: transparent;
+  color: #5b6064;
+}
+ input.search::-webkit-input-placeholder {
+ color:#5b6064;
+}
+ input.search:-moz-placeholder {
+ color:#5b6064;
+}
+ input.search::-moz-placeholder {
+ color:#5b6064;
+}
+ input.search:-ms-input-placeholder {
+ color:#5b6064;
+}
+ #sideNav li.searchForm:hover input.search:focus,  #sideNav li.searchForm:hover input.search::-webkit-input-placeholder {
+ color:#fff;
+}
+ #sideNav li.searchForm:hover input.search:-moz-placeholder {
+ color:#fff;
+}
+ #sideNav li.searchForm:hover input.search::-moz-placeholder {
+ color:#fff;
+}
+
+/************************************************************************************
+*
+* Menu Icons
+*
+/************************************************************************************/		
+		
+
+.icon { background: transparent url('../img/icons.png') no-repeat 0 0; }
+
+.icon-menu {
+  text-indent: -99999em;
+  background-position: 0 0;
+}
+
+.icon-menu:hover { background-position: -59px 0; }
+
+.icon-menu.icon-menu-active {
+  background-position: -120px 0;
+  background-color: #fff;
+}
+
+.icon-search { background-position: 0 -60px; }
+
+.icon-search:hover { background-position: -59px -60px; }
+
+.icon-home { background-position: 0 -120px; }
+
+.icon-home:hover { background-position: -58px -120px; }
+
+.icon-articles { background-position: 0 -180px; }
+
+.icon-articles:hover { background-position: -58px -180px; }
+
+.icon-social { background-position: 0 -240px; }
+
+.icon-social:hover { background-position: -58px -240px; }
+
+nav #btn-menu:hover {
+    color: #ffffff;
+    background-color: #1ab394;
+}
+		
+/************************************************************************************
+*
+* Responsive
+*
+/************************************************************************************/		
+
+/*------------------------------------------------------------------*/ 
+/*	2) Note: Design for a width of 480 px
+/*------------------------------------------------------------------*/
+@media only screen and (min-width: 200px) and (max-width: 480px) {
+
+nav a,  #sideNav a { padding: 10px 15px; }
+
+nav a#btn-menu { padding: 10px 30px; }
+
+#sideNav.showFullMenu,  #sideNav.showFullMenu li,  #sideNav.showFullMenu a { width: 100%; }
+}
