@@ -21,8 +21,13 @@
 
                         <div class="ibox-content">
                             <div class="row">
-                                <!--<div class="col-sm-5">
-                                </div>-->
+                                <div class="col-sm-5">
+                                    <div class="input-group input-group-sm mb-3">
+                                        <button id="btnFilters" class="btn btn-warning" type="button"><i class="fa fa-filter"></i></button>
+                                        <input type="text" id="txtSearch" name="txtSearch" class="form-control form-control-sm" placeholder="{='quick_search'|translate}">
+                                        <button id="btnSearch" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
+                                    </div>
+                                </div>
                                 <div class="col-sm-7">
                                     <button id="btnCreate" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='New'|translate}</button>
                                     <button id="btnUpdate" type="button" class="btn btn-primary btn-sm"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;{='edit'|translate}</button>
@@ -31,36 +36,8 @@
                                 </div>                                
                                 
                             </div>
-                            <div id="toolbar" class="row">
-                                <div class="input-group input-group-sm mb-3">
-                                    <button id="btnFilters" class="btn btn-warning" type="button"><i class="fa fa-filter"></i></button>
-                                    <input type="text" id="txtSearch" name="txtSearch" class="form-control form-control-sm" placeholder="{='quick_search'|translate}">
-                                    <button id="btnSearch" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
-                                </div>
-                            </div>
 
-                            <table
-                                id="holidaysList"
-                                data-toolbar="#toolbar"
-                                data-show-refresh="true"
-                                data-show-toggle="true"
-                                data-show-fullscreen="true"
-                                data-show-columns="true"
-                                data-show-columns-toggle-all="true"
-                                data-show-export="true"
-                                data-click-to-select="true"
-                                data-detail-formatter="detailFormatter"
-                                data-minimum-count-columns="2"
-                                data-show-pagination-switch="true"
-                                data-pagination="true"
-                                data-id-field="id"
-                                data-page-list="[10, 25, 50, 100, all]"
-                                data-show-footer="true"
-                                data-side-pagination="server"
-                                data-url="{$path}/admin/holidays/jsonGrid"
-                                data-response-handler="responseHandler">
-                                
-                            </table>
+                            <div id="grid_holidays" style="margin:auto;"></div>
 
                         </div>
                     </div>
@@ -71,10 +48,19 @@
         {include $footer}	
 	</div>
 </body>
-    <link href="{$path}/public/assets/css/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
-	<link href="{$path}/public/assets/css/bootstrap-table/bootstrap-table.min.css" rel="stylesheet" />
-	<script src="{$path}/public/assets/js/bootstrap-table/bootstrap-table.js"></script>
-    <script src="{$path}/public/assets/js/gnmenu/gnmenu.js"></script>
+
+    <!--ParamQuery Grid css files-->
+    <link rel="stylesheet" href="{$path}/public/assets/css/paramquery/grid/pqgrid.min.css" /> 
+    <!--add pqgrid.ui.css for jQueryUI theme support-->
+    <link rel="stylesheet" href="{$path}/public/assets/css/paramquery/grid/pqgrid.ui.min.css" />
+ 
+    <!--ParamQuery Grid js files-->
+    <script type="text/javascript" src="{$path}/public/assets/js/paramquery/grid/pqgrid.min.js" ></script> 
+    <!--ParamQuery Grid localization file-->
+    <script src="{$path}/public/assets/js/paramquery/grid/localize/pq-localize-{str_replace('_','-',$_ENV['DEFAULT_LANG'])}.js"></script> 
+    <!--Include jsZip file to support xlsx and zip export (optional)-->
+    <script type="text/javascript" src="{$path}/public/assets/js/paramquery/grid//jsZip-2.5.0/jszip.min.js" ></script> 
+
     <script src="{$path}/app/modules/admin/views/js/holidays.js"></script>
 
 {/block}

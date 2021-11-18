@@ -61,7 +61,7 @@ function modalAlert(type,message)
     $("#response").animate({height: '+=72px'}, 300);
 
     $('<div class="alert alert-'+type+'">' +
-        '<div class="row"><div class="col-md-1 close text-end" data-dismiss="alert">&times;</div><div class="col-md-10">'+message+'</div></div></div>')
+        '<div class="row"><div class="col-md-1 close position-absolute end-0" data-bs-dismiss="alert">&times;</div><div class="col-md-10">'+message+'</div></div></div>')
         .hide().appendTo('#response').fadeIn(1000);
 
     $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
@@ -75,7 +75,7 @@ function modalAlertMultiple(type,message,id)
     $("#"+id+"").animate({height: '+=72px'}, 300);
 
     $('<div class="alert alert-'+type+'">' +
-    '<button type="button" class="close" data-dismiss="alert">&times;</button>'+message+'</div>')
+    '<button type="button" class="close" data-bs-dismiss="alert">&times;</button>'+message+'</div>')
         .hide().appendTo("#"+id+"").fadeIn(1000);
 
     $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
