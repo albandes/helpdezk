@@ -75,7 +75,7 @@ function modalAlertMultiple(type,message,id)
     $("#"+id+"").animate({height: '+=72px'}, 300);
 
     $('<div class="alert alert-'+type+'">' +
-    '<button type="button" class="close" data-bs-dismiss="alert">&times;</button>'+message+'</div>')
+    '<div class="row"><div class="col-md-1 close position-absolute end-0"><i class="close far fa-times-circle fa-2x" data-bs-dismiss="alert"></i></div><div class="col-md-11">'+message+'</div></div></div>')
         .hide().appendTo("#"+id+"").fadeIn(1000);
 
     $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });

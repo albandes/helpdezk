@@ -63,6 +63,9 @@
                                                 
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="company" name="company" >
+                                                    {foreach $cmbCompanies as $k=>$v}
+                                                    <option value="{$v['id']}">{$v['text']}</option>
+                                                    {/foreach}
                                                     </select>
                                                 </div>
                                             </div>
@@ -88,8 +91,8 @@
 
                                     <div class="row wrapper  white-bg text-center">
                                         <div class="col-sm-12 form-group">
-                                            <a href="" id="btnCancel" class="btn btn-white btn-md" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
-                                            <button type="button" class="btn btn-primary btn-md " id="btnCreateHoliday" >
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateHoliday" >
                                                 <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
                                             </button>
                                         </div>
@@ -108,15 +111,28 @@
         {include $footer}	
 	</div>
 </body>
+    <script type="text/javascript">
+		var dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation};
+	</script>
 
     <!-- Datepicker -->
     <link rel="stylesheet" href="{$path}/public/assets/css/datepicker/bootstrap-datepicker.css" />
     <script src="{$path}/public/assets/js/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
 
     <!-- Select2 -->
     <link rel="stylesheet" href="{$path}/public/assets/css/select2/select2.min.css" />
-    <script src="{$path}/public/assets/js/select2/select2.min.js"></script> 
+    <script src="{$path}/public/assets/js/select2/select2.min.js"></script>
+
+    <!-- Validation -->
+    <script src="{$path}/public/assets/js/validation/jquery.validate.min.js"></script>  
 
     <script src="{$path}/app/modules/admin/views/js/createholiday.js"></script>
+
 
 {/block}

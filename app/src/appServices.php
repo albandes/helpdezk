@@ -221,5 +221,45 @@ class appServices
         session_unset();
         session_destroy();
     }
+    
+    /**
+     * en_us Return calendar settings
+     *
+     * pt_br Retorna as configurações do calendário
+     *
+     * @return array
+     */
+    public function _datepickerSettings(): array
+    {
+        $aRet = [];
+        switch ($_ENV['DEFAULT_LANG']) {
+            case 'pt_br':
+                $aRet['dtpFormat'] = "dd/mm/yyyy";
+                $aRet['dtpLanguage'] = "pt-BR";
+                $aRet['dtpAutoclose'] = true;
+                $aRet['dtpOrientation'] = "bottom auto";
+                $aRet['dtpickerLocale'] = "bootstrap-datepicker.pt-BR.min.js";
+                $aRet['dtSearchFmt'] = 'd/m/Y';
+                break;
+            case 'es_es':
+                $aRet['dtpFormat'] = "dd/mm/yyyy";
+                $aRet['dtpLanguage'] = "es";
+                $aRet['dtpAutoclose'] = true;
+                $aRet['dtpOrientation'] = "bottom auto";
+                $aRet['dtpickerLocale'] = "bootstrap-datepicker.es.min.js";
+                $aRet['dtSearchFmt'] = 'd/m/Y';
+                break;
+            default:
+                $aRet['dtpFormat'] = "mm/dd/yyyy";
+                $aRet['dtpAutoclose'] = true;
+                $aRet['dtpOrientation'] = "bottom auto";
+                $aRet['dtpickerLocale'] = "";
+                $aRet['dtSearchFmt'] = 'm/d/Y';
+                break;
+
+        }
+
+        return $aRet;
+    }
 
 }

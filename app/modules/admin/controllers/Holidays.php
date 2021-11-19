@@ -35,13 +35,27 @@ class Holidays extends Controller
 	 * 
 	 *  pt_br Configura as telas do programa
 	 */
-    public function makeScreenHolidays()
+    public function makeScreenHolidays($option='idx',$obj=null)
     {
         $appSrc = new appServices();
 		$adminSrc = new adminServices();
+        $translator = new localeServices();
 		$params = $appSrc->_getDefaultParams();
 		$params = $adminSrc->_makeNavAdm($params);
-		
+        
+        // -- Datepicker settings -- 
+        $retDtpicker = $appSrc->_datepickerSettings();
+        $params['dtpFormat'] = $retDtpicker['dtpFormat'];
+        $params['dtpLanguage'] = $retDtpicker['dtpLanguage'];
+        $params['dtpAutoclose'] = $retDtpicker['dtpAutoclose'];
+        $params['dtpOrientation'] = $retDtpicker['dtpOrientation'];
+        $params['dtpickerLocale'] = $retDtpicker['dtpickerLocale'];
+        $params['dtSearchFmt'] = $retDtpicker['dtSearchFmt'];
+        
+        // -- Companies --
+        $params['cmbCompanies'] = $adminSrc->_comboCompany();
+        array_push($params['cmbCompanies'],array("id"=>0,"text"=>$translator->translate('National_holiday')));
+
         return $params;
     }
 
@@ -152,6 +166,52 @@ class Holidays extends Controller
         $params = $this->makeScreenHolidays();
 		
 		$this->view('admin','holidays-create',$params);
+    }
+
+
+    /**
+     * en_us Write the holiday information to the DB
+     *
+     * pt_br Grava no BD as informações do feriado
+     */
+    public function createHoliday()
+    {
+        /*if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }*/
+
+        $holidayDao = new holidayDAO();
+
+        $dtholiday = $this->formatSaveDate($_POST['holiday_date']);
+        $description = trim($_POST['holiday_description']);
+
+        /*$ins = $this->dbHoliday->insertHoliday($data);
+		if(!$ins){
+			return false;
+        }
+        
+        $id_holiday = $this->dbHoliday->TableMaxID('tbholiday','idholiday');
+		
+		if($_POST['company'] != 0){			
+			$data = array(
+                'idholiday' => $id_holiday,
+                'idperson' => $_POST['company']
+            );
+			
+			$ins = $this->dbHoliday->insertHolidayHasCompany($data);
+			if(!$ins){
+				return false;
+			}
+		}
+
+        $aRet = array(
+            "idholiday" => $id_holiday,
+            "description" => $_POST['holiday_description']
+        );        
+
+        echo json_encode($aRet);*/
     }
 
 

@@ -127,7 +127,32 @@ class adminServices
 		}
         
 		return $aRet;
-    }	
+    }
+        
+    /**
+     * Returns an array with ID and name of companies
+     *
+     * @return array
+     */
+    public function _comboCompany(): array
+    {
+        $personDAO = new personDAO();
+        $companies = $personDAO->fetchCompanies();
+        
+        if(!is_null($companies) && !empty($companies)){
+            $aRet = array();
+            foreach($companies as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idcompany'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
 
 
 
