@@ -5,6 +5,8 @@ namespace App\src;
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\logoDAO;
+use App\modules\admin\dao\mysql\holidayDAO;
+
 use App\modules\admin\src\loginServices;
 
 class appServices
@@ -260,6 +262,69 @@ class appServices
         }
 
         return $aRet;
+    }
+    
+    /**
+     * en_us Create the token to prevent sql injection and xss attacks
+     * 
+     * pt_br Cria o token para prevenir ataques sql injection e xss
+     *
+     * @return string
+     */
+    public function _makeToken(): string
+    {
+        $token =  hash('sha512',rand(100,1000));
+        $_SESSION['TOKEN'] =  $token;
+        return $token;
+    }
+
+    /**
+     * en_us Get the token written to the session variable
+     * 
+     * pt_br Obtem o token gravado na variável de sessão
+     *
+     * @return string
+     */
+    public function _getToken(): string
+    {
+        session_start();
+        return $_SESSION['TOKEN'];
+
+    }
+
+    /**
+     * en_us Compares the token sent by the form with the one in the session variable
+     * 
+     * pt_br Compara o token enviado pelo formulário com o existente na variável de sessão
+     *
+     * @return boolean
+     */
+    public function _checkToken(): boolean 
+    {
+        if (empty($_POST) || empty($_GET) ) {
+            return false;
+        } else {
+             if($_POST['_token'] == $this->_getToken() || $_GET['_token'] == $this->_getToken()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * en_us Format a date to write to BD
+     * 
+     * pt_br Formata uma data para gravar no BD
+     *
+     * @return string
+     */
+    public function _formatSaveDate($date): string
+    {
+        $holidayDAO = new holidayDao();
+        $dateafter = $holidayDAO->getSaveDate($date, $_ENV("DATE_FORMAT"));
+        
+        return (!is_null($dateafter) && !empty($dateafter)) ? "'" . $dateafter . "'" : "" ;
     }
 
 }

@@ -181,37 +181,35 @@ class Holidays extends Controller
                 $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }*/
-
+        
+        $appSrc = new appServices();
         $holidayDao = new holidayDAO();
 
-        $dtholiday = $this->formatSaveDate($_POST['holiday_date']);
+        $dtholiday = $appSrc->_formatSaveDate($_POST['holiday_date']);
         $description = trim($_POST['holiday_description']);
+        $companyID = trim($_POST['company']);
 
-        /*$ins = $this->dbHoliday->insertHoliday($data);
-		if(!$ins){
+        $ins = $holidayDao->insertHoliday($dtholiday,$description);
+		if(is_null($ins) || empty($ins)){
 			return false;
-        }
+        }        
         
-        $id_holiday = $this->dbHoliday->TableMaxID('tbholiday','idholiday');
-		
-		if($_POST['company'] != 0){			
-			$data = array(
-                'idholiday' => $id_holiday,
-                'idperson' => $_POST['company']
-            );
-			
-			$ins = $this->dbHoliday->insertHolidayHasCompany($data);
-			if(!$ins){
+        $holidayID = $ins->getIdholiday();
+        
+        //Link holiday with the company
+		if($companyID != 0){			
+			$insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
+			if(is_null($insCompany) || empty($insCompany)){
 				return false;
 			}
 		}
 
         $aRet = array(
-            "idholiday" => $id_holiday,
-            "description" => $_POST['holiday_description']
+            "idholiday" => $holidayID,
+            "description" => $description
         );        
 
-        echo json_encode($aRet);*/
+        echo json_encode($aRet);
     }
 
 
