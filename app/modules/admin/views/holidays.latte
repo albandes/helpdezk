@@ -47,6 +47,9 @@
 
         {include $footer}	
 	</div>
+    
+    {include 'modals/main/modal-search-filters.latte'}
+
 </body>
 
     <!--ParamQuery Grid css files-->
@@ -60,6 +63,10 @@
     <script src="{$path}/public/assets/js/paramquery/grid/localize/pq-localize-{str_replace('_','-',$_ENV['DEFAULT_LANG'])}.js"></script> 
     <!--Include jsZip file to support xlsx and zip export (optional)-->
     <script type="text/javascript" src="{$path}/public/assets/js/paramquery/grid/jsZip-2.5.0/jszip.min.js" ></script> 
+
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/select2/select2.min.css" />
+    <script src="{$path}/public/assets/js/select2/select2.min.js"></script>
 
     <script src="{$path}/app/modules/admin/views/js/holidays.js"></script>
 

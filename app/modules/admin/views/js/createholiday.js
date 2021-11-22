@@ -105,12 +105,10 @@ $(document).ready(function () {
 
                 if($.isNumeric(obj.idholiday)) {
 
-                    $('#modal-idholiday').html(obj.idholiday);
-                    $('#modal-holiday-description').html(obj.description);
+                    $('#modal-idholiday').val(obj.idholiday);
+                    $('#modal-holiday-description').val(obj.description);
 
-                    $("#btnModalAlert").attr("href", path + '/admin/holidays/index');
-
-                    $('#modal-alert-create').modal('show');
+                    $('#modal-holiday-create').modal('show');
                 } else {
                     modalAlertMultiple('danger','Alert_failure','alert-create-holiday');
                 }
@@ -194,7 +192,6 @@ $(document).ready(function () {
 
     });
 
-
     /*
      * Validate
      */
@@ -220,6 +217,11 @@ $(document).ready(function () {
             holiday_description:    "Campo obrigat&oacute;rio",
             holiday_date:           "Campo obrigat&oacute;rio"
         }
+    });
+
+    /* when the modal is hidden */
+    $('#modal-holiday-create').on('hidden.bs.modal', function() { 
+        location.href = path + "/admin/holidays/index" ;        
     });
 });
             

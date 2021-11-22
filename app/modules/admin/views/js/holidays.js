@@ -1,6 +1,12 @@
 $(document).ready(function () {
     countdown.start(timesession);
 
+    /*
+     * Select2
+     */
+    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body')});
+    $('#action-list').select2({dropdownParent: $(this).find('.modal-body')});
+
     var pqFilter = {
         search: function () {
             var txt = $("input.pq-filter-txt").val().toUpperCase(),
@@ -98,8 +104,24 @@ $(document).ready(function () {
     $("#grid_holidays").pqGrid(obj);
 
     // Buttons
+    $("#btnFilters").click(function(){
+        $('#modal-search-filter').modal('show');
+    });
+
+    $("#btnModalSearch").click(function(){
+        var filterIndx = $("#filter-list").val(),
+            filterValue = $("#filter-value").val(),
+            filterOperation = $("#action-list").val();
+            
+        $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
+            return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation};
+        } );
+        
+        $("#grid_holidays").pqGrid("refreshDataAndView");
+    });
+
     $("#btnCreate").click(function(){
-        location.href = path + "/admin/holidays/formCreate" ;
+        location.href = path + "/admin/holidays/formCreate";
     });
 });
 

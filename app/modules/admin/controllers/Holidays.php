@@ -56,13 +56,19 @@ class Holidays extends Controller
         $params['cmbCompanies'] = $adminSrc->_comboCompany();
         array_push($params['cmbCompanies'],array("id"=>0,"text"=>$translator->translate('National_holiday')));
 
+        // -- Search action --
+        if($option=='idx'){
+            $params['cmbFilterOpts'] = $appSrc->_comboFilterOpts();
+        }
+
         return $params;
     }
 
     public function jsonGrid()
     {
+        $appSrc = new appServices();
         $translator = new localeServices();
-        $holidayDao = new holidayDao();
+        $holidayDao = new holidayDAO(); 
 
         $where = "";
         $group = "";
@@ -73,13 +79,16 @@ class Holidays extends Controller
             if($this->isValidColumn($filterIndx)==false){
                 throw("invalid filter column");
             }
-            $filterValue = $_POST["filterValue"];        
-            $where  = " WHERE ".$filterIndx." LIKE CONCAT('%', ?, '%')";
+            $filterValue = $_POST["filterValue"];
+            $filterOp = $_POST["filterOp"];
+            echo __METHOD__ . "". __LINE__ . "\n";
+            $where  = "WHERE ". $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+            echo "{$where}\n";
         } 
         
         $pq_sort = json_decode($_POST['pq_sort']);
         $sortIndx = $pq_sort[0]->dataIndx;
-        if(!$this->isValidColumn($sortIndx)){echo __METHOD__ ." ". __LINE__ ."\n";
+        if(!$this->isValidColumn($sortIndx)){
             throw("invalid sort column");
         }
         
@@ -184,11 +193,11 @@ class Holidays extends Controller
         
         $appSrc = new appServices();
         $holidayDao = new holidayDAO();
-
+        
         $dtholiday = $appSrc->_formatSaveDate($_POST['holiday_date']);
         $description = trim($_POST['holiday_description']);
-        $companyID = trim($_POST['company']);
-
+        $companyID = $_POST['company'];
+        
         $ins = $holidayDao->insertHoliday($dtholiday,$description);
 		if(is_null($ins) || empty($ins)){
 			return false;
