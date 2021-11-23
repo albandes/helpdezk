@@ -7,17 +7,6 @@ $(document).ready(function () {
     $('#filter-list').select2({dropdownParent: $(this).find('.modal-body')});
     $('#action-list').select2({dropdownParent: $(this).find('.modal-body')});
 
-    var pqFilter = {
-        search: function () {
-            var txt = $("input.pq-filter-txt").val().toUpperCase(),
-                dataIndx = $("select#pq-filter-select-column").val(),
-                DM = $grid.pqGrid("option", "dataModel");
-            DM.filterIndx = dataIndx;
-            DM.filterValue = txt;
-            $grid.pqGrid("refreshDataAndView");
-        }
-    };
-
     /** 
      * Define a model for grid's columns
      * 
@@ -115,6 +104,16 @@ $(document).ready(function () {
             
         $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
             return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation};
+        } );
+        
+        $("#grid_holidays").pqGrid("refreshDataAndView");
+    });
+
+    $("#btnSearch").click(function(){
+        var quickValue = $("#txtSearch").val();
+            
+        $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
+            return {quickSearch:true,quickValue:quickValue};
         } );
         
         $("#grid_holidays").pqGrid("refreshDataAndView");

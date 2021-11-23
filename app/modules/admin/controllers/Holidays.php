@@ -59,6 +59,7 @@ class Holidays extends Controller
         // -- Search action --
         if($option=='idx'){
             $params['cmbFilterOpts'] = $appSrc->_comboFilterOpts();
+            $params['cmbFilters'] = $this->comboHolidayFilters();
         }
 
         return $params;
@@ -76,15 +77,16 @@ class Holidays extends Controller
         if(isset($_POST["filterIndx"]) && isset($_POST["filterValue"]) )
         {
             $filterIndx = $_POST["filterIndx"];
-            if($this->isValidColumn($filterIndx)==false){
-                throw("invalid filter column");
-            }
             $filterValue = $_POST["filterValue"];
-            $filterOp = $_POST["filterOp"];
-            echo __METHOD__ . "". __LINE__ . "\n";
-            $where  = "WHERE ". $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
-            echo "{$where}\n";
+            $filterOp = $_POST["filterOperation"];
+            
+            $where .= (empty($where) ? "WHERE " : " AND ") . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
         } 
+
+        if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
+        {
+            $where .= (empty($where) ? "WHERE " : " AND ") . "(tbh.holiday_date LIKE '".$appSrc->_formatSaveDate($_POST['quickValue'])."' OR tbh.holiday_description LIKE '{$_POST['quickValue']}')";
+        }
         
         $pq_sort = json_decode($_POST['pq_sort']);
         $sortIndx = $pq_sort[0]->dataIndx;
@@ -139,6 +141,23 @@ class Holidays extends Controller
         }else{
             echo json_encode(array());            
         }
+    }
+
+    /**
+     * Returns an array with ID and name of filters
+     *
+     * @return array
+     */
+    public function comboHolidayFilters(): array
+    {
+        $translator = new localeServices();
+
+        $aRet = array(
+            array("id" => 'holiday_description',"text"=>$translator->translate('Name')), // equal
+            array("id" => 'holiday_date',"text"=>$translator->translate('Date'))
+        );
+        
+        return $aRet;
     }
 
     //check every column name
