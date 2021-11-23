@@ -328,6 +328,15 @@ class appServices
         return (!is_null($dateafter) && !empty($dateafter)) ? $dateafter : "" ;
     }
 
+    public function _formatDate($date)
+    {
+        $holidayDAO = new holidayDao();
+        $dateafter = $holidayDAO->getDate($date, $_ENV["DATE_FORMAT"]);
+        
+        return (!is_null($dateafter) && !empty($dateafter)) ? $dateafter : "" ;
+    }
+
+
     /**
      * Returns an array with ID and name of search options
      *
@@ -360,12 +369,49 @@ class appServices
     }
 
     /**
+     * Check column name of search
+     *
+     * @param  mixed $dataIndx
+     * @return void
+     */
+    public function _isValidColumn($dataIndx){
+        
+        if (preg_match('/^[a-z,A-Z]*$/', $dataIndx))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }    
+    }
+    
+    /**
+     * Returns rows offset for pagination
+     *
+     * @param  mixed $pq_curPage
+     * @param  mixed $pq_rPP
+     * @param  mixed $total_Records
+     * @return void
+     */
+    public function _pageHelper(&$pq_curPage, $pq_rPP, $total_Records){
+        $skip = ($pq_rPP * ($pq_curPage - 1));
+
+        if ($skip >= $total_Records)
+        {        
+            $pq_curPage = ceil($total_Records / $pq_rPP);
+            $skip = ($pq_rPP * ($pq_curPage - 1));
+        }    
+        return $skip;
+    }
+
+    /**
      * Returns the sql sintax, according filter sended by grid
      *
      * @param string $oper Name of the PqGrid operation
      * @param string $column Field to search
      * @param string $search Column to search
-     * @return boolean|string    False is not exists ou file extention
+     * @return boolean|string    False is not exists operation
      *
      */
     public function _formatGridOperation($oper, $column, $search)

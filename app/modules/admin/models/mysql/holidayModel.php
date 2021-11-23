@@ -23,6 +23,11 @@ final class holidayModel
      * @var int
      */
     private $idcompany;
+    
+    /**
+     * @var string
+     */
+    private $company;
 
     
 
@@ -118,6 +123,30 @@ final class holidayModel
     public function setIdcompany(int $idcompany): self
     {
         $this->idcompany = $idcompany;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of company
+     *
+     * @return  string
+     */ 
+    public function getCompany(): string
+    {
+        return $this->company;
+    }
+
+    /**
+     * Set the value of company
+     *
+     * @param  string  $company
+     *
+     * @return  self
+     */ 
+    public function setCompany(string $company): self
+    {
+        $this->company = $company;
 
         return $this;
     }

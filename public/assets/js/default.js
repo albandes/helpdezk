@@ -46,11 +46,10 @@ document.addEventListener("DOMContentLoaded", function(){
 // DOMContentLoaded  end
 
 
-function showAlert(msg,typeAlert,btnOk)
+function showAlert(msg,typeAlert)
 {
     $('#modal-notification').html(msg);
-    $("#btn-modal-ok").attr("href", btnOk);
-    $("#tipo-alert").attr('class', 'alert alert-'+typeAlert);
+    $("#type-alert").attr('class', 'alert alert-'+typeAlert);
     $('#modal-alert').modal('show');
 
     return false;
@@ -86,12 +85,18 @@ function modalAlertMultiple(type,message,id)
 }
 
 function makeSmartyLabel(label){
-    if(!aLang[label]) { // quick and dirty will be true for '', null, undefined, 0, NaN and false.
+    var lbl = "";
+    $.post(path+"/main/home/translateLabel",{label:label},function(valor) {
+        lbl = "'"+valor+"'";
+    });
+    console.log(lbl)
+    return lbl;
+    /*if(!aLang[label]) { // quick and dirty will be true for '', null, undefined, 0, NaN and false.
         console.log('It is missing in the language file: '+label);
         return ' ... ';
     } else {
         return aLang[label].replace (/\"/g, "");
-    }
+    }*/
 
 }
 

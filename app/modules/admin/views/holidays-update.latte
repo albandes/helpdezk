@@ -15,7 +15,7 @@
                     <div class="ibox ">
 
                         <div class="ibox-title">
-                            <h5>{='cat_records'|translate} / {='Holidays'|translate} / <strong>{='Add'|translate}</strong></h5>
+                            <h5>{='cat_records'|translate} / {='Holidays'|translate} / <strong>{='Edit'|translate}</strong></h5>
 
                         </div>
 
@@ -39,7 +39,7 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
-                                                    <input type="text" id="holiday_description" name="holiday_description" class="form-control" required placeholder="{$plh_holiday_description}" value="" >
+                                                    <input type="text" id="holiday_description" name="holiday_description" class="form-control" required placeholder="{$plh_holiday_description}" value="{$holidayDesc}" >
                                                 </div>
                                             </div>
 
@@ -50,7 +50,7 @@
                                                 
                                                 <div class="col-sm-5">
                                                     <div class="input-group date">
-                                                        <input type="text" id="holiday_date" name="holiday_date" class="form-control input-sm" placeholder="{$plh_holiday_date}" value="" readonly />
+                                                        <input type="text" id="holiday_date" name="holiday_date" class="form-control input-sm" placeholder="{$plh_holiday_date}" value="{$holidayDate}" readonly />
                                                         <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
                                                     </div>
                                                 </div>
@@ -64,7 +64,7 @@
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="company" name="company" >
                                                     {foreach $cmbCompanies as $k=>$v}
-                                                    <option value="{$v['id']}">{$v['text']}</option>
+                                                    <option value="{$v['id']}" {if $v['id'] == $v['companyID]}selected="selected"{/if}>{$v['text']}</option>
                                                     {/foreach}
                                                     </select>
                                                 </div>

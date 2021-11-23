@@ -19,9 +19,9 @@ $(document).ready(function () {
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
     var colM = [
-        { title: "ID", width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },            
+        { title: "ID", width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
         { title: "Name", width: '60%', dataIndx: "holiday_description", halign: "center"  },
-        { title: "Date", width: '10%', dataIndx: "holiday_date", halign: "center"  },
+        { title: "Date", width: '10%', dataIndx: "holiday_date", align: "center", halign: "center"  },
         { title: "Company", width: '20%', dataIndx: "company", align: "center", halign: "center"  }
     ];
 
@@ -88,6 +88,8 @@ $(document).ready(function () {
         topVisible: false,
         sortModel: sortModel,
         pageModel: pageModel,
+        numberCell: {show: false},
+        selectionModel: { mode: 'single', type: 'row' }
     };
 
     $("#grid_holidays").pqGrid(obj);
@@ -122,5 +124,30 @@ $(document).ready(function () {
     $("#btnCreate").click(function(){
         location.href = path + "/admin/holidays/formCreate";
     });
+
+    $("#btnUpdate").click(function(){
+        var rowIndx = getRowIndx(),msg="";
+        
+        if (rowIndx != null) {
+            var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
+            location.href = path + "/admin/holidays/formUpdate/"+row.idholiday;
+        }else{
+            msg = makeSmartyLabel('Alert_select_one');
+            console.log(msg);
+            showAlert(msg,'warning');
+        }
+    });
 });
+
+
+function getRowIndx() {
+    var arr = $("#grid_holidays").pqGrid("selection", { type: 'row', method: 'getSelection' });
+    
+    if (arr && arr.length > 0) {
+        return arr[0].rowIndx;                                
+    }
+    else {
+        return null;
+    }
+}
 

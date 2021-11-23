@@ -164,4 +164,71 @@ class holidayDAO extends Database
         
         return $aRet['date'];
     }
+
+    /**
+     * Returns a query date format so use in a database query
+     * Use in method appServices::_formatDate
+     *
+     * @param  string   $date       Date
+     * @param  string   $format     Date format
+     * @return string   
+     *
+     */
+    public function getDate(string $date, string $format): string
+    {
+        $sql = "SELECT DATE_FORMAT(:date,:format) AS date";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':date', $date);
+            $stmt->bindParam(':format', $format);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error trying format date to save in DB ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet || empty($aRet)){
+            return null;
+        }
+        
+        return $aRet['date'];
+    }
+
+    public function getHoliday(int $holidayID): ?holidayModel
+    {        
+        $sql = "SELECT tbh.idholiday, tbh.holiday_date, tbh.holiday_description, tbp.idperson, tbp.name
+                  FROM tbholiday tbh
+             LEFT JOIN tbholiday_has_company tbhc
+                    ON tbhc.idholiday = tbh.idholiday
+             LEFT JOIN tbperson tbp
+                    ON tbp.idperson = tbhc.idperson
+                 WHERE tbh.idholiday = :holidayID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error getting holiday data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return null;
+        }
+        
+        $holiday = new holidayModel();
+        $holiday->setIdholiday($aRet['idholiday'])
+                ->setDate($aRet['holiday_date'])
+                ->setDescription($aRet['holiday_description'])
+                ->setIdcompany(!empty($aRet['idperson']) ? $aRet['idperson'] : 0)
+                ->setCompany(!empty($aRet['name']) ? $aRet['name'] : "");
+        
+        return $holiday;
+    }
 }

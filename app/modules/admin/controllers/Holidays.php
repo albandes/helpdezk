@@ -62,6 +62,14 @@ class Holidays extends Controller
             $params['cmbFilters'] = $this->comboHolidayFilters();
         }
 
+        if($option=='upd'){
+            $params['idholiday'] = $obj->getIdholiday();
+            $params['holidayDesc'] = $obj->getDescription();
+            $params['holidayDate'] = $appSrc->_formatDate($obj->getDate());
+            $params['companyID'] = $obj->getIdcompany();
+            
+        }
+
         return $params;
     }
 
@@ -73,6 +81,8 @@ class Holidays extends Controller
 
         $where = "";
         $group = "";
+
+        //Search with params sended from filter's modal
         $filterValue ="";
         if(isset($_POST["filterIndx"]) && isset($_POST["filterValue"]) )
         {
@@ -82,17 +92,22 @@ class Holidays extends Controller
             
             $where .= (empty($where) ? "WHERE " : " AND ") . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
         } 
-
+        
+        //Search with params sended from quick search input
         if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
         {
-            $where .= (empty($where) ? "WHERE " : " AND ") . "(tbh.holiday_date LIKE '".$appSrc->_formatSaveDate($_POST['quickValue'])."' OR tbh.holiday_description LIKE '{$_POST['quickValue']}')";
+            $quickValue = trim($_POST['quickValue']);
+            if(strtotime($quickValue)){
+                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_date LIKE '".$appSrc->_formatSaveDate($quickValue)."'";// it's in date format
+            }else{
+                $quickValue = str_replace(" ","%",$quickValue);
+                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_description LIKE '%{$quickValue}%'";
+            }
         }
         
+        //sort options
         $pq_sort = json_decode($_POST['pq_sort']);
         $sortIndx = $pq_sort[0]->dataIndx;
-        if(!$this->isValidColumn($sortIndx)){
-            throw("invalid sort column");
-        }
         
         $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
         $order = "ORDER BY {$sortIndx} {$sortDir}";
@@ -101,6 +116,7 @@ class Holidays extends Controller
     
         $pq_rPP = $_POST["pq_rpp"];
         
+        //Count records
         $countHolidays = $holidayDao->queryHolidays($where,$group); 
         if(!is_null($countHolidays) && !empty($countHolidays)){
             $total_Records = count($countHolidays);
@@ -108,7 +124,7 @@ class Holidays extends Controller
             $total_Records = 0;
         }
         
-        $skip = $this->pageHelper($pq_curPage, $pq_rPP, $total_Records);
+        $skip = $appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
         $limit = "LIMIT {$skip},$pq_rPP";
 
         $holidays = $holidayDao->queryHolidays($where,$group,$order,$limit);
@@ -123,9 +139,9 @@ class Holidays extends Controller
                 }
 
                 $data[] = array(
-                    'idholiday'                  => $v['idholiday'],
-                    'holiday_description' => $v['holiday_description'],
-                    'holiday_date'        => $v['holiday_date'],
+                    'idholiday'           => $v['idholiday'],
+                    'holiday_description' => utf8_decode($v['holiday_description']),
+                    'holiday_date'        => $appSrc->_formatDate($v['holiday_date']),
                     'company'             => $type_holiday
     
                 );
@@ -160,30 +176,6 @@ class Holidays extends Controller
         return $aRet;
     }
 
-    //check every column name
-    public function isValidColumn($dataIndx){
-        
-        if (preg_match('/^[a-z,A-Z]*$/', $dataIndx))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }    
-    }
-
-    public function pageHelper(&$pq_curPage, $pq_rPP, $total_Records){
-        $skip = ($pq_rPP * ($pq_curPage - 1));
-
-        if ($skip >= $total_Records)
-        {        
-            $pq_curPage = ceil($total_Records / $pq_rPP);
-            $skip = ($pq_rPP * ($pq_curPage - 1));
-        }    
-        return $skip;
-    }
-
     /**
      * en_us Renders the holidays add screen
      *
@@ -194,6 +186,21 @@ class Holidays extends Controller
         $params = $this->makeScreenHolidays();
 		
 		$this->view('admin','holidays-create',$params);
+    }
+
+    /**
+     * en_us Renders the holidays update screen
+     *
+     * pt_br Renderiza o template da tela de atualização do cadastro
+     */
+    public function formUpdate($idholiday=null)
+    {
+        $holidayDao = new holidayDAO(); 
+        $holidayUpd = $holidayDao->getHoliday($idholiday);
+
+        $params = $this->makeScreenHolidays('upd',$holidayUpd);
+		
+		$this->view('admin','holidays-update',$params);
     }
 
 

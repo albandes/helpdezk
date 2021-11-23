@@ -2,6 +2,7 @@
 
 use App\core\Controller;
 use App\src\appServices;
+use App\src\localeServices;
 
 class Home extends Controller
 {
@@ -73,6 +74,14 @@ class Home extends Controller
         $this->sessionDestroy();
         $smarty->display('lockscreen.tpl');*/
 
+    }
+
+    public function translateLabel()
+    {
+        $translator = new localeServices();
+        $label = trim($_POST['label']);
+
+        echo $translator->translate($label);
     }
 
 }
