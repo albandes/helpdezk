@@ -68,7 +68,7 @@ $(document).ready(function () {
             return false ;
         }
 
-    }
+    };
 
     if($("#import-holiday-form").length > 0){
         $("#company").change(function(){
@@ -91,29 +91,40 @@ $(document).ready(function () {
             return false ;
         }
 
-        $.ajax({
-            type: "POST",
-            url: path + '/admin/holidays/createHoliday',
-            dataType: 'json',
-            data: $("#create-holiday-form").serialize(),
-            error: function (ret) {
-                modalAlertMultiple('danger','Alert_failure','alert-create-holiday');
-            },
-            success: function(ret){
-
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                if($.isNumeric(obj.idholiday)) {
-
-                    $('#modal-idholiday').val(obj.idholiday);
-                    $('#modal-holiday-description').val(obj.description);
-
-                    $('#modal-holiday-create').modal('show');
-                } else {
-                    modalAlertMultiple('danger','Alert_failure','alert-create-holiday');
+        if(!$("#btnCreateHoliday").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/holidays/createHoliday',
+                dataType: 'json',
+                data: $("#create-holiday-form").serialize(),
+                error: function (ret) {
+                    modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-create-holiday');
+                },
+                success: function(ret){
+    
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+    
+                    if($.isNumeric(obj.idholiday)) {
+    
+                        $('#modal-idholiday').val(obj.idholiday);
+                        $('#modal-holiday-description').val(obj.description);
+    
+                        $('#modal-holiday-create').modal('show');
+                    } else {
+                        modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-create-holiday');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnCreateHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnCancel").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnCreateHoliday").html("<i class='fa fa-check-circle'></i> "+ translateLabel('Save')).removeClass('disabled');
+                    $("#btnCancel").removeClass('disabled');
                 }
-            }
-        });
+            });
+        }
+        
     });
 
     $("#btnUpdateHoliday").click(function(){
@@ -122,35 +133,36 @@ $(document).ready(function () {
             return false ;
         }
 
-        $.ajax({
-            type: "POST",
-            url: path + '/admin/holidays/updateHoliday/idholiday',
-            dataType: 'json',
-            data: $("#update-holiday-form").serialize(),
-            error: function (ret) {
-                modalAlertMultiple('danger',aLang['Edit_failure'].replace (/\"/g, ""),'alert-create-holiday');
-            },
-            success: function(ret){
-
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                if(obj.status == 'OK' ) {
-
-                    $('#modal-notification').html(aLang['Edit_sucess'].replace (/\"/g, ""));
-                    $("#btn-modal-ok").attr("href", path + '/admin/holidays/index');
-                    $("#tipo_alerta").attr('class', 'alert alert-success');
-                    $('#modal-alert').modal('show');
-
-                } else {
-
-                    modalAlertMultiple('danger',aLang['Edit_failure'].replace (/\"/g, ""),'alert-create-holiday');
-
+        if(!$("#btnUpdateHoliday").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/holidays/updateHoliday/idholiday',
+                dataType: 'json',
+                data: $("#update-holiday-form").serialize(),
+                error: function (ret) {
+                    modalAlertMultiple('danger',translateLabel('Edit_failure'),'alert-update-holiday');
+                },
+                success: function(ret){
+    
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+    
+                    if(obj.success) {
+                        showAlert(translateLabel('Edit_sucess'),'success');
+                    } else {
+                        modalAlertMultiple('danger',translateLabel('Edit_failure'),'alert-update-holiday');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnUpdateHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnCancel").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnUpdateHoliday").html("<i class='fa fa-check-circle'></i> "+ translateLabel('Save')).removeClass('disabled');
+                    $("#btnCancel").removeClass('disabled');
                 }
-
-            }
-
-        });
-
+    
+            });
+        }
 
     });
 
@@ -202,8 +214,8 @@ $(document).ready(function () {
             holiday_date:           "required"
         },
         messages: {
-            holiday_description:    "Campo obrigat&oacute;rio",
-            holiday_date:           "Campo obrigat&oacute;rio"
+            holiday_description:    translateLabel('Alert_field_required'),
+            holiday_date:           translateLabel('Alert_field_required')
         }
     });
 
@@ -214,8 +226,8 @@ $(document).ready(function () {
             holiday_date:           "required"
         },
         messages: {
-            holiday_description:    "Campo obrigat&oacute;rio",
-            holiday_date:           "Campo obrigat&oacute;rio"
+            holiday_description:    translateLabel('Alert_field_required'),
+            holiday_date:           translateLabel('Alert_field_required')
         }
     });
 

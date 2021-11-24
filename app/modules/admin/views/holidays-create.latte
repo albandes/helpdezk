@@ -64,7 +64,7 @@
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="company" name="company" >
                                                     {foreach $cmbCompanies as $k=>$v}
-                                                    <option value="{$v['id']}">{$v['text']}</option>
+                                                    <option value="{$v['id']}" {if $v['id'] == $companyID}selected="selected"{/if}>{$v['text']}</option>
                                                     {/foreach}
                                                     </select>
                                                 </div>

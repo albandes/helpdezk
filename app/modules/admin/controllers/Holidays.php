@@ -65,9 +65,9 @@ class Holidays extends Controller
         if($option=='upd'){
             $params['idholiday'] = $obj->getIdholiday();
             $params['holidayDesc'] = $obj->getDescription();
-            $params['holidayDate'] = $appSrc->_formatDate($obj->getDate());
+            $params['holidayDate'] = $appSrc->_formatDate($obj->getDate());           
+        }elseif($option=='add'){
             $params['companyID'] = $obj->getIdcompany();
-            
         }
 
         return $params;
@@ -140,7 +140,7 @@ class Holidays extends Controller
 
                 $data[] = array(
                     'idholiday'           => $v['idholiday'],
-                    'holiday_description' => utf8_decode($v['holiday_description']),
+                    'holiday_description' => $v['holiday_description'],//utf8_decode($v['holiday_description']),
                     'holiday_date'        => $appSrc->_formatDate($v['holiday_date']),
                     'company'             => $type_holiday
     
@@ -199,6 +199,7 @@ class Holidays extends Controller
         $holidayUpd = $holidayDao->getHoliday($idholiday);
 
         $params = $this->makeScreenHolidays('upd',$holidayUpd);
+        $params['holidayID'] = $idholiday;
 		
 		$this->view('admin','holidays-update',$params);
     }
@@ -242,6 +243,39 @@ class Holidays extends Controller
         $aRet = array(
             "idholiday" => $holidayID,
             "description" => $description
+        );        
+
+        echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Update the holiday information to the DB
+     *
+     * pt_br Atualiza no BD as informações do feriado
+     */
+    public function updateHoliday()
+    {
+        /*if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }*/
+        
+        $appSrc = new appServices();
+        $holidayDao = new holidayDAO();
+        
+        $holidayID = $_POST['holidayID'];
+        $dtholiday = $appSrc->_formatSaveDate($_POST['holiday_date']);
+        $description = trim($_POST['holiday_description']);
+        
+        $upd = $holidayDao->updateHoliday($holidayID,$dtholiday,$description);
+		if(is_null($upd) || empty($upd)){
+			return false;
+        }        
+        
+        $aRet = array(
+            "success" => true,
+            "idholiday" => $holidayID
         );        
 
         echo json_encode($aRet);

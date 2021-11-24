@@ -22,10 +22,11 @@
                         <div class="ibox-content">
                             <div class="row">
                                 <!-- Form area -->
-                                <form method="get" class="form-horizontal" id="create-holiday-form">
+                                <form method="get" class="form-horizontal" id="update-holiday-form">
 
                                     <!-- Hidden -->
                                     <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="holidayID" id="holidayID" value="{$holidayID}">
 
                                     <div class="row white-bg g-2">
 
@@ -56,20 +57,6 @@
                                                 </div>
                                             </div>
 
-                                             <div class="row g-2">
-                                                <div class="col-sm-3 text-end">
-                                                    <label for="holiday_description" class="col-form-label text-end">{='Company'|translate}:</label>
-                                                </div>
-                                                
-                                                <div class="col-sm-5">
-                                                    <select class="form-control input-sm" id="company" name="company" >
-                                                    {foreach $cmbCompanies as $k=>$v}
-                                                    <option value="{$v['id']}" {if $v['id'] == $v['companyID]}selected="selected"{/if}>{$v['text']}</option>
-                                                    {/foreach}
-                                                    </select>
-                                                </div>
-                                            </div>
-
                                         </div>
 
                                     </div>
@@ -92,7 +79,7 @@
                                     <div class="row wrapper  white-bg text-center">
                                         <div class="col-sm-12 form-group">
                                             <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
-                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateHoliday" >
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnUpdateHoliday" >
                                                 <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
                                             </button>
                                         </div>
@@ -110,6 +97,7 @@
 
         {include $footer}	
 	</div>
+    {include 'modals/main/modal-alert.latte'}
 </body>
     <script type="text/javascript">
 		var dtpFormat = {$dtpFormat},

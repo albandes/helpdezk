@@ -81,7 +81,7 @@ class Home extends Controller
         $translator = new localeServices();
         $label = trim($_POST['label']);
 
-        echo $translator->translate($label);
+        echo json_encode($translator->translate($label));
     }
 
 }

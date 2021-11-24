@@ -231,4 +231,35 @@ class holidayDAO extends Database
         
         return $holiday;
     }
+
+    /**
+     * Update the holiday into the database
+     *
+     * @param  string $date
+     * @param  string $description
+     * @return holidayModel
+     */
+    public function updateHoliday(int $holidayID, string $date, string $description): ?holidayModel
+    {        
+        $sql = "UPDATE tbholiday 
+                   SET holiday_date = :date,
+                       holiday_description = :description
+                 WHERE idholiday = :holidayID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':date', $date);
+            $stmt->bindParam(':description', $description);
+            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error trying insert holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+
+        $holiday = new holidayModel(); 
+        $holiday->setIdholiday($holidayID); 
+        
+        return $holiday;
+    }
 }

@@ -19,10 +19,10 @@ $(document).ready(function () {
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
     var colM = [
-        { title: "ID", width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
-        { title: "Name", width: '60%', dataIndx: "holiday_description", halign: "center"  },
-        { title: "Date", width: '10%', dataIndx: "holiday_date", align: "center", halign: "center"  },
-        { title: "Company", width: '20%', dataIndx: "company", align: "center", halign: "center"  }
+        { title: translateLabel("ID"), width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
+        { title: translateLabel("Name"), width: '60%', dataIndx: "holiday_description", halign: "center"  },
+        { title: translateLabel("Date"), width: '10%', dataIndx: "holiday_date", align: "center", halign: "center"  },
+        { title: translateLabel("Company"), width: '20%', dataIndx: "company", align: "center", halign: "center"  }
     ];
 
     /** 
@@ -84,7 +84,7 @@ $(document).ready(function () {
         dataModel: dataModel,
         colModel: colM,
         editable: false,
-        title: "holidays",
+        title: translateLabel('holidays'),
         topVisible: false,
         sortModel: sortModel,
         pageModel: pageModel,
@@ -132,8 +132,7 @@ $(document).ready(function () {
             var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
             location.href = path + "/admin/holidays/formUpdate/"+row.idholiday;
         }else{
-            msg = makeSmartyLabel('Alert_select_one');
-            console.log(msg);
+            msg = translateLabel('Alert_select_one');
             showAlert(msg,'warning');
         }
     });

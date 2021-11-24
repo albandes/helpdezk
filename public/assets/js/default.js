@@ -84,19 +84,16 @@ function modalAlertMultiple(type,message,id)
     return false;
 }
 
-function makeSmartyLabel(label){
-    var lbl = "";
-    $.post(path+"/main/home/translateLabel",{label:label},function(valor) {
-        lbl = "'"+valor+"'";
-    });
-    console.log(lbl)
+function translateLabel(label){
+    var lbl = $.ajax({
+        type: "POST",
+        url: path+"/main/home/translateLabel",
+        data: {label:label},
+        async: false,
+        dataType: 'json'
+    }).responseJSON;
+    
     return lbl;
-    /*if(!aLang[label]) { // quick and dirty will be true for '', null, undefined, 0, NaN and false.
-        console.log('It is missing in the language file: '+label);
-        return ' ... ';
-    } else {
-        return aLang[label].replace (/\"/g, "");
-    }*/
 
 }
 
