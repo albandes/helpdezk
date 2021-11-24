@@ -7,6 +7,7 @@ use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\dao\mysql\featureDAO;
+use App\modules\admin\dao\mysql\holidayDAO;
 use App\src\appServices;
 
 use Monolog\Logger;
@@ -149,6 +150,47 @@ class adminServices
 
                 array_push($aRet,$bus);
             }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * Returns an array with ID and description of years available on DB
+     *
+     * @return array
+     */
+    public function _comboLastYear()
+    {
+        $holidayDAO = new holidayDAO();
+        $lastYear = $holidayDAO->fetchHolidayYears();
+        
+        if(!is_null($lastYear) && !empty($lastYear)){
+            $aRet = array();
+            foreach($lastYear as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['holiday_year'],
+                    "text" => $v['holiday_year']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    public function _comboNextYear()
+    {
+        $date = date("Y");
+        $aRet = array();
+        for($i = $date; $i <= $date+5; $i++){
+            $bus =  array(
+                "id" => $i,
+                "text" => $i
+            );
+
+            array_push($aRet,$bus);                            			
         }
 
         return $aRet;

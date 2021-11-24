@@ -1,0 +1,162 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='Holidays'|translate} / <strong>{='Holiday_import'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="import-holiday-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+
+                                    <div class="row white-bg g-2">
+
+                                        <div class="row col-sm-1 b-l"></div>
+
+                                        <div class="row col-sm-11 b-l">
+                                        
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="holiday_description" class="col-form-label text-end">{='Company'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control input-sm" id="company" name="company" >
+                                                    <option></option>
+                                                    {foreach $cmbCompanies as $k=>$v}
+                                                    <option value="{$v['id']}">{$v['text']}</option>
+                                                    {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="lastyear" class="col-form-label text-end">{='Previous_year'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control input-sm" id="lastyear" name="lastyear" >
+                                                    {foreach $cmbLastYear as $ky=>$vy}
+                                                    <option></option>
+                                                    <option value="{$vy['id']}">{$vy['text']}</option>
+                                                    {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div id="boxResult" class="row wrapper white-bg text-center d-none">
+                                                <div class="col-sm-12 b-l">
+                                                    <h4>{='Holidays'|translate}</h4>                    
+                                                </div>
+
+                                                <div class="col-sm-12 b-l">
+                                                    <p>{='Total_holidays'|translate} <span class="txtYear"><!-- --></span>: <strong class="txtCount"><!-- --></strong></p>                    
+                                                </div>
+
+                                                <div class="col-sm-12 b-l">
+                                                    <table id="holiday-table" class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="col-sm-2 text-center"><h4><strong>{='Date'|translate}</strong></h4></th>
+                                                                <th class="col-sm-4 text-center"><h4><strong>{='Description'|translate}</strong></h4></th>
+                                                                <th class="col-sm-2 text-center"><h4><strong>{='Type'|translate}</strong></h4></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>                            
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row g-2 lineResult d-none">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="lastyear" class="col-form-label text-end">{='Import_to'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control input-sm" id="nextyear" name="nextyear">
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row wrapper white-bg">
+                                        <div class="col-sm-12 b-l">
+                                            <div id="alert-import-holiday"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper  border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnImportHoliday">
+                                                <span class="fa fa-download"></span>  &nbsp;{='Import'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/holidays/modal-alert-create.latte'}
+</body>
+    <script type="text/javascript">
+		var dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation};
+	</script>
+
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/datepicker/bootstrap-datepicker.css" />
+    <script src="{$path}/public/assets/js/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
+
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/select2/select2.min.css" />
+    <script src="{$path}/public/assets/js/select2/select2.min.js"></script>
+
+    <!-- Validation -->
+    <script src="{$path}/public/assets/js/validation/jquery.validate.min.js"></script>  
+
+    <script src="{$path}/app/modules/admin/views/js/createholiday.js"></script>
+
+
+{/block}

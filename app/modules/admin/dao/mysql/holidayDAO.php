@@ -13,16 +13,20 @@ class holidayDAO extends Database
         parent::__construct(); 
     }
 
-    public function fetchHolidays(): array
+    public function fetchHolidays(int $companyID, int $year): array
     {
 
-        $sql = "SELECT tbh.idholiday, tbh.holiday_date, tbh.holiday_description, tbp.idperson, tbp.name
-                  FROM tbholiday tbh
-             LEFT JOIN tbholiday_has_company tbhc
-                    ON tbhc.idholiday = tbh.idholiday
-             LEFT JOIN tbperson tbp
-                    ON tbp.idperson = tbhc.idperson";
-        
+        $sql = "SELECT a.idholiday, a.holiday_date, a.holiday_description, 
+                        IFNULL(c.idperson,0) idperson, IFNULL(c.name,'') name
+                  FROM tbholiday a
+       LEFT OUTER JOIN tbholiday_has_company b
+                    ON b.idholiday = a.idholiday
+             LEFT JOIN tbperson c
+                    ON c.idperson = b.idperson
+                 WHERE YEAR(a.holiday_date) = $year ";
+        $sql .= ($companyID != "" || $companyID != 0) ? "AND c.idperson = {$companyID} " : "AND b.idperson IS NULL ";
+        $sql .= "ORDER BY holiday_date";
+
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -261,5 +265,69 @@ class holidayDAO extends Database
         $holiday->setIdholiday($holidayID); 
         
         return $holiday;
+    }
+    
+    /**
+     * Returns an array with years recorded on DB
+     *
+     * @return array
+     */
+    public function fetchHolidayYears(): array
+    {        
+        $sql = "SELECT DISTINCT YEAR(holiday_date) AS holiday_year
+                  FROM tbholiday
+                 WHERE (YEAR(holiday_date) <> YEAR(NOW()) AND YEAR(holiday_date) > 0)
+              ORDER BY holiday_year DESC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting holiday years ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return array();
+        }
+        
+        return $aRet;
+    }
+
+    /**
+     * Returns an array with years recorded on DB
+     *
+     * @param  int $companyID
+     * @return array
+     */
+    public function fetchHolidayYearsByCompany(int $companyID): array
+    {        
+        $sql = "SELECT DISTINCT YEAR(a.holiday_date) AS holiday_year, b.idperson idcompany
+                  FROM tbholiday a
+       LEFT OUTER JOIN tbholiday_has_company b
+                    ON a.idholiday = b.idholiday
+                 WHERE (YEAR(a.holiday_date) <> YEAR(NOW()) AND YEAR(a.holiday_date) > 0)";
+        $sql .= ($companyID != "" || $companyID != 0) ? " AND b.idperson = :companyID" : "";
+        $sql .= " GROUP BY holiday_year
+                 ORDER BY holiday_year DESC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':companyID', $companyID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting holiday years by company ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return array();
+        }
+        
+        return $aRet;
     }
 }
