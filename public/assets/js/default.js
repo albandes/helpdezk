@@ -46,11 +46,10 @@ document.addEventListener("DOMContentLoaded", function(){
 // DOMContentLoaded  end
 
 
-function showAlert(msg,typeAlert,btnOk)
+function showAlert(msg,typeAlert)
 {
     $('#modal-notification').html(msg);
-    $("#btn-modal-ok").attr("href", btnOk);
-    $("#tipo-alert").attr('class', 'alert alert-'+typeAlert);
+    $("#type-alert").attr('class', 'alert alert-'+typeAlert);
     $('#modal-alert').modal('show');
 
     return false;
@@ -61,7 +60,7 @@ function modalAlert(type,message)
     $("#response").animate({height: '+=72px'}, 300);
 
     $('<div class="alert alert-'+type+'">' +
-        '<div class="row"><div class="col-md-1 close text-end" data-dismiss="alert">&times;</div><div class="col-md-10">'+message+'</div></div></div>')
+        '<div class="row"><div class="col-md-1 close position-absolute end-0" data-bs-dismiss="alert">&times;</div><div class="col-md-10">'+message+'</div></div></div>')
         .hide().appendTo('#response').fadeIn(1000);
 
     $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
@@ -75,7 +74,7 @@ function modalAlertMultiple(type,message,id)
     $("#"+id+"").animate({height: '+=72px'}, 300);
 
     $('<div class="alert alert-'+type+'">' +
-    '<button type="button" class="close" data-dismiss="alert">&times;</button>'+message+'</div>')
+    '<div class="row"><div class="col-md-1 close position-absolute end-0"><i class="close far fa-times-circle fa-2x" data-bs-dismiss="alert"></i></div><div class="col-md-11">'+message+'</div></div></div>')
         .hide().appendTo("#"+id+"").fadeIn(1000);
 
     $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
@@ -85,13 +84,16 @@ function modalAlertMultiple(type,message,id)
     return false;
 }
 
-function makeSmartyLabel(label){
-    if(!aLang[label]) { // quick and dirty will be true for '', null, undefined, 0, NaN and false.
-        console.log('It is missing in the language file: '+label);
-        return ' ... ';
-    } else {
-        return aLang[label].replace (/\"/g, "");
-    }
+function translateLabel(label){
+    var lbl = $.ajax({
+        type: "POST",
+        url: path+"/main/home/translateLabel",
+        data: {label:label},
+        async: false,
+        dataType: 'json'
+    }).responseJSON;
+    
+    return lbl;
 
 }
 

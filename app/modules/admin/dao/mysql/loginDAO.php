@@ -151,7 +151,7 @@ class loginDAO extends Database
     }
 
     public function checkUser(string $login): ?loginModel
-    {        
+    {      
         $sql = "SELECT login, status FROM tbperson WHERE login = :login";
         
         try{
@@ -164,14 +164,14 @@ class loginDAO extends Database
         }
         
         $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if(!$aRet){
+        if(!$aRet){ 
             return null;
         }
-
-        $login = new loginModel();
-        $login->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
         
-        return $login;
+        $loginCheck = new loginModel();
+        $loginCheck->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
+        
+        return $loginCheck;
     }
 
     public function getDataSession(int $userID): ?loginModel

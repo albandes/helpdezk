@@ -106,4 +106,25 @@ class personDAO extends Database
 
         return $person;
     }
+
+    public function fetchCompanies(): array
+    {        
+        $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (7,4,5) ORDER BY name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return array();
+        }
+        
+        return $aRet;
+    }
 }
