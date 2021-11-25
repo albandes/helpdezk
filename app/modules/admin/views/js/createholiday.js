@@ -14,41 +14,42 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $('#company').select2();
+    $('#company').select2({placeholder:translateLabel('Select_company'),allowClear:true});
+    $('#lastyear').select2({placeholder:translateLabel('select_year'),allowClear:true});
+    $('#nextyear').select2({placeholder:translateLabel('select_year'),allowClear:true});
 
     /*
      * Combos
      */
     var objHolidayData = {
         changeCompany: function() {
-            var companyId = $("#company").val();
+            var companyID = $("#company").val();
             $("#lastyear").empty();
-            $.post(path+"/admin/holidays/ajaxYearByCompany",{companyId:companyId},
-                function(valor) {
-                    $("#lastyear").html(valor);
-                    $("#lastyear").trigger("chosen:updated");
-                    if($("#lastyear").val() != "" && $("#lastyear").val() != "X"){objHolidayData.changeYear();}
-                    $('#boxResult').addClass('hide');
-                    $('.lineResult').addClass('hide');
-                    return false;
-                })
+            $.post(path+"/admin/holidays/ajaxYearByCompany",{companyID:companyID},function(valor){
+                $("#lastyear").html(valor);
+                $("#lastyear").trigger("change");
+                if($("#lastyear").val() != "" && $("#lastyear").val() != "X"){objHolidayData.changeYear();}
+                $('#boxResult').addClass('hide');
+                $('.lineResult').addClass('hide');
+                return false;
+            });
             return false ;
         },
         changeYear: function() {
-            var companyId = $("#company").val(),
+            var companyID = $("#company").val(),
                 prevyear = $("#lastyear").val();
             
-            $('#boxResult').addClass('hide');
-            $('.lineResult').addClass('hide');
+            $('#boxResult').addClass('d-none');
+            $('.lineResult').addClass('d-none');
 
-            if(prevyear != 'X' && companyId != 'X'){
+            if((prevyear != 'X' && prevyear != '') && (companyID != 'X' && companyID != '')){
                 $.ajax({
                     type: "POST",
                     url: path + '/admin/holidays/load',
                     dataType: 'json',
-                    data: {companyId:companyId,prevyear:prevyear},
+                    data: {companyID:companyID,prevyear:prevyear},
                     error: function (ret) {
-                        modalAlertMultiple('danger',makeSmartyLabel('Alert_get_data'),'alert-create-pedidocompra');
+                        modalAlertMultiple('danger',translateLabel('Alert_get_data'),'alert-create-pedidocompra');
                     },
                     success: function(ret){
     
@@ -56,11 +57,11 @@ $(document).ready(function () {
     
                         $('#holiday-table').find('tbody').html(obj.result);
                         $("#nextyear").html(obj.yearto);
-                        $("#nextyear").trigger("chosen:updated");
+                        $("#nextyear").trigger("change");
                         $('.txtYear').html(obj.year);
                         $('.txtCount').html(obj.count);
-                        $('#boxResult').removeClass('hide');
-                        $('.lineResult').removeClass('hide');
+                        $('#boxResult').removeClass('d-none');
+                        $('.lineResult').removeClass('d-none');
                     }
                 });
             }            
@@ -119,7 +120,7 @@ $(document).ready(function () {
                     $("#btnCancel").addClass('disabled');
                 },
                 complete: function(){
-                    $("#btnCreateHoliday").html("<i class='fa fa-check-circle'></i> "+ translateLabel('Save')).removeClass('disabled');
+                    $("#btnCreateHoliday").html("<i class='fa fa-save'></i> "+ translateLabel('Save')).removeClass('disabled');
                     $("#btnCancel").removeClass('disabled');
                 }
             });
@@ -157,7 +158,7 @@ $(document).ready(function () {
                     $("#btnCancel").addClass('disabled');
                 },
                 complete: function(){
-                    $("#btnUpdateHoliday").html("<i class='fa fa-check-circle'></i> "+ translateLabel('Save')).removeClass('disabled');
+                    $("#btnUpdateHoliday").html("<i class='fa fa-save'></i> "+ translateLabel('Save')).removeClass('disabled');
                     $("#btnCancel").removeClass('disabled');
                 }
     
@@ -178,30 +179,27 @@ $(document).ready(function () {
             dataType: 'json',
             data: $("#import-holiday-form").serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger',aLang['Import_failure'].replace (/\"/g, ""),'alert-create-holiday');
+                modalAlertMultiple('danger',translateLabel('Import_failure'),'alert-import-holiday');
             },
             success: function(ret){
 
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
 
-                if(obj.status == 'OK' ) {
-
-                    $('#modal-notification').html(aLang['Import_successfull'].replace (/\"/g, ""));
-                    $("#btn-modal-ok").attr("href", path + '/admin/holidays/index');
-                    $("#tipo_alerta").attr('class', 'alert alert-success');
-                    $('#modal-alert').modal('show');
-
+                if(obj.success) {
+                    showAlert(translateLabel('Import_successfull'),'success');
                 } else {
-
-                    modalAlertMultiple('danger',aLang['Import_failure'].replace (/\"/g, ""),'alert-create-holiday');
-
+                    modalAlertMultiple('danger',translateLabel('Import_failure'),'alert-import-holiday');
                 }
-
+            },
+            beforeSend: function(){
+                $("#btnImportHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                $("#btnCancel").addClass('disabled');
+            },
+            complete: function(){
+                $("#btnImportHoliday").html("<i class='fa fa-download'></i> "+ translateLabel('Import')).removeClass('disabled');
+                $("#btnCancel").removeClass('disabled');
             }
-
         });
-
-
     });
 
     /*
@@ -228,6 +226,20 @@ $(document).ready(function () {
         messages: {
             holiday_description:    translateLabel('Alert_field_required'),
             holiday_date:           translateLabel('Alert_field_required')
+        }
+    });
+
+    $("#import-holiday-form").validate({
+        ignore:[],
+        rules: {
+            company:    "required",
+            lastyear:   "required",
+            nextyear:   "required"
+        },
+        messages: {
+            company:    translateLabel('Alert_field_required'),
+            lastyear:   translateLabel('Alert_field_required'),
+            nextyear:   translateLabel('Alert_field_required')
         }
     });
 

@@ -38,10 +38,10 @@ class Holidays extends Controller
     public function makeScreenHolidays($option='idx',$obj=null)
     {
         $appSrc = new appServices();
-		$adminSrc = new adminServices();
+        $adminSrc = new adminServices();
         $translator = new localeServices();
-		$params = $appSrc->_getDefaultParams();
-		$params = $adminSrc->_makeNavAdm($params);
+        $params = $appSrc->_getDefaultParams();
+        $params = $adminSrc->_makeNavAdm($params);
         
         // -- Datepicker settings -- 
         $retDtpicker = $appSrc->_datepickerSettings();
@@ -70,6 +70,9 @@ class Holidays extends Controller
             $params['companyID'] = $obj->getIdcompany();
         }
 
+        // -- Last year --
+        $params['cmbLastYear'] = $adminSrc->_comboLastYear();
+      
         return $params;
     }
 
@@ -184,8 +187,8 @@ class Holidays extends Controller
     public function formCreate()
     {
         $params = $this->makeScreenHolidays();
-		
-		$this->view('admin','holidays-create',$params);
+        
+        $this->view('admin','holidays-create',$params);
     }
 
     /**
@@ -200,10 +203,21 @@ class Holidays extends Controller
 
         $params = $this->makeScreenHolidays('upd',$holidayUpd);
         $params['holidayID'] = $idholiday;
-		
-		$this->view('admin','holidays-update',$params);
+      
+        $this->view('admin','holidays-update',$params);
     }
 
+    /**
+     * en_us Renders the holidays add screen
+     *
+     * pt_br Renderiza o template da tela de novo cadastro
+     */
+    public function formImport()
+    {
+        $params = $this->makeScreenHolidays();
+        
+        $this->view('admin','holidays-import',$params);
+    }
 
     /**
      * en_us Write the holiday information to the DB
@@ -226,19 +240,19 @@ class Holidays extends Controller
         $companyID = $_POST['company'];
         
         $ins = $holidayDao->insertHoliday($dtholiday,$description);
-		if(is_null($ins) || empty($ins)){
-			return false;
+		    if(is_null($ins) || empty($ins)){
+			    return false;
         }        
         
         $holidayID = $ins->getIdholiday();
         
         //Link holiday with the company
-		if($companyID != 0){			
-			$insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
-			if(is_null($insCompany) || empty($insCompany)){
-				return false;
-			}
-		}
+        if($companyID != 0){
+            $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
+            if(is_null($insCompany) || empty($insCompany)){
+                return false;
+            }
+        }
 
         $aRet = array(
             "idholiday" => $holidayID,
@@ -269,8 +283,8 @@ class Holidays extends Controller
         $description = trim($_POST['holiday_description']);
         
         $upd = $holidayDao->updateHoliday($holidayID,$dtholiday,$description);
-		if(is_null($upd) || empty($upd)){
-			return false;
+        if(is_null($upd) || empty($upd)){
+            return false;
         }        
         
         $aRet = array(
@@ -281,6 +295,136 @@ class Holidays extends Controller
         echo json_encode($aRet);
     }
 
+    public function ajaxYearByCompany()
+    {
+        echo $this->comboYearByCompanyHtml($_POST['companyID']);
+    }
+
+    public function comboYearByCompanyHtml($companyID)
+    {
+        $holidayDao = new holidayDAO();
+        $translator = new localeServices();
+        
+        $companyYear = $holidayDao->fetchHolidayYearsByCompany($companyID);
+        $select = '';
+        
+        if(is_null($companyYear) || empty($companyYear) || sizeof($companyYear) == 0){
+            $select .= "<option value='X'> - {$translator->translate('no_holidays_for_company')} - </option>";
+        }else{
+            $select .= "<option></option>";
+            foreach ($companyYear as $key=>$value) {
+                $select .= "<option value='{$value['holiday_year']}'>{$value['holiday_year']}</option>";
+            }
+        }
+        
+        return $select;
+    }
+
+    public function comboNextYearHtml()
+    {
+        $adminSrc = new adminServices();
+        $arrYear = $adminSrc->_comboNextYear();
+        $select = "<option></option>";
+
+        foreach ($arrYear as $key=>$value) {
+            $select .= "<option value='{$value['id']}'>".$value['text']."</option>";
+        }        
+        return $select;
+    }
+
+    public function load()
+    {
+        $holidayDao = new holidayDAO();
+        $translator = new localeServices();
+        $appSrc = new appServices();
+
+        $year = $_POST['prevyear'];
+        $companyID = $_POST['companyID'];       
+
+        $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
+        $count = 0;
+        $list = '';
+
+        if(!is_null($loadHoliday) && !empty($loadHoliday)){
+            $count = count($loadHoliday);            
+            
+            foreach($loadHoliday as $key=>$val) {
+                $type_holiday = ($val['idperson'] != 0) ? $val['name'] : $translator->translate('National_holiday');
+                
+                $dataformatada = $appSrc->_formatDate($val['holiday_date']);
+                
+                $list .= "<tr>
+                            <td>".$dataformatada."</td>
+                            <td>".$val['holiday_description']."</td>
+                            <td>".$type_holiday."</td>
+                        </tr>";
+            }
+        }
+
+        $resultado = array(
+            'year' => $year,
+            'count' => $count,
+            'result' => $list,
+            'yearto' => $this->comboNextYearHtml()
+        );
+        
+        echo json_encode($resultado);
+    }
+
+    public function import() {
+
+        /*if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }*/
+
+        $holidayDao = new holidayDAO();
+        $translator = new localeServices();
+        $appSrc = new appServices();
+
+        $year = $_POST['lastyear'];
+        $nextyear = $_POST['nextyear'];
+        $companyID = $_POST['company'];
+
+        $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
+        $count = 0;
+        $list = '';
+
+        if(!is_null($loadHoliday) && !empty($loadHoliday)){
+            $count = count($loadHoliday);            
+            
+            foreach($loadHoliday as $key=>$val) {
+                $desc = $val['holiday_description'];
+                $newdate = $val['holiday_date'];
+
+                $newdate = substr($newdate,4);
+                $newdate = $nextyear . $newdate;
+                
+                $ins = $holidayDao->insertHoliday($newdate,$desc);
+                if(is_null($ins) || empty($ins)){
+                    return false;
+                }        
+                
+                $holidayID = $ins->getIdholiday();
+                
+                //Link holiday with the company
+                if($val['idperson'] != 0){			
+                    $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$val['idperson']);
+                    if(is_null($insCompany) || empty($insCompany)){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        $aRet = array(
+            "success"   => true
+        );
+
+        echo json_encode($aRet);
+    
+    }
 
 
 }

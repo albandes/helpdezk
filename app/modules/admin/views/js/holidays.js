@@ -136,6 +136,10 @@ $(document).ready(function () {
             showAlert(msg,'warning');
         }
     });
+
+    $("#btnImport").click(function(){
+        location.href = path + "/admin/holidays/formImport" ;
+    });
 });
 
 

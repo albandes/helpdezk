@@ -39,10 +39,9 @@ class Database
         }
 
         // create a log channel
-        $dateFormat = "d/m/Y H:i:s";
-        $formatter = new LineFormatter(null, $dateFormat);
+        $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
 
-        $streamDB = new StreamHandler('storage/logs/helpdezk.log', Logger::DEBUG);
+        $streamDB = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
         $streamDB->setFormatter($formatter);
 
 
