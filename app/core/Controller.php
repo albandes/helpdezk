@@ -33,23 +33,19 @@ class Controller
         $appSrc = new appServices();
         
         // create a log channel
-        $dateFormat = "d/m/Y H:i:s";
-        $formatter = new LineFormatter(null, $dateFormat);
-
-        $stream = new StreamHandler('logs/helpdezk.log', Logger::DEBUG);
+        $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
+                
+        $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
         $stream->setFormatter($formatter);
 
 
         $this->logger  = new Logger('helpdezk');
         $this->logger->pushHandler($stream);
-
-        //$this->logger->pushHandler(new StreamHandler('logs/helpdezk.log', Logger::DEBUG));
         
         // Clone the first one to only change the channel
         $this->emailLogger = $this->logger->withName('email');
 
-
-        
+       
         
         // Erro do DAO
         //$this->logger->error('Error updating scheduler ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $apiService->getDaoError($arrDao)]);
@@ -81,6 +77,10 @@ class Controller
         $traslator = new localeServices;
         $appSrc = new appServices();
         
+        if(!is_writable($appSrc->_getHelpdezkPath() . '/cache/latte')) {
+            die('cache/latte not writable !');
+        }
+
         $latte->setTempDirectory($appSrc->_getHelpdezkPath() . '/cache/latte');
         
         $latte->addFilter('translate', [$traslator, 'translate']);
