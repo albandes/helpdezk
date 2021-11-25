@@ -38,10 +38,10 @@ class Holidays extends Controller
     public function makeScreenHolidays($option='idx',$obj=null)
     {
         $appSrc = new appServices();
-		$adminSrc = new adminServices();
+        $adminSrc = new adminServices();
         $translator = new localeServices();
-		$params = $appSrc->_getDefaultParams();
-		$params = $adminSrc->_makeNavAdm($params);
+        $params = $appSrc->_getDefaultParams();
+        $params = $adminSrc->_makeNavAdm($params);
         
         // -- Datepicker settings -- 
         $retDtpicker = $appSrc->_datepickerSettings();
@@ -187,8 +187,8 @@ class Holidays extends Controller
     public function formCreate()
     {
         $params = $this->makeScreenHolidays();
-		
-		    $this->view('admin','holidays-create',$params);
+        
+        $this->view('admin','holidays-create',$params);
     }
 
     /**
@@ -215,8 +215,8 @@ class Holidays extends Controller
     public function formImport()
     {
         $params = $this->makeScreenHolidays();
-		
-		    $this->view('admin','holidays-import',$params);
+        
+        $this->view('admin','holidays-import',$params);
     }
 
     /**
@@ -247,12 +247,12 @@ class Holidays extends Controller
         $holidayID = $ins->getIdholiday();
         
         //Link holiday with the company
-		    if($companyID != 0){			
-			    $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
-			    if(is_null($insCompany) || empty($insCompany)){
-				    return false;
-			    }
-		    }
+        if($companyID != 0){
+            $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
+            if(is_null($insCompany) || empty($insCompany)){
+                return false;
+            }
+        }
 
         $aRet = array(
             "idholiday" => $holidayID,
@@ -283,8 +283,8 @@ class Holidays extends Controller
         $description = trim($_POST['holiday_description']);
         
         $upd = $holidayDao->updateHoliday($holidayID,$dtholiday,$description);
-		    if(is_null($upd) || empty($upd)){
-			    return false;
+        if(is_null($upd) || empty($upd)){
+            return false;
         }        
         
         $aRet = array(
@@ -367,8 +367,8 @@ class Holidays extends Controller
             'result' => $list,
             'yearto' => $this->comboNextYearHtml()
         );
-
-		echo json_encode($resultado);
+        
+        echo json_encode($resultado);
     }
 
     public function import() {
@@ -384,7 +384,7 @@ class Holidays extends Controller
         $appSrc = new appServices();
 
         $year = $_POST['lastyear'];
-		$nextyear = $_POST['nextyear'];
+        $nextyear = $_POST['nextyear'];
         $companyID = $_POST['company'];
 
         $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
@@ -423,8 +423,8 @@ class Holidays extends Controller
         );
 
         echo json_encode($aRet);
-
-	}
+    
+    }
 
 
 }
