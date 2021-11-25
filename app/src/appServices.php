@@ -10,6 +10,11 @@ use App\modules\admin\dao\mysql\holidayDAO;
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
 
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
+
 class appServices
 {
     public function _getHelpdezkVersion(): string
@@ -327,8 +332,16 @@ class appServices
         
         return (!is_null($dateafter) && !empty($dateafter)) ? $dateafter : "" ;
     }
-
-    public function _formatDate($date)
+    
+    /**
+     * en_us Format a date to view on screen
+     * 
+     * pt_br Formata uma data para visualizar em tela
+     *
+     * @param  mixed $date
+     * @return string
+     */
+    public function _formatDate(string $date): string
     {
         $holidayDAO = new holidayDao();
         $dateafter = $holidayDAO->getDate($date, $_ENV["DATE_FORMAT"]);
@@ -475,6 +488,45 @@ class appServices
         }
 
         return $ret;
+    }
+
+    /**
+     * en_us Format a date to write to BD
+     * 
+     * pt_br Formata uma data para gravar no BD
+     *
+     * @return object
+     */
+    public function _getStreamHandler()
+    { 
+        switch($_ENV['LOG_LEVEL']){
+            case 'INFO':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::INFO);
+                break;
+            case 'NOTICE':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::NOTICE);
+                break;
+            case 'WARNING':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::WARNING);
+                break;
+            case 'ERROR':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::ERROR);
+                break;
+            case 'CRITICAL':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::CRITICAL);
+                break;
+            case 'ALERT':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::ALERT);
+                break;
+            case 'EMERGENCY':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::EMERGENCY);
+                break;
+            default:
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
+                break;
+        }
+        
+        return $stream;
     }
 
 }

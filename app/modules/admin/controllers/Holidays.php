@@ -416,6 +416,8 @@ class Holidays extends Controller
                     }
                 }
             }
+        }else{
+            return false;
         }
 
         $aRet = array(
@@ -424,6 +426,37 @@ class Holidays extends Controller
 
         echo json_encode($aRet);
     
+    }
+
+    function deleteHoliday()
+    {
+
+        /*if (!$this->_checkToken()) {
+            if($this->log)
+                $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }*/
+
+        $holidayDao = new holidayDAO();
+
+        $id = $_POST['holidayID'];
+        
+        $delCompany = $holidayDao->deleteHolidayCompany($id);
+        if(is_null($delCompany)){
+            return false;
+        }
+        
+        $del = $holidayDao->deleteHoliday($id);
+		if(is_null($del) || empty($del)){
+            return false;
+        }
+
+        $aRet = array(
+            "success" => true
+        );
+
+        echo json_encode($aRet);
+
     }
 
 

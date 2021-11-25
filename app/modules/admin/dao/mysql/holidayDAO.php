@@ -330,5 +330,55 @@ class holidayDAO extends Database
         
         return $aRet;
     }
-    
+
+    /**
+     * Delete the holiday from the database
+     *
+     * @param  int $holidayID
+     * @return holidayModel
+     */
+    public function deleteHoliday(int $holidayID): ?holidayModel
+    {        
+        $sql = "DELETE FROM tbholiday WHERE idholiday = :holidayID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+
+        $holiday = new holidayModel(); 
+        $holiday->setIdholiday($holidayID); 
+        
+        return $holiday;
+    }
+
+    /**
+     * Delete the link between holiday and company from the database
+     *
+     * @param  int $holidayID
+     * @return holidayModel
+     */
+    public function deleteHolidayCompany(int $holidayID): ?holidayModel
+    {        
+        $sql = "DELETE FROM tbholiday_has_company WHERE idholiday = :holidayID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+
+        $holiday = new holidayModel(); 
+        $holiday->setIdholiday($holidayID); 
+        
+        return $holiday;
+    }
+
 }
