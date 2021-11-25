@@ -72,7 +72,7 @@ class Holidays extends Controller
 
         // -- Last year --
         $params['cmbLastYear'] = $adminSrc->_comboLastYear();
-
+      
         return $params;
     }
 
@@ -188,7 +188,7 @@ class Holidays extends Controller
     {
         $params = $this->makeScreenHolidays();
 		
-		$this->view('admin','holidays-create',$params);
+		    $this->view('admin','holidays-create',$params);
     }
 
     /**
@@ -203,8 +203,8 @@ class Holidays extends Controller
 
         $params = $this->makeScreenHolidays('upd',$holidayUpd);
         $params['holidayID'] = $idholiday;
-		
-		$this->view('admin','holidays-update',$params);
+      
+        $this->view('admin','holidays-update',$params);
     }
 
     /**
@@ -216,7 +216,7 @@ class Holidays extends Controller
     {
         $params = $this->makeScreenHolidays();
 		
-		$this->view('admin','holidays-import',$params);
+		    $this->view('admin','holidays-import',$params);
     }
 
     /**
@@ -240,19 +240,19 @@ class Holidays extends Controller
         $companyID = $_POST['company'];
         
         $ins = $holidayDao->insertHoliday($dtholiday,$description);
-		if(is_null($ins) || empty($ins)){
-			return false;
+		    if(is_null($ins) || empty($ins)){
+			    return false;
         }        
         
         $holidayID = $ins->getIdholiday();
         
         //Link holiday with the company
-		if($companyID != 0){			
-			$insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
-			if(is_null($insCompany) || empty($insCompany)){
-				return false;
-			}
-		}
+		    if($companyID != 0){			
+			    $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
+			    if(is_null($insCompany) || empty($insCompany)){
+				    return false;
+			    }
+		    }
 
         $aRet = array(
             "idholiday" => $holidayID,
@@ -283,8 +283,8 @@ class Holidays extends Controller
         $description = trim($_POST['holiday_description']);
         
         $upd = $holidayDao->updateHoliday($holidayID,$dtholiday,$description);
-		if(is_null($upd) || empty($upd)){
-			return false;
+		    if(is_null($upd) || empty($upd)){
+			    return false;
         }        
         
         $aRet = array(
