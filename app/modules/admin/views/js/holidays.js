@@ -4,8 +4,8 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body')});
-    $('#action-list').select2({dropdownParent: $(this).find('.modal-body')});
+    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
 
     /** 
      * Define a model for grid's columns

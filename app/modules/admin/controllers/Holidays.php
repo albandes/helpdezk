@@ -295,12 +295,25 @@ class Holidays extends Controller
         echo json_encode($aRet);
     }
 
+    /**
+     * en_us Returns on screen the list of holidays years of the selected company
+     *
+     * pt_br Retorna em tela a lista de anos de feriados da empresa selecionada
+     */
     public function ajaxYearByCompany()
     {
         echo $this->comboYearByCompanyHtml($_POST['companyID']);
     }
-
-    public function comboYearByCompanyHtml($companyID)
+    
+    /**
+     * en_us Gets the list of holidays of the selected company from the DB and formats it in options of the select tag
+     *
+     * pt_br Obtém a lista de feriados da empresa selecionada do BD e formata em options da tag select
+     * 
+     * @param  int $companyID
+     * @return string
+     */
+    public function comboYearByCompanyHtml(int $companyID): string
     {
         $holidayDao = new holidayDAO();
         $translator = new localeServices();
@@ -320,7 +333,15 @@ class Holidays extends Controller
         return $select;
     }
 
-    public function comboNextYearHtml()
+    /**
+     * en_us Formats the list of years in the select tag's options
+     *
+     * pt_br Formata em opções selecionadas de HTML
+     * 
+     * @param  int $companyID
+     * @return string
+     */
+    public function comboNextYearHtml(): string
     {
         $adminSrc = new adminServices();
         $arrYear = $adminSrc->_comboNextYear();
@@ -332,6 +353,11 @@ class Holidays extends Controller
         return $select;
     }
 
+    /**
+     * en_us Returns the list of selected company and year holidays to the screen
+     *
+     * pt_br Retorna em tela a lista de feriados da empresa e ano selecionados
+     */
     public function load()
     {
         $holidayDao = new holidayDAO();
@@ -371,6 +397,11 @@ class Holidays extends Controller
         echo json_encode($resultado);
     }
 
+    /**
+     * en_us Writes the holidays of the previous year and selected company in the DB
+     *
+     * pt_br Grava no BD os feriados do ano anterior e empresa selecionados
+     */
     public function import() {
 
         /*if (!$this->_checkToken()) {
@@ -428,6 +459,11 @@ class Holidays extends Controller
     
     }
 
+    /**
+     * en_us Remove the holiday from the DB
+     *
+     * pt_br Remove o feriado do BD
+     */
     function deleteHoliday()
     {
 

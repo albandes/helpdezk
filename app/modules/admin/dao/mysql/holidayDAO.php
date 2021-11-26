@@ -12,7 +12,14 @@ class holidayDAO extends Database
     {
         parent::__construct(); 
     }
-
+    
+    /**
+     * Returns a list of holidays by selected company and year
+     *
+     * @param  int $companyID
+     * @param  int $year
+     * @return array
+     */
     public function fetchHolidays(int $companyID, int $year): array
     {
 
@@ -45,7 +52,7 @@ class holidayDAO extends Database
     }
     
     /**
-     * queryHolidays
+     * Return an array with holidays to display in grid
      *
      * @param  string $where
      * @param  string $group
@@ -200,7 +207,13 @@ class holidayDAO extends Database
         
         return $aRet['date'];
     }
-
+    
+    /**
+     * Returns a ibject with holiday data
+     *
+     * @param  int $holidayID
+     * @return holidayModel
+     */
     public function getHoliday(int $holidayID): ?holidayModel
     {        
         $sql = "SELECT tbh.idholiday, tbh.holiday_date, tbh.holiday_description, tbp.idperson, tbp.name

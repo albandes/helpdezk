@@ -528,5 +528,36 @@ class appServices
         
         return $stream;
     }
+    
+    /**
+     * en_us Checks if the directory exists, if not, it will be created. 
+     *       It also checks if you have write permissions, if not, grant the corresponding permissions.
+     * 
+     * pt_br Verifica se o diretório existe, caso não exista, será criado. 
+     *       Também verifica se tem permissões de escrita, caso não possua, concede as permissões correspondentes
+     *
+     * @param  mixed $path
+     * @return string
+     */
+    public function _setFolder(string $path): string
+    {
+        if(!is_dir($path)) {
+            $this->logIt('Directory: '. $path.' does not exists, I will try to create it. - program: '.$this->program ,6,'general',__LINE__);
+            if (!mkdir ($path, 0777 )) {
+                $this->logIt('I could not create the directory: '.$path.' - program: '.$this->program ,3,'general',__LINE__);
+                return false;
+            }
+        }
+
+        if (!is_writable($path)) {
+            $this->logIt('Directory: '. $path.' Is not writable, I will try to make it writable - program: '.$this->program ,6,'general',__LINE__);
+            if (!chmod($path,0777)){
+                $this->logIt('Directory: '.$path.'Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                return false;
+            }
+        }
+
+        return $path;
+    }
 
 }
