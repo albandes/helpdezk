@@ -2,6 +2,7 @@
 
 namespace App\core;
 
+use App\src\appServices;
 use Monolog\Logger;
 //use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
@@ -38,10 +39,12 @@ class Database
             die("<br>Error connecting to database: " . $ex->getMessage() . " File: " . __FILE__ . " Line: " . __LINE__ );
         }
 
+        $appSrc = new appServices();
+
         // create a log channel
         $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
 
-        $streamDB = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
+        $streamDB = $appSrc->_getStreamHandler();
         $streamDB->setFormatter($formatter);
 
 

@@ -59,11 +59,11 @@ function modalAlert(type,message)
 {
     $("#response").animate({height: '+=72px'}, 300);
 
-    $('<div class="alert alert-'+type+'">' +
-        '<div class="row"><div class="col-md-1 close position-absolute end-0" data-bs-dismiss="alert">&times;</div><div class="col-md-10">'+message+'</div></div></div>')
+    $('<div class="alert alert-'+type+' hdk-alert">' +
+        '<div class="row"><div class="col-md-2 close position-absolute end-0 text-center" data-bs-dismiss="alert">&times;</div><div class="col-md-10">'+message+'</div></div></div>')
         .hide().appendTo('#response').fadeIn(1000);
 
-    $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
+    $(".hdk-alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
 
     $("#response").delay(4000).animate({ height: '-=72px' }, 300); 
 }
@@ -73,11 +73,11 @@ function modalAlertMultiple(type,message,id)
 
     $("#"+id+"").animate({height: '+=72px'}, 300);
 
-    $('<div class="alert alert-'+type+'">' +
-    '<div class="row"><div class="col-md-1 close position-absolute end-0"><i class="close far fa-times-circle fa-2x" data-bs-dismiss="alert"></i></div><div class="col-md-11">'+message+'</div></div></div>')
+    $('<div class="alert alert-'+type+' hdk-alert">' +
+    '<div class="row"><div class="col-md-2 close position-absolute end-0 text-center"><i class="close far fa-times-circle fa-2x" data-bs-dismiss="alert"></i></div><div class="col-md-10">'+message+'</div></div></div>')
         .hide().appendTo("#"+id+"").fadeIn(1000);
 
-    $(".alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
+    $(".hdk-alert").delay(3500).fadeOut("normal", function(){ $(this).remove(); });
 
     $("#"+id+"").delay(4000).animate({ height: '-=72px' }, 300);
 

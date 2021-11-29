@@ -10,6 +10,11 @@ use App\modules\admin\dao\mysql\holidayDAO;
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
 
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
+
 class appServices
 {
     public function _getHelpdezkVersion(): string
@@ -327,8 +332,16 @@ class appServices
         
         return (!is_null($dateafter) && !empty($dateafter)) ? $dateafter : "" ;
     }
-
-    public function _formatDate($date)
+    
+    /**
+     * en_us Format a date to view on screen
+     * 
+     * pt_br Formata uma data para visualizar em tela
+     *
+     * @param  mixed $date
+     * @return string
+     */
+    public function _formatDate(string $date): string
     {
         $holidayDAO = new holidayDao();
         $dateafter = $holidayDAO->getDate($date, $_ENV["DATE_FORMAT"]);
@@ -475,6 +488,76 @@ class appServices
         }
 
         return $ret;
+    }
+
+    /**
+     * en_us Format a date to write to BD
+     * 
+     * pt_br Formata uma data para gravar no BD
+     *
+     * @return object
+     */
+    public function _getStreamHandler()
+    { 
+        switch($_ENV['LOG_LEVEL']){
+            case 'INFO':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::INFO);
+                break;
+            case 'NOTICE':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::NOTICE);
+                break;
+            case 'WARNING':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::WARNING);
+                break;
+            case 'ERROR':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::ERROR);
+                break;
+            case 'CRITICAL':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::CRITICAL);
+                break;
+            case 'ALERT':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::ALERT);
+                break;
+            case 'EMERGENCY':
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::EMERGENCY);
+                break;
+            default:
+                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
+                break;
+        }
+        
+        return $stream;
+    }
+    
+    /**
+     * en_us Checks if the directory exists, if not, it will be created. 
+     *       It also checks if you have write permissions, if not, grant the corresponding permissions.
+     * 
+     * pt_br Verifica se o diretório existe, caso não exista, será criado. 
+     *       Também verifica se tem permissões de escrita, caso não possua, concede as permissões correspondentes
+     *
+     * @param  mixed $path
+     * @return string
+     */
+    public function _setFolder(string $path): string
+    {
+        if(!is_dir($path)) {
+            $this->logIt('Directory: '. $path.' does not exists, I will try to create it. - program: '.$this->program ,6,'general',__LINE__);
+            if (!mkdir ($path, 0777 )) {
+                $this->logIt('I could not create the directory: '.$path.' - program: '.$this->program ,3,'general',__LINE__);
+                return false;
+            }
+        }
+
+        if (!is_writable($path)) {
+            $this->logIt('Directory: '. $path.' Is not writable, I will try to make it writable - program: '.$this->program ,6,'general',__LINE__);
+            if (!chmod($path,0777)){
+                $this->logIt('Directory: '.$path.'Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                return false;
+            }
+        }
+
+        return $path;
     }
 
 }

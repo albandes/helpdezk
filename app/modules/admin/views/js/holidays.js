@@ -4,8 +4,8 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body')});
-    $('#action-list').select2({dropdownParent: $(this).find('.modal-body')});
+    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
 
     /** 
      * Define a model for grid's columns
@@ -94,6 +94,11 @@ $(document).ready(function () {
 
     $("#grid_holidays").pqGrid(obj);
 
+    //Grid localization
+    var locale = default_lang.replace('_','-');
+    $("#grid_holidays").pqGrid("option", $.paramquery.pqGrid.regional[locale]);
+    $("#grid_holidays").find(".pq-pager").pqPager("option", $.paramquery.pqPager.regional[locale]);
+
     // Buttons
     $("#btnFilters").click(function(){
         $('#modal-search-filter').modal('show');
@@ -140,9 +145,72 @@ $(document).ready(function () {
     $("#btnImport").click(function(){
         location.href = path + "/admin/holidays/formImport" ;
     });
+
+    $("#btnDelete").click(function(){
+        var rowIndx = getRowIndx(),msg="";
+        
+        if (rowIndx != null) {
+            var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
+            
+            $("#delete-id").val(row.idholiday);
+            $("#delete-description").val(row.holiday_description);
+            $("#delete-date").val(row.holiday_date);
+            $("#delete-company").val(row.company);
+            $("#modal-holiday-delete").modal('show');
+        }else{
+            msg = translateLabel('Alert_select_one');
+            showAlert(msg,'warning');
+        }
+    });
+
+    $("#btnDeleteYes").click(function(){
+        
+        if(!$("#btnDeleteYes").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/holidays/deleteHoliday',
+                dataType: 'json',
+                data: {
+                    _token : $("#_token").val(),
+                    holidayID: $("#delete-id").val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-holiday');
+                },
+                success: function(ret){
+    
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+    
+                    if(obj.success) {
+                        modalAlertMultiple('success',translateLabel('Alert_deleted'),'alert-delete-holiday');
+                        setTimeout(function(){
+                            $('#modal-holiday-delete').modal('hide');
+                            $("#grid_holidays").pqGrid("refreshDataAndView");
+                        },4000);
+                    } else {
+                        modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-holiday');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnDeleteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnDeleteNo").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnDeleteYes").html("<i class='fa fa-check'></i> "+ translateLabel('Yes')).removeClass('disabled');
+                    $("#btnDeleteNo").removeClass('disabled');
+                }
+    
+            });
+        }
+
+    });
 });
 
-
+/**
+ * Returns ID of the row selected
+ * 
+ * @returns mixed
+ */
 function getRowIndx() {
     var arr = $("#grid_holidays").pqGrid("selection", { type: 'row', method: 'getSelection' });
     

@@ -34,8 +34,8 @@ class Controller
         
         // create a log channel
         $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
-                
-        $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
+        
+        $stream = $appSrc->_getStreamHandler();
         $stream->setFormatter($formatter);
 
 

@@ -247,5 +247,11 @@ $(document).ready(function () {
     $('#modal-holiday-create').on('hidden.bs.modal', function() { 
         location.href = path + "/admin/holidays/index" ;        
     });
+
+    if($("#import-holiday-form").length > 0 || $("#update-holiday-form").length > 0){
+        $('#modal-alert').on('hidden.bs.modal', function() { 
+            location.href = path + "/admin/holidays/index" ;        
+        });
+    }
 });
             
