@@ -80,7 +80,7 @@ class Controller
         if(!is_writable($appSrc->_getHelpdezkPath() . '/cache/latte')) {
             die('cache/latte not writable !');
         }
-
+        
         $latte->setTempDirectory($appSrc->_getHelpdezkPath() . '/cache/latte');
         
         $latte->addFilter('translate', [$traslator, 'translate']);

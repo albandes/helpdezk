@@ -83,7 +83,7 @@ class moduleDAO extends Database
         return $aRet;
     }
 
-    public function fetchModulesCategoryAtive(int $userID, int $userType, int $moduleID): array
+    public function fetchModuleActiveCategories(int $userID, int $userType, int $moduleID): array
     {        
         if($userID == 1 || $userType == 1){
             $cond = " AND tp.idtypeperson = 1";

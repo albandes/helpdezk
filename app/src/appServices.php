@@ -17,6 +17,33 @@ use Monolog\Formatter\LineFormatter;
 
 class appServices
 {
+    /**
+     * @var object
+     */
+    protected $applogger;
+    
+    /**
+     * @var object
+     */
+    protected $appEmailLogger;
+
+    public function __construct()
+    {
+        // create a log channel
+        $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
+        
+        $stream = $this->_getStreamHandler();
+        $stream->setFormatter($formatter);
+
+
+        $this->applogger  = new Logger('helpdezk');
+        $this->applogger->pushHandler($stream);
+        
+        // Clone the first one to only change the channel
+        $this->appEmailLogger = $this->applogger->withName('email');
+
+    }
+
     public function _getHelpdezkVersion(): string
     {
         // Read the version.txt file
@@ -174,7 +201,7 @@ class appServices
                 $prefix = $v['tableprefix'];
                 if(!empty($prefix)) {
                     $modSettings = $moduleDAO->fetchConfigDataByModule($prefix);
-                    if (!is_null($modSettings) && !empty($modSettings)){
+                    if (!is_null($modSettings)){
                         $aRet[] = array(
                             'idmodule' => $v['idmodule'],
                             'path' => $v['path'],
@@ -558,6 +585,61 @@ class appServices
         }
 
         return $path;
+    }
+
+    public function _makeMenuByModule($personID,$typePersonID,$moduleID)
+    {
+        $moduleDAO = new moduleDAO();
+        $categories = $moduleDAO->fetchModuleActiveCategories($personID,$typePersonID,$moduleID);
+        $aCategories = array();
+        
+        if(!is_null($categories) && !empty($categories)){
+            foreach($categories as $ck=>$cv) {
+                $permissionsMod = $moduleDAO->fetchPermissionMenu($personID,$typePersonID,$moduleID,$cv['category_id']);
+                        
+                if(!is_null($permissionsMod) && !empty($permissionsMod)){
+                    foreach($permissionsMod as $permidx=>$permval) {
+                        $allow = $permval['allow'];
+                        $path  = $permval['path'];
+                        $program = $permval['program'];
+                        $controller = $permval['controller'];
+                        $prsmarty = $permval['pr_smarty'];
+
+                        $checkbar = substr($permval['controller'], -1);
+                        if($checkbar != "/") $checkbar = "/";
+                        else $checkbar = "";
+
+                        $controllertmp = ($checkbar != "") ? $controller : substr($controller,0,-1);
+                        $controller_path = 'app/modules/'. $path  .'/controllers/' . ucfirst($controllertmp)  . '.php';
+                        
+                        if (!file_exists($controller_path)) {
+                            $this->applogger->error("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }else{
+                            if ($allow == 'Y') {
+                                $aCategories[$cv['cat_smarty']][$prsmarty] = array("url"=>$_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index", "program_name"=>$prsmarty);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $aCategories;
+
+    }
+    
+    /**
+     * Returns module's ID
+     *
+     * @param  string $moduleName
+     * @return int
+     */
+    public function _getModuleID(string $moduleName): int
+    {
+        $moduleDAO = new moduleDAO();
+        $moduleID = $moduleDAO->getModuleInfoByName($moduleName);
+
+        return (!is_null($moduleID) && !empty($moduleID)) ? $moduleID->getIdmodule() : 0;
     }
 
 }

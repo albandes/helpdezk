@@ -59,7 +59,7 @@ class adminServices
         if(!is_null($activeModules) && !empty($activeModules)){
             foreach($activeModules as $k=>$v) {      
                 
-                $activeCategories = $moduleDAO->fetchModulesCategoryAtive($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$v['idmodule']);
+                $activeCategories = $moduleDAO->fetchModuleActiveCategories($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$v['idmodule']);
                 
                 if(!is_null($activeCategories) && !empty($activeCategories)){
                     foreach($activeCategories as $idx=>$val) {

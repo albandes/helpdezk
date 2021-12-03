@@ -28,7 +28,7 @@
         <li>
             <a href="{$path}/{$i['path']}/home">
                 <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
-                &nbsp;&nbsp;<span>{$i['varsmarty']}</span>
+                &nbsp;&nbsp;<span>{=$i['varsmarty']|translate}</span>
             </a>
         </li>
         {/foreach}
@@ -75,7 +75,16 @@
 
             <ul class="navbar-nav">
                 <!-- Modules Menu -->
-                {$listMenu_1}
+                {foreach $listMenu_1 as $k=>$v}
+                    <li class='nav-item dropdown'>
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"> {=$k|translate} </a>
+                        <ul class="dropdown-menu">
+                            {foreach $v as $subk=>$subv}
+                            <li><a class="dropdown-item" href="{$subv['url']}">{=$subv['program_name']|translate}</a></li>
+                            {/foreach}
+                        </ul>
+                    </li>
+                {/foreach}
             </ul>
 
             {if $displayMenu_Adm == 1}
