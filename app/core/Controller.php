@@ -77,9 +77,8 @@ class Controller
         $traslator = new localeServices;
         $appSrc = new appServices();
         
-        if(!is_writable($appSrc->_getHelpdezkPath() . '/cache/latte')) {
-            die('cache/latte not writable !');
-        }
+        $cacheDir = $appSrc->_setFolder($appSrc->_getHelpdezkPath() . "/cache");
+        $latteDir = $appSrc->_setFolder($cacheDir . "/latte");
         
         $latte->setTempDirectory($appSrc->_getHelpdezkPath() . '/cache/latte');
         

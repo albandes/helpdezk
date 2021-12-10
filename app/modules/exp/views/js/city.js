@@ -19,10 +19,14 @@ $(document).ready(function () {
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
     var colM = [
-        { title: translateLabel("ID"), width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
-        { title: translateLabel("Name"), width: '60%', dataIndx: "holiday_description", halign: "center"  },
-        { title: translateLabel("Date"), width: '10%', dataIndx: "holiday_date", align: "center", halign: "center"  },
-        { title: translateLabel("Company"), width: '20%', dataIndx: "company", align: "center", halign: "center"  }
+        { title: translateLabel("ID"), width: '10%', dataIndx: "idcity", hidden:true, halign: "center"  },        
+        { title: translateLabel("Name"), width: '50%', dataIndx: "city", halign: "center"  },
+        { title: translateLabel("uf"), width: '10%', dataIndx: "uf", align: "center", halign: "center"  },
+        { title: translateLabel("city_foundation"), width: '20%', dataIndx: "dtfoundation", align: "center", halign: "center"  },
+        { title: translateLabel("status"), width: '10%', dataIndx: "status", align: "center", halign: "center"  },
+        { title: "", width: '10%', dataIndx: "status_val", hidden:true, halign: "center"  },
+        { title: translateLabel("Default"), width: '10%', dataIndx: "default", align: "center", halign: "center"  },
+        { title: "", width: '10%', dataIndx: "default_val", hidden:true, halign: "center"  },
     ];
 
     /** 
@@ -40,7 +44,7 @@ $(document).ready(function () {
         location: "remote",
         dataType: "JSON",
         method: "POST",
-        url: path + '/admin/holidays/jsonGrid',
+        url: path + '/exp/expCity/jsonGrid',
         getData: function (dataJSON) {                
             return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };                
         }
@@ -58,7 +62,7 @@ $(document).ready(function () {
     var sortModel = {
         cancel: false,
         type: "remote",
-        sorter:[ { dataIndx: "idholiday", dir: "up" } ]
+        sorter:[ { dataIndx: "city", dir: "up" } ]
     };
 
     /** 
@@ -89,7 +93,19 @@ $(document).ready(function () {
         sortModel: sortModel,
         pageModel: pageModel,
         numberCell: {show: false},
-        selectionModel: { mode: 'single', type: 'row' }
+        selectionModel: { mode: 'single', type: 'row' },
+        selectChange: function (evt, ui) {
+            var rowIndx = getRowIndx(),
+                row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx}),
+                rowSt = row.status_val;
+                
+            $('#btnEnable').removeClass('disabled').addClass('active');
+            $('#btnDisable').removeClass('disabled').addClass('active');
+            if (rowSt == 'A')
+                $('#btnEnable').removeClass('active').addClass('disabled');
+            else
+                $('#btnDisable').removeClass('active').addClass('disabled');
+        }
     };
 
     $("#grid_holidays").pqGrid(obj);
@@ -121,13 +137,13 @@ $(document).ready(function () {
             
         $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
             return {quickSearch:true,quickValue:quickValue};
-        } );
+        });
         
         $("#grid_holidays").pqGrid("refreshDataAndView");
     });
 
     $("#btnCreate").click(function(){
-        location.href = path + "/admin/holidays/formCreate";
+        location.href = path + "/exp/expCity/formCreate";
     });
 
     $("#btnUpdate").click(function(){
@@ -135,7 +151,7 @@ $(document).ready(function () {
         
         if (rowIndx != null) {
             var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
-            location.href = path + "/admin/holidays/formUpdate/"+row.idholiday;
+            location.href = path + "/exp/expCity/formUpdate/"+row.idcity;
         }else{
             msg = translateLabel('Alert_select_one');
             showAlert(msg,'warning');

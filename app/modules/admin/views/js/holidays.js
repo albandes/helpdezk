@@ -21,7 +21,7 @@ $(document).ready(function () {
     var colM = [
         { title: translateLabel("ID"), width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
         { title: translateLabel("Name"), width: '60%', dataIndx: "holiday_description", halign: "center"  },
-        { title: translateLabel("Date"), width: '10%', dataIndx: "holiday_date", align: "center", halign: "center"  },
+        { title: translateLabel("Date"), width: '20%', dataIndx: "holiday_date", align: "center", halign: "center"  },
         { title: translateLabel("Company"), width: '20%', dataIndx: "company", align: "center", halign: "center"  }
     ];
 

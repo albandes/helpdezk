@@ -127,4 +127,37 @@ class personDAO extends Database
         
         return $aRet;
     }
+    
+    /**
+     * Return an array with states data
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array
+     */
+    public function queryStates($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $where = !$where ? "WHERE idstate != 1" : $where;
+        $order = !$order ? "ORDER BY `name`" : $order;
+
+        $sql = "SELECT idstate, `name` FROM tbstate $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            return null;
+        }
+        
+        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(!$aRet){
+            return array();
+        }
+        
+        return $aRet;
+    }
 }

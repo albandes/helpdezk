@@ -333,7 +333,7 @@ class BlockMacros extends MacroSet
 
 		$tokens = $node->tokenizer;
 		$params = [];
-		while ($tokens->isNext()) {
+		while ($tokens->isNext(...$tokens::SIGNIFICANT)) {
 			if ($tokens->nextToken($tokens::T_SYMBOL, '?', 'null', '\\')) { // type
 				$tokens->nextAll($tokens::T_SYMBOL, '\\', '|', '[', ']', 'null');
 			}
@@ -348,7 +348,7 @@ class BlockMacros extends MacroSet
 				substr($param, 1),
 				$default
 			);
-			if ($tokens->isNext()) {
+			if ($tokens->isNext(...$tokens::SIGNIFICANT)) {
 				$tokens->consumeValue(',');
 			}
 		}
@@ -627,12 +627,12 @@ class BlockMacros extends MacroSet
 	public function macroIfset(MacroNode $node, PhpWriter $writer)
 	{
 		$node->validate(true);
-		if (!preg_match('~(#|block\s)|[\w-]+$~DA', $node->args)) {
+		if (!preg_match('~#|\w~A', $node->args)) {
 			return false;
 		}
 		$list = [];
 		while ([$name, $block] = $node->tokenizer->fetchWordWithModifier('block')) {
-			$list[] = $block || preg_match('~#|[\w-]+$~DA', $name)
+			$list[] = $block || preg_match('~#|\w[\w-]*$~DA', $name)
 				? '$this->hasBlock(' . $writer->formatWord(ltrim($name, '#')) . ')'
 				: 'isset(' . $writer->formatArgs(new Latte\MacroTokens($name)) . ')';
 		}

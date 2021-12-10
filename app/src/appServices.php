@@ -330,14 +330,15 @@ class appServices
      * 
      * pt_br Compara o token enviado pelo formulário com o existente na variável de sessão
      *
-     * @return boolean
+     * @return bool
      */
-    public function _checkToken(): boolean 
+    public function _checkToken(): bool
     {
+
         if (empty($_POST) || empty($_GET) ) {
             return false;
         } else {
-             if($_POST['_token'] == $this->_getToken() || $_GET['_token'] == $this->_getToken()) {
+            if($_POST['_token'] == $this->_getToken() || $_GET['_token'] == $this->_getToken()) {
                 return true;
             }
         }
@@ -451,7 +452,7 @@ class appServices
      * @param string $oper Name of the PqGrid operation
      * @param string $column Field to search
      * @param string $search Column to search
-     * @return boolean|string    False is not exists operation
+     * @return bool|string    False is not exists operation
      *
      */
     public function _formatGridOperation($oper, $column, $search)
@@ -569,17 +570,17 @@ class appServices
     public function _setFolder(string $path): string
     {
         if(!is_dir($path)) {
-            $this->logIt('Directory: '. $path.' does not exists, I will try to create it. - program: '.$this->program ,6,'general',__LINE__);
+            $this->applogger->info("Directory: $path does not exists, I will try to create it.",['Class' => __CLASS__, 'Method' => __METHOD__]);
             if (!mkdir ($path, 0777 )) {
-                $this->logIt('I could not create the directory: '.$path.' - program: '.$this->program ,3,'general',__LINE__);
+                $this->applogger->error("I could not create the directory: $path",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
             }
         }
 
         if (!is_writable($path)) {
-            $this->logIt('Directory: '. $path.' Is not writable, I will try to make it writable - program: '.$this->program ,6,'general',__LINE__);
+            $this->applogger->info('Directory: '. $path.' is not writable, I will try to make it writable',['Class' => __CLASS__, 'Method' => __METHOD__]);
             if (!chmod($path,0777)){
-                $this->logIt('Directory: '.$path.'Is not writable !! - program: '.$this->program ,3,'general',__LINE__);
+                $this->applogger->error("Directory: $path is not writable!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
             }
         }

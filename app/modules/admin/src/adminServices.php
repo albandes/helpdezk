@@ -196,6 +196,35 @@ class adminServices
         return $aRet;
     }
 
+    /**
+     * Returns an array with ID and name of states
+     *
+     * @param  mixed $countryID
+     * @return array
+     */
+    public function _comboStates($countryID=null): array
+    {
+        $countryID = !$countryID ? $_SESSION['COUNTRY_DEFAULT'] : $countryID;
+        $personDAO = new personDAO();
+
+        $where = "WHERE idcountry = $countryID";
+        $states = $personDAO->queryStates($where);
+        
+        if(!is_null($states) && !empty($states)){
+            $aRet = array();
+            foreach($states as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idstate'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
 
 
 }

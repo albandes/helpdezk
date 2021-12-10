@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     })
 
-
-
     // make it as accordion for smaller screens
     if (window.innerWidth < 992) {
 
@@ -145,6 +143,17 @@ countdown = {
         countdown.start(this.time);
     }
 
+}
+
+function showNextStep(list,msg,typeAlert,totalAttach)
+{
+    $('#nexttotalattach').val(totalAttach);
+    $('#next-step-list').html(list);
+    $('#next-step-message').html(msg);
+    $("#type-alert").attr('class', 'col-sm-12 col-xs-12 bs-callout-'+typeAlert);
+    $('#modal-next-step').modal('show');
+
+    return false;
 }
 
 

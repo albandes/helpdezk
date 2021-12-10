@@ -22,6 +22,15 @@ class Database
      */
     protected $db;
 
+    /**
+     * @var object
+     */
+    protected $loggerDB;
+    /**
+     * @var object
+     */
+    protected $emailLoggerDB;
+
     public function __construct()
     {
         // When this class is instantiated, the variable $db is assigned the connection to the db
@@ -50,6 +59,9 @@ class Database
 
         $this->loggerDB  = new Logger('helpdezk');
         $this->loggerDB->pushHandler($streamDB);
+
+        // Clone the first one to only change the channel
+        $this->emailLoggerDB = $this->loggerDB->withName('email');
     }
 
 }
