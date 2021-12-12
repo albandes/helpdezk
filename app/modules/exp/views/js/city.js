@@ -40,15 +40,15 @@ $(document).ready(function () {
      * 
      * for more data model options see https://paramquery.com/api#option-dataModel
      * */
-    var dataModel = {
-        location: "remote",
-        dataType: "JSON",
-        method: "POST",
-        url: path + '/exp/expCity/jsonGrid',
+    var dataModel = {
+        location: "remote",
+        dataType: "JSON",
+        method: "POST",
+        url: path + '/exp/expCity/jsonGrid',
         getData: function (dataJSON) {                
             return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };                
         }
-    };
+    };
     
     /** 
      * Define a sort model
@@ -78,19 +78,19 @@ $(document).ready(function () {
     var pageModel = {
         type: "remote",
         curPage: this.curPage,
-        rPP: 10,
-        rPPOptions: [1, 10, 20, 30, 40, 50]
+        rPP: 10,
+        rPPOptions: [1, 10, 20, 30, 40, 50]
     };
-
-    var obj = { 
+    
+    var obj = { 
         width: '100%', 
         height: 400,
-        dataModel: dataModel,
-        colModel: colM,
-        editable: false,
-        title: translateLabel('holidays'),
-        topVisible: false,
-        sortModel: sortModel,
+        dataModel: dataModel,
+        colModel: colM,
+        editable: false,
+        title: translateLabel('holidays'),
+        topVisible: false,
+        sortModel: sortModel,
         pageModel: pageModel,
         numberCell: {show: false},
         selectionModel: { mode: 'single', type: 'row' },
@@ -106,14 +106,14 @@ $(document).ready(function () {
             else
                 $('#btnDisable').removeClass('active').addClass('disabled');
         }
-    };
+    };
 
-    $("#grid_holidays").pqGrid(obj);
+    $("#grid_cities").pqGrid(obj);
 
-    //Grid localization
+    //Grid i18n
     var locale = default_lang.replace('_','-');
-    $("#grid_holidays").pqGrid("option", $.paramquery.pqGrid.regional[locale]);
-    $("#grid_holidays").find(".pq-pager").pqPager("option", $.paramquery.pqPager.regional[locale]);
+    $("#grid_cities").pqGrid("option", $.paramquery.pqGrid.regional[locale]);
+    $("#grid_cities").find(".pq-pager").pqPager("option", $.paramquery.pqPager.regional[locale]);
 
     // Buttons
     $("#btnFilters").click(function(){
@@ -122,24 +122,24 @@ $(document).ready(function () {
 
     $("#btnModalSearch").click(function(){
         var filterIndx = $("#filter-list").val(),
-            filterValue = $("#filter-value").val(),
+            filterValue = $("#filter-value").val(),
             filterOperation = $("#action-list").val();
             
-        $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
+        $("#grid_cities").pqGrid( "option", "dataModel.postData", function(){
             return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation};
         } );
         
-        $("#grid_holidays").pqGrid("refreshDataAndView");
+        $("#grid_cities").pqGrid("refreshDataAndView");
     });
 
     $("#btnSearch").click(function(){
         var quickValue = $("#txtSearch").val();
             
-        $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
+        $("#grid_cities").pqGrid( "option", "dataModel.postData", function(){
             return {quickSearch:true,quickValue:quickValue};
         });
         
-        $("#grid_holidays").pqGrid("refreshDataAndView");
+        $("#grid_cities").pqGrid("refreshDataAndView");
     });
 
     $("#btnCreate").click(function(){
@@ -150,7 +150,7 @@ $(document).ready(function () {
         var rowIndx = getRowIndx(),msg="";
         
         if (rowIndx != null) {
-            var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
+            var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
             location.href = path + "/exp/expCity/formUpdate/"+row.idcity;
         }else{
             msg = translateLabel('Alert_select_one');
@@ -158,21 +158,45 @@ $(document).ready(function () {
         }
     });
 
-    $("#btnImport").click(function(){
-        location.href = path + "/admin/holidays/formImport" ;
+    $("#btnEnable").click(function(){
+        if(!$("#btnEnable").hasClass('disabled')){
+            var rowIndx = getRowIndx(),msg="";
+        
+            if (rowIndx != null) {
+                var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
+                postStatus(row.idcity,'A');
+            }else{
+                msg = translateLabel('Alert_select_one');
+                showAlert(msg,'warning');
+            }
+        }        
+    });
+
+    $("#btnDisable").click(function(){
+        if(!$("#btnDisable").hasClass('disabled')){
+            var rowIndx = getRowIndx(),msg="";
+        
+            if (rowIndx != null) {
+                var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
+                postStatus(row.idcity,'I');
+            }else{
+                msg = translateLabel('Alert_select_one');
+                showAlert(msg,'warning');
+            }
+        }
     });
 
     $("#btnDelete").click(function(){
         var rowIndx = getRowIndx(),msg="";
         
         if (rowIndx != null) {
-            var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
+            var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
             
-            $("#delete-id").val(row.idholiday);
-            $("#delete-description").val(row.holiday_description);
-            $("#delete-date").val(row.holiday_date);
-            $("#delete-company").val(row.company);
-            $("#modal-holiday-delete").modal('show');
+            $("#delete-id").val(row.idcity);
+            $("#delete-uf").val(row.uf);
+            $("#delete-description").val(row.city);
+            $("#delete-date").val(row.dtfoundation);
+            $("#modal-city-delete").modal('show');
         }else{
             msg = translateLabel('Alert_select_one');
             showAlert(msg,'warning');
@@ -184,27 +208,27 @@ $(document).ready(function () {
         if(!$("#btnDeleteYes").hasClass('disabled')){
             $.ajax({
                 type: "POST",
-                url: path + '/admin/holidays/deleteHoliday',
+                url: path + '/exp/expCity/deleteCity',
                 dataType: 'json',
                 data: {
                     _token : $("#_token").val(),
-                    holidayID: $("#delete-id").val()
+                    cityID: $("#delete-id").val()
                 },
                 error: function (ret) {
-                    modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-holiday');
+                    modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-city');
                 },
                 success: function(ret){
     
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
     
                     if(obj.success) {
-                        modalAlertMultiple('success',translateLabel('Alert_deleted'),'alert-delete-holiday');
+                        modalAlertMultiple('success',translateLabel('Alert_deleted'),'alert-delete-city');
                         setTimeout(function(){
-                            $('#modal-holiday-delete').modal('hide');
-                            $("#grid_holidays").pqGrid("refreshDataAndView");
+                            $('#modal-city-delete').modal('hide');
+                            $("#grid_cities").pqGrid("refreshDataAndView");
                         },4000);
                     } else {
-                        modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-holiday');
+                        modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-city');
                     }
                 },
                 beforeSend: function(){
@@ -220,6 +244,15 @@ $(document).ready(function () {
         }
 
     });
+
+    //close modal alert
+    $('#modal-alert').on('hidden.bs.modal', function() { 
+        location.href = path + "/exp/expCity/index" ;        
+    });
+
+    $('#modal-search-filter').on('hidden.bs.modal', function() { 
+        $("#search-modal-form").trigger('reset');        
+    });
 });
 
 /**
@@ -228,7 +261,7 @@ $(document).ready(function () {
  * @returns mixed
  */
 function getRowIndx() {
-    var arr = $("#grid_holidays").pqGrid("selection", { type: 'row', method: 'getSelection' });
+    var arr = $("#grid_cities").pqGrid("selection", { type: 'row', method: 'getSelection' });
     
     if (arr && arr.length > 0) {
         return arr[0].rowIndx;                                
@@ -236,5 +269,43 @@ function getRowIndx() {
     else {
         return null;
     }
+}
+
+/**
+ * Change city's status
+ * @param  {Number} cityID 
+ * @param  {String} newStatus
+ * @return {void}      
+ */
+function postStatus(cityID,newStatus)
+{
+    var msgErr = newStatus == "A" ? translateLabel('Alert_activated_error') : translateLabel('Alert_deactivated_error'),
+        msg = newStatus == "A" ? translateLabel('Alert_activated') : translateLabel('Alert_deactivated');
+
+    $.ajax({
+        type: "POST",
+        url: path + '/exp/expCity/changeStatus',
+        dataType: 'json',
+        data: {
+            _token: $("#_token").val(),
+            cityID: cityID,
+            newstatus: newStatus
+        },
+        error: function (ret) {
+            showAlert(msgErr,'danger');
+        },
+        success: function(ret){
+            console.log(ret);
+            var obj = jQuery.parseJSON(JSON.stringify(ret));
+            if(obj.success) {
+                showAlert(msg,'success');
+            } else {
+                showAlert(msgErr,'danger');
+            }
+        }
+
+    });
+
+    return false;
 }
 

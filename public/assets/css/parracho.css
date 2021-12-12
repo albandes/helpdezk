@@ -5124,3 +5124,7 @@ select, #btnTimer,
 
 }	
 /* ============ small devices .end// ============ */
+
+.navbar-light .navbar-nav .nav-item > .nav-hdk {
+  color: #1ab394;
+}

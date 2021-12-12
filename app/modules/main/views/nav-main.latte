@@ -11,7 +11,7 @@
         {if $hashelpdezk }
         <li>
             <a href="{$helpdezkhome}">
-                <img style="max-width:60px;" src="{$headerlogo_url}"  >
+                <img style="max-width:60px;" src="{$headerlogo}"  >
                 &nbsp;&nbsp;<span>HelpDEZK</span>
             </a>
         </li>
@@ -51,24 +51,24 @@
 
             {if $featured_1 == 1}
                 <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a aria-expanded="false" role="button" href="{$lnk_featured_1}"> {$featured_label_1} </a>
+                    <li class="nav-item">
+                        <a class="nav-link nav-hdk" aria-expanded="false" role="button" href="{$lnk_featured_1}"> {$featured_label_1} </a>
                     </li>
                 </ul>
             {/if}
 
             {if $featured_2 == 1}
                 <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_2}"> {$featured_label_2} </a>
+                    <li class="nav-item">
+                        <a class="nav-link nav-hdk" aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_2}"> {$featured_label_2} </a>
                     </li>
                 </ul>
             {/if}
 
             {if $featured_3 == 1}
                 <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_3}"> {$featured_label_3} </a>
+                    <li class="nav-item">
+                        <a class="nav-link nav-hdk" aria-expanded="false" role="button" id="btnNewTck" href="{$lnk_featured_3}"> {$featured_label_3} </a>
                     </li>
                 </ul>
             {/if}

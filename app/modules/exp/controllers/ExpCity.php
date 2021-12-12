@@ -34,6 +34,7 @@ class ExpCity extends Controller
         parent::__construct();
 
         $appSrc = new appServices();
+		$appSrc->_sessionValidate();
 
         //
         $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
@@ -124,7 +125,14 @@ class ExpCity extends Controller
         
         return $params;
     }
-
+    
+    /**
+     * en_us Returns cities data to grid
+	 * 
+	 * pt_br Retorna os dados das cidades para o grid
+     *
+     * @return void
+     */
     public function jsonGrid()
     {
         $appSrc = new appServices();
@@ -140,19 +148,33 @@ class ExpCity extends Controller
             $filterIndx = $_POST["filterIndx"];
             $filterValue = $_POST["filterValue"];
             $filterOp = $_POST["filterOperation"];
+
+            switch($filterIndx){
+                case "city_uf": //Search for the acronym or the full name of the state
+                    $where .= "AND (" . $appSrc->_formatGridOperation($filterOp,"b.name",$filterValue) ." OR ". $appSrc->_formatGridOperation($filterOp,"b.abbr",$filterValue) . ")" ;
+                    break;
+                case "dtfoundation": //Search for city's foundation date
+                    $filterValue = $appSrc->_formatSaveDate($filterValue);
+                    $where .= "AND " . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+                    break;
+                default: //Search fro city's name
+                    $filterIndx = "a.name";
+                    $where .= "AND " . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+                    break;
+            }
             
-            $where .= (empty($where) ? "WHERE " : " AND ") . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+            
         } 
         
         //Search with params sended from quick search input
         if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
         {
             $quickValue = trim($_POST['quickValue']);
-            if(strtotime($quickValue)){
-                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_date LIKE '".$appSrc->_formatSaveDate($quickValue)."'";// it's in date format
-            }else{
+            if(strtotime($quickValue)){//Search for city's foundation date
+                $where .= " AND dtfoundation '".$appSrc->_formatSaveDate($quickValue)."'";// it's in date format
+            }else{//Search fro city's name
                 $quickValue = str_replace(" ","%",$quickValue);
-                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_description LIKE '%{$quickValue}%'";
+                $where .= " AND a.name LIKE '%{$quickValue}%'";
             }
         }
         
@@ -221,8 +243,9 @@ class ExpCity extends Controller
         $translator = new localeServices();
 
         $aRet = array(
-            array("id" => 'holiday_description',"text"=>$translator->translate('Name')), // equal
-            array("id" => 'holiday_date',"text"=>$translator->translate('Date'))
+            array("id" => 'city_name',"text"=>$translator->translate('Name')), // equal
+            array("id" => 'city_uf',"text"=>$translator->translate('uf')),
+            array("id" => 'dtfoundation',"text"=>$translator->translate('city_foundation'))
         );
         
         return $aRet;
@@ -254,18 +277,6 @@ class ExpCity extends Controller
         $params['cityID'] = $idcity;
       
         $this->view('exp','city-update',$params);
-    }
-
-    /**
-     * en_us Renders the holidays add screen
-     *
-     * pt_br Renderiza o template da tela de novo cadastro
-     */
-    public function formImport()
-    {
-        $params = $this->makeScreenHolidays();
-        
-        $this->view('admin','holidays-import',$params);
     }
 
     /**
@@ -351,14 +362,12 @@ class ExpCity extends Controller
         
         // link attachments to the city
         if($aSize > 0){
-            /*$insAttachs = $this->linkProductAttachments($idProduto,$aAttachs,$dbProduto);
+            $insAttachs = $this->linkCityAttachments($cityID,$aAttachs);
             
-            if(!$retAttachs['success']){
-                if($this->log)
-                    $this->logIt("{$retAttachs['message']} - User: {$_SESSION['SES_LOGIN_PERSON']} - program: {$this->program}" ,3,'general',__LINE__);
-                $dbProduto->RollbackTrans();
+            if(!$insAttachs['success']){
+                $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 return false;
-            }*/
+            }
         }        
         
         $aRet = array(
@@ -370,193 +379,53 @@ class ExpCity extends Controller
     }
 
     /**
-     * en_us Returns on screen the list of holidays years of the selected company
+     * en_us Changes city's status
      *
-     * pt_br Retorna em tela a lista de anos de feriados da empresa selecionada
+     * pt_br Muda o status da cidade
      */
-    public function ajaxYearByCompany()
+    function changeStatus()
     {
-        echo $this->comboYearByCompanyHtml($_POST['companyID']);
-    }
-    
-    /**
-     * en_us Gets the list of holidays of the selected company from the DB and formats it in options of the select tag
-     *
-     * pt_br Obtém a lista de feriados da empresa selecionada do BD e formata em options da tag select
-     * 
-     * @param  int $companyID
-     * @return string
-     */
-    public function comboYearByCompanyHtml(int $companyID): string
-    {
-        $holidayDao = new holidayDAO();
-        $translator = new localeServices();
-        
-        $companyYear = $holidayDao->fetchHolidayYearsByCompany($companyID);
-        $select = '';
-        
-        if(is_null($companyYear) || empty($companyYear) || sizeof($companyYear) == 0){
-            $select .= "<option value='X'> - {$translator->translate('no_holidays_for_company')} - </option>";
-        }else{
-            $select .= "<option></option>";
-            foreach ($companyYear as $key=>$value) {
-                $select .= "<option value='{$value['holiday_year']}'>{$value['holiday_year']}</option>";
-            }
-        }
-        
-        return $select;
-    }
-
-    /**
-     * en_us Formats the list of years in the select tag's options
-     *
-     * pt_br Formata em opções selecionadas de HTML
-     * 
-     * @param  int $companyID
-     * @return string
-     */
-    public function comboNextYearHtml(): string
-    {
-        $adminSrc = new adminServices();
-        $arrYear = $adminSrc->_comboNextYear();
-        $select = "<option></option>";
-
-        foreach ($arrYear as $key=>$value) {
-            $select .= "<option value='{$value['id']}'>".$value['text']."</option>";
-        }        
-        return $select;
-    }
-
-    /**
-     * en_us Returns the list of selected company and year holidays to the screen
-     *
-     * pt_br Retorna em tela a lista de feriados da empresa e ano selecionados
-     */
-    public function load()
-    {
-        $holidayDao = new holidayDAO();
-        $translator = new localeServices();
-        $appSrc = new appServices();
-
-        $year = $_POST['prevyear'];
-        $companyID = $_POST['companyID'];       
-
-        $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
-        $count = 0;
-        $list = '';
-
-        if(!is_null($loadHoliday) && !empty($loadHoliday)){
-            $count = count($loadHoliday);            
-            
-            foreach($loadHoliday as $key=>$val) {
-                $type_holiday = ($val['idperson'] != 0) ? $val['name'] : $translator->translate('National_holiday');
-                
-                $dataformatada = $appSrc->_formatDate($val['holiday_date']);
-                
-                $list .= "<tr>
-                            <td>".$dataformatada."</td>
-                            <td>".$val['holiday_description']."</td>
-                            <td>".$type_holiday."</td>
-                        </tr>";
-            }
-        }
-
-        $resultado = array(
-            'year' => $year,
-            'count' => $count,
-            'result' => $list,
-            'yearto' => $this->comboNextYearHtml()
-        );
-        
-        echo json_encode($resultado);
-    }
-
-    /**
-     * en_us Writes the holidays of the previous year and selected company in the DB
-     *
-     * pt_br Grava no BD os feriados do ano anterior e empresa selecionados
-     */
-    public function import() {
-
-        /*if (!$this->_checkToken()) {
-            if($this->log)
-                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+        $appSrc = new appServices();        
+        if (!$appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
-        }*/
+        }
 
-        $holidayDao = new holidayDAO();
-        $translator = new localeServices();
-        $appSrc = new appServices();
-
-        $year = $_POST['lastyear'];
-        $nextyear = $_POST['nextyear'];
-        $companyID = $_POST['company'];
-
-        $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
-        $count = 0;
-        $list = '';
-
-        if(!is_null($loadHoliday) && !empty($loadHoliday)){
-            $count = count($loadHoliday);            
-            
-            foreach($loadHoliday as $key=>$val) {
-                $desc = $val['holiday_description'];
-                $newdate = $val['holiday_date'];
-
-                $newdate = substr($newdate,4);
-                $newdate = $nextyear . $newdate;
-                
-                $ins = $holidayDao->insertHoliday($newdate,$desc);
-                if(is_null($ins) || empty($ins)){
-                    return false;
-                }        
-                
-                $holidayID = $ins->getIdholiday();
-                
-                //Link holiday with the company
-                if($val['idperson'] != 0){			
-                    $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$val['idperson']);
-                    if(is_null($insCompany) || empty($insCompany)){
-                        return false;
-                    }
-                }
-            }
-        }else{
+        $cityDao = new cityDAO();
+        $cityID = $_POST['cityID'];
+        $newStatus = $_POST['newstatus'];
+        
+        $upd = $cityDao->updateStatus($cityID,$newStatus);
+        if(is_null($upd)){
             return false;
         }
 
         $aRet = array(
-            "success"   => true
+            "success" => true
         );
 
         echo json_encode($aRet);
-    
+
     }
 
     /**
-     * en_us Remove the holiday from the DB
+     * en_us Remove the city from the DB
      *
-     * pt_br Remove o feriado do BD
+     * pt_br Remove a cidade do BD
      */
-    function deleteHoliday()
+    function deleteCity()
     {
-
-        /*if (!$this->_checkToken()) {
-            if($this->log)
-                $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
-        }*/
-
-        $holidayDao = new holidayDAO();
-
-        $id = $_POST['holidayID'];
-        
-        $delCompany = $holidayDao->deleteHolidayCompany($id);
-        if(is_null($delCompany)){
+        $appSrc = new appServices();        
+        if (!$appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
+
+        $cityDao = new cityDAO();
+
+        $id = $_POST['cityID'];
         
-        $del = $holidayDao->deleteHoliday($id);
+        $del = $cityDao->deleteCity($id);
 		if(is_null($del) || empty($del)){
             return false;
         }
@@ -569,6 +438,11 @@ class ExpCity extends Controller
 
     }
 
+    /**
+     * en_us Check if the city has already been registered before
+     *
+     * pt_br Verifica se a cidade já foi cadastrada anteriormente
+     */
     function checkExist(){
         
         $appSrc = new appServices();
@@ -600,6 +474,11 @@ class ExpCity extends Controller
 
     }
 
+    /**
+     * en_us Uploads the file in the directory
+     *
+     * pt_br Carrega o arquivo no diretório
+     */
     function saveImage()
     {
         $translator = new localeServices();
@@ -618,7 +497,7 @@ class ExpCity extends Controller
                     echo json_encode(array("success"=>true,"message"=>""));
                 } else {
                     $this->logger->error("Error trying save city image: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    echo json_encode(array("success"=>false,"message"=>"{$this->getLanguageWord('Alert_failure')}"));
+                    echo json_encode(array("success"=>false,"message"=>"{$translator->translate('Alert_failure')}"));
                 }
                     
             }elseif($this->saveMode == "aws-s3"){
@@ -645,6 +524,11 @@ class ExpCity extends Controller
         exit;
     }
 
+    /**
+     * en_us Loads the file linked with the city in the dropzone of the update screen
+     *
+     * pt_br Carrega o arquivo vinculado à cidade no dropzone da tela de atualização
+     */
     function loadImage()
     {
         $appSrc = new appServices();
@@ -654,65 +538,72 @@ class ExpCity extends Controller
         $cityID = $_POST['cityID'];
         $imgList = $cityDao->fetchCityImage($cityID);
 
-        if (is_null($imgList) || empty($imgList)) {
+        if (is_null($imgList)) {
             return false;
         }
 
-        $resultimagens = [];
-        foreach ($imgList as $key => $value){
-            if($this->saveMode == "aws-s3"){
-                $size = strlen(file_get_contents($this->imgBucket.$value['name']));
-            }else{
-                $size = filesize($this->imgDir.$value['name']);
-            }            
-            
-            $resultimagens[] = array(
-                'idimage'   => $value['idimage'],
-                'idcity'    => $value['idcity'], 
-                'filename'      => $value['filename'],
-                'fmtname'   => $value['fileuploaded'],
-                'size'      => $size,
-                'url'       => $this->imgBucket
-            );
+        $aImage = [];
+
+        if(!empty($imgList)){
+            foreach ($imgList as $key => $value){
+                if($this->saveMode == "aws-s3"){
+                    $size = strlen(file_get_contents($this->imgBucket.$value['name']));
+                }else{
+                    $size = filesize($this->imgDir.$value['name']);
+                }            
+                
+                $aImage[] = array(
+                    'idimage'   => $value['idimage'],
+                    'idcity'    => $value['idcity'], 
+                    'filename'      => $value['filename'],
+                    'fmtname'   => $value['fileuploaded'],
+                    'size'      => $size,
+                    'url'       => $this->imgBucket
+                );
+            }
         }
-        echo json_encode($resultimagens);
+        
+        echo json_encode($aImage);
     }
 
+    /**
+     * en_us Removes the file linked with the city
+     *
+     * pt_br Deleta o arquivo vinculado à cidade
+     */
     function removeImage()
     {
-        echo "",print_r($_POST,true),"\n";
-        /*$idimage = $_POST['idimage'];
+        $appSrc = new appServices();
+        $translator = new localeServices();        
+        $cityDao = new cityDAO();
+
+        $idimage = $_POST['idimage'];
         $filename = $_POST['filename'];
 
-        $this->loadModel('produto_model');
-        $dbUnidade = new produto_model();
-        $ret = $dbUnidade->deleteImagem($idimage);
-
-        if (!$ret) {
-            if($this->log)
-                $this->logIt('Remove Image - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+        $del = $cityDao->deleteCityImage($idimage);
+        if (is_null($del)) {
             return false;
         }
 
         if($this->saveMode == 'disk') {
             unlink($this->imgDir.$filename);
-            $msg = 'OK';
+            $msg = true;
         }else if ($this->saveMode == 'aws-s3'){           
             $aws = $this->getAwsS3Client();
-            $arrayRet = $aws->removeFile("scm/produtos/{$filename}");
+            $arrayRet = $aws->removeFile("{$this->imgDir}{$filename}");
             if($arrayRet['success']) {
-                $msg = 'OK';
+                $msg = true;
             } else {
-                if($this->log)
-                    $this->logIt('I could not remove the product image file: '.$filename.' from S3 bucket !! - program: '.$this->program ,3,'general',__LINE__);
-                $msg = 'error';
+                $this->logger->error("I could not remove the image file: {$filename} from S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $msg = false;
             }
         }
 
         $aRet = array(
-            "status" => $msg,
+            "success" => $msg,
         );
-        echo json_encode($aRet);*/
+
+        echo json_encode($aRet);
     }
     
     /**

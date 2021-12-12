@@ -643,4 +643,46 @@ class appServices
         return (!is_null($moduleID) && !empty($moduleID)) ? $moduleID->getIdmodule() : 0;
     }
 
+    /**
+     * Returns the image file format( Only allowed formats: GIF, PNG, JPEG ans BMP)
+     *
+     * Used for some cases where you can upload various formats and at the time of showing,
+     * we do not know what format it is in. The method tests if the file exists and verifies
+     * that the format is compatible
+     *
+     * @param string $target Image file
+     * @return boolean|string    False is not exists ou file extention
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     */
+    public function _getImageFileFormat($target)
+    {
+        $target = $target . '.*';
+        
+        $arrImages = glob($target);
+
+        if (empty($arrImages))
+            return false;
+       
+        foreach ($arrImages as &$imgFile) {
+            if (in_array(exif_imagetype($imgFile), array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
+                switch (exif_imagetype($imgFile)) {
+                    case 1:
+                        $ext = 'gif';
+                        break;
+                    case 2:
+                        $ext = 'jpg';
+                        break;
+                    case 3:
+                        $ext = 'png';
+                        break;
+                    case 6:
+                        $ext = 'bmp';
+                }
+                return $ext;
+            }
+        }
+        return false;
+    }
+
 }

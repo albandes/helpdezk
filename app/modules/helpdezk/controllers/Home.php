@@ -25,8 +25,7 @@ class Home extends Controller
 	{
 		$params = $this->makeScreenHdkHome();
 		
-		$this->view('helpdezk','main',$params);
-		
+		$this->view('helpdezk','main',$params);		
 	}
 	
 	/**
@@ -37,9 +36,10 @@ class Home extends Controller
 	public function makeScreenHdkHome()
     {
         $appSrc = new appServices();
-		//$hdkSrc = new hdkServices();
-		$params = $appSrc->_getDefaultParams();
-		//$params = $hdkSrc->_makeNavHdk($params);
+		$hdkSrc = new hdkServices();
+		$params = $appSrc->_getDefaultParams(); 
+		
+		$params = $hdkSrc->_makeNavHdk($params);
 		
         return $params;
     }

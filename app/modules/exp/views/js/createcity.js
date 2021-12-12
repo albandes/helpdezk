@@ -95,7 +95,7 @@ $(document).ready(function () {
             },
             success: function(response){
                 var obj = jQuery.parseJSON(JSON.stringify(response));
-                if(obj.status == 'OK'){
+                if(obj.success){
                     myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
                 }
             },
@@ -103,28 +103,6 @@ $(document).ready(function () {
                 console.log("Erro no Dropzone!");
             }
         });
-    });
-
-    myDropzone.on("removedfile", function(file) {
-        $.ajax({
-            type: "POST",
-            dataType: 'json',
-            url: path + '/scm/scmProduto/removeImage',
-            data: {
-                idimage:  file.idimage,
-                filename: file.name
-            },
-            success: function(response){
-                var obj = jQuery.parseJSON(JSON.stringify(response));
-                if(obj.status == 'OK'){
-                    myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
-                }
-            },
-            error: function (response) {
-                console.log("Erro no Dropzone!");
-            }
-        });
-
     });
 
     myDropzone.on("complete", function(file) {
@@ -170,69 +148,6 @@ $(document).ready(function () {
         filesended = 0;
         flgerror = 0;
     });
-
-    /*
-     * Combos
-     */
-    var objHolidayData = {
-        changeCompany: function() {
-            var companyID = $("#company").val();
-            $("#lastyear").empty();
-            $.post(path+"/admin/holidays/ajaxYearByCompany",{companyID:companyID},function(valor){
-                $("#lastyear").html(valor);
-                $("#lastyear").trigger("change");
-                if($("#lastyear").val() != "" && $("#lastyear").val() != "X"){objHolidayData.changeYear();}
-                $('#boxResult').addClass('hide');
-                $('.lineResult').addClass('hide');
-                return false;
-            });
-            return false ;
-        },
-        changeYear: function() {
-            var companyID = $("#company").val(),
-                prevyear = $("#lastyear").val();
-            
-            $('#boxResult').addClass('d-none');
-            $('.lineResult').addClass('d-none');
-
-            if((prevyear != 'X' && prevyear != '') && (companyID != 'X' && companyID != '')){
-                $.ajax({
-                    type: "POST",
-                    url: path + '/admin/holidays/load',
-                    dataType: 'json',
-                    data: {companyID:companyID,prevyear:prevyear},
-                    error: function (ret) {
-                        modalAlertMultiple('danger',translateLabel('Alert_get_data'),'alert-create-pedidocompra');
-                    },
-                    success: function(ret){
-    
-                        var obj = jQuery.parseJSON(JSON.stringify(ret));
-    
-                        $('#holiday-table').find('tbody').html(obj.result);
-                        $("#nextyear").html(obj.yearto);
-                        $("#nextyear").trigger("change");
-                        $('.txtYear').html(obj.year);
-                        $('.txtCount').html(obj.count);
-                        $('#boxResult').removeClass('d-none');
-                        $('.lineResult').removeClass('d-none');
-                    }
-                });
-            }            
-            
-            return false ;
-        }
-
-    };
-
-    if($("#import-holiday-form").length > 0){
-        $("#company").change(function(){
-            objHolidayData.changeCompany();
-        });
-    
-        $("#lastyear").change(function(){
-            objHolidayData.changeYear();
-        });
-    } 
     
     /*
      * Buttons
@@ -277,41 +192,6 @@ $(document).ready(function () {
             }
         }
 
-    });
-
-    $("#btnImportHoliday").click(function(){
-
-        if (!$("#import-holiday-form").valid()) {
-            return false ;
-        }
-
-        $.ajax({
-            type: "POST",
-            url: path + '/admin/holidays/import',
-            dataType: 'json',
-            data: $("#import-holiday-form").serialize(),
-            error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Import_failure'),'alert-import-holiday');
-            },
-            success: function(ret){
-
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                if(obj.success) {
-                    showAlert(translateLabel('Import_successfull'),'success');
-                } else {
-                    modalAlertMultiple('danger',translateLabel('Import_failure'),'alert-import-holiday');
-                }
-            },
-            beforeSend: function(){
-                $("#btnImportHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
-                $("#btnCancel").addClass('disabled');
-            },
-            complete: function(){
-                $("#btnImportHoliday").html("<i class='fa fa-download'></i> "+ translateLabel('Import')).removeClass('disabled');
-                $("#btnCancel").removeClass('disabled');
-            }
-        });
     });
 
     /*

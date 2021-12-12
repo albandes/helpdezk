@@ -16,6 +16,9 @@ class Holidays extends Controller
     {
         parent::__construct();
         
+        $appSrc = new appServices();
+		$appSrc->_sessionValidate();
+        
     }
 
     /**

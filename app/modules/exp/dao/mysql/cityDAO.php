@@ -14,44 +14,6 @@ class cityDAO extends Database
     }
     
     /**
-     * Returns a list of holidays by selected company and year
-     *
-     * @param  int $companyID
-     * @param  int $year
-     * @return array
-     */
-    public function fetchCities(int $companyID, int $year): array
-    {
-
-        $sql = "SELECT a.idholiday, a.holiday_date, a.holiday_description, 
-                        IFNULL(c.idperson,0) idperson, IFNULL(c.name,'') name
-                  FROM tbholiday a
-       LEFT OUTER JOIN tbholiday_has_company b
-                    ON b.idholiday = a.idholiday
-             LEFT JOIN tbperson c
-                    ON c.idperson = b.idperson
-                 WHERE YEAR(a.holiday_date) = $year ";
-        $sql .= ($companyID != "" || $companyID != 0) ? "AND c.idperson = {$companyID} " : "AND b.idperson IS NULL ";
-        $sql .= "ORDER BY holiday_date";
-
-        try{
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
-    }
-    
-    /**
      * Return an array with cities to display in grid
      *
      * @param  string $where
@@ -84,7 +46,6 @@ class cityDAO extends Database
         
         return $aRet;
     }
-    
         
     /**
      * Insert city's data into the database
@@ -254,65 +215,60 @@ class cityDAO extends Database
         
         return $aRet;
     }
-
+    
     /**
-     * Returns an array with years recorded on DB
+     * Update city's status
      *
-     * @param  int $companyID
-     * @return array
+     * @param  int $cityID
+     * @param  string $newStatus
+     * @return cityModel
      */
-    public function fetchHolidayYearsByCompany(int $companyID): array
+    public function updateStatus(int $cityID, string $newStatus): ?cityModel
     {        
-        $sql = "SELECT DISTINCT YEAR(a.holiday_date) AS holiday_year, b.idperson idcompany
-                  FROM tbholiday a
-       LEFT OUTER JOIN tbholiday_has_company b
-                    ON a.idholiday = b.idholiday
-                 WHERE (YEAR(a.holiday_date) <> YEAR(NOW()) AND YEAR(a.holiday_date) > 0)";
-        $sql .= ($companyID != "" || $companyID != 0) ? " AND b.idperson = :companyID" : "";
-        $sql .= " GROUP BY holiday_year
-                 ORDER BY holiday_year DESC";
+        $sql = "UPDATE exp_tbcity
+                   SET `status` = :newStatus
+                 WHERE idcity = :cityID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':companyID', $companyID);
+            $stmt->bindParam(':newStatus', $newStatus);
+            $stmt->bindParam(':cityID', $cityID);
             $stmt->execute();
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holiday years by company ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            $this->loggerDB->error("Error trying update city's status", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
             return null;
         }
+
+        $city = new cityModel(); 
+        $city->setIdcity($cityID); 
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return $city;
     }
 
+        
     /**
-     * Delete the holiday from the database
+     * Delete city from DB
      *
-     * @param  int $holidayID
-     * @return holidayModel
+     * @param  int $cityID
+     * @return cityModel
      */
-    public function deleteHoliday(int $holidayID): ?holidayModel
+    public function deleteCity(int $cityID): ?cityModel
     {        
-        $sql = "DELETE FROM tbholiday WHERE idholiday = :holidayID";
+        $sql = "DELETE FROM exp_tbcity WHERE idcity = :cityID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->bindParam(':cityID', $cityID);
             $stmt->execute();
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+            $this->loggerDB->error('Error trying delete city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
             return null;
         }
 
-        $holiday = new holidayModel(); 
-        $holiday->setIdholiday($holidayID); 
+        $city = new cityModel(); 
+        $city->setIdcity($cityID); 
         
-        return $holiday;
+        return $city;
     }
 
     /**
