@@ -159,26 +159,25 @@ class awsServices
             $copySource = urlencode($oldFile);    
         }    
         
-        $s3Obj = $this->_getS3Connection();
+        $s3ObjRen = $this->_getS3Connection();
         
-        try{
-            
-            $s3Obj->copyObject([
+        try{ 
+            $ret = $s3ObjRen->copyObject([
                 'Bucket'     => $this->_bucket,
-                'CopySource' => "{$this->_bucket}/$copySource",    
-                'Key'        => $newFile,
-                'ACL'        => $acl
-                
+                'Key'        => $newFile,    
+                'CopySource' => "{$this->_bucket}/{$copySource}",
+                'ACL'        => $acl               
             ]);
         } catch (S3Exception $e) {
             return array("success"=>false,"message"=>"Error copy file to AWS S3");    
         }
         
-        $s3Obj->deleteObject(array(
+        
+        $s3ObjRen->deleteObject(array(
             'Bucket' => $this->_bucket,
             'Key'    => $oldFile,
         ));
-        
+        echo "",print_r(array("success"=>true, "message"=>"")),"\n";
         return array("success"=>true, "message"=>"");
 
 

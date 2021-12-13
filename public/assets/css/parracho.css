@@ -5128,3 +5128,27 @@ select, #btnTimer,
 .navbar-light .navbar-nav .nav-item > .nav-hdk {
   color: #1ab394;
 }
+
+.bs-callout-danger {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #ce4844;
+  border-left-width: 5px;
+  border-radius: 3px;
+}
+
+.bs-callout-danger h4,.bs-callout-danger p {
+  color: #ce4844;
+}
+
+.bs-callout-warning {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #f8ac59;
+  border-left-width: 5px;
+  border-radius: 3px;
+}
+
+.bs-callout-warning h4,.bs-callout-warning p {
+  color: #f8ac59;
+}

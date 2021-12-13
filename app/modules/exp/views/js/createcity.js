@@ -125,7 +125,7 @@ $(document).ready(function () {
     });
 
     myDropzone.on("queuecomplete", function (file) {
-        var msg,typeMsg;
+        var list,msg,typeMsg;
 
         if(errorname.length == 0 && (filesended == dropzonefiles)){
             if(btnClicked=="1"){
@@ -135,13 +135,14 @@ $(document).ready(function () {
             }                            
         }else{
             var totalAttach = dropzonefiles - filesended;
-            msg = '<h4>'+translateLabel('files_not_attach_list')+'</h4><br>';
+            list = '<h4>'+translateLabel('files_not_attach_list')+'</h4><br>';
             errorname.forEach(element => {
-                msg = msg+element+'<br>';
+                list = list+element+'<br>';
             });
-            msg = msg+'<br>'+translateLabel('scm_attach_after');
+            list = list+'<br><strong>'+translateLabel('scm_attach_after')+'</strong>';
             typeMsg = 'warning';
-            showNextStep(msg,typeMsg,totalAttach);
+            msg = translateLabel('save_anyway_question');
+            showNextStep(list,msg,typeMsg,totalAttach);
         }        
         
         dropzonefiles = 0; 
@@ -192,6 +193,26 @@ $(document).ready(function () {
             }
         }
 
+    });
+
+    $("#btnNextYes").click(function(){        
+        $('#modal-next-step').modal('hide');
+        if(btnClicked=="1"){
+            saveData(upname,'add');
+        }else if(btnClicked=="2"){
+            saveData(upname,'upd');
+        }      
+    });
+
+    $("#btnNextNo").click(function(){
+        if (!$("#btnNextNo").hasClass('disabled')) {
+            $("#btnNextNo").removeClass('disabled');
+            $('#modal-next-step').modal('hide');
+            errorname = [];
+            upname = [];
+
+            location.href = path + '/exp/expCity/index'
+        }
     });
 
     /*

@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form role="form" class="form-horizontal" id="next_step_form" name="next_step_form" method="post">
+                <form role="form" class="form-horizontal" id="next-step-form" name="next-step-form" method="post">
                     <input type="hidden" id="nexttotalattach" name="nexttotalattach" value="" />
 
                     <div class="row">
@@ -20,9 +20,11 @@
                     
                     <div class="row">
                         <div class="col-sm-12 col-xs-12">
-                            <div class="form-group alert-hdk alert-warning">
-                                <div class="col-sm-2 col-xs-12 text-center"><i class='fa fa-question-circle fa-2x'></i></div>
-                                <div id="next-step-message" class="col-sm-10 col-xs-12 text-center input-sm"></div>
+                            <div class="alert-hdk alert-warning">
+                                <div class="row">
+                                    <div class="col col-sm-2 col-xs-12 position-absolute align-middle text-center"><i class='fa fa-question-circle fa-2x'></i></div>
+                                    <div id="next-step-message" class="col col-sm-10 col-xs-12 align-middle text-center"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -36,8 +38,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default btn-sm" id="btnNextNo"><i class='fa fa-ban'></i>{='No'|translate}</button>
-                <button type="submit" class="btn btn-primary btn-sm" id="btnNextYes"><i class='fa fa-check-circle'></i>{='Yes'|translate}</button>
+                <button type="button" class="btn btn-default btn-sm" id="btnNextNo"><i class='fa fa-ban'></i> {='No'|translate}</button>
+                <button type="submit" class="btn btn-primary btn-sm" id="btnNextYes"><i class='fa fa-check-circle'></i> {='Yes'|translate}</button>
             </div>
         </div>
     </div>
