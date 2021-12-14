@@ -50,8 +50,9 @@
 	</div>
     
     <!-- Modals -->
-    {include 'modals/main/modal-search-filters.latte'}
-    {include 'modals/main/modal-alert.latte'}
+    {include $modalFilters}
+    {include $modalAlert}
+    {include $modalError}
     {include 'modals/holidays/modal-delete.latte'}
 
 </body>

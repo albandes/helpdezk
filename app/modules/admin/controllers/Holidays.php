@@ -4,6 +4,7 @@ use App\core\Controller;
 
 
 use App\modules\admin\dao\mysql\holidayDAO;
+use App\modules\admin\models\mysql\holidayModel;
 
 use App\modules\admin\src\adminServices;
 use App\src\appServices;
@@ -45,6 +46,9 @@ class Holidays extends Controller
         $translator = new localeServices();
         $params = $appSrc->_getDefaultParams();
         $params = $adminSrc->_makeNavAdm($params);
+
+        // -- Token: to prevent attacks --
+        $params['token'] = $appSrc->_makeToken();
         
         // -- Datepicker settings -- 
         $retDtpicker = $appSrc->_datepickerSettings();
@@ -63,7 +67,12 @@ class Holidays extends Controller
         if($option=='idx'){
             $params['cmbFilterOpts'] = $appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboHolidayFilters();
+            $params['modalFilters'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
+
+        // -- Others modals --
+        $params['modalAlert'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
+        $params['modalError'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-error.latte';
 
         if($option=='upd'){
             $params['idholiday'] = $obj->getIdholiday();
@@ -124,8 +133,9 @@ class Holidays extends Controller
         
         //Count records
         $countHolidays = $holidayDao->queryHolidays($where,$group); 
-        if(!is_null($countHolidays) && !empty($countHolidays)){
-            $total_Records = count($countHolidays);
+        if($countHolidays['status']){
+            $countObj = $countHolidays['push']['object']->getGridList();
+            $total_Records = count($countObj);
         }else{
             $total_Records = 0;
         }
@@ -135,9 +145,10 @@ class Holidays extends Controller
 
         $holidays = $holidayDao->queryHolidays($where,$group,$order,$limit);
         
-        if(!is_null($holidays) && !empty($holidays)){     
-            
-            foreach($holidays as $k=>$v) {
+        if($holidays['status']){     
+            $holidaysObj = $holidays['push']['object']->getGridList();
+
+            foreach($holidaysObj as $k=>$v) {
                 if(isset($v['idperson'])){
                     $type_holiday = $v['name'];
                 }else{
@@ -152,6 +163,7 @@ class Holidays extends Controller
     
                 );
             }
+            
             $aRet = array(
                 "totalRecords" => $total_Records,
                 "curPage" => $pq_curPage,
@@ -201,7 +213,10 @@ class Holidays extends Controller
      */
     public function formUpdate($idholiday=null)
     {
-        $holidayDao = new holidayDAO(); 
+        $holidayDao = new holidayDAO();
+        $holidayMod = new holidayModel();
+
+
         $holidayUpd = $holidayDao->getHoliday($idholiday);
 
         $params = $this->makeScreenHolidays('upd',$holidayUpd);
@@ -229,38 +244,52 @@ class Holidays extends Controller
      */
     public function createHoliday()
     {
-        /*if (!$this->_checkToken()) {
-            if($this->log)
-                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
-        }*/
-        
         $appSrc = new appServices();
         $holidayDao = new holidayDAO();
-        
-        $dtholiday = $appSrc->_formatSaveDate($_POST['holiday_date']);
-        $description = trim($_POST['holiday_description']);
-        $companyID = $_POST['company'];
-        
-        $ins = $holidayDao->insertHoliday($dtholiday,$description);
-		    if(is_null($ins) || empty($ins)){
-			    return false;
-        }        
-        
-        $holidayID = $ins->getIdholiday();
-        
-        //Link holiday with the company
-        if($companyID != 0){
-            $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$companyID);
-            if(is_null($insCompany) || empty($insCompany)){
-                return false;
-            }
+        $holidayMod = new holidayModel();
+
+        if (!$appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
         }
 
+        $holidayMod->setDate($appSrc->_formatSaveDate($_POST['holiday_date']))
+                   ->setDescription(trim($_POST['holiday_description']));        
+        
+        $ins = $holidayDao->insertHoliday($holidayMod);
+        if($ins['status']){
+            $companyID = $_POST['company'];
+
+            $st = true;
+            $msg = "";
+            $holidayID = $ins['push']['object']->getIdholiday();
+            $holidayDescription = $ins['push']['object']->getDescription();
+            
+            //Link holiday with the company
+            if($companyID != 0){
+                $ins['push']['object']->setIdcompany($companyID);
+               
+                $insCompany = $holidayDao->insertHolidayHasCompany($ins['push']['object']);
+                if(!$insCompany['status']){
+                    $st = false;
+                    $msg = $insCompany['push']['message'];
+                    $holidayID = "";
+                    $holidayDescription = "";
+                }
+            }
+        }else{
+            $st = false;
+            $msg = $ins['push']['message'];
+            $holidayID = "";
+            $holidayDescription = "";
+        }       
+        
         $aRet = array(
+            "success" => $st,
+            "message" => $msg,
             "idholiday" => $holidayID,
-            "description" => $description
-        );        
+            "description" => $holidayDescription
+        );       
 
         echo json_encode($aRet);
     }
@@ -272,27 +301,31 @@ class Holidays extends Controller
      */
     public function updateHoliday()
     {
-        /*if (!$this->_checkToken()) {
-            if($this->log)
-                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
-            return false;
-        }*/
-        
         $appSrc = new appServices();
         $holidayDao = new holidayDAO();
-        
-        $holidayID = $_POST['holidayID'];
-        $dtholiday = $appSrc->_formatSaveDate($_POST['holiday_date']);
-        $description = trim($_POST['holiday_description']);
-        
-        $upd = $holidayDao->updateHoliday($holidayID,$dtholiday,$description);
-        if(is_null($upd) || empty($upd)){
+        $holidayMod = new holidayModel();
+
+        if (!$appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
+        }
+        
+        $holidayMod->setIdholiday($_POST['holidayID'])
+                   ->setDate($appSrc->_formatSaveDate($_POST['holiday_date']))
+                   ->setDescription(trim($_POST['holiday_description']));
+        
+        $upd = $holidayDao->updateHoliday($holidayMod);
+        
+        if(!$upd['status']){
+            $st = false;
+        }else{
+            $st = true;
         }        
         
         $aRet = array(
-            "success" => true,
-            "idholiday" => $holidayID
+            "success" => $st,
+            "message" => $upd['push']['message'],
+            "idholiday" => (!is_null($upd['push']['object']) && !empty($upd['push']['object'])) ? $holidayMod->getIdholiday() : ""
         );        
 
         echo json_encode($aRet);

@@ -75,6 +75,7 @@
 
             <ul class="navbar-nav">
                 <!-- Modules Menu -->
+                {if $listMenu_1}
                 {foreach $listMenu_1 as $k=>$v}
                     <li class='nav-item dropdown'>
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"> {=$k|translate} </a>
@@ -85,6 +86,7 @@
                         </ul>
                     </li>
                 {/foreach}
+                {/if}
             </ul>
 
             {if $displayMenu_Adm == 1}

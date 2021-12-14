@@ -70,78 +70,89 @@ class holidayDAO extends Database
              LEFT JOIN tbperson tbp
                     ON tbp.idperson = tbhc.idperson
                 $where $group $order $limit";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $holiday = new holidayModel(); 
+            $holiday->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$holiday);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return array();
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
      * Insert the holiday into the database
      *
-     * @param  string $date
-     * @param  string $description
-     * @return holidayModel
+     * @param  holidayModel $holidayModel
+     * @return array
      */
-    public function insertHoliday(string $date, string $description): ?holidayModel
+    public function insertHoliday(holidayModel $holidayModel): array
     {        
         $sql = "INSERT INTO tbholiday (holiday_date,holiday_description)
                      VALUES(:date,:description)";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':description', $description);
+            $stmt->bindParam(':date', $holidayModel->getDate());
+            $stmt->bindParam(':description', $holidayModel->getDescription());
             $stmt->execute();
+
+            $holidayModel->setIdholiday($this->db->lastInsertId());
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying insert holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying insert holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
-        $holiday = new holidayModel(); 
-        $holiday->setIdholiday($this->db->lastInsertId()); 
-        
-        return $holiday;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
      * Link the holiday with a company
      *
-     * @param  mixed $holidayID
-     * @param  mixed $companyID
-     * @return holidayModel
+     * @param  holidayModel $holidayModel
+     * @return array
      */
-    public function insertHolidayHasCompany(int $holidayID, int $companyID): ?holidayModel
+    public function insertHolidayHasCompany(holidayModel $holidayModel): array
     {        
         $sql = "INSERT INTO tbholiday_has_company (idholiday,idperson)
                      VALUES(:holidayID,:companyID)";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayID);
-            $stmt->bindParam(':companyID', $companyID);
+            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
+            $stmt->bindParam(':companyID', $holidayModel->getIdcompany());
             $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying link holiday with company ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying link holiday with company ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
         $holiday = new holidayModel(); 
         $holiday->setIdcompany($this->db->lastInsertId()); 
         
-        return $holiday;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
@@ -211,10 +222,10 @@ class holidayDAO extends Database
     /**
      * Returns a ibject with holiday data
      *
-     * @param  int $holidayID
-     * @return holidayModel
+     * @param  holidayModel $holidayModel
+     * @return array
      */
-    public function getHoliday(int $holidayID): ?holidayModel
+    public function getHoliday(holidayModel $holidayModel): array
     {        
         $sql = "SELECT tbh.idholiday, tbh.holiday_date, tbh.holiday_description, tbp.idperson, tbp.name
                   FROM tbholiday tbh
@@ -226,37 +237,38 @@ class holidayDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting holiday data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
         
-        if(!$aRet){
-            return null;
+            if($aRet && count($aRet) > 0){
+                $holidayModel->setDate($aRet['holiday_date'])
+                             ->setDescription($aRet['holiday_description'])
+                             ->setIdcompany(!empty($aRet['idperson']) ? $aRet['idperson'] : 0)
+                             ->setCompany(!empty($aRet['name']) ? $aRet['name'] : "");
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting holiday data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $holiday = new holidayModel();
-        $holiday->setIdholiday($aRet['idholiday'])
-                ->setDate($aRet['holiday_date'])
-                ->setDescription($aRet['holiday_description'])
-                ->setIdcompany(!empty($aRet['idperson']) ? $aRet['idperson'] : 0)
-                ->setCompany(!empty($aRet['name']) ? $aRet['name'] : "");
-        
-        return $holiday;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * Update the holiday into the database
      *
-     * @param  string $date
-     * @param  string $description
-     * @return holidayModel
+     * @param  holidayModel $holidayModel
+     * @return array
      */
-    public function updateHoliday(int $holidayID, string $date, string $description): ?holidayModel
+    public function updateHoliday(holidayModel $holidayModel): array
     {        
         $sql = "UPDATE tbholiday 
                    SET holiday_date = :date,
@@ -265,19 +277,22 @@ class holidayDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':description', $description);
-            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->bindParam(':date', $holidayModel->getDate());
+            $stmt->bindParam(':description', $holidayModel->getDescription());
+            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying insert holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $holiday = new holidayModel(); 
-        $holiday->setIdholiday($holidayID); 
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying insert holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
-        return $holiday;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**

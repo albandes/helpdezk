@@ -16,17 +16,31 @@ use Monolog\Formatter\LineFormatter;
 
 class adminServices
 {
+    /**
+     * @var object
+     */
+    protected $admlogger;
+    
+    /**
+     * @var object
+     */
+    protected $admEmailLogger;
+
     public function __construct()
     {
+        $appSrc = new appServices();
+
         // create a log channel
-        $dateFormat = "d/m/Y H:i:s";
-        $formatter = new LineFormatter(null, $dateFormat);
+        $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
+        
+        $stream = $appSrc->_getStreamHandler();
+        $stream->setFormatter($formatter);
 
-        $streamAdmSrc = new StreamHandler('storage/logs/helpdezk.log', Logger::DEBUG);
-        $streamAdmSrc->setFormatter($formatter);
+        $this->admlogger  = new Logger('helpdezk');
+        $this->admlogger->pushHandler($stream);
 
-        $this->loggerAdmSrc  = new Logger('helpdezk');
-        $this->loggerAdmSrc->pushHandler($streamAdmSrc);
+        // Clone the first one to only change the channel
+        $this->admEmailLogger = $this->admlogger->withName('email');
 
     }
 
@@ -81,7 +95,7 @@ class adminServices
                                 $controller_path = 'app/modules/'. $path  .'/controllers/' . ucfirst($controllertmp)  . '.php';
                                 
                                 if (!file_exists($controller_path)) {
-                                    $this->loggerAdmSrc->error("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                                    $this->admlogger->error("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                                 }else{
                                     if ($allow == 'Y') {
                                         $aModules[$v['smarty']][$val['cat_smarty']][$prsmarty] = array("url"=>$_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index", "program_name"=>$prsmarty);

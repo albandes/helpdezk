@@ -83,9 +83,10 @@ class awsServices
     {
         // Establish connection with DreamObjects with an S3 client.        
         $client = new S3Client([
-            'version'     => 'latest',
-            'region'      => $this->_region,
-            'credentials' => $this->_credentials
+            'version'       => 'latest',
+            'region'        => $this->_region,
+            'debug'         => true,
+            'credentials'   => $this->_credentials
         ]);
         
         return $client;                

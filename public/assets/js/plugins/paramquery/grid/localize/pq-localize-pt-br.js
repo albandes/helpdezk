@@ -10,7 +10,8 @@ $.paramquery.pqGrid.regional["pt-br"] = {
     strNothingFound: "Não encontrado",
     strSelectedmatches: "Selecionado {0} de {1} resultados",
     strPrevResult: "Resultado Anterior",
-    strNextResult: "Próximo Resultado"
+    strNextResult: "Próximo Resultado",
+    strNoRows:"Nenhum dado para exibir."
 }
 
 $.paramquery.pqPager.regional['pt-br']={

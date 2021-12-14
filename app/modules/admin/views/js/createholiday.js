@@ -137,7 +137,7 @@ $(document).ready(function () {
         if(!$("#btnUpdateHoliday").hasClass('disabled')){
             $.ajax({
                 type: "POST",
-                url: path + '/admin/holidays/updateHoliday/idholiday',
+                url: path + '/admin/holidays/updateHoliday',
                 dataType: 'json',
                 data: $("#update-holiday-form").serialize(),
                 error: function (ret) {
