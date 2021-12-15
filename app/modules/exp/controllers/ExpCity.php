@@ -11,6 +11,8 @@ use App\src\appServices;
 use App\src\localeServices;
 use App\src\awsServices;
 
+use App\modules\exp\models\mysql\cityModel;
+
 
 class ExpCity extends Controller
 {    
@@ -191,8 +193,9 @@ class ExpCity extends Controller
         
         //Count records
         $countCities = $cityDao->queryCities($where); 
-        if(!is_null($countCities) && !empty($countCities)){
-            $total_Records = count($countCities);
+        if($countCities['status']){
+            $countObj = $countCities['push']['object']->getGridList();
+            $total_Records = count($countObj);
         }else{
             $total_Records = 0;
         }
@@ -202,9 +205,10 @@ class ExpCity extends Controller
 
         $cities = $cityDao->queryCities($where,$group,$order,$limit);
         
-        if(!is_null($cities) && !empty($cities)){     
+        if($cities['status']){     
+            $citiesObj = $cities['push']['object']->getGridList();     
             
-            foreach($cities as $k=>$v) {
+            foreach($citiesObj as $k=>$v) {
                 $status_fmt = ($v['status'] == 'A' ) ? '<span class="label label-info">A</span>' : '<span class="label label-danger">I</span>';
                 $default_fmt = ($v['default'] == 1 ) ? '<span class="label label-info">&check;</span>' : '';
 
@@ -295,37 +299,60 @@ class ExpCity extends Controller
         }        
         
         $cityDao = new cityDAO();
-        
-        $uf = $_POST['cmbUF'];
-        $name = trim($_POST['cityName']);
-        $dtFoundation = $appSrc->_formatSaveDate($_POST['foundationDate']);        
-        $flgDefault = $_POST['cityDefault'];
-        $aAttachs 	= $_POST["attachments"]; // Attachments
-        $aSize = count($aAttachs); // count attachs files
-        
-        $ins = $cityDao->insertCity($uf,$name,$dtFoundation,$flgDefault);
-        if(is_null($ins) || empty($ins)){
-            return false;
-        }        
-        
-        $cityID = $ins->getIdcity();
-        
-        // link attachments to the city
-        if($aSize > 0){
-            $insAttachs = $this->linkCityAttachments($cityID,$aAttachs);
-            
-            if(!$insAttachs['success']){
-                $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                return false;
-            }
-        }
+        $cityMod = new cityModel();
 
+        
+
+        //Setting up the model
+        $cityMod->setIdstate($_POST['cmbUF'])
+                ->setName(trim($_POST['cityName']))
+                ->setDtfoundation($appSrc->_formatSaveDate($_POST['foundationDate']))
+                ->setIsdefault($_POST['cityDefault']);        
+
+        if(isset($_POST["attachments"])){
+            $aAttachs = $_POST["attachments"]; // Attachments
+            $aSize = count($aAttachs); // count attachs files
+            
+            $cityMod->setAttachments($aAttachs);
+        }
+                
+        
+        $ins = $cityDao->insertCity($cityMod);
+        if($ins['status']){
+            $st = true;
+            $msg = "";
+            $cityID = $ins['push']['object']->getIdcity();
+            $cityDescription = $ins['push']['object']->getName();
+            $cityFoundation = $appSrc->_formatDate($ins['push']['object']->getDtfoundation());
+            
+            // link attachments to the city
+            if($aSize > 0){
+                $insAttachs = $this->linkCityAttachments($cityMod);
+                
+                if(!$insAttachs['success']){
+                    $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $st = false;
+                    $msg = $insAttachs['message'];
+                    $cityID = "";
+                    $cityDescription = "";
+                    $cityFoundation = "";
+                }
+            }
+        }else{
+            $st = false;
+            $msg = $ins['push']['message'];
+            $cityID = "";
+            $cityDescription = "";
+            $cityFoundation = "";
+        }       
+        
         $aRet = array(
-            "success"       => true,
-            "idcity"        => $cityID,
-            "description"   => $name,
-            "dtfoundation"  => $_POST['foundationDate']
-        );        
+            "success" => $st,
+            "message" => $msg,
+            "idcity" => $cityID,
+            "description" => $cityDescription,
+            "dtfoundation"  => $cityFoundation
+        );       
 
         echo json_encode($aRet);
     }
@@ -462,11 +489,13 @@ class ExpCity extends Controller
         $where .= (isset($_POST['idcity'])) ? "AND idcity != {$_POST['idcity']}" : "";
 
         $check =  $cityDao->queryCities($where);
-        if(is_null($check)){
+        if(!$check['status']){
             return false;
         }
+
+        $checkObj = $check['push']['object']->getGridList();
         
-        if(count($check) > 0){
+        if(count($checkObj) > 0){
             echo json_encode($translator->translate('city_already_registered'));
         }else{
             echo json_encode(true);
@@ -609,26 +638,28 @@ class ExpCity extends Controller
     /**
      * Link City to uploaded files
      *
-     * @param  int $cityID
-     * @param  array $aAttachs
+     * @param  cityModel $cityModel
      * @return array
      */
-    public function linkCityAttachments(int $cityID,array $aAttachs): array
+    public function linkCityAttachments(cityModel $cityModel): array
     {
         $appSrc = new appServices();
         $translator = new localeServices();
         
         $cityDao = new cityDAO();
-        //echo __METHOD__." ".__LINE__."\n";
+        $aAttachs = $cityModel->getAttachments();
+        
         foreach($aAttachs as $key=>$fileName){
-            $ins = $cityDao->insertCityImage($cityID,$fileName);
+            $cityModel->setFilename($fileName);
 
-            if (is_null($ins) || empty($ins)) {
-                return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityID}");
+            $ins = $cityDao->insertCityImage($cityModel);
+
+            if(!$ins['status']) {
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityModel->getIdcity()}");
             }
 
             $extension = strrchr($fileName, ".");
-            $imageID = $ins->getIdimage();
+            $imageID = $ins['status']->getIdimage();
             $newFile = $imageID.$extension;
 
             if($this->saveMode == 'disk') {

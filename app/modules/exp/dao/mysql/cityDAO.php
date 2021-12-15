@@ -33,60 +33,64 @@ class cityDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $city = new cityModel(); 
+            $city->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$city);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return array();
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
         
     /**
      * Insert city's data into the database
      *
-     * @param  int $uf
-     * @param  string $name
-     * @param  string $dtFoundation
-     * @param  int $flgDefault
-     * @return cityModel
+     * @param  mixed $cityModel
+     * @return array
      */
-    public function insertCity(int $uf, string $name, string $dtFoundation, int $flgDefault): ?cityModel
+    public function insertCity(cityModel $cityModel): array
     {        
         $sql = "INSERT INTO exp_tbcity (idstate,`name`,dtfoundation,`default`)
                      VALUES(:uf,:name,:dtFoundation,:flgDefault)";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':uf', $uf);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':dtFoundation', $dtFoundation);
-            $stmt->bindParam(':flgDefault', $flgDefault);
+            $stmt->bindParam(':uf', $cityModel->getIdstate());
+            $stmt->bindParam(':name', $cityModel->getName());
+            $stmt->bindParam(':dtFoundation', $cityModel->getDtfoundation());
+            $stmt->bindParam(':flgDefault', $cityModel->getIsdefault());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying insert city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $city = new cityModel(); 
-        $city->setIdcity($this->db->lastInsertId()); 
+            $cityModel->setIdcity($this->db->lastInsertId());
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying insert city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
         
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
      * Link the city with uploaded image
      *
-     * @param  int $cityID
-     * @param  string $fileName
-     * @return cityModel
+     * @param  mixed $cityModel
+     * @return array
      */
-    public function insertCityImage(int $cityID, string $fileName): ?cityModel
+    public function insertCityImage(cityModel $cityModel): array
     {        
         $sql = "INSERT INTO exp_tbcity_image (idcity,filename)
                      VALUES(:cityID,:fileName)";
@@ -104,7 +108,7 @@ class cityDAO extends Database
         $city = new cityModel(); 
         $city->setIdimage($this->db->lastInsertId()); 
         
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**

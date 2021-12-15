@@ -45,6 +45,31 @@ final class cityModel
     private $idimage;
 
     /**
+     * @var array
+     */
+    private $gridList;
+
+    /**
+     * @var array
+     */
+    private $attachments;
+
+    /**
+     * @var string
+     */
+    private $filename;
+
+    /**
+     * @var int
+     */
+    private $idfile;
+
+    /**
+     * @var string
+     */
+    private $newFileName;
+
+    /**
      * Get idcity
      *
      * @return  int
@@ -232,6 +257,126 @@ final class cityModel
     public function setIdimage(int $idimage): self
     {
         $this->idimage = $idimage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of gridList
+     *
+     * @return  array
+     */ 
+    public function getGridList(): array
+    {
+        return $this->gridList;
+    }
+
+    /**
+     * Set the value of gridList
+     *
+     * @param  array  $gridList
+     *
+     * @return  self
+     */ 
+    public function setGridList(array $gridList): self
+    {
+        $this->gridList = $gridList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attachments
+     *
+     * @return  array
+     */ 
+    public function getAttachments(): array
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * Set the value of attachments
+     *
+     * @param  array  $attachments
+     *
+     * @return  self
+     */ 
+    public function setAttachments(array $attachments): self
+    {
+        $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of filename
+     *
+     * @return  string
+     */ 
+    public function getFilename(): string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * Set the value of filename
+     *
+     * @param  string  $filename
+     *
+     * @return  self
+     */ 
+    public function setFilename(string $filename): self
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idfile
+     *
+     * @return  int
+     */ 
+    public function getIdfile(): int
+    {
+        return $this->idfile;
+    }
+
+    /**
+     * Set the value of idfile
+     *
+     * @param  int  $idfile
+     *
+     * @return  self
+     */ 
+    public function setIdfile(int $idfile): self
+    {
+        $this->idfile = $idfile;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of newFileName
+     *
+     * @return  string
+     */ 
+    public function getNewFileName(): string
+    {
+        return $this->newFileName;
+    }
+
+    /**
+     * Set the value of newFileName
+     *
+     * @param  string  $newFileName
+     *
+     * @return  self
+     */ 
+    public function setNewFileName(string $newFileName): self
+    {
+        $this->newFileName = $newFileName;
 
         return $this;
     }

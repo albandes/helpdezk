@@ -85,7 +85,6 @@ class awsServices
         $client = new S3Client([
             'version'       => 'latest',
             'region'        => $this->_region,
-            'debug'         => true,
             'credentials'   => $this->_credentials
         ]);
         
@@ -178,7 +177,7 @@ class awsServices
             'Bucket' => $this->_bucket,
             'Key'    => $oldFile,
         ));
-        echo "",print_r(array("success"=>true, "message"=>"")),"\n";
+        
         return array("success"=>true, "message"=>"");
 
 
