@@ -60,11 +60,6 @@ final class cityModel
     private $filename;
 
     /**
-     * @var int
-     */
-    private $idfile;
-
-    /**
      * @var string
      */
     private $newFileName;
@@ -329,30 +324,6 @@ final class cityModel
     public function setFilename(string $filename): self
     {
         $this->filename = $filename;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of idfile
-     *
-     * @return  int
-     */ 
-    public function getIdfile(): int
-    {
-        return $this->idfile;
-    }
-
-    /**
-     * Set the value of idfile
-     *
-     * @param  int  $idfile
-     *
-     * @return  self
-     */ 
-    public function setIdfile(int $idfile): self
-    {
-        $this->idfile = $idfile;
 
         return $this;
     }

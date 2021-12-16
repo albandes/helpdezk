@@ -35,8 +35,7 @@ class ExpCity extends Controller
     {
         parent::__construct();
 
-        $appSrc = new appServices();
-		$appSrc->_sessionValidate();
+		$this->appSrc->_sessionValidate();
 
         //
         $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
@@ -47,14 +46,14 @@ class ExpCity extends Controller
             $this->imgDir = "exp/city/";
         }else{
             if($_ENV['EXTERNAL_STORAGE']) {
-                $modDir = $appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/exp/');
-                $this->imgDir = $appSrc->_setFolder($modDir.'city/');
+                $modDir = $this->appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/exp/');
+                $this->imgDir = $this->appSrc->_setFolder($modDir.'city/');
                 $this->imgBucket = $_ENV['EXTERNAL_STORAGE_URL'].'exp/city/';
             } else {
-                $storageDir = $appSrc->_setFolder($appSrc->_getHelpdezkPath().'/storage/');
-                $upDir = $appSrc->_setFolder($storageDir.'uploads/');
-                $modDir = $appSrc->_setFolder($upDir.'exp/');
-                $this->imgDir = $appSrc->_setFolder($modDir.'city/');
+                $storageDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath().'/storage/');
+                $upDir = $this->appSrc->_setFolder($storageDir.'uploads/');
+                $modDir = $this->appSrc->_setFolder($upDir.'exp/');
+                $this->imgDir = $this->appSrc->_setFolder($modDir.'city/');
                 $this->imgBucket = $_ENV['HDK_URL']."/storage/uploads/exp/city/";
             }
         }
@@ -84,18 +83,16 @@ class ExpCity extends Controller
      */
     public function makeScreenCity($option='idx',$obj=null)
     {
-        $appSrc = new appServices();
         $adminSrc = new adminServices();
         $expSrc = new expServices();
-        $translator = new localeServices();
-        $params = $appSrc->_getDefaultParams();
+        $params = $this->appSrc->_getDefaultParams();
         $params = $expSrc->_makeNavExp($params);
 
         // -- States --
         $params['cmbStates'] = $adminSrc->_comboStates();
        
         // -- Datepicker settings -- 
-        $retDtpicker = $appSrc->_datepickerSettings();
+        $retDtpicker = $this->appSrc->_datepickerSettings();
         $params['dtpFormat'] = $retDtpicker['dtpFormat'];
         $params['dtpLanguage'] = $retDtpicker['dtpLanguage'];
         $params['dtpAutoclose'] = $retDtpicker['dtpAutoclose'];
@@ -105,23 +102,23 @@ class ExpCity extends Controller
         
         // -- Search action --
         if($option=='idx'){
-            $params['cmbFilterOpts'] = $appSrc->_comboFilterOpts();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboCityFilters();
-            $params['modalFilters'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
+            $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
         // -- Others modals --
-        $params['modalAlert'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
-        $params['modalNextStep'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-next-step.latte';
+        $params['modalAlert'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
+        $params['modalNextStep'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-next-step.latte';
         
         // -- Token: to prevent attacks --
-        $params['token'] = $appSrc->_makeToken();
+        $params['token'] = $this->appSrc->_makeToken();
 
         if($option=='upd'){
             $params['cityID'] = $obj->getIdcity();
             $params['stateID'] = $obj->getIdstate();
             $params['cityName'] = $obj->getName();
-            $params['foundationDate'] = $appSrc->_formatDate($obj->getDtfoundation());
+            $params['foundationDate'] = $this->appSrc->_formatDate($obj->getDtfoundation());
             $params['isDefault'] = $obj->getIsdefault();
         }
         
@@ -137,8 +134,6 @@ class ExpCity extends Controller
      */
     public function jsonGrid()
     {
-        $appSrc = new appServices();
-        $translator = new localeServices();
         $cityDao = new cityDAO(); 
 
         $where = "";
@@ -153,15 +148,15 @@ class ExpCity extends Controller
 
             switch($filterIndx){
                 case "city_uf": //Search for the acronym or the full name of the state
-                    $where .= "AND (" . $appSrc->_formatGridOperation($filterOp,"b.name",$filterValue) ." OR ". $appSrc->_formatGridOperation($filterOp,"b.abbr",$filterValue) . ")" ;
+                    $where .= "AND (" . $this->appSrc->_formatGridOperation($filterOp,"b.name",$filterValue) ." OR ". $this->appSrc->_formatGridOperation($filterOp,"b.abbr",$filterValue) . ")" ;
                     break;
                 case "dtfoundation": //Search for city's foundation date
-                    $filterValue = $appSrc->_formatSaveDate($filterValue);
-                    $where .= "AND " . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+                    $filterValue = $this->appSrc->_formatSaveDate($filterValue);
+                    $where .= "AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
                     break;
                 default: //Search fro city's name
                     $filterIndx = "a.name";
-                    $where .= "AND " . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+                    $where .= "AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
                     break;
             }
             
@@ -173,7 +168,7 @@ class ExpCity extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             if(strtotime($quickValue)){//Search for city's foundation date
-                $where .= " AND dtfoundation '".$appSrc->_formatSaveDate($quickValue)."'";// it's in date format
+                $where .= " AND dtfoundation '".$this->appSrc->_formatSaveDate($quickValue)."'";// it's in date format
             }else{//Search fro city's name
                 $quickValue = str_replace(" ","%",$quickValue);
                 $where .= " AND a.name LIKE '%{$quickValue}%'";
@@ -200,7 +195,7 @@ class ExpCity extends Controller
             $total_Records = 0;
         }
         
-        $skip = $appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
+        $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
         $limit = "LIMIT {$skip},$pq_rPP";
 
         $cities = $cityDao->queryCities($where,$group,$order,$limit);
@@ -216,7 +211,7 @@ class ExpCity extends Controller
                     'idcity'        => $v['idcity'],
                     'city'          => $v['city'],//utf8_decode($v['holiday_description']),
                     'uf'            => $v['uf'],
-                    'dtfoundation'  => $appSrc->_formatDate($v['dtfoundation']),
+                    'dtfoundation'  => $this->appSrc->_formatDate($v['dtfoundation']),
                     'status'        => $status_fmt,
                     'status_val'    => $v['status'],
                     'default'       => $default_fmt,
@@ -244,12 +239,10 @@ class ExpCity extends Controller
      */
     public function comboCityFilters(): array
     {
-        $translator = new localeServices();
-
         $aRet = array(
-            array("id" => 'city_name',"text"=>$translator->translate('Name')), // equal
-            array("id" => 'city_uf',"text"=>$translator->translate('uf')),
-            array("id" => 'dtfoundation',"text"=>$translator->translate('city_foundation'))
+            array("id" => 'city_name',"text"=>$this->translator->translate('Name')), // equal
+            array("id" => 'city_uf',"text"=>$this->translator->translate('uf')),
+            array("id" => 'dtfoundation',"text"=>$this->translator->translate('city_foundation'))
         );
         
         return $aRet;
@@ -274,10 +267,13 @@ class ExpCity extends Controller
      */
     public function formUpdate($idcity=null)
     {
-        $cityDao = new cityDAO(); 
-        $cityUpd = $cityDao->getcity($idcity);
+        $cityDao = new cityDAO();
+        $cityMod = new cityModel();
+        $cityMod->setIdcity($idcity);
 
-        $params = $this->makeScreenCity('upd',$cityUpd);
+        $cityUpd = $cityDao->getCity($cityMod);
+
+        $params = $this->makeScreenCity('upd',$cityUpd['push']['object']);
         $params['cityID'] = $idcity;
       
         $this->view('exp','city-update',$params);
@@ -290,23 +286,18 @@ class ExpCity extends Controller
      */
     public function createCity()
     {
-        $appSrc = new appServices();
-        $translator = new localeServices();
-        
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }        
         
         $cityDao = new cityDAO();
-        $cityMod = new cityModel();
-
-        
+        $cityMod = new cityModel();        
 
         //Setting up the model
         $cityMod->setIdstate($_POST['cmbUF'])
                 ->setName(trim($_POST['cityName']))
-                ->setDtfoundation($appSrc->_formatSaveDate($_POST['foundationDate']))
+                ->setDtfoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
                 ->setIsdefault($_POST['cityDefault']);        
 
         if(isset($_POST["attachments"])){
@@ -323,11 +314,11 @@ class ExpCity extends Controller
             $msg = "";
             $cityID = $ins['push']['object']->getIdcity();
             $cityDescription = $ins['push']['object']->getName();
-            $cityFoundation = $appSrc->_formatDate($ins['push']['object']->getDtfoundation());
+            $cityFoundation = $this->appSrc->_formatDate($ins['push']['object']->getDtfoundation());
             
             // link attachments to the city
             if($aSize > 0){
-                $insAttachs = $this->linkCityAttachments($cityMod);
+                $insAttachs = $this->linkCityAttachments($ins['push']['object']);
                 
                 if(!$insAttachs['success']){
                     $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
@@ -364,41 +355,54 @@ class ExpCity extends Controller
      */
     public function updateCity()
     { 
-        $appSrc = new appServices();
-        $translator = new localeServices();
-        
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
         
         $cityDao = new cityDAO();
-        
-        $cityID = $_POST['cityID'];
-        $uf = $_POST['cmbUF'];
-        $name = trim($_POST['cityName']);
-        $dtFoundation = $appSrc->_formatSaveDate($_POST['foundationDate']);        
-        $flgDefault = $_POST['cityDefault'];
-        $aAttachs 	= $_POST["attachments"]; // Attachments
-        $aSize = count($aAttachs); // count attachs files
-        
-        $upd = $cityDao->updateCity($cityID,$uf,$name,$dtFoundation,$flgDefault);
-        if(is_null($upd) || empty($upd)){
-            return false;
-        }        
-        
-        // link attachments to the city
-        if($aSize > 0){
-            $insAttachs = $this->linkCityAttachments($cityID,$aAttachs);
+        $cityMod = new cityModel();        
+
+        //Setting up the model
+        $cityMod->setIdcity($_POST['cityID'])
+                ->setIdstate($_POST['cmbUF'])
+                ->setName(trim($_POST['cityName']))
+                ->setDtfoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
+                ->setIsdefault($_POST['cityDefault']);        
+
+        if(isset($_POST["attachments"])){
+            $aAttachs = $_POST["attachments"]; // Attachments
+            $aSize = count($aAttachs); // count attachs files
             
-            if(!$insAttachs['success']){
-                $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                return false;
+            $cityMod->setAttachments($aAttachs);
+        }
+        
+        $upd = $cityDao->updateCity($cityMod);
+        if($upd['status']){
+            $st = true;
+            $msg = "";
+            $cityID = $upd['push']['object']->getIdcity();
+            
+            // link attachments to the city
+            if($aSize > 0){
+                $insAttachs = $this->linkCityAttachments($upd['push']['object']);
+                
+                if(!$insAttachs['success']){
+                    $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $st = false;
+                    $msg = $insAttachs['message'];
+                    $cityID = "";
+                }
             }
-        }        
+        }else{
+            $st = false;
+            $msg = $upd['push']['message'];
+            $cityID = "";
+        }       
         
         $aRet = array(
-            "success" => true,
+            "success" => $st,
+            "message" => $msg,
             "idcity" => $cityID
         );        
 
@@ -412,18 +416,20 @@ class ExpCity extends Controller
      */
     function changeStatus()
     {
-        $appSrc = new appServices();        
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
 
         $cityDao = new cityDAO();
-        $cityID = $_POST['cityID'];
-        $newStatus = $_POST['newstatus'];
+        $cityMod = new cityModel();        
+
+        //Setting up the model
+        $cityMod->setIdcity($_POST['cityID'])
+                ->setStatus($_POST['newstatus']);
         
-        $upd = $cityDao->updateStatus($cityID,$newStatus);
-        if(is_null($upd)){
+        $upd = $cityDao->updateStatus($cityMod);
+        if(!$upd['status']){
             return false;
         }
 
@@ -442,18 +448,19 @@ class ExpCity extends Controller
      */
     function deleteCity()
     {
-        $appSrc = new appServices();        
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
 
         $cityDao = new cityDAO();
+        $cityMod = new cityModel();        
 
-        $id = $_POST['cityID'];
-        
-        $del = $cityDao->deleteCity($id);
-		if(is_null($del) || empty($del)){
+        //Setting up the model
+        $cityMod->setIdcity($_POST['cityID']);
+
+        $del = $cityDao->deleteCity($cityMod);
+		if(!$del['status']){
             return false;
         }
 
@@ -472,10 +479,7 @@ class ExpCity extends Controller
      */
     function checkExist(){
         
-        $appSrc = new appServices();
-        $translator = new localeServices();
-        
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
@@ -486,7 +490,7 @@ class ExpCity extends Controller
         $name = strip_tags($_POST['cityName']);
 
         $where = "AND a.name = '$name' AND a.idstate = $stateID";
-        $where .= (isset($_POST['idcity'])) ? "AND idcity != {$_POST['idcity']}" : "";
+        $where .= (isset($_POST['cityID'])) ? " AND idcity != {$_POST['cityID']}" : "";
 
         $check =  $cityDao->queryCities($where);
         if(!$check['status']){
@@ -496,7 +500,7 @@ class ExpCity extends Controller
         $checkObj = $check['push']['object']->getGridList();
         
         if(count($checkObj) > 0){
-            echo json_encode($translator->translate('city_already_registered'));
+            echo json_encode($this->translator->translate('city_already_registered'));
         }else{
             echo json_encode(true);
         }
@@ -510,8 +514,6 @@ class ExpCity extends Controller
      */
     function saveImage()
     {
-        $translator = new localeServices();
-        
         if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
 
             $fileName = $_FILES['file']['name'];
@@ -526,7 +528,7 @@ class ExpCity extends Controller
                     echo json_encode(array("success"=>true,"message"=>""));
                 } else {
                     $this->logger->error("Error trying save city image: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    echo json_encode(array("success"=>false,"message"=>"{$translator->translate('Alert_failure')}"));
+                    echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
                 }
                     
             }elseif($this->saveMode == "aws-s3"){
@@ -541,13 +543,13 @@ class ExpCity extends Controller
                     echo json_encode(array("success"=>true,"message"=>""));     
                 } else {
                     $this->logger->error("I could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    echo json_encode(array("success"=>false,"message"=>"{$translator->translate('Alert_failure')}"));
+                    echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
                 }             
 
             }
 
         }else{
-            echo json_encode(array("success"=>false,"message"=>"{$translator->translate('Alert_failure')}"));
+            echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
         }
 
         exit;
@@ -560,25 +562,25 @@ class ExpCity extends Controller
      */
     function loadImage()
     {
-        $appSrc = new appServices();
-        $translator = new localeServices();        
         $cityDao = new cityDAO();
+        $cityMod = new cityModel();
+        $cityMod->setIdcity($_POST['cityID']);
 
-        $cityID = $_POST['cityID'];
-        $imgList = $cityDao->fetchCityImage($cityID);
-
-        if (is_null($imgList)) {
+        $imgList = $cityDao->fetchCityImage($cityMod);
+        
+        if(!$imgList['status']) {
             return false;
         }
-
+        
+        $imgListObj = $imgList['push']['object']->getAttachments();
         $aImage = [];
-
-        if(!empty($imgList)){
-            foreach ($imgList as $key => $value){
+        
+        if(!empty($imgListObj)){
+            foreach ($imgListObj as $key => $value){
                 if($this->saveMode == "aws-s3"){
-                    $size = strlen(file_get_contents($this->imgBucket.$value['name']));
+                    $size = strlen(file_get_contents($this->imgBucket.$value['fileuploaded']));
                 }else{
-                    $size = filesize($this->imgDir.$value['name']);
+                    $size = filesize($this->imgDir.$value['fileuploaded']);
                 }            
                 
                 $aImage[] = array(
@@ -602,24 +604,24 @@ class ExpCity extends Controller
      */
     function removeImage()
     {
-        $appSrc = new appServices();
-        $translator = new localeServices();        
         $cityDao = new cityDAO();
+        $cityMod = new cityModel();        
 
-        $idimage = $_POST['idimage'];
+        //Setting up the model
+        $cityMod->setIdimage($_POST['idimage']);
         $filename = $_POST['filename'];
 
-        $del = $cityDao->deleteCityImage($idimage);
-        if (is_null($del)) {
+        $del = $cityDao->deleteCityImage($cityMod);
+        if(!$del['status']){
             return false;
         }
 
         if($this->saveMode == 'disk') {
             unlink($this->imgDir.$filename);
             $msg = true;
-        }else if ($this->saveMode == 'aws-s3'){           
-            $aws = $this->getAwsS3Client();
-            $arrayRet = $aws->removeFile("{$this->imgDir}{$filename}");
+        }elseif($this->saveMode == 'aws-s3'){           
+            $aws = new awsServices();
+            $arrayRet = $aws->_removeFile("{$this->imgDir}{$filename}");
             if($arrayRet['success']) {
                 $msg = true;
             } else {
@@ -643,9 +645,6 @@ class ExpCity extends Controller
      */
     public function linkCityAttachments(cityModel $cityModel): array
     {
-        $appSrc = new appServices();
-        $translator = new localeServices();
-        
         $cityDao = new cityDAO();
         $aAttachs = $cityModel->getAttachments();
         
@@ -659,35 +658,41 @@ class ExpCity extends Controller
             }
 
             $extension = strrchr($fileName, ".");
-            $imageID = $ins['status']->getIdimage();
+            $imageID = $ins['push']['object']->getIdimage();
             $newFile = $imageID.$extension;
+            $ins['push']['object']->setNewFileName($newFile);
 
-            if($this->saveMode == 'disk') {
+            if($this->saveMode == 'disk'){
                 $targetOld = $this->imgDir.$fileName;
                 $targetNew =  $this->imgDir.$newFile;
                 if(!rename($targetOld,$targetNew)){
-                    $del = $cityDao->deleteCityImage($imageID);
-                    if(is_null($del)) {
+                    $del = $cityDao->deleteCityImage($ins['push']['object']);
+                    if(!$del['status']) {
                         return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityID}");
                     }
                     return array("success"=>false,"message"=>"Can't link file {$fileName} to city #{$productID}");
                 }
                 
-            }elseif($this->saveMode == 'aws-s3') {
+            }elseif($this->saveMode == 'aws-s3'){
                 $aws = new awsServices();
                 $arrayRet = $aws->_renameFile("{$this->imgDir}{$fileName}","{$this->imgDir}{$newFile}");
                 
                 if($arrayRet['success']) {
                     $this->logger->info("Rename city image file {$fileName} to {$newFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 } else {
+                    $del = $cityDao->deleteCityImage($ins['push']['object']);
+                    if(!$del['status']) {
+                        return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityID}");
+                    }
+
                     $this->logger->error("I could not rename city image file {$fileName} to {$newFile} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    return json_encode(array("success"=>false,"message"=>"{$translator->translate('Alert_failure')}"));
+                    return json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
                 }
             
             }
 
-            $upd = $cityDao->updateCityImageName($imageID,$newFile);
-            if (is_null($upd)) {
+            $upd = $cityDao->updateCityImageName($ins['push']['object']);
+            if(!$upd['status']){
                 return array("success"=>false,"message"=>"Can't update link file {$fileName} to city {$cityID}");
             }
 

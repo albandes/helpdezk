@@ -26,16 +26,27 @@ class Controller
      * @var object
      */
     protected $emailLogger;
+
+    /**
+     * @var object
+     */
+    protected $appSrc;
+
+    /**
+     * @var object
+     */
+    protected $translator;
     
     public function __construct()
     {
         session_start();
-        $appSrc = new appServices();
+        $this->appSrc = new appServices();
+        $this->translator = new localeServices();
         
         // create a log channel
         $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
         
-        $stream = $appSrc->_getStreamHandler();
+        $stream = $this->appSrc->_getStreamHandler();
         $stream->setFormatter($formatter);
 
 
@@ -75,15 +86,14 @@ class Controller
     {
         $latte = new \Latte\Engine;
         $traslator = new localeServices;
-        $appSrc = new appServices();
         
-        $cacheDir = $appSrc->_setFolder($appSrc->_getHelpdezkPath() . "/cache");
-        $latteDir = $appSrc->_setFolder($cacheDir . "/latte");
+        $cacheDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath() . "/cache");
+        $latteDir = $this->appSrc->_setFolder($cacheDir . "/latte");
         
-        $latte->setTempDirectory($appSrc->_getHelpdezkPath() . '/cache/latte');
+        $latte->setTempDirectory($this->appSrc->_getHelpdezkPath() . '/cache/latte');
         
         $latte->addFilter('translate', [$traslator, 'translate']);
-        $page = $appSrc->_getHelpdezkPath() . '/app/modules/'.$module.'/views/'.$page.'.latte';
+        $page = $this->appSrc->_getHelpdezkPath() . '/app/modules/'.$module.'/views/'.$page.'.latte';
         
         $latte->render($page, $params);
     }

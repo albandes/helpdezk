@@ -88,7 +88,7 @@ $(document).ready(function () {
         dataModel: dataModel,
         colModel: colM,
         editable: false,
-        title: translateLabel('holidays'),
+        title: translateLabel('pgr_exp_city'),
         topVisible: false,
         sortModel: sortModel,
         pageModel: pageModel,
@@ -96,7 +96,7 @@ $(document).ready(function () {
         selectionModel: { mode: 'single', type: 'row' },
         selectChange: function (evt, ui) {
             var rowIndx = getRowIndx(),
-                row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx}),
+                row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx}),
                 rowSt = row.status_val;
                 
             $('#btnEnable').removeClass('disabled').addClass('active');

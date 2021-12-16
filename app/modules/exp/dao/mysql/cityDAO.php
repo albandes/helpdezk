@@ -97,27 +97,31 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityID);
-            $stmt->bindParam(':fileName', $fileName);
+            $stmt->bindParam(':cityID', $cityModel->getIdcity());
+            $stmt->bindParam(':fileName', $cityModel->getFilename());
             $stmt->execute();
+
+            $cityModel->setIdimage($this->db->lastInsertId());
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying link city with uploaded image ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying link city with uploaded image ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
-        $city = new cityModel(); 
-        $city->setIdimage($this->db->lastInsertId()); 
-        
         return array("status"=>$ret,"push"=>$result);
     }
     
     /**
      * Returns a object with city data
      *
-     * @param  int $cityID
-     * @return cityModel
+     * @param  cityModel $cityModel
+     * @return array
      */
-    public function getCity(int $cityID): ?cityModel
+    public function getCity(cityModel $cityModel): array
     {        
         $sql = "SELECT idcity,a.idstate,b.name state_name,a.`name`,dtfoundation,`default`,`status`
                   FROM exp_tbcity a, tbstate b
@@ -126,42 +130,37 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityID);
+            $stmt->bindParam(':cityID', $cityModel->getIdcity());
             $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $cityModel->setIdstate($aRet['idstate'])
+                      ->setStatename($aRet['state_name'])
+                      ->setName($aRet['name'])
+                      ->setDtfoundation($aRet['dtfoundation'])
+                      ->setIsdefault($aRet['default'])
+                      ->setStatus($aRet['status']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting holiday data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting holiday data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return null;
-        }
-        
-        $city = new cityModel();
-        $city->setIdcity($aRet['idcity'])
-             ->setIdstate($aRet['idstate'])
-             ->setStatename($aRet['state_name'])
-             ->setName($aRet['name'])
-             ->setDtfoundation($aRet['dtfoundation'])
-             ->setIsdefault($aRet['default'])
-             ->setStatus($aRet['status']);
-        
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * Update the city into the database
      *
-     * @param  mixed $cityID
-     * @param  mixed $uf
-     * @param  mixed $name
-     * @param  mixed $dtFoundation
-     * @param  mixed $flgDefault
-     * @return cityModel
+     * @param  cityModel $cityModel
+     * @return array
      */
-    public function updateCity(int $cityID, int $uf, string $name, string $dtFoundation, int $flgDefault): ?cityModel
+    public function updateCity(cityModel $cityModel): array
     {        
         $sql = "UPDATE exp_tbcity
                    SET idstate = :uf,
@@ -172,31 +171,34 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':uf', $uf);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':dtFoundation', $dtFoundation);
-            $stmt->bindParam(':flgDefault', $flgDefault);
-            $stmt->bindParam(':cityID', $cityID);
+            $stmt->bindParam(':uf', $cityModel->getIdstate());
+            $stmt->bindParam(':name', $cityModel->getName());
+            $stmt->bindParam(':dtFoundation', $cityModel->getDtfoundation());
+            $stmt->bindParam(':flgDefault', $cityModel->getIsdefault());
+            $stmt->bindParam(':cityID', $cityModel->getIdcity());
             $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying update city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying update city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
-        $city = new cityModel(); 
-        $city->setIdcity($cityID); 
-        
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
     
         
     /**
      * Returns array with the uploaded image linked with the city
      *
-     * @param  mixed $cityID
+     * @param  cityModel $cityModel
      * @return array
      */
-    public function fetchCityImage(int $cityID): array
+    public function fetchCityImage(cityModel $cityModel): array
     {        
         $sql = "SELECT idimage,idcity,filename,fileuploaded
                   FROM `exp_tbcity_image`
@@ -204,30 +206,32 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityID);
+            $stmt->bindParam(':cityID', $cityModel->getIdcity());
             $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $cityModel->setAttachments($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting uploded image ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting uploded image ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
      * Update city's status
      *
-     * @param  int $cityID
-     * @param  string $newStatus
-     * @return cityModel
+     * @param  cityModel $cityModel
+     * @return array
      */
-    public function updateStatus(int $cityID, string $newStatus): ?cityModel
+    public function updateStatus(cityModel $cityModel): array
     {        
         $sql = "UPDATE exp_tbcity
                    SET `status` = :newStatus
@@ -235,69 +239,78 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':newStatus', $newStatus);
-            $stmt->bindParam(':cityID', $cityID);
+            $stmt->bindParam(':newStatus', $cityModel->getStatus());
+            $stmt->bindParam(':cityID', $cityModel->getIdcity());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error("Error trying update city's status", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $city = new cityModel(); 
-        $city->setIdcity($cityID); 
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update city's status", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
 
         
     /**
      * Delete city from DB
      *
-     * @param  int $cityID
-     * @return cityModel
+     * @param  cityModel $cityModel
+     * @return array
      */
-    public function deleteCity(int $cityID): ?cityModel
+    public function deleteCity(cityModel $cityModel): array
     {        
         $sql = "DELETE FROM exp_tbcity WHERE idcity = :cityID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityID);
+            $stmt->bindParam(':cityID', $cityModel->getIdcity());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying delete city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $city = new cityModel(); 
-        $city->setIdcity($cityID); 
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying delete city ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * Delete the uploaded image from the database
      *
-     * @param  int $imageID
-     * @return cityModel
+     * @param  cityModel $cityModel
+     * @return array
      */
-    public function deleteCityImage(int $imageID): ?cityModel
+    public function deleteCityImage(cityModel $cityModel): array
     {        
         $sql = "DELETE FROM exp_tbcity_image WHERE idimage = :imageID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':imageID', $imageID);
+            $stmt->bindParam(':imageID', $cityModel->getIdimage());
             $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying delete uploaded image ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying delete uploaded image ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
-        $city = new cityModel(); 
-        $city->setIdimage($imageID); 
-        
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
@@ -307,7 +320,7 @@ class cityDAO extends Database
      * @param  string $newName
      * @return cityModel
      */
-    public function updateCityImageName(int $imageID, string $newName): ?cityModel
+    public function updateCityImageName(cityModel $cityModel): array
     {        
         $sql = "UPDATE exp_tbcity_image
                    SET fileuploaded = :newName
@@ -315,18 +328,21 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':newName', $newName);
-            $stmt->bindParam(':imageID', $imageID);
+            $stmt->bindParam(':newName', $cityModel->getNewFileName());
+            $stmt->bindParam(':imageID', $cityModel->getIdimage());
             $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying update loaded image name ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying update loaded image name ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
 
-        $city = new cityModel(); 
-        $city->setIdimage($imageID); 
-        
-        return $city;
+        return array("status"=>$ret,"push"=>$result);
     }
 
 }

@@ -17,8 +17,7 @@ class Holidays extends Controller
     {
         parent::__construct();
         
-        $appSrc = new appServices();
-		$appSrc->_sessionValidate();
+        $this->appSrc->_sessionValidate();
         
     }
 
@@ -41,17 +40,15 @@ class Holidays extends Controller
 	 */
     public function makeScreenHolidays($option='idx',$obj=null)
     {
-        $appSrc = new appServices();
         $adminSrc = new adminServices();
-        $translator = new localeServices();
-        $params = $appSrc->_getDefaultParams();
+        $params = $this->appSrc->_getDefaultParams();
         $params = $adminSrc->_makeNavAdm($params);
 
         // -- Token: to prevent attacks --
-        $params['token'] = $appSrc->_makeToken();
+        $params['token'] = $this->appSrc->_makeToken();
         
         // -- Datepicker settings -- 
-        $retDtpicker = $appSrc->_datepickerSettings();
+        $retDtpicker = $this->appSrc->_datepickerSettings();
         $params['dtpFormat'] = $retDtpicker['dtpFormat'];
         $params['dtpLanguage'] = $retDtpicker['dtpLanguage'];
         $params['dtpAutoclose'] = $retDtpicker['dtpAutoclose'];
@@ -61,23 +58,23 @@ class Holidays extends Controller
         
         // -- Companies --
         $params['cmbCompanies'] = $adminSrc->_comboCompany();
-        array_push($params['cmbCompanies'],array("id"=>0,"text"=>$translator->translate('National_holiday')));
+        array_push($params['cmbCompanies'],array("id"=>0,"text"=>$this->translator->translate('National_holiday')));
 
         // -- Search action --
         if($option=='idx'){
-            $params['cmbFilterOpts'] = $appSrc->_comboFilterOpts();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboHolidayFilters();
-            $params['modalFilters'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
+            $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
 
         // -- Others modals --
-        $params['modalAlert'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
-        $params['modalError'] = $appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-error.latte';
+        $params['modalAlert'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
+        $params['modalError'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-error.latte';
 
         if($option=='upd'){
             $params['idholiday'] = $obj->getIdholiday();
             $params['holidayDesc'] = $obj->getDescription();
-            $params['holidayDate'] = $appSrc->_formatDate($obj->getDate());           
+            $params['holidayDate'] = $this->appSrc->_formatDate($obj->getDate());           
         }elseif($option=='add'){
             $params['companyID'] = $obj->getIdcompany();
         }
@@ -90,8 +87,6 @@ class Holidays extends Controller
 
     public function jsonGrid()
     {
-        $appSrc = new appServices();
-        $translator = new localeServices();
         $holidayDao = new holidayDAO(); 
 
         $where = "";
@@ -105,7 +100,7 @@ class Holidays extends Controller
             $filterValue = $_POST["filterValue"];
             $filterOp = $_POST["filterOperation"];
             
-            $where .= (empty($where) ? "WHERE " : " AND ") . $appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+            $where .= (empty($where) ? "WHERE " : " AND ") . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
         } 
         
         //Search with params sended from quick search input
@@ -113,7 +108,7 @@ class Holidays extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             if(strtotime($quickValue)){
-                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_date LIKE '".$appSrc->_formatSaveDate($quickValue)."'";// it's in date format
+                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_date LIKE '".$this->appSrc->_formatSaveDate($quickValue)."'";// it's in date format
             }else{
                 $quickValue = str_replace(" ","%",$quickValue);
                 $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_description LIKE '%{$quickValue}%'";
@@ -140,7 +135,7 @@ class Holidays extends Controller
             $total_Records = 0;
         }
         
-        $skip = $appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
+        $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
         $limit = "LIMIT {$skip},$pq_rPP";
 
         $holidays = $holidayDao->queryHolidays($where,$group,$order,$limit);
@@ -152,13 +147,13 @@ class Holidays extends Controller
                 if(isset($v['idperson'])){
                     $type_holiday = $v['name'];
                 }else{
-                    $type_holiday = $translator->translate('National_holiday');
+                    $type_holiday = $this->translator->translate('National_holiday');
                 }
 
                 $data[] = array(
                     'idholiday'           => $v['idholiday'],
                     'holiday_description' => $v['holiday_description'],//utf8_decode($v['holiday_description']),
-                    'holiday_date'        => $appSrc->_formatDate($v['holiday_date']),
+                    'holiday_date'        => $this->appSrc->_formatDate($v['holiday_date']),
                     'company'             => $type_holiday
     
                 );
@@ -184,11 +179,9 @@ class Holidays extends Controller
      */
     public function comboHolidayFilters(): array
     {
-        $translator = new localeServices();
-
         $aRet = array(
-            array("id" => 'holiday_description',"text"=>$translator->translate('Name')), // equal
-            array("id" => 'holiday_date',"text"=>$translator->translate('Date'))
+            array("id" => 'holiday_description',"text"=>$this->translator->translate('Name')), // equal
+            array("id" => 'holiday_date',"text"=>$this->translator->translate('Date'))
         );
         
         return $aRet;
@@ -244,16 +237,15 @@ class Holidays extends Controller
      */
     public function createHoliday()
     {
-        $appSrc = new appServices();
         $holidayDao = new holidayDAO();
         $holidayMod = new holidayModel();
 
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
 
-        $holidayMod->setDate($appSrc->_formatSaveDate($_POST['holiday_date']))
+        $holidayMod->setDate($this->appSrc->_formatSaveDate($_POST['holiday_date']))
                    ->setDescription(trim($_POST['holiday_description']));        
         
         $ins = $holidayDao->insertHoliday($holidayMod);
@@ -301,17 +293,16 @@ class Holidays extends Controller
      */
     public function updateHoliday()
     {
-        $appSrc = new appServices();
         $holidayDao = new holidayDAO();
         $holidayMod = new holidayModel();
 
-        if (!$appSrc->_checkToken()) {
+        if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
         
         $holidayMod->setIdholiday($_POST['holidayID'])
-                   ->setDate($appSrc->_formatSaveDate($_POST['holiday_date']))
+                   ->setDate($this->appSrc->_formatSaveDate($_POST['holiday_date']))
                    ->setDescription(trim($_POST['holiday_description']));
         
         $upd = $holidayDao->updateHoliday($holidayMod);
@@ -352,13 +343,12 @@ class Holidays extends Controller
     public function comboYearByCompanyHtml(int $companyID): string
     {
         $holidayDao = new holidayDAO();
-        $translator = new localeServices();
         
         $companyYear = $holidayDao->fetchHolidayYearsByCompany($companyID);
         $select = '';
         
         if(is_null($companyYear) || empty($companyYear) || sizeof($companyYear) == 0){
-            $select .= "<option value='X'> - {$translator->translate('no_holidays_for_company')} - </option>";
+            $select .= "<option value='X'> - {$this->translator->translate('no_holidays_for_company')} - </option>";
         }else{
             $select .= "<option></option>";
             foreach ($companyYear as $key=>$value) {
@@ -397,8 +387,6 @@ class Holidays extends Controller
     public function load()
     {
         $holidayDao = new holidayDAO();
-        $translator = new localeServices();
-        $appSrc = new appServices();
 
         $year = $_POST['prevyear'];
         $companyID = $_POST['companyID'];       
@@ -411,9 +399,9 @@ class Holidays extends Controller
             $count = count($loadHoliday);            
             
             foreach($loadHoliday as $key=>$val) {
-                $type_holiday = ($val['idperson'] != 0) ? $val['name'] : $translator->translate('National_holiday');
+                $type_holiday = ($val['idperson'] != 0) ? $val['name'] : $this->translator->translate('National_holiday');
                 
-                $dataformatada = $appSrc->_formatDate($val['holiday_date']);
+                $dataformatada = $this->appSrc->_formatDate($val['holiday_date']);
                 
                 $list .= "<tr>
                             <td>".$dataformatada."</td>
@@ -447,8 +435,6 @@ class Holidays extends Controller
         }*/
 
         $holidayDao = new holidayDAO();
-        $translator = new localeServices();
-        $appSrc = new appServices();
 
         $year = $_POST['lastyear'];
         $nextyear = $_POST['nextyear'];
