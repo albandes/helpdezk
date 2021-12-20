@@ -59,6 +59,41 @@ final class moduleModel
      */
     private $isdefault;
 
+    /**
+     * @var array
+     */
+    private $activeList;
+
+    /**
+     * @var int
+     */
+    private $userID;
+
+    /**
+     * @var int
+     */
+    private $userType;
+
+    /**
+     * @var int
+     */
+    private $categoryID;
+
+    /**
+     * @var array
+     */
+    private $categoriesList;
+
+    /**
+     * @var array
+     */
+    private $permissionsList;
+
+    /**
+     * @var array
+     */
+    private $settingsList;
+
 
     /**
      * Get the value of idmodule
@@ -324,4 +359,172 @@ final class moduleModel
         return $this;
     }
     
+
+    /**
+     * Get the value of activeList
+     *
+     * @return  array
+     */ 
+    public function getActiveList(): array
+    {
+        return $this->activeList;
+    }
+
+    /**
+     * Set the value of activeList
+     *
+     * @param  array  $activeList
+     *
+     * @return  self
+     */ 
+    public function setActiveList(array $activeList):self
+    {
+        $this->activeList = $activeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userID
+     *
+     * @return  int
+     */ 
+    public function getUserID(): int
+    {
+        return $this->userID;
+    }
+
+    /**
+     * Set the value of userID
+     *
+     * @param  int  $userID
+     *
+     * @return  self
+     */ 
+    public function setUserID(int $userID): self
+    {
+        $this->userID = $userID;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userType
+     *
+     * @return  int
+     */ 
+    public function getUserType(): int
+    {
+        return $this->userType;
+    }
+
+    /**
+     * Set the value of userType
+     *
+     * @param  int  $userType
+     *
+     * @return  self
+     */ 
+    public function setUserType(int $userType): self
+    {
+        $this->userType = $userType;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categoryID
+     *
+     * @return  int
+     */ 
+    public function getCategoryID(): int
+    {
+        return $this->categoryID;
+    }
+
+    /**
+     * Set the value of categoryID
+     *
+     * @param  int  $categoryID
+     *
+     * @return  self
+     */ 
+    public function setCategoryID(int $categoryID): self
+    {
+        $this->categoryID = $categoryID;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categoriesList
+     *
+     * @return  array
+     */ 
+    public function getCategoriesList(): array
+    {
+        return $this->categoriesList;
+    }
+
+    /**
+     * Set the value of categoriesList
+     *
+     * @param  array  $categoriesList
+     *
+     * @return  self
+     */ 
+    public function setCategoriesList(array $categoriesList): self
+    {
+        $this->categoriesList = $categoriesList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of permissionsList
+     *
+     * @return  array
+     */ 
+    public function getPermissionsList(): array
+    {
+        return $this->permissionsList;
+    }
+
+    /**
+     * Set the value of permissionsList
+     *
+     * @param  array  $permissionsList
+     *
+     * @return  self
+     */ 
+    public function setPermissionsList(array $permissionsList): self
+    {
+        $this->permissionsList = $permissionsList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of settingsList
+     *
+     * @return  array
+     */ 
+    public function getSettingsList(): array
+    {
+        return $this->settingsList;
+    }
+
+    /**
+     * Set the value of settingsList
+     *
+     * @param  array  $settingsList
+     *
+     * @return  self
+     */ 
+    public function setSettingsList(array $settingsList): self
+    {
+        $this->settingsList = $settingsList;
+
+        return $this;
+    }
 }

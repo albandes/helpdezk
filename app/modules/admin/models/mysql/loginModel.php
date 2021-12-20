@@ -55,6 +55,21 @@ final class loginModel
     private $userStatus;
 
     /**
+     * @var string
+     */
+    private $frmPassword;
+
+    /**
+     * @var string
+     */
+    private $passwordEncrypted;
+
+    /**
+     * @var string
+     */
+    private $frmToken;
+
+    /**
      * Get the value of idperson
      *
      * @return  int
@@ -280,6 +295,78 @@ final class loginModel
     public function setUserStatus(string $userStatus): self
     {
         $this->userStatus = $userStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of frmPassword
+     *
+     * @return  string
+     */ 
+    public function getFrmPassword(): string
+    {
+        return $this->frmPassword;
+    }
+
+    /**
+     * Set the value of frmPassword
+     *
+     * @param  string  $frmPassword
+     *
+     * @return  self
+     */ 
+    public function setFrmPassword(string $frmPassword): self
+    {
+        $this->frmPassword = $frmPassword;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of passwordEncrypted
+     *
+     * @return  string
+     */ 
+    public function getPasswordEncrypted(): string
+    {
+        return $this->passwordEncrypted;
+    }
+
+    /**
+     * Set the value of passwordEncrypted
+     *
+     * @param  string  $passwordEncrypted
+     *
+     * @return  self
+     */ 
+    public function setPasswordEncrypted(string $passwordEncrypted): self
+    {
+        $this->passwordEncrypted = $passwordEncrypted;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of frmToken
+     *
+     * @return  string
+     */ 
+    public function getFrmToken(): string
+    {
+        return $this->frmToken;
+    }
+
+    /**
+     * Set the value of frmToken
+     *
+     * @param  string  $frmToken
+     *
+     * @return  self
+     */ 
+    public function setFrmToken(string $frmToken): self
+    {
+        $this->frmToken = $frmToken;
 
         return $this;
     }

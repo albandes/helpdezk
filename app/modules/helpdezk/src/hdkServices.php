@@ -8,6 +8,9 @@ use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\holidayDAO;
+
+use App\modules\admin\models\mysql\moduleModel;
+
 use App\src\appServices;
 use App\src\localeServices;
 
@@ -50,6 +53,11 @@ class hdkServices
         $moduleDAO = new moduleDAO();
         $appSrc = new appServices();
         $translator = new localeServices();
+
+        $moduleModel = new moduleModel();
+        $moduleModel->setUserID($_SESSION['SES_COD_USUARIO'])
+                    ->setUserType($_SESSION['SES_TYPE_PERSON'])
+                    ->setName('helpdezk');
         
         $params['featured_1'] = true;
         $params['lnk_featured_1'] = $_ENV['HDK_URL'] . '/helpdezk/hdkTicket/index';
@@ -64,11 +72,12 @@ class hdkServices
             $params['lnk_featured_3'] = $_ENV['HDK_URL'] . '/helpdezk/hdkTicket/index/mytickets/1';
             $params['featured_label_3'] = $translator->translate('My_Tickets');
         }
-
-        $moduleInfo = $moduleDAO->getModuleInfoByName('helpdezk');
-        if(!is_null($moduleInfo) && !empty($moduleInfo)){
-            
-            $listRecords = $appSrc->_makeMenuByModule($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$moduleInfo->getIdmodule());
+        
+        $retInfo = $moduleDAO->getModuleInfoByName($moduleModel); 
+        if($retInfo['status']){
+            $moduleInfo = $retInfo['push']['object'];
+            $moduleModel->setIdmodule($moduleInfo->getIdmodule());
+            $listRecords = $appSrc->_makeMenuByModule($moduleModel);
             
             $params['listMenu_1'] = $listRecords;
             $params['moduleLogo'] = ($moduleInfo->getIdmodule() == 1) ? $aHeader['filename'] : $moduleInfo->getHeaderlogo();

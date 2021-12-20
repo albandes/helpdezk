@@ -13,12 +13,15 @@ class personDAO extends Database
     }
     
     /**
-     * getPersonByID
+     * Returns user's data
      *
-     * @param  string $userID
-     * @return personModel
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function getPersonByID(string $userID): ?personModel
+    public function getPersonByID(personModel $personModel): array
     {        
         $sql = "SELECT tbp.idperson, tbp.name, tbp.login, tbp.email, tbp.status, tbp.user_vip, tbp.phone_number AS telephone,
                         tbp.branch_number, tbp.cel_phone AS cellphone, tbtp.name AS typeperson, tbtp.idtypeperson, 
@@ -26,8 +29,8 @@ class personDAO extends Database
                         nbh.name AS neighborhood, nbh.idneighborhood, ct.name AS city, ct.idcity, tpstr.name AS typestreet,
                         tpstr.idtypestreet, st.name AS street, addr.number, addr.complement, addr.zipcode,
                         pipeMask (addr.zipcode, '#####-###') AS zipcode_fmt, nat.ssn_cpf, pipeMask(nat.ssn_cpf,'###.###.###-##') AS cpf_fmt,
-                        pipeMask(nat.ssn_cpf,'###-##-####') AS ssn_fmt, nat.rg, nat.rgoexp, nat.dtbirth, nat.mother,
-                        nat.father, nat.gender, a.iddepartment, b.name AS department,
+                        pipeMask(nat.ssn_cpf,'###-##-####') AS ssn_fmt, IFNULL(nat.rg,'') rg, IFNULL(nat.rgoexp,'') rgoexp, nat.dtbirth, IFNULL(nat.mother,'') mother,
+                        IFNULL(nat.father,'') father, nat.gender, a.iddepartment, b.name AS department,
                         (SELECT `name` FROM tbperson WHERE idperson = b.idperson ) AS company,
                         b.idperson idcompany, tbp.idtypelogin, DATE_FORMAT(nat.dtbirth,'%d/%m/%Y') AS dtbirth_fmt,
                         addr.idstreet
@@ -50,61 +53,64 @@ class personDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $personModel->getIdperson());
             $stmt->execute();
+            $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+            $personModel->setIdperson($rows['idperson'])
+                        ->setName($rows['name'])
+                        ->setLogin($rows['login'])
+                        ->setEmail($rows['email'])
+                        ->setStatus($rows['status'])
+                        ->setUserVip($rows['user_vip'])
+                        ->setTelephone($rows['telephone'])
+                        ->setBranchNumber($rows['branch_number'])
+                        ->setCellphone($rows['cellphone'])
+                        ->setTypeperson($rows['typeperson'])
+                        ->setIdtypeperson($rows['idtypeperson'])
+                        ->setCountry($rows['country'])
+                        ->setIdcountry($rows['idcountry'])
+                        ->setState($rows['state'])
+                        ->setStateAbbr($rows['state_abbr'])
+                        ->setIdstate($rows['idstate'])
+                        ->setNeighborhood($rows['neighborhood'])
+                        ->setIdneighborhood($rows['idneighborhood'])
+                        ->setCity($rows['city'])
+                        ->setIdcity($rows['idcity'])
+                        ->setTypestreet($rows['typestreet'])
+                        ->setIdtypestreet($rows['idtypestreet'])
+                        ->setStreet($rows['street'])
+                        ->setNumber($rows['number'])
+                        ->setComplement($rows['complement'])
+                        ->setZipcode($rows['zipcode'])
+                        ->setZipcodeFmt($rows['zipcode_fmt'])
+                        ->setSsnCpf($rows['ssn_cpf'])
+                        ->setCpfFmt($rows['cpf_fmt'])
+                        ->setSsnFmt($rows['ssn_fmt'])
+                        ->setRg($rows['rg'])
+                        ->setRgoexp($rows['rgoexp'])
+                        ->setDtbirth($rows['dtbirth'])
+                        ->setMother($rows['mother'])
+                        ->setFather($rows['father'])
+                        ->setGender($rows['gender'])
+                        ->setIddepartment($rows['iddepartment'])
+                        ->setDepartment($rows['department'])
+                        ->setCompany($rows['company'])
+                        ->setIdcompany($rows['idcompany'])
+                        ->setIdtypelogin($rows['idtypelogin'])
+                        ->setDtbirthFmt($rows['dtbirth_fmt'])
+                        ->setIdstreet($rows['idstreet']);
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting person data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting person data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        $person = new Person();
-        $person->setIdperson($rows['idperson'])
-               ->setName($rows['name'])
-               ->setLogin($rows['login'])
-               ->setEmail($rows['email'])
-               ->setStatus($rows['status'])
-               ->setUserVip($rows['user_vip'])
-               ->setTelephone($rows['telephone'])
-               ->setBranchNumber($rows['branch_number'])
-               ->setCellphone($rows['cellphone'])
-               ->setTypeperson($rows['typeperson'])
-               ->setIdtypeperson($rows['idtypeperson'])
-               ->setCountry($rows['country'])
-               ->setIdcountry($rows['idcountry'])
-               ->setState($rows['state'])
-               ->setStateAbbr($rows['state_abbr'])
-               ->setIdstate($rows['idstate'])
-               ->setNeighborhood($rows['neighborhood'])
-               ->setIdneighborhood($rows['idneighborhood'])
-               ->setCity($rows['city'])
-               ->setIdcity($rows['idcity'])
-               ->setTypestreet($rows['typestreet'])
-               ->setIdtypestreet($rows['idtypestreet'])
-               ->setStreet($rows['street'])
-               ->setNumber($rows['number'])
-               ->setComplement($rows['complement'])
-               ->setZipcode($rows['zipcode'])
-               ->setZipcodeFmt($rows['zipcode_fmt'])
-               ->setSsnCpf($rows['ssn_cpf'])
-               ->setCpfFmt($rows['cpf_fmt'])
-               ->setSsnFmt($rows['ssn_fmt'])
-               ->setRg($rows['rg'])
-               ->setRgoexp($rows['rgoexp'])
-               ->setDtbirth($rows['dtbirth'])
-               ->setMother($rows['mother'])
-               ->setFather($rows['father'])
-               ->setGender($rows['gender'])
-               ->setIddepartment($rows['iddepartment'])
-               ->setDepartment($rows['department'])
-               ->setCompany($rows['company'])
-               ->setIdcompany($rows['idcompany'])
-               ->setIdtypelogin($rows['idtypelogin'])
-               ->setDtbirthFmt($rows['dtbirth_fmt'])
-               ->setIdstreet($rows['idstreet']);
-
-        return $person;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     public function fetchCompanies(): array

@@ -11,8 +11,17 @@ class moduleDAO extends Database
     {
         parent::__construct(); 
     }
-
-    public function getModuleDefault(): ?moduleModel
+    
+    /**
+     * Returns default module
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getModuleDefault(moduleModel $moduleModel): array
     {        
         $sql = "SELECT idmodule, `name`, IFNULL(`index`,0) `index`, `status`, path, smarty, 
                         IFNULL(class,'') class,IFNULL(headerlogo,'') headerlogo, IFNULL(reportslogo,'') reportslogo, 
@@ -23,30 +32,43 @@ class moduleDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $moduleModel->setIdmodule($aRet['idmodule'])
+                        ->setName($aRet['name'])
+                        ->setIndex($aRet['index'])
+                        ->setStatus($aRet['status'])
+                        ->setPath($aRet['path'])
+                        ->setSmarty($aRet['smarty'])
+                        ->setClass($aRet['class'])
+                        ->setHeaderlogo($aRet['headerlogo'])
+                        ->setReportslogo($aRet['reportslogo'])
+                        ->setTableprefix($aRet['tableprefix'])
+                        ->setIsdefault($aRet['defaultmodule']);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting default module ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting default module ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        $module = new moduleModel(); 
-        $module->setIdmodule($aRet['idmodule'])
-               ->setName($aRet['name'])
-               ->setIndex($aRet['index'])
-               ->setStatus($aRet['status'])
-               ->setPath($aRet['path'])
-               ->setSmarty($aRet['smarty'])
-               ->setClass($aRet['class'])
-               ->setHeaderlogo($aRet['headerlogo'])
-               ->setReportslogo($aRet['reportslogo'])
-               ->setTableprefix($aRet['tableprefix'])
-               ->setIsdefault($aRet['defaultmodule']); 
-        
-        return $module;
+        return array("status"=>$ret,"push"=>$result);
     }
-
-    public function fetchActiveModules(): array
+    
+    /**
+     * Returns active modules data
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchActiveModules(moduleModel $moduleModel): array
     {        
         $sql = "SELECT idmodule,`name`,`index`,path,smarty,headerlogo,reportslogo,tableprefix 
                   FROM tbmodule
@@ -55,43 +77,73 @@ class moduleDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $moduleModel->setActiveList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting active modules ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting active modules ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
-
-    public function fetchConfigDataByModule(string $prefix): array
+    
+    /**
+     * Returns module's settings
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchConfigDataByModule(moduleModel $moduleModel): array
     {        
-        $prefix = $prefix . '_tbconfig';
+        $prefix = $moduleModel->getTableprefix() . '_tbconfig';
         $sql = "SELECT session_name, value FROM $prefix";
         
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $moduleModel->setSettingsList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting module settings ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting module settings ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
-
-    public function fetchModuleActiveCategories(int $userID, int $userType, int $moduleID): array
+    
+    /**
+     * Returns module's categories data
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchModuleActiveCategories(moduleModel $moduleModel): array
     {        
-        if($userID == 1 || $userType == 1){
+        if($moduleModel->getUserID() == 1 || $moduleModel->getUserType() == 1){
             $cond = " AND tp.idtypeperson = 1";
         }else{
             $cond = " AND tp.idtypeperson IN
                         (SELECT idtypeperson
                            FROM tbpersontypes
-                          WHERE idperson = '{$userID}')";
+                          WHERE idperson = '{$moduleModel->getUserID()}')";
         }
         
         $sql = "(SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty
@@ -126,35 +178,47 @@ class moduleDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
-            $stmt->bindParam(':moduleID', $moduleID);
+            $stmt->bindParam(':userID', $moduleModel->getUserID());
+            $stmt->bindParam(':moduleID', $moduleModel->getIdmodule());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting module's active categories", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
-    }
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $moduleModel->setCategoriesList($aRet);
 
-    public function fetchPermissionMenu(int $userID, int $userType, int $moduleID, int $categoryID): array
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting module's active categories", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * Returns program's permissions by module
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchPermissionMenu(moduleModel $moduleModel): array
     {        
-        if($userID == 1 || $userType == 1){
+        if($moduleModel->getUserID() == 1 || $moduleModel->getUserType() == 1){
             $cond = " AND tp.idtypeperson = 1";
         }else{
             $cond = " AND tp.idtypeperson IN
                         (SELECT idtypeperson
                            FROM tbpersontypes
-                          WHERE idperson = '{$userID}')";
+                          WHERE idperson = '{$moduleModel->getUserID()}')";
         }
 
-        $andModule = " m.idmodule = {$moduleID} AND cat.idprogramcategory = {$categoryID}";
+        $andModule = " m.idmodule = {$moduleModel->getIdmodule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
         
         $sql = "(SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
                         cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
@@ -194,23 +258,35 @@ class moduleDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $moduleModel->getUserID());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting module's active categories", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return null;
-        }
-        
-        return $aRet;
-    }
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $moduleModel->setPermissionsList($aRet);
 
-    public function getModuleInfoByName(string $moduleName): ?moduleModel
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting module's active categories", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * Returns module's data
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getModuleInfoByName(moduleModel $moduleModel): array
     {        
         $sql = "SELECT idmodule, `name`, IFNULL(`index`,0) `index`, `status`, path, smarty, 
                         IFNULL(class,'') class,IFNULL(headerlogo,'') headerlogo, IFNULL(reportslogo,'') reportslogo, 
@@ -220,36 +296,45 @@ class moduleDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':moduleName', $moduleName);
+            $stmt->bindParam(':moduleName', $moduleModel->getName());
             $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            $moduleModel->setIdmodule($aRet['idmodule'])
+                        ->setName($aRet['name'])
+                        ->setIndex($aRet['index'])
+                        ->setStatus($aRet['status'])
+                        ->setPath($aRet['path'])
+                        ->setSmarty($aRet['smarty'])
+                        ->setClass($aRet['class'])
+                        ->setHeaderlogo($aRet['headerlogo'])
+                        ->setReportslogo($aRet['reportslogo'])
+                        ->setTableprefix($aRet['tableprefix'])
+                        ->setIsdefault($aRet['defaultmodule']);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting module info ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting module info ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if(!$aRet){
-            return null;
-        }
-
-        $module = new moduleModel(); 
-        $module->setIdmodule($aRet['idmodule'])
-               ->setName($aRet['name'])
-               ->setIndex($aRet['index'])
-               ->setStatus($aRet['status'])
-               ->setPath($aRet['path'])
-               ->setSmarty($aRet['smarty'])
-               ->setClass($aRet['class'])
-               ->setHeaderlogo($aRet['headerlogo'])
-               ->setReportslogo($aRet['reportslogo'])
-               ->setTableprefix($aRet['tableprefix'])
-               ->setIsdefault($aRet['defaultmodule']); 
-        
-        return $module;
+        return array("status"=>$ret,"push"=>$result);
     }
-
-    public function fetchExtraModulesPerson(int $userID): array
+    
+    /**
+     * Returns user's extra modules
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchExtraModulesPerson(moduleModel $moduleModel): array
     {        
         $sql = "SELECT DISTINCT temp.idmodule, temp.name, temp.index, temp.path, temp.smarty, temp.class, temp.headerlogo,
                         temp.reportslogo, temp.tableprefix
@@ -281,19 +366,22 @@ class moduleDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $moduleModel->getUserID());
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $moduleModel->setActiveList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
 }

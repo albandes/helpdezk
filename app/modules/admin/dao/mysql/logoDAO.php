@@ -12,27 +12,31 @@ class logoDAO extends Database
         parent::__construct(); 
     }
 
-    public function getLogoByName(string $name): array
+    public function getLogoByName(logoModel $logoModel): array
     {
         
         $sql = "SELECT idlogo, `name`, height, width, file_name FROM tblogos WHERE `name` = :name";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(":name",$name);
+            $stmt->bindParam(":name",$logoModel->getName());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
-        }
-        
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $logo = new logoModel();
-        $logo->setId($aRet['idlogo'])
-             ->setName($aRet['name'])
-             ->setHeight($aRet['height'])
-             ->setWidth($aRet['width'])
-             ->setFileName($aRet['file_name']);             
 
-        return array("success"=>true,"message"=>"","data"=>$logo);
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            $logoModel->setId($aRet['idlogo'])
+                      ->setName($aRet['name'])
+                      ->setHeight($aRet['height'])
+                      ->setWidth($aRet['width'])
+                      ->setFileName($aRet['file_name']);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying get logo data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
     }
 }

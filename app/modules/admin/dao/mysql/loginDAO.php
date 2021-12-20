@@ -3,6 +3,8 @@
 namespace App\modules\admin\dao\mysql;
 
 use App\core\Database;
+
+use App\modules\admin\models\mysql\featureModel;
 use App\modules\admin\models\mysql\loginModel;
 
 class loginDAO extends Database
@@ -13,73 +15,89 @@ class loginDAO extends Database
     }
     
     /**
-     * Return an array with login type
+     * Returns login's type
      *
-     * @param  string $login
-     * @return loginModel
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function getLoginType(string $login): ?loginModel
+    public function getLoginType(loginModel $loginModel): array
     {
         
         $sql = "SELECT idtypelogin FROM tbperson WHERE login = :login";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':login', $login);
+            $stmt->bindParam(':login', $loginModel->getLogin());
             $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $loginModel->setLogintype($aRet['idtypelogin']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        $login = new loginModel();
-        $login->setLogintype($aRet['idtypelogin']);
-        
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
     }
 
         
     /**
      * Return an array with user data
      *
-     * @param  string $login
-     * @return loginModel
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function getUserByLogin(string $login): ?loginModel
+    public function getUserByLogin(loginModel $loginModel): array
     {
         
         $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson WHERE login = :login";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':login', $login);
+            $stmt->bindParam(':login', $loginModel->getLogin());
             $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $loginModel->setIdperson($aRet['idperson'])
+                       ->setName($aRet['name'])
+                       ->setLogin($aRet['login'])
+                       ->setIdtypeperson($aRet['idtypeperson']);
+              
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        $login = new loginModel();
-        $login->setIdperson($aRet['idperson'])
-              ->setName($aRet['name'])
-              ->setLogin($aRet['login'])
-              ->setIdtypeperson($aRet['idtypeperson']);
-        
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
      * Return an array with user data
      *
-     * @param  string $login
-     * @param  string $password
-     * @return loginModel
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function getUser(string $login,string $password): ?loginModel
+    public function getUser(loginModel $loginModel): array
     {
         
         $sql = "SELECT idperson, `name`, login, idtypeperson 
@@ -90,27 +108,32 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':login', $login);
-            $stmt->bindParam(':password', $password);
+            $stmt->bindParam(':login', $loginModel->getLogin());
+            $stmt->bindParam(':password', $loginModel->getPasswordEncrypted());
             $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+            if($aRet){
+                $loginModel->setIdperson($aRet['idperson'])
+                           ->setName($aRet['name'])
+                           ->setLogin($aRet['login'])
+                           ->setIdtypeperson($aRet['idtypeperson']);
+            }else{
+                $loginModel->setIdperson(0);
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting user ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting user ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return null;
-        }
-
-        $login = new loginModel();
-        $login->setIdperson($aRet['idperson'])
-              ->setName($aRet['name'])
-              ->setLogin($aRet['login'])
-              ->setIdtypeperson($aRet['idtypeperson']);
-
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     public function getRequestsByUser(string $userID): array
@@ -173,8 +196,17 @@ class loginDAO extends Database
         
         return $loginCheck;
     }
-
-    public function getDataSession(int $userID): ?loginModel
+    
+    /**
+     * Returns user's session data
+     *
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getDataSession(loginModel $loginModel): array
     {        
         $sql = "SELECT person.idtypeperson as idtypeperson, person.name as name,  person.login as login,
                         juridical.idperson  as idjuridical, juridical.name as company
@@ -186,25 +218,39 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $loginModel->getIdperson());
             $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            $loginModel->setName($aRet['name'])
+                       ->setLogin($aRet['login'])
+                       ->setIdtypeperson($aRet['idtypeperson'])
+                       ->setIdcompany($aRet['idjuridical'])
+                       ->setCompanyName($aRet['company']);
+                  
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting user data session ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting user data session ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $login = new loginModel();
-        $login->setName($aRet['name'])
-              ->setLogin($aRet['login'])
-              ->setIdtypeperson($aRet['idtypeperson'])
-              ->setIdcompany($aRet['idjuridical'])
-              ->setCompanyName($aRet['company']);
-
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
     }
-
-    public function getPersonGroups(int $userID): ?loginModel
+    
+    /**
+     * Returns user's groups
+     *
+     * @param  mixed $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getPersonGroups(loginModel $loginModel): array
     {        
         $sql = "SELECT pers.name as personname, pers.idperson, pers.name as groupname, grp.idgroup
                   FROM hdk_tbgroup as grp, tbperson as pers, hdk_tbgroup_has_person as relat
@@ -215,48 +261,72 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $loginModel->getIdperson());
             $stmt->execute();
+            $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            foreach($row as $k=>$v){
+                $groups .= "{$v['idgroup']},";           
+            }
+            
+            $groups = substr($groups,0,-1);
+
+            $loginModel->setGroupId($groups);
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting user data session ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting user data session ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        foreach($row as $k=>$v){
-            $groups = "{$v['idgroup']},";           
-        }
-        
-        $groups = substr($groups,0,-1);
-
-        $login = new loginModel();
-        $login->setGroupId($groups);
-
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
     }
-
-    public function isActiveHelpdezk(): ?loginModel
+    
+    /**
+     * Returns if the helpdezk module is active or not
+     *
+     * @param  mixed $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function isActiveHelpdezk(loginModel $loginModel): array
 	{
 		$sql =  "SELECT idmodule FROM tbmodule WHERE tableprefix = 'hdk' AND `status` = 'A'";
 
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            $loginModel->setIsActiveHdk(($row && !empty($row)) ? true : false);
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error check is helpdezk active ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error check is helpdezk active ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);        
-		
-        $login = new loginModel();
-        $login->setIsActiveHdk((count($row)  > 0 && is_array($row)) ? true : false);
-
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
 
 	}
-
-    public function fetchAllGroups(): ?loginModel
+    
+    /**
+     * Returns all groups
+     *
+     * @param  mixed $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchAllGroups(loginModel $loginModel): array
     {        
         $sql = "SELECT pers.idperson, pers.name groupname, grp.idgroup
                   FROM hdk_tbgroup  grp, tbperson 	 pers
@@ -265,59 +335,58 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
             $stmt->execute();
+            $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            foreach($row as $k=>$v){
+                $groups .= "{$v['idgroup']},";           
+            }
+
+            $groups = substr($groups,0,-1);
+
+            $loginModel->setGroupId($groups);
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        foreach($row as $k=>$v){
-            $groups = "{$v['idgroup']},";           
-        }
-
-        $groups = substr($groups,0,-1);
-
-        $login = new loginModel();
-        $login->setGroupId($groups);
-
-        return $login;
+        return array("status"=>$ret,"push"=>$result);
     }
 
 
-    public function getConfigData(): array
-    {        
-        $sql = "SELECT idmodule,`name`,`index`,path,smarty,headerlogo,reportslogo,tableprefix 
-                  FROM tbmodule
-                 WHERE `status` = 'A'";
-        
-        try{
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-        }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
-        }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        return array("success"=>true,"message"=>"","data"=>$aRet);
-    }
-
-    public function fetchConfigGlobalData(): array
+    /**
+     * fetchConfigGlobalData
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchConfigGlobalData(featureModel $featureModel): array
     {        
         $sql = "SELECT session_name, `value` from tbconfig";
         
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $featureModel->setGlobalSettingsList($row);
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return $row;
+        return array("status"=>$ret,"push"=>$result);
     }
 }

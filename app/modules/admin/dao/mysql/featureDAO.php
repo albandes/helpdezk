@@ -12,8 +12,17 @@ class featureDAO extends Database
     {
         parent::__construct(); 
     }
-
-    public function fetchPopConfigs(): ?popConfigModel
+    
+    /**
+     * Returns object with POP settings
+     *
+     * @param  popConfigModel $popConfigModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchPopConfigs(popConfigModel $popSettings): array
     {
         
         $sql = "SELECT session_name, `value` FROM tbconfig WHERE idconfigcategory = 12";
@@ -21,34 +30,38 @@ class featureDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach($row as $k=>$v){
+                switch($v['session_name']){
+                    case 'POP_HOST':
+                        $popSettings->setHost($v['value']);
+                        break;
+                    case 'POP_PORT':
+                        $popSettings->setPort($v['value']);
+                        break;
+                    case 'POP_TYPE':
+                        $popSettings->setType($v['value']);
+                        break;
+                    case 'POP_DOMAIN':
+                        $popSettings->setDomain($v['value']);
+                        break;
+                    default:
+                        break;
+                }          
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$popSettings);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        $popSettings = new popConfigModel();
-        
-        foreach($row as $k=>$v){
-            switch($v['session_name']){
-                case 'POP_HOST':
-                    $popSettings->setHost($v['value']);
-                    break;
-                case 'POP_PORT':
-                    $popSettings->setPort($v['value']);
-                    break;
-                case 'POP_TYPE':
-                    $popSettings->setType($v['value']);
-                    break;
-                case 'POP_DOMAIN':
-                    $popSettings->setDomain($v['value']);
-                    break;
-                default:
-                    break;
-            }          
-        }
-        
-        return $popSettings;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     public function getArrayConfigs(int $confCategoryID): array

@@ -1,9 +1,9 @@
-<div id="sideNav">
+<div id="sideNav" class="scrollable-gnmenu">
     <ul class="navbar-nav">
     {if $isroot}
         <li>
             <a href="{$adminhome}">
-                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
+                <img style="max-width:60px;" src="{$adminlogo}"  >
                 &nbsp;&nbsp;<span>Admin</span>
             </a>
         </li>
@@ -11,7 +11,7 @@
         {if $hashelpdezk }
         <li>
             <a href="{$helpdezkhome}">
-                <img style="max-width:60px;" src="{$headerlogo}"  >
+                <img style="max-width:60px;" src="{$hdklogo}"  >
                 &nbsp;&nbsp;<span>HelpDEZK</span>
             </a>
         </li>
@@ -19,15 +19,15 @@
         {if $hasadmin }
         <li>
             <a href="{$adminhome}">
-                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$adminlogo}"  >
+                <img style="max-width:60px;" src="{$adminlogo}"  >
                 &nbsp;&nbsp;<span>Admin</span>
             </a>
         </li>
         {/if}
         {foreach $modules as $myId=>$i}
-        <li>
+        <li class="text-start">
             <a href="{$path}/{$i['path']}/home">
-                <img style="max-width:60px;" src="{$path}/storage/uploads/logos/{$i['headerlogo']}"  >
+                <img style="max-width:60px;" src="{$i['headerlogo']}"  >
                 &nbsp;&nbsp;<span>{=$i['varsmarty']|translate}</span>
             </a>
         </li>

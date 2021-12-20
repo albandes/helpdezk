@@ -6,6 +6,9 @@ use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\personDAO;
 
+use App\modules\admin\models\mysql\loginModel;
+use App\modules\admin\models\mysql\popConfigModel;
+
 use App\modules\admin\src\loginServices;
 use App\src\appServices;
 use App\src\localeServices;
@@ -43,9 +46,8 @@ class Login extends Controller
     public function makeScreenLogin()
     {
         $loginSrc = new loginServices();
-        $appSrc = new appServices();
         $aLogo = $loginSrc->_getLoginLogoData();
-        $params = $appSrc->_getDefaultParams();
+        $params = $this->appSrc->_getDefaultParams();
         $params['warning'] = "";
         $params['loginLogoUrl'] = $aLogo['image'];
         $params['loginheight'] = $aLogo['height'];
@@ -61,37 +63,39 @@ class Login extends Controller
      */
     public function auth()
     {
-        $frm_login = $_POST['login'];
-        $frm_password = $_POST['password'];
-        $passwordMd5 = md5($_POST['password']);
-        $form_token = $_POST['token'];
-        
         $loginDAO = new loginDAO();
         $personDAO = new personDAO();
         $featDAO = new featureDAO();
         $loginSrc = new loginServices();
-        $appSrc = new appServices();
-        $translator = new localeServices();
+
+        $loginModel = new loginModel();
+        $loginModel->setLogin($_POST['login'])
+                   ->setFrmPassword($_POST['password'])
+                   ->setPasswordEncrypted(md5($_POST['password']));
+        if(isset($_POST['token'])) 
+            $loginModel->setFrmToken($_POST['token']);
+
+        $loginType = $loginDAO->getLoginType($loginModel);
         
-        $loginType = $loginDAO->getLoginType($frm_login);
-        
-        if(is_null($loginType)){
+        if(!$loginType['status']){
             // Return with error message
             $success = array(
                 "success" => 0,
-                "msg" => html_entity_decode($translator->translate('Login_user_not_exist'),ENT_COMPAT, 'UTF-8')
+                "msg" => html_entity_decode($this->translator->translate('Login_user_not_exist'),ENT_COMPAT, 'UTF-8')
             );
             echo json_encode($success);
             return;
 		}
         
-        switch ($loginType->getLogintype()) {
+        $loginTypeObj = $loginType['push']['object'];
+        switch ($loginTypeObj->getLogintype()) {
             case '3': // HelpDEZk
                 
-                $isLogin = $this->helpdezkAuth($frm_login,$passwordMd5); 
-                $loginUser = $loginDAO->getUser($frm_login, $passwordMd5); 
-                $idperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdperson() : '';
-                $idtypeperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdtypeperson() : '';
+                $isLogin = $this->helpdezkAuth($loginTypeObj); 
+                $loginUser = $loginDAO->getUser($loginTypeObj);
+
+                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdperson() : '';
+                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdtypeperson() : '';
                 break;
             
             case '1': // Pop/Imap Server
@@ -101,10 +105,11 @@ class Login extends Controller
                     break;
                 }
                 
-                $isLogin = $this->imapAuth($frm_login,$frm_password);
-                $loginUser = $loginDAO->getUserByLogin($frm_login);
-                $idperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdperson() : '';
-                $idtypeperson = (!is_null($loginUser) && !empty($loginUser)) ? $loginUser->getIdtypeperson() : ''; 
+                $isLogin = $this->imapAuth($loginTypeObj);
+                $loginUser = $loginDAO->getUserByLogin($loginTypeObj);
+
+                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdperson() : '';
+                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdtypeperson() : '';
                 break;
         }
         
@@ -116,7 +121,7 @@ class Login extends Controller
                     $loginSrc->_getConfigSession();
                     $success = array(
                         "success" => 1,
-                        "redirect" => $appSrc->_getPath() .  "/admin/home"
+                        "redirect" => $this->appSrc->_getPath() .  "/admin/home"
                     );
                     echo json_encode($success);
                     return;
@@ -133,7 +138,7 @@ class Login extends Controller
                         echo json_encode($maintenance);
                         return;
                     }else{
-                        $redirect = $appSrc->_getPath() .  "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
+                        $redirect = $this->appSrc->_getPath() .  "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
                         
                         $success = array(
                             "success" => 1,
@@ -157,7 +162,7 @@ class Login extends Controller
 					}else{
 						$success = array(
 										"success" => 1,
-										"redirect" => $appSrc->_getPath() . "/helpdezk/home/index"
+										"redirect" => $this->appSrc->_getPath() . "/helpdezk/home/index"
 									);
 
 						echo json_encode($success);
@@ -193,7 +198,7 @@ class Login extends Controller
                         }else{
                             $success = array(
                                 "success" => 1,
-                                "redirect" => $appSrc->_getPath() . "/{$modPath}/home/index"
+                                "redirect" => $this->appSrc->_getPath() . "/{$modPath}/home/index"
                             );
                             echo json_encode($success);
                             return;
@@ -215,9 +220,9 @@ class Login extends Controller
 			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
 				$userStatus = $loginDAO->checkUser($frm_login); 
                 if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
-                    $msg = $translator->translate('Login_user_inactive');
+                    $msg = $this->translator->translate('Login_user_inactive');
 				}elseif($userStatus->getUserStatus() == "A") 
-                    $msg = $translator->translate('Login_error_error');
+                    $msg = $this->translator->translate('Login_error_error');
 			}
 			$success = array("success" => 0,
 							 "msg" => $msg );
@@ -244,25 +249,42 @@ class Login extends Controller
             return false ;
         }
     }
-
-    public function helpdezkAuth($login,$passwordMd5)
+    
+    /**
+     * Check if user exists in DB
+     *
+     * @param  loginModel $loginModel
+     * @return bool
+     */
+    public function helpdezkAuth(loginModel $loginModel): bool
     {
         $loginDAO = new LoginDAO();
-        $loginUser = $loginDAO->getUser($login,$passwordMd5);
+        $loginUser = $loginDAO->getUser($loginModel);
         
-        return (!is_null($loginUser) && !empty($loginUser)) ? true : false;
+        if(!$loginUser['status']){
+            return false;
+        }else{
+            return $loginUser['push']['object']->getIdperson() == 0 ? false : true;
+        }
     }
 
-    public function imapAuth($login,$password)
+    /**
+     * Auth user with google account
+     *
+     * @param  loginModel $loginModel
+     * @return bool
+     */
+    public function imapAuth(loginModel $loginModel): bool
     {
-        $featDAO = new featureDAO(); 
-        $popConfigs = $featDAO->fetchPopConfigs() ;
+        $featDAO = new featureDAO();
+        $popConfMod = new popConfigModel();
+        $popConfigs = $featDAO->fetchPopConfigs($popConfMod); 
         
-        if (!is_null($popConfigs) && !empty($popConfigs)){
-            $host = $popConfigs->getHost();
-            $port = $popConfigs->getPort();
-            $type = $popConfigs->getType();
-            $domain = $popConfigs->getDomain();
+        if ($popConfigs['status']){
+            $host = $popConfigs['push']['object']->getHost();
+            $port = $popConfigs['push']['object']->getPort();
+            $type = $popConfigs['push']['object']->getType();
+            $domain = $popConfigs['push']['object']->getDomain();
             if(!empty($domain)) $domain = '@'.$domain;
             
             if ($type == 'POP'){
@@ -275,7 +297,7 @@ class Login extends Controller
                 die("IMAP functions are not available.<br />\n");
             
             /* try to connect */
-            $mbox = imap_open($hostname,$login.$domain,$password) ;
+            $mbox = imap_open($hostname,$loginModel->getLogin().$domain,$loginModel->getFrmPassword()) ;
             if($mbox) {
                 imap_close($mbox);
                 return true;

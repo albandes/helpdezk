@@ -149,9 +149,6 @@ class holidayDAO extends Database
             $result = array("message"=>$msg,"object"=>null);
         }
 
-        $holiday = new holidayModel(); 
-        $holiday->setIdcompany($this->db->lastInsertId()); 
-        
         return array("status"=>$ret,"push"=>$result);
     }
 

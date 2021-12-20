@@ -11,7 +11,7 @@ html.cursor { cursor: pointer; }
   color: #1ab394;
   text-decoration: none;
   display: block;
-  padding: 10px 30px;
+  padding: 3px;
   height: 80%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -46,14 +46,14 @@ html.cursor { cursor: pointer; }
 
 #sideNav.showFullMenu {
   left: 0;
-  width: 311px;
+  width: 320px;
 }
 
 #sideNav.showFullMenu ul ul li { height: 59px; }
 
 #sideNav > ul {
   width: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 30px;
 }
 
 #sideNav ul li {
@@ -64,13 +64,13 @@ html.cursor { cursor: pointer; }
 
 #sideNav ul li a {
   border-bottom: 1px solid #ddd;
-  padding-left: 70px;
+  padding-left: 5px;
 }
 
 #sideNav ul li span {
   position: relative;
   top: 3px;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 #sideNav ul ul li {
@@ -79,7 +79,7 @@ html.cursor { cursor: pointer; }
 }
 
 #sideNav input.search {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   border: 0;
   outline: 0;
   font-weight: 300;
@@ -166,4 +166,23 @@ nav a,  #sideNav a { padding: 10px 15px; }
 nav a#btn-menu { padding: 10px 30px; }
 
 #sideNav.showFullMenu,  #sideNav.showFullMenu li,  #sideNav.showFullMenu a { width: 100%; }
+}
+
+.scrollable-gnmenu {
+  max-height: 620px;
+  overflow: auto;
+}
+
+.scrollable-gnmenu::-webkit-scrollbar {
+  width: 16px;
+}
+
+.scrollable-gnmenu::-webkit-scrollbar-track {
+  background-color: #e4e4e4;
+  border-radius: 100px;
+}
+
+.scrollable-gnmenu::-webkit-scrollbar-thumb {
+  background-color: #d4d4d4;
+  border-radius: 100px;
 }

@@ -8,6 +8,10 @@ use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\holidayDAO;
+
+use App\modules\admin\models\mysql\logoModel;
+use App\modules\admin\models\mysql\moduleModel;
+
 use App\src\appServices;
 
 use Monolog\Logger;
@@ -26,14 +30,27 @@ class adminServices
      */
     protected $admEmailLogger;
 
+    /**
+     * @var object
+     */
+    protected $appSrc;
+
+    /**
+     * @var string
+     */
+    protected $saveMode;
+
     public function __construct()
     {
-        $appSrc = new appServices();
+        $this->appSrc = new appServices();
 
+        /**
+         * LOG
+         */
         // create a log channel
         $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
         
-        $stream = $appSrc->_getStreamHandler();
+        $stream = $this->appSrc->_getStreamHandler();
         $stream->setFormatter($formatter);
 
         $this->admlogger  = new Logger('helpdezk');
@@ -42,21 +59,43 @@ class adminServices
         // Clone the first one to only change the channel
         $this->admEmailLogger = $this->admlogger->withName('email');
 
+        // Setting up the save mode of files
+        $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
+        if($this->saveMode == "aws-s3"){
+            $bucket = $_ENV['S3BUCKET_NAME'];
+            $this->imgDir = "logos/";
+            $this->imgBucket = "https://{$bucket}.s3.amazonaws.com/logos/";
+        }else{
+            if($_ENV['EXTERNAL_STORAGE']) {
+                $this->imgDir = $this->appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/logos/');
+                $this->imgBucket = $_ENV['EXTERNAL_STORAGE_URL'].'logos/';
+            } else {
+                $storageDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath().'/storage/');
+                $upDir = $this->appSrc->_setFolder($storageDir.'uploads/');
+                $this->imgDir = $this->appSrc->_setFolder($upDir.'logos/');
+                $this->imgBucket = $_ENV['HDK_URL']."/storage/uploads/logos/";
+            }
+        }
+
     }
 
     public function _makeNavAdm($params)
     {
         $listRecords = $this->_makeMenuAdm();
         $moduleDAO = new moduleDAO();
-        $appSrc = new appServices();
+        $moduleModel = new moduleModel();
+        $moduleModel->setUserID($_SESSION['SES_COD_USUARIO'])
+                    ->setUserType($_SESSION['SES_TYPE_PERSON'])
+                    ->setName('admin');
 
-        $moduleInfo = $moduleDAO->getModuleInfoByName('admin');
-        if(!is_null($moduleInfo) && !empty($moduleInfo)){
-            $aHeader = $appSrc->_getHeaderData();
+        $retInfo = $moduleDAO->getModuleInfoByName($moduleModel);
+        if($retInfo['status']){
+            $moduleInfo = $retInfo['push']['object'];
+            $aHeader = $this->appSrc->_getHeaderData();
             
             $params['displayMenu_Adm'] = 1;
             $params['listMenu_Adm'] = $listRecords;
-            $params['moduleLogo'] = ($moduleInfo->getIdmodule() == 1) ? $aHeader['filename']: $moduleInfo->getHeaderlogo();
+            $params['moduleLogo'] = $moduleInfo->getHeaderlogo();
             $params['modulePath'] = $moduleInfo->getPath();
         }
 
@@ -66,20 +105,33 @@ class adminServices
 
     public function _makeMenuAdm(): array
     {
-        $moduleDAO = new moduleDAO(); 
-        $activeModules = $moduleDAO->fetchActiveModules();
+        $moduleDAO = new moduleDAO();
+        $moduleModel = new moduleModel(); 
+        $activeModules = $moduleDAO->fetchActiveModules($moduleModel);
         $aModules = array();
         
-        if(!is_null($activeModules) && !empty($activeModules)){
-            foreach($activeModules as $k=>$v) {      
+        if($activeModules['status']){
+            $aActiveModules = $activeModules['push']['object']->getActiveList();
+            $activeModel = $activeModules['push']['object'];
+            foreach($aActiveModules as $k=>$v) {      
+                $activeModel->setUserID($_SESSION['SES_COD_USUARIO'])
+                            ->setUserType($_SESSION['SES_TYPE_PERSON'])
+                            ->setIdmodule($v['idmodule']);
+
+                $retCategories = $moduleDAO->fetchModuleActiveCategories($activeModel);
                 
-                $activeCategories = $moduleDAO->fetchModuleActiveCategories($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$v['idmodule']);
-                
-                if(!is_null($activeCategories) && !empty($activeCategories)){
+                if($retCategories['status']){
+                    $categoriesObj = $retCategories['push']['object'];
+                    $activeCategories = $categoriesObj->getCategoriesList();
+
                     foreach($activeCategories as $idx=>$val) {
-                        $permissionsMod = $moduleDAO->fetchPermissionMenu($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$v['idmodule'],$val['category_id']);
+                        $categoriesObj->setCategoryID($val['category_id']);
+                        $retPermissions = $moduleDAO->fetchPermissionMenu($categoriesObj);
                         
-                        if(!is_null($permissionsMod) && !empty($permissionsMod)){
+                        if($retPermissions['status']){
+                            $permissionsObj = $retPermissions['push']['object'];
+                            $permissionsMod = $permissionsObj->getPermissionsList();
+                            
                             foreach($permissionsMod as $permidx=>$permval) {
                                 $allow = $permval['allow'];
                                 $path  = $permval['path'];
@@ -109,39 +161,6 @@ class adminServices
         }
         
         return $aModules;
-    }
-
-    /**
-     * Returns login's logo data
-	 * 
-     * @return array login's logo data (path, width, height)
-     */
-	public function _getLoginLogoData(): array 
-    {
-        $aRet = [];
-        $appSrc = new appServices();
-		$logoDAO = new logoDao(); 
-        $logo = $logoDAO->getLogoByName("login");
-        
-        $objLogo = $logo['data'];
-        if ($_ENV['EXTERNAL_STORAGE']) {
-            $pathLogoImage = $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' . $objLogo->getFileName();
-        } else {
-            
-            $pathLogoImage = $appSrc->_getHelpdezkPath() . '/storage/uploads/logos/' . $objLogo->getFileName();
-        }
-		
-        if (empty($objLogo->getFileName()) or !file_exists($pathLogoImage)){
-            $aRet['image'] 	= ($_ENV['EXTERNAL_STORAGE'] ? $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' : $_ENV['HDK_URL'] . '/storage/uploads/logos/') . 'default/login.png';
-			$aRet['width'] 	= "227";
-			$aRet['height'] = "70";
-        }else{
-            $aRet['image'] 	= ($_ENV['EXTERNAL_STORAGE'] ? $_ENV['EXTERNAL_STORAGE_PATH'] . '/logos/' : $_ENV['HDK_URL'] . '/storage/uploads/logos/') . $objLogo->getFileName();
-			$aRet['width'] 	= $objLogo->getWidth();
-			$aRet['height'] = $objLogo->getHeight();
-		}
-        
-		return $aRet;
     }
         
     /**

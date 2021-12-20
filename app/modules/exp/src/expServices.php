@@ -8,6 +8,9 @@ use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\holidayDAO;
+
+use App\modules\admin\models\mysql\moduleModel;
+
 use App\src\appServices;
 
 use Monolog\Logger;
@@ -49,11 +52,18 @@ class expServices
         $moduleDAO = new moduleDAO();
         $appSrc = new appServices();
         
-        $moduleInfo = $moduleDAO->getModuleInfoByName('Exemplo');
-        if(!is_null($moduleInfo) && !empty($moduleInfo)){
+        $moduleModel = new moduleModel();
+        $moduleModel->setUserID($_SESSION['SES_COD_USUARIO'])
+                    ->setUserType($_SESSION['SES_TYPE_PERSON'])
+                    ->setName('Exemplo');
+        
+        $retInfo = $moduleDAO->getModuleInfoByName($moduleModel);
+        if($retInfo['status']){
+            $moduleInfo = $retInfo['push']['object'];
+            $moduleModel->setIdmodule($moduleInfo->getIdmodule());
             $aHeader = $appSrc->_getHeaderData();
             
-            $listRecords = $appSrc->_makeMenuByModule($_SESSION['SES_COD_USUARIO'],$_SESSION['SES_TYPE_PERSON'],$moduleInfo->getIdmodule());
+            $listRecords = $appSrc->_makeMenuByModule($moduleModel);
             
             $params['listMenu_1'] = $listRecords;
             $params['moduleLogo'] = ($moduleInfo->getIdmodule() == 1) ? $aHeader['filename'] : $moduleInfo->getHeaderlogo();
