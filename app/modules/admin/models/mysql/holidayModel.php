@@ -35,6 +35,21 @@ final class holidayModel
     private $gridList;
 
     /**
+     * @var int
+     */
+    private $year;
+
+    /**
+     * @var int
+     */
+    private $nextYear;
+
+    /**
+     * @var array
+     */
+    private $yearList;
+
+    /**
      * Get the value of idholiday
      *
      * @return  int
@@ -174,6 +189,78 @@ final class holidayModel
     public function setGridList(array $gridList): self
     {
         $this->gridList = $gridList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of year
+     *
+     * @return  int
+     */ 
+    public function getYear(): int
+    {
+        return $this->year;
+    }
+
+    /**
+     * Set the value of year
+     *
+     * @param  int  $year
+     *
+     * @return  self
+     */ 
+    public function setYear(int $year): self
+    {
+        $this->year = $year;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nextYear
+     *
+     * @return  int
+     */ 
+    public function getNextYear(): int
+    {
+        return $this->nextYear;
+    }
+
+    /**
+     * Set the value of nextYear
+     *
+     * @param  int  $nextYear
+     *
+     * @return  self
+     */ 
+    public function setNextYear(int $nextYear): self
+    {
+        $this->nextYear = $nextYear;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of yearList
+     *
+     * @return  array
+     */ 
+    public function getYearList(): array
+    {
+        return $this->yearList;
+    }
+
+    /**
+     * Set the value of yearList
+     *
+     * @param  array  $yearList
+     *
+     * @return  self
+     */ 
+    public function setYearList(array $yearList): self
+    {
+        $this->yearList = $yearList;
 
         return $this;
     }

@@ -343,13 +343,16 @@ class Holidays extends Controller
     public function comboYearByCompanyHtml(int $companyID): string
     {
         $holidayDao = new holidayDAO();
+        $holidayModel = new holidayModel();
+        $holidayModel->setIdcompany($companyID);
         
-        $companyYear = $holidayDao->fetchHolidayYearsByCompany($companyID);
+        $retCompanyYear = $holidayDao->fetchHolidayYearsByCompany($holidayModel);
         $select = '';
         
-        if(is_null($companyYear) || empty($companyYear) || sizeof($companyYear) == 0){
+        if(!$retCompanyYear['status'] || sizeof($retCompanyYear['push']['object']->getYearList()) == 0){
             $select .= "<option value='X'> - {$this->translator->translate('no_holidays_for_company')} - </option>";
         }else{
+            $companyYear = $retCompanyYear['push']['object']->getYearList();
             $select .= "<option></option>";
             foreach ($companyYear as $key=>$value) {
                 $select .= "<option value='{$value['holiday_year']}'>{$value['holiday_year']}</option>";
@@ -387,15 +390,17 @@ class Holidays extends Controller
     public function load()
     {
         $holidayDao = new holidayDAO();
+        $holidayModel = new holidayModel();
 
-        $year = $_POST['prevyear'];
-        $companyID = $_POST['companyID'];       
+        $holidayModel->setYear($_POST['prevyear'])
+                     ->setIdcompany($_POST['companyID']);       
 
-        $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
+        $retLoad = $holidayDao->fetchHolidays($holidayModel);
         $count = 0;
         $list = '';
 
-        if(!is_null($loadHoliday) && !empty($loadHoliday)){
+        if($retLoad['status']){
+            $loadHoliday = $retLoad['push']['object']->getGridList();
             $count = count($loadHoliday);            
             
             foreach($loadHoliday as $key=>$val) {
@@ -428,23 +433,25 @@ class Holidays extends Controller
      */
     public function import() {
 
-        /*if (!$this->_checkToken()) {
-            if($this->log)
-                $this->logIt('Error Token: '.$this->_getToken().' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
-        }*/
+        }
 
         $holidayDao = new holidayDAO();
+        $holidayModel = new holidayModel();
 
-        $year = $_POST['lastyear'];
         $nextyear = $_POST['nextyear'];
-        $companyID = $_POST['company'];
+        $holidayModel->setYear($_POST['lastyear'])
+                     ->setNextYear($nextyear)
+                     ->setIdcompany($_POST['company']);       
 
-        $loadHoliday = $holidayDao->fetchHolidays($companyID,$year);
+        $retLoad = $holidayDao->fetchHolidays($holidayModel);
         $count = 0;
         $list = '';
-
-        if(!is_null($loadHoliday) && !empty($loadHoliday)){
+        
+        if($retLoad['status']){
+            $loadHoliday = $retLoad['push']['object']->getGridList();
             $count = count($loadHoliday);            
             
             foreach($loadHoliday as $key=>$val) {
@@ -453,18 +460,18 @@ class Holidays extends Controller
 
                 $newdate = substr($newdate,4);
                 $newdate = $nextyear . $newdate;
+                $holidayModel->setDate($newdate)
+                             ->setDescription($desc);
                 
-                $ins = $holidayDao->insertHoliday($newdate,$desc);
-                if(is_null($ins) || empty($ins)){
+                $ins = $holidayDao->insertHoliday($holidayModel);
+                if(!$ins['status']){
                     return false;
                 }        
                 
-                $holidayID = $ins->getIdholiday();
-                
                 //Link holiday with the company
                 if($val['idperson'] != 0){			
-                    $insCompany = $holidayDao->insertHolidayHasCompany($holidayID,$val['idperson']);
-                    if(is_null($insCompany) || empty($insCompany)){
+                    $insCompany = $holidayDao->insertHolidayHasCompany($ins['push']['object']);
+                    if(!$insCompany['status']){
                         return false;
                     }
                 }
@@ -489,23 +496,23 @@ class Holidays extends Controller
     function deleteHoliday()
     {
 
-        /*if (!$this->_checkToken()) {
-            if($this->log)
-                $this->logIt('Error Token - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
-        }*/
+        }
 
         $holidayDao = new holidayDAO();
-
-        $id = $_POST['holidayID'];
+        $holidayModel = new holidayModel();
         
-        $delCompany = $holidayDao->deleteHolidayCompany($id);
-        if(is_null($delCompany)){
+        $holidayModel->setIdholiday($_POST['holidayID']);
+        
+        $retDelCompany = $holidayDao->deleteHolidayCompany($holidayModel);
+        if(!$retDelCompany['status']){
             return false;
         }
         
-        $del = $holidayDao->deleteHoliday($id);
-		if(is_null($del) || empty($del)){
+        $retDel = $holidayDao->deleteHoliday($holidayModel);
+		if(!$retDel['status']){
             return false;
         }
 

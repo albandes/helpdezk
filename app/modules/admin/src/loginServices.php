@@ -258,8 +258,8 @@ class loginServices
         // Global Config Data
         $retGlobalConfig = $loginDAO->fetchConfigGlobalData($featModel);
 
-        if ($retGlobalConfi['status']){
-            $globalConfig = $retGlobalConfi['push']['object']->getGlobalSettingsList();
+        if ($retGlobalConfig['status']){
+            $globalConfig = $retGlobalConfig['push']['object']->getGlobalSettingsList();
             foreach($globalConfig as $key=>$val) {
                 $ses = $val['session_name'];
                 $val = $val['value'];

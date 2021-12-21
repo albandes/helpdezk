@@ -11,6 +11,8 @@ use App\modules\admin\dao\mysql\holidayDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
+use App\modules\admin\models\mysql\personModel;
+use App\modules\admin\models\mysql\holidayModel;
 
 use App\src\appServices;
 
@@ -171,9 +173,11 @@ class adminServices
     public function _comboCompany(): array
     {
         $personDAO = new personDAO();
-        $companies = $personDAO->fetchCompanies();
+        $personModel = new personModel();
+        $retCompanies = $personDAO->fetchCompanies($personModel);
         
-        if(!is_null($companies) && !empty($companies)){
+        if($retCompanies['status']){
+            $companies = $retCompanies['push']['object']->getCompanyList();
             $aRet = array();
             foreach($companies as $k=>$v) {
                 $bus =  array(
@@ -196,9 +200,11 @@ class adminServices
     public function _comboLastYear()
     {
         $holidayDAO = new holidayDAO();
-        $lastYear = $holidayDAO->fetchHolidayYears();
+        $holidayModel = new holidayModel();
+        $retLastYear = $holidayDAO->fetchHolidayYears($holidayModel);
         
-        if(!is_null($lastYear) && !empty($lastYear)){
+        if($retLastYear['status']){
+            $lastYear = $retLastYear['push']['object']->getYearList();
             $aRet = array();
             foreach($lastYear as $k=>$v) {
                 $bus =  array(
@@ -241,9 +247,10 @@ class adminServices
         $personDAO = new personDAO();
 
         $where = "WHERE idcountry = $countryID";
-        $states = $personDAO->queryStates($where);
-        
-        if(!is_null($states) && !empty($states)){
+        $retStates = $personDAO->queryStates($where);
+         
+        if($retStates['status']){
+            $states = $retStates['push']['object']->getStateList();
             $aRet = array();
             foreach($states as $k=>$v) {
                 $bus =  array(

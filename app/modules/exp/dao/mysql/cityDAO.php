@@ -55,7 +55,10 @@ class cityDAO extends Database
      * Insert city's data into the database
      *
      * @param  mixed $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function insertCity(cityModel $cityModel): array
     {        
@@ -88,7 +91,10 @@ class cityDAO extends Database
      * Link the city with uploaded image
      *
      * @param  mixed $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function insertCityImage(cityModel $cityModel): array
     {        
@@ -119,7 +125,10 @@ class cityDAO extends Database
      * Returns a object with city data
      *
      * @param  cityModel $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function getCity(cityModel $cityModel): array
     {        
@@ -158,7 +167,10 @@ class cityDAO extends Database
      * Update the city into the database
      *
      * @param  cityModel $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function updateCity(cityModel $cityModel): array
     {        
@@ -196,7 +208,10 @@ class cityDAO extends Database
      * Returns array with the uploaded image linked with the city
      *
      * @param  cityModel $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function fetchCityImage(cityModel $cityModel): array
     {        
@@ -229,7 +244,10 @@ class cityDAO extends Database
      * Update city's status
      *
      * @param  cityModel $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function updateStatus(cityModel $cityModel): array
     {        
@@ -261,7 +279,10 @@ class cityDAO extends Database
      * Delete city from DB
      *
      * @param  cityModel $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function deleteCity(cityModel $cityModel): array
     {        
@@ -289,7 +310,10 @@ class cityDAO extends Database
      * Delete the uploaded image from the database
      *
      * @param  cityModel $cityModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function deleteCityImage(cityModel $cityModel): array
     {        
@@ -316,9 +340,11 @@ class cityDAO extends Database
     /**
      * Update uploaded image name
      *
-     * @param  int $imageID
-     * @param  string $newName
-     * @return cityModel
+     * @param  cityModel $cityModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function updateCityImageName(cityModel $cityModel): array
     {        

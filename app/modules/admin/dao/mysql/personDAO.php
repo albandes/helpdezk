@@ -112,26 +112,38 @@ class personDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
-    public function fetchCompanies(): array
+    
+    /**
+     * Returns a list with registered companies
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchCompanies(personModel $personModel): array
     {        
         $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (7,4,5) ORDER BY name ASC";
         
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setCompanyList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
@@ -141,7 +153,10 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function queryStates($where=null,$group=null,$order=null,$limit=null): array
     {        
@@ -153,17 +168,21 @@ class personDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $personModel = new personModel(); 
+            $personModel->setStateList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting states data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
 }

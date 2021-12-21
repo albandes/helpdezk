@@ -218,6 +218,16 @@ final class personModel
      * @var int
      */
     private $idstreet;
+
+    /**
+     * @var array
+     */
+    private $companyList;
+
+    /**
+     * @var array
+     */
+    private $stateList;
    
 
     /**
@@ -1248,6 +1258,54 @@ final class personModel
     public function setIdstreet(int $idstreet): self
     {
         $this->idstreet = $idstreet;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of companyList
+     *
+     * @return  array
+     */ 
+    public function getCompanyList(): array
+    {
+        return $this->companyList;
+    }
+
+    /**
+     * Set the value of companyList
+     *
+     * @param  array  $companyList
+     *
+     * @return  self
+     */ 
+    public function setCompanyList(array $companyList): self
+    {
+        $this->companyList = $companyList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of stateList
+     *
+     * @return  array
+     */ 
+    public function getStateList(): array
+    {
+        return $this->stateList;
+    }
+
+    /**
+     * Set the value of stateList
+     *
+     * @param  array  $stateList
+     *
+     * @return  self
+     */ 
+    public function setStateList(array $stateList): self
+    {
+        $this->stateList = $stateList;
 
         return $this;
     }

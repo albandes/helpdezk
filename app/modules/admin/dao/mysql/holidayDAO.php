@@ -16,39 +16,43 @@ class holidayDAO extends Database
     /**
      * Returns a list of holidays by selected company and year
      *
-     * @param  int $companyID
-     * @param  int $year
-     * @return array
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function fetchHolidays(int $companyID, int $year): array
+    public function fetchHolidays(holidayModel $holidayModel): array
     {
 
-        $sql = "SELECT a.idholiday, a.holiday_date, a.holiday_description, 
-                        IFNULL(c.idperson,0) idperson, IFNULL(c.name,'') name
-                  FROM tbholiday a
-       LEFT OUTER JOIN tbholiday_has_company b
-                    ON b.idholiday = a.idholiday
-             LEFT JOIN tbperson c
-                    ON c.idperson = b.idperson
-                 WHERE YEAR(a.holiday_date) = $year ";
-        $sql .= ($companyID != "" || $companyID != 0) ? "AND c.idperson = {$companyID} " : "AND b.idperson IS NULL ";
+        $sql =      "SELECT a.idholiday, a.holiday_date, a.holiday_description, 
+                            IFNULL(c.idperson,0) idperson, IFNULL(c.name,'') name
+                       FROM tbholiday a
+            LEFT OUTER JOIN tbholiday_has_company b
+                         ON b.idholiday = a.idholiday
+                  LEFT JOIN tbperson c
+                         ON c.idperson = b.idperson
+                      WHERE YEAR(a.holiday_date) = {$holidayModel->getYear()} ";
+        $sql .= ($holidayModel->getIdcompany() != "" || $holidayModel->getIdcompany() != 0) ? "AND c.idperson = {$holidayModel->getIdcompany()} " : "AND b.idperson IS NULL ";
         $sql .= "ORDER BY holiday_date";
 
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $holidayModel->setGridList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
-        
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
@@ -95,7 +99,10 @@ class holidayDAO extends Database
      * Insert the holiday into the database
      *
      * @param  holidayModel $holidayModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function insertHoliday(holidayModel $holidayModel): array
     {        
@@ -126,7 +133,10 @@ class holidayDAO extends Database
      * Link the holiday with a company
      *
      * @param  holidayModel $holidayModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function insertHolidayHasCompany(holidayModel $holidayModel): array
     {        
@@ -220,7 +230,10 @@ class holidayDAO extends Database
      * Returns a ibject with holiday data
      *
      * @param  holidayModel $holidayModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function getHoliday(holidayModel $holidayModel): array
     {        
@@ -263,7 +276,10 @@ class holidayDAO extends Database
      * Update the holiday into the database
      *
      * @param  holidayModel $holidayModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function updateHoliday(holidayModel $holidayModel): array
     {        
@@ -295,9 +311,13 @@ class holidayDAO extends Database
     /**
      * Returns an array with years recorded on DB
      *
-     * @return array
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function fetchHolidayYears(): array
+    public function fetchHolidayYears(holidayModel $holidayModel): array
     {        
         $sql = "SELECT DISTINCT YEAR(holiday_date) AS holiday_year
                   FROM tbholiday
@@ -307,103 +327,124 @@ class holidayDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $holidayModel->setYearList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holiday years ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting holiday years ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * Returns an array with years recorded on DB
      *
-     * @param  int $companyID
-     * @return array
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function fetchHolidayYearsByCompany(int $companyID): array
+    public function fetchHolidayYearsByCompany(holidayModel $holidayModel): array
     {        
         $sql = "SELECT DISTINCT YEAR(a.holiday_date) AS holiday_year, b.idperson idcompany
                   FROM tbholiday a
        LEFT OUTER JOIN tbholiday_has_company b
                     ON a.idholiday = b.idholiday
                  WHERE (YEAR(a.holiday_date) <> YEAR(NOW()) AND YEAR(a.holiday_date) > 0)";
-        $sql .= ($companyID != "" || $companyID != 0) ? " AND b.idperson = :companyID" : "";
+        $sql .= ($holidayModel->getIdcompany() != "" || $holidayModel->getIdcompany() != 0) ? " AND b.idperson = :companyID" : "";
         $sql .= " GROUP BY holiday_year
                  ORDER BY holiday_year DESC";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':companyID', $companyID);
+            $stmt->bindParam(':companyID', $holidayModel->getIdcompany());
             $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $holidayModel->setYearList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting holiday years by company ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting holiday years by company ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet){
-            return array();
-        }
-        
-        return $aRet;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * Delete the holiday from the database
      *
-     * @param  int $holidayID
-     * @return holidayModel
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function deleteHoliday(int $holidayID): ?holidayModel
+    public function deleteHoliday(holidayModel $holidayModel): array
     {        
         $sql = "DELETE FROM tbholiday WHERE idholiday = :holidayID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $holiday = new holidayModel(); 
-        $holiday->setIdholiday($holidayID); 
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
-        return $holiday;
+        return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * Delete the link between holiday and company from the database
      *
-     * @param  int $holidayID
-     * @return holidayModel
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-    public function deleteHolidayCompany(int $holidayID): ?holidayModel
+    public function deleteHolidayCompany(holidayModel $holidayModel): array
     {        
         $sql = "DELETE FROM tbholiday_has_company WHERE idholiday = :holidayID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayID);
+            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
             $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
 
-        $holiday = new holidayModel(); 
-        $holiday->setIdholiday($holidayID); 
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
-        return $holiday;
+        return array("status"=>$ret,"push"=>$result);
     }
 
 }
