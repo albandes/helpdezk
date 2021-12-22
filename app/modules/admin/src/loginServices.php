@@ -106,9 +106,9 @@ class loginServices
                 $st = file_exists($pathLogoImage) ? true : false;
             }elseif($this->saveMode == "aws-s3"){
                 $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
-                $st = (strlen(file_get_contents($this->imgBucket.$value['fileuploaded'])) > 0) ? true : false; 
+                $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
             }
-
+            
             if(!$st){
                 $image 	= $this->imgBucket . 'default/login.png';
                 $width 	= "227";
@@ -253,7 +253,7 @@ class loginServices
             }
         }
         
-        $idperson = $_SESSION['SES_COD_USUARIO'];
+        $featModel->setUserID($_SESSION['SES_COD_USUARIO']);
 
         // Global Config Data
         $retGlobalConfig = $loginDAO->fetchConfigGlobalData($featModel);
@@ -268,8 +268,9 @@ class loginServices
         }               
         
         // User config data
-        $userSettings = $featureDAO->fetchUserSettings($idperson); //GET COLUMNS OF THE TABLE hdk_tbconfig_user
-        if (!is_null($userSettings) && !empty($userSettings)){
+        $retUserSettings = $featureDAO->fetchUserSettings($featModel); //GET COLUMNS OF THE TABLE hdk_tbconfig_user
+        if ($retUserSettings['status']){
+            $userSettings = $retUserSettings['push']['object']->getUserSettingsList();
             foreach($userSettings as $key=>$val) {
                 foreach($val as $k=>$v) {
                     $_SESSION['SES_PERSONAL_USER_CONFIG'][$k] = $v;

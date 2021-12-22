@@ -3,8 +3,10 @@
 namespace App\modules\admin\dao\mysql;
 
 use App\core\Database;
+
 use App\modules\admin\models\mysql\popConfigModel;
 use App\modules\admin\models\mysql\moduleModel;
+use App\modules\admin\models\mysql\featureModel;
 
 class featureDAO extends Database
 {
@@ -64,6 +66,7 @@ class featureDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
+    // It has not been standardized as it is not yet used in controllers or services
     public function getArrayConfigs(int $confCategoryID): array
     {
         
@@ -87,6 +90,7 @@ class featureDAO extends Database
         return array("success"=>true,"message"=>"","data"=>$confs);
     }
 
+    // It has not been standardized as it is not yet used in controllers or services
     public function getConfigValue(string $confName): array
     {        
         $sql = "SELECT `value` FROM tbconfig WHERE session_name = :confName";
@@ -103,8 +107,17 @@ class featureDAO extends Database
 
         return array("success"=>true,"message"=>"","data"=>$aRet);
     }
-
-    public function fetchUserSettings(int $userID): array
+    
+    /**
+     * Returns user's settings
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchUserSettings(featureModel $featureModel): array
     {        
         $sql = "SELECT idconfiguser,idperson,lang,theme,grid_operator,grid_operator_width,
                         grid_user,grid_user_width
@@ -113,19 +126,34 @@ class featureDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $featureModel->getUserID());
             $stmt->execute();
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $featureModel->setUserSettingsList($rows);
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting user's settings ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return $rows;
+        return array("status"=>$ret,"push"=>$result);
     }
 
-    public function tableExists(string $tableName)
+    /**
+     * Check if a table exists in DB
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function tableExists(featureModel $featureModel): array
     {        
         $sql = "SELECT COUNT(*) as exist
                   FROM information_schema.tables 
@@ -134,19 +162,35 @@ class featureDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':tableName', $tableName);
+            $stmt->bindParam(':tableName', $featureModel->getTableName());
             $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $flg = ($row['exist'] > 0) ? true : false;
+            $featureModel->setExistTable($flg);
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error('Error checking table exists ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error checking table exists ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        return $row['exist'];
+        return array("status"=>$ret,"push"=>$result);
     }
 
-    public function getPathModuleByTypePerson(int $typePerson): ?moduleModel
+    /**
+     * Return module path by user type
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getPathModuleByTypePerson(featureModel $featureModel): array
     {        
         $sql = "SELECT `path`
                   FROM tbmodule a
@@ -156,17 +200,21 @@ class featureDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':typePerson', $typePerson);
+            $stmt->bindParam(':typePerson', $featureModel->getUserType());
             $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $featureModel->setPath($row['path']);
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting module's path", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting module's path", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $module = new moduleModel(); 
-        $module->setPath($row['path']);
-
-        return $module;
+        return array("status"=>$ret,"push"=>$result);
     }
 }

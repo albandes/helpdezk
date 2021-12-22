@@ -1,0 +1,61 @@
+<div class="modal fade" id="modal-user-settings" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{='user_settings'|translate}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-color-theme" class="col-form-label text-end">{='color_theme'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <select class="form-control input-sm" id="cmbUF" name="cmbUF" >
+                            <option></option>
+                            {foreach $cmbStates as $k=>$v}
+                                <option value="{$v['id']}" {if $v['id'] == $stateID}selected="selected"{/if}>{$v['text']}</option>
+                            {/foreach}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-display-grid" class="col-form-label text-end">{='display_grid'|translate}?</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="checkbox" id="modal-display-grid" name="modal-display-grid" value="S" > <label class="col-form-label">{='Yes'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-trello-key" class="col-form-label text-end">{='trello_key'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" id="modal-trello-key" value="">
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-trello-token" class="col-form-label text-end">{='trello_token'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" id="modal-trello-token" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnShowAlert" class="btn btn-primary btn-sm" data-bs-dismiss="modal">{='Ok_btn'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -120,7 +120,8 @@ class loginDAO extends Database
                            ->setLogin($aRet['login'])
                            ->setIdtypeperson($aRet['idtypeperson']);
             }else{
-                $loginModel->setIdperson(0);
+                $loginModel->setIdperson(0)
+                           ->setIdtypeperson(0);
             }
 
             $ret = true;
@@ -136,65 +137,108 @@ class loginDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
-    public function getRequestsByUser(string $userID): array
+    /**
+     * Returns user's total of requests
+     *
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getRequestsByUser(loginModel $loginModel): array
     {
         
         $sql = "SELECT COUNT(*) AS amount FROM hdk_tbrequest WHERE idperson_creator = :userID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
+            $stmt->bindParam(':userID', $loginModel->getIdperson());
             $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $loginModel->setTotalRequests($row['amount']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $msg = $ex->getMessage();            
+            $this->loggerDB->error('Error getting total of requests ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        return array("status"=>$ret,"push"=>$result);
     }
 
-    public function getUserRequests(string $userID,string $requestCode): array
+    /**
+     * Returns user's total of requests by login and request code
+     *
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getUserRequests(loginModel $loginModel): array
     {
         
         $sql = "SELECT COUNT(*) as amount FROM hdk_tbrequest WHERE code_request = :requestCode AND idperson_creator = :userID";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $userID);
-            $stmt->bindParam(':requestCode', $requestCode);
+            $stmt->bindParam(':userID', $loginModel->getIdperson());
+            $stmt->bindParam(':requestCode', $loginModel->getRequestCode());
             $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $loginModel->setTotalRequests($row['amount']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $msg = $ex->getMessage();            
+            $this->loggerDB->error('Error getting total of requests ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        return array("status"=>$ret,"push"=>$result);
     }
 
-    public function checkUser(string $login): ?loginModel
+    /**
+     * Check if user exists by login
+     *
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function checkUser(loginModel $loginModel): array
     {      
         $sql = "SELECT login, status FROM tbperson WHERE login = :login";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':login', $login);
+            $stmt->bindParam(':login', $loginModel->getLogin());
             $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            $loginModel->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error checking user data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error checking user data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if(!$aRet){ 
-            return null;
-        }
-        
-        $loginCheck = new loginModel();
-        $loginCheck->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
-        
-        return $loginCheck;
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
@@ -359,7 +403,7 @@ class loginDAO extends Database
 
 
     /**
-     * fetchConfigGlobalData
+     * Returns global settings
      *
      * @param  featureModel $featureModel
      * @return array Parameters returned in array: 
@@ -381,7 +425,7 @@ class loginDAO extends Database
             $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error('Error getting all hdk groups ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error getting global settings ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

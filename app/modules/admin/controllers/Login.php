@@ -8,6 +8,7 @@ use App\modules\admin\dao\mysql\personDAO;
 
 use App\modules\admin\models\mysql\loginModel;
 use App\modules\admin\models\mysql\popConfigModel;
+use App\modules\admin\models\mysql\featureModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\appServices;
@@ -174,10 +175,12 @@ class Login extends Controller
                 
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
+                    $featModel = new featureModel();
+                    $featModel->setTableName('tbtypeperson_has_module');
                     
-                    $existsTable = $featDAO->tableExists('tbtypeperson_has_module');
+                    $retExistsTable = $featDAO->tableExists($featModel);
                     
-                    if (is_null($existsTable) || empty($existsTable) || !$existsTable) {
+                    if (!$retExistsTable['status'] || !$retExistsTable['push']['object']->getExistTable()) {
                         $error = array( "success" => 0,
                                          "msg" =>html_entity_decode('There is no table tbtypeperson_has_module.',ENT_COMPAT, 'UTF-8')
                                       );
@@ -185,8 +188,10 @@ class Login extends Controller
                         return;
                     }
                     
-                    $pathModule = $featDAO->getPathModuleByTypePerson($idtypeperson);
-                    if (!is_null($pathModule) && !empty($pathModule)) {
+                    $featModel->setUserType($idtypeperson);
+                    $retPathModule = $featDAO->getPathModuleByTypePerson( $featModel);
+                    if ($retPathModule['status']) {
+                        $pathModule = $retPathModule['push']['object'];
                         $modPath = $pathModule->getPath();
 
                         if($_SESSION['SES_MAINTENANCE'] == 1){
@@ -216,12 +221,12 @@ class Login extends Controller
 					return;
                     break;
             }
-        } else { 
-			if (in_array($loginType->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
-				$userStatus = $loginDAO->checkUser($frm_login); 
-                if (is_null($userStatus) || empty($userStatus) || $userStatus->getUserStatus() == 'I'){
+        } else {
+            if (in_array($loginType['push']['object']->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
+				$retUserSt = $loginDAO->checkUser($loginType['push']['object']); 
+                if (!$retUserSt['status'] || $retUserSt['push']['object']->getUserStatus() == 'I'){
                     $msg = $this->translator->translate('Login_user_inactive');
-				}elseif($userStatus->getUserStatus() == "A") 
+				}elseif($retUserSt['push']['object']->getUserStatus() == "A") 
                     $msg = $this->translator->translate('Login_error_error');
 			}
 			$success = array("success" => 0,
@@ -231,19 +236,24 @@ class Login extends Controller
         }
     }
     
-    public function requestAuth($login,$password)
+    /**
+     * Check if user exists in DB by request
+     *
+     * @param  loginModel $loginModel
+     * @return bool
+     */
+    public function requestAuth(loginModel $loginModel): bool
     {
 		$loginDAO = new loginDAO();
-		$rsUser = $loginDAO->getUserByLogin($login);
-        $idperson = $rsUser['data']->getIdperson();
+		$retUser = $loginDAO->getUserByLogin($loginModel);
 
-        if($idperson){
-            $rsRequest = $loginDAO->getRequestsByUser($idperson);
-			if ($rsRequest['data']['amount'] == 0) {
-                return true ;
+        if($retUser['status'] && $retUser['push']['object']->getIdperson() > 0){
+            $retRequest = $loginDAO->getRequestsByUser($retUser['push']['object']);
+			if ($retRequest['status'] && $retRequest['push']['object']->getTotalRequests() == 0) {
+                return true;
             } else {
-                $checkRequest = $loginDAO->getUserRequests($idperson,$password);
-                return ($checkRequest['data']['amount'] == 1) ? true : false;
+                $checkRequest = $loginDAO->getUserRequests($retUser['push']['object']);
+                return ($checkRequest['status'] && $checkRequest['push']['object']->getTotalRequests() == 1) ? true : false;
             }
         }else{
             return false ;

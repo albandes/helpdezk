@@ -12,10 +12,20 @@ class vocabularyDAO extends Database
         parent::__construct(); 
     }
 
-    public function getVocabulary(string $keyName, string $locale): ?vocabularyModel
+    /**
+     * Returns logo's data by name
+     *
+     * @param  vocabularyModel $vocabularyModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getVocabulary(vocabularyModel $vocabularyModel): array
     {
-
-        $sql = "SELECT idvocabulary, key_name, key_value
+        
+        $sql = "SELECT idvocabulary, a.idlocale, b.name locale_name, b.value locale_desc, 
+                        key_name, key_value
                   FROM tbvocabulary a, tblocale b
                  WHERE a.idlocale = b.idlocale
                    AND key_name = :keyName
@@ -23,25 +33,25 @@ class vocabularyDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':keyName', $keyName);
-            $stmt->bindParam(':locale', $locale);
+            $stmt->bindParam(':keyName', $vocabularyModel->getKeyName());
+            $stmt->bindParam(':locale', $vocabularyModel->getLocaleName());
             $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC); 
+            
+            $vocabularyModel->setIdvocabulary(!$aRet ? 0 : $aRet['idvocabulary'])
+                                ->setKeyName(!$aRet ? "" : $aRet['key_name'])
+                                ->setKeyValue(!$aRet ? "" : $aRet['key_value']);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$vocabularyModel);
         }catch(\PDOException $ex){
-            $this->loggerDB->error("Error getting vocabulary ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting vocabulary ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC); 
-
-        if(!$aRet){
-            return null;
-        }
-
-        $vocabulary = new vocabularyModel(); 
-        $vocabulary->setIdvocabulary($aRet['idvocabulary'])
-                   ->setKeyName($aRet['key_name'])
-                   ->setKeyValue($aRet['key_value']); 
-        
-        return $vocabulary;
+        return array("status"=>$ret,"push"=>$result);
     }
 }

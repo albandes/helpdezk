@@ -168,7 +168,8 @@ class appServices
             "mascdatetime"      => str_replace('%', '', "{$_ENV['DATE_FORMAT']} {$_ENV['HOUR_FORMAT']}"),
             "mascdate"          => str_replace('%', '', $_ENV['DATE_FORMAT']),
             "timesession"       => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
-            "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO'])
+            "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
+            "modalUserSettings" => $this->_getUserSettingsTemplate()
         );
     }
 
@@ -213,7 +214,7 @@ class appServices
                 $st = file_exists($pathLogoImage) ? true : false;
             }elseif($this->saveMode == "aws-s3"){
                 $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
-                $st = (strlen(file_get_contents($this->imgBucket.$value['fileuploaded'])) > 0) ? true : false; 
+                $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
             }
 
             if(!$st){
@@ -751,6 +752,11 @@ class appServices
             }
         }
         return false;
+    }
+
+    public function _getUserSettingsTemplate()
+    {
+        return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-user-settings.latte';
     }
 
 }

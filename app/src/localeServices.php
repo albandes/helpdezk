@@ -4,6 +4,8 @@ namespace App\src;
 use \Nette\Localization\Translator;
 use App\modules\admin\dao\mysql\vocabularyDAO;
 
+use App\modules\admin\models\mysql\vocabularyModel;
+
 class localeServices implements Translator{
     /**
 	 * Translates the given string.
@@ -12,9 +14,14 @@ class localeServices implements Translator{
 	 */
 	function translate($message, ...$parameters): string{
 		$lang = (!isset($parameters['lang'])) ? $_ENV['DEFAULT_LANG'] : $parameters['lang'];
-		$vocabularyDAO = new vocabularyDAO(); 
-		$translate = $vocabularyDAO->getVocabulary($message,$lang);
+		$vocabularyDAO = new vocabularyDAO();
+		$vocabularyModel = new vocabularyModel();
+
+		$vocabularyModel->setKeyName($message)
+						->setLocaleName($lang);
+
+		$translate = $vocabularyDAO->getVocabulary($vocabularyModel);
 		
-        return (!is_null($translate) && !empty($translate)) ? $translate->getKeyValue() : $message;
+        return ($translate['status'] && $translate['push']['object']->getKeyValue() != "") ? $translate['push']['object']->getKeyValue() : $message;
     }
 }

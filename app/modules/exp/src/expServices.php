@@ -2,12 +2,7 @@
 
 namespace App\modules\exp\src;
 
-use App\modules\admin\dao\mysql\logoDAO;
-use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
-use App\modules\admin\dao\mysql\personDAO;
-use App\modules\admin\dao\mysql\featureDAO;
-use App\modules\admin\dao\mysql\holidayDAO;
 
 use App\modules\admin\models\mysql\moduleModel;
 

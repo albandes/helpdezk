@@ -273,7 +273,6 @@ class cityDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
         
     /**
      * Delete city from DB

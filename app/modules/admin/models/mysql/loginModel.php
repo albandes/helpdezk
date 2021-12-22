@@ -70,6 +70,16 @@ final class loginModel
     private $frmToken;
 
     /**
+     * @var int
+     */
+    private $totalRequests;
+
+    /**
+     * @var string
+     */
+    private $requestCode;
+
+    /**
      * Get the value of idperson
      *
      * @return  int
@@ -367,6 +377,54 @@ final class loginModel
     public function setFrmToken(string $frmToken): self
     {
         $this->frmToken = $frmToken;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalRequests
+     *
+     * @return  int
+     */ 
+    public function getTotalRequests(): int
+    {
+        return $this->totalRequests;
+    }
+
+    /**
+     * Set the value of totalRequests
+     *
+     * @param  int  $totalRequests
+     *
+     * @return  self
+     */ 
+    public function setTotalRequests(int $totalRequests): self
+    {
+        $this->totalRequests = $totalRequests;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of requestCode
+     *
+     * @return  string
+     */ 
+    public function getRequestCode(): string
+    {
+        return $this->requestCode;
+    }
+
+    /**
+     * Set the value of requestCode
+     *
+     * @param  string  $requestCode
+     *
+     * @return  self
+     */ 
+    public function setRequestCode(string $requestCode): self
+    {
+        $this->requestCode = $requestCode;
 
         return $this;
     }

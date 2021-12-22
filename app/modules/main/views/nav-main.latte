@@ -1,3 +1,5 @@
+<script src="{$path}/app/modules/main/views/js/nav-main.js"></script>
+
 <div id="sideNav" class="scrollable-gnmenu">
     <ul class="navbar-nav">
     {if $isroot}
@@ -123,7 +125,7 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         {if !$isroot}
                             <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
-                            <li><a href="#" id="btnEditUserConfigExternal" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_external_settings'|translate}</a></li>
+                            <li><a href="javascript:;" id="btnEditUserSettings" role="button" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_settings'|translate}</a></li>
                             <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
                         {else}
                             <li><a href="#" id="btnEditRootPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>

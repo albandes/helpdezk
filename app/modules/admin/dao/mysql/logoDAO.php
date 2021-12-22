@@ -12,6 +12,15 @@ class logoDAO extends Database
         parent::__construct(); 
     }
 
+    /**
+     * Returns logo's data by name
+     *
+     * @param  logoModel $logoModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
     public function getLogoByName(logoModel $logoModel): array
     {
         
@@ -29,6 +38,8 @@ class logoDAO extends Database
                       ->setHeight($aRet['height'])
                       ->setWidth($aRet['width'])
                       ->setFileName($aRet['file_name']);
+            $ret = true;
+            $result = array("message"=>"","object"=>$logoModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error('Error trying get logo data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
