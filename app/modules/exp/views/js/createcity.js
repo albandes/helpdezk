@@ -41,41 +41,43 @@ $(document).ready(function () {
         autoProcessQueue: false,
         addRemoveLinks: true,
         init: function () {
-            $.ajax({
-                type: "POST",
-                dataType: 'json',
-                url: path + '/exp/expCity/loadImage',
-                data: {
-                    cityID:  $('#cityID').val()
-                },
-                success: function(response){
-                    var existingFileCount = 0;
-                    
-                    $.each(response, function(  key, value ) {
-                        var fileList = {
-                            idimage: value.idimage,
-                            name: value.filename,
-                            fname: value.fmtname,
-                            size: value.size,
-                            url: value.url
-                        };
-                        console.log(fileList.url+fileList.fname);
-                        myDropzone.emit("addedfile", fileList);
-                        myDropzone.files.push(fileList);
-                        myDropzone.emit("thumbnail", fileList, fileList.url+fileList.fname);
-                        myDropzone.emit("success", fileList);
-                        myDropzone.emit("complete", fileList);
-
-                        existingFileCount = existingFileCount + 1; // The number of files already uploaded
-
-                    });
-                    myDropzone.options.maxFiles = myDropzone.options.maxFiles - existingFileCount;
-                    console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
-                },
-                error: function (response) {
-                    console.log("Erro no Dropzone!");
-                }
-            });
+            if($("#update-city-form").length > 0){
+                $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: path + '/exp/expCity/loadImage',
+                    data: {
+                        cityID:  $('#cityID').val()
+                    },
+                    success: function(response){
+                        var existingFileCount = 0;
+                        
+                        $.each(response, function(  key, value ) {
+                            var fileList = {
+                                idimage: value.idimage,
+                                name: value.filename,
+                                fname: value.fmtname,
+                                size: value.size,
+                                url: value.url
+                            };
+                            console.log(fileList.url+fileList.fname);
+                            myDropzone.emit("addedfile", fileList);
+                            myDropzone.files.push(fileList);
+                            myDropzone.emit("thumbnail", fileList, fileList.url+fileList.fname);
+                            myDropzone.emit("success", fileList);
+                            myDropzone.emit("complete", fileList);
+    
+                            existingFileCount = existingFileCount + 1; // The number of files already uploaded
+    
+                        });
+                        myDropzone.options.maxFiles = myDropzone.options.maxFiles - existingFileCount;
+                        console.log('tem '+ myDropzone.getQueuedFiles().length + ' arquivos');
+                    },
+                    error: function (response) {
+                        console.log("Erro no Dropzone!");
+                    }
+                });
+            }
         }
     });
 

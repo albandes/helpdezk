@@ -1,3 +1,5 @@
+Dropzone.autoDiscover = false;
+
 $(document).ready(function () {
 
     /*
@@ -12,15 +14,28 @@ $(document).ready(function () {
         }
 
     }
-    // https://harvesthq.github.io/chosen/
-    /*$("#person_country").chosen({ width: "95%", no_results_text: "Nothing found!"})
-    $("#person_state").chosen({ width: "95%",   no_results_text: "Nothing found!"})
-    $("#person_city").chosen({ width: "95%",    no_results_text: "Nothing found!"})
-    $("#person_neighborhood").chosen({ width: "95%",    no_results_text: "Nothing found!"})
-    $("#person_typestreet").chosen({ width: "95%", no_results_text: "Nothing found!"})
+    
+    /*
+     * Select2
+     */
+    $("#modal-cmbcolor-theme").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
+    $("#modal-locale").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
+    $("#person_country").select2({placeholder:translateLabel('Select'),allowClear:true});
+    $("#person_state").select2({placeholder:translateLabel('Select'),allowClear:true});
+    $("#person_city").select2({placeholder:translateLabel('Select'),allowClear:true});
+    $("#person_neighborhood").select2({placeholder:translateLabel('Select'),allowClear:true});
+    $("#person_typestreet").select2({placeholder:translateLabel('Select'),allowClear:true});
+
+    /*
+     * iCheck - checkboxes/radios styling
+     */
+    $('#modal-display-grid').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green',
+    });
 
     // Mask
-    $('#person_dtbirth').mask('00/00/0000');
+    /*$('#person_dtbirth').mask('00/00/0000');
     $('#person_number').mask('0000');
     $('#person_phone').mask(phone_mask);
     $('#person_cellphone').mask(cellphone_mask);
@@ -90,23 +105,17 @@ $(document).ready(function () {
         $('#modal-change-root-password').modal('show');
     });
 
-    // Save Configure External APIs data
-    $("#btnSaveConfigExternal").click(function(){
-        if (!$("#modal-config-external-form").valid()) {
+    // Save User Settings
+    $("#btnUserSetSave").click(function(){
+        /*if (!$("#modal-config-external-form").valid()) {
             return false;
-        }
+        }*/
 
         $.ajax({
             type: "POST",
-            url: path + '/helpdezk/home/saveConfigExternal',
+            url: path + '/main/home/saveUserSettings',
             dataType: 'json',
-            data: { idperson:$('#hidden-idperson').val(),
-                    trellokey:$('#trello_key').val(),
-                    trellotoken:$('#trello_token').val(),
-                    pushoverkey:$('#pushover_key').val(),
-                    pushovertoken:$('#pushover_token').val()
-
-            },
+            data: $("#modal-usersettings-form").serialize(),
             error: function (ret) {
                 modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
             },
@@ -172,6 +181,39 @@ $(document).ready(function () {
 
     }
 
+    /*
+     * Combos
+     */
+    var objUserSettings = {
+        loadCmbThemes: function() {
+            $.post(path+"/main/home/ajaxComboThemes",function(valor){
+                $("#modal-cmbcolor-theme").html(valor);
+                $("#modal-cmbcolor-theme").trigger("change");
+                return false;
+            });
+            return false ;
+        },
+        loadCmbLocales: function() {
+            $.post(path+"/main/home/ajaxComboLocales",function(valor){
+                $("#modal-locale").html(valor);
+                $("#modal-locale").trigger("change");
+                return false;
+            });
+            return false ;
+        },
+        loadUserSettings: function() {
+            $.post(path+"/main/home/loadUserSettins",function(valor){
+                /*$("#modal-cmbcolor-theme").html(valor);
+                $("#modal-cmbcolor-theme").trigger("change");*/
+                return false;
+            });
+            return false ;
+        }
+    };
+
+    objUserSettings.loadCmbThemes();
+    objUserSettings.loadCmbLocales()
+    
     $("#person_country").change(function(){
         objPersonData.changeState();
     });
@@ -291,7 +333,7 @@ $(document).ready(function () {
     /* btnEditRootPass
      * Dropzone
      */
-    Dropzone.autoDiscover = false;
+    
     var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
         method: "post",
         dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + translateLabel('dropzone_user_photot_message'),
@@ -434,6 +476,6 @@ $(document).ready(function () {
     });
 
     // admin - change password - end
-
+    
 
 });
