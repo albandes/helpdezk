@@ -10,9 +10,7 @@ class Home extends Controller
     {
         parent::__construct();
 
-		$appSrc = new appServices();
-		$appSrc->_sessionValidate();
-		
+		$this->appSrc->_sessionValidate();	
         
     }
 
@@ -36,9 +34,8 @@ class Home extends Controller
 	 */
 	public function makeScreenAdmHome()
     {
-        $appSrc = new appServices();
-		$adminSrc = new adminServices();
-		$params = $appSrc->_getDefaultParams();
+        $adminSrc = new adminServices();
+		$params = $this->appSrc->_getDefaultParams();
 		$params = $adminSrc->_makeNavAdm($params);
 		
         return $params;

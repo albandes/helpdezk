@@ -11,8 +11,6 @@ use App\modules\admin\models\mysql\popConfigModel;
 use App\modules\admin\models\mysql\featureModel;
 
 use App\modules\admin\src\loginServices;
-use App\src\appServices;
-use App\src\localeServices;
 
 
 class Login extends Controller

@@ -7,9 +7,6 @@ use App\modules\admin\dao\mysql\holidayDAO;
 use App\modules\admin\models\mysql\holidayModel;
 
 use App\modules\admin\src\adminServices;
-use App\src\appServices;
-use App\src\localeServices;
-
 
 class Holidays extends Controller
 {

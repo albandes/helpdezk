@@ -7,8 +7,6 @@ use App\modules\exp\dao\mysql\cityDAO;
 
 use App\modules\admin\src\adminServices;
 use App\modules\exp\src\expServices;
-use App\src\appServices;
-use App\src\localeServices;
 use App\src\awsServices;
 
 use App\modules\exp\models\mysql\cityModel;

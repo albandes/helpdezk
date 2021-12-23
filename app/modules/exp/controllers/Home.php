@@ -11,8 +11,7 @@ class Home extends Controller
     {
         parent::__construct();
 
-		$appSrc = new appServices();
-		$appSrc->_sessionValidate();
+		$this->appSrc->_sessionValidate();
 		
         
     }
@@ -36,9 +35,8 @@ class Home extends Controller
 	 */
 	public function makeScreenExpHome()
     {
-        $appSrc = new appServices();
-		$expSrc = new expServices();
-		$params = $appSrc->_getDefaultParams();
+        $expSrc = new expServices();
+		$params = $this->appSrc->_getDefaultParams();
 		$params = $expSrc->_makeNavExp($params);
 		
         return $params;
