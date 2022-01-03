@@ -67,13 +67,13 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':uf', $cityModel->getIdstate());
+            $stmt->bindParam(':uf', $cityModel->getIdState());
             $stmt->bindParam(':name', $cityModel->getName());
-            $stmt->bindParam(':dtFoundation', $cityModel->getDtfoundation());
-            $stmt->bindParam(':flgDefault', $cityModel->getIsdefault());
+            $stmt->bindParam(':dtFoundation', $cityModel->getDtFoundation());
+            $stmt->bindParam(':flgDefault', $cityModel->getIsDefault());
             $stmt->execute();
 
-            $cityModel->setIdcity($this->db->lastInsertId());
+            $cityModel->setIdCity($this->db->lastInsertId());
             $ret = true;
             $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
@@ -103,11 +103,11 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityModel->getIdcity());
-            $stmt->bindParam(':fileName', $cityModel->getFilename());
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
+            $stmt->bindParam(':fileName', $cityModel->getFileName());
             $stmt->execute();
 
-            $cityModel->setIdimage($this->db->lastInsertId());
+            $cityModel->setIdImage($this->db->lastInsertId());
             $ret = true;
             $result = array("message"=>"","object"=>$cityModel);
         }catch(\PDOException $ex){
@@ -139,15 +139,15 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityModel->getIdcity());
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
             $stmt->execute();
 
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $cityModel->setIdstate($aRet['idstate'])
-                      ->setStatename($aRet['state_name'])
+            $cityModel->setIdState($aRet['idstate'])
+                      ->setStateName($aRet['state_name'])
                       ->setName($aRet['name'])
-                      ->setDtfoundation($aRet['dtfoundation'])
-                      ->setIsdefault($aRet['default'])
+                      ->setDtFoundation($aRet['dtfoundation'])
+                      ->setIsDefault($aRet['default'])
                       ->setStatus($aRet['status']);
 
             $ret = true;
@@ -183,11 +183,11 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':uf', $cityModel->getIdstate());
+            $stmt->bindParam(':uf', $cityModel->getIdState());
             $stmt->bindParam(':name', $cityModel->getName());
-            $stmt->bindParam(':dtFoundation', $cityModel->getDtfoundation());
-            $stmt->bindParam(':flgDefault', $cityModel->getIsdefault());
-            $stmt->bindParam(':cityID', $cityModel->getIdcity());
+            $stmt->bindParam(':dtFoundation', $cityModel->getDtFoundation());
+            $stmt->bindParam(':flgDefault', $cityModel->getIsDefault());
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
             $stmt->execute();
 
             $ret = true;
@@ -221,7 +221,7 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityModel->getIdcity());
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
             $stmt->execute();
 
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -258,7 +258,7 @@ class cityDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':newStatus', $cityModel->getStatus());
-            $stmt->bindParam(':cityID', $cityModel->getIdcity());
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
             $stmt->execute();
 
             $ret = true;
@@ -289,7 +289,7 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':cityID', $cityModel->getIdcity());
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
             $stmt->execute();
 
             $ret = true;
@@ -320,7 +320,7 @@ class cityDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':imageID', $cityModel->getIdimage());
+            $stmt->bindParam(':imageID', $cityModel->getIdImage());
             $stmt->execute();
 
             $ret = true;
@@ -354,7 +354,7 @@ class cityDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':newName', $cityModel->getNewFileName());
-            $stmt->bindParam(':imageID', $cityModel->getIdimage());
+            $stmt->bindParam(':imageID', $cityModel->getIdImage());
             $stmt->execute();
 
             $ret = true;

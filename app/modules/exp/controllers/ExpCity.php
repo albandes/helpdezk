@@ -113,11 +113,11 @@ class ExpCity extends Controller
         $params['token'] = $this->appSrc->_makeToken();
 
         if($option=='upd'){
-            $params['cityID'] = $obj->getIdcity();
-            $params['stateID'] = $obj->getIdstate();
+            $params['cityID'] = $obj->getIdCity();
+            $params['stateID'] = $obj->getIdState();
             $params['cityName'] = $obj->getName();
-            $params['foundationDate'] = $this->appSrc->_formatDate($obj->getDtfoundation());
-            $params['isDefault'] = $obj->getIsdefault();
+            $params['foundationDate'] = $this->appSrc->_formatDate($obj->getDtFoundation());
+            $params['isDefault'] = $obj->getIsDefault();
         }
         
         return $params;
@@ -263,16 +263,16 @@ class ExpCity extends Controller
      *
      * pt_br Renderiza o template da tela de atualização do cadastro
      */
-    public function formUpdate($idcity=null)
+    public function formUpdate($idCity=null)
     {
         $cityDao = new cityDAO();
         $cityMod = new cityModel();
-        $cityMod->setIdcity($idcity);
+        $cityMod->setIdCity($idCity);
 
         $cityUpd = $cityDao->getCity($cityMod);
 
         $params = $this->makeScreenCity('upd',$cityUpd['push']['object']);
-        $params['cityID'] = $idcity;
+        $params['cityID'] = $idCity;
       
         $this->view('exp','city-update',$params);
     }
@@ -293,10 +293,10 @@ class ExpCity extends Controller
         $cityMod = new cityModel();        
 
         //Setting up the model
-        $cityMod->setIdstate($_POST['cmbUF'])
+        $cityMod->setIdState($_POST['cmbUF'])
                 ->setName(trim($_POST['cityName']))
-                ->setDtfoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
-                ->setIsdefault($_POST['cityDefault']);        
+                ->setDtFoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
+                ->setIsDefault($_POST['cityDefault']);        
 
         if(isset($_POST["attachments"])){
             $aAttachs = $_POST["attachments"]; // Attachments
@@ -310,9 +310,9 @@ class ExpCity extends Controller
         if($ins['status']){
             $st = true;
             $msg = "";
-            $cityID = $ins['push']['object']->getIdcity();
+            $cityID = $ins['push']['object']->getIdCity();
             $cityDescription = $ins['push']['object']->getName();
-            $cityFoundation = $this->appSrc->_formatDate($ins['push']['object']->getDtfoundation());
+            $cityFoundation = $this->appSrc->_formatDate($ins['push']['object']->getDtFoundation());
             
             // link attachments to the city
             if($aSize > 0){
@@ -362,11 +362,11 @@ class ExpCity extends Controller
         $cityMod = new cityModel();        
 
         //Setting up the model
-        $cityMod->setIdcity($_POST['cityID'])
-                ->setIdstate($_POST['cmbUF'])
+        $cityMod->setIdCity($_POST['cityID'])
+                ->setIdState($_POST['cmbUF'])
                 ->setName(trim($_POST['cityName']))
-                ->setDtfoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
-                ->setIsdefault($_POST['cityDefault']);        
+                ->setDtFoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
+                ->setIsDefault($_POST['cityDefault']);        
 
         if(isset($_POST["attachments"])){
             $aAttachs = $_POST["attachments"]; // Attachments
@@ -379,7 +379,7 @@ class ExpCity extends Controller
         if($upd['status']){
             $st = true;
             $msg = "";
-            $cityID = $upd['push']['object']->getIdcity();
+            $cityID = $upd['push']['object']->getIdCity();
             
             // link attachments to the city
             if($aSize > 0){
@@ -423,7 +423,7 @@ class ExpCity extends Controller
         $cityMod = new cityModel();        
 
         //Setting up the model
-        $cityMod->setIdcity($_POST['cityID'])
+        $cityMod->setIdCity($_POST['cityID'])
                 ->setStatus($_POST['newstatus']);
         
         $upd = $cityDao->updateStatus($cityMod);
@@ -455,7 +455,7 @@ class ExpCity extends Controller
         $cityMod = new cityModel();        
 
         //Setting up the model
-        $cityMod->setIdcity($_POST['cityID']);
+        $cityMod->setIdCity($_POST['cityID']);
 
         $del = $cityDao->deleteCity($cityMod);
 		if(!$del['status']){
@@ -562,7 +562,7 @@ class ExpCity extends Controller
     {
         $cityDao = new cityDAO();
         $cityMod = new cityModel();
-        $cityMod->setIdcity($_POST['cityID']);
+        $cityMod->setIdCity($_POST['cityID']);
 
         $imgList = $cityDao->fetchCityImage($cityMod);
         
@@ -606,7 +606,7 @@ class ExpCity extends Controller
         $cityMod = new cityModel();        
 
         //Setting up the model
-        $cityMod->setIdimage($_POST['idimage']);
+        $cityMod->setIdImage($_POST['idimage']);
         $filename = $_POST['filename'];
 
         $del = $cityDao->deleteCityImage($cityMod);
@@ -647,16 +647,16 @@ class ExpCity extends Controller
         $aAttachs = $cityModel->getAttachments();
         
         foreach($aAttachs as $key=>$fileName){
-            $cityModel->setFilename($fileName);
+            $cityModel->setFileName($fileName);
 
             $ins = $cityDao->insertCityImage($cityModel);
 
             if(!$ins['status']) {
-                return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityModel->getIdcity()}");
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityModel->getIdCity()}");
             }
 
             $extension = strrchr($fileName, ".");
-            $imageID = $ins['push']['object']->getIdimage();
+            $imageID = $ins['push']['object']->getIdImage();
             $newFile = $imageID.$extension;
             $ins['push']['object']->setNewFileName($newFile);
 

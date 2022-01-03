@@ -195,8 +195,8 @@ $(document).ready(function () {
         },
         loadCmbLocales: function() {
             $.post(path+"/main/home/ajaxComboLocales",function(valor){
-                $("#modal-locale").html(valor);
-                $("#modal-locale").trigger("change");
+                $("#modal-cmblocale").html(valor);
+                $("#modal-cmblocale").trigger("change");
                 return false;
             });
             return false ;

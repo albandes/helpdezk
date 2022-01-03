@@ -7,7 +7,7 @@ final class externalappModel
     /**
      * @var int
      */
-    private $idexternalapp;
+    private $idExternalApp;
 
     /**
      * @var string
@@ -37,17 +37,17 @@ final class externalappModel
      /**
      * @var int
      */
-    private $idexternalsetting;
+    private $idExternalSetting;
 
 
     /**
-     * Get the value of idexternalapp
+     * Get the value of idExternalApp
      *
      * @return  int
      */ 
-    public function getIdexternalapp(): int
+    public function getIdExternalApp(): int
     {
-        return $this->idexternalapp;
+        return $this->idExternalApp;
     }
 
     /**
@@ -57,9 +57,9 @@ final class externalappModel
      *
      * @return  self
      */ 
-    public function setIdexternalapp(int $idexternalapp): self
+    public function setIdExternalApp(int $idExternalApp): self
     {
-        $this->idexternalapp = $idexternalapp;
+        $this->idExternalApp = $idExternalApp;
 
         return $this;
     }
@@ -185,25 +185,25 @@ final class externalappModel
     }
 
     /**
-     * Get the value of idexternalsetting
+     * Get the value of idExternalSetting
      *
      * @return  int
      */ 
-    public function getIdexternalsetting(): int
+    public function getIdExternalSetting(): int
     {
-        return $this->idexternalsetting;
+        return $this->idExternalSetting;
     }
 
     /**
-     * Set the value of idexternalsetting
+     * Set the value of idExternalSetting
      *
-     * @param  int  $idexternalsetting
+     * @param  int  $idExternalSetting
      *
      * @return  self
      */ 
-    public function setIdexternalsetting(int $idexternalsetting): self
+    public function setIdExternalSetting(int $idExternalSetting): self
     {
-        $this->idexternalsetting = $idexternalsetting;
+        $this->idExternalSetting = $idExternalSetting;
 
         return $this;
     }

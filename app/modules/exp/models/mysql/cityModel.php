@@ -7,17 +7,17 @@ final class cityModel
     /**
      * @var int
      */
-    private $idcity;
+    private $idCity;
 
     /**
      * @var int
      */
-    private $idstate;
+    private $idState;
 
     /**
      * @var string
      */
-    private $statename;
+    private $stateName;
 
     /**
      * @var string
@@ -27,12 +27,12 @@ final class cityModel
     /**
      * @var string
      */
-    private $dtfoundation;
+    private $dtFoundation;
 
     /**
      * @var int
      */
-    private $isdefault;
+    private $isDefault;
 
     /**
      * @var string
@@ -42,7 +42,7 @@ final class cityModel
     /**
      * @var int
      */
-    private $idimage;
+    private $idImage;
 
     /**
      * @var array
@@ -57,7 +57,7 @@ final class cityModel
     /**
      * @var string
      */
-    private $filename;
+    private $fileName;
 
     /**
      * @var string
@@ -65,73 +65,73 @@ final class cityModel
     private $newFileName;
 
     /**
-     * Get idcity
+     * Get idCity
      *
      * @return  int
      */ 
-    public function getIdcity(): int
+    public function getIdCity(): int
     {
-        return $this->idcity;
+        return $this->idCity;
     }
 
     /**
-     * Set idcity
+     * Set idCity
      *
-     * @param  int  $idcity  idcity
+     * @param  int  $idCity  idCity
      *
      * @return  self
      */ 
-    public function setIdcity($idcity): self
+    public function setIdCity($idCity): self
     {
-        $this->idcity = $idcity;
+        $this->idCity = $idCity;
 
         return $this;
     }
 
     /**
-     * Get idstate
+     * Get idState
      *
      * @return  int
      */ 
-    public function getIdstate(): int
+    public function getIdState(): int
     {
-        return $this->idstate;
+        return $this->idState;
     }
 
     /**
-     * Set idstate
+     * Set idState
      *
-     * @param  int  $idstate  idstate
+     * @param  int  $idState  idState
      *
      * @return  self
      */ 
-    public function setIdstate($idstate): self
+    public function setIdState($idState): self
     {
-        $this->idstate = $idstate;
+        $this->idState = $idState;
 
         return $this;
     }
 
     /**
-     * Get statename
+     * Get stateName
      *
      * @return  string
      */ 
-    public function getStatename(): string
+    public function getStateName(): string
     {
-        return $this->statename;
+        return $this->stateName;
     }
 
     /**
-     * Set statename
+     * Set stateName
      *
-     * @param  string  $statename  statename
+     * @param  string  $stateName  stateName
      *
      * @return  self
      */ 
-    public function setStatename($statename): self
+    public function setStateName($stateName): self
     {
-        $this->statename = $statename;
+        $this->stateName = $stateName;
 
         return $this;
     }
@@ -161,49 +161,49 @@ final class cityModel
     }
 
     /**
-     * Get dtfoundation
+     * Get dtFoundation
      *
      * @return  string
      */ 
-    public function getDtfoundation(): string
+    public function getDtFoundation(): string
     {
-        return $this->dtfoundation;
+        return $this->dtFoundation;
     }
 
     /**
-     * Set dtfoundation
+     * Set dtFoundation
      *
-     * @param  string  $dtfoundation  dtfoundation
+     * @param  string  $dtFoundation  dtFoundation
      *
      * @return  self
      */ 
-    public function setDtfoundation($dtfoundation): self
+    public function setDtFoundation($dtFoundation): self
     {
-        $this->dtfoundation = $dtfoundation;
+        $this->dtFoundation = $dtFoundation;
 
         return $this;
     }
 
     /**
-     * Get isdefault
+     * Get isDefault
      *
      * @return  int
      */ 
-    public function getIsdefault(): int
+    public function getIsDefault(): int
     {
-        return $this->isdefault;
+        return $this->isDefault;
     }
 
     /**
-     * Set isdefault
+     * Set isDefault
      *
-     * @param  int  $isdefault  isdefault
+     * @param  int  $isDefault  isDefault
      *
      * @return  self
      */ 
-    public function setIsdefault($isdefault): self
+    public function setIsDefault($isDefault): self
     {
-        $this->isdefault = $isdefault;
+        $this->isDefault = $isDefault;
 
         return $this;
     }
@@ -233,25 +233,25 @@ final class cityModel
     }
 
     /**
-     * Get the value of idimage
+     * Get the value of idImage
      *
      * @return  int
      */ 
-    public function getIdimage(): int
+    public function getIdImage(): int
     {
-        return $this->idimage;
+        return $this->idImage;
     }
 
     /**
-     * Set the value of idimage
+     * Set the value of idImage
      *
-     * @param  int  $idimage
+     * @param  int  $idImage
      *
      * @return  self
      */ 
-    public function setIdimage(int $idimage): self
+    public function setIdImage(int $idImage): self
     {
-        $this->idimage = $idimage;
+        $this->idImage = $idImage;
 
         return $this;
     }
@@ -305,25 +305,25 @@ final class cityModel
     }
 
     /**
-     * Get the value of filename
+     * Get the value of fileName
      *
      * @return  string
      */ 
-    public function getFilename(): string
+    public function getFileName(): string
     {
-        return $this->filename;
+        return $this->fileName;
     }
 
     /**
-     * Set the value of filename
+     * Set the value of fileName
      *
-     * @param  string  $filename
+     * @param  string  $fileName
      *
      * @return  self
      */ 
-    public function setFilename(string $filename): self
+    public function setFileName(string $fileName): self
     {
-        $this->filename = $filename;
+        $this->fileName = $fileName;
 
         return $this;
     }

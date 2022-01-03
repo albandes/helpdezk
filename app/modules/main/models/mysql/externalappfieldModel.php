@@ -7,7 +7,7 @@ final class externalappfieldModel
     /**
      * @var int
      */
-    private $idexternalsetting;
+    private $idExternalSetting;
 
     /**
      * @var int
@@ -22,28 +22,33 @@ final class externalappfieldModel
     /**
      * @var string
      */
-    private $fieldValue;   
+    private $fieldValue;
+    
+    /**
+     * @var int
+     */
+    private $idExternalField;
 
     /**
-     * Get the value of idexternalsetting
+     * Get the value of idExternalSetting
      *
      * @return  int
      */ 
-    public function getIdexternalsetting()
+    public function getIdExternalSetting(): int
     {
-        return $this->idexternalsetting;
+        return $this->idExternalSetting;
     }
 
     /**
-     * Set the value of idexternalsetting
+     * Set the value of idExternalSetting
      *
-     * @param  int  $idexternalsetting
+     * @param  int  $idExternalSetting
      *
      * @return  self
      */ 
-    public function setIdexternalsetting(int $idexternalsetting)
+    public function setIdExternalSetting(int $idExternalSetting): self
     {
-        $this->idexternalsetting = $idexternalsetting;
+        $this->idExternalSetting = $idExternalSetting;
 
         return $this;
     }
@@ -53,7 +58,7 @@ final class externalappfieldModel
      *
      * @return  int
      */ 
-    public function getUserID()
+    public function getUserID(): int
     {
         return $this->userID;
     }
@@ -65,7 +70,7 @@ final class externalappfieldModel
      *
      * @return  self
      */ 
-    public function setUserID(int $userID)
+    public function setUserID(int $userID): self
     {
         $this->userID = $userID;
 
@@ -77,7 +82,7 @@ final class externalappfieldModel
      *
      * @return  string
      */ 
-    public function getFieldName()
+    public function getFieldName(): string
     {
         return $this->fieldName;
     }
@@ -89,7 +94,7 @@ final class externalappfieldModel
      *
      * @return  self
      */ 
-    public function setFieldName(string $fieldName)
+    public function setFieldName(string $fieldName): self
     {
         $this->fieldName = $fieldName;
 
@@ -101,7 +106,7 @@ final class externalappfieldModel
      *
      * @return  string
      */ 
-    public function getFieldValue()
+    public function getFieldValue(): string
     {
         return $this->fieldValue;
     }
@@ -113,9 +118,33 @@ final class externalappfieldModel
      *
      * @return  self
      */ 
-    public function setFieldValue(string $fieldValue)
+    public function setFieldValue(string $fieldValue): self
     {
         $this->fieldValue = $fieldValue;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idExternalField
+     *
+     * @return  int
+     */ 
+    public function getIdExternalField(): int
+    {
+        return $this->idExternalField;
+    }
+
+    /**
+     * Set the value of idExternalField
+     *
+     * @param  int  $idExternalField
+     *
+     * @return  self
+     */ 
+    public function setIdExternalField(int $idExternalField): self
+    {
+        $this->idExternalField = $idExternalField;
 
         return $this;
     }

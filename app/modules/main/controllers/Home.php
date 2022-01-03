@@ -171,15 +171,14 @@ class Home extends Controller
      *
      * @author Rogerio Albandes <rogerio.albandeshelpdezk.cc>
      *
-     * @uses $_POST['idperson'] directly
-     * @uses $_POST['trellokey'] directly
-     * @uses $_POST['trellotoken'] directly
-     * @uses $_POST['pushoverkey'] directly
-     * @uses $_POST['pushovertoken'] directly
+     * @uses $_POST['modal-trello-key'] directly
+     * @uses $_POST['modal-trello-token'] directly
+     * @uses $_POST['modal-pushover-key'] directly
+     * @uses $_POST['modal-pushover-token'] directly
      *
      * @since December 29, 2019
      *
-     * * @return array [
+     * @return array [
      *                  'success'       => true|false,
      *                  'message'       => Error or success message
      *                  'id'            => Record ID saved in database
@@ -187,11 +186,6 @@ class Home extends Controller
      */
     public function saveUserSettings()
     {
-        //use this on display user's settings modal
-        /*if(!$this->dbUserConfig->existApiConfigTables()) {
-            echo json_encode(array('sucess' => false,'message' => 'There are no external APIs Configuration Tables !','id' => ''));
-            exit;
-        }*/
         
         $userSetDAO = new usersettingsDAO();
         $userSetMod = new usersettingsModel();
@@ -249,61 +243,7 @@ class Home extends Controller
             }
         }
 
-        /*$idPerson      = $_POST['idperson'];
-        $trelloKey     = $_POST['trellokey'];
-        $trelloToken   = $_POST['trellotoken'];
-        $pushoverKey   = $_POST['pushoverkey'];
-        $pushoverToken = $_POST['pushovertoken'];
-
-        $this->dbUserConfig->BeginTrans();
-
-        // Trello
-        $arrayParam = array( array( 'field' => 'key', 'value' => $trelloKey) , array( 'field' => 'token','value' => $trelloToken) );
-        $arrayReturn = $this->dbUserConfig->insertExternalSettings(50,$idPerson);
-
-        if (!$arrayReturn['success']) {
-            echo json_encode($arrayReturn);
-            //$this->dbUserConfig->RoolbackTrans();
-            exit;
-        } else {
-            $idexternalsettings = $arrayReturn['id'] ;
-            foreach ($arrayParam as $row) {
-                $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
-                if (!$arrayReturn['success']) {
-                    echo json_encode($arrayReturn);
-                    //$this->dbUserConfig->RollbackTrans();
-                    exit;
-                }
-            }
-
-        }
-
-        $arrayParam = array();
-
-        // Pushover
-        $arrayParam = array( array( 'field' => 'key','value' => $pushoverKey) , array( 'field' => 'token', 'value' => $pushoverToken) );
-        $arrayReturn = $this->dbUserConfig->insertExternalSettings(51,$idPerson);
-
-        if (!$arrayReturn['success']) {
-            echo json_encode($arrayReturn);
-            //$this->dbUserConfig->RoolbackTrans();
-            exit;
-        } else {
-            $idexternalsettings = $arrayReturn['id'] ;
-            foreach ($arrayParam as $row) {
-                $arrayReturn = $this->dbUserConfig->insertExternalField($idexternalsettings,$row['field'],$row['value']);
-                if (!$arrayReturn['success']) {
-                    echo json_encode($arrayReturn);
-                    //$this->dbUserConfig->RoolbackTrans();
-                    exit;
-                }
-            }
-
-        }
-        //
-        $this->dbUserConfig->CommitTrans();
-
-        echo json_encode($arrayReturn);*/
+        echo json_encode(array('success'=>true));
 
     }
 
@@ -318,45 +258,67 @@ class Home extends Controller
         if(!$retExtApp['status']){
             $st = false;
             $msg = $retExtApp['push']['message'];
+        }elseif($retExtApp['push']['object']->getIdExternalApp() <= 0){
+            $st = true;
+            $msg = $this->translator->translate('no_external_app');
         }else{
             // Check if the user has external app settings
             $checkUserExtApp = $extAppDAO->getExtAppSettingByUser($retExtApp['push']['object']);
-            if(!$checkUserExtAp['status']){
+            if(!$checkUserExtApp['status']){
                 $st = false;
                 $msg = $checkUserExtApp['push']['message'];
-            }else{
-                if($checkUserExtApp['push']['object']->getIdexternalsetting() <= 0){
+            }else{ 
+                if($checkUserExtApp['push']['object']->getIdExternalSetting() <= 0){
                     $insUserApp = $extAppDAO->insertUserExternalApp($retExtApp['push']['object']);
+                    if(!$insUserApp['status']){
+                        $externalSettingsID = 0;
+                    }else{
+                        $externalSettingsID = $insUserApp['push']['object']->getIdExternalSetting();
+                    }
                 }else{
+                    $externalSettingsID = $checkUserExtApp['push']['object']->getIdExternalSetting();
+                }                
 
-                }
-                
-
-                if(!$retExtApp['status']){
-                    $st = false;
-                    $msg = $insUserApp['push']['message'];
-                }else{
-                    $idexternalsettings = $retExtApp['push']['object']->getIdexternalapp();
-                    $extAppFieldMod->setIdexternalsetting($idexternalsettings);
+                if($externalSettingsID > 0){
+                    $extAppFieldMod->setIdExternalSetting($externalSettingsID);
 
                     foreach ($externalappModel->getSettingsList() as $row){
+                        $extAppFieldMod->setFieldName($row['field'])
+                                       ->setFieldValue($row['value']);
 
-                        $insField = $extAppDAO->
-                        if(!$retExtApp['status']){
+                        $checkField = $extAppDAO->getExtAppFieldByName($extAppFieldMod);
+                        if(!$checkField['status']){
                             $st = false;
-                            $msg = $retExtApp['push']['message'];
+                            $msg = $checkField['push']['message'];
                         }else{
-                            $st = true;
-                            $msg = "";
+                            if($checkField['push']['object']->getIdExternalField() <= 0){
+                                $insField = $extAppDAO->insertExternalAppField($extAppFieldMod);
+                                if(!$insField['status']){
+                                    $st = false;
+                                    $msg = $insField['push']['message'];
+                                }else{
+                                    $st = true;
+                                    $msg = "";
+                                }
+                            }else{
+                                $extAppFieldMod;
+                                $updField = $extAppDAO->updateExternalAppField($checkField['push']['object']);
+                                if(!$updField['status']){
+                                    $st = false;
+                                    $msg = $updField['push']['message'];
+                                }else{
+                                    $st = true;
+                                    $msg = "";
+                                }
+                            }
                         }
                     }
                 }
             }
-            /**/
 
         }
 
-        /*return array('status'=>$st,'message'=>$msg);*/
+        return array('status'=>$st,'message'=>$msg);
 
     }
 

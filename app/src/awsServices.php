@@ -2,14 +2,7 @@
 
 namespace App\src;
 
-use App\modules\admin\dao\mysql\loginDAO;
-use App\modules\admin\dao\mysql\moduleDAO;
-use App\modules\admin\dao\mysql\logoDAO;
-use App\modules\admin\dao\mysql\holidayDAO;
-
 use App\src\appServices;
-use App\modules\admin\src\loginServices;
-use App\src\localeServices;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;

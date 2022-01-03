@@ -102,7 +102,7 @@ final class personModel
     /**
      * @var int
      */
-    private $idcity;
+    private $idCity;
     
     /**
      * @var string
@@ -691,21 +691,21 @@ final class personModel
      *
      * @return  int
      */ 
-    public function getIdcity(): int
+    public function getIdCity(): int
     {
-        return $this->idcity;
+        return $this->idCity;
     }
 
     /**
-     * Set the value of idcity
+     * Set the value of idCity
      *
-     * @param  int  $idcity
+     * @param  int  $idCity
      *
      * @return  self
      */ 
-    public function setIdcity(int $idcity): self
+    public function setIdCity(int $idCity): self
     {
-        $this->idcity = $idcity;
+        $this->idCity = $idCity;
 
         return $this;
     }
