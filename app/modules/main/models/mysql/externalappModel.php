@@ -24,6 +24,20 @@ final class externalappModel
      */
     private $gridList;
 
+    /**
+     * @var int
+     */
+    private $userID;
+
+    /**
+     * @var array
+     */
+    private $settingsList;
+
+     /**
+     * @var int
+     */
+    private $idexternalsetting;
 
 
     /**
@@ -118,6 +132,78 @@ final class externalappModel
     public function setGridList(array $gridList): self
     {
         $this->gridList = $gridList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userID
+     *
+     * @return  int
+     */ 
+    public function getUserID(): int
+    {
+        return $this->userID;
+    }
+
+    /**
+     * Set the value of userID
+     *
+     * @param  int  $userID
+     *
+     * @return  self
+     */ 
+    public function setUserID(int $userID): self
+    {
+        $this->userID = $userID;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of settingsList
+     *
+     * @return  array
+     */ 
+    public function getSettingsList(): array
+    {
+        return $this->settingsList;
+    }
+
+    /**
+     * Set the value of settingsList
+     *
+     * @param  array  $settingsList
+     *
+     * @return  self
+     */ 
+    public function setSettingsList(array $settingsList): self
+    {
+        $this->settingsList = $settingsList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idexternalsetting
+     *
+     * @return  int
+     */ 
+    public function getIdexternalsetting(): int
+    {
+        return $this->idexternalsetting;
+    }
+
+    /**
+     * Set the value of idexternalsetting
+     *
+     * @param  int  $idexternalsetting
+     *
+     * @return  self
+     */ 
+    public function setIdexternalsetting(int $idexternalsetting): self
+    {
+        $this->idexternalsetting = $idexternalsetting;
 
         return $this;
     }

@@ -3,8 +3,11 @@
 use App\core\Controller;
 
 use App\modules\main\dao\mysql\externalappDAO;
+use App\modules\main\dao\mysql\usersettingsDAO;
 
 use App\modules\main\models\mysql\externalappModel;
+use App\modules\main\models\mysql\usersettingsModel;
+use App\modules\main\models\mysql\externalappfieldModel;
 
 use App\modules\main\src\mainServices;
 
@@ -189,11 +192,63 @@ class Home extends Controller
             echo json_encode(array('sucess' => false,'message' => 'There are no external APIs Configuration Tables !','id' => ''));
             exit;
         }*/
-        $extAppDAO = new externalappDAO();
-        $extAppMod = new externalappModel();
-        $extAppMod->setAppName("Trello");
-        $retExtApp = $extAppDAO->getExternalAppByName($extAppMod);
-        echo "<pre>", print_r($retExtApp,true), "</pre>";
+        
+        $userSetDAO = new usersettingsDAO();
+        $userSetMod = new usersettingsModel();
+        $extAppMod = new externalappModel(); 
+        
+        $userSetMod->setUserID($_SESSION['SES_COD_USUARIO'])
+                   ->setIdlocale($_POST['modal-cmblocale'])
+                   ->setIdtheme($_POST['modal-cmbcolor-theme'])
+                   ->setDisplayGrid(isset($_POST['modal-display-grid']) ? 'Y' : 'N');
+        
+        $retUserSet = $userSetDAO->getUserSettingsByUser($userSetMod);
+        
+        if(!$retUserSet['status']){
+            return false;
+        }else{
+            if($retUserSet['push']['object']->getUserSettingID() != 0){
+                $op = $userSetDAO->updateUserSettings($retUserSet['push']['object']);
+            }else{
+                $op = $userSetDAO->insertUserSettings($userSetMod);
+            }
+
+            if(!$op['status']){
+                return false;
+            }
+        }
+        
+        if(isset($_POST['modal-trello-key']) || isset($_POST['modal-trello-token'])){
+            
+            $extAppMod->setUserID($_SESSION['SES_COD_USUARIO'])
+                      ->setAppName("Trello")
+                      ->setSettingsList(array(
+                                                array( 'field' => 'key', 'value' => trim($_POST['modal-trello-key'])) , 
+                                                array( 'field' => 'token','value' => trim($_POST['modal-trello-token']))
+                                            ));
+            
+            $retTrello = $this->insertExternalSettings($extAppMod);
+
+            if(!$retTrello['status']){
+                return false;
+            }
+        }
+
+        if(isset($_POST['modal-pushover-key']) || isset($_POST['modal-pushover-token'])){
+            $extAppMod->setUserID($_SESSION['SES_COD_USUARIO'])
+                      ->setAppName("Pushover")
+                      ->setSettingsList(array(
+                                                array( 'field' => 'key', 'value' => trim($_POST['modal-pushover-key'])) , 
+                                                array( 'field' => 'token','value' => trim($_POST['modal-pushover-token']))
+                                            ));
+                                            
+            $retTrello = $this->insertExternalSettings($extAppMod);
+
+            if(!$retTrello['status']){
+                return false;
+            }
+        }
+
         /*$idPerson      = $_POST['idperson'];
         $trelloKey     = $_POST['trellokey'];
         $trelloToken   = $_POST['trellotoken'];
@@ -249,6 +304,59 @@ class Home extends Controller
         $this->dbUserConfig->CommitTrans();
 
         echo json_encode($arrayReturn);*/
+
+    }
+
+    public function insertExternalSettings($externalappModel)
+    {
+        
+        $extAppDAO = new externalappDAO();
+        $extAppFieldMod = new externalappfieldModel();
+        
+        // Get external app ID
+        $retExtApp = $extAppDAO->getExternalAppByName($externalappModel);
+        if(!$retExtApp['status']){
+            $st = false;
+            $msg = $retExtApp['push']['message'];
+        }else{
+            // Check if the user has external app settings
+            $checkUserExtApp = $extAppDAO->getExtAppSettingByUser($retExtApp['push']['object']);
+            if(!$checkUserExtAp['status']){
+                $st = false;
+                $msg = $checkUserExtApp['push']['message'];
+            }else{
+                if($checkUserExtApp['push']['object']->getIdexternalsetting() <= 0){
+                    $insUserApp = $extAppDAO->insertUserExternalApp($retExtApp['push']['object']);
+                }else{
+
+                }
+                
+
+                if(!$retExtApp['status']){
+                    $st = false;
+                    $msg = $insUserApp['push']['message'];
+                }else{
+                    $idexternalsettings = $retExtApp['push']['object']->getIdexternalapp();
+                    $extAppFieldMod->setIdexternalsetting($idexternalsettings);
+
+                    foreach ($externalappModel->getSettingsList() as $row){
+
+                        $insField = $extAppDAO->
+                        if(!$retExtApp['status']){
+                            $st = false;
+                            $msg = $retExtApp['push']['message'];
+                        }else{
+                            $st = true;
+                            $msg = "";
+                        }
+                    }
+                }
+            }
+            /**/
+
+        }
+
+        /*return array('status'=>$st,'message'=>$msg);*/
 
     }
 

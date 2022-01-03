@@ -119,7 +119,7 @@ class featureDAO extends Database
      */
     public function fetchUserSettings(featureModel $featureModel): array
     {        
-        $sql = "SELECT idconfiguser,idperson,lang,theme,grid_operator,grid_operator_width,
+        $sql = "SELECT idconfiguser,idperson,idlocale,idtheme,grid_operator,grid_operator_width,
                         grid_user,grid_user_width
                   FROM hdk_tbconfig_user
                  WHERE idperson = :userID";

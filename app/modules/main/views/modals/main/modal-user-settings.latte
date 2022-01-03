@@ -21,11 +21,11 @@
 
                         <div class="row g-2">
                             <div class="col-sm-4 text-end">
-                                <label for="modal-locale" class="col-form-label text-end">{='vocabulary_locale'|translate}:</label>
+                                <label for="modal-cmblocale" class="col-form-label text-end">{='vocabulary_locale'|translate}:</label>
                             </div>
                             
                             <div class="col-sm-5 mb-3">
-                                <select class="form-control form-control-sm" id="modal-locale" name="modal-locale" >
+                                <select class="form-control form-control-sm" id="modal-cmblocale" name="modal-cmblocale" >
                                 </select>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
                                 </div>
                                 
                                 <div class="col-sm-5">
-                                    <input type="text" class="form-control form-control-sm" id="modal-trello-key" value="">
+                                    <input type="text" class="form-control form-control-sm" id="modal-trello-key" name="modal-trello-key" value="">
                                 </div>
                             </div>
 
@@ -58,7 +58,7 @@
                                 </div>
                                 
                                 <div class="col-sm-5 mb-3">
-                                    <input type="text" class="form-control form-control-sm" id="modal-trello-token" value="">
+                                    <input type="text" class="form-control form-control-sm" id="modal-trello-token" name="modal-trello-token" value="">
                                 </div>
                             </div>
                         </fieldset>
@@ -71,7 +71,7 @@
                                 </div>
                                 
                                 <div class="col-sm-5">
-                                    <input type="text" class="form-control form-control-sm" id="modal-pushover-key" value="">
+                                    <input type="text" class="form-control form-control-sm" id="modal-pushover-key" name="modal-pushover-key" value="">
                                 </div>
                             </div>
 
@@ -81,11 +81,20 @@
                                 </div>
                                 
                                 <div class="col-sm-5">
-                                    <input type="text" class="form-control form-control-sm" id="modal-pushover-token" value="">
+                                    <input type="text" class="form-control form-control-sm" id="modal-pushover-token" name="modal-pushover-token" value="">
                                 </div>
                             </div>
                         </fieldset>
                     </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-usersettings"></div>
+                        </div>
+                    </div>
+                    
                 </form>
             </div>
             <div class="modal-footer">

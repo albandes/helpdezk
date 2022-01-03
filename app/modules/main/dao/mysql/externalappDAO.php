@@ -4,6 +4,7 @@ namespace App\modules\main\dao\mysql;
 
 use App\core\Database;
 use App\modules\main\models\mysql\externalappModel;
+use App\modules\main\models\mysql\externalappfieldModel;
 
 class externalappDAO extends Database
 {
@@ -76,6 +77,44 @@ class externalappDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error('Error trying get external app data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+     /**
+     * Returns logo's data by name
+     *
+     * @param  externalappModel $externalappModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getExtAppSettingByUser(externalappModel $externalappModel): array
+    {
+        $sql = "SELECT idexternalsetting,idexternalapp,idperson 
+                  FROM hdk_tbexternallapp 
+                 WHERE idperson = :userID
+                   AND idexternalapp = :extappID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(":userID",$externalappModel->getUserID());
+            $stmt->bindParam(":extappID",$externalappModel->getIdexternalapp());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            $externalappModel->setIdexternalsetting($aRet ? $aRet['idexternalsetting'] : 0);
+            $ret = true;
+            $result = array("message"=>"","object"=>$externalappModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying get user external app setting ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

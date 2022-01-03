@@ -19,7 +19,7 @@ $(document).ready(function () {
      * Select2
      */
     $("#modal-cmbcolor-theme").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
-    $("#modal-locale").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
+    $("#modal-cmblocale").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
     $("#person_country").select2({placeholder:translateLabel('Select'),allowClear:true});
     $("#person_state").select2({placeholder:translateLabel('Select'),allowClear:true});
     $("#person_city").select2({placeholder:translateLabel('Select'),allowClear:true});
@@ -117,20 +117,20 @@ $(document).ready(function () {
             dataType: 'json',
             data: $("#modal-usersettings-form").serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
+                modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-modal-usersettings');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
 
                 if(obj.success) {
-                    modalAlertMultiple('success',translateLabel('Alert_external_settings_OK'),'alert-config-external');
+                    modalAlertMultiple('success',translateLabel('Alert_external_settings_OK'),'alert-modal-usersettings');
                     setTimeout(function(){
                         $('#modal-config-external-form').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure')+': '+obj.message,'alert-config-external');
+                    modalAlertMultiple('danger',translateLabel('Alert_failure')+': '+obj.message,'alert-modal-usersettings');
                 }
 
             }
@@ -212,7 +212,7 @@ $(document).ready(function () {
     };
 
     objUserSettings.loadCmbThemes();
-    objUserSettings.loadCmbLocales()
+    objUserSettings.loadCmbLocales();
     
     $("#person_country").change(function(){
         objPersonData.changeState();
