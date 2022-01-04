@@ -69,11 +69,11 @@ class Holidays extends Controller
         $params['modalError'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-error.latte';
 
         if($option=='upd'){
-            $params['idholiday'] = $obj->getIdholiday();
+            $params['idholiday'] = $obj->getIdHoliday();
             $params['holidayDesc'] = $obj->getDescription();
             $params['holidayDate'] = $this->appSrc->_formatDate($obj->getDate());           
         }elseif($option=='add'){
-            $params['companyID'] = $obj->getIdcompany();
+            $params['companyID'] = $obj->getIdCompany();
         }
 
         // -- Last year --
@@ -104,12 +104,8 @@ class Holidays extends Controller
         if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
         {
             $quickValue = trim($_POST['quickValue']);
-            if(strtotime($quickValue)){
-                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_date LIKE '".$this->appSrc->_formatSaveDate($quickValue)."'";// it's in date format
-            }else{
-                $quickValue = str_replace(" ","%",$quickValue);
-                $where .= (empty($where) ? "WHERE " : " AND ") . "tbh.holiday_description LIKE '%{$quickValue}%'";
-            }
+            $quickValue = str_replace(" ","%",$quickValue);
+            $where .= (empty($where) ? "WHERE " : " AND ") . "(tbh.holiday_description LIKE '%{$quickValue}%' OR tbh.holiday_date LIKE '".$this->appSrc->_formatSaveDate($quickValue)."')";
         }
         
         //sort options
@@ -205,11 +201,11 @@ class Holidays extends Controller
     {
         $holidayDao = new holidayDAO();
         $holidayMod = new holidayModel();
+        $holidayMod->setIdHoliday($idholiday);
 
-
-        $holidayUpd = $holidayDao->getHoliday($idholiday);
-
-        $params = $this->makeScreenHolidays('upd',$holidayUpd);
+        $holidayUpd = $holidayDao->getHoliday($holidayMod);
+        
+        $params = $this->makeScreenHolidays('upd',$holidayUpd['push']['object']);
         $params['holidayID'] = $idholiday;
       
         $this->view('admin','holidays-update',$params);
@@ -251,12 +247,12 @@ class Holidays extends Controller
 
             $st = true;
             $msg = "";
-            $holidayID = $ins['push']['object']->getIdholiday();
+            $holidayID = $ins['push']['object']->getIdHoliday();
             $holidayDescription = $ins['push']['object']->getDescription();
             
             //Link holiday with the company
             if($companyID != 0){
-                $ins['push']['object']->setIdcompany($companyID);
+                $ins['push']['object']->setIdCompany($companyID);
                
                 $insCompany = $holidayDao->insertHolidayHasCompany($ins['push']['object']);
                 if(!$insCompany['status']){
@@ -298,7 +294,7 @@ class Holidays extends Controller
             return false;
         }
         
-        $holidayMod->setIdholiday($_POST['holidayID'])
+        $holidayMod->setIdHoliday($_POST['holidayID'])
                    ->setDate($this->appSrc->_formatSaveDate($_POST['holiday_date']))
                    ->setDescription(trim($_POST['holiday_description']));
         
@@ -313,7 +309,7 @@ class Holidays extends Controller
         $aRet = array(
             "success" => $st,
             "message" => $upd['push']['message'],
-            "idholiday" => (!is_null($upd['push']['object']) && !empty($upd['push']['object'])) ? $holidayMod->getIdholiday() : ""
+            "idholiday" => (!is_null($upd['push']['object']) && !empty($upd['push']['object'])) ? $holidayMod->getIdHoliday() : ""
         );        
 
         echo json_encode($aRet);
@@ -341,7 +337,7 @@ class Holidays extends Controller
     {
         $holidayDao = new holidayDAO();
         $holidayModel = new holidayModel();
-        $holidayModel->setIdcompany($companyID);
+        $holidayModel->setIdCompany($companyID);
         
         $retCompanyYear = $holidayDao->fetchHolidayYearsByCompany($holidayModel);
         $select = '';
@@ -390,7 +386,7 @@ class Holidays extends Controller
         $holidayModel = new holidayModel();
 
         $holidayModel->setYear($_POST['prevyear'])
-                     ->setIdcompany($_POST['companyID']);       
+                     ->setIdCompany($_POST['companyID']);       
 
         $retLoad = $holidayDao->fetchHolidays($holidayModel);
         $count = 0;
@@ -441,7 +437,7 @@ class Holidays extends Controller
         $nextyear = $_POST['nextyear'];
         $holidayModel->setYear($_POST['lastyear'])
                      ->setNextYear($nextyear)
-                     ->setIdcompany($_POST['company']);       
+                     ->setIdCompany($_POST['company']);       
 
         $retLoad = $holidayDao->fetchHolidays($holidayModel);
         $count = 0;
@@ -501,7 +497,7 @@ class Holidays extends Controller
         $holidayDao = new holidayDAO();
         $holidayModel = new holidayModel();
         
-        $holidayModel->setIdholiday($_POST['holidayID']);
+        $holidayModel->setIdHoliday($_POST['holidayID']);
         
         $retDelCompany = $holidayDao->deleteHolidayCompany($holidayModel);
         if(!$retDelCompany['status']){

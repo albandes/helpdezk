@@ -152,12 +152,11 @@ class ExpCity extends Controller
                     $filterValue = $this->appSrc->_formatSaveDate($filterValue);
                     $where .= "AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
                     break;
-                default: //Search fro city's name
+                case "city_name": //Search for city's name
                     $filterIndx = "a.name";
                     $where .= "AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
                     break;
-            }
-            
+            }            
             
         } 
         
@@ -165,12 +164,8 @@ class ExpCity extends Controller
         if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
         {
             $quickValue = trim($_POST['quickValue']);
-            if(strtotime($quickValue)){//Search for city's foundation date
-                $where .= " AND dtfoundation '".$this->appSrc->_formatSaveDate($quickValue)."'";// it's in date format
-            }else{//Search fro city's name
-                $quickValue = str_replace(" ","%",$quickValue);
-                $where .= " AND a.name LIKE '%{$quickValue}%'";
-            }
+            $quickValue = str_replace(" ","%",$quickValue);
+            $where .= " AND (a.name LIKE '%{$quickValue}%' OR dtfoundation LIKE '".$this->appSrc->_formatSaveDate($quickValue)."')";
         }
         
         //sort options
@@ -457,6 +452,13 @@ class ExpCity extends Controller
         //Setting up the model
         $cityMod->setIdCity($_POST['cityID']);
 
+        // First delete image linked with city
+        $delImage = $cityDao->deleteCityImageByCity($cityMod);
+        if(!$delImage['status']){
+            return false;
+        }
+
+        // Delete city registration
         $del = $cityDao->deleteCity($cityMod);
 		if(!$del['status']){
             return false;

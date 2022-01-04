@@ -4,8 +4,8 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
-    $('#action-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
 
     /** 
      * Define a model for grid's columns
@@ -142,6 +142,13 @@ $(document).ready(function () {
         $("#grid_cities").pqGrid("refreshDataAndView");
     });
 
+    $('#txtSearch').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            $("#btnSearch").click();
+        }
+    });
+
     $("#btnCreate").click(function(){
         location.href = path + "/exp/expCity/formCreate";
     });
@@ -251,7 +258,8 @@ $(document).ready(function () {
     });
 
     $('#modal-search-filter').on('hidden.bs.modal', function() { 
-        $("#search-modal-form").trigger('reset');        
+        $("#search-modal-form").trigger('reset');
+        $("#filter-list").trigger("change");       
     });
 });
 

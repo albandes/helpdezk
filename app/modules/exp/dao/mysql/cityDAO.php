@@ -42,7 +42,7 @@ class cityDAO extends Database
             $result = array("message"=>"","object"=>$city);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error getting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error getting cities ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
@@ -362,6 +362,37 @@ class cityDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error('Error trying update loaded image name ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Delete the uploaded image from the database
+     *
+     * @param  cityModel $cityModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteCityImageByCity(cityModel $cityModel): array
+    {        
+        $sql = "DELETE FROM exp_tbcity_image WHERE idcity = :cityID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':cityID', $cityModel->getIdCity());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$cityModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying delete uploaded image ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

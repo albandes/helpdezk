@@ -7,7 +7,7 @@ final class holidayModel
     /**
      * @var int
      */
-    private $idholiday; 
+    private $idHoliday; 
 
     /**
      * @var string
@@ -22,7 +22,7 @@ final class holidayModel
     /**
      * @var int
      */
-    private $idcompany;
+    private $idCompany;
     
     /**
      * @var string
@@ -50,25 +50,25 @@ final class holidayModel
     private $yearList;
 
     /**
-     * Get the value of idholiday
+     * Get the value of idHoliday
      *
      * @return  int
      */ 
-    public function getIdholiday(): int
+    public function getIdHoliday(): int
     {
-        return $this->idholiday;
+        return $this->idHoliday;
     }
 
     /**
-     * Set the value of idholiday
+     * Set the value of idHoliday
      *
-     * @param  int  $idholiday
+     * @param  int  $idHoliday
      *
      * @return  self
      */ 
-    public function setIdholiday(int $idholiday): self
+    public function setIdHoliday(int $idHoliday): self
     {
-        $this->idholiday = $idholiday;
+        $this->idHoliday = $idHoliday;
 
         return $this;
     }
@@ -122,25 +122,25 @@ final class holidayModel
     }
 
     /**
-     * Get the value of idcompany
+     * Get the value of idCompany
      *
      * @return  int
      */ 
-    public function getIdcompany(): int
+    public function getIdCompany(): int
     {
-        return $this->idcompany;
+        return $this->idCompany;
     }
 
     /**
-     * Set the value of idcompany
+     * Set the value of idCompany
      *
-     * @param  int  $idcompany
+     * @param  int  $idCompany
      *
      * @return  self
      */ 
-    public function setIdcompany(int $idcompany): self
+    public function setIdCompany(int $idCompany): self
     {
-        $this->idcompany = $idcompany;
+        $this->idCompany = $idCompany;
 
         return $this;
     }

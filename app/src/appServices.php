@@ -416,10 +416,9 @@ class appServices
      */
     public function _formatSaveDate($date): string
     {
-        $holidayDAO = new holidayDao();
-        $dateafter = $holidayDAO->getSaveDate($date, $_ENV["DATE_FORMAT"]);
+        $date = str_replace("/","-",$date);
         
-        return (!is_null($dateafter) && !empty($dateafter)) ? $dateafter : "" ;
+        return date("Y-m-d",strtotime($date));
     }
     
     /**
@@ -432,10 +431,9 @@ class appServices
      */
     public function _formatDate(string $date): string
     {
-        $holidayDAO = new holidayDao();
-        $dateafter = $holidayDAO->getDate($date, $_ENV["DATE_FORMAT"]);
+        $date = str_replace("/","-",$date);
         
-        return (!is_null($dateafter) && !empty($dateafter)) ? $dateafter : "" ;
+        return date($_ENV["DATE_FORMAT"],strtotime($date));
     }
 
 

@@ -1,11 +1,13 @@
 $(document).ready(function () {
     countdown.start(timesession);
 
-    /*
+    /**
      * Select2
+     * 
+     * Use to format dropdown (combo)
      */
-    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
-    $('#action-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
 
     /** 
      * Define a model for grid's columns
@@ -36,15 +38,15 @@ $(document).ready(function () {
      * 
      * for more data model options see https://paramquery.com/api#option-dataModel
      * */
-    var dataModel = {
-        location: "remote",
-        dataType: "JSON",
-        method: "POST",
-        url: path + '/admin/holidays/jsonGrid',
+    var dataModel = {
+        location: "remote",
+        dataType: "JSON",
+        method: "POST",
+        url: path + '/admin/holidays/jsonGrid',
         getData: function (dataJSON) {                
             return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };                
         }
-    };
+    };
     
     /** 
      * Define a sort model
@@ -74,23 +76,23 @@ $(document).ready(function () {
     var pageModel = {
         type: "remote",
         curPage: this.curPage,
-        rPP: 10,
-        rPPOptions: [1, 10, 20, 30, 40, 50]
+        rPP: 10,
+        rPPOptions: [1, 10, 20, 30, 40, 50]
     };
-
-    var obj = { 
+    
+    var obj = { 
         width: '100%', 
         height: 400,
-        dataModel: dataModel,
-        colModel: colM,
-        editable: false,
-        title: translateLabel('holidays'),
-        topVisible: false,
-        sortModel: sortModel,
+        dataModel: dataModel,
+        colModel: colM,
+        editable: false,
+        title: translateLabel('holidays'),
+        topVisible: false,
+        sortModel: sortModel,
         pageModel: pageModel,
         numberCell: {show: false},
         selectionModel: { mode: 'single', type: 'row' }
-    };
+    };
 
     $("#grid_holidays").pqGrid(obj);
 
@@ -106,7 +108,7 @@ $(document).ready(function () {
 
     $("#btnModalSearch").click(function(){
         var filterIndx = $("#filter-list").val(),
-            filterValue = $("#filter-value").val(),
+            filterValue = $("#filter-value").val(),
             filterOperation = $("#action-list").val();
             
         $("#grid_holidays").pqGrid( "option", "dataModel.postData", function(){
@@ -124,6 +126,13 @@ $(document).ready(function () {
         } );
         
         $("#grid_holidays").pqGrid("refreshDataAndView");
+    });
+
+    $('#txtSearch').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            $("#btnSearch").click();
+        }
     });
 
     $("#btnCreate").click(function(){

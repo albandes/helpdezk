@@ -33,7 +33,7 @@ class holidayDAO extends Database
                   LEFT JOIN tbperson c
                          ON c.idperson = b.idperson
                       WHERE YEAR(a.holiday_date) = {$holidayModel->getYear()} ";
-        $sql .= ($holidayModel->getIdcompany() != "" || $holidayModel->getIdcompany() != 0) ? "AND c.idperson = {$holidayModel->getIdcompany()} " : "AND b.idperson IS NULL ";
+        $sql .= ($holidayModel->getIdCompany() != "" || $holidayModel->getIdCompany() != 0) ? "AND c.idperson = {$holidayModel->getIdCompany()} " : "AND b.idperson IS NULL ";
         $sql .= "ORDER BY holiday_date";
 
         try{
@@ -115,7 +115,7 @@ class holidayDAO extends Database
             $stmt->bindParam(':description', $holidayModel->getDescription());
             $stmt->execute();
 
-            $holidayModel->setIdholiday($this->db->lastInsertId());
+            $holidayModel->setIdHoliday($this->db->lastInsertId());
             $ret = true;
             $result = array("message"=>"","object"=>$holidayModel);
         }catch(\PDOException $ex){
@@ -145,8 +145,8 @@ class holidayDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
-            $stmt->bindParam(':companyID', $holidayModel->getIdcompany());
+            $stmt->bindParam(':holidayID', $holidayModel->getIdHoliday());
+            $stmt->bindParam(':companyID', $holidayModel->getIdCompany());
             $stmt->execute();
 
             $ret = true;
@@ -160,70 +160,6 @@ class holidayDAO extends Database
         }
 
         return array("status"=>$ret,"push"=>$result);
-    }
-
-    /**
-     * Returns a query date format so use in a database query
-     * Use in method appServices::_formatSaveDate
-     *
-     * @param  string   $date       Date
-     * @param  string   $format     Date format
-     * @return string   
-     *
-     */
-    public function getSaveDate(string $date, string $format): string
-    {
-        $sql = "SELECT STR_TO_DATE(:date,:format) AS date";
-        
-        try{
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':format', $format);
-            $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying format date to save in DB ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
-        
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet || empty($aRet)){
-            return null;
-        }
-        
-        return $aRet['date'];
-    }
-
-    /**
-     * Returns a query date format so use in a database query
-     * Use in method appServices::_formatDate
-     *
-     * @param  string   $date       Date
-     * @param  string   $format     Date format
-     * @return string   
-     *
-     */
-    public function getDate(string $date, string $format): string
-    {
-        $sql = "SELECT DATE_FORMAT(:date,:format) AS date";
-        
-        try{
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':format', $format);
-            $stmt->execute();
-        }catch(\PDOException $ex){
-            $this->loggerDB->error('Error trying format date to save in DB ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
-            return null;
-        }
-        
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if(!$aRet || empty($aRet)){
-            return null;
-        }
-        
-        return $aRet['date'];
     }
     
     /**
@@ -247,7 +183,7 @@ class holidayDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
+            $stmt->bindParam(':holidayID', $holidayModel->getIdHoliday());
             $stmt->execute();
 
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -255,7 +191,7 @@ class holidayDAO extends Database
             if($aRet && count($aRet) > 0){
                 $holidayModel->setDate($aRet['holiday_date'])
                              ->setDescription($aRet['holiday_description'])
-                             ->setIdcompany(!empty($aRet['idperson']) ? $aRet['idperson'] : 0)
+                             ->setIdCompany(!empty($aRet['idperson']) ? $aRet['idperson'] : 0)
                              ->setCompany(!empty($aRet['name']) ? $aRet['name'] : "");
             }
 
@@ -292,7 +228,7 @@ class holidayDAO extends Database
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':date', $holidayModel->getDate());
             $stmt->bindParam(':description', $holidayModel->getDescription());
-            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
+            $stmt->bindParam(':holidayID', $holidayModel->getIdHoliday());
             $stmt->execute();
 
             $ret = true;
@@ -360,13 +296,13 @@ class holidayDAO extends Database
        LEFT OUTER JOIN tbholiday_has_company b
                     ON a.idholiday = b.idholiday
                  WHERE (YEAR(a.holiday_date) <> YEAR(NOW()) AND YEAR(a.holiday_date) > 0)";
-        $sql .= ($holidayModel->getIdcompany() != "" || $holidayModel->getIdcompany() != 0) ? " AND b.idperson = :companyID" : "";
+        $sql .= ($holidayModel->getIdCompany() != "" || $holidayModel->getIdCompany() != 0) ? " AND b.idperson = :companyID" : "";
         $sql .= " GROUP BY holiday_year
                  ORDER BY holiday_year DESC";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':companyID', $holidayModel->getIdcompany());
+            $stmt->bindParam(':companyID', $holidayModel->getIdCompany());
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
@@ -400,7 +336,7 @@ class holidayDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
+            $stmt->bindParam(':holidayID', $holidayModel->getIdHoliday());
             $stmt->execute();
 
             $ret = true;
@@ -431,7 +367,7 @@ class holidayDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':holidayID', $holidayModel->getIdholiday());
+            $stmt->bindParam(':holidayID', $holidayModel->getIdHoliday());
             $stmt->execute();
 
             $ret = true;
