@@ -34,7 +34,7 @@ class loginDAO extends Database
             $stmt->execute();
 
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $loginModel->setLogintype($aRet['idtypelogin']);
+            $loginModel->setLoginType($aRet['idtypelogin']);
 
             $ret = true;
             $result = array("message"=>"","object"=>$loginModel);
@@ -70,10 +70,10 @@ class loginDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            $loginModel->setIdperson($aRet['idperson'])
+            $loginModel->setIdPerson($aRet['idperson'])
                        ->setName($aRet['name'])
                        ->setLogin($aRet['login'])
-                       ->setIdtypeperson($aRet['idtypeperson']);
+                       ->setIdTypePerson($aRet['idtypeperson']);
               
             $ret = true;
             $result = array("message"=>"","object"=>$loginModel);
@@ -115,13 +115,13 @@ class loginDAO extends Database
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
         
             if($aRet){
-                $loginModel->setIdperson($aRet['idperson'])
+                $loginModel->setIdPerson($aRet['idperson'])
                            ->setName($aRet['name'])
                            ->setLogin($aRet['login'])
-                           ->setIdtypeperson($aRet['idtypeperson']);
+                           ->setIdTypePerson($aRet['idtypeperson']);
             }else{
-                $loginModel->setIdperson(0)
-                           ->setIdtypeperson(0);
+                $loginModel->setIdPerson(0)
+                           ->setIdTypePerson(0);
             }
 
             $ret = true;
@@ -153,7 +153,7 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $loginModel->getIdperson());
+            $stmt->bindParam(':userID', $loginModel->getIdPerson());
             $stmt->execute();
 
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -188,7 +188,7 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $loginModel->getIdperson());
+            $stmt->bindParam(':userID', $loginModel->getIdPerson());
             $stmt->bindParam(':requestCode', $loginModel->getRequestCode());
             $stmt->execute();
 
@@ -262,14 +262,14 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $loginModel->getIdperson());
+            $stmt->bindParam(':userID', $loginModel->getIdPerson());
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             
             $loginModel->setName($aRet['name'])
                        ->setLogin($aRet['login'])
-                       ->setIdtypeperson($aRet['idtypeperson'])
-                       ->setIdcompany($aRet['idjuridical'])
+                       ->setIdTypePerson($aRet['idtypeperson'])
+                       ->setIdCompany($aRet['idjuridical'])
                        ->setCompanyName($aRet['company']);
                   
             $ret = true;
@@ -305,7 +305,7 @@ class loginDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $loginModel->getIdperson());
+            $stmt->bindParam(':userID', $loginModel->getIdPerson());
             $stmt->execute();
             $row = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             foreach($row as $k=>$v){

@@ -7,7 +7,7 @@ final class themeModel
     /**
      * @var int
      */
-    private $idtheme;
+    private $idTheme;
 
     /**
      * @var string
@@ -21,25 +21,25 @@ final class themeModel
 
 
     /**
-     * Get the value of idtheme
+     * Get the value of idTheme
      *
      * @return  int
      */ 
-    public function getIdtheme(): int
+    public function getIdTheme(): int
     {
-        return $this->idtheme;
+        return $this->idTheme;
     }
 
     /**
-     * Set the value of idtheme
+     * Set the value of idTheme
      *
-     * @param  int  $idtheme
+     * @param  int  $idTheme
      *
      * @return  self
      */ 
-    public function setIdtheme(int $idtheme): self
+    public function setIdTheme(int $idTheme): self
     {
-        $this->idtheme = $idtheme;
+        $this->idTheme = $idTheme;
 
         return $this;
     }

@@ -87,14 +87,14 @@ class Login extends Controller
 		}
         
         $loginTypeObj = $loginType['push']['object'];
-        switch ($loginTypeObj->getLogintype()) {
+        switch ($loginTypeObj->getLoginType()) {
             case '3': // HelpDEZk
                 
                 $isLogin = $this->helpdezkAuth($loginTypeObj); 
                 $loginUser = $loginDAO->getUser($loginTypeObj);
 
-                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdperson() : '';
-                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdtypeperson() : '';
+                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdPerson() : '';
+                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdTypePerson() : '';
                 break;
             
             case '1': // Pop/Imap Server
@@ -107,8 +107,8 @@ class Login extends Controller
                 $isLogin = $this->imapAuth($loginTypeObj);
                 $loginUser = $loginDAO->getUserByLogin($loginTypeObj);
 
-                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdperson() : '';
-                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdtypeperson() : '';
+                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdPerson() : '';
+                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdTypePerson() : '';
                 break;
         }
         
@@ -220,7 +220,7 @@ class Login extends Controller
                     break;
             }
         } else {
-            if (in_array($loginType['push']['object']->getLogintype(),array(1,3,4))) { // Pop, HD  ou REQUEST login
+            if (in_array($loginType['push']['object']->getLoginType(),array(1,3,4))) { // Pop, HD  ou REQUEST login
 				$retUserSt = $loginDAO->checkUser($loginType['push']['object']); 
                 if (!$retUserSt['status'] || $retUserSt['push']['object']->getUserStatus() == 'I'){
                     $msg = $this->translator->translate('Login_user_inactive');
@@ -245,7 +245,7 @@ class Login extends Controller
 		$loginDAO = new loginDAO();
 		$retUser = $loginDAO->getUserByLogin($loginModel);
 
-        if($retUser['status'] && $retUser['push']['object']->getIdperson() > 0){
+        if($retUser['status'] && $retUser['push']['object']->getIdPerson() > 0){
             $retRequest = $loginDAO->getRequestsByUser($retUser['push']['object']);
 			if ($retRequest['status'] && $retRequest['push']['object']->getTotalRequests() == 0) {
                 return true;
@@ -272,7 +272,7 @@ class Login extends Controller
         if(!$loginUser['status']){
             return false;
         }else{
-            return $loginUser['push']['object']->getIdperson() == 0 ? false : true;
+            return $loginUser['push']['object']->getIdPerson() == 0 ? false : true;
         }
     }
 

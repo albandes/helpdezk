@@ -192,8 +192,8 @@ class Home extends Controller
         $extAppMod = new externalappModel(); 
         
         $userSetMod->setUserID($_SESSION['SES_COD_USUARIO'])
-                   ->setIdlocale($_POST['modal-cmblocale'])
-                   ->setIdtheme($_POST['modal-cmbcolor-theme'])
+                   ->setIdLocale($_POST['modal-cmblocale'])
+                   ->setIdTheme($_POST['modal-cmbcolor-theme'])
                    ->setDisplayGrid(isset($_POST['modal-display-grid']) ? 'Y' : 'N');
         
         $retUserSet = $userSetDAO->getUserSettingsByUser($userSetMod);

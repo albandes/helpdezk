@@ -103,8 +103,8 @@ class usersettingsDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':userID', $usersettingsModel->getUserID());
-            $stmt->bindParam(':localeID', $usersettingsModel->getIdlocale());
-            $stmt->bindParam(':themeID', $usersettingsModel->getIdtheme());
+            $stmt->bindParam(':localeID', $usersettingsModel->getIdLocale());
+            $stmt->bindParam(':themeID', $usersettingsModel->getIdTheme());
             $stmt->bindParam(':displayGrid', $usersettingsModel->getDisplayGrid());
             $stmt->execute();
 
@@ -141,8 +141,8 @@ class usersettingsDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':localeID', $usersettingsModel->getIdlocale());
-            $stmt->bindParam(':themeID', $usersettingsModel->getIdtheme());
+            $stmt->bindParam(':localeID', $usersettingsModel->getIdLocale());
+            $stmt->bindParam(':themeID', $usersettingsModel->getIdTheme());
             $stmt->bindParam(':displayGrid', $usersettingsModel->getDisplayGrid());
             $stmt->bindParam(':userSettingID', $usersettingsModel->getUserSettingID());
             $stmt->execute();

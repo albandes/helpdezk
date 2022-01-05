@@ -7,12 +7,12 @@ final class loginModel
     /**
      *  @var int
      */
-    private $idperson; 
+    private $idPerson; 
 
     /**
      * @var int
      */
-    private $logintype;      
+    private $loginType;      
     
     /**
      * @var string
@@ -27,7 +27,7 @@ final class loginModel
     /**
      * @var int
      */
-    private $idtypeperson;
+    private $idTypePerson;
     
     /**
      * @var bool
@@ -37,7 +37,7 @@ final class loginModel
     /**
      * @var int
      */
-    private $idcompany;
+    private $idCompany;
     
     /**
      * @var string
@@ -80,23 +80,23 @@ final class loginModel
     private $requestCode;
 
     /**
-     * Get the value of idperson
+     * Get the value of idPerson
      *
      * @return  int
      */ 
-    public function getIdperson(): int
+    public function getIdPerson(): int
     {
-        return $this->idperson;
+        return $this->idPerson;
     }
 
     /**
-     * Get the value of logintype
+     * Get the value of loginType
      *
      * @return  int
      */ 
-    public function getLogintype(): int
+    public function getLoginType(): int
     {
-        return $this->logintype;
+        return $this->loginType;
     }
 
     /**
@@ -120,36 +120,36 @@ final class loginModel
     }
 
     /**
-     * Get the value of idtypeperson
+     * Get the value of idTypePerson
      *
      * @return  int
      */ 
-    public function getIdtypeperson(): int
+    public function getIdTypePerson(): int
     {
-        return $this->idtypeperson;
+        return $this->idTypePerson;
     }
 
     /**
-     * Set the value of idperson
+     * Set the value of idPerson
      *
-     * @param  int  $idperson
+     * @param  int  $idPerson
      * @return  self
      */ 
-    public function setIdperson(int $idperson): self
+    public function setIdPerson(int $idPerson): self
     {
-        $this->idperson = $idperson;
+        $this->idPerson = $idPerson;
         return $this;
     }
 
     /**
-     * Set the value of logintype
+     * Set the value of loginType
      *
-     * @param  int  $logintype
+     * @param  int  $loginType
      * @return  self
      */ 
-    public function setLogintype(int $logintype): self
+    public function setLoginType(int $loginType): self
     {
-        $this->logintype = $logintype;
+        $this->loginType = $loginType;
         return $this;
     }
 
@@ -178,14 +178,14 @@ final class loginModel
     }
 
     /**
-     * Set the value of idtypeperson
+     * Set the value of idTypePerson
      *
-     * @param  int  $idtypeperson
+     * @param  int  $idTypePerson
      * @return  self
      */ 
-    public function setIdtypeperson(int $idtypeperson): self
+    public function setIdTypePerson(int $idTypePerson): self
     {
-        $this->idtypeperson = $idtypeperson;
+        $this->idTypePerson = $idTypePerson;
         return $this;
     }
 
@@ -214,25 +214,25 @@ final class loginModel
     }
 
     /**
-     * Get the value of idcompany
+     * Get the value of idCompany
      *
      * @return  int
      */ 
-    public function getIdcompany(): int
+    public function getIdCompany(): int
     {
-        return $this->idcompany;
+        return $this->idCompany;
     }
 
     /**
-     * Set the value of idcompany
+     * Set the value of idCompany
      *
-     * @param  int  $idcompany
+     * @param  int  $idCompany
      *
      * @return  self
      */ 
-    public function setIdcompany(int $idcompany): self
+    public function setIdCompany(int $idCompany): self
     {
-        $this->idcompany = $idcompany;
+        $this->idCompany = $idCompany;
 
         return $this;
     }

@@ -7,7 +7,7 @@ final class personModel
     /**
      * @var int
      */
-    private $idperson;
+    private $idPerson;
 
     /**
      * @var string
@@ -52,12 +52,12 @@ final class personModel
     /**
      * @var string
      */
-    private $typeperson;
+    private $TypePerson;
         
     /**
      * @var int
      */
-    private $idtypeperson;
+    private $idTypePerson;
     
     /**
      * @var string
@@ -67,7 +67,7 @@ final class personModel
     /**
      * @var int
      */
-    private $idcountry;
+    private $idCountry;
     
     /**
      * @var string
@@ -82,7 +82,7 @@ final class personModel
     /**
      * @var int
      */
-    private $idstate;
+    private $idState;
     
     /**
      * @var string
@@ -92,7 +92,7 @@ final class personModel
     /**
      * @var int
      */
-    private $idneighborhood;
+    private $idNeighborhood;
     
     /**
      * @var string
@@ -107,12 +107,12 @@ final class personModel
     /**
      * @var string
      */
-    private $typestreet;
+    private $typeStreet;
     
     /**
      * @var int
      */
-    private $idtypestreet;
+    private $idTypeStreet;
     
     /**
      * @var string
@@ -132,12 +132,12 @@ final class personModel
     /**
      * @var string
      */
-    private $zipcode;
+    private $zipCode;
     
     /**
      * @var string
      */
-    private $zipcodeFmt;
+    private $zipCodeFmt;
     
     /**
      * @var string
@@ -162,12 +162,12 @@ final class personModel
     /**
      * @var string
      */
-    private $rgoexp;
+    private $rgoExp;
     
     /**
      * @var string
      */
-    private $dtbirth;
+    private $dtBirth;
     
     /**
      * @var string
@@ -187,7 +187,7 @@ final class personModel
     /**
      * @var int
      */
-    private $iddepartment;
+    private $idDepartment;
     
     /**
      * @var string
@@ -202,22 +202,22 @@ final class personModel
     /**
      * @var int
      */
-    private $idcompany;
+    private $idCompany;
     
     /**
      * @var int
      */
-    private $idtypelogin;
+    private $idTypeLogin;
     
     /**
      * @var string
      */
-    private $dtbirthFmt;
+    private $dtBirthFmt;
     
     /**
      * @var int
      */
-    private $idstreet;
+    private $idStreet;
 
     /**
      * @var array
@@ -231,25 +231,25 @@ final class personModel
    
 
     /**
-     * Get the value of idperson
+     * Get the value of idPerson
      *
      * @return  int
      */ 
-    public function getIdperson(): int
+    public function getIdPerson(): int
     {
-        return $this->idperson;
+        return $this->idPerson;
     }
 
     /**
-     * Set the value of idperson
+     * Set the value of idPerson
      *
-     * @param  int  $idperson
+     * @param  int  $idPerson
      *
      * @return  self
      */ 
-    public function setIdperson(int $idperson): self
+    public function setIdPerson(int $idPerson): self
     {
-        $this->idperson = $idperson;
+        $this->idPerson = $idPerson;
 
         return $this;
     }
@@ -447,49 +447,49 @@ final class personModel
     }
 
     /**
-     * Get the value of typeperson
+     * Get the value of TypePerson
      *
      * @return  string
      */ 
-    public function getTypeperson(): string
+    public function getTypePerson(): string
     {
-        return $this->typeperson;
+        return $this->TypePerson;
     }
 
     /**
-     * Set the value of typeperson
+     * Set the value of TypePerson
      *
-     * @param  string  $typeperson
+     * @param  string  $TypePerson
      *
      * @return  self
      */ 
-    public function setTypeperson(string $typeperson): self
+    public function setTypePerson(string $TypePerson): self
     {
-        $this->typeperson = $typeperson;
+        $this->TypePerson = $TypePerson;
 
         return $this;
     }
 
     /**
-     * Get the value of idtypeperson
+     * Get the value of idTypePerson
      *
      * @return  int
      */ 
-    public function getIdtypeperson(): int
+    public function getIdTypePerson(): int
     {
-        return $this->idtypeperson;
+        return $this->idTypePerson;
     }
 
     /**
-     * Set the value of idtypeperson
+     * Set the value of idTypePerson
      *
-     * @param  int  $idtypeperson
+     * @param  int  $idTypePerson
      *
      * @return  self
      */ 
-    public function setIdtypeperson(int $idtypeperson): self
+    public function setIdTypePerson(int $idTypePerson): self
     {
-        $this->idtypeperson = $idtypeperson;
+        $this->idTypePerson = $idTypePerson;
 
         return $this;
     }
@@ -519,25 +519,25 @@ final class personModel
     }
 
     /**
-     * Get the value of idcountry
+     * Get the value of idCountry
      *
      * @return  int
      */ 
-    public function getIdcountry(): int
+    public function getIdCountry(): int
     {
-        return $this->idcountry;
+        return $this->idCountry;
     }
 
     /**
-     * Set the value of idcountry
+     * Set the value of idCountry
      *
-     * @param  int  $idcountry
+     * @param  int  $idCountry
      *
      * @return  self
      */ 
-    public function setIdcountry(int $idcountry): self
+    public function setIdCountry(int $idCountry): self
     {
-        $this->idcountry = $idcountry;
+        $this->idCountry = $idCountry;
 
         return $this;
     }
@@ -591,25 +591,25 @@ final class personModel
     }
 
     /**
-     * Get the value of idstate
+     * Get the value of idState
      *
      * @return  int
      */ 
-    public function getIdstate(): int
+    public function getIdState(): int
     {
-        return $this->idstate;
+        return $this->idState;
     }
 
     /**
-     * Set the value of idstate
+     * Set the value of idState
      *
-     * @param  int  $idstate
+     * @param  int  $idState
      *
      * @return  self
      */ 
-    public function setIdstate(int $idstate): self
+    public function setIdState(int $idState): self
     {
-        $this->idstate = $idstate;
+        $this->idState = $idState;
 
         return $this;
     }
@@ -639,25 +639,25 @@ final class personModel
     }
 
     /**
-     * Get the value of idneighborhood
+     * Get the value of idNeighborhood
      *
      * @return  int
      */ 
-    public function getIdneighborhood(): int
+    public function getIdNeighborhood(): int
     {
-        return $this->idneighborhood;
+        return $this->idNeighborhood;
     }
 
     /**
-     * Set the value of idneighborhood
+     * Set the value of idNeighborhood
      *
-     * @param  int  $idneighborhood
+     * @param  int  $idNeighborhood
      *
      * @return  self
      */ 
-    public function setIdneighborhood(int $idneighborhood): self
+    public function setIdNeighborhood(int $idNeighborhood): self
     {
-        $this->idneighborhood = $idneighborhood;
+        $this->idNeighborhood = $idNeighborhood;
 
         return $this;
     }
@@ -687,7 +687,7 @@ final class personModel
     }
 
     /**
-     * Get the value of idcity
+     * Get the value of idCity
      *
      * @return  int
      */ 
@@ -711,49 +711,49 @@ final class personModel
     }
 
     /**
-     * Get the value of typestreet
+     * Get the value of typeStreet
      *
      * @return  string
      */ 
-    public function getTypestreet(): string
+    public function getTypeStreet(): string
     {
-        return $this->typestreet;
+        return $this->typeStreet;
     }
 
     /**
-     * Set the value of typestreet
+     * Set the value of typeStreet
      *
-     * @param  string  $typestreet
+     * @param  string  $typeStreet
      *
      * @return  self
      */ 
-    public function setTypestreet(string $typestreet): self
+    public function setTypeStreet(string $typeStreet): self
     {
-        $this->typestreet = $typestreet;
+        $this->typeStreet = $typeStreet;
 
         return $this;
     }
 
     /**
-     * Get the value of idtypestreet
+     * Get the value of idTypeStreet
      *
      * @return  int
      */ 
-    public function getIdtypestreet(): int
+    public function getIdTypeStreet(): int
     {
-        return $this->idtypestreet;
+        return $this->idTypeStreet;
     }
 
     /**
-     * Set the value of idtypestreet
+     * Set the value of idTypeStreet
      *
-     * @param  int  $idtypestreet
+     * @param  int  $idTypeStreet
      *
      * @return  self
      */ 
-    public function setIdtypestreet(int $idtypestreet): self
+    public function setIdTypeStreet(int $idTypeStreet): self
     {
-        $this->idtypestreet = $idtypestreet;
+        $this->idTypeStreet = $idTypeStreet;
 
         return $this;
     }
@@ -831,49 +831,49 @@ final class personModel
     }
 
     /**
-     * Get the value of zipcode
+     * Get the value of zipCode
      *
      * @return  string
      */ 
-    public function getZipcode(): string
+    public function getZipCode(): string
     {
-        return $this->zipcode;
+        return $this->zipCode;
     }
 
     /**
-     * Set the value of zipcode
+     * Set the value of zipCode
      *
-     * @param  string  $zipcode
+     * @param  string  $zipCode
      *
      * @return  self
      */ 
-    public function setZipcode(string $zipcode): self
+    public function setZipCode(string $zipCode): self
     {
-        $this->zipcode = $zipcode;
+        $this->zipCode = $zipCode;
 
         return $this;
     }
 
     /**
-     * Get the value of zipcodeFmt
+     * Get the value of zipCodeFmt
      *
      * @return  string
      */ 
-    public function getZipcodeFmt(): string
+    public function getZipCodeFmt(): string
     {
-        return $this->zipcodeFmt;
+        return $this->zipCodeFmt;
     }
 
     /**
-     * Set the value of zipcodeFmt
+     * Set the value of zipCodeFmt
      *
-     * @param  string  $zipcodeFmt
+     * @param  string  $zipCodeFmt
      *
      * @return  self
      */ 
-    public function setZipcodeFmt(string $zipcodeFmt): self
+    public function setZipCodeFmt(string $zipCodeFmt): self
     {
-        $this->zipcodeFmt = $zipcodeFmt;
+        $this->zipCodeFmt = $zipCodeFmt;
 
         return $this;
     }
@@ -975,49 +975,49 @@ final class personModel
     }
 
     /**
-     * Get the value of rgoexp
+     * Get the value of rgoExp
      *
      * @return  string
      */ 
-    public function getRgoexp(): string
+    public function getRgoExp(): string
     {
-        return $this->rgoexp;
+        return $this->rgoExp;
     }
 
     /**
-     * Set the value of rgoexp
+     * Set the value of rgoExp
      *
-     * @param  string  $rgoexp
+     * @param  string  $rgoExp
      *
      * @return  self
      */ 
-    public function setRgoexp(string $rgoexp): self
+    public function setRgoExp(string $rgoExp): self
     {
-        $this->rgoexp = $rgoexp;
+        $this->rgoExp = $rgoExp;
 
         return $this;
     }
 
     /**
-     * Get the value of dtbirth
+     * Get the value of dtBirth
      *
      * @return  string
      */ 
-    public function getDtbirth(): string
+    public function getDtBirth(): string
     {
-        return $this->dtbirth;
+        return $this->dtBirth;
     }
 
     /**
-     * Set the value of dtbirth
+     * Set the value of dtBirth
      *
-     * @param  string  $dtbirth
+     * @param  string  $dtBirth
      *
      * @return  self
      */ 
-    public function setDtbirth(string $dtbirth): self
+    public function setDtBirth(string $dtBirth): self
     {
-        $this->dtbirth = $dtbirth;
+        $this->dtBirth = $dtBirth;
 
         return $this;
     }
@@ -1095,25 +1095,25 @@ final class personModel
     }
 
     /**
-     * Get the value of iddepartment
+     * Get the value of idDepartment
      *
      * @return  int
      */ 
-    public function getIddepartment(): int
+    public function getIdDepartment(): int
     {
-        return $this->iddepartment;
+        return $this->idDepartment;
     }
 
     /**
-     * Set the value of iddepartment
+     * Set the value of idDepartment
      *
-     * @param  int  $iddepartment
+     * @param  int  $idDepartment
      *
      * @return  self
      */ 
-    public function setIddepartment(int $iddepartment): self
+    public function setIdDepartment(int $idDepartment): self
     {
-        $this->iddepartment = $iddepartment;
+        $this->idDepartment = $idDepartment;
 
         return $this;
     }
@@ -1167,97 +1167,97 @@ final class personModel
     }
 
     /**
-     * Get the value of idcompany
+     * Get the value of idCompany
      *
      * @return  int
      */ 
-    public function getIdcompany(): int
+    public function getIdCompany(): int
     {
-        return $this->idcompany;
+        return $this->idCompany;
     }
 
     /**
-     * Set the value of idcompany
+     * Set the value of idCompany
      *
-     * @param  int  $idcompany
+     * @param  int  $idCompany
      *
      * @return  self
      */ 
-    public function setIdcompany(int $idcompany): self
+    public function setIdCompany(int $idCompany): self
     {
-        $this->idcompany = $idcompany;
+        $this->idCompany = $idCompany;
 
         return $this;
     }
 
     /**
-     * Get the value of idtypelogin
+     * Get the value of idTypeLogin
      *
      * @return  int
      */ 
-    public function getIdtypelogin(): int
+    public function getIdTypeLogin(): int
     {
-        return $this->idtypelogin;
+        return $this->idTypeLogin;
     }
 
     /**
-     * Set the value of idtypelogin
+     * Set the value of idTypeLogin
      *
-     * @param  int  $idtypelogin
+     * @param  int  $idTypeLogin
      *
      * @return  self
      */ 
-    public function setIdtypelogin(int $idtypelogin): self
+    public function setIdTypeLogin(int $idTypeLogin): self
     {
-        $this->idtypelogin = $idtypelogin;
+        $this->idTypeLogin = $idTypeLogin;
 
         return $this;
     }
 
     /**
-     * Get the value of dtbirthFmt
+     * Get the value of dtBirthFmt
      *
      * @return  string
      */ 
-    public function getDtbirthFmt(): string
+    public function getDtBirthFmt(): string
     {
-        return $this->dtbirthFmt;
+        return $this->dtBirthFmt;
     }
 
     /**
-     * Set the value of dtbirthFmt
+     * Set the value of dtBirthFmt
      *
-     * @param  string  $dtbirthFmt
+     * @param  string  $dtBirthFmt
      *
      * @return  self
      */ 
-    public function setDtbirthFmt(string $dtbirthFmt): self
+    public function setDtBirthFmt(string $dtBirthFmt): self
     {
-        $this->dtbirthFmt = $dtbirthFmt;
+        $this->dtBirthFmt = $dtBirthFmt;
 
         return $this;
     }
 
     /**
-     * Get the value of idstreet
+     * Get the value of idStreet
      *
      * @return  int
      */ 
-    public function getIdstreet(): int
+    public function getIdStreet(): int
     {
-        return $this->idstreet;
+        return $this->idStreet;
     }
 
     /**
-     * Set the value of idstreet
+     * Set the value of idStreet
      *
-     * @param  int  $idstreet
+     * @param  int  $idStreet
      *
      * @return  self
      */ 
-    public function setIdstreet(int $idstreet): self
+    public function setIdStreet(int $idStreet): self
     {
-        $this->idstreet = $idstreet;
+        $this->idStreet = $idStreet;
 
         return $this;
     }

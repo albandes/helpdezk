@@ -7,7 +7,7 @@ final class localeModel
     /**
      * @var int
      */
-    private $idlocale;
+    private $idLocale;
 
     /**
      * @var string
@@ -26,25 +26,25 @@ final class localeModel
 
 
     /**
-     * Get the value of idlocale
+     * Get the value of idLocale
      *
      * @return  int
      */ 
-    public function getIdlocale(): int
+    public function getIdLocale(): int
     {
-        return $this->idlocale;
+        return $this->idLocale;
     }
 
     /**
-     * Set the value of idlocale
+     * Set the value of idLocale
      *
-     * @param  int  $idlocale
+     * @param  int  $idLocale
      *
      * @return  self
      */ 
-    public function setIdlocale(int $idlocale): self
+    public function setIdLocale(int $idLocale): self
     {
-        $this->idlocale = $idlocale;
+        $this->idLocale = $idLocale;
 
         return $this;
     }

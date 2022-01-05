@@ -10,16 +10,14 @@ final class usersettingsModel
     private $userID;
     
     /**
-     * idlocale
-     *
      * @var int
      */
-    private $idlocale;
+    private $idLocale;
     
     /**
      * @var int
      */
-    private $idtheme;
+    private $idTheme;
     
     /**
      * @var string
@@ -76,49 +74,49 @@ final class usersettingsModel
     }
 
     /**
-     * Get idlocale
+     * Get idLocale
      *
      * @return  int
      */ 
-    public function getIdlocale(): int
+    public function getIdLocale(): int
     {
-        return $this->idlocale;
+        return $this->idLocale;
     }
 
     /**
-     * Set idlocale
+     * Set idLocale
      *
-     * @param  int  $idlocale  idlocale
+     * @param  int  $idLocale  idLocale
      *
      * @return  self
      */ 
-    public function setIdlocale(int $idlocale): self
+    public function setIdLocale(int $idLocale): self
     {
-        $this->idlocale = $idlocale;
+        $this->idLocale = $idLocale;
 
         return $this;
     }
 
     /**
-     * Get the value of idtheme
+     * Get the value of idTheme
      *
      * @return  int
      */ 
-    public function getIdtheme(): int
+    public function getIdTheme(): int
     {
-        return $this->idtheme;
+        return $this->idTheme;
     }
 
     /**
-     * Set the value of idtheme
+     * Set the value of idTheme
      *
-     * @param  int  $idtheme
+     * @param  int  $idTheme
      *
      * @return  self
      */ 
-    public function setIdtheme(int $idtheme): self
+    public function setIdTheme(int $idTheme): self
     {
-        $this->idtheme = $idtheme;
+        $this->idTheme = $idTheme;
 
         return $this;
     }

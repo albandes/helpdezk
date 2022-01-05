@@ -53,11 +53,11 @@ class personDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':userID', $personModel->getIdperson());
+            $stmt->bindParam(':userID', $personModel->getIdPerson());
             $stmt->execute();
             $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
         
-            $personModel->setIdperson($rows['idperson'])
+            $personModel->setIdPerson($rows['idperson'])
                         ->setName($rows['name'])
                         ->setLogin($rows['login'])
                         ->setEmail($rows['email'])
@@ -67,39 +67,39 @@ class personDAO extends Database
                         ->setBranchNumber($rows['branch_number'])
                         ->setCellphone($rows['cellphone'])
                         ->setTypeperson($rows['typeperson'])
-                        ->setIdtypeperson($rows['idtypeperson'])
+                        ->setIdTypePerson($rows['idtypeperson'])
                         ->setCountry($rows['country'])
-                        ->setIdcountry($rows['idcountry'])
+                        ->setIdCountry($rows['idcountry'])
                         ->setState($rows['state'])
                         ->setStateAbbr($rows['state_abbr'])
-                        ->setIdstate($rows['idstate'])
+                        ->setIdState($rows['idstate'])
                         ->setNeighborhood($rows['neighborhood'])
-                        ->setIdneighborhood($rows['idneighborhood'])
+                        ->setIdNeighborhood($rows['idneighborhood'])
                         ->setCity($rows['city'])
-                        ->setIdcity($rows['idcity'])
-                        ->setTypestreet($rows['typestreet'])
-                        ->setIdtypestreet($rows['idtypestreet'])
+                        ->setIdCity($rows['idcity'])
+                        ->setTypeStreet($rows['typestreet'])
+                        ->setIdTypeStreet($rows['idtypestreet'])
                         ->setStreet($rows['street'])
                         ->setNumber($rows['number'])
                         ->setComplement($rows['complement'])
-                        ->setZipcode($rows['zipcode'])
-                        ->setZipcodeFmt($rows['zipcode_fmt'])
+                        ->setZipCode($rows['zipcode'])
+                        ->setZipCodeFmt($rows['zipcode_fmt'])
                         ->setSsnCpf($rows['ssn_cpf'])
                         ->setCpfFmt($rows['cpf_fmt'])
                         ->setSsnFmt($rows['ssn_fmt'])
                         ->setRg($rows['rg'])
-                        ->setRgoexp($rows['rgoexp'])
-                        ->setDtbirth($rows['dtbirth'])
+                        ->setRgoExp($rows['rgoexp'])
+                        ->setDtBirth($rows['dtbirth'])
                         ->setMother($rows['mother'])
                         ->setFather($rows['father'])
                         ->setGender($rows['gender'])
-                        ->setIddepartment($rows['iddepartment'])
+                        ->setIdDepartment($rows['iddepartment'])
                         ->setDepartment($rows['department'])
                         ->setCompany($rows['company'])
-                        ->setIdcompany($rows['idcompany'])
-                        ->setIdtypelogin($rows['idtypelogin'])
-                        ->setDtbirthFmt($rows['dtbirth_fmt'])
-                        ->setIdstreet($rows['idstreet']);
+                        ->setIdCompany($rows['idcompany'])
+                        ->setIdTypeLogin($rows['idtypelogin'])
+                        ->setDtBirthFmt($rows['dtbirth_fmt'])
+                        ->setIdStreet($rows['idstreet']);
             $ret = true;
             $result = array("message"=>"","object"=>$personModel);
         }catch(\PDOException $ex){

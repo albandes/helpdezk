@@ -135,7 +135,7 @@ class loginServices
     {
         $loginDAO = new loginDAO();
         $loginModel = new loginModel();
-        $loginModel->setIdperson($idperson);
+        $loginModel->setIdPerson($idperson);
 
         session_start();
         $_SESSION['SES_COD_USUARIO'] = $idperson;
@@ -156,10 +156,10 @@ class loginServices
                     $userObj = $userData['push']['object'];
                     $_SESSION['SES_LOGIN_PERSON']       = $userObj->getLogin();
                     $_SESSION['SES_NAME_PERSON']        = $userObj->getName();
-                    $_SESSION['SES_TYPE_PERSON']        = $userObj->getIdtypeperson();
+                    $_SESSION['SES_TYPE_PERSON']        = $userObj->getIdTypePerson();
                     $_SESSION['SES_IND_CODIGO_ANOMES']  = true;
-                    $_SESSION['SES_COD_EMPRESA']        = $userObj->getIdcompany();
-                    $_SESSION['SES_COD_TIPO']           = $userObj->getIdtypeperson();
+                    $_SESSION['SES_COD_EMPRESA']        = $userObj->getIdCompany();
+                    $_SESSION['SES_COD_TIPO']           = $userObj->getIdTypePerson();
                 
                     $userGroups = $loginDAO->getPersonGroups($loginModel);
                     $_SESSION['SES_PERSON_GROUPS']  = ($userGroups['status']) ? $userGroups['push']['object']->getGroupId() : "";
@@ -169,14 +169,14 @@ class loginServices
                 
                 $personDAO = new personDAO();
                 $personModel = new personModel();
-                $personModel->setIdperson($idperson);
+                $personModel->setIdPerson($idperson);
 
                 $userData = $personDAO->getPersonByID($personModel);
                 if($userData['status']){
                     $userObj = $userData['push']['object'];
                     $_SESSION['SES_LOGIN_PERSON']   = $userObj->getLogin();
                     $_SESSION['SES_NAME_PERSON']    = $userObj->getName();
-                    $_SESSION['SES_TYPE_PERSON']    = $userObj->getIdtypeperson();
+                    $_SESSION['SES_TYPE_PERSON']    = $userObj->getIdTypePerson();
                 }                
 
             }
