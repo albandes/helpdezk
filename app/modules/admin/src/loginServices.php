@@ -225,7 +225,7 @@ class loginServices
                 foreach($activeModules as $k=>$v) {
                     $prefix = $v['tableprefix'];
                     if(!empty($prefix)) {
-                        $moduleModel->setTableprefix($prefix);
+                        $moduleModel->setTablePrefix($prefix);
                         $retSettings = $moduleDAO->fetchConfigDataByModule($moduleModel);
                         if ($retSettings['status']){
                             $modSettings = $retSettings['push']['object']->getSettingsList();
@@ -240,7 +240,7 @@ class loginServices
             }
 
         } else {
-            $moduleModel->setTableprefix('hdk');
+            $moduleModel->setTablePrefix('hdk');
             $retSettings = $moduleDAO->fetchConfigDataByModule($moduleModel);
             if ($retSettings['status']){
                 $modSettings = $retSettings['push']['object']->getSettingsList();

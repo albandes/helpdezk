@@ -259,7 +259,7 @@ class appServices
             foreach($aModule as $k=>$v) {
                 $prefix = $v['tableprefix'];
                 if(!empty($prefix)) {
-                    $moduleModel->setTableprefix($prefix);
+                    $moduleModel->setTablePrefix($prefix);
                     $retSettings = $moduleDAO->fetchConfigDataByModule($moduleModel);
                     if ($retSettings['status']){
                         $modSettings = $retSettings['push']['object']->getSettingsList();
@@ -323,39 +323,40 @@ class appServices
      *
      * pt_br Retorna as configurações do calendário
      *
+     * @param array $params Array with others default parameters
      * @return array
      */
-    public function _datepickerSettings(): array
+    public function _datepickerSettings($params): array
     {
-        $aRet = [];
+        
         switch ($_ENV['DEFAULT_LANG']) {
             case 'pt_br':
-                $aRet['dtpFormat'] = "dd/mm/yyyy";
-                $aRet['dtpLanguage'] = "pt-BR";
-                $aRet['dtpAutoclose'] = true;
-                $aRet['dtpOrientation'] = "bottom auto";
-                $aRet['dtpickerLocale'] = "bootstrap-datepicker.pt-BR.min.js";
-                $aRet['dtSearchFmt'] = 'd/m/Y';
+                $params['dtpFormat'] = "dd/mm/yyyy";
+                $params['dtpLanguage'] = "pt-BR";
+                $params['dtpAutoclose'] = true;
+                $params['dtpOrientation'] = "bottom auto";
+                $params['dtpickerLocale'] = "bootstrap-datepicker.pt-BR.min.js";
+                $params['dtSearchFmt'] = 'd/m/Y';
                 break;
             case 'es_es':
-                $aRet['dtpFormat'] = "dd/mm/yyyy";
-                $aRet['dtpLanguage'] = "es";
-                $aRet['dtpAutoclose'] = true;
-                $aRet['dtpOrientation'] = "bottom auto";
-                $aRet['dtpickerLocale'] = "bootstrap-datepicker.es.min.js";
-                $aRet['dtSearchFmt'] = 'd/m/Y';
+                $params['dtpFormat'] = "dd/mm/yyyy";
+                $params['dtpLanguage'] = "es";
+                $params['dtpAutoclose'] = true;
+                $params['dtpOrientation'] = "bottom auto";
+                $params['dtpickerLocale'] = "bootstrap-datepicker.es.min.js";
+                $params['dtSearchFmt'] = 'd/m/Y';
                 break;
             default:
-                $aRet['dtpFormat'] = "mm/dd/yyyy";
-                $aRet['dtpAutoclose'] = true;
-                $aRet['dtpOrientation'] = "bottom auto";
-                $aRet['dtpickerLocale'] = "";
-                $aRet['dtSearchFmt'] = 'm/d/Y';
+                $params['dtpFormat'] = "mm/dd/yyyy";
+                $params['dtpAutoclose'] = true;
+                $params['dtpOrientation'] = "bottom auto";
+                $params['dtpickerLocale'] = "";
+                $params['dtSearchFmt'] = 'm/d/Y';
                 break;
 
         }
 
-        return $aRet;
+        return $params;
     }
     
     /**
@@ -707,7 +708,7 @@ class appServices
         $moduleDAO = new moduleDAO();
         $moduleID = $moduleDAO->getModuleInfoByName($moduleName);
 
-        return (!is_null($moduleID) && !empty($moduleID)) ? $moduleID->getIdmodule() : 0;
+        return (!is_null($moduleID) && !empty($moduleID)) ? $moduleID->getIdModule() : 0;
     }
 
     /**

@@ -55,13 +55,13 @@ class expServices
         $retInfo = $moduleDAO->getModuleInfoByName($moduleModel);
         if($retInfo['status']){
             $moduleInfo = $retInfo['push']['object'];
-            $moduleModel->setIdmodule($moduleInfo->getIdmodule());
+            $moduleModel->setIdModule($moduleInfo->getIdModule());
             $aHeader = $appSrc->_getHeaderData();
             
             $listRecords = $appSrc->_makeMenuByModule($moduleModel);
             
             $params['listMenu_1'] = $listRecords;
-            $params['moduleLogo'] = ($moduleInfo->getIdmodule() == 1) ? $aHeader['filename'] : $moduleInfo->getHeaderlogo();
+            $params['moduleLogo'] = ($moduleInfo->getIdModule() == 1) ? $aHeader['filename'] : $moduleInfo->getHeaderLogo();
             $params['modulePath'] = $moduleInfo->getPath();
         }
 

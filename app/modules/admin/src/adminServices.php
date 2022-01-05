@@ -97,7 +97,7 @@ class adminServices
             
             $params['displayMenu_Adm'] = 1;
             $params['listMenu_Adm'] = $listRecords;
-            $params['moduleLogo'] = $moduleInfo->getHeaderlogo();
+            $params['moduleLogo'] = $moduleInfo->getHeaderLogo();
             $params['modulePath'] = $moduleInfo->getPath();
         }
 
@@ -118,7 +118,7 @@ class adminServices
             foreach($aActiveModules as $k=>$v) {      
                 $activeModel->setUserID($_SESSION['SES_COD_USUARIO'])
                             ->setUserType($_SESSION['SES_TYPE_PERSON'])
-                            ->setIdmodule($v['idmodule']);
+                            ->setIdModule($v['idmodule']);
 
                 $retCategories = $moduleDAO->fetchModuleActiveCategories($activeModel);
                 

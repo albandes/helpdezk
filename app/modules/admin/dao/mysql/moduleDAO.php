@@ -34,17 +34,17 @@ class moduleDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            $moduleModel->setIdmodule($aRet['idmodule'])
+            $moduleModel->setIdModule($aRet['idmodule'])
                         ->setName($aRet['name'])
                         ->setIndex($aRet['index'])
                         ->setStatus($aRet['status'])
                         ->setPath($aRet['path'])
                         ->setSmarty($aRet['smarty'])
                         ->setClass($aRet['class'])
-                        ->setHeaderlogo($aRet['headerlogo'])
-                        ->setReportslogo($aRet['reportslogo'])
-                        ->setTableprefix($aRet['tableprefix'])
-                        ->setIsdefault($aRet['defaultmodule']);
+                        ->setHeaderLogo($aRet['headerlogo'])
+                        ->setReportsLogo($aRet['reportslogo'])
+                        ->setTablePrefix($aRet['tableprefix'])
+                        ->setIsDefault($aRet['defaultmodule']);
             
             $ret = true;
             $result = array("message"=>"","object"=>$moduleModel);
@@ -104,7 +104,7 @@ class moduleDAO extends Database
      */
     public function fetchConfigDataByModule(moduleModel $moduleModel): array
     {        
-        $prefix = $moduleModel->getTableprefix() . '_tbconfig';
+        $prefix = $moduleModel->getTablePrefix() . '_tbconfig';
         $sql = "SELECT session_name, value FROM $prefix";
         
         try{
@@ -179,7 +179,7 @@ class moduleDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':userID', $moduleModel->getUserID());
-            $stmt->bindParam(':moduleID', $moduleModel->getIdmodule());
+            $stmt->bindParam(':moduleID', $moduleModel->getIdModule());
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
@@ -218,7 +218,7 @@ class moduleDAO extends Database
                           WHERE idperson = '{$moduleModel->getUserID()}')";
         }
 
-        $andModule = " m.idmodule = {$moduleModel->getIdmodule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
+        $andModule = " m.idmodule = {$moduleModel->getIdModule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
         
         $sql = "(SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
                         cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
@@ -300,17 +300,17 @@ class moduleDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             
-            $moduleModel->setIdmodule($aRet['idmodule'])
+            $moduleModel->setIdModule($aRet['idmodule'])
                         ->setName($aRet['name'])
                         ->setIndex($aRet['index'])
                         ->setStatus($aRet['status'])
                         ->setPath($aRet['path'])
                         ->setSmarty($aRet['smarty'])
                         ->setClass($aRet['class'])
-                        ->setHeaderlogo($aRet['headerlogo'])
-                        ->setReportslogo($aRet['reportslogo'])
-                        ->setTableprefix($aRet['tableprefix'])
-                        ->setIsdefault($aRet['defaultmodule']);
+                        ->setHeaderLogo($aRet['headerlogo'])
+                        ->setReportsLogo($aRet['reportslogo'])
+                        ->setTablePrefix($aRet['tableprefix'])
+                        ->setIsDefault($aRet['defaultmodule']);
             
             $ret = true;
             $result = array("message"=>"","object"=>$moduleModel);

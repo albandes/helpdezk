@@ -7,7 +7,7 @@ final class moduleModel
     /**
      * @var int
      */
-    private $idmodule;
+    private $idModule;
 
     /**
      * @var string
@@ -42,22 +42,22 @@ final class moduleModel
     /**
      * @var string
      */
-    private $headerlogo;
+    private $headerLogo;
     
     /**
      * @var string
      */
-    private $reportslogo;
+    private $reportsLogo;
     
     /**
      * @var string
      */
-    private $tableprefix;
+    private $tablePrefix;
     
     /**
      * @var string
      */
-    private $isdefault;
+    private $isDefault;
 
     /**
      * @var array
@@ -96,25 +96,25 @@ final class moduleModel
 
 
     /**
-     * Get the value of idmodule
+     * Get the value of idModule
      *
      * @return  int
      */ 
-    public function getIdmodule(): int
+    public function getIdModule(): int
     {
-        return $this->idmodule;
+        return $this->idModule;
     }
 
     /**
-     * Set the value of idmodule
+     * Set the value of idModule
      *
-     * @param  int  $idmodule
+     * @param  int  $idModule
      *
      * @return  self
      */ 
-    public function setIdmodule(int $idmodule): self
+    public function setIdModule(int $idModule): self
     {
-        $this->idmodule = $idmodule;
+        $this->idModule = $idModule;
 
         return $this;
     }
@@ -264,97 +264,97 @@ final class moduleModel
     }
 
     /**
-     * Get the value of headerlogo
+     * Get the value of headerLogo
      *
      * @return  string
      */ 
-    public function getHeaderlogo(): string
+    public function getHeaderLogo(): string
     {
-        return $this->headerlogo;
+        return $this->headerLogo;
     }
 
     /**
-     * Set the value of headerlogo
+     * Set the value of headerLogo
      *
-     * @param  string  $headerlogo
+     * @param  string  $headerLogo
      *
      * @return  self
      */ 
-    public function setHeaderlogo(string $headerlogo): self
+    public function setHeaderLogo(string $headerLogo): self
     {
-        $this->headerlogo = $headerlogo;
+        $this->headerLogo = $headerLogo;
 
         return $this;
     }
 
     /**
-     * Get the value of reportslogo
+     * Get the value of reportsLogo
      *
      * @return  string
      */ 
-    public function getReportslogo(): string
+    public function getReportsLogo(): string
     {
-        return $this->reportslogo;
+        return $this->reportsLogo;
     }
 
     /**
-     * Set the value of reportslogo
+     * Set the value of reportsLogo
      *
-     * @param  string  $reportslogo
+     * @param  string  $reportsLogo
      *
      * @return  self
      */ 
-    public function setReportslogo(string $reportslogo): self
+    public function setReportsLogo(string $reportsLogo): self
     {
-        $this->reportslogo = $reportslogo;
+        $this->reportsLogo = $reportsLogo;
 
         return $this;
     }
 
     /**
-     * Get the value of tableprefix
+     * Get the value of tablePrefix
      *
      * @return  string
      */ 
-    public function getTableprefix(): string
+    public function getTablePrefix(): string
     {
-        return $this->tableprefix;
+        return $this->tablePrefix;
     }
 
     /**
-     * Set the value of tableprefix
+     * Set the value of tablePrefix
      *
-     * @param  string  $tableprefix
+     * @param  string  $tablePrefix
      *
      * @return  self
      */ 
-    public function setTableprefix(string $tableprefix): self
+    public function setTablePrefix(string $tablePrefix): self
     {
-        $this->tableprefix = $tableprefix;
+        $this->tablePrefix = $tablePrefix;
 
         return $this;
     }
 
     /**
-     * Get the value of isdefault
+     * Get the value of isDefault
      *
      * @return  string
      */ 
-    public function getIsdefault(): string
+    public function getIsDefault(): string
     {
-        return $this->isdefault;
+        return $this->isDefault;
     }
 
     /**
-     * Set the value of isdefault
+     * Set the value of isDefault
      *
-     * @param  string  $isdefault
+     * @param  string  $isDefault
      *
      * @return  self
      */ 
-    public function setIsdefault(string $isdefault): self
+    public function setIsDefault(string $isDefault): self
     {
-        $this->isdefault = $isdefault;
+        $this->isDefault = $isDefault;
 
         return $this;
     }

@@ -90,13 +90,7 @@ class ExpCity extends Controller
         $params['cmbStates'] = $adminSrc->_comboStates();
        
         // -- Datepicker settings -- 
-        $retDtpicker = $this->appSrc->_datepickerSettings();
-        $params['dtpFormat'] = $retDtpicker['dtpFormat'];
-        $params['dtpLanguage'] = $retDtpicker['dtpLanguage'];
-        $params['dtpAutoclose'] = $retDtpicker['dtpAutoclose'];
-        $params['dtpOrientation'] = $retDtpicker['dtpOrientation'];
-        $params['dtpickerLocale'] = $retDtpicker['dtpickerLocale'];
-        $params['dtSearchFmt'] = $retDtpicker['dtSearchFmt'];
+        $params = $this->appSrc->_datepickerSettings($params);
         
         // -- Search action --
         if($option=='idx'){

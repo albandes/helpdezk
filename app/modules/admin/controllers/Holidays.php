@@ -45,13 +45,7 @@ class Holidays extends Controller
         $params['token'] = $this->appSrc->_makeToken();
         
         // -- Datepicker settings -- 
-        $retDtpicker = $this->appSrc->_datepickerSettings();
-        $params['dtpFormat'] = $retDtpicker['dtpFormat'];
-        $params['dtpLanguage'] = $retDtpicker['dtpLanguage'];
-        $params['dtpAutoclose'] = $retDtpicker['dtpAutoclose'];
-        $params['dtpOrientation'] = $retDtpicker['dtpOrientation'];
-        $params['dtpickerLocale'] = $retDtpicker['dtpickerLocale'];
-        $params['dtSearchFmt'] = $retDtpicker['dtSearchFmt'];
+        $params = $this->appSrc->_datepickerSettings($params);
         
         // -- Companies --
         $params['cmbCompanies'] = $adminSrc->_comboCompany();

@@ -8,12 +8,23 @@ $(document).ready(function () {
     /*
      * Datepicker
      */
-    $('.input-group.date').datepicker({
-        format: dtpFormat,
-        language:  dtpLanguage,
-        autoclose:  dtpAutoclose,
-        orientation: dtpOrientation
-    });
+    if(dtpLanguage == '' || dtpLanguage === 'undefined' || !dtpLanguage){
+        // Default language en (English)
+        var dpOptions = {
+            format: dtpFormat,
+            autoclose:  dtpAutoclose,
+            orientation: dtpOrientation
+        };
+    }else{
+        var dpOptions = {
+            format: dtpFormat,
+            language:  dtpLanguage,
+            autoclose:  dtpAutoclose,
+            orientation: dtpOrientation
+        };
+    }
+    
+    $('.input-group.date').datepicker(dpOptions);
     
     /*
      * Select2
