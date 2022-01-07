@@ -92,12 +92,20 @@ class App
             if ( file_exists('./app/modules/'. $url[0]  .'/controllers/' . ucfirst($url[1])  . '.php') ) {
                 $this->controller = ucfirst($url[1]);
             } else {
+                $this->controller = "ErrorHandler";
+                $this->method = 'pageNotFound';
                 $this->page404 = true;
             }
         }
         
-        require './app/modules/'. $url[0]  .'/controllers/' . $this->controller . '.php';
+        if(!$this->page404){
+            require './app/modules/'. $url[0]  .'/controllers/' . $this->controller . '.php';            
+        }else{
+            require './app/modules/main/controllers/' . $this->controller . '.php';
+        }
+
         $this->controller = new $this->controller();
+        
     }
     
     /**
@@ -110,14 +118,14 @@ class App
      * @param  array  $url   Array containing information or not about the controller, method and parameters.
      */
     private function setMethod($url)
-    {
+    {   
         if ( !empty($url[2]) && isset($url[2]) ) {
             if ( method_exists($this->controller, $url[2]) && !$this->page404) {
                 $this->method = $url[2];
             } else {
                 // caso a classe ou o método informado não exista, o método pageNotFound
                 // do Controller é chamado.
-                $this->method = 'pageNotFound';
+                $this->method = 'pageNotFound'; 
             }
         }
     }

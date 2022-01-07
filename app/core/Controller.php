@@ -104,7 +104,9 @@ class Controller
      */
     public function pageNotFound()
     {
-        $this->view('main','erro404');
+        $params = $this->appSrc->_getDefaultParams();
+        
+        $this->view('main','error404',$params);
     }
 
 }
