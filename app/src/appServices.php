@@ -108,7 +108,8 @@ class appServices
     {
         $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
         $dirName = str_replace("\\","/",dirname(__DIR__,PATHINFO_BASENAME));
-        $path_default = str_replace($docRoot,'',$dirName);
+        //The following code snippet is used to resolve the default path in virtual host
+        $path_default = ($docRoot == $dirName) ? end(explode("/",$dirName)) : str_replace($docRoot,'',$dirName);
         
         if (substr($path_default, 0, 1) != '/') {
             $path_default = '/' . $path_default;
