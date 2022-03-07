@@ -18,13 +18,13 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $("#modal-cmbcolor-theme").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
-    $("#modal-cmblocale").select2({width:'100%',placeholder:translateLabel('Select'),allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
-    $("#person_country").select2({placeholder:translateLabel('Select'),allowClear:true});
-    $("#person_state").select2({placeholder:translateLabel('Select'),allowClear:true});
-    $("#person_city").select2({placeholder:translateLabel('Select'),allowClear:true});
-    $("#person_neighborhood").select2({placeholder:translateLabel('Select'),allowClear:true});
-    $("#person_typestreet").select2({placeholder:translateLabel('Select'),allowClear:true});
+    $("#modal-cmbcolor-theme").select2({width:'100%',placeholder:navBarVocabulary['Select'],allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
+    $("#modal-cmblocale").select2({width:'100%',placeholder:navBarVocabulary['Select'],allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
+    $("#person_country").select2({placeholder:navBarVocabulary['Select'],allowClear:true});
+    $("#person_state").select2({placeholder:navBarVocabulary['Select'],allowClear:true});
+    $("#person_city").select2({placeholder:navBarVocabulary['Select'],allowClear:true});
+    $("#person_neighborhood").select2({placeholder:navBarVocabulary['Select'],allowClear:true});
+    $("#person_typestreet").select2({placeholder:navBarVocabulary['Select'],allowClear:true});
 
     /*
      * iCheck - checkboxes/radios styling
@@ -80,7 +80,7 @@ $(document).ready(function () {
                     idperson: $('#hidden-idperson').val()
             },
             error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
+                modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
@@ -88,14 +88,14 @@ $(document).ready(function () {
                     if(obj.idtypelogin != 3 ) {
                         $('#new-pass').hide();
                         $('#confirm-pass').hide();
-                        modalAlertMultiple('danger',translateLabel('Alert_not_allowedchangepass'),'alert-change-user-pass');
+                        modalAlertMultiple('danger',navBarVocabulary['Alert_nt_allowedchangepass'],'alert-change-user-pass');
                         setTimeout(function(){
                             $('#modal-change-user-password').modal('hide');
                             location.href = "" ;
                         },5000);
                     }
                 } else {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure_usertypelogin'),'alert-change-user-pass');
+                    modalAlertMultiple('danger',navBarVocabulary['Alert_filure_usertypelogin'],'alert-change-user-pass');
                 }
             }
         });
@@ -117,20 +117,20 @@ $(document).ready(function () {
             dataType: 'json',
             data: $("#modal-usersettings-form").serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-modal-usersettings');
+                modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-modal-usersettings');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
 
                 if(obj.success) {
-                    modalAlertMultiple('success',translateLabel('Alert_external_settings_OK'),'alert-modal-usersettings');
+                    modalAlertMultiple('success',navBarVocabulary['Alert_eternal_settings_OK'],'alert-modal-usersettings');
                     setTimeout(function(){
                         $('#modal-config-external-form').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure')+': '+obj.message,'alert-modal-usersettings');
+                    modalAlertMultiple('danger',navBarVocabulary['Alert_filure']+': '+obj.message,'alert-modal-usersettings');
                 }
 
             }
@@ -234,8 +234,8 @@ $(document).ready(function () {
             trello_token: "required"
         },
         messages: {
-            trello_key: translateLabel('Alert_field_required'),
-            trello_token: translateLabel('Alert_field_required')
+            trello_key: navBarVocabulary['Alert_feld_required'],
+            trello_token: navBarVocabulary['Alert_feld_required']
         }
     });
 
@@ -246,8 +246,8 @@ $(document).ready(function () {
             person_email: "required"
         },
         messages: {
-            person_name: translateLabel('Alert_field_required'),
-            person_email: translateLabel('Alert_field_required')
+            person_name: navBarVocabulary['Alert_feld_required'],
+            person_email: navBarVocabulary['Alert_feld_required']
 
         }
     });
@@ -283,7 +283,7 @@ $(document).ready(function () {
                     complement: $('#person_complement').val()
                 },
                 error: function (ret) {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-update');
+                    modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-update');
                 },
                 success: function(ret){
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
@@ -299,10 +299,10 @@ $(document).ready(function () {
                         var exposureTime ;
                         if (obj.id == 99) {
                             exposureTime = 5000;
-                            message = translateLabel('Alert_success_update')+' : '+obj.message;
+                            message = navBarVocabulary['Alert_sccess_update']+' : '+obj.message;
                         } else {
                             exposureTime = 2000;
-                            message = translateLabel('Alert_success_update');
+                            message = navBarVocabulary['Alert_sccess_update'];
                         }
                         modalAlertMultiple('success',message,'alert-update');
                         setTimeout(function(){
@@ -311,7 +311,7 @@ $(document).ready(function () {
                         },exposureTime);
 
                     } else {
-                        modalAlertMultiple('danger',translateLabel('Alert_failure')+': '+obj.message,'alert-update');
+                        modalAlertMultiple('danger',navBarVocabulary['Alert_filure']+': '+obj.message,'alert-update');
                         setTimeout(function(){
                             $('#modal-form-persondata').modal('hide');
                             location.href = "" ;
@@ -336,16 +336,16 @@ $(document).ready(function () {
     
     var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
         method: "post",
-        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + translateLabel('dropzone_user_photot_message'),
+        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + navBarVocabulary['dropzon_user_photot_message'],
         createImageThumbnails: true,
         maxFiles: 1,
         acceptedFiles: '.jpg, .jpeg, .png',
         parallelUploads: 1,
         autoProcessQueue: false,
         addRemoveLinks: true,
-        dictRemoveFile: translateLabel('dropzone_remove_file'),
+        dictRemoveFile: navBarVocabulary['dropzon_remove_file'],
         maxFilesize: 1024,
-        dictFileTooBig: translateLabel('dropzone_File_Too_Big'),
+        dictFileTooBig: navBarVocabulary['dropzon_File_Too_Big'],
 
         success: function (file, response) {
             this.removeFile(file);
@@ -369,7 +369,7 @@ $(document).ready(function () {
         // the file.
         accept: function(file, done) {
             file.acceptDimensions = done;
-            file.rejectDimensions = function() { done(translateLabel('dropzone_invalid_dimension')); };
+            file.rejectDimensions = function() { done(navBarVocabulary['dropzon_invalid_dimension']); };
             // Of course you could also just put the `done` function in the file
             // and call it either with or without error in the `thumbnail` event
             // callback, but I think that this is cleaner.
@@ -393,8 +393,8 @@ $(document).ready(function () {
             userconf_cpassword:  {equalTo: "#userconf_password"}
         },
         messages: {
-            userconf_password:{required:translateLabel('Alert_field_required')},
-            userconf_cpassword:{equalTo: translateLabel('Alert_different_passwords')}
+            userconf_password:{required:navBarVocabulary['Alert_feld_required']},
+            userconf_cpassword:{equalTo: navBarVocabulary['Alert_dfferent_passwords']}
         }
     });
 
@@ -412,19 +412,19 @@ $(document).ready(function () {
                     newpassword:$('#userconf_password').val()
             },
             error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
+                modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',translateLabel('Alert_change_password'),'alert-change-user-pass');
+                    modalAlertMultiple('success',navBarVocabulary['Alert_cange_password'],'alert-change-user-pass');
                     setTimeout(function(){
                         $('#modal-change-user-password').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
+                    modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-change-user-pass');
                 }
             }
         });
@@ -438,8 +438,8 @@ $(document).ready(function () {
                rootconf_cpassword:  {equalTo: "#rootconf_password"}
         },
         messages: {
-            rootconf_password:{required:translateLabel('Alert_field_required')},
-            rootconf_cpassword:{equalTo: translateLabel('Alert_different_passwords')}
+            rootconf_password:{required:navBarVocabulary['Alert_feld_required']},
+            rootconf_cpassword:{equalTo: navBarVocabulary['Alert_dfferent_passwords']}
         }
     });
 
@@ -457,19 +457,19 @@ $(document).ready(function () {
                     newpassword:    $('#rootconf_password').val()
             },
             error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
+                modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',translateLabel('Alert_change_password'),'alert-change-root-pass');
+                    modalAlertMultiple('success',navBarVocabulary['Alert_cange_password'],'alert-change-root-pass');
                     setTimeout(function(){
                         $('#modal-change-root-password').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-change-user-pass');
+                    modalAlertMultiple('danger',navBarVocabulary['Alert_filure'],'alert-change-user-pass');
                 }
             }
         });

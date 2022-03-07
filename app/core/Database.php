@@ -26,10 +26,16 @@ class Database
      * @var object
      */
     protected $loggerDB;
+
     /**
      * @var object
      */
     protected $emailLoggerDB;
+
+    /**
+     * @var object
+     */
+    protected $appSrcDB;
 
     public function __construct()
     {
@@ -48,12 +54,12 @@ class Database
             die("<br>Error connecting to database: " . $ex->getMessage() . " File: " . __FILE__ . " Line: " . __LINE__ );
         }
 
-        $appSrc = new appServices();
+        $this->appSrcDB = new appServices();
 
         // create a log channel
         $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
 
-        $streamDB = $appSrc->_getStreamHandler();
+        $streamDB = $this->appSrcDB->_getStreamHandler();
         $streamDB->setFormatter($formatter);
 
 
