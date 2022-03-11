@@ -54,4 +54,43 @@ class vocabularyDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * Return an array with vocabulary to display in grid
+     *
+     * @param  string $where
+     * @param  string $group
+     * @param  string $order
+     * @param  string $limit
+     * @return array
+     */
+
+    public function queryVocabularies($where=null,$group=null,$order=null,$limit=null): array
+    {
+        $sql = " SELECT idvocabulary, a.idlocale, b.name locale_name, b.value locale_desc, 
+                        key_name, key_value
+                   FROM tbvocabulary a, tblocale b
+                  WHERE a.idlocale = b.idlocale
+                 $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $vocabulary = new vocabularyModel(); 
+            $vocabulary->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$vocabulary);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting vocabulary ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

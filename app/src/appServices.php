@@ -5,10 +5,11 @@ namespace App\src;
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\logoDAO;
-use App\modules\admin\dao\mysql\holidayDAO;
+use App\modules\admin\dao\mysql\vocabularyDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
+use App\modules\admin\models\mysql\vocabularyModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
@@ -171,7 +172,7 @@ class appServices
             "timesession"       => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
             "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
             "modalUserSettings" => $this->_getUserSettingsTemplate(),
-            "navBarVocabulary"     => $this->_navBarVocabulary()
+            "vocabulary"     => $this->_loadVocabulary()
         );
     }
 
@@ -761,29 +762,26 @@ class appServices
     }
 
     /**
-     * Setup vocabulary use in the navBar
+     * Setup vocabulary
      *
      * @return array
      */
-    public function _navBarVocabulary(): array
+    public function _loadVocabulary(): array
     {
-        $translator = new localeServices();
+        $vocabDAO = new vocabularyDAO();
+        $vocabModel = new vocabularyModel();
+        $aRet = array();
 
-        $aRet = array(
-            "Select"    =>$translator->translate('Select'), 
-            "Alert_failure"  =>$translator->translate('Alert_failure'),
-            "Alert_not_allowwedchangepass"=>$translator->translate('Alert_not_allowwedchangepass'),
-            "Alert_failure_usertypelogin"    =>$translator->translate('Alert_failure_usertypelogin'), 
-            "Alert_external_settings_OK"  =>$translator->translate('Alert_external_settings_OK'),
-            "Alert_field_required"=>$translator->translate('Alert_field_required'),
-            "Alert_success_update"    =>$translator->translate('Alert_success_update'), 
-            "dropzone_user_photot_message"  =>$translator->translate('dropzone_user_photot_message'),
-            "dropzone_remove_file"=>$translator->translate('dropzone_remove_file'),
-            "dropzone_File_Too_Big"    =>$translator->translate('dropzone_File_Too_Big'), 
-            "dropzone_invalid_dimension"  =>$translator->translate('dropzone_invalid_dimension'),
-            "Alert_different_passwords"=>$translator->translate('Alert_deactivated_error'),
-            "Alert_change_password"    =>$translator->translate('Alert_change_password')
-        );
+        $ret = $vocabDAO->queryVocabularies("AND UPPER(b.name) = UPPER('{$_ENV['DEFAULT_LANG']}')",null,"ORDER BY key_name");
+
+        if($ret['status']){
+            $vocabularies = $ret['push']['object']->getGridList();
+
+            foreach($vocabularies as $k=>$v){
+                $aRet[$v['key_name']] = $v['key_value'];
+            }
+            
+        }
         
         return $aRet;
     }

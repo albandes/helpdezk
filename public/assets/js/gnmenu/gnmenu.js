@@ -32,7 +32,7 @@ $(function () {
 				});	
 			
 				$('#sideNav').bind('mouseover', function () {
-						GNmenu.showFullMenu();
+						//GNmenu.showFullMenu();
 				});											
 
 				// this allow user to hide the menu by clicking on web page body

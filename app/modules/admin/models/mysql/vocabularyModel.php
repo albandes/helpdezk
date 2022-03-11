@@ -35,6 +35,11 @@ final class vocabularyModel
     private $localeDescription;
 
     /**
+     * @var array
+     */
+    private $gridList;
+
+    /**
      * Get the value of idVocabulary
      *
      * @return  int
@@ -174,6 +179,30 @@ final class vocabularyModel
     public function setLocaleDescription(string $localeDescription): self
     {
         $this->localeDescription = $localeDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of gridList
+     *
+     * @return  array
+     */ 
+    public function getGridList(): array
+    {
+        return $this->gridList;
+    }
+
+    /**
+     * Set the value of gridList
+     *
+     * @param  array  $gridList
+     *
+     * @return  self
+     */ 
+    public function setGridList(array $gridList): self
+    {
+        $this->gridList = $gridList;
 
         return $this;
     }

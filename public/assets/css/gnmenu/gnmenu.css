@@ -40,6 +40,7 @@ html.cursor { cursor: pointer; }
   /* 		border-right:1px solid #ddd;						 */
   background-color: #ffffff;
   overflow-y: auto;
+  z-index: 9999;
 }
 
 #sideNav.showHalfMenu { left: 0; }
