@@ -29,7 +29,7 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $('#cmbUF').select2({placeholder:translateLabel('Select'),allowClear:true});
+    $('#cmbUF').select2({placeholder:vocab['Select'],allowClear:true});
 
     /*
      * iCheck - checkboxes/radios styling
@@ -44,7 +44,7 @@ $(document).ready(function () {
      */
     var myDropzone = new Dropzone("#myDropzone", {  url: path + "/exp/expCity/saveImage/",
         method: "post",
-        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + translateLabel('Drag_image_msg'),
+        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + vocab['Drag_image_msg'],
         createImageThumbnails: true,
         maxFiles: 1,
         acceptedFiles: '.jpg, .jpeg, .png, .gif',
@@ -148,13 +148,13 @@ $(document).ready(function () {
             }                            
         }else{
             var totalAttach = dropzonefiles - filesended;
-            list = '<h4>'+translateLabel('files_not_attach_list')+'</h4><br>';
+            list = '<h4>'+vocab['files_not_attach_list']+'</h4><br>';
             errorname.forEach(element => {
                 list = list+element+'<br>';
             });
-            list = list+'<br><strong>'+translateLabel('scm_attach_after')+'</strong>';
+            list = list+'<br><strong>'+vocab['scm_attach_after']+'</strong>';
             typeMsg = 'warning';
-            msg = translateLabel('save_anyway_question');
+            msg = vocab['save_anyway_question'];
             showNextStep(list,msg,typeMsg,totalAttach);
         }        
         
@@ -175,7 +175,7 @@ $(document).ready(function () {
         }
         
         if(!$("#btnCreateCity").hasClass('disabled')){
-            $("#btnCreateCity").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+            $("#btnCreateCity").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
 
             if (myDropzone.getQueuedFiles().length > 0) {
                 btnClicked = "1";
@@ -195,7 +195,7 @@ $(document).ready(function () {
         }
 
         if(!$("#btnUpdateCity").hasClass('disabled')){
-            $("#btnUpdateCity").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+            $("#btnUpdateCity").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
 
             if (myDropzone.getQueuedFiles().length > 0) {
                 btnClicked = "2";
@@ -250,8 +250,8 @@ $(document).ready(function () {
             }
         },
         messages: {
-            cmbUF:    translateLabel('Alert_field_required'),
-            cityName:{required:translateLabel('Alert_field_required')}
+            cmbUF:    vocab['Alert_field_required'],
+            cityName:{required:vocab['Alert_field_required']}
         }
     });
 
@@ -275,8 +275,8 @@ $(document).ready(function () {
             }
         },
         messages: {
-            cmbUF:    translateLabel('Alert_field_required'),
-            cityName:{required:translateLabel('Alert_field_required')}
+            cmbUF:    vocab['Alert_field_required'],
+            cityName:{required:vocab['Alert_field_required']}
         }
     });
 
@@ -321,7 +321,7 @@ function saveData(aAttachs,op)
             cityID:cityID
         },
         error: function (ret) {
-            modalAlertMultiple('danger',translateLabel('Alert_failure'),alert);
+            modalAlertMultiple('danger',vocab['Alert_failure'],alert);
         },
         success: function(ret){
             //console.log(ret);
@@ -336,18 +336,18 @@ function saveData(aAttachs,op)
     
                     $('#modal-city-create').modal('show');
                 }else{
-                    showAlert(translateLabel('Edit_sucess'),'success');
+                    showAlert(vocab['Edit_sucess'],'success');
                 }
                 
             }else{
-                modalAlertMultiple('warning',translateLabel('Alert_failure'),alert);
+                modalAlertMultiple('warning',vocab['Alert_failure'],alert);
             }
         },
         beforeSend: function(){
-            /*$("#btnCreateCity").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');*/
+            /*$("#btnCreateCity").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');*/
         },
         complete: function(){
-            $("#"+btn).html("<i class='fa fa-save'></i> "+ translateLabel('Save')).removeClass('disabled');
+            $("#"+btn).html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
         }
     });
 

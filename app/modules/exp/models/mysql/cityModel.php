@@ -65,6 +65,11 @@ final class cityModel
     private $newFileName;
 
     /**
+     * @var int
+     */
+    private $totalRows;
+
+    /**
      * Get idCity
      *
      * @return  int
@@ -348,6 +353,30 @@ final class cityModel
     public function setNewFileName(string $newFileName): self
     {
         $this->newFileName = $newFileName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalRows
+     *
+     * @return  int
+     */ 
+    public function getTotalRows(): int
+    {
+        return $this->totalRows;
+    }
+
+    /**
+     * Set the value of totalRows
+     *
+     * @param  int  $totalRows
+     *
+     * @return  self
+     */ 
+    public function setTotalRows(int $totalRows): self
+    {
+        $this->totalRows = $totalRows;
 
         return $this;
     }

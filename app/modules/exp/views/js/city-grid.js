@@ -19,13 +19,13 @@ $(document).ready(function () {
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
     var colM = [
-        { title: translateLabel("ID"), width: '10%', dataIndx: "idcity", hidden:true, halign: "center"  },        
-        { title: translateLabel("Name"), width: '50%', dataIndx: "city", halign: "center"  },
-        { title: translateLabel("uf"), width: '10%', dataIndx: "uf", align: "center", halign: "center"  },
-        { title: translateLabel("city_foundation"), width: '20%', dataIndx: "dtfoundation", align: "center", halign: "center"  },
-        { title: translateLabel("status"), width: '10%', dataIndx: "status", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["ID"]+"</b> ", width: '10%', dataIndx: "idcity", hidden:true, halign: "center"  },        
+        { title: "<b>"+vocab["Name"]+"</b> ", width: '50%', dataIndx: "city", halign: "center"  },
+        { title: "<b>"+vocab["uf"]+"</b> ", width: '10%', dataIndx: "uf", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["city_foundation"]+"</b> ", width: '19%', dataIndx: "dtfoundation", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["status"]+"</b> ", width: '10%', dataIndx: "status", align: "center", halign: "center"  },
         { title: "", width: '10%', dataIndx: "status_val", hidden:true, halign: "center"  },
-        { title: translateLabel("Default"), width: '10%', dataIndx: "default", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["Default"]+"</b> ", width: '10%', dataIndx: "default", align: "center", halign: "center"  },
         { title: "", width: '10%', dataIndx: "default_val", hidden:true, halign: "center"  },
     ];
 
@@ -84,18 +84,20 @@ $(document).ready(function () {
     
     var obj = { 
         width: '100%', 
-        height: 400,
+        height: 480,
         dataModel: dataModel,
         colModel: colM,
         editable: false,
-        title: translateLabel('pgr_exp_city'),
+        title: "<b>"+vocab['pgr_exp_city']+"</b>",
+        bootstrap: {on : true, thead: 'table table-striped table-condensed table-bordered', tbody: 'table table-striped table-condensed table-bordered' },
         topVisible: false,
         sortModel: sortModel,
         pageModel: pageModel,
         numberCell: {show: false},
         selectionModel: { mode: 'single', type: 'row' },
+        collapsible: false,
         selectChange: function (evt, ui) {
-            var rowIndx = getRowIndx(),
+            var rowIndx = getRowIndx("grid_cities"),
                 row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx}),
                 rowSt = row.status_val;
                 
@@ -154,26 +156,26 @@ $(document).ready(function () {
     });
 
     $("#btnUpdate").click(function(){
-        var rowIndx = getRowIndx(),msg="";
+        var rowIndx = getRowIndx("grid_cities"),msg="";
         
         if (rowIndx != null) {
             var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
             location.href = path + "/exp/expCity/formUpdate/"+row.idcity;
         }else{
-            msg = translateLabel('Alert_select_one');
+            msg = vocab['Alert_select_one'];
             showAlert(msg,'warning');
         }
     });
 
     $("#btnEnable").click(function(){
         if(!$("#btnEnable").hasClass('disabled')){
-            var rowIndx = getRowIndx(),msg="";
+            var rowIndx = getRowIndx("grid_cities"),msg="";
         
             if (rowIndx != null) {
                 var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
                 postStatus(row.idcity,'A');
             }else{
-                msg = translateLabel('Alert_select_one');
+                msg = vocab['Alert_select_one'];
                 showAlert(msg,'warning');
             }
         }        
@@ -181,20 +183,20 @@ $(document).ready(function () {
 
     $("#btnDisable").click(function(){
         if(!$("#btnDisable").hasClass('disabled')){
-            var rowIndx = getRowIndx(),msg="";
+            var rowIndx = getRowIndx("grid_cities"),msg="";
         
             if (rowIndx != null) {
                 var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
                 postStatus(row.idcity,'I');
             }else{
-                msg = translateLabel('Alert_select_one');
+                msg = vocab['Alert_select_one'];
                 showAlert(msg,'warning');
             }
         }
     });
 
     $("#btnDelete").click(function(){
-        var rowIndx = getRowIndx(),msg="";
+        var rowIndx = getRowIndx("grid_cities"),msg="";
         
         if (rowIndx != null) {
             var row = $("#grid_cities").pqGrid('getRowData', {rowIndx: rowIndx});
@@ -205,7 +207,7 @@ $(document).ready(function () {
             $("#delete-date").val(row.dtfoundation);
             $("#modal-city-delete").modal('show');
         }else{
-            msg = translateLabel('Alert_select_one');
+            msg = vocab['Alert_select_one'];
             showAlert(msg,'warning');
         }
     });
@@ -222,28 +224,28 @@ $(document).ready(function () {
                     cityID: $("#delete-id").val()
                 },
                 error: function (ret) {
-                    modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-city');
+                    modalAlertMultiple('danger',vocab['Alert_deleted_error'],'alert-delete-city');
                 },
                 success: function(ret){
     
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
     
                     if(obj.success) {
-                        modalAlertMultiple('success',translateLabel('Alert_deleted'),'alert-delete-city');
+                        modalAlertMultiple('success',vocab['Alert_deleted'],'alert-delete-city');
                         setTimeout(function(){
                             $('#modal-city-delete').modal('hide');
                             $("#grid_cities").pqGrid("refreshDataAndView");
                         },4000);
                     } else {
-                        modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-city');
+                        modalAlertMultiple('danger',vocab['Alert_deleted_error'],'alert-delete-city');
                     }
                 },
                 beforeSend: function(){
-                    $("#btnDeleteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnDeleteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
                     $("#btnDeleteNo").addClass('disabled');
                 },
                 complete: function(){
-                    $("#btnDeleteYes").html("<i class='fa fa-check'></i> "+ translateLabel('Yes')).removeClass('disabled');
+                    $("#btnDeleteYes").html("<i class='fa fa-check'></i> "+ vocab['Yes']).removeClass('disabled');
                     $("#btnDeleteNo").removeClass('disabled');
                 }
     
@@ -264,22 +266,6 @@ $(document).ready(function () {
 });
 
 /**
- * Returns ID of the row selected
- * 
- * @returns mixed
- */
-function getRowIndx() {
-    var arr = $("#grid_cities").pqGrid("selection", { type: 'row', method: 'getSelection' });
-    
-    if (arr && arr.length > 0) {
-        return arr[0].rowIndx;                                
-    }
-    else {
-        return null;
-    }
-}
-
-/**
  * Change city's status
  * @param  {Number} cityID 
  * @param  {String} newStatus
@@ -287,8 +273,8 @@ function getRowIndx() {
  */
 function postStatus(cityID,newStatus)
 {
-    var msgErr = newStatus == "A" ? translateLabel('Alert_activated_error') : translateLabel('Alert_deactivated_error'),
-        msg = newStatus == "A" ? translateLabel('Alert_activated') : translateLabel('Alert_deactivated');
+    var msgErr = newStatus == "A" ? vocab['Alert_activated_error'] : vocab['Alert_deactivated_error'],
+        msg = newStatus == "A" ? vocab['Alert_activated'] : vocab['Alert_deactivated'];
 
     $.ajax({
         type: "POST",

@@ -156,5 +156,19 @@ function showNextStep(list,msg,typeAlert,totalAttach)
     return false;
 }
 
-
+/**
+ * Returns ID of the row selected of grig
+ * 
+ * @returns mixed
+ */
+ function getRowIndx(gridName) {
+    var arr = $("#"+gridName).pqGrid("selection", { type: 'row', method: 'getSelection' });
+    
+    if (arr && arr.length > 0) {
+        return arr[0].rowIndx;                                
+    }
+    else {
+        return null;
+    }
+}
 

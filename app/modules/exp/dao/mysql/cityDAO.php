@@ -50,6 +50,43 @@ class cityDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * Return an array with rows total for grid pagination 
+     *
+     * @param  string $where
+     * @param  string $group
+     * @param  string $order
+     * @param  string $limit
+     * @return array
+     */
+    public function countCities($where=null): array
+    {
+        
+        $sql = "SELECT COUNT(idcity) total
+                  FROM exp_tbcity a, tbstate b
+                 WHERE a.idstate = b.idstate 
+                $where";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $city = new cityModel();
+            $city->setTotalRows($aRet['total']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$city);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error counting cities ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
         
     /**
      * Insert city's data into the database
