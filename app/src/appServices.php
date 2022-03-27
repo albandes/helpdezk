@@ -437,7 +437,7 @@ class appServices
     {
         $date = str_replace("/","-",$date);
         
-        return date($_ENV["DATE_FORMAT"],strtotime($date));
+        return date($_ENV["SCREEN_DATE_FORMAT"],strtotime($date));
     }
 
 
@@ -504,7 +504,7 @@ class appServices
         if ($skip >= $total_Records)
         {        
             $pq_curPage = ceil($total_Records / $pq_rPP);
-            $skip = ($pq_rPP * ($pq_curPage - 1));
+            $skip = ($pq_curPage > 0) ? ($pq_rPP * ($pq_curPage - 1)) : 0;
         }    
         return $skip;
     }
