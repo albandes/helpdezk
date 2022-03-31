@@ -161,7 +161,7 @@ class Login extends Controller
 					}else{
 						$success = array(
 										"success" => 1,
-										"redirect" => $this->appSrc->_getPath() . "/helpdezk/home/index"
+										"redirect" => $this->appSrc->_getPath() . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index"
 									);
 
 						echo json_encode($success);

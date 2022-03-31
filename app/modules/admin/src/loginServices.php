@@ -102,7 +102,7 @@ class loginServices
             $objLogo = $logo['push']['object'];            
             
             if($this->saveMode == 'disk'){
-                $pathLogoImage = $this->imgDir . $objLogo->getFileName();
+                $pathLogoImage = $this->imgDir . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName());
                 $st = file_exists($pathLogoImage) ? true : false;
             }elseif($this->saveMode == "aws-s3"){
                 $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
@@ -114,7 +114,7 @@ class loginServices
                 $width 	= "227";
                 $height = "70";
             }else{
-                $image 	= $this->imgBucket . $objLogo->getFileName();
+                $image 	= $this->imgBucket . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName());
 			    $width 	= $objLogo->getWidth();
 			    $height = $objLogo->getHeight();
             }

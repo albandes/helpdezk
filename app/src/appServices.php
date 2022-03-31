@@ -69,12 +69,12 @@ class appServices
             $this->imgBucket = "https://{$bucket}.s3.amazonaws.com/logos/";
         }else{
             if($_ENV['EXTERNAL_STORAGE']) {
-                $this->imgDir = $this->appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/logos/');
+                $this->imgDir = $this->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/logos/');
                 $this->imgBucket = $_ENV['EXTERNAL_STORAGE_URL'].'logos/';
             } else {
-                $storageDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath().'/storage/');
-                $upDir = $this->appSrc->_setFolder($storageDir.'uploads/');
-                $this->imgDir = $this->appSrc->_setFolder($upDir.'logos/');
+                $storageDir = $this->_setFolder($this->_getHelpdezkPath().'/storage/');
+                $upDir = $this->_setFolder($storageDir.'uploads/');
+                $this->imgDir = $this->_setFolder($upDir.'logos/');
                 $this->imgBucket = $_ENV['HDK_URL']."/storage/uploads/logos/";
             }
         }
@@ -499,7 +499,7 @@ class appServices
      * @return void
      */
     public function _pageHelper(&$pq_curPage, $pq_rPP, $total_Records){
-        $skip = ($pq_rPP * ($pq_curPage - 1));
+        $skip = ($pq_curPage > 0) ? ($pq_rPP * ($pq_curPage - 1)) : 0;
 
         if ($skip >= $total_Records)
         {        
