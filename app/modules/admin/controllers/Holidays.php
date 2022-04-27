@@ -114,10 +114,9 @@ class Holidays extends Controller
         $pq_rPP = $_POST["pq_rpp"];
         
         //Count records
-        $countHolidays = $holidayDao->queryHolidays($where,$group); 
+        $countHolidays = $holidayDao->countHolidays($where,$group); 
         if($countHolidays['status']){
-            $countObj = $countHolidays['push']['object']->getGridList();
-            $total_Records = count($countObj);
+            $total_Records = $countHolidays['push']['object']->getTotalRows();
         }else{
             $total_Records = 0;
         }

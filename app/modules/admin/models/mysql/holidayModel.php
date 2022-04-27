@@ -50,6 +50,31 @@ final class holidayModel
     private $yearList;
 
     /**
+     * @var int
+     */
+    private $totalRows;
+
+    /**
+     * @var int
+     */
+    private $totalNational;
+
+    /**
+     * @var int
+     */
+    private $totalCompany;
+
+    /**
+     * @var string
+     */
+    private $startDate;
+
+    /**
+     * @var string
+     */
+    private $endDate;
+
+    /**
      * Get the value of idHoliday
      *
      * @return  int
@@ -261,6 +286,126 @@ final class holidayModel
     public function setYearList(array $yearList): self
     {
         $this->yearList = $yearList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalRows
+     *
+     * @return  int
+     */ 
+    public function getTotalRows(): int
+    {
+        return $this->totalRows;
+    }
+
+    /**
+     * Set the value of totalRows
+     *
+     * @param  int  $totalRows
+     *
+     * @return  self
+     */ 
+    public function setTotalRows(int $totalRows): self
+    {
+        $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalNational
+     *
+     * @return  int
+     */ 
+    public function getTotalNational(): int
+    {
+        return $this->totalNational;
+    }
+
+    /**
+     * Set the value of totalNational
+     *
+     * @param  int  $totalNational
+     *
+     * @return  self
+     */ 
+    public function setTotalNational(int $totalNational): self
+    {
+        $this->totalNational = $totalNational;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalCompany
+     *
+     * @return  int
+     */ 
+    public function getTotalCompany(): int
+    {
+        return $this->totalCompany;
+    }
+
+    /**
+     * Set the value of totalCompany
+     *
+     * @param  int  $totalCompany
+     *
+     * @return  self
+     */ 
+    public function setTotalCompany(int $totalCompany): self
+    {
+        $this->totalCompany = $totalCompany;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of startDate
+     *
+     * @return  string
+     */ 
+    public function getStartDate(): string
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * Set the value of startDate
+     *
+     * @param  string  $startDate
+     *
+     * @return  self
+     */ 
+    public function setStartDate(string $startDate): self
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of endDate
+     *
+     * @return  string
+     */ 
+    public function getEndDate(): string
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * Set the value of endDate
+     *
+     * @param  string  $endDate
+     *
+     * @return  self
+     */ 
+    public function setEndDate(string $endDate): self
+    {
+        $this->endDate = $endDate;
 
         return $this;
     }

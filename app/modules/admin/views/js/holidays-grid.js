@@ -21,10 +21,10 @@ $(document).ready(function () {
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
     var colM = [
-        { title: translateLabel("ID"), width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
-        { title: translateLabel("Name"), width: '60%', dataIndx: "holiday_description", halign: "center"  },
-        { title: translateLabel("Date"), width: '20%', dataIndx: "holiday_date", align: "center", halign: "center"  },
-        { title: translateLabel("Company"), width: '20%', dataIndx: "company", align: "center", halign: "center"  }
+        { title: "<b>"+vocab["ID"]+"</b> ", width: '10%', dataIndx: "idholiday", hidden:true, halign: "center"  },        
+        { title: "<b>"+vocab["Name"]+"</b> ", width: '60%', dataIndx: "holiday_description", halign: "center"  },
+        { title: "<b>"+vocab["Date"]+"</b> ", width: '20%', dataIndx: "holiday_date", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["Company"]+"</b> ", width: '19%', dataIndx: "company", align: "center", halign: "center"  }
     ];
 
     /** 
@@ -82,16 +82,18 @@ $(document).ready(function () {
     
     var obj = { 
         width: '100%', 
-        height: 400,
+        height: 480,
         dataModel: dataModel,
         colModel: colM,
         editable: false,
-        title: translateLabel('holidays'),
+        title: "<b>"+vocab['Holidays']+"</b>",        
+        bootstrap: {on : true, thead: 'table table-striped table-condensed table-bordered', tbody: 'table table-striped table-condensed table-bordered' },
         topVisible: false,
         sortModel: sortModel,
         pageModel: pageModel,
         numberCell: {show: false},
-        selectionModel: { mode: 'single', type: 'row' }
+        selectionModel: { mode: 'single', type: 'row' },
+        collapsible: false
     };
 
     $("#grid_holidays").pqGrid(obj);
@@ -146,7 +148,7 @@ $(document).ready(function () {
             var row = $("#grid_holidays").pqGrid('getRowData', {rowIndx: rowIndx});
             location.href = path + "/admin/holidays/formUpdate/"+row.idholiday;
         }else{
-            msg = translateLabel('Alert_select_one');
+            msg = vocab['Alert_select_one'];
             showAlert(msg,'warning');
         }
     });
@@ -167,7 +169,7 @@ $(document).ready(function () {
             $("#delete-company").val(row.company);
             $("#modal-holiday-delete").modal('show');
         }else{
-            msg = translateLabel('Alert_select_one');
+            msg = vocab['Alert_select_one'];
             showAlert(msg,'warning');
         }
     });
@@ -184,28 +186,28 @@ $(document).ready(function () {
                     holidayID: $("#delete-id").val()
                 },
                 error: function (ret) {
-                    modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-holiday');
+                    modalAlertMultiple('danger',vocab['Alert_deleted_error'],'alert-delete-holiday');
                 },
                 success: function(ret){
     
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
     
                     if(obj.success) {
-                        modalAlertMultiple('success',translateLabel('Alert_deleted'),'alert-delete-holiday');
+                        modalAlertMultiple('success',vocab['Alert_deleted'],'alert-delete-holiday');
                         setTimeout(function(){
                             $('#modal-holiday-delete').modal('hide');
                             $("#grid_holidays").pqGrid("refreshDataAndView");
                         },4000);
                     } else {
-                        modalAlertMultiple('danger',translateLabel('Alert_deleted_error'),'alert-delete-holiday');
+                        modalAlertMultiple('danger',vocab['Alert_deleted_error'],'alert-delete-holiday');
                     }
                 },
                 beforeSend: function(){
-                    $("#btnDeleteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnDeleteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
                     $("#btnDeleteNo").addClass('disabled');
                 },
                 complete: function(){
-                    $("#btnDeleteYes").html("<i class='fa fa-check'></i> "+ translateLabel('Yes')).removeClass('disabled');
+                    $("#btnDeleteYes").html("<i class='fa fa-check'></i> "+ vocab['Yes']).removeClass('disabled');
                     $("#btnDeleteNo").removeClass('disabled');
                 }
     

@@ -6,14 +6,29 @@ use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\logoDAO;
 use App\modules\admin\dao\mysql\vocabularyDAO;
+use App\modules\admin\dao\mysql\emailServerDAO;
+use App\modules\admin\dao\mysql\featureDAO;
+use App\modules\helpdezk\dao\mysql\ticketDAO;
+use App\modules\admin\dao\mysql\trackerDAO;
+use App\modules\admin\dao\mysql\holidayDAO;
+use App\modules\helpdezk\dao\mysql\expireDateDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
 use App\modules\admin\models\mysql\vocabularyModel;
+use App\modules\admin\models\mysql\emailServerModel;
+use App\modules\admin\models\mysql\emailSettingsModel;
+use App\modules\helpdezk\models\mysql\ticketModel;
+use App\modules\admin\models\mysql\trackerModel;
+use App\modules\admin\models\mysql\holidayModel;
+use App\modules\helpdezk\models\mysql\expireDateModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception; 
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -592,28 +607,28 @@ class appServices
     { 
         switch($_ENV['LOG_LEVEL']){
             case 'INFO':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::INFO);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::INFO);
                 break;
             case 'NOTICE':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::NOTICE);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::NOTICE);
                 break;
             case 'WARNING':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::WARNING);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::WARNING);
                 break;
             case 'ERROR':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::ERROR);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::ERROR);
                 break;
             case 'CRITICAL':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::CRITICAL);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::CRITICAL);
                 break;
             case 'ALERT':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::ALERT);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::ALERT);
                 break;
             case 'EMERGENCY':
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::EMERGENCY);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::EMERGENCY);
                 break;
             default:
-                $stream = new StreamHandler($_ENV['LOG_FILE'], Logger::DEBUG);
+                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::DEBUG);
                 break;
         }
         
@@ -709,9 +724,11 @@ class appServices
     public function _getModuleID(string $moduleName): int
     {
         $moduleDAO = new moduleDAO();
-        $moduleID = $moduleDAO->getModuleInfoByName($moduleName);
+        $moduleModel = new moduleModel();
 
-        return (!is_null($moduleID) && !empty($moduleID)) ? $moduleID->getIdModule() : 0;
+        $moduleModel->setName($moduleName);
+        $ret = $moduleDAO->getModuleInfoByName($moduleModel);
+        return ($ret['status']) ? $ret['push']['object']->getIdModule() : 0;
     }
 
     /**
@@ -785,5 +802,605 @@ class appServices
         
         return $aRet;
     }
+
+    /**
+     * en_us Format a date to write to BD
+     * 
+     * pt_br Formata uma data para gravar no BD
+     *
+     * @return string
+     */
+    public function _formatSaveDateHour($dateHour): string
+    {
+        $dateHour = str_replace("/","-",$dateHour);
+        
+        return date("Y-m-d H:i:s",strtotime($dateHour));
+    }
+    
+    /**
+     * en_us Send email
+     * 
+     * pt_br Envia e-mail 
+     *
+     * @param  string $type         text here
+     * @param  string $serverName   text here
+     * @param  array  $params       text here
+     * @return array
+     */
+    public function _sendEmail(array $params,string $type=null,string $serverName=null): array
+    {
+        $emailSrvDAO = new emailServerDAO();
+        $emailSrvModel = new emailServerModel();
+
+        $where = (!$type && !$serverName) ? "WHERE a.default = 'Y'" : "WHERE b.name = '{$type}' AND a.name = '{$serverName}'";
+        $ret = $emailSrvDAO->queryEmailServers($where);
+
+        if(!$ret['status']){
+            $this->applogger->error("No result returned",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return array('status'=>false,"message"=>$ret['push']['message']);
+        }
+
+        $aEmailSrv = $ret['push']['object']->getGridList();
+        $params = array_merge($aEmailSrv[0],$params);
+
+        switch($aEmailSrv[0]['servertype']){
+            case "SMTP"://STMP
+                $retSend = $this->_sendSMTP($params);
+                break;
+            case "API"://STMP
+                echo "{$aEmailSrv[0]['servertype']}\n";
+                break;
+            default:
+                echo "Case default\n";
+                break;
+
+        }
+        
+        if(!$retSend['status']){
+            $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return array('status'=>false,"message"=>"{$retSend['message']}");
+        }
+
+        return array('status'=>true,"message"=>"");
+    }
+
+    /**
+     * en_us Send email via SMTP
+     * 
+     * pt_br Envia e-mail por SMTP
+     *
+     * @param  array  $params       text here
+     * @return array                text here
+     */
+    public function _sendSMTP(array $params)
+    {
+        $featureDAO = new featureDAO();
+        $emailSettingModel = new emailSettingsModel();
+
+        $ret = $featureDAO->getEmailSettings($emailSettingModel);
+
+        if(!$ret['status']){
+            return array("success"=>false,"message"=>"");
+        }
+        
+        $aEmailSrvObj = $ret['push']['object'];
+
+        $mailTitle     = '=?UTF-8?B?'.base64_encode($aEmailSrvObj->getTitle()).'?=';
+        $mailMethod    = 'smtp';
+        $mailHost      = $params['apiendpoint'];
+        $mailDomain    = $aEmailSrvObj->getDomain();
+        $mailAuth      = $aEmailSrvObj->getAuth();
+        $mailUsername  = $params['user'];
+        $mailPassword  = $params['password'];
+        $mailSender    = $aEmailSrvObj->getSender();
+        $mailHeader    = $aEmailSrvObj->getHeader();
+        $mailFooter    = $aEmailSrvObj->getFooter();
+        $mailPort      = $params['port'];
+        
+        $mail = new PHPMailer(true);
+
+        $mail->CharSet = 'utf-8';
+
+        if($params['customHeader'] && $params['customHeader'] != ''){
+            $mail->addCustomHeader($params['customHeader']);
+        }
+
+        if($_ENV['DEMO']){
+            $mail->addCustomHeader('X-hdkLicence:' . 'demo');
+        }else{
+            $mail->addCustomHeader('X-hdkLicence:' . $_ENV['LICENSE']);
+        }
+
+        if($params['sender'] && $params['sender'] != ''){
+            $mailSender = $params['sender'];
+        }
+
+        if($params['sender_name'] && $params['sender_name'] != ''){
+            $mailTitle = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
+        }
+
+        $mail->setFrom($mailSender, $mailTitle);
+
+        if($mailHost)
+            $mail->Host = $mailHost;
+
+        if(isset($mailPort) AND !empty($mailPort)) {
+            $mail->Port = $mailPort;
+        }
+
+        $mail->Mailer = $mailMethod;
+        $mail->SMTPAuth = $mailAuth;
+
+        if($aEmailSrvObj->getTls())
+            $mail->SMTPSecure = 'tls';
+
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+
+        $mail->AltBody 	= "HTML";
+        $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
+
+        //$mail->SetLanguage('br', $this->helpdezkPath . "/includes/classes/phpMailer/language/");
+
+        $paramsDone = array("msg" => $params['msg'],
+                            "msg2" => $params['msg2'],
+                            "mailHost" => $mailHost,
+                            "mailDomain" => $mailDomain,
+                            "mailAuth" => $mailAuth,
+                            "mailPort" => $mailPort,
+                            "mailUsername" => $mailUsername,
+                            "mailPassword" => $mailPassword,
+                            "mailSender" => $mailSender
+                            );
+
+        if(sizeof($params['attachment']) > 0){
+            foreach($params['attachment'] as $key=>$value){
+                $mail->AddAttachment($value['filepath'], $value['filename']);  // optional name
+            }
+        }
+
+        $normalProcedure = true;
+
+        if((isset($params['tracker']) && $params['tracker']) || (isset($params['tokenOperatorLink']) && $params['tokenOperatorLink'])) {
+
+            $aEmail = $this->_makeArrayTracker($params['address']);
+            $body = $mailHeader . $params['contents'] . $mailFooter;
+
+            foreach ($aEmail as $key => $sendEmailTo) {
+                $mail->AddAddress($sendEmailTo);
+
+                if($params['tokenOperatorLink']) {
+                    $linkOperatorToken = $this->_makeLinkOperatorToken($sendEmailTo, $params['code_request']);
+                    if(!$linkOperatorToken){
+                        $this->appEmailLogger->error("Error make link operator with token, ticket #{$params['code_request']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    } else {
+                        $newContent = $this->_replaceBetweenTags($params['contents'], $linkOperatorToken, 'pipegrep');
+                        $body = $mailHeader . $newContent . $mailFooter;
+                    }
+                }
+
+                if($params['tracker']) {
+                    $retTracker = $this->_saveTracker($params['idmodule'],$mailSender,$sendEmailTo,addslashes($params['subject']),addslashes($params['contents']));
+                    if(!$retTracker['status']) {
+                        $this->appEmailLogger->error("Error insert in tbtracker, {$retTracker['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    } else {
+                        $idEmail = $retTracker['idEmail'];
+                        $trackerID = "<img src='{$_ENV['HDK_URL']}/tracker/{$params['moduleName']}/{$idEmail}.png' height='1' width='1' />";
+                        $body = $body . $trackerID;
+                    }
+                }
+
+                $mail->Body = $body;
+
+                //sent email
+                $retSend = $this->_isEmailDone($mail,$paramsDone);
+
+                $mail->ClearAddresses();
+            }
+
+            $normalProcedure = false;
+        }
+
+        if ($normalProcedure){
+            //Checks for more than 1 email address at recipient
+            $this->_makeSentTo($mail,$params['address']);
+            $mail->Body = $mailHeader . $params['contents'] . $mailFooter;
+            // sent email
+            $retSend = $this->_isEmailDone($mail,$paramsDone);
+        }
+
+        $mail->ClearAttachments();
+
+        if(!$retSend['status'])
+            return array("status"=>false,"message"=>"{$retSend['message']}");
+        else
+            return array("status"=>true,"message"=>"");       
+    }
+    
+    /**
+     * en_us Convert a list of email addresses to an array
+     * 
+     * pt_br Converte em array uma lista de endereços de e-mail
+     *
+     * @param  string $sentTo
+     * @return array
+     */
+    public function _makeArrayTracker(string $sentTo): array
+    {
+        $aExist = array();
+        $aRet = array();
+
+        if(preg_match("/;/", $sentTo)){
+            $aRecipient = explode(";", $sentTo);
+            if (is_array($aRecipient)) {
+                for ($i = 0; $i < count($aRecipient); $i++) {
+                    if (empty($aRecipient[$i]))
+                        continue;
+                    if (!in_array($aRecipient[$i], $aExist)) {
+                        $aExist[] = $aRecipient[$i];
+                        array_push($aRet,$aRecipient[$i]);
+                    }
+                }
+            } else {
+                array_push($aRet,$aRecipient);
+            }
+        }else{
+            array_push($aRet,$sentTo);
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Create link to view from email sent
+     * 
+     * pt_br Cria link para visualização a partir do e-mail enviado
+     *
+     * @param  mixed $recipient     Recipient's email address
+     * @param  mixed $ticketCode    Ticket's code
+     * @return void
+     */
+    public function _makeLinkOperatorToken($recipient,$ticketCode)
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $ticketModel->setRecipientEmail($recipient)
+                    ->setTicketCode($ticketCode);
+
+        $ret = $ticketDAO->getUrlTokenByEmail($ticketModel);
+        if(!$ret['status']){
+            return false;
+        }
+
+        $token = $ret['push']['object']->getLinkToken();
+        if($token && !empty($token))
+            return "<a href='".$_ENV['HDK_URL']."/helpdezk/hdkTicket/viewTicket/{$ticketCode}/{$token}' target='_blank'>{$ticketCode}</a>";
+        else
+            return false ;
+    }
+
+    /**
+     * en_us Replace text between tags and delete the tags
+     * 
+     * pt_br Substitui o texto entre as tags e deleta as tags
+     *
+     * @author Rogerio Albandes <rogerio.albandes@pipegrep.com.br>
+     *
+     * @param string $text     Original text
+     * @param string $replace  New text
+     * @param string $tag      Tag's string
+     *
+     * @return string           New text without tags
+     */
+    public function _replaceBetweenTags($text, $newText, $tag)
+    {
+        return  preg_replace("#(<{$tag}.*?>).*?(</{$tag}>)#", $newText , $text);
+    }
+    
+    /**
+     * en_us Replace text between tags and delete the tags
+     * 
+     * pt_br Substitui o texto entre as tags e deleta as tags
+     *
+     * @param  mixed $idModule
+     * @param  mixed $mailSender
+     * @param  mixed $sentTo
+     * @param  mixed $subject
+     * @param  mixed $body
+     * @return array
+     */
+    function _saveTracker($idModule,$mailSender,$sentTo,$subject,$body): array
+    {
+        $trackerDAO = new trackerDAO();
+        $trackerModel = new trackerModel();
+        $trackerModel->setIdModule($idmodule)
+                     ->setSender($mailSender)
+                     ->setRecipient($senTo)
+                     ->setSubject($subject)
+                     ->setContent($body);
+
+        $ret = $trackerDAO->insertTracker($trackerModel);
+        if(!$ret['status']) {
+            return array('status'=>false,'message'=>$ret['push']['message'],'idEmail'=>'');
+        } else {
+            return array('status'=>false,'message'=>'','idEmail'=>$ret['push']['object']->getIdEmail());
+        }
+
+    }
+    
+    /**
+     * en_us Process email sending
+     * 
+     * pt_br Processa o envio de e-mail
+     *
+     * @param  object $mail
+     * @param  array $params
+     * @return array
+     */
+    public function _isEmailDone($mail,$params){
+        try{
+            $mail->send();
+            $this->appEmailLogger->info("Email Succesfully Sent, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $aRet = array("status"=>true,"message"=>"");
+        }catch(Exception $e){
+            $this->appEmailLogger->error("Error send email, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $this->appEmailLogger->error("Error send email, {$params['msg2']}. Erro: {$mail->ErrorInfo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $this->appEmailLogger->info("Error send email, request # {$params['request']}. HOST: {$params['mailHost']} DOMAIN: {$params['mailDomain']} AUTH: {$params['mailAuth']} PORT: {$params['mailPort']} USER: {$params['mailUserName']} PASS: {$params['mailPassword']} SENDER: {$params['mailSender']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $aRet = array("status"=>false,"message"=>"{$mail->ErrorInfo}");
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Add the e-mail addresses for shipping
+     * 
+     * pt_br Adiciona os endereços de e-mail para envio
+     *
+     * @param  object $mail     Object phpmailer
+     * @param  string $sentTo   Email's list
+     * @return void
+     */
+    public function _makeSentTo($mail,$sentTo)
+    {
+        $aExist = array();
+        if (preg_match("/;/", $sentTo)) {
+            //$this->logIt('Entrou',7,'email');
+            $aRecipient = explode(";", $sentTo);
+            if (is_array($aRecipient)) {
+                for ($i = 0; $i < count($aRecipient); $i++) {
+                    // If the e-mail address is NOT in the array, it sends e-mail and puts it in the array
+                    // If the email already has the array, do not send again, avoiding duplicate emails
+                    if (!in_array($aRecipient[$i], $aExist)) {
+                        $mail->AddAddress($aRecipient[$i]);
+                        $aExist[] = $aRecipient[$i];
+                    }
+                }
+            } else {
+                $mail->AddAddress($aRecipient);
+            }
+        } else {
+            $mail->AddAddress($sentTo);
+        }
+    }
+
+    public function _sendMandrill($message)
+    {
+        $dbCommon = new common();
+        $emconfigs = $dbCommon->getEmailConfigs();
+
+        $endPoint = $emconfigs['MANDRILL_ENDPOINT'];
+        $token = $emconfigs['MANDRILL_TOKEN'];
+        $params = array(
+            "key" => $token,
+            "message" => $message
+        );
+        
+        $headers = [
+            "Content-Type: application/json"
+        ];
+        $ch = curl_init();
+        $ch_options = [
+            CURLOPT_URL => $endPoint,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_POST    => 1,
+            CURLOPT_HEADER  => 0,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POSTFIELDS => json_encode($params)
+        ];
+        curl_setopt_array($ch,$ch_options);
+        $callback = curl_exec($ch);
+        $result   = (($callback) ? json_decode($callback,true) : curl_error($ch));
+        
+        return $result;
+            
+    }
+        
+    /**
+     * en_us Returns the expiration date
+     * 
+     * pt_br Retorna a data do expiração
+     *
+     * @param  mixed $startDate
+     * @param  mixed $days
+     * @param  mixed $fullday
+     * @param  mixed $noWeekend     Include weekends
+     * @param  mixed $noHolidays    Include holidays
+     * @return void
+     */
+    public function _getExpireDate($startDate=null,$days=null,$fullday=true,$noWeekend=false,$noHolidays=false,$companyID=null)
+    {
+
+        if(!isset($startDate)){$startDate = date("Y-m-d H:i:s");}
+
+        if(!$days){
+            $daysSum = "+0 day";
+        }elseif($days > 0 or $days == 1){
+            $daysSum = "+".$days." day";
+        }else{
+            $daysSum = "+".$days." days";
+        }
+
+        $dataSum = date("Y-m-d H:i:s",strtotime($startDate." ".$daysSum));
+
+        $dateHolyStart = date("Y-m-d",strtotime($startDate)); // Separate only the inicial date to check for holidays in the period
+        $dateHolyEnd = date("Y-m-d",strtotime($dataSum)); //Separate only the final date to check for holidays in the period
+        $sumDaysHolidays = $this->_getTotalHolidays($dateHolyStart,$dateHolyEnd);
+        $sumDaysHolidays = ($sumDaysHolidays) ? $sumDaysHolidays : "0";
+
+        // Add holidays
+        $dataSum = ($sumDaysHolidays && $sumDaysHolidays > 1) 
+                    ? date("Y-m-d H:i:s",strtotime($dataSum." +".$sumDaysHolidays." days")) 
+                    : date("Y-m-d H:i:s",strtotime($dataSum." +".$sumDaysHolidays." day"));
+                
+        // Working days
+        $businessDays = $this->_getBusinessDays();
+        if(!$businessDays)
+            return false;
+
+        $dateCheckStart = date("Y-m-d",strtotime($startDate));
+        $dateCheckEnd = date("Y-m-d",strtotime($dataSum));
+        $addNotBussinesDay = 0;
+        
+        // Non-working days
+        while(strtotime($dateCheckStart) <= strtotime($dateCheckEnd)) {
+            $numWeek = date('w',strtotime($dateCheckStart));
+            if (!array_key_exists($numWeek,$businessDays)) {
+                $addNotBussinesDay++;
+            }
+            $dateCheckStart = date ("Y-m-d", strtotime("+1 day", strtotime($dateCheckStart)));
+        }
+        
+        $dataSum = date("Y-m-d H:i:s",strtotime($dataSum." +".$addNotBussinesDay." days")); // Add non-working days
+        $dataCheckBD = $this->_checkValidBusinessDay($dataSum,$businessDays,$companyID);
+        if(!$fullday){
+            $dataSum = $this->_checkValidBusinessHour($dataCheckBD,$businessDays); // Verify if the time is the interval of service
+        }
+        
+        // If you change the day, check to see if it is a working day
+        if(strtotime(date("Y-m-d",strtotime($dataCheckBD))) != strtotime(date("Y-m-d",strtotime($dataSum)))){
+            $dataCheckBD = $this->_checkValidBusinessDay($dataSum,$businessDays,$companyID);
+            return $dataCheckBD;
+        }else{
+            return $dataSum;
+        }
+
+    }
+
+    public function _checkValidBusinessDay($date,$businessDay,$companyID=null)
+    {
+        $numWeek = date('w',strtotime($date));
+
+        $i = 0;
+        while($i == 0){
+            
+            while (!array_key_exists($numWeek, $businessDay)) {
+                $date = date ("Y-m-d H:i:s", strtotime("+1 day", strtotime($date)));
+                $numWeek = date('w',strtotime($date));
+            }
+            $dateHoly = date("Y-m-d",strtotime($date));
+
+            $daysHoly = $this->_getTotalHolidays($dateHoly,$dateHoly,$companyID);
+            if(!$daysHoly)
+                $i = 1;
+                
+            
+            if($daysHoly > 0){
+                $date = date("Y-m-d H:i:s",strtotime($date." +".$daysHoly." days"));
+                $numWeek = date('w',strtotime($date));
+            }
+        }
+        
+        return $date;
+    }
+
+    public function _checkValidBusinessHour($date,$businessDay){
+        $i = 0;
+        while($i == 0){
+            $numWeek = date('w',strtotime($date));
+            $hour = strtotime(date('H:i:s',strtotime($date)));
+            $begin_morning = strtotime($businessDay[$numWeek]['begin_morning']);
+            $end_morning = strtotime($businessDay[$numWeek]['end_morning']);
+            $begin_afternoon = strtotime($businessDay[$numWeek]['begin_afternoon']);
+            $end_afternoon = strtotime($businessDay[$numWeek]['end_afternoon']);
+            if($hour >= $begin_morning && $hour <= $end_morning){
+                $i = 1;
+            }
+            else if($hour >= $begin_afternoon && $hour <= $end_afternoon){
+                $i = 1;
+            }
+            else{
+                $date = date ("Y-m-d H:i:s", strtotime("+1 hour", strtotime($date)));
+                $i = 0;
+            }
+        }
+        return $date;
+    }
+
+    public function _getTotalHolidays($startDate,$endDate,$companyID=null)
+    {
+        $holidayDAO = new holidayDAO();
+        $holidayModel = new holidayModel();
+        $holidayModel->setStartDate($startDate)
+                     ->setEndDate($endDate);
+        
+        $rsNationalDaysHoliday = $holidayDAO->getNationalHolidaysTotal($holidayModel); // Verifies the quantity of holidays in the period
+        
+        if(!$rsNationalDaysHoliday['status'])
+            return false;
+
+        if($companyID){
+            $rsNationalDaysHoliday['push']['object']->setIdCompany($companyID);
+
+            $rsCompanyDaysHoliday = $db->getCompanyDaysHoliday($rsNationalDaysHoliday['push']['object']); // Verifies the quantity of company�s holidays in the period
+            if(!$rsCompanyDaysHoliday['status'])
+                return false;
+
+            $sumDaysHolidays = $rsCompanyDaysHoliday['push']['object']->getTotalNational() + $rsCompanyDaysHoliday['push']['object']->getTotalCompany();
+        }else{
+            $sumDaysHolidays = $rsNationalDaysHoliday['push']['object']->getTotalNational();
+        }
+        
+        return $sumDaysHolidays;
+    }
+
+    public function _getBusinessDays()
+    {
+        $expireDateDAO = new expireDateDAO();
+        $expireDateModel = new expireDateModel();
+
+        $ret = $expireDateDAO->fetchBusinessDays($expireDateModel); // Verifies the quantity of holidays in the period
+        
+        if(!$ret['status'])
+            return false;
+
+        foreach($ret['push']['object']->getBusinessDays() as $k=>$v){
+            $businessDay[$v['num_day_week']] = array(
+                "begin_morning" 	=> $v['begin_morning'],
+                "end_morning" 		=> $v['end_morning'],
+                "begin_afternoon" 	=> $v['begin_afternoon'],
+                "end_afternoon" 	=> $v['end_afternoon']
+            );
+        }
+        
+        return $businessDay;
+    }
+    
+    /**
+     * Reduce a string
+     *
+     * @param  mixed $string The text to reduce
+     * @param  mixed $lenght Lenght of new string
+     * @return string
+     */
+    public function _reduceText(string $string, int $lenght): string
+    {
+        $string = strip_tags($string);
+        $string = substr($string, 0, $lenght) . " ...";
+        return $string;
+    }
+
+    
 
 }

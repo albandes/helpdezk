@@ -7,6 +7,7 @@ use App\core\Database;
 use App\modules\admin\models\mysql\popConfigModel;
 use App\modules\admin\models\mysql\moduleModel;
 use App\modules\admin\models\mysql\featureModel;
+use App\modules\admin\models\mysql\emailSettingsModel;
 
 class featureDAO extends Database
 {
@@ -210,6 +211,70 @@ class featureDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting module's path", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Returns email's settings
+     *
+     * @param  emailSettingsModel $emailSettingsModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getEmailSettings(emailSettingsModel $emailSettingsModel): array
+    {        
+        $sql = "SELECT session_name,IF(`value` IS NULL OR `value` = '',description,`value`) `value` 
+                  FROM tbconfig 
+                 WHERE idconfigcategory IN (5,11)";
+        
+        try{
+            $settingsList = array("EM_TITLE","EM_DOMAIN","EM_SENDER","EM_AUTH","EM_HEADER","EM_FOOTER","EM_TLS");
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            foreach($rows as $k=>$v){
+                if(in_array($v['session_name'],$settingsList)){
+                    switch($v['session_name']){
+                        case "EM_TITLE":
+                            $emailSettingsModel->setTitle($v['value']);
+                            break;
+                        case "EM_DOMAIN":
+                            $emailSettingsModel->setDomain($v['value']);
+                            break;
+                        case "EM_SENDER":
+                            $emailSettingsModel->setSender($v['value']);
+                            break;
+                        case "EM_AUTH":
+                            $emailSettingsModel->setAuth($v['value']);
+                            break;
+                        case "EM_HEADER":
+                            $emailSettingsModel->setHeader($v['value']);
+                            break;
+                        case "EM_FOOTER":
+                            $emailSettingsModel->setFooter($v['value']);
+                            break;
+                        case "EM_TLS":
+                            $emailSettingsModel->setTls($v['value']);
+                            break;
+                    }
+
+                }
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailSettingsModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting user's settings ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

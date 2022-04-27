@@ -94,6 +94,43 @@ class holidayDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * Return an array with holidays to display in grid
+     *
+     * @param  string $where
+     * @return array
+     */
+    public function countHolidays($where=null): array
+    {
+        
+        $sql = "SELECT COUNT(tbh.idholiday) total
+                  FROM tbholiday tbh
+             LEFT JOIN tbholiday_has_company tbhc
+                    ON tbhc.idholiday = tbh.idholiday
+             LEFT JOIN tbperson tbp
+                    ON tbp.idperson = tbhc.idperson
+                $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $holiday = new holidayModel(); 
+            $holiday->setTotalRows($aRet['total']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$holiday);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error counting holidays ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
     
     /**
      * Insert the holiday into the database
@@ -163,7 +200,7 @@ class holidayDAO extends Database
     }
     
     /**
-     * Returns a ibject with holiday data
+     * Returns an object with holiday data
      *
      * @param  holidayModel $holidayModel
      * @return array Parameters returned in array: 
@@ -375,6 +412,48 @@ class holidayDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error('Error trying delete holiday ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Returns a object with holiday data
+     *
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getNationalHolidaysTotal(holidayModel $holidayModel): array
+    {        
+        $sql = "SELECT COUNT(*) AS num_holiday
+                  FROM tbholiday a
+             LEFT JOIN tbholiday_has_company b
+                    ON a.idholiday = b.idholiday
+                 WHERE holiday_date >= :startDate
+                   AND holiday_date <= :endDate
+                   AND b.idholiday IS NULL";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':startDate', $holidayModel->getStartDate());
+            $stmt->bindParam(':endDate', $holidayModel->getEndDate());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+            $holidayModel->setTotalNational(($aRet['num_holiday'] && $aRet['num_holiday'] > 0) ? $aRet['num_holiday'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting national holidays total ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

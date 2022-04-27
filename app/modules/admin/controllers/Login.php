@@ -76,7 +76,7 @@ class Login extends Controller
 
         $loginType = $loginDAO->getLoginType($loginModel);
         
-        if(!$loginType['status']){
+        if(!$loginType['status'] || $loginType['push']['object']->getLoginType() == 0){
             // Return with error message
             $success = array(
                 "success" => 0,

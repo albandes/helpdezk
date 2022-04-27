@@ -34,7 +34,7 @@ class loginDAO extends Database
             $stmt->execute();
 
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $loginModel->setLoginType($aRet['idtypelogin']);
+            $loginModel->setLoginType($aRet['idtypelogin'] ? $aRet['idtypelogin'] : 0);
 
             $ret = true;
             $result = array("message"=>"","object"=>$loginModel);

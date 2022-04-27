@@ -25,9 +25,9 @@ $(document).ready(function () {
     /*
      * Select2
      */
-    $('#company').select2({placeholder:translateLabel('Select_company'),allowClear:true});
-    $('#lastyear').select2({placeholder:translateLabel('select_year'),allowClear:true});
-    $('#nextyear').select2({placeholder:translateLabel('select_year'),allowClear:true});
+    $('#company').select2({placeholder:vocab['Select_company'],allowClear:true});
+    $('#lastyear').select2({placeholder:vocab['select_year'],allowClear:true});
+    $('#nextyear').select2({placeholder:vocab['select_year'],allowClear:true});
 
     /*
      * Combos
@@ -60,7 +60,7 @@ $(document).ready(function () {
                     dataType: 'json',
                     data: {companyID:companyID,prevyear:prevyear},
                     error: function (ret) {
-                        modalAlertMultiple('danger',translateLabel('Alert_get_data'),'alert-create-pedidocompra');
+                        modalAlertMultiple('danger',vocab['Alert_get_data'],'alert-create-pedidocompra');
                     },
                     success: function(ret){
     
@@ -110,7 +110,7 @@ $(document).ready(function () {
                 dataType: 'json',
                 data: $("#create-holiday-form").serialize(),
                 error: function (ret) {
-                    modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-create-holiday');
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-create-holiday');
                 },
                 success: function(ret){
     
@@ -123,15 +123,15 @@ $(document).ready(function () {
     
                         $('#modal-holiday-create').modal('show');
                     } else {
-                        modalAlertMultiple('danger',translateLabel('Alert_failure'),'alert-create-holiday');
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-create-holiday');
                     }
                 },
                 beforeSend: function(){
-                    $("#btnCreateHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnCreateHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
                     $("#btnCancel").addClass('disabled');
                 },
                 complete: function(){
-                    $("#btnCreateHoliday").html("<i class='fa fa-save'></i> "+ translateLabel('Save')).removeClass('disabled');
+                    $("#btnCreateHoliday").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
                     $("#btnCancel").removeClass('disabled');
                 }
             });
@@ -152,24 +152,24 @@ $(document).ready(function () {
                 dataType: 'json',
                 data: $("#update-holiday-form").serialize(),
                 error: function (ret) {
-                    modalAlertMultiple('danger',translateLabel('Edit_failure'),'alert-update-holiday');
+                    modalAlertMultiple('danger',vocab['Edit_failure'],'alert-update-holiday');
                 },
                 success: function(ret){
     
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
     
                     if(obj.success) {
-                        showAlert(translateLabel('Edit_sucess'),'success');
+                        showAlert(vocab['Edit_sucess'],'success');
                     } else {
-                        modalAlertMultiple('danger',translateLabel('Edit_failure'),'alert-update-holiday');
+                        modalAlertMultiple('danger',vocab['Edit_failure'],'alert-update-holiday');
                     }
                 },
                 beforeSend: function(){
-                    $("#btnUpdateHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                    $("#btnUpdateHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
                     $("#btnCancel").addClass('disabled');
                 },
                 complete: function(){
-                    $("#btnUpdateHoliday").html("<i class='fa fa-save'></i> "+ translateLabel('Save')).removeClass('disabled');
+                    $("#btnUpdateHoliday").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
                     $("#btnCancel").removeClass('disabled');
                 }
     
@@ -190,24 +190,24 @@ $(document).ready(function () {
             dataType: 'json',
             data: $("#import-holiday-form").serialize(),
             error: function (ret) {
-                modalAlertMultiple('danger',translateLabel('Import_failure'),'alert-import-holiday');
+                modalAlertMultiple('danger',vocab['Import_failure'],'alert-import-holiday');
             },
             success: function(ret){
 
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
 
                 if(obj.success) {
-                    showAlert(translateLabel('Import_successfull'),'success');
+                    showAlert(vocab['Import_successfull'],'success');
                 } else {
-                    modalAlertMultiple('danger',translateLabel('Import_failure'),'alert-import-holiday');
+                    modalAlertMultiple('danger',vocab['Import_failure'],'alert-import-holiday');
                 }
             },
             beforeSend: function(){
-                $("#btnImportHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ translateLabel('Processing')).addClass('disabled');
+                $("#btnImportHoliday").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
                 $("#btnCancel").addClass('disabled');
             },
             complete: function(){
-                $("#btnImportHoliday").html("<i class='fa fa-download'></i> "+ translateLabel('Import')).removeClass('disabled');
+                $("#btnImportHoliday").html("<i class='fa fa-download'></i> "+ vocab['Import']).removeClass('disabled');
                 $("#btnCancel").removeClass('disabled');
             }
         });
@@ -223,8 +223,8 @@ $(document).ready(function () {
             holiday_date:           "required"
         },
         messages: {
-            holiday_description:    translateLabel('Alert_field_required'),
-            holiday_date:           translateLabel('Alert_field_required')
+            holiday_description:    vocab['Alert_field_required'],
+            holiday_date:           vocab['Alert_field_required']
         }
     });
 
@@ -235,8 +235,8 @@ $(document).ready(function () {
             holiday_date:           "required"
         },
         messages: {
-            holiday_description:    translateLabel('Alert_field_required'),
-            holiday_date:           translateLabel('Alert_field_required')
+            holiday_description:    vocab['Alert_field_required'],
+            holiday_date:           vocab['Alert_field_required']
         }
     });
 
@@ -248,9 +248,9 @@ $(document).ready(function () {
             nextyear:   "required"
         },
         messages: {
-            company:    translateLabel('Alert_field_required'),
-            lastyear:   translateLabel('Alert_field_required'),
-            nextyear:   translateLabel('Alert_field_required')
+            company:    vocab['Alert_field_required'],
+            lastyear:   vocab['Alert_field_required'],
+            nextyear:   vocab['Alert_field_required']
         }
     });
 
