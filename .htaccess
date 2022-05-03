@@ -1,13 +1,20 @@
 #for html, php
 AddDefaultCharset UTF-8
+
 #for css, js
 AddType 'text/css; charset=UTF-8' css
 AddType 'application/x-javascript; charset=UTF-8' js
-# MVC
+
 RewriteEngine on
+
+# E-mail Tracker
+RewriteRule ^tracker/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)\.png tracker/tracker.php?id=$2&campaign=$1
+
+# MVC
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/app/reports
-RewriteCond %{REQUEST_URI} !^/app/reports/erp
+
+RewriteCond %{REQUEST_URI} !^/api
+RewriteCond %{REQUEST_URI} !^/tracker
 RewriteCond %{REQUEST_URI} !^/index\.php$
 RewriteRule ^(.*)$ index.php?url=$1

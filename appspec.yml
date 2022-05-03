@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/workdir/staging
+    destination: /home/workdir/mq-staging-v2
     owner: apache
     group: apache
 permissions:

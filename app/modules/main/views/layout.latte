@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="{$lang}">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>{block title}{/block}</title>
+	
+	<!-- bootstrap -->
+	<link href="{$path}/public/assets/css/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/css/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<!-- helpdezk theme -->
+	<link href="{$path}/public/assets/css/{!isset($theme) ? $_ENV['THEME'] : $theme}.css" rel="stylesheet">
+	<link href="{$path}/public/assets/css/animate.css" rel="stylesheet">
+
+	<!-- fontawesome -->
+	<link rel="stylesheet" href="{$path}/public/assets/css/fontawesome/css/all.css" rel="stylesheet" />
+	
+	<!-- jquery -->
+	<script src="{$path}/public/assets/js/jquery/jquery-3.6.0.min.js"></script>
+	
+	<!-- jquery ui -->
+	<link href="{$path}/public/assets/css/plugins/jquery-ui/jquery-ui.css" rel="stylesheet" />
+    <link href="{$path}/public/assets/css/plugins/jquery-ui/jquery-ui.structure.css" rel="stylesheet" />
+    <link href="{$path}/public/assets/css/plugins/jquery-ui/jquery-ui.theme.css" rel="stylesheet" />
+    <script src="{$path}/public/assets/js/plugins/jquery-ui/jquery-ui.js"></script>
+
+	<!-- js -->
+	<script src="{$path}/public/assets/js/default.js"></script>
+
+	<!-- menu -->
+	<link rel="stylesheet" href="{$path}/public/assets/css/gnmenu/gnmenu.css" rel="stylesheet" />
+	<script src="{$path}/public/assets/js/gnmenu/gnmenu.js"></script>
+	<script src="{$path}/app/modules/admin/views/js/home.js"></script>
+
+	<script type="text/javascript">
+		var default_lang   = {$lang_default},
+			path           = {$path},
+			timesession    = {$timesession},
+			id_mask        = {$id_mask},
+			ein_mask       = {$ein_mask},
+			zip_mask       = {$zip_mask},
+			phone_mask     = {$phone_mask},
+			cellphone_mask = {$cellphone_mask},
+			demoVersion    = {$demoVersion};
+	</script>
+
+</head>
+
+{block content}{/block}
+
+</html>

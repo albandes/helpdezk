@@ -1,0 +1,20 @@
+{
+    "name":"pipegrep/helpdezk",
+    "autoload": {
+        "psr-4": {
+            "App\\":"app"
+        }
+    },
+    "require": {
+        "vlucas/phpdotenv": "4.2.1",
+        "monolog/monolog": "2.3.2",
+        "latte/latte": "^2.8",
+        "nette/utils": "^3.2",
+        "aws/aws-sdk-php": "^3.208",
+        "phpmailer/phpmailer": "^6.6"
+    },
+    "config": {
+        "platform-check": false
+    }
+}
+
