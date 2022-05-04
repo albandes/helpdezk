@@ -1401,6 +1401,20 @@ class appServices
         return $string;
     }
 
-    
-
+    public function _checkFile($file)
+    {
+        if(!is_file($file)){
+            $this->applogger->info("File: {$file} does not exists, I will try to create it.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            
+            file_put_contents($file, ""); 
+            if(is_file($file)) {
+                return true;
+            } else {
+                $this->applogger->error("I could not create the file: {$file}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
 }
