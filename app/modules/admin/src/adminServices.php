@@ -265,6 +265,30 @@ class adminServices
         return $aRet;
     }
 
+    /**
+     * Returns an array with ID and description of employee
+     *
+     * @return array
+     */
+    public function _comboEmployee($where=null,$group=null,$order=null)
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $ret = $personDAO->queryPersons($where,$group,$order);
+        
+        if($ret['status']){
+            $employees = $ret['push']['object']->getGridList();
+            $aRet = array();
+            foreach($employees as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idperson'],
+                    "text" => $v['name']
+                );
 
+                array_push($aRet,$bus);
+            }
+        }
 
+        return $aRet;
+    }
 }

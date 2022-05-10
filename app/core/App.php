@@ -97,6 +97,10 @@ class App
                 $this->method = 'pageNotFound';
                 $this->page404 = true;
             }
+        }else{
+            $this->controller = "ErrorHandler";
+            $this->method = 'pageNotFound';
+            $this->page404 = true;
         }
         
         if(!$this->page404){

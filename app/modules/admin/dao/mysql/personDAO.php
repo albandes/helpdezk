@@ -11,6 +11,120 @@ class personDAO extends Database
     {
         parent::__construct(); 
     }
+
+    /**
+     * Return an array with person to display in grid
+     *
+     * @param  string $where
+     * @param  string $group
+     * @param  string $order
+     * @param  string $limit
+     * @return array  Parameters returned in array: 
+     *                [status = true/false
+     *                 push =  [message = PDO Exception message 
+     *                          object = model's object]]
+     */
+    public function queryPersons($where=null,$group=null,$order=null,$limit=null): array
+    {
+        
+        $sql = "SELECT
+                       tbp.idperson      as idperson,
+                       tbp.name          as name,
+                       tbp.login         as login,
+                       tbp.email         as email,
+                       tbp.status        as status,
+                       tbtp.idtypeperson as idtypeperson,
+                       tbtp.name         as typeperson,
+                       comp.name         as company,
+                       dep.name          as department
+                  FROM (tbperson as tbp,
+                       tbtypeperson as tbtp)
+             LEFT JOIN hdk_tbdepartment_has_person as depP
+                    ON (tbp.idperson = depP.idperson)
+             LEFT JOIN hdk_tbdepartment as dep
+                    ON (depP.iddepartment = dep.iddepartment)
+             LEFT JOIN tbperson as comp
+                    ON (dep.idperson = comp.idperson)
+                 WHERE tbp.idtypeperson = tbtp.idtypeperson
+                   AND tbp.idperson != 1
+                   AND tbp.idtypeperson < 6 
+                $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $personModel = new personModel();
+            $personModel->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting persons ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Return an array with total of persons to display in grid
+     *
+     * @param  string $where
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function countPersons($where=null): array
+    {        
+        $sql = "SELECT
+                        tbp.idperson      as idperson,
+                        tbp.name          as name,
+                        tbp.login         as login,
+                        tbp.email         as email,
+                        tbp.status        as status,
+                        tbtp.idtypeperson as idtypeperson,
+                        tbtp.name         as typeperson,
+                        comp.name         as company,
+                        dep.name          as department
+                  FROM (tbperson as tbp,
+                        tbtypeperson as tbtp)
+             LEFT JOIN hdk_tbdepartment_has_person as depP
+                    ON (tbp.idperson = depP.idperson)
+             LEFT JOIN hdk_tbdepartment as dep
+                    ON (depP.iddepartment = dep.iddepartment)
+             LEFT JOIN tbperson as comp
+                    ON (dep.idperson = comp.idperson)
+                 WHERE tbp.idtypeperson = tbtp.idtypeperson
+                   AND tbp.idperson != 1
+                   AND tbp.idtypeperson < 6 
+                $where";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $personModel = new personModel();
+            $personModel->setTotalRows($aRet['total']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error counting person ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
     
     /**
      * Returns user's data

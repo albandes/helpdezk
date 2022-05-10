@@ -228,7 +228,16 @@ final class personModel
      * @var array
      */
     private $stateList;
-   
+
+    /**
+     * @var array
+     */
+    private $gridList;
+    
+    /**
+     * @var int
+     */
+    private $totalRows;   
 
     /**
      * Get the value of idPerson
@@ -1306,6 +1315,54 @@ final class personModel
     public function setStateList(array $stateList): self
     {
         $this->stateList = $stateList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of gridList
+     *
+     * @return  array
+     */ 
+    public function getGridList()
+    {
+        return $this->gridList;
+    }
+
+    /**
+     * Set the value of gridList
+     *
+     * @param  array  $gridList
+     *
+     * @return  self
+     */ 
+    public function setGridList(array $gridList)
+    {
+        $this->gridList = $gridList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalRows
+     *
+     * @return  int
+     */ 
+    public function getTotalRows()
+    {
+        return $this->totalRows;
+    }
+
+    /**
+     * Set the value of totalRows
+     *
+     * @param  int  $totalRows
+     *
+     * @return  self
+     */ 
+    public function setTotalRows(int $totalRows)
+    {
+        $this->totalRows = $totalRows;
 
         return $this;
     }
