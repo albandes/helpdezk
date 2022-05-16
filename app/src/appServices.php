@@ -34,6 +34,8 @@ use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\LineFormatter;
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 class appServices
 {
     /**
@@ -1634,12 +1636,38 @@ class appServices
         return $curl_error_codes[$code];
     }
 
-    public function _formatTextFill($value, $size, $fill=' '){
+    public function _formatTextFill($value, $size, $fill=' ')
+    {
         if(strlen($value) <= $size){
             $value = "{$fill}{$value}";
             return $this->_formatTextFill($value, $size, $fill);
         }else{
             return $value;
         }
+    }
+    
+    /**
+     * Make JWT for api connections
+     *
+     * @param  array $payload
+     * @param  string $expirationTime
+     * @return void
+     */
+    public function _makeJWT(array $payload)
+    {
+        if(!isset($_ENV['JWT_SECRET_KEY']) || empty($_ENV['JWT_SECRET_KEY'])){
+            $this->applogger->error("JWT secret key not found",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return false;
+        }
+
+        /**
+         * IMPORTANT:
+         * You must specify supported algorithms for your application. See
+         * https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40
+         * for a list of spec-compliant algorithms.
+         */
+        $jwt = JWT::encode($payload,$_ENV['JWT_SECRET_KEY'],'HS256');
+
+        return $jwt; //token to be written to the database
     }
 }
