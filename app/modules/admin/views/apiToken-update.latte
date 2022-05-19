@@ -1,0 +1,136 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='apiToken'|translate} / <strong>{='Update'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="update-apiToken-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="apiTokenID" id="apiTokenID" value="{$apiTokenID}">
+
+                                    <div class="row white-bg g-2">
+
+                                        <div class="row col-sm-2 b-l"></div>
+                                        <div class="row col-sm-10 b-l">
+                                        
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="app" class="col-form-label text-end">{='name_app'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="app" name="app" maxlength="200" class="form-control" value="{$app}" >
+                                                </div>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="company" class="col-form-label text-end">{='Company'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="company" name="company" maxlength="200" class="form-control" value="{$company}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="email" class="col-form-label text-end">{='email'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="email" id="email" name="email" maxlength="200" class="form-control" value="{$email}" >
+                                                </div>
+                                            </div>
+                                            <div class="row g-2">                                                
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="validity" class="col-form-label text-end">{='validity'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <input type="number" id="numberValidity" name="numberValidity" class="form-control" value="{$numberValidity}">
+                                                </div>
+                                                <div class="col-sm-3">                                              
+                                                    <select class="form-control input-sm" id="cmbValidity" name="cmbValidity">
+                                                        <option></option>
+                                                        {foreach $cmbValidity as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $validity}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-update-apiToken"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnUpdateApiToken" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>  
+    {include $modalAlert}
+</body>
+    <script type="text/javascript">
+		var dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation};
+	</script>
+
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/datepicker/bootstrap-datepicker.css" />
+    <script src="{$path}/public/assets/js/plugins/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/plugins/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
+
+    <script src="{$path}/app/modules/admin/views/js/apiToken-crud.js"></script>
+
+
+{/block}

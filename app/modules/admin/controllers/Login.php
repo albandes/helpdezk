@@ -99,8 +99,14 @@ class Login extends Controller
             
             case '1': // Pop/Imap Server
                 if (!function_exists('imap_open')) {
-                    $login = false ;
+                    $isLogin = false ;
                     $msg = "IMAP functions are not available!!!";
+                    $success = array(
+                        "success" => 0,
+                        "msg" => html_entity_decode($msg,ENT_COMPAT, 'UTF-8')
+                    );
+                    echo json_encode($success);
+                    return;
                     break;
                 }
                 
