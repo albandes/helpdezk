@@ -2,14 +2,11 @@
 
 namespace App\modules\helpdezk\src;
 
-use App\modules\admin\dao\mysql\logoDAO;
-use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\moduleDAO;
-use App\modules\admin\dao\mysql\personDAO;
-use App\modules\admin\dao\mysql\featureDAO;
-use App\modules\admin\dao\mysql\holidayDAO;
+use App\modules\helpdezk\dao\mysql\hdkServiceDAO;
 
 use App\modules\admin\models\mysql\moduleModel;
+use App\modules\helpdezk\models\mysql\hdkServiceModel;
 
 use App\src\appServices;
 use App\src\localeServices;
@@ -82,14 +79,191 @@ class hdkServices
             $params['listMenu_1'] = $listRecords;
             $params['moduleLogo'] = ($moduleInfo->getIdModule() == 1) ? $aHeader['filename'] : $moduleInfo->getHeaderLogo();
             $params['modulePath'] = $moduleInfo->getPath();
-        } 
-
-        
+        }
 
         return $params;
-
+    }
+    
+    /**
+     * _comboArea
+     *
+     * @return array
+     */
+    public function _comboArea(): array
+    {
+        $hdkServiceDAO = new hdkServiceDAO();
+        $hdkServiceModel = new hdkServiceModel();
+        
+        $ret = $hdkServiceDAO->fetchArea($hdkServiceModel);        
+        if($ret['status']){
+            $areas = $ret['push']['object']->getAreaList();
+            $aRet = array();
+            foreach($areas as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idarea'],
+                    "text" => "{$v['name']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+        return $aRet;
     }
 
+    public function _comboAreaHtml()
+    {
+        $aArea = $this->_comboArea();
+        $select = '';
 
+        foreach($aArea as $k=>$v) {
+            $default = ($v['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$v['id']}' {$default}>{$v['text']}</option>";
+        }
 
+        return $select;
+    }
+    
+    /**
+     * _comboType
+     *
+     * @param  int $areaID
+     * @return array
+     */
+    public function _comboType($areaID): array
+    {
+        $hdkServiceDAO = new hdkServiceDAO();
+        $hdkServiceModel = new hdkServiceModel();
+        $hdkServiceModel->setIdArea($areaID);
+
+        $ret = $hdkServiceDAO->fetchTypeByArea($hdkServiceModel);        
+        if($ret['status']){
+            $types = $ret['push']['object']->getTypeList();
+            $aRet = array();
+            foreach($types as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtype'],
+                    "text" => "{$v['name']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * _comboTypeHtml
+     *
+     * @param  int $areaID
+     * @return void
+     */
+    public function _comboTypeHtml($areaID)
+    {
+        $aType = $this->_comboType($areaID);
+        $select = '';
+
+        foreach($aType as $k=>$v) {
+            $default = ($v['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$v['id']}' {$default}>{$v['text']}</option>";
+        }
+
+        return $select;
+    }
+    
+    /**
+     * _comboItem
+     *
+     * @param  int $typeID
+     * @return array
+     */
+    public function _comboItem($typeID): array
+    {
+        $hdkServiceDAO = new hdkServiceDAO();
+        $hdkServiceModel = new hdkServiceModel();
+        $hdkServiceModel->setIdType($typeID);
+
+        $ret = $hdkServiceDAO->fetchItemByType($hdkServiceModel);        
+        if($ret['status']){
+            $items = $ret['push']['object']->getItemList();
+            $aRet = array();
+            foreach($items as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['iditem'],
+                    "text" => "{$v['name']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * _comboItemHtml
+     *
+     * @param  int $typeID
+     * @return void
+     */
+    public function _comboItemHtml($typeID)
+    {
+        $aItem = $this->_comboItem($typeID);
+        $select = '';
+
+        foreach($aItem as $k=>$v) {
+            $default = ($v['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$v['id']}' {$default}>{$v['text']}</option>";
+        }
+
+        return $select;
+    }
+    
+    /**
+     * _comboService
+     *
+     * @param  int $itemID
+     * @return array
+     */
+    public function _comboService($itemID): array
+    {
+        $hdkServiceDAO = new hdkServiceDAO();
+        $hdkServiceModel = new hdkServiceModel();
+        $hdkServiceModel->setIdItem($itemID);
+
+        $ret = $hdkServiceDAO->fetchServiceByItem($hdkServiceModel);        
+        if($ret['status']){
+            $services = $ret['push']['object']->getServiceList();
+            $aRet = array();
+            foreach($services as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idservice'],
+                    "text" => "{$v['name']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * _comboServiceHtml
+     *
+     * @param  int $itemID
+     * @return void
+     */
+    public function _comboServiceHtml($itemID)
+    {
+        $aService = $this->_comboService($itemID);
+        $select = '';
+
+        foreach($aService as $k=>$v) {
+            $default = ($v['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$v['id']}' {$default}>{$v['text']}</option>";
+        }
+
+        return $select;
+    }
 }
