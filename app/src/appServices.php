@@ -608,30 +608,32 @@ class appServices
      */
     public function _getStreamHandler()
     { 
+        $logFile = (!isset($_ENV['LOG_REMOTE']) || !$_ENV['LOG_REMOTE']) ? $this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'] : $_ENV['LOG_FILE'];
+        
         switch($_ENV['LOG_LEVEL']){
             case 'INFO':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::INFO);
+                $stream = new StreamHandler($logFile, Logger::INFO);
                 break;
             case 'NOTICE':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::NOTICE);
+                $stream = new StreamHandler($logFile, Logger::NOTICE);
                 break;
             case 'WARNING':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::WARNING);
+                $stream = new StreamHandler($logFile, Logger::WARNING);
                 break;
             case 'ERROR':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::ERROR);
+                $stream = new StreamHandler($logFile, Logger::ERROR);
                 break;
             case 'CRITICAL':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::CRITICAL);
+                $stream = new StreamHandler($logFile, Logger::CRITICAL);
                 break;
             case 'ALERT':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::ALERT);
+                $stream = new StreamHandler($logFile, Logger::ALERT);
                 break;
             case 'EMERGENCY':
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::EMERGENCY);
+                $stream = new StreamHandler($logFile, Logger::EMERGENCY);
                 break;
             default:
-                $stream = new StreamHandler($this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'], Logger::DEBUG);
+                $stream = new StreamHandler($logFile, Logger::DEBUG);
                 break;
         }
         
