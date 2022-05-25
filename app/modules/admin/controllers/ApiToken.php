@@ -68,8 +68,6 @@ class apiToken extends Controller
             $params['numberValidity'] = '2';
             $params['validity'] = 'Y';      
         }elseif($option=='add'){
-            // $params['numberValidity'] = '2';
-            // $params['validity'] = 'Y';
             $params['numberValidity'] = '2';
             $params['validity'] = 'Y';
         }
@@ -149,12 +147,11 @@ class apiToken extends Controller
 
                 $data[] = array(
                     'id'                => $v['idtoken'],
-                    'app'               => $v['app'],
-                    'company'           => $v['company'],
+                    'app'               => strip_tags($v['app']),
+                    'company'           => strip_tags($v['company']),
                     'email'             => $v['email'],
                     'token'             => $v['token'],
-                    'validity'          => $v['validity'],
-    
+                    'validity'          => $v['validity']    
                 );
             }
             
@@ -215,8 +212,7 @@ class apiToken extends Controller
      * en_us Write the ApiToken information to the DB
      *
      * pt_br Grava no BD as informações do Token API
-     */  
-
+     */
     public function createApiToken()
     {
         if (!$this->appSrc->_checkToken()) {
@@ -245,7 +241,7 @@ class apiToken extends Controller
                                     ->format('U');
 
          $apiTokenModel->setApp(strip_tags(trim($_POST['app'])))
-                            ->setCompany(trim($_POST['company']))                            
+                            ->setCompany(strip_tags(trim($_POST['company'])))
                             ->setEmail($_POST['email'])
                             ->setApiToken("")
                             ->setValidity($expiredAtTS);  
@@ -340,7 +336,7 @@ class apiToken extends Controller
 
          $apiTokenModel->setIdApiToken($_POST['apiTokenID'])
                             ->setApp(strip_tags(trim($_POST['app'])))
-                            ->setCompany(trim($_POST['company']))                            
+                            ->setCompany(strip_tags(trim($_POST['company'])))                            
                             ->setEmail($_POST['email'])
                             ->setApiToken("")
                             ->setValidity($expiredAtTS);  
@@ -397,7 +393,6 @@ class apiToken extends Controller
      *
      * pt_br Remove a Area de Token APP do BD
      */
-
     function deleteApiToken()
     {
         if (!$this->appSrc->_checkToken()) {
@@ -419,6 +414,41 @@ class apiToken extends Controller
         );
 
         echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Check if the app has already been registered before
+     *
+     * pt_br Verifica se o aplicativo já foi cadastrado anteriormente
+     */
+    function checkExist(){
+        
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $apiTokenDAO = new apiTokenDAO();
+
+        $appName = strip_tags(trim($_POST['app']));
+        $companyName = strip_tags(trim($_POST['companyName']));
+
+        $where = "WHERE pipeLatinToUtf8(UPPER(company)) = UPPER('$companyName') AND pipeLatinToUtf8(UPPER(app)) = UPPER('$appName')"; 
+        $where .= (isset($_POST['apiTokenID'])) ? " AND idtoken != {$_POST['apiTokenID']}" : "";        
+
+        $check =  $apiTokenDAO->queryApiToken($where);
+        if(!$check['status']){ 
+            return false;
+        }
+        
+        $checkObj = $check['push']['object']->getGridList();
+        
+        if(count($checkObj) > 0){
+            echo json_encode($this->translator->translate('app_already_registred'));
+        }else{
+            echo json_encode(true);
+        }
+
     }
 
 }

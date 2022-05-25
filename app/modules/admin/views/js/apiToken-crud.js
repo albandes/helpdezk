@@ -121,9 +121,25 @@ $(document).ready(function () {
             app:{
                 required:true,
                 minlength:3,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
+                remote:{
+                    url: path+'/admin/apiToken/checkExist',
+                    type: 'post',
+                    dataType:'json',
+                    async: false,
+                    data:{  
+                        _token:function(element){return $("#_token").val()},
+                        companyName:function(element){return $("#company").val()},
+                    }
+                }
             },
             company:{
                 required:true,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
                 minlength:3,               
             },
             email:{
@@ -144,7 +160,7 @@ $(document).ready(function () {
             numberValidity:{required:vocab['Alert_field_required'],min:vocab['Alert_minvalue_requered']+' 1.'},
             cmbValidity:{required:vocab['Alert_field_required']}
         }
-     });
+    });
 
     $("#update-apiToken-form").validate({
         ignore:[],
@@ -152,9 +168,26 @@ $(document).ready(function () {
             app:{
                 required:true,
                 minlength:3,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
+                remote:{
+                    url: path+'/admin/apiToken/checkExist',
+                    type: 'post',
+                    dataType:'json',
+                    async: false,
+                    data:{  
+                        _token:function(element){return $("#_token").val()},
+                        companyName:function(element){return $("#company").val()},
+                        apiTokenID:function(element){return $("#apiTokenID").val()}
+                    }
+                }
             },
             company:{
                 required:true,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
                 minlength:3,               
             },
             email:{

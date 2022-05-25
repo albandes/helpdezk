@@ -98,6 +98,9 @@ $(document).ready(function () {
         rules: {
             department:{
                 required:true,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
                 minlength:2,
                 remote:{
                     url: path+'/helpdezk/hdkDepartment/checkExist',
@@ -125,6 +128,9 @@ $(document).ready(function () {
         rules: {
             department:{
                 required:true,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
                 minlength:2,
                 remote:{
                     url: path+'/helpdezk/hdkDepartment/checkExist',
