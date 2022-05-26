@@ -100,7 +100,7 @@ class hdkServiceDAO extends Database
     {        
         $sql = "SELECT iditem, `name`, `selected` AS `default`
                   FROM hdk_tbcore_item
-                 WHERE idtype =  = :typeID
+                 WHERE idtype = :typeID
                    AND `status` = 'A'
               ORDER BY `name` ASC";
         //echo "{$sql}\n";
