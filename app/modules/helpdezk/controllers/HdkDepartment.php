@@ -27,7 +27,7 @@ class hdkDepartment extends Controller
         $adminSrc = new adminServices();
         $hdkSrc = new hdkServices();
         $params = $this->appSrc->_getDefaultParams();
-        $params = $hdkSrc->_makeNavHdk($params);
+        $params = $adminSrc->_makeNavAdm($params);
 
         // -- Companies --
             $params['cmbCompany'] = $adminSrc->_comboCompany();       

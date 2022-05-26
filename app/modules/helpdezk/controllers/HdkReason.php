@@ -24,9 +24,10 @@ class hdkReason extends Controller
 
     public function makeScreenReason($option='idx',$obj=null)
     {
+        $adminSrc = new adminServices();
         $hdkSrc = new hdkServices();
         $params = $this->appSrc->_getDefaultParams();
-        $params = $hdkSrc->_makeNavHdk($params);
+        $params = $adminSrc->_makeNavAdm($params);
        
         // -- Area --
         $params['cmbArea'] = $hdkSrc->_comboArea();         
@@ -155,7 +156,7 @@ class hdkReason extends Controller
                     
                 );
             }
-            
+
             $aRet = array(
                 "totalRecords" => $total_Records,
                 "curPage" => $pq_curPage,
