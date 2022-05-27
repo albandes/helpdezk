@@ -149,6 +149,9 @@ $(document).ready(function () {
         rules: {
             reason:{
                 required:true,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
                 minlength:5,
                 remote:{
                     url: path+'/helpdezk/hdkReason/checkExist',
@@ -188,6 +191,9 @@ $(document).ready(function () {
         rules: {
             reason:{
                 required:true,
+                normalizer: function(value) {
+                    return value.replace(/<.*?>/gi, "");
+                },
                 minlength:5,
                 remote:{
                     url: path+'/helpdezk/hdkReason/checkExist',
