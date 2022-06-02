@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript">	
+		{literal}
+			$(document).ready(function() {
+				AtualizaVctoSemana() ;
+			});	
+			
+			function AtualizaVctoSemana()
+			{
+				var options = {
+					
+					bars: 	{
+							show: true ,
+							barWidth: 3,
+							align: "center"
+						
+					},
+					grid: 	{ 
+							hoverable: false, 
+							clickable: false,
+							borderWidth:  0	
+							},
+					legend: {
+							show: true,
+							noColumns: 3,
+							position: 'ne', //"ne" or "nw" or "se" or "sw"
+							backgroundOpacity: 0.3
+							},
+					yaxis: 	{
+								tickDecimals: 0
+							},			
+						xaxis: {
+								mode: "time",
+								timeformat: "%d/%m",
+								minTickSize: [1, "day"],
+								ticks: 7
+								},			
+					colors: [ "#cb4b4b","#9440ed", "#4da74d","#afd8f8"]
+				};		
+								
+				var myDataSets;
+				
+					
+				$.getJSON("{/literal}{$path}{literal}/dashboard/hdk_vctosemana/json/idwidget/{/literal}{$idwidget}{literal}", function (data) {
+					myDataSets = data;		
+					$.plot("#hdk_vctosemana", myDataSets, options);	
+				});	 			
+			}	
+				
+			setInterval('AtualizaVctoSemana()', 3600000);
+			
+		{/literal}
+		</script>
+    </head>
+    <body>
+			
+		<div id="hdk_vctosemana" style="width:100%;height:120px;font-size:small;"></div>
+	</body>
+</html>

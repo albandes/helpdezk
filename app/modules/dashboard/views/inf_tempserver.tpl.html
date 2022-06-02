@@ -1,0 +1,49 @@
+
+{literal}
+<script type="text/javascript">	
+	$(document).ready(function() {
+		AtualizaTempServer();
+	});
+	
+	function AtualizaTempServer()
+	{
+		var d = new Date();
+		
+		$('#tempo_inf_tempserver').empty().html('<br>Atualizado a cada {/literal}{$timeToRefresh}{literal} minutos. &#218;ltima atualiza&ccedil;&atilde;o: '+d.getHours()+'h'+d.getMinutes()+'min'); 
+		
+		var options = 	{
+						lines: 	{ 
+								show: true,
+								fill: false
+								},
+						points: { show: false },
+						xaxis: {
+								mode: "time",
+								timeformat: "%Hh",
+								minTickSize: [1, "hour"],
+								ticks: {/literal}{$ticks}{literal}
+								},
+						grid: { backgroundColor: "#EEF4FC" ,   borderWidth: 0},
+						legend: {
+								show: true,
+								noColumns: 3,
+								position: 'nw', //"ne" or "nw" or "se" or "sw"
+								backgroundOpacity: 0.3
+								},
+						colors: [ "#FF0000","#afd8f8", "#4da74d", "#ff0000"]		
+						};		
+					
+		
+		$.getJSON('{/literal}{$urlJSON}{literal}'+'?num={/literal}{$num}{literal}'+'&callback=?', function (data) {
+			$.plot("#inf_tempserver", data, options);	
+		});	  
+	}
+	
+	setInterval('AtualizaTempServer()', {/literal}{$refresh}{literal});
+	
+</script>
+{/literal}	
+
+<div id="inf_tempserver" style="width:100%;height:150px;font-size:small;"></div>
+<div id="tempo_inf_tempserver" style="font-size:9px;"></div>
+

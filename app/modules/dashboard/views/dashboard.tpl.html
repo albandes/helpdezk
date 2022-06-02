@@ -1,0 +1,176 @@
+        {literal}   
+        
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/dashboardplugin/js/lib/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/dashboardplugin/js/jquery.dashboard.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/dashboardplugin/js/lib/themeroller.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/flot/jquery.flot07.min.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/flot/jquery.flot.resize.min.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/DataTables/media/js/jquery.dataTables.js"></script>
+		<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/flot/jquery.flot.pie.js"></script>
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/liteAccordion/js/jquery.easing.1.3.js"></script>
+        
+        <!--<script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/idletimer/jquery.idletimer.js"></script>--> 
+        <script type="text/javascript" src="{/literal}{$path}{literal}/includes/classes/idletimer/jquery-ui-1.8rc1.custom.min.js"></script>
+        
+        <script type="text/javascript">         
+
+                        
+            $(document).ready(function() {
+				$(".column").css("min-height",$(window).height()-183);
+				$('body').append('<div id="templates"></div>');
+				$("#templates").hide();
+				$("#templates").load("{/literal}{$path}{literal}/app/modules/dashboard/views/templates.html", initDashboard);
+			
+				$(document.getElementById("hideShowBar")).click(function(){
+					var $self = $(this),
+						$boxbtn = $self.parent(),
+						$header = $(document.getElementById("header")),
+						$navUser = $(document.getElementById("user"));
+						$footer = $(document.getElementById("footer"));
+						if($header.is(":visible") && $navUser.is(":visible")){
+							countdown.stop();
+							$header.hide();
+							$navUser.hide();
+							$footer.hide();
+							$boxbtn.addClass("btnSmall");
+							$self.text(aLang['Bar_show'].replace (/\"/g, ""));
+						}else{
+							countdown.refresh();
+							$header.show();
+							$navUser.show();
+							$footer.show();
+							$boxbtn.removeClass("btnSmall");
+							$self.text(aLang['Bar_hide'].replace (/\"/g, ""));
+						}
+					
+				})
+
+				setInterval('objValidate.validate()', 300000);
+
+			})
+			
+			
+			function initDashboard() {
+		        $("#savebutton_id").bind("click", function () {
+		            dashboard.element.trigger("dashboardStateChange",{"stateChange":"widgetMoved","widget":"w"});
+		            alert("Saved");
+		        });
+		        
+		        // to make it possible to add widgets more than once, we create clientside unique id's
+		        // this is for demo purposes: normally this would be an id generated serverside
+		        var startId = (Math.random() * 10000001);
+		
+		        var dashboard = $('#dashboard').dashboard({
+		            // layout class is used to make it possible to switch layouts
+		            emptyColumnHtml: aLang['Drag_widget'].replace (/\"/g, ""),
+		            deleteConfirmMessage: aLang['Delete_widget'].replace (/\"/g, ""),
+		            loadingHtml: '<div class="loading"><img alt="'+aLang['Loading'].replace (/\"/g, "")+'" src="'+path+'/app/themes/orange/images/loading_laranja.gif" /><p>Loading...</p></div>',
+		            layoutClass:'layout',
+		            // feed for the widgets which are on the dashboard when opened
+		            json_data : {
+		                url: "{/literal}{$directory}{literal}"
+		            },
+		            stateChangeUrl : "{/literal}{$path}{literal}/dashboard/index/savechanges",
+		            // json feed; the widgets whcih you can add to your dashboard
+		            addWidgetSettings: {
+		                //widgetDirectoryUrl:"{/literal}{$path}{literal}/includes/classes/dashboardplugin/demo/jsonfeed/widgetcategories.json"
+						//widgetDirectoryUrl:"{/literal}{$path}{literal}/includes/js/dashboard/json/widgetcategories.json"
+						//widgetDirectoryUrl:"{/literal}{$path}{literal}/app/modules/dashboard/json/widgetcategories.json"
+						//widgetDirectoryUrl:"{/literal}{$path}{literal}/app/modules/dashboard/json/MysqlWidgetcategories.php"
+						widgetDirectoryUrl:"{/literal}{$path}{literal}/dashboard/index/getDashboardCategories"
+		            },
+		
+		            // Definition of the layout
+		            // When using the layoutClass, it is possible to change layout using only another class. In this case
+		            // you don't need the html property in the layout
+		            layouts :
+		                [
+		                { title: "Layout1",
+		                    id: "layout1",
+		                    image: "{/literal}{$path}{literal}/app/modules/dashboard/layouts/layout1.png",
+		                    html: '<div class="layout layout-a"><div class="column first column-first"></div></div>',
+		                    classname: 'layout-a'
+		                },
+		                { title: "Layout2",
+		                    id: "layout2",
+		                    image: "{/literal}{$path}{literal}/app/modules/dashboard/layouts/layout2.png",
+		                    html: '<div class="layout layout-aa"><div class="column first column-first"></div><div class="column second column-second"></div></div>',
+		                    classname: 'layout-aa'
+		                },
+		                { title: "Layout3",
+		                    id: "layout3",
+		                    image: "{/literal}{$path}{literal}/app/modules/dashboard/layouts/layout3.png",
+		                    html: '<div class="layout layout-ba"><div class="column first column-first"></div><div class="column second column-second"></div></div>',
+		                    classname: 'layout-ba'
+		                },
+		                { title: "Layout4",
+		                    id: "layout4",
+		                    image: "{/literal}{$path}{literal}/app/modules/dashboard/layouts/layout4.png",
+		                    html: '<div class="layout layout-ab"><div class="column first column-first"></div><div class="column second column-second"></div></div>',
+		                    classname: 'layout-ab'
+		                },
+		                { title: "Layout5",
+		                    id: "layout5",
+		                    image: "{/literal}{$path}{literal}/app/modules/dashboard/layouts/layout5.png",
+		                    html: '<div class="layout layout-aaa"><div class="column first column-first"></div><div class="column second column-second"></div><div class="column third column-third"></div></div>',
+		                    classname: 'layout-aaa'
+		                }
+		            ]
+		
+		        }); // end dashboard call
+		
+		        // binding for a widgets is added to the dashboard
+		        dashboard.element.live('dashboardAddWidget',function(e, obj){
+		            var widget = obj.widget;
+		
+		            dashboard.addWidget({
+		                "id":startId++,
+		                "title":widget.title,
+		                "url":widget.url,
+		                "metadata":widget.metadata
+		            }, dashboard.element.find('.column:first'), dashboard.element.trigger("dashboardStateChange",{"stateChange":"widgetMoved","widget":"w"}));
+		        });
+		        // the init builds the dashboard. This makes it possible to first unbind events before the dashboars is built.
+		        dashboard.init();
+		    }
+            
+            function openRequest(code){
+            	$('#content2').load(path+'/helpdezk/operator/viewrequest/id/'+code,function(){
+            		$(document.getElementById("header")).show();
+					$(document.getElementById("user")).show();
+					$(document.getElementById("footer")).show();
+            	});
+            }
+            
+            
+        </script>
+        <script type="text/javascript"  async  src="{/literal}{$path}{literal}/includes/classes/ckeditor/ckeditor.js"></script>
+        {/literal}
+       
+        <link rel="stylesheet" type="text/css" href="{$path}/app/themes/{$theme}/smoothness.jquery-ui-1.8rc1.custom.css" />
+		<link rel="stylesheet" type="text/css" href="{$path}/includes/classes/dashboardplugin/themes/default/dashboardui.css" />
+		<link rel="stylesheet" type="text/css" href="{$path}/includes/classes/DataTables/media/css/demo_table.css" />
+
+		<!-- <link rel="stylesheet" type="text/css" href="{$path}/includes/classes/dashboardplugin/themes/default/jquery-ui-1.8.2.custom.css" /> -->
+        <!-- <link rel='stylesheet' type='text/css'  media='screen' href='{$path}/app/themes/{$theme}/css3-buttons.css' />
+        <link rel='stylesheet' type='text/css' href='{$path}/app/themes/{$theme}/requestinsert.css' /> -->
+  
+            <div class="headerlinks">
+            	<button id="hideShowBar" class="btnOrange tp1">{$smarty.config.Bar_hide}</button>
+			    <button class="openaddwidgetdialog btnOrange tp1">{$smarty.config.Add_widget}</button>
+			    <button class="editlayout btnOrange tp1">{$smarty.config.Edit_layout}</button>
+			    <button id="savebutton_id" class="btnOrange tp1">{$smarty.config.Save}</button>
+			</div>
+			
+			
+			<div id="dashboard" class="dashboard clearfix">
+			    <!-- this HTML covers all layouts. The 5 different layouts are handled by setting another layout classname -->
+			    <div class="layout">
+			        <div class="column first column-first"></div>
+			        <div class="column second column-second"></div>
+			        <div class="column third column-third"></div>
+			    </div>
+			</div>
+
+                
+           

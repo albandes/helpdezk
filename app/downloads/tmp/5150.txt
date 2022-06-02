@@ -1,0 +1,37 @@
+         Comprovante de Entrega
+
+
+Pedido #: 5150                          
+Solicitado por:                         
+Marielen Lindemann Ribeiro Da Silva     
+Turma: Inicial A
+ 
+ITEM                               Qtd  
+Prato de papelão amarelo pequeno  5.00 
+Prato de papelão roxo pequeno     9.00 
+Prato de papelão vermelho pequeno 16.00
+Prato de papelão rosa pequeno     59.00
+Prato de papelão azul pequeno     71.00
+
+________________________________________
+ Assinatura 
+ 
+Nome: __________________________________
+ 
+Data: __________________________________
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

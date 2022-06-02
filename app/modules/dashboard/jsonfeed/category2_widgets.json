@@ -1,0 +1,24 @@
+{
+"result" :
+  {
+  "data" : [
+    {
+      "title" : "Border Embratel",
+      "id" : "w04",
+      "description" : "Tráfego Embratel",
+      "creator" : "Alejandro",
+      "url" : "../app/modules/dashboard/views/embratel.tpl.html",
+      "image" : "../app/modules/dashboard/widgets/border.png"
+    },
+    {
+      "title" : "SQUID - HTTP Requests ",
+      "id" : "w05",
+      "description" : "Requisições Proxy",
+      "creator" : "Rogério Albandes",
+      "url" : "../app/modules/dashboard/views/squid_requests.tpl.html",
+      "image" : "../app/modules/dashboard/widgets/squid_requests.png"
+    }
+	
+  ]
+  }
+}

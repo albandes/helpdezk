@@ -1,0 +1,38 @@
+         Comprovante de Entrega
+
+
+Pedido #: 4745                          
+Solicitado por:                         
+Caroline Cruz Silveira Gomes            
+Turma: 3ºA
+ 
+ITEM                               Qtd  
+TNT amarelo                        10.00
+TNT azul                           10.00
+TNT laranja                        10.00
+TNT rosa                           10.00
+TNT verde                          10.00
+TNT vermelho                       10.00
+
+________________________________________
+ Assinatura 
+ 
+Nome: __________________________________
+ 
+Data: __________________________________
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

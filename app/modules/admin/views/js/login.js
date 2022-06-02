@@ -1,5 +1,15 @@
+
 var twoFactorAuth = false ;
-$(document).ready(function() {
+$( document ).ready(function() {
+
+    // Check if use Google 2FA
+    $.getJSON('login/getGoogle2fa/', function (data) {
+        console.log(data);
+        if(data.success == 1) {
+            var secret = "<input name='token' type='text' class='form-control' placeholder='Token' required=''>"
+            $('#secret').html(secret);
+        }
+    });
 
     $('#username').val('')
 
@@ -12,8 +22,7 @@ $(document).ready(function() {
         $this.button('loading');
         lostPasswordAjax($this);
     });
-    
-    
+    console.log('2');
     $("#frm-login").submit(function()
     {
         var $self       = $(this),
@@ -34,7 +43,7 @@ $(document).ready(function() {
             } else if(data.success == 1){
                 self.location = data.redirect;
             }
-        },"json").done(function(){
+        },"json").complete(function(){
             $(".loaderLogin").hide();
         });
         return false;

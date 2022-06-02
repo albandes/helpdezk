@@ -1,0 +1,25 @@
+{
+"result" :
+  {
+  "data" : [
+	{
+      "title" : "Registros Coletora",
+      "id" : "w11",
+      "description" : "Registro Coletora",
+	  "creator" : "Rogério Albandes",
+      "url" : "../app/modules/dashboard/views/mq_grafico_coletora.tpl.html",
+      "image" : "../app/modules/dashboard/widgets/widgets/hdk_request_assets.jpg"
+    }
+	,
+	{
+      "title" : "Xerox x Impressoras",
+      "id" : "w12",
+      "description" : "Xerox x Impressoras",
+	  "creator" : "Rogério Albandes",
+      "url" : "../app/modules/dashboard/views/mq_imp_xerox_printer.tpl.html",
+      "image" : "../app/modules/dashboard/widgets/widgets/hdk_request_assets.jpg"
+    }
+	
+  ]
+  }
+}

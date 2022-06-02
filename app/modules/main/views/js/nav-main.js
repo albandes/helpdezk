@@ -1,6 +1,5 @@
-Dropzone.autoDiscover = false;
-
 $(document).ready(function () {
+
 
     /*
     * Demo version
@@ -14,28 +13,15 @@ $(document).ready(function () {
         }
 
     }
-    
-    /*
-     * Select2
-     */
-    $("#modal-cmbcolor-theme").select2({width:'100%',placeholder:vocab['Select'],allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
-    $("#modal-cmblocale").select2({width:'100%',placeholder:vocab['Select'],allowClear:true,dropdownParent: $(this).find('.modal-body-user-settings')});
-    $("#person_country").select2({placeholder:vocab['Select'],allowClear:true});
-    $("#person_state").select2({placeholder:vocab['Select'],allowClear:true});
-    $("#person_city").select2({placeholder:vocab['Select'],allowClear:true});
-    $("#person_neighborhood").select2({placeholder:vocab['Select'],allowClear:true});
-    $("#person_typestreet").select2({placeholder:vocab['Select'],allowClear:true});
-
-    /*
-     * iCheck - checkboxes/radios styling
-     */
-    $('#modal-display-grid').iCheck({
-        checkboxClass: 'icheckbox_square-green',
-        radioClass: 'iradio_square-green',
-    });
+    // https://harvesthq.github.io/chosen/
+    $("#person_country").chosen({ width: "95%", no_results_text: "Nothing found!"})
+    $("#person_state").chosen({ width: "95%",   no_results_text: "Nothing found!"})
+    $("#person_city").chosen({ width: "95%",    no_results_text: "Nothing found!"})
+    $("#person_neighborhood").chosen({ width: "95%",    no_results_text: "Nothing found!"})
+    $("#person_typestreet").chosen({ width: "95%", no_results_text: "Nothing found!"})
 
     // Mask
-    /*$('#person_dtbirth').mask('00/00/0000');
+    $('#person_dtbirth').mask('00/00/0000');
     $('#person_number').mask('0000');
     $('#person_phone').mask(phone_mask);
     $('#person_cellphone').mask(cellphone_mask);
@@ -52,7 +38,7 @@ $(document).ready(function () {
         accents: true,
         replaceAccentsForRemote: false,
         minLength: 1
-    });*/
+    });
 
     // Buttons
     $("#btnUpdateUserData,.btnEditUserProfile").click(function(){
@@ -60,8 +46,8 @@ $(document).ready(function () {
         //countdown.start(timesession);
     });
 
-    $("#btnEditUserSettings").click(function(){
-        $('#modal-user-settings').modal('show');
+    $("#btnEditUserConfigExternal").click(function(){
+        $('#modal-config-external').modal('show');
     });
 
     $("#btnUpdatePhoto").click(function(){
@@ -80,7 +66,7 @@ $(document).ready(function () {
                     idperson: $('#hidden-idperson').val()
             },
             error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
@@ -88,14 +74,14 @@ $(document).ready(function () {
                     if(obj.idtypelogin != 3 ) {
                         $('#new-pass').hide();
                         $('#confirm-pass').hide();
-                        modalAlertMultiple('danger',vocab['Alert_nt_allowedchangepass'],'alert-change-user-pass');
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_not_allowedchangepass'),'alert-change-user-pass');
                         setTimeout(function(){
                             $('#modal-change-user-password').modal('hide');
                             location.href = "" ;
                         },5000);
                     }
                 } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure_usertypelogin'],'alert-change-user-pass');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure_usertypelogin'),'alert-change-user-pass');
                 }
             }
         });
@@ -105,32 +91,38 @@ $(document).ready(function () {
         $('#modal-change-root-password').modal('show');
     });
 
-    // Save User Settings
-    $("#btnUserSetSave").click(function(){
-        /*if (!$("#modal-config-external-form").valid()) {
+    // Save Configure External APIs data
+    $("#btnSaveConfigExternal").click(function(){
+        if (!$("#modal-config-external-form").valid()) {
             return false;
-        }*/
+        }
 
         $.ajax({
             type: "POST",
-            url: path + '/main/home/saveUserSettings',
+            url: path + '/helpdezk/home/saveConfigExternal',
             dataType: 'json',
-            data: $("#modal-usersettings-form").serialize(),
+            data: { idperson:$('#hidden-idperson').val(),
+                    trellokey:$('#trello_key').val(),
+                    trellotoken:$('#trello_token').val(),
+                    pushoverkey:$('#pushover_key').val(),
+                    pushovertoken:$('#pushover_token').val()
+
+            },
             error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-modal-usersettings');
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
 
                 if(obj.success) {
-                    modalAlertMultiple('success',vocab['Alert_eternal_settings_OK'],'alert-modal-usersettings');
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_external_settings_OK'),'alert-config-external');
                     setTimeout(function(){
                         $('#modal-config-external-form').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure']+': '+obj.message,'alert-modal-usersettings');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-config-external');
                 }
 
             }
@@ -181,39 +173,6 @@ $(document).ready(function () {
 
     }
 
-    /*
-     * Combos
-     */
-    var objUserSettings = {
-        loadCmbThemes: function() {
-            $.post(path+"/main/home/ajaxComboThemes",function(valor){
-                $("#modal-cmbcolor-theme").html(valor);
-                $("#modal-cmbcolor-theme").trigger("change");
-                return false;
-            });
-            return false ;
-        },
-        loadCmbLocales: function() {
-            $.post(path+"/main/home/ajaxComboLocales",function(valor){
-                $("#modal-cmblocale").html(valor);
-                $("#modal-cmblocale").trigger("change");
-                return false;
-            });
-            return false ;
-        },
-        loadUserSettings: function() {
-            $.post(path+"/main/home/loadUserSettins",function(valor){
-                /*$("#modal-cmbcolor-theme").html(valor);
-                $("#modal-cmbcolor-theme").trigger("change");*/
-                return false;
-            });
-            return false ;
-        }
-    };
-
-    objUserSettings.loadCmbThemes();
-    objUserSettings.loadCmbLocales();
-    
     $("#person_country").change(function(){
         objPersonData.changeState();
     });
@@ -234,8 +193,8 @@ $(document).ready(function () {
             trello_token: "required"
         },
         messages: {
-            trello_key: vocab['Alert_feld_required'],
-            trello_token: vocab['Alert_feld_required']
+            trello_key: makeSmartyLabel('Alert_field_required'),
+            trello_token: makeSmartyLabel('Alert_field_required')
         }
     });
 
@@ -246,8 +205,8 @@ $(document).ready(function () {
             person_email: "required"
         },
         messages: {
-            person_name: vocab['Alert_feld_required'],
-            person_email: vocab['Alert_feld_required']
+            person_name: makeSmartyLabel('Alert_field_required'),
+            person_email: makeSmartyLabel('Alert_field_required')
 
         }
     });
@@ -283,7 +242,7 @@ $(document).ready(function () {
                     complement: $('#person_complement').val()
                 },
                 error: function (ret) {
-                    modalAlertMultiple('danger',vocab['Alert_filure'],'alert-update');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-update');
                 },
                 success: function(ret){
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
@@ -299,10 +258,10 @@ $(document).ready(function () {
                         var exposureTime ;
                         if (obj.id == 99) {
                             exposureTime = 5000;
-                            message = vocab['Alert_sccess_update']+' : '+obj.message;
+                            message = makeSmartyLabel('Alert_success_update')+' : '+obj.message;
                         } else {
                             exposureTime = 2000;
-                            message = vocab['Alert_sccess_update'];
+                            message = makeSmartyLabel('Alert_success_update');
                         }
                         modalAlertMultiple('success',message,'alert-update');
                         setTimeout(function(){
@@ -311,7 +270,7 @@ $(document).ready(function () {
                         },exposureTime);
 
                     } else {
-                        modalAlertMultiple('danger',vocab['Alert_filure']+': '+obj.message,'alert-update');
+                        modalAlertMultiple('danger',makeSmartyLabel('Alert_failure')+': '+obj.message,'alert-update');
                         setTimeout(function(){
                             $('#modal-form-persondata').modal('hide');
                             location.href = "" ;
@@ -333,19 +292,19 @@ $(document).ready(function () {
     /* btnEditRootPass
      * Dropzone
      */
-    
+    Dropzone.autoDiscover = false;
     var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
         method: "post",
-        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + vocab['dropzon_user_photot_message'],
+        dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + makeSmartyLabel('dropzone_user_photot_message'),
         createImageThumbnails: true,
         maxFiles: 1,
         acceptedFiles: '.jpg, .jpeg, .png',
         parallelUploads: 1,
         autoProcessQueue: false,
         addRemoveLinks: true,
-        dictRemoveFile: vocab['dropzon_remove_file'],
+        dictRemoveFile: makeSmartyLabel('dropzone_remove_file'),
         maxFilesize: 1024,
-        dictFileTooBig: vocab['dropzon_File_Too_Big'],
+        dictFileTooBig: makeSmartyLabel('dropzone_File_Too_Big'),
 
         success: function (file, response) {
             this.removeFile(file);
@@ -369,7 +328,7 @@ $(document).ready(function () {
         // the file.
         accept: function(file, done) {
             file.acceptDimensions = done;
-            file.rejectDimensions = function() { done(vocab['dropzon_invalid_dimension']); };
+            file.rejectDimensions = function() { done(makeSmartyLabel('dropzone_invalid_dimension')); };
             // Of course you could also just put the `done` function in the file
             // and call it either with or without error in the `thumbnail` event
             // callback, but I think that this is cleaner.
@@ -393,8 +352,8 @@ $(document).ready(function () {
             userconf_cpassword:  {equalTo: "#userconf_password"}
         },
         messages: {
-            userconf_password:{required:vocab['Alert_feld_required']},
-            userconf_cpassword:{equalTo: vocab['Alert_dfferent_passwords']}
+            userconf_password:{required:makeSmartyLabel('Alert_field_required')},
+            userconf_cpassword:{equalTo: makeSmartyLabel('Alert_different_passwords')}
         }
     });
 
@@ -412,19 +371,19 @@ $(document).ready(function () {
                     newpassword:$('#userconf_password').val()
             },
             error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',vocab['Alert_cange_password'],'alert-change-user-pass');
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_change_password'),'alert-change-user-pass');
                     setTimeout(function(){
                         $('#modal-change-user-password').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
                 }
             }
         });
@@ -438,8 +397,8 @@ $(document).ready(function () {
                rootconf_cpassword:  {equalTo: "#rootconf_password"}
         },
         messages: {
-            rootconf_password:{required:vocab['Alert_feld_required']},
-            rootconf_cpassword:{equalTo: vocab['Alert_dfferent_passwords']}
+            rootconf_password:{required:makeSmartyLabel('Alert_field_required')},
+            rootconf_cpassword:{equalTo: makeSmartyLabel('Alert_different_passwords')}
         }
     });
 
@@ -457,25 +416,25 @@ $(document).ready(function () {
                     newpassword:    $('#rootconf_password').val()
             },
             error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
+                modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
             },
             success: function(ret){
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',vocab['Alert_cange_password'],'alert-change-root-pass');
+                    modalAlertMultiple('success',makeSmartyLabel('Alert_change_password'),'alert-change-root-pass');
                     setTimeout(function(){
                         $('#modal-change-root-password').modal('hide');
                         location.href = "" ;
                     },2000);
 
                 } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
+                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-change-user-pass');
                 }
             }
         });
     });
 
     // admin - change password - end
-    
+
 
 });
