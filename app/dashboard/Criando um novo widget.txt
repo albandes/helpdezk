@@ -1,0 +1,3 @@
+1. Criar na pasta widgets um arquivo com o nome do widget, com a extensao.inc ;
+2. Criar dentro do arquivo do item 1 a funcao widget_NOME_DO_WIDGET e preencher o array com os dados necessários;
+3. Inserir na tabela dsh_tbwidgets os dados necessários;

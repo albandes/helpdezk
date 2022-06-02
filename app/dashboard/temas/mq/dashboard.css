@@ -1,0 +1,97 @@
+/**
+ * @file
+ *    CSS for the jQuery.dashboard() plugin.
+ *
+ * Released under the GNU General Public License.  See LICENSE.txt.
+ */
+
+ .column {
+  float: left;
+  clear: none;
+  width: 33.3%;
+  margin: 0;
+  /* padding-bottom and min-height make sure that there is always a sizable drop zone. */
+  min-height: 400px;
+  padding: 0 0 250px;
+  list-style-type: none;
+}
+  /* The placeholder that indicates where a dragged widget will land if dropped now. */
+  .placeholder {
+    margin: 5px;
+    border: 3px dashed pink;
+  }
+  /* Spacing between widgets. */
+  li.widget, li.empty-placeholder { margin: 6px 3px; }
+  li.widget { border: 1px solid black; }
+    /* Spacing inside widgets. */
+    .widget-wrapper { padding: 5px; }
+      .widget-header {
+        /* Make sure the mouse cursor reflects the behaviour on hover. */
+        cursor: move;
+        font-weight: bold;
+      }
+      /* Standards-browsers do this anyway because all inner block elements are floated.  IE doesn't because it's crap. */
+      .widget-controls { display: inline; }
+        .widget-icon, .full-screen-close-icon img {
+          display: block;
+          float: right;
+          margin-left: 2px;
+          /* Although these are <a> links, they don't have href="" attributes. */
+          cursor: pointer;
+        }
+
+#full-screen-header {
+  display: block;
+  padding: .2em .4em;
+  border: 1px solid black;
+  background: #eee;
+  /* Although this is an <a> link, it doesn't have an href="" attribute. */
+  cursor: pointer;
+}
+
+/* Make the throbber in-yer-face. */
+.throbber {
+  padding: 50px;
+  text-align: center;
+  background: #eee;
+}
+
+/* widget hdk_avisos*/
+
+#hdk_avisos { border-collapse:collapse;
+			 font-family:Arial, Helvetica, Sans-Serif; font-size:0.8em; width:100%;
+			}
+#hdk_avisos h4 { margin:0px; padding:0px;}
+#hdk_avisos img { float:right;}
+#hdk_avisos ul { margin:10px 0 10px 40px; padding:0px; overflow: hidden; width: 330px;}
+
+#hdk_avisos th { background:#7CB8E2 url(images/header_bkg.png) repeat-x scroll center left; color:#fff; padding:7px 15px; text-align:left;}
+#hdk_avisos td { background:#F9C28A none repeat-x scroll center left; color:#000; padding:7px 15px;  }
+#hdk_avisos tr.odd td { background:#fff url(images/row_bkg.png) repeat-x scroll center left; cursor:pointer; }
+#hdk_avisos div.arrow { background:transparent url(images/arrows.png) no-repeat scroll 0px -16px; width:16px; height:16px; display:block;}
+#hdk_avisos div.up { background-position:0px 0px;}
+
+
+#centraliza{text-align: center;}
+
+	#adsense{
+		font: 11px "Arial", sans-serif;
+		width:400px;
+		border-collapse:collapse;
+	}
+	#adsense td, #adsense th {
+		border:1px solid #FD9A36;
+		padding:3px 7px 2px 7px;
+	}
+	#adsense th {
+		text-align:center;
+		padding: 5px 0 4px 0;	
+		background-color:#FD9A36;
+		color:#fff;
+	}
+
+	#adsense tr.cor td {
+		color:#000;
+		background-color:#EAF2D3;
+	}
+
