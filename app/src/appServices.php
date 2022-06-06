@@ -1672,4 +1672,23 @@ class appServices
 
         return $jwt; //token to be written to the database
     }
+    
+    /**
+     * Converts URI request string in array
+     *
+     * @param  string $request URI Request
+     * @return array
+     */
+    public function makeRequestParams($request){
+        $requestData = explode("?",$_SERVER['REQUEST_URI']);
+        $requestData = explode("&",$requestData[1]);
+
+        $aRet = array();
+        foreach($requestData as $k=>$v){
+            $bus = explode("=",$v);
+            $aRet[$bus[0]] = $bus[1];
+        }
+
+        return $aRet;
+    }
 }
