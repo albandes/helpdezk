@@ -454,7 +454,10 @@ class appServices
     public function _formatDate(string $date): string
     {
         $date = str_replace("/","-",$date);
-        
+        if(!isset($_ENV["SCREEN_DATE_FORMAT"]) || empty($_ENV["SCREEN_DATE_FORMAT"])){
+            $this->applogger->error("Environment variable SCREEN_DATE_FORMAT doesn't exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
+        }
+
         return date($_ENV["SCREEN_DATE_FORMAT"],strtotime($date));
     }
 
@@ -1679,7 +1682,7 @@ class appServices
      * @param  string $request URI Request
      * @return array
      */
-    public function makeRequestParams($request){
+    public function _makeRequestParams($request){
         $requestData = explode("?",$_SERVER['REQUEST_URI']);
         $requestData = explode("&",$requestData[1]);
 
@@ -1690,5 +1693,63 @@ class appServices
         }
 
         return $aRet;
+    }
+    
+    /**
+     * Returns the maximum amount of files allowed to upload for notes
+     *
+     * @return void
+     */
+    public function _getNoteAttMaxFiles()
+    {
+        if (version_compare($this->_getHelpdezkVersionNumber(), '1.0.1', '>' )) {
+            return 5;
+        } else {
+            return 1;
+        }
+    }
+    
+    /**
+     * Returns a list of allowed files to upload
+     *
+     * @return void
+     */
+    public function _getAcceptedFiles()
+    {
+        // Images
+        $images = '.jpg, .jpeg, .png, .gif';
+        // Documents
+        $documents = '.pdf, .doc, .docx, .ppt, .pptx, .pps, .ppsx, .odt, .xls, .xlsx, .zip';
+        // Audio
+        $audio = '.mp3, .m4a, .ogg, .wav';
+        // Video
+        $video = '.mp4, .m4v, .mov, .wmv, .avi, .mpg, .ogv, .3gp, .3g2';
+
+        return $images .','.$documents.','.$audio.','.$video ;
+    }
+
+    /**
+     * Returns the maximum amount of files allowed to upload for new tickets
+     *
+     * @return void
+     */
+    public function _getTicketAttMaxFiles()
+    {
+        
+        if (version_compare($this->_getHelpdezkVersionNumber(), '1.0.1', '>' )) {
+            return 10;
+        } else {
+            return 1;
+        }
+    }
+    
+    /**
+     * Returns the maximum file size to upload
+     *
+     * @return void
+     */
+    public function _getTicketAttMaxFileSize()
+    {
+        return ini_get('upload_max_filesize');
     }
 }
