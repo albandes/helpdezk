@@ -40,6 +40,10 @@ class Home extends Controller
 		$params = $appSrc->_getDefaultParams(); 
 		
 		$params = $hdkSrc->_makeNavHdk($params);
+
+		$params['typeUser'] = $_SESSION['SES_TYPE_PERSON'];
+		$params['flgOperator'] = 0;
+		$params['operatorAsUser'] = 0;
 		
         return $params;
     }

@@ -462,4 +462,47 @@ class holidayDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
+    /**
+     * Returns an object with a total of holidays by the company
+     *
+     * @param  holidayModel $holidayModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getCompanyDaysHoliday(holidayModel $holidayModel): array
+    {        
+        $sql = "SELECT COUNT(*) AS num_holiday
+                  FROM tbholiday a
+             LEFT JOIN tbholiday_has_company b
+                    ON a.idholiday = b.idholiday
+                 WHERE holiday_date >= :startDate
+                   AND holiday_date <= :endDate
+                   AND b.idperson = :companyID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':startDate', $holidayModel->getStartDate());
+            $stmt->bindParam(':endDate', $holidayModel->getEndDate());
+            $stmt->bindParam(':companyID', $holidayModel->getIdCompany());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+            $holidayModel->setTotalCompany(($aRet['num_holiday'] && $aRet['num_holiday'] > 0) ? $aRet['num_holiday'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$holidayModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting company's holidays total ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
 }

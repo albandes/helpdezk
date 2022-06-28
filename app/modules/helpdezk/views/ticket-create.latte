@@ -1,0 +1,241 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5><strong>{='New_request'|translate}</strong></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="create-ticket-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" id="hiddenIdPerson" value="{$_SESSION['SES_COD_USUARIO']}"/>
+                                    <input type="hidden" id="hiddenIdJuridical" value="{$_SESSION['SES_COD_EMPRESA']}"/>
+                                    <input type="hidden" id="hiddenTimerClock" value="{$timer}"/>
+                                    {if $reasonAndType == 1}
+                                        <input type="hidden"  id="hiddenIdWay" value="NULL"/>
+                                        <input type="hidden"  id="hiddenIdReason" value="NULL"/>
+                                    {/if}
+
+                                    <div class="row white-bg g-2">
+                                        <!-- left side -->
+                                        <div class="col col-sm-6 b-l">
+                                            <div class="row g-2 mb-2">
+                                                {if $typeUser == 3}                                                
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbUser" class="hdk-label col-form-label control-label text-end">{='User'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbUser" name="cmbUser">
+                                                        <option></option>
+                                                        {foreach $cmbUser as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $areaID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                                {else}
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbUser" class="hdk-label col-form-label text-end">{='Request_owner'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="cmbUser" value="{$owner}">
+                                                </div>
+                                                {/if}
+                                            </div>
+
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbArea" class="hdk-label col-form-label text-end">{='Area'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbArea" name="cmbArea">
+                                                        <option></option>
+                                                        {foreach $cmbArea as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $areaID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbType" name="cmbType">
+                                                        <option></option>
+                                                        {foreach $cmbType as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $typeID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbItem" class="hdk-label col-form-label text-end">{='Item'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbItem" name="cmbItem">
+                                                        <option></option>
+                                                        {foreach $cmbItem as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $itemID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbService" class="hdk-label col-form-label text-end">{='Service'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbService" name="cmbService">
+                                                        <option></option>
+                                                        {foreach $cmbService as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $serviceID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbReason" class="hdk-label col-form-label text-end">{='Reason'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7">
+                                                   <select class="form-control input-sm" id="cmbReason" name="cmbReason">
+                                                        <option></option>
+                                                        {foreach $cmbReason as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $reasonID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="attachments" class="hdk-label col-form-label text-end">{='Attachments'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7 text-center">
+                                                   <div id="attachments" class="dropzone dz-default dz-message"></div>
+                                                </div>
+                                            </div>                                                                           
+                                        </div>
+
+                                        <!-- right side -->
+                                        <div class="col col-sm-6 b-l">
+                                            <!-- Equipment -->
+                                            {if $equipment == 1}
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="equipmentTag" class="hdk-label col-form-label text-end">{='Equipment'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <input type="text" id="equipmentTag" name="equipmentTag" class="col-sm-3 form-control" value="" placeholder="{='Tag_min'|translate}" />
+                                                        <input type="text" id="equipmentOsNumber" name="equipmentOsNumber" class="col-sm-3 form-control" value="" placeholder="{='Service_order_number'|translate}" />
+                                                        <input type="text" id="equipmentSerialNumber" name="equipmentSerialNumber" class="col-sm-3 form-control" value="" placeholder="{='Serial_number'|translate}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {else}
+                                            <input type="hidden" id="equipmentTag"/>
+                                            <input type="hidden" id="equipmentOsNumber"/>
+                                            <input type="hidden" id="equipmentSerialNumber"/>
+                                            {/if}
+                                            <!-- Subject -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="type" class="hdk-label col-form-label text-end">{='Subject'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <input type="text" id="subject" name="subject" class="form-control" value="" placeholder="{='Placeholder_subject'|translate}">
+                                                </div>
+                                            </div>
+                                            <!-- Description -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="item" class="hdk-label col-form-label text-end">{='Description'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <div id="description" name="description"></div>
+                                                </div>
+                                            </div>                                                                            
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-ticket"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateTicket" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/reason/modal-alert-create.latte'}
+    {include $modalNextStep}
+</body>
+    <script type="text/javascript">
+		var noteAttMaxFiles = {$noteAttMaxfiles},
+            noteAcceptedFiles = {$noteAcceptedFiles},
+            ticketAttMaxFiles = {$ticketAttMaxFiles},
+            ticketAcceptedFiles = {$ticketAcceptedFiles},
+            hdkMaxSize = {$hdkMaxSize};
+	</script>
+
+    <!-- Summernote -->
+    <link rel="stylesheet" href="{$path}/public/assets/js/plugins/summernote/summernote-bs5.css" />
+    <script src="{$path}/public/assets/js/plugins/summernote/summernote-bs5.js"></script> 
+
+    <script src="{$path}/app/modules/helpdezk/views/js/ticket-crud.js"></script>
+
+    
+
+
+
+{/block}

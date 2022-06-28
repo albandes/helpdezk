@@ -461,6 +461,25 @@ class appServices
         return date($_ENV["SCREEN_DATE_FORMAT"],strtotime($date));
     }
 
+    /**
+     * en_us Format a date and hour to view on screen
+     * 
+     * pt_br Formata uma data e hora para visualizar em tela
+     *
+     * @param  mixed $date
+     * @return string
+     */
+    public function _formatDateHour(string $date): string
+    {
+        $date = str_replace("/","-",$date);
+        if((!isset($_ENV["SCREEN_DATE_FORMAT"]) || empty($_ENV["SCREEN_DATE_FORMAT"])) && (!isset($_ENV["SCREEN_HOUR_FORMAT"]) || empty($_ENV["SCREEN_HOUR_FORMAT"]))){
+            $this->applogger->error("Environment variable SCREEN_DATE_FORMAT doesn't exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
+        }
+        
+        $format = "{$_ENV["SCREEN_DATE_FORMAT"]} {$_ENV["SCREEN_HOUR_FORMAT"]}";
+        return date($format,strtotime($date));
+    }
+
 
     /**
      * Returns an array with ID and name of search options
@@ -1237,11 +1256,10 @@ class appServices
      * @param  mixed $noHolidays    Include holidays
      * @return void
      */
-    public function _getExpireDate($startDate=null,$days=null,$fullday=true,$noWeekend=false,$noHolidays=false,$companyID=null)
+    public function _getExpireDate($startDate=null,$days=null,$time=null,$timeType=null,$fullday=true,$noWeekend=false,$noHolidays=false,$companyID=null)
     {
-
         if(!isset($startDate)){$startDate = date("Y-m-d H:i:s");}
-
+        
         if(!$days){
             $daysSum = "+0 day";
         }elseif($days > 0 or $days == 1){
@@ -1250,34 +1268,47 @@ class appServices
             $daysSum = "+".$days." days";
         }
 
+        if(($time && $time > 0) && $timeType){
+            if($timeType == "H"){
+                $daysSum .= ($time > 0 && $time == 1) ? " {$time} hour" : " {$time} hours";
+            }elseif($timeType == "M"){
+                $daysSum .= ($time > 0 && $time == 1) ? " {$time} minute" : " {$time} minutes";
+            }
+        }
+        
         $dataSum = date("Y-m-d H:i:s",strtotime($startDate." ".$daysSum));
 
         $dateHolyStart = date("Y-m-d",strtotime($startDate)); // Separate only the inicial date to check for holidays in the period
         $dateHolyEnd = date("Y-m-d",strtotime($dataSum)); //Separate only the final date to check for holidays in the period
-        $sumDaysHolidays = $this->_getTotalHolidays($dateHolyStart,$dateHolyEnd);
-        $sumDaysHolidays = ($sumDaysHolidays) ? $sumDaysHolidays : "0";
-
+        
         // Add holidays
-        $dataSum = ($sumDaysHolidays && $sumDaysHolidays > 1) 
-                    ? date("Y-m-d H:i:s",strtotime($dataSum." +".$sumDaysHolidays." days")) 
-                    : date("Y-m-d H:i:s",strtotime($dataSum." +".$sumDaysHolidays." day"));
+        if(!$noHolidays){
+            $sumDaysHolidays = $this->_getTotalHolidays($dateHolyStart,$dateHolyEnd);
+            $sumDaysHolidays = ($sumDaysHolidays) ? $sumDaysHolidays : "0";
+            
+            $dataSum = ($sumDaysHolidays && $sumDaysHolidays > 1) 
+            ? date("Y-m-d H:i:s",strtotime($dataSum." +".$sumDaysHolidays." days")) 
+            : date("Y-m-d H:i:s",strtotime($dataSum." +".$sumDaysHolidays." day"));
+        }
                 
         // Working days
         $businessDays = $this->_getBusinessDays();
         if(!$businessDays)
             return false;
-
+        
         $dateCheckStart = date("Y-m-d",strtotime($startDate));
         $dateCheckEnd = date("Y-m-d",strtotime($dataSum));
         $addNotBussinesDay = 0;
         
         // Non-working days
-        while(strtotime($dateCheckStart) <= strtotime($dateCheckEnd)) {
-            $numWeek = date('w',strtotime($dateCheckStart));
-            if (!array_key_exists($numWeek,$businessDays)) {
-                $addNotBussinesDay++;
+        if(!$noWeekend){
+            while(strtotime($dateCheckStart) <= strtotime($dateCheckEnd)) {
+                $numWeek = date('w',strtotime($dateCheckStart));
+                if (!array_key_exists($numWeek,$businessDays)) {
+                    $addNotBussinesDay++;
+                }
+                $dateCheckStart = date ("Y-m-d", strtotime("+1 day", strtotime($dateCheckStart)));
             }
-            $dateCheckStart = date ("Y-m-d", strtotime("+1 day", strtotime($dateCheckStart)));
         }
         
         $dataSum = date("Y-m-d H:i:s",strtotime($dataSum." +".$addNotBussinesDay." days")); // Add non-working days
@@ -1361,7 +1392,7 @@ class appServices
         if($companyID){
             $rsNationalDaysHoliday['push']['object']->setIdCompany($companyID);
 
-            $rsCompanyDaysHoliday = $db->getCompanyDaysHoliday($rsNationalDaysHoliday['push']['object']); // Verifies the quantity of company�s holidays in the period
+            $rsCompanyDaysHoliday = $holidayDAO->getCompanyDaysHoliday($rsNationalDaysHoliday['push']['object']); // Verifies the quantity of company�s holidays in the period
             if(!$rsCompanyDaysHoliday['status'])
                 return false;
 
@@ -1405,7 +1436,7 @@ class appServices
     public function _reduceText(string $string, int $lenght): string
     {
         $string = strip_tags($string);
-        $string = substr($string, 0, $lenght) . " ...";
+        $string = substr($string, 0, $lenght) . "...";
         return $string;
     }
 
@@ -1683,7 +1714,7 @@ class appServices
      * @return array
      */
     public function _makeRequestParams($request){
-        $requestData = explode("?",$_SERVER['REQUEST_URI']);
+        $requestData = explode("?",$request);
         $requestData = explode("&",$requestData[1]);
 
         $aRet = array();
@@ -1751,5 +1782,57 @@ class appServices
     public function _getTicketAttMaxFileSize()
     {
         return ini_get('upload_max_filesize');
+    }
+
+    public function _createRequestCode($prefix="hdk")
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTablePrefix($prefix);
+    
+        $ret = $ticketDAO->getLastTicketCode($ticketModel);
+
+        if(!$ret['status'])
+           return $false;
+          
+        $lastCode = $ret['push']['object']->getLastTicketCode();
+
+        if ($lastCode > 0)        
+        {
+            $up = $ticketDAO->increaseTicketCode($ticketModel);
+            if(!$up['status'])
+                return false;
+        } else {
+            $ins = $ticketDAO->createTicketCode($ticketModel);
+            if (!$ins['status'])
+                return false;
+        }
+
+        $retLast = $ticketDAO->getLastTicketCode($ticketModel);
+        if(!$retLast['status'])
+           return false;
+        
+        $lastCode = $retLast['push']['object']->getLastTicketCode();
+        
+        $ticketCode = date("Ym") . str_pad($lastCode, 6, '0', STR_PAD_LEFT);
+
+        return $ticketCode;
+    }
+
+    /**
+     * en_us Destroys the session and sends it to the login page, used for unauthorized access.
+     *
+     * pt_br Destrói a sessão e a envia para a página de login, usada para acesso não autorizado.
+     * 
+     * @return void
+     *
+     * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
+     *
+     */
+    public function _accessDenied()
+    {
+        $this->_sessionDestroy();
+        header('Location:' . $_ENV['HDK_URL'] . '/admin/login');
+
     }
 }

@@ -138,6 +138,14 @@
                 </ul>
             {/if}
 
+            {if $extra_featured_1 == 1}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link nav-hdk" aria-expanded="false" role="button" href="{$lnk_extra_featured_1}"> {=$extra_featured_label_1|translate} </a>
+                    </li>
+                </ul>
+            {/if}
+
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item nav-text"><a class="nav-link" href="#">{='timeouttext'|translate}: <span id="numberCountdown"></span></a></li>
                 <li class="nav-item dropdown">

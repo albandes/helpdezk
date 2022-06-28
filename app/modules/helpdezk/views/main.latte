@@ -19,6 +19,14 @@
 
         {include $footer}	
 	</div>
+    {include 'modals/hdkticket/modal-approval-require.latte'}
 </body>
+    <script type="text/javascript">
+		var typeUser = {$typeUser},
+            flgOperator = {$flgOperator},
+            operatorAsUser = {$operatorAsUser};
+	</script>
+
+   <script src="{$path}/app/modules/helpdezk/views/js/hdk-common.js"></script>
 
 {/block}

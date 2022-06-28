@@ -5202,3 +5202,30 @@ select, #btnTimer,
   background-color: #1ab394;
   border-color: #1ab394;
 }
+
+.hdk-label {
+  font-weight: 700;
+}
+
+.ibox-title-ticket {
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+  background-color: #ffffff;
+  border-color: #e7eaec;
+  border-image: none;
+  border-style: solid solid none;
+  border-width: 4px 0px 0;
+  color: inherit;
+  margin-bottom: 0;
+  padding: 14px 15px 7px;
+  height: 60px;
+}
+
+.ticket-highlight {
+  padding: 9px 14px;
+  margin-bottom: 14px;
+  border: 2px solid #e1e1e8;
+  border-radius: 6px;
+}

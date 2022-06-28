@@ -42,7 +42,7 @@ final class ticketModel
     /**
      * @var int
      */
-    private $indInCharge;
+    private $isInCharge;
 
     /**
      * @var string
@@ -224,7 +224,7 @@ final class ticketModel
      */
     private $service;
 
-     /**
+    /**
      * @var int
      */
     private $idPriority;
@@ -268,6 +268,221 @@ final class ticketModel
      * @var string
      */
     private $recipientEmail;
+
+    /**
+     * @var bool
+     */
+    private $itemException;
+
+    /**
+     * @var string
+     */
+    private $lastTicketCode;
+
+    /**
+     * @var string
+     */
+    private $tablePrefix;
+
+    /**
+     * @var string
+     */
+    private $isUserVip;
+
+    /**
+     * @var string
+     */
+    private $vipHasPriority;
+
+    /**
+     * @var int
+     */
+    private $idServiceGroup;
+
+    /**
+     * @var array
+     */
+    private $approvalList;
+
+    /**
+     * @var array
+     */
+    private $inChargeList;
+
+    /**
+     * @var int
+     */
+    private $idGroup;
+
+    /**
+     * @var int
+     */
+    private $userType;
+
+    /**
+     * @var array
+     */
+    private $noteList;
+
+    /**
+     * @var int
+     */
+    private $notePublic;
+
+    /**
+     * @var int
+     */
+    private $noteTypeID;
+
+    /**
+     * @var string
+     */
+    private $note;
+
+    /**
+     * @var string
+     */
+    private $noteDateTime;
+
+    /**
+     * @var int
+     */
+    private $noteIsOpen;
+
+    /**
+     * @var string
+     */
+    private $minExpendedTime;
+
+    /**
+     * @var string
+     */
+    private $minTelephoneTime;
+
+    /**
+     * @var string
+     */
+    private $emailCode;
+
+    /**
+     * @var string
+     */
+    private $isRepass;
+
+    /**
+     * @var int
+     */
+    private $isTrack;
+
+    /**
+     * @var int
+     */
+    private $isOperatorAux;
+
+    /**
+     * @var mixed
+     */
+    private $minOpeningTime;
+
+    /**
+     * @var mixed
+     */
+    private $minAttendanceTime;
+
+    /**
+     * @var mixed
+     */
+    private $minClosureTime;
+
+    /**
+     * @var mixed
+     */
+    private $logDate;
+
+    /**
+     * @var int
+     */
+    private $idUserLog;
+
+    /**
+     * @var mixed
+     */
+    private $forwardedDate;
+
+    /**
+     * @var mixed
+     */
+    private $approvalDate;
+
+    /**
+     * @var mixed
+     */
+    private $finishDate;
+
+    /**
+     * @var mixed
+     */
+    private $rejectionDate;
+
+    /**
+     * @var mixed
+     */
+    private $attendantPeriod;
+
+    /**
+     * @var mixed
+     */
+    private $chargingPeriod;
+
+    /**
+     * @var mixed
+     */
+    private $openingDate;
+
+    /**
+     * @var string
+     */
+    private $isReopened;
+
+    /**
+     * @var mixed
+     */
+    private $noteTotalMinutes;
+
+    /**
+     * @var mixed
+     */
+    private $noteStartHour;
+
+    /**
+     * @var mixed
+     */
+    private $noteFinishHour;
+    
+    /**
+     * @var mixed
+     */
+    private $noteExecutionDate;
+
+    /**
+     * @var mixed
+     */
+    private $noteHourType;
+
+    /**
+     * @var mixed
+     */
+    private $noteServiceVal;
+
+    /**
+     * @var mixed
+     */
+    private $noteIpAddress;
+
+    /**
+     * @var mixed
+     */
+    private $noteIsCallback;
 
     /**
      * Get the value of ticketCode
@@ -414,25 +629,25 @@ final class ticketModel
     }
 
     /**
-     * Get the value of indInCharge
+     * Get the value of isInCharge
      *
      * @return  int
      */ 
-    public function getIndInCharge()
+    public function getIsInCharge()
     {
-        return $this->indInCharge;
+        return $this->isInCharge;
     }
 
     /**
-     * Set the value of indInCharge
+     * Set the value of isInCharge
      *
-     * @param  int  $indInCharge
+     * @param  int  $isInCharge
      *
      * @return  self
      */ 
-    public function setIndInCharge(int $indInCharge)
+    public function setIsInCharge(int $isInCharge)
     {
-        $this->indInCharge = $indInCharge;
+        $this->isInCharge = $isInCharge;
 
         return $this;
     }
@@ -1513,6 +1728,1014 @@ final class ticketModel
     public function setRecipientEmail(string $recipientEmail)
     {
         $this->recipientEmail = $recipientEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of itemException
+     *
+     * @return  bool
+     */ 
+    public function getItemException()
+    {
+        return $this->itemException;
+    }
+
+    /**
+     * Set the value of itemException
+     *
+     * @param  bool  $itemException
+     *
+     * @return  self
+     */ 
+    public function setItemException(bool $itemException)
+    {
+        $this->itemException = $itemException;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of lastTicketCode
+     *
+     * @return  string
+     */ 
+    public function getLastTicketCode()
+    {
+        return $this->lastTicketCode;
+    }
+
+    /**
+     * Set the value of lastTicketCode
+     *
+     * @param  string  $lastTicketCode
+     *
+     * @return  self
+     */ 
+    public function setLastTicketCode(string $lastTicketCode)
+    {
+        $this->lastTicketCode = $lastTicketCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tablePrefix
+     *
+     * @return  string
+     */ 
+    public function getTablePrefix()
+    {
+        return $this->tablePrefix;
+    }
+
+    /**
+     * Set the value of tablePrefix
+     *
+     * @param  string  $tablePrefix
+     *
+     * @return  self
+     */ 
+    public function setTablePrefix(string $tablePrefix)
+    {
+        $this->tablePrefix = $tablePrefix;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isUserVip
+     *
+     * @return  string
+     */ 
+    public function getIsUserVip()
+    {
+        return $this->isUserVip;
+    }
+
+    /**
+     * Set the value of isUserVip
+     *
+     * @param  string  $isUserVip
+     *
+     * @return  self
+     */ 
+    public function setIsUserVip(string $isUserVip)
+    {
+        $this->isUserVip = $isUserVip;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of vipHasPriority
+     *
+     * @return  string
+     */ 
+    public function getVipHasPriority()
+    {
+        return $this->vipHasPriority;
+    }
+
+    /**
+     * Set the value of vipHasPriority
+     *
+     * @param  string  $vipHasPriority
+     *
+     * @return  self
+     */ 
+    public function setVipHasPriority(string $vipHasPriority)
+    {
+        $this->vipHasPriority = $vipHasPriority;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idServiceGroup
+     *
+     * @return  int
+     */ 
+    public function getIdServiceGroup()
+    {
+        return $this->idServiceGroup;
+    }
+
+    /**
+     * Set the value of idServiceGroup
+     *
+     * @param  int  $idServiceGroup
+     *
+     * @return  self
+     */ 
+    public function setIdServiceGroup(int $idServiceGroup)
+    {
+        $this->idServiceGroup = $idServiceGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of approvalList
+     *
+     * @return  array
+     */ 
+    public function getApprovalList()
+    {
+        return $this->approvalList;
+    }
+
+    /**
+     * Set the value of approvalList
+     *
+     * @param  array  $approvalList
+     *
+     * @return  self
+     */ 
+    public function setApprovalList(array $approvalList)
+    {
+        $this->approvalList = $approvalList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inChargeList
+     *
+     * @return  array
+     */ 
+    public function getInChargeList()
+    {
+        return $this->inChargeList;
+    }
+
+    /**
+     * Set the value of inChargeList
+     *
+     * @param  array  $inChargeList
+     *
+     * @return  self
+     */ 
+    public function setInChargeList(array $inChargeList)
+    {
+        $this->inChargeList = $inChargeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idGroup
+     *
+     * @return  int
+     */ 
+    public function getIdGroup()
+    {
+        return $this->idGroup;
+    }
+
+    /**
+     * Set the value of idGroup
+     *
+     * @param  int  $idGroup
+     *
+     * @return  self
+     */ 
+    public function setIdGroup(int $idGroup)
+    {
+        $this->idGroup = $idGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userType
+     *
+     * @return  int
+     */ 
+    public function getUserType()
+    {
+        return $this->userType;
+    }
+
+    /**
+     * Set the value of userType
+     *
+     * @param  int  $userType
+     *
+     * @return  self
+     */ 
+    public function setUserType(int $userType)
+    {
+        $this->userType = $userType;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteList
+     *
+     * @return  array
+     */ 
+    public function getNoteList()
+    {
+        return $this->noteList;
+    }
+
+    /**
+     * Set the value of noteList
+     *
+     * @param  array  $noteList
+     *
+     * @return  self
+     */ 
+    public function setNoteList(array $noteList)
+    {
+        $this->noteList = $noteList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of notePublic
+     *
+     * @return  int
+     */ 
+    public function getNotePublic()
+    {
+        return $this->notePublic;
+    }
+
+    /**
+     * Set the value of notePublic
+     *
+     * @param  int  $notePublic
+     *
+     * @return  self
+     */ 
+    public function setNotePublic(int $notePublic)
+    {
+        $this->notePublic = $notePublic;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteTypeID
+     *
+     * @return  int
+     */ 
+    public function getNoteTypeID()
+    {
+        return $this->noteTypeID;
+    }
+
+    /**
+     * Set the value of noteTypeID
+     *
+     * @param  int  $noteTypeID
+     *
+     * @return  self
+     */ 
+    public function setNoteTypeID(int $noteTypeID)
+    {
+        $this->noteTypeID = $noteTypeID;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of note
+     *
+     * @return  string
+     */ 
+    public function getNote()
+    {
+        return $this->note;
+    }
+
+    /**
+     * Set the value of note
+     *
+     * @param  string  $note
+     *
+     * @return  self
+     */ 
+    public function setNote(string $note)
+    {
+        $this->note = $note;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteDateTime
+     *
+     * @return  string
+     */ 
+    public function getNoteDateTime()
+    {
+        return $this->noteDateTime;
+    }
+
+    /**
+     * Set the value of noteDateTime
+     *
+     * @param  string  $noteDateTime
+     *
+     * @return  self
+     */ 
+    public function setNoteDateTime(string $noteDateTime)
+    {
+        $this->noteDateTime = $noteDateTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteIsOpen
+     *
+     * @return  int
+     */ 
+    public function getNoteIsOpen()
+    {
+        return $this->noteIsOpen;
+    }
+
+    /**
+     * Set the value of noteIsOpen
+     *
+     * @param  int  $noteIsOpen
+     *
+     * @return  self
+     */ 
+    public function setNoteIsOpen(int $noteIsOpen)
+    {
+        $this->noteIsOpen = $noteIsOpen;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of minExpendedTime
+     *
+     * @return  string
+     */ 
+    public function getMinExpendedTime()
+    {
+        return $this->minExpendedTime;
+    }
+
+    /**
+     * Set the value of minExpendedTime
+     *
+     * @param  string  $minExpendedTime
+     *
+     * @return  self
+     */ 
+    public function setMinExpendedTime(string $minExpendedTime)
+    {
+        $this->minExpendedTime = $minExpendedTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of minTelephoneTime
+     *
+     * @return  string
+     */ 
+    public function getMinTelephoneTime()
+    {
+        return $this->minTelephoneTime;
+    }
+
+    /**
+     * Set the value of minTelephoneTime
+     *
+     * @param  string  $minTelephoneTime
+     *
+     * @return  self
+     */ 
+    public function setMinTelephoneTime(string $minTelephoneTime)
+    {
+        $this->minTelephoneTime = $minTelephoneTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of emailCode
+     *
+     * @return  string
+     */ 
+    public function getEmailCode()
+    {
+        return $this->emailCode;
+    }
+
+    /**
+     * Set the value of emailCode
+     *
+     * @param  string  $emailCode
+     *
+     * @return  self
+     */ 
+    public function setEmailCode(string $emailCode)
+    {
+        $this->emailCode = $emailCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isRepass
+     *
+     * @return  string
+     */ 
+    public function getIsRepass()
+    {
+        return $this->isRepass;
+    }
+
+    /**
+     * Set the value of isRepass
+     *
+     * @param  string  $isRepass
+     *
+     * @return  self
+     */ 
+    public function setIsRepass(string $isRepass)
+    {
+        $this->isRepass = $isRepass;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isTrack
+     *
+     * @return  int
+     */ 
+    public function getIsTrack()
+    {
+        return $this->isTrack;
+    }
+
+    /**
+     * Set the value of isTrack
+     *
+     * @param  int  $isTrack
+     *
+     * @return  self
+     */ 
+    public function setIsTrack(int $isTrack)
+    {
+        $this->isTrack = $isTrack;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isOperatorAux
+     *
+     * @return  int
+     */ 
+    public function getIsOperatorAux()
+    {
+        return $this->isOperatorAux;
+    }
+
+    /**
+     * Set the value of isOperatorAux
+     *
+     * @param  int  $isOperatorAux
+     *
+     * @return  self
+     */ 
+    public function setIsOperatorAux(int $isOperatorAux)
+    {
+        $this->isOperatorAux = $isOperatorAux;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of minOpeningTime
+     *
+     * @return  mixed
+     */ 
+    public function getMinOpeningTime()
+    {
+        return $this->minOpeningTime;
+    }
+
+    /**
+     * Set the value of minOpeningTime
+     *
+     * @param  mixed  $minOpeningTime
+     *
+     * @return  self
+     */ 
+    public function setMinOpeningTime($minOpeningTime)
+    {
+        $this->minOpeningTime = $minOpeningTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of minAttendanceTime
+     *
+     * @return  mixed
+     */ 
+    public function getMinAttendanceTime()
+    {
+        return $this->minAttendanceTime;
+    }
+
+    /**
+     * Set the value of minAttendanceTime
+     *
+     * @param  mixed  $minAttendanceTime
+     *
+     * @return  self
+     */ 
+    public function setMinAttendanceTime($minAttendanceTime)
+    {
+        $this->minAttendanceTime = $minAttendanceTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of minClosureTime
+     *
+     * @return  mixed
+     */ 
+    public function getMinClosureTime()
+    {
+        return $this->minClosureTime;
+    }
+
+    /**
+     * Set the value of minClosureTime
+     *
+     * @param  mixed  $minClosureTime
+     *
+     * @return  self
+     */ 
+    public function setMinClosureTime($minClosureTime)
+    {
+        $this->minClosureTime = $minClosureTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of logDate
+     *
+     * @return  mixed
+     */ 
+    public function getLogDate()
+    {
+        return $this->logDate;
+    }
+
+    /**
+     * Set the value of logDate
+     *
+     * @param  mixed  $logDate
+     *
+     * @return  self
+     */ 
+    public function setLogDate($logDate)
+    {
+        $this->logDate = $logDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idUserLog
+     *
+     * @return  int
+     */ 
+    public function getIdUserLog()
+    {
+        return $this->idUserLog;
+    }
+
+    /**
+     * Set the value of idUserLog
+     *
+     * @param  int  $idUserLog
+     *
+     * @return  self
+     */ 
+    public function setIdUserLog(int $idUserLog)
+    {
+        $this->idUserLog = $idUserLog;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of forwardedDate
+     *
+     * @return  mixed
+     */ 
+    public function getForwardedDate()
+    {
+        return $this->forwardedDate;
+    }
+
+    /**
+     * Set the value of forwardedDate
+     *
+     * @param  mixed  $forwardedDate
+     *
+     * @return  self
+     */ 
+    public function setForwardedDate($forwardedDate)
+    {
+        $this->forwardedDate = $forwardedDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of approvalDate
+     *
+     * @return  mixed
+     */ 
+    public function getApprovalDate()
+    {
+        return $this->approvalDate;
+    }
+
+    /**
+     * Set the value of approvalDate
+     *
+     * @param  mixed  $approvalDate
+     *
+     * @return  self
+     */ 
+    public function setApprovalDate($approvalDate)
+    {
+        $this->approvalDate = $approvalDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of finishDate
+     *
+     * @return  mixed
+     */ 
+    public function getFinishDate()
+    {
+        return $this->finishDate;
+    }
+
+    /**
+     * Set the value of finishDate
+     *
+     * @param  mixed  $finishDate
+     *
+     * @return  self
+     */ 
+    public function setFinishDate($finishDate)
+    {
+        $this->finishDate = $finishDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of rejectionDate
+     *
+     * @return  mixed
+     */ 
+    public function getRejectionDate()
+    {
+        return $this->rejectionDate;
+    }
+
+    /**
+     * Set the value of rejectionDate
+     *
+     * @param  mixed  $rejectionDate
+     *
+     * @return  self
+     */ 
+    public function setRejectionDate($rejectionDate)
+    {
+        $this->rejectionDate = $rejectionDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attendantPeriod
+     *
+     * @return  mixed
+     */ 
+    public function getAttendantPeriod()
+    {
+        return $this->attendantPeriod;
+    }
+
+    /**
+     * Set the value of attendantPeriod
+     *
+     * @param  mixed  $attendantPeriod
+     *
+     * @return  self
+     */ 
+    public function setAttendantPeriod($attendantPeriod)
+    {
+        $this->attendantPeriod = $attendantPeriod;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of chargingPeriod
+     *
+     * @return  mixed
+     */ 
+    public function getChargingPeriod()
+    {
+        return $this->chargingPeriod;
+    }
+
+    /**
+     * Set the value of chargingPeriod
+     *
+     * @param  mixed  $chargingPeriod
+     *
+     * @return  self
+     */ 
+    public function setChargingPeriod($chargingPeriod)
+    {
+        $this->chargingPeriod = $chargingPeriod;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of openingDate
+     *
+     * @return  mixed
+     */ 
+    public function getOpeningDate()
+    {
+        return $this->openingDate;
+    }
+
+    /**
+     * Set the value of openingDate
+     *
+     * @param  mixed  $openingDate
+     *
+     * @return  self
+     */ 
+    public function setOpeningDate($openingDate)
+    {
+        $this->openingDate = $openingDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isReopened
+     *
+     * @return  string
+     */ 
+    public function getIsReopened()
+    {
+        return $this->isReopened;
+    }
+
+    /**
+     * Set the value of isReopened
+     *
+     * @param  string  $isReopened
+     *
+     * @return  self
+     */ 
+    public function setIsReopened(string $isReopened)
+    {
+        $this->isReopened = $isReopened;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteTotalMinutes
+     *
+     * @return  mixed
+     */ 
+    public function getNoteTotalMinutes()
+    {
+        return $this->noteTotalMinutes;
+    }
+
+    /**
+     * Set the value of noteTotalMinutes
+     *
+     * @param  mixed  $noteTotalMinutes
+     *
+     * @return  self
+     */ 
+    public function setNoteTotalMinutes($noteTotalMinutes)
+    {
+        $this->noteTotalMinutes = $noteTotalMinutes;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteStartHour
+     *
+     * @return  mixed
+     */ 
+    public function getNoteStartHour()
+    {
+        return $this->noteStartHour;
+    }
+
+    /**
+     * Set the value of noteStartHour
+     *
+     * @param  mixed  $noteStartHour
+     *
+     * @return  self
+     */ 
+    public function setNoteStartHour($noteStartHour)
+    {
+        $this->noteStartHour = $noteStartHour;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteFinishHour
+     *
+     * @return  mixed
+     */ 
+    public function getNoteFinishHour()
+    {
+        return $this->noteFinishHour;
+    }
+
+    /**
+     * Set the value of noteFinishHour
+     *
+     * @param  mixed  $noteFinishHour
+     *
+     * @return  self
+     */ 
+    public function setNoteFinishHour($noteFinishHour)
+    {
+        $this->noteFinishHour = $noteFinishHour;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteExecutionDate
+     *
+     * @return  mixed
+     */ 
+    public function getNoteExecutionDate()
+    {
+        return $this->noteExecutionDate;
+    }
+
+    /**
+     * Set the value of noteExecutionDate
+     *
+     * @param  mixed  $noteExecutionDate
+     *
+     * @return  self
+     */ 
+    public function setNoteExecutionDate($noteExecutionDate)
+    {
+        $this->noteExecutionDate = $noteExecutionDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteHourType
+     *
+     * @return  mixed
+     */ 
+    public function getNoteHourType()
+    {
+        return $this->noteHourType;
+    }
+
+    /**
+     * Set the value of noteHourType
+     *
+     * @param  mixed  $noteHourType
+     *
+     * @return  self
+     */ 
+    public function setNoteHourType($noteHourType)
+    {
+        $this->noteHourType = $noteHourType;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteServiceVal
+     *
+     * @return  mixed
+     */ 
+    public function getNoteServiceVal()
+    {
+        return $this->noteServiceVal;
+    }
+
+    /**
+     * Set the value of noteServiceVal
+     *
+     * @param  mixed  $noteServiceVal
+     *
+     * @return  self
+     */ 
+    public function setNoteServiceVal($noteServiceVal)
+    {
+        $this->noteServiceVal = $noteServiceVal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteIpAddress
+     *
+     * @return  mixed
+     */ 
+    public function getNoteIpAddress()
+    {
+        return $this->noteIpAddress;
+    }
+
+    /**
+     * Set the value of noteIpAddress
+     *
+     * @param  mixed  $noteIpAddress
+     *
+     * @return  self
+     */ 
+    public function setNoteIpAddress($noteIpAddress)
+    {
+        $this->noteIpAddress = $noteIpAddress;
 
         return $this;
     }

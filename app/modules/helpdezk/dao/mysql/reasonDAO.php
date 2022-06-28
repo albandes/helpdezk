@@ -215,4 +215,42 @@ class reasonDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * Return an array with a item's list
+     *
+     * @param  reasonModel $reasonModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchReasonByService(reasonModel $reasonModel): array
+    {        
+        $sql = "SELECT idreason, `name`, `default`
+                  FROM hdk_tbcore_reason
+                 WHERE idservice = :serviceID
+                   AND `status` = 'A'
+              ORDER BY `name` ASC";
+        //echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':serviceID', $reasonModel->getIdService());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $reasonModel->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$reasonModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting reasons by service ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }
