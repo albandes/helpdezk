@@ -26,12 +26,22 @@ class awsServices
     protected $awsEmailLogger;
     
     /**
-     * @var string
+     * @var mixed
      */
     protected $_region;
 
     /**
-     * @var string
+     * @var mixed
+     */
+    protected $_accessKey; 
+
+    /**
+     * @var mixed
+     */
+    protected $_secretKey;
+
+    /**
+     * @var mixed
      */
     protected $_bucket;
 
@@ -75,11 +85,22 @@ class awsServices
     public function _getS3Connection()
     {
         // Establish connection with DreamObjects with an S3 client.        
-        $client = new S3Client([
-            'version'       => 'latest',
-            'region'        => $this->_region,
-            'credentials'   => $this->_credentials
-        ]);
+        try {
+
+            $client = new S3Client([
+                'version'     => 'latest',
+                'region'      => $this->_region,
+                'credentials' => $this->_credentials
+            ]);
+
+        } catch (S3Exception $e) {
+
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error connecting to AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error connecting to AWS S3, Error Code: " . $errorCode);
+
+        }
         
         return $client;                
     }
@@ -90,7 +111,6 @@ class awsServices
      * 
      * @param string    $sourceFile  File to be copied to bucket
      * @param string    $targetFile  Filename in bucket
-     * @param string    $acl         Bucket ACL
      * 
      * @return array    Array with status and message
      *
@@ -98,8 +118,7 @@ class awsServices
      *
      * @author Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
-
-    public function _copyToBucket($sourceFile,$targetFile,$acl='public-read')
+    public function _copyToBucket($sourceFile,$targetFile)
     {
         
         $s3Obj = $this->_getS3Connection();
@@ -109,14 +128,15 @@ class awsServices
             $s3Obj->putObject([
                 'Bucket'     => $this->_bucket,
                 'Key'        => $targetFile,
-                'SourceFile' => $sourceFile,
-                'ACL'        => $acl
-                
+                'SourceFile' => $sourceFile                
             ]); 
             
         } catch (S3Exception $e) {
-            
-            return array("success"=>false,"message"=>"Error save file to AWS S3");    
+
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error putting file to AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error putting file to AWS S3, Error Code: " . $errorCode); 
 
         }
         
@@ -130,7 +150,6 @@ class awsServices
      * 
      * @param string    $oldFile  Filename that is in the bucket
      * @param string    $newFile  New filename
-     * @param string    $acl      Bucket ACL
      * 
      * @return array    Array with status and message
      *
@@ -139,8 +158,7 @@ class awsServices
      * 
      * @author          Rogerio Albandes <rogerio.albandes@helpdezk.cc>
      */
-
-    public function _renameFile($oldFile,$newFile,$acl='public-read')
+    public function _renameFile($oldFile,$newFile)
     {
         
         $pos = strripos($oldFile, '/');
@@ -152,27 +170,27 @@ class awsServices
             $copySource = urlencode($oldFile);    
         }    
         
-        $s3ObjRen = $this->_getS3Connection();
+        $s3Obj = $this->_getS3Connection();
         
         try{ 
-            $ret = $s3ObjRen->copyObject([
+            $ret = $s3Obj->copyObject([
                 'Bucket'     => $this->_bucket,
                 'Key'        => $newFile,    
-                'CopySource' => "{$this->_bucket}/{$copySource}",
-                'ACL'        => $acl               
+                'CopySource' => "{$this->_bucket}/{$copySource}"               
             ]);
         } catch (S3Exception $e) {
-            return array("success"=>false,"message"=>"Error copy file to AWS S3");    
-        }
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error copying file to AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error putting file's copy to AWS S3, Error Code: " . $errorCode);    
+        }        
         
-        
-        $s3ObjRen->deleteObject(array(
+        $s3Obj->deleteObject(array(
             'Bucket' => $this->_bucket,
             'Key'    => $oldFile,
         ));
         
         return array("success"=>true, "message"=>"");
-
 
     }    
 
@@ -197,31 +215,56 @@ class awsServices
         try{
             $s3Obj->deleteObject(array(
                 'Bucket' => $this->_bucket,
-                'Key'    => $file,
+                'Key'    => $file
             ));
         } catch (S3Exception $e) {
-            return array("success"=>false,"message"=>"Error remove file from AWS S3");    
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error removing the file from AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error removing the file from AWS S3, Error Code: " . $errorCode);    
         }        
 
         return array("success"=>true, "message"=>"");
         
     }
 
-    function _s3Download() {
-        $s3Obj = $this->_getS3Connection();
-        $signed_url = $s3Obj->getObjectUrl(
-            'pipegrep-001', 
-            'helpdezk/attachments/45.png', '+30 minutes', 
-            array(
-                'ResponseContentType' => 'application/octet-stream',
-                'ResponseContentDisposition' => 'attachment; filename="your-file-name-here.png"'
-            )
-        );
-    
-    }
-
     function getRegion() {
         return $this->_region;
+    }
+    
+    /**
+     * Creates and returns a presigned URL
+     *
+     * @param string    $file  Filename that is in the bucket
+     * @param int       $time  Time in minutes
+     * @return array    Array with status and message
+     *
+     * @since           1.1.11 First time this was introduced.
+     * @link            https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-presigned-url.html
+     * 
+     * @author          Valentin Acosta <vilaxr@gmail.com>
+     */
+    function _getFile($file,$time=1) {
+        $s3Obj = $this->_getS3Connection();
+        //Creating a presigned URL
+        $cmd = $s3Obj->getCommand('GetObject', [
+            'Bucket' => $this->_bucket,
+            'Key' => $file
+        ]);        
+
+        try{
+            $request = $s3Obj->createPresignedRequest($cmd, "+{$time} minutes");
+        } catch (S3Exception $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error creating file's presigned URL on AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error creating file's presigned URL on AWS S3, Error Code: " . $errorCode,"fileUrl"=>"");    
+        }
+        
+        // Get the actual presigned-url
+        $presignedUrl = (string)$request->getUri();
+        return array("success"=>true, "message"=>"","fileUrl"=>$presignedUrl);       
+    
     }
 
 }

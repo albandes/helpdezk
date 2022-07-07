@@ -75,6 +75,41 @@ final class emailServerModel
     private $totalRows;
 
     /**
+     * @var int
+     */
+    private $idModule;
+
+    /**
+     * @var mixed
+     */
+    private $code;
+
+    /**
+     * @var string
+     */
+    private $inDate;
+
+    /**
+     * @var string
+     */
+    private $outDate;
+
+    /**
+     * @var int
+     */
+    private $isSended;
+
+    /**
+     * @var string
+     */
+    private $tag;
+
+    /**
+     * @var int
+     */
+    private $idEmailCron;
+
+    /**
      * Get the value of idEmailServer
      *
      * @return  int
@@ -406,6 +441,174 @@ final class emailServerModel
     public function setTotalRows(int $totalRows): self
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idModule
+     *
+     * @return  int
+     */ 
+    public function getIdModule()
+    {
+        return $this->idModule;
+    }
+
+    /**
+     * Set the value of idModule
+     *
+     * @param  int  $idModule
+     *
+     * @return  self
+     */ 
+    public function setIdModule(int $idModule)
+    {
+        $this->idModule = $idModule;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of code
+     *
+     * @return  mixed
+     */ 
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
+     * Set the value of code
+     *
+     * @param  mixed  $code
+     *
+     * @return  self
+     */ 
+    public function setCode($code)
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inDate
+     *
+     * @return  string
+     */ 
+    public function getInDate()
+    {
+        return $this->inDate;
+    }
+
+    /**
+     * Set the value of inDate
+     *
+     * @param  string  $inDate
+     *
+     * @return  self
+     */ 
+    public function setInDate(string $inDate)
+    {
+        $this->inDate = $inDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of outDate
+     *
+     * @return  string
+     */ 
+    public function getOutDate()
+    {
+        return $this->outDate;
+    }
+
+    /**
+     * Set the value of outDate
+     *
+     * @param  string  $outDate
+     *
+     * @return  self
+     */ 
+    public function setOutDate(string $outDate)
+    {
+        $this->outDate = $outDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isSended
+     *
+     * @return  int
+     */ 
+    public function getIsSended()
+    {
+        return $this->isSended;
+    }
+
+    /**
+     * Set the value of isSended
+     *
+     * @param  int  $isSended
+     *
+     * @return  self
+     */ 
+    public function setIsSended(int $isSended)
+    {
+        $this->isSended = $isSended;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tag
+     *
+     * @return  string
+     */ 
+    public function getTag()
+    {
+        return $this->tag;
+    }
+
+    /**
+     * Set the value of tag
+     *
+     * @param  string  $tag
+     *
+     * @return  self
+     */ 
+    public function setTag(string $tag)
+    {
+        $this->tag = $tag;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idEmailCron
+     *
+     * @return  int
+     */ 
+    public function getIdEmailCron()
+    {
+        return $this->idEmailCron;
+    }
+
+    /**
+     * Set the value of idEmailCron
+     *
+     * @param  int  $idEmailCron
+     *
+     * @return  self
+     */ 
+    public function setIdEmailCron(int $idEmailCron)
+    {
+        $this->idEmailCron = $idEmailCron;
 
         return $this;
     }

@@ -86,5 +86,38 @@ class emailServerDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * Inserts email data to send in DB
+     *
+     * @param  mixed $emailSrvModel
+     * @return array
+     */
+    public function insertEmailCron(emailServerModel $emailServerModel): array
+    {        
+        $sql = "INSERT INTO tbemailcron(idemailserver,idmodule,code,date_in,send,tag)
+                     VALUES (:emailSrvID,:moduleID,:code,NOW(),0,:tag)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':emailSrvID', $emailServerModel->getIdEmailServer());
+            $stmt->bindValue(':moduleID', $emailServerModel->getIdModule());
+            $stmt->bindValue(':code', $emailServerModel->getCode());
+            $stmt->bindValue(':tag', $emailServerModel->getTag());
+            $stmt->execute();
+
+            $emailServerModel->setIdEmailCron($this->db->lastInsertId());
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailServerModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error insert email cron", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 
 }

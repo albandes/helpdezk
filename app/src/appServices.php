@@ -1481,7 +1481,7 @@ class appServices
         }
 
         $url = $request;
-
+        
         $c = curl_init();
         curl_setopt($c, CURLOPT_HEADER, 0);
         curl_setopt($c, CURLOPT_VERBOSE, 0);
@@ -1500,16 +1500,20 @@ class appServices
             default:
                 curl_setopt($c, CURLOPT_CUSTOMREQUEST, $type);
         }
-
+        
         $data = curl_exec($c);
-
+        
         if(!curl_errno($c)) {
             $info = curl_getinfo($c);
             if ($info['http_code'] == 401) {
                 $message = 'Got error, http code: ' . $info['http_code'] . ' - ' . $this->_getHttpErrorCode($info['http_code']) ;
                 $arrayRet = array('success' => false, 'message' => $message, 'return' => '');
             } else {
-                $arrayRet = array('success' => true, 'message' => '', 'return' => json_decode($data,true));
+                $res = json_decode($data,true);
+                $st = $res['status'] ? true : false;
+                $aDat = $res['status'] ? $res['result'] : '';
+                
+                $arrayRet = array('success' => $st, 'message' => '', 'return' => $aDat);
             }
 
         } else {
@@ -1783,7 +1787,13 @@ class appServices
     {
         return ini_get('upload_max_filesize');
     }
-
+    
+    /**
+     * _createRequestCode
+     *
+     * @param  mixed $prefix
+     * @return void
+     */
     public function _createRequestCode($prefix="hdk")
     {
         $ticketDAO = new ticketDAO();
@@ -1834,5 +1844,108 @@ class appServices
         $this->_sessionDestroy();
         header('Location:' . $_ENV['HDK_URL'] . '/admin/login');
 
+    }
+
+    /**
+     * en_us Writes the data for sending the e-mail to the tbemailcron table.
+     *
+     * pt_br Grava na tabela tbemailcron os dados para envio de e-mail.
+     * 
+     * @return void
+     *
+     */
+    public function _saveEmailCron($idModule,$ticketCode,$tag)
+    {
+        $emailSrvDAO = new emailServerDAO();
+        $emailSrvModel = new emailServerModel();
+
+        $where = "WHERE a.default = 'Y'";
+        $ret = $emailSrvDAO->queryEmailServers($where);
+
+        if(!$ret['status']){
+            $this->applogger->error("No result returned",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aEmailSrv = $ret['push']['object']->getGridList();
+        $idServer = !empty($aEmailSrv[0]['idemailserver']) ? $aEmailSrv[0]['idemailserver'] : 1;
+
+        $emailSrvModel->setIdEmailServer($idServer)
+                      ->setIdModule($idModule)
+                      ->setCode($ticketCode)
+                      ->setTag($tag);
+        
+        $insCron = $emailSrvDAO->insertEmailCron($emailSrvModel);
+        if(!$insCron['status']){
+            return array("status"=>false,"message"=>$insCron['message']);
+        }else{
+            return array("status"=>true,"message"=>"");
+        }
+    }
+    
+    /**
+     * Uppercase the first character of each word in a string with a Roman numeral
+     *
+     * @param  mixed $string
+     * @return void
+     */
+    public function _formatStringWithRomanNumeral($string){
+        $split = explode(' ',$string);
+        $pattern = '(\b(?:M{1,4})?(?:CM|CD|D?C{1,3})?(?:XC|XL|L?X{1,3})?(?:IX|IV|V?I{1,3})?\b)';
+        preg_match_all($pattern,$string,$matches);
+        $matches = $matches[0];
+        $newString = "";
+        
+        foreach($split as $k=>$v){            
+            if(!in_array($v,$matches)){
+                $newString .= ucwords(strtolower($v))." ";
+            }else{
+                $newString .= $v." ";
+            }
+        }
+
+        return trim($newString);
+    }
+
+    public function _monthInLetterBrPortuguese($month){
+        switch($month){
+            case '01':
+                $month = 'Janeiro';
+                break;
+            case '02':
+                $month = 'Fevereiro';
+                break;
+            case '03':
+                $month = 'Março';
+                break;
+            case '04':
+                $month = 'Abril';
+                break;
+            case '05':
+                $month = 'Maio';
+                break;
+            case '06':
+                $month = 'Junho';
+                break;
+            case '07':
+                $month = 'Julho';
+                break;
+            case '08':
+                $month = 'Agosto';
+                break;
+            case '09':
+                $month = 'Setembro';
+                break;
+            case '10':
+                $month = 'Outubro';
+                break;
+            case '11':
+                $month = 'Novembro';
+                break;
+            case '12':
+                $month = 'Dezembro';
+                break;
+        }
+
+        return $month;
     }
 }
