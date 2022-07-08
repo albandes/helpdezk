@@ -60,7 +60,6 @@ class apiTokenDAO extends Database
         
         $sql = "SELECT COUNT(idtoken) total
                   FROM tbtoken
-                  WHERE idtoken= idtoken 
                 $where";
         
         try{
