@@ -1512,8 +1512,9 @@ class appServices
                 $res = json_decode($data,true);
                 $st = $res['status'] ? true : false;
                 $aDat = $res['status'] ? $res['result'] : '';
+                $msg = $res['status'] ? '' : $res['message'];
                 
-                $arrayRet = array('success' => $st, 'message' => '', 'return' => $aDat);
+                $arrayRet = array('success' => $st, 'message' => $msg, 'return' => $aDat);
             }
 
         } else {
