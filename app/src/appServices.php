@@ -676,7 +676,7 @@ class appServices
     {
         if(!is_dir($path)) {
             $this->applogger->info("Directory: $path does not exists, I will try to create it.",['Class' => __CLASS__, 'Method' => __METHOD__]);
-            if (!mkdir ($path, 0777 )) {
+            if (!mkdir ($path, 0766 )) {
                 $this->applogger->error("I could not create the directory: $path",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
             }
@@ -684,7 +684,7 @@ class appServices
 
         if (!is_writable($path)) {
             $this->applogger->info('Directory: '. $path.' is not writable, I will try to make it writable',['Class' => __CLASS__, 'Method' => __METHOD__]);
-            if (!chmod($path,0777)){
+            if (!chmod($path,0766)){
                 $this->applogger->error("Directory: $path is not writable!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
             }
