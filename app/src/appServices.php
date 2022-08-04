@@ -874,7 +874,7 @@ class appServices
             case "SMTP"://STMP
                 $retSend = $this->_sendSMTP($params);
                 break;
-            case "API"://STMP
+            case "API"://API
                 echo "{$aEmailSrv[0]['servertype']}\n";
                 break;
             default:
@@ -1948,5 +1948,37 @@ class appServices
         }
 
         return $month;
+    }
+    
+    /**
+     * Checks if the extension was loaded
+     *
+     * @param  mixed $extension
+     * @return void
+     */
+    public function _checkExtensionLoaded(string $extension){
+        if (extension_loaded($extension)) {
+            $this->applogger->info(strtoupper($extension)." support is loaded ",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return true;
+        }else{
+            $this->applogger->error(strtoupper($extension)." support is NOT loaded ",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+    }
+
+    /**
+     * Checks if the function exists
+     *
+     * @param  mixed $function
+     * @return void
+     */
+    public function _checkFunctionExists(string $function){
+        if (extension_loaded($function)) {
+            $this->applogger->info("{$function} function support is available ",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return true;
+        }else{
+            $this->applogger->error("{$function} support is NOT available ",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
     }
 }
