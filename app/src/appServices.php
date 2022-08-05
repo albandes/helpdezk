@@ -1973,7 +1973,7 @@ class appServices
      * @return void
      */
     public function _checkFunctionExists(string $function){
-        if (extension_loaded($function)) {
+        if (function_exists($function)) {
             $this->applogger->info("{$function} function support is available ",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return true;
         }else{
