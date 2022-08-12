@@ -161,7 +161,7 @@ class appServices
     {
         $loginSrc = new loginServices();
         $aHeader = $this->_getHeaderData();
-
+        
         return array(
             "path"			    => $this->_getPath(),
             "lang_default"	    => $_ENV["DEFAULT_LANG"],
@@ -228,14 +228,18 @@ class appServices
 			$width 	= "227";
 			$height = "70";
         }else{
-            $objLogo = $logo['push']['object'];            
+            $objLogo = $logo['push']['object'];
             
-            if($this->saveMode == 'disk'){
-                $pathLogoImage = $this->imgDir . $objLogo->getFileName();
-                $st = file_exists($pathLogoImage) ? true : false;
-            }elseif($this->saveMode == "aws-s3"){
-                $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
-                $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+            if(empty($objLogo->getFileName())){
+                $st = false;
+            }else{
+                if($this->saveMode == 'disk'){
+                    $pathLogoImage = $this->imgDir . $objLogo->getFileName();                
+                    $st = file_exists($pathLogoImage) ? true : false;
+                }elseif($this->saveMode == "aws-s3"){
+                    $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
+                    $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+                }
             }
 
             if(!$st){
