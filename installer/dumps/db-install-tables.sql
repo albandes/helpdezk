@@ -635,8 +635,8 @@ CREATE TABLE `hdk_tbdepartment` (
 ) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 INSERT INTO hdk_tbdepartment VALUES("76","1038","0","Infrastructure","A");
-INSERT INTO hdk_tbdepartment VALUES("77","1038","","Internal Communication","A");
-INSERT INTO hdk_tbdepartment VALUES("78","1038","","Advertising and Marketing","A");
+INSERT INTO hdk_tbdepartment VALUES("77","1038","0","Internal Communication","A");
+INSERT INTO hdk_tbdepartment VALUES("78","1038","0","Advertising and Marketing","A");
 
 
 
