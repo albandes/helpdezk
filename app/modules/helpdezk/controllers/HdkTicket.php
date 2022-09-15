@@ -4,6 +4,7 @@ use App\core\Controller;
 
 use App\modules\admin\src\adminServices;
 use App\modules\helpdezk\src\hdkServices;
+use App\src\awsServices;
 
 use App\modules\helpdezk\dao\mysql\ticketDAO;
 use App\modules\helpdezk\dao\mysql\ticketRulesDAO;
@@ -13,11 +14,53 @@ use App\modules\helpdezk\models\mysql\ticketRulesModel;
 
 class hdkTicket extends Controller
 {           
+    /**
+     * @var string
+     */
+    protected $saveMode;
+    
+    /**
+     * @var string
+     */
+    protected $ticketStoragePath;
+
+    /**
+     * @var string
+     */
+    protected $noteStoragePath;
+
+    /**
+     * @var string
+     */
+    protected $fileBucket;
+
     public function __construct()
     {
         parent::__construct();
 
-        $this->appSrc->_sessionValidate();       
+        $this->appSrc->_sessionValidate();
+
+        $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
+        if($this->saveMode == "aws-s3"){
+            $bucket = $_ENV['S3BUCKET_NAME'];
+            $this->ticketStoragePath = 'helpdezk/attachments/';
+            $this->noteStoragePath = 'helpdezk/noteattachments/';
+            //$this->fileBucket = "https://{$bucket}.s3.amazonaws.com/".$this->fileDir;            
+        }else{
+            if($_ENV['EXTERNAL_STORAGE']){
+                $modDir = $this->appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/helpdezk/');
+                $this->ticketStoragePath = $this->appSrc->_setFolder($modDir.'attachments/');
+                $this->noteStoragePath = $this->appSrc->_setFolder($modDir.'noteattachments/');
+                //$this->fileBucket = $_ENV['EXTERNAL_STORAGE_URL'].'lgp/mapping/';
+            }else{
+                $storageDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath().'/storage/');
+                $upDir = $this->appSrc->_setFolder($storageDir.'uploads/');
+                $modDir = $this->appSrc->_setFolder($upDir.'helpdezk/');
+                $this->ticketStoragePath = $this->appSrc->_setFolder($modDir.'attachments/');
+                $this->noteStoragePath = $this->appSrc->_setFolder($modDir.'noteattachments/');
+                //$this->fileBucket = $_ENV['HDK_URL']."/storage/uploads/lgp/mapping/";
+            }
+        }
     }
     
     public function index($myTickets=null)
@@ -149,37 +192,55 @@ class hdkTicket extends Controller
             $where .=  " AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
         } 
 
-         //Search with params sended from quick search input
-         if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
-         {
-             $quickValue = trim($_POST['quickValue']);
-             $quickValue = str_replace(" ","%",$quickValue);
-             $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%')";
-         }
+        //Search with params sended from quick search input
+        if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
+        {
+            $quickValue = trim($_POST['quickValue']);
+            $quickValue = str_replace(" ","%",$quickValue);
+            $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%')";
+        }
 
-         //sort options
-         $pq_sort = json_decode($_POST['pq_sort']);
-         $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "code_request";
-         
-         $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
-         $order = "ORDER BY {$sortIndx} {$sortDir}";
-         
-         $pq_curPage = !isset($_POST["pq_curpage"]) ? 1 : $_POST["pq_curpage"];    
-     
-         $pq_rPP = $_POST["pq_rpp"];
-         
-         //Count records
-         $countTicket = $ticketDAO->countTickets($where); 
-         if($countTicket['status']){
-             $total_Records = $countTicket['push']['object']->getTotalRows();
-         }else{
-             $total_Records = 0;
-         }
-         
-         $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
-         $limit = "LIMIT {$skip},$pq_rPP";
- 
-         $ticket = $ticketDAO->queryTickets($where,$group,$order,$limit);
+        //sort options
+        $pq_sort = json_decode($_POST['pq_sort']);
+        $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "code_request";
+
+        switch($sortIndx){
+            case "ticketCode":
+                $sortIndx = "code_request";
+                break;
+            case "entryDate":
+                $sortIndx = "entry_date";
+                break;
+            case "expiryDate":
+                $sortIndx = "expire_date";
+                break;
+            case "inCharge":
+                $sortIndx = "in_charge";
+                break;
+            default:
+                $sortIndx = $sortIndx;
+                break;
+        }
+        
+        $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
+        $order = "ORDER BY {$sortIndx} {$sortDir}";
+        
+        $pq_curPage = !isset($_POST["pq_curpage"]) ? 1 : $_POST["pq_curpage"];    
+    
+        $pq_rPP = $_POST["pq_rpp"];
+        
+        //Count records
+        $countTicket = $ticketDAO->countTickets($where); 
+        if($countTicket['status']){
+            $total_Records = $countTicket['push']['object']->getTotalRows();
+        }else{
+            $total_Records = 0;
+        }
+        
+        $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
+        $limit = "LIMIT {$skip},$pq_rPP";
+
+        $ticket = $ticketDAO->queryTickets($where,$group,$order,$limit);
         
         if($ticket['status']){     
             $ticketObj = $ticket['push']['object']->getGridList();     
@@ -342,7 +403,7 @@ class hdkTicket extends Controller
         return $aRet;
     }
 
-    /*
+    /**
      * en_us Renders the department add ticket screen
      *
      * pt_br Renderiza o template da tela de novo ticket
@@ -352,7 +413,6 @@ class hdkTicket extends Controller
         /** 
          * The Ticket is not registered as a regular program, as it is not in the menu - it is part of the helpdezk core,
          * so only the test is done to check if it is a user or operator
-         *
          */
         if(!in_array($_SESSION['SES_TYPE_PERSON'],array(2,3)))
             $this->appSrc->_accessDenied();
@@ -366,8 +426,7 @@ class hdkTicket extends Controller
      * en_us Write the ticket information to the DB
      *
      * pt_br Grava no BD as informações da solicitação
-     */  
-
+     */
     public function saveTicket()
     {
         if (!$this->appSrc->_checkToken()) {
@@ -487,6 +546,8 @@ class hdkTicket extends Controller
                 array("id"=> $approverID,"type" => "P","isInCharge" => 1,"isRepassed" => 'N')
             );
         }else{
+            $ticketModel->setApprovalList(array());
+
             $idGroupRepass = $hdkSrc->_getIdGroupOnlyRepass($retGroup['push']['object']->getIdServiceGroup());
             // -- in charge --
             $aInCharge = array(
@@ -526,10 +587,15 @@ class hdkTicket extends Controller
         }                
         
         $ins = $ticketDAO->saveTicket($ticketModel);
-        /*if($ins['status']){
+        if($ins['status']){
             $st = true;
             $msg = "";
-            $ticketCode = $ins['push']['object']->getRequestCode();
+            $ticketCode = $ins['push']['object']->getTicketCode();
+
+            $retInCharge = $ticketDAO->getInChargeByTicketCode($ins['push']['object']);
+            $inChargeName = ($retInCharge['status']) ? $retInCharge['push']['object']->getInCharge() : "";
+            
+            $expiryDate = $this->appSrc->_formatDateHour($expireDate);
             
             // link attachments to the ticket
             if($aSize > 0){
@@ -540,19 +606,34 @@ class hdkTicket extends Controller
                     $st = false;
                     $msg = $insAttachs['message'];
                     $ticketCode = "";
+                    $inChargeName = "";
+                    $expiryDate = "";
                 }
             }
         }else{
             $st = false;
             $msg = $ins['push']['message'];
             $ticketCode = "";
-        } */     
+            $inChargeName = "";
+            $expiryDate = "";
+        }
+
+        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
+            $aParam = array(
+                'transaction' => "new-ticket-user",
+                'code_request' => $ticketCode,
+                'media' => 'email'
+            ) ;
+
+            $hdkSrc->_sendNotification($aParam);
+        }
         
         $aRet = array(
             "success" => $st,
             "message" => $msg,
             "ticketCode" => $ticketCode,
-            "inChargeName" => $retDPO['dpoName']
+            "inChargeName" => $inChargeName,
+            "expiryDate" => $expiryDate
         );       
 
         echo json_encode($aRet);
@@ -763,5 +844,110 @@ class hdkTicket extends Controller
     {
         $hdkSrc = new hdkServices();
         echo $hdkSrc->_comboReasonHtml($_POST['serviceID']);
+    }
+
+    /**
+     * en_us Uploads the file in the directory
+     *
+     * pt_br Carrega o arquivo no diretório
+     */
+    function saveTicketAttachments()
+    {
+        if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
+
+            $fileName = $_FILES['file']['name'];
+            $tempFile = $_FILES['file']['tmp_name'];
+            $extension = strrchr($fileName, ".");
+
+            if($this->saveMode == 'disk'){
+                $targetFile =  $this->ticketStoragePath.$fileName;
+    
+                if (move_uploaded_file($tempFile,$targetFile)){
+                    $this->logger->info("Ticket's attachment saved. {$targetFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    echo json_encode(array("success"=>true,"message"=>""));
+                } else {
+                    $this->logger->error("Error trying save Ticket's attachment: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
+                }
+                    
+            }elseif($this->saveMode == "aws-s3"){
+                
+                $aws = new awsServices();
+                
+                $arrayRet = $aws->_copyToBucket($tempFile,$this->ticketStoragePath.$fileName);
+                
+                if($arrayRet['success']) {
+                    $this->logger->info("Save temp attachment file {$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    echo json_encode(array("success"=>true,"message"=>""));     
+                } else {
+                    $this->logger->error("I could not save the temp file: {$fileName} in S3 bucket !! Error: {$arrayRet['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
+                }             
+
+            }
+
+        }else{
+            echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
+        }
+        
+        exit;
+    }
+    
+    /**
+     * Link Ticket to uploaded files
+     *
+     * @param  ticketModel $ticketModel
+     * @return array
+     */
+    public function linkTicketAttachments(ticketModel $ticketModel): array
+    {
+        $ticketDAO = new ticketDAO();
+        $aAttachs = $ticketModel->getAttachments();
+        
+        foreach($aAttachs as $key=>$fileName){
+            $ticketModel->setFileName($fileName);
+
+            $ins = $ticketDAO->insertTicketAttachment($ticketModel);
+            if(!$ins['status']) {
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getRequestCode()}");
+            }
+
+            $extension = strrchr($fileName, ".");
+            $attachmentID = $ins['push']['object']->getIdAttachment();
+            $newFile = $attachmentID.$extension;
+            $ins['push']['object']->setNewFileName($newFile);
+
+            if($this->saveMode == 'disk'){
+                $targetOld = $this->ticketStoragePath.$fileName;
+                $targetNew =  $this->ticketStoragePath.$newFile;
+                if(!rename($targetOld,$targetNew)){
+                    $del = $ticketDAO->deleteTicketAttachment($ins['push']['object']);
+                    if(!$del['status']) {
+                        return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getRequestCode()}");
+                    }
+                    return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket #{$ticketModel->getRequestCode()}");
+                }
+                
+            }elseif($this->saveMode == 'aws-s3'){
+                $aws = new awsServices();
+                $arrayRet = $aws->_renameFile("{$this->ticketStoragePath}{$fileName}","{$this->ticketStoragePath}{$newFile}");
+                
+                if($arrayRet['success']) {
+                    $this->logger->info("Rename ticket attachment file {$fileName} to {$newFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                } else {
+                    $del = $ticketDAO->deleteTicketAttachment($ins['push']['object']);
+                    if(!$del['status']) {
+                        return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getRequestCode()}");
+                    }
+
+                    $this->logger->error("I could not rename ticket attachment file {$fileName} to {$newFile} in S3 bucket !! Error: {$arrayRet['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
+                }
+            
+            }
+        }
+
+        return array("success"=>true,"message"=>"");
     }
 }

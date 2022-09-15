@@ -65,6 +65,11 @@ final class ticketRulesModel
     private $ticketCode;
 
     /**
+     * @var int
+     */
+    private $idTicketApproval;
+
+    /**
      * Get the value of idApproval
      *
      * @return  int
@@ -348,6 +353,30 @@ final class ticketRulesModel
     public function setTicketCode(string $ticketCode)
     {
         $this->ticketCode = $ticketCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idTicketApproval
+     *
+     * @return  int
+     */ 
+    public function getIdTicketApproval()
+    {
+        return $this->idTicketApproval;
+    }
+
+    /**
+     * Set the value of idTicketApproval
+     *
+     * @param  int  $idTicketApproval
+     *
+     * @return  self
+     */ 
+    public function setIdTicketApproval(int $idTicketApproval)
+    {
+        $this->idTicketApproval = $idTicketApproval;
 
         return $this;
     }

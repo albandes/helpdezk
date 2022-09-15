@@ -3,18 +3,22 @@
 namespace App\modules\helpdezk\src;
 
 use App\modules\admin\dao\mysql\moduleDAO;
+use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\helpdezk\dao\mysql\hdkServiceDAO;
 use App\modules\helpdezk\dao\mysql\ticketDAO;
 use App\modules\helpdezk\dao\mysql\reasonDAO;
 use App\modules\helpdezk\dao\mysql\expireDateDAO;
 use App\modules\helpdezk\dao\mysql\groupDAO;
+use App\modules\helpdezk\dao\mysql\hdkEmailFeatureDAO;
 
 use App\modules\admin\models\mysql\moduleModel;
+use App\modules\admin\models\mysql\featureModel;
 use App\modules\helpdezk\models\mysql\hdkServiceModel;
 use App\modules\helpdezk\models\mysql\ticketModel;
 use App\modules\helpdezk\models\mysql\reasonModel;
 use App\modules\helpdezk\models\mysql\expireDateModel;
 use App\modules\helpdezk\models\mysql\groupModel;
+use App\modules\helpdezk\models\mysql\hdkEmailFeatureModel;
 
 use App\src\appServices;
 use App\src\localeServices;
@@ -35,6 +39,11 @@ class hdkServices
      */
     protected $hdkEmailLogger;
 
+    /**
+     * @var bool
+     */
+    protected $tracker;
+
     public function __construct()
     {
         $appSrc = new appServices();
@@ -50,9 +59,20 @@ class hdkServices
 
         // Clone the first one to only change the channel
         $this->hdkEmailLogger = $this->hdklogger->withName('email');
+
+        // Tracker Settings
+        $this->tracker = ($_SESSION['TRACKER_STATUS'] == 1) ? true : false;
         
     }
-
+    
+    /**
+     * en_us Setups the module navbar
+     * 
+     * pt_br Configura a barra de navegação do módulo
+     *
+     * @param  array $params Array with common parameters
+     * @return array         Array with module's parameters added
+     */
     public function _makeNavHdk($params)
     {
         $moduleDAO = new moduleDAO();
@@ -117,7 +137,12 @@ class hdkServices
         }
         return $aRet;
     }
-
+    
+    /**
+     * _comboAreaHtml
+     *
+     * @return void
+     */
     public function _comboAreaHtml()
     {
         $aArea = $this->_comboArea();
@@ -326,7 +351,12 @@ class hdkServices
 
         return $select;
     }
-
+    
+    /**
+     * _comboTypeExpireDate
+     *
+     * @return void
+     */
     public function _comboTypeExpireDate()
     {
         $translator = new localeServices();
@@ -340,7 +370,12 @@ class hdkServices
         
         return $aRet;
     }
-
+    
+    /**
+     * _comboTypeView
+     *
+     * @return void
+     */
     public function _comboTypeView()
     {
         $translator = new localeServices();
@@ -352,7 +387,12 @@ class hdkServices
         
         return $aRet;
     }
-
+    
+    /**
+     * _checkApproval
+     *
+     * @return void
+     */
     public function _checkApproval(){
 
         $ticketDAO = new ticketDAO();
@@ -373,7 +413,13 @@ class hdkServices
             return 0;
         }
     }
-
+    
+    /**
+     * _checkVipUser
+     *
+     * @param  mixed $idPerson
+     * @return void
+     */
     public function _checkVipUser($idPerson)
     {
         $ticketDAO = new ticketDAO();
@@ -387,7 +433,12 @@ class hdkServices
             return false;
 
     }
-
+    
+    /**
+     * _checkVipPriority
+     *
+     * @return void
+     */
     public function _checkVipPriority()
     {
         $ticketDAO = new ticketDAO();
@@ -400,7 +451,12 @@ class hdkServices
             return false;
 
     }
-
+    
+    /**
+     * _getVipPriority
+     *
+     * @return void
+     */
     public function _getVipPriority()
     {
         $ticketDAO = new ticketDAO();
@@ -418,7 +474,13 @@ class hdkServices
 
         return $vipPriorityID;
     }
-
+    
+    /**
+     * _getServicePriority
+     *
+     * @param  mixed $idService
+     * @return void
+     */
     public function _getServicePriority($idService)
     {
         $ticketDAO = new ticketDAO();
@@ -532,5 +594,857 @@ class hdkServices
         } else{
            return $idGroup;
         }
+    }
+    
+    /**
+     * en_us Setups params to send notifications by email
+     * 
+     * pt_br Configura os parâmetros para enviar notificações por e-mail
+     *
+     * @param  mixed $aParams
+     * @return void
+     */
+    public function  _sendNotification($aParams)
+    {
+        $appSrc = new appServices();
+        $moduleDAO = new moduleDAO();        
+        $moduleModel = new moduleModel();
+
+        $moduleModel->setName('Helpdezk');
+        $transaction    = $aParams['transaction'] ;
+        $media          = $aParams['media'] ;
+        $ticketCode     = $aParams['code_request'] ;
+
+        if ($media == 'email'){
+            $cron = false;
+            $smtp = false;
+        }
+
+        $retInfo = $moduleDAO->getModuleInfoByName($moduleModel);
+        if(!$retInfo['status']){
+            return false;
+        }
+
+        $this->hdklogger->info("[hdk] Ticket #: {$ticketCode}. Transaction: {$transaction}. Media: {$media}.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+
+        switch($transaction){
+            // Send email to the attendant, or group of attendants, when a request is forwarded
+            case 'forward-ticket':
+                if ($media == 'email') {
+                    if ($media == 'email') {
+                        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REPASS_REQUEST_OPERATOR_MAIL'] == '1') {
+                            if ( $_SESSION['EM_BY_CRON'] == '1') {
+                                $cron = true;
+                            } else {
+                                $smtp =  true;
+                            }
+                            $messageTo   = 'forward-ticket';
+                            $messagePart = 'Pass the request # ';
+                        }
+                    }
+                }
+                break;
+
+            // Sends notification to user when the request receives a note, created by operator
+            case 'user-note' :
+                if ($media == 'email') {
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['USER_NEW_NOTE_MAIL'] == '1') {
+                        if ( $_SESSION['EM_BY_CRON'] == '1') {
+                            $cron = true;
+                        } else {
+                            $smtp =  true;
+                        }
+                        $messageTo   = 'user-note';
+                        $messagePart = 'Add note in request # ';
+                    }
+                }
+                break ;
+
+            // Sends notification to operator when the request receives a note, created by user
+            case 'operator-note':
+                if ($media == 'email') {
+                    if ($media == 'email') {
+                        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['OPERATOR_NEW_NOTE'] == '1') {
+                            if ( $_SESSION['EM_BY_CRON'] == '1') {
+                                $cron = true;
+                            } else {
+                                $smtp =  true;
+                            }
+                            $messageTo   = 'operator-note';
+                            $messagePart = 'Add note in request # ';
+                        }
+                    }
+                }
+                break;
+
+            // Send notification to the attendant, or group of attendants, when a request is reopened by user
+            case 'reopen-ticket':
+                if ($media == 'email') {
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REQUEST_REOPENED'] == '1') {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1') {
+                            $cron = true;
+                        } else {
+                            $smtp =  true;
+                        }
+
+                        $messageTo   = 'reopen-ticket';
+                        $messagePart = 'Reopen request # ';
+                    }
+                }
+                break;
+
+            // Send notification to the attendant, or group of attendants, when a request is evaluated by user
+            case 'evaluate-ticket':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['EM_EVALUATED']) {
+                        if ( $_SESSION['EM_BY_CRON'] == '1') {
+                            $cron = true ;
+                        } else {
+                            $smtp = true;
+                        }
+
+                        $messageTo   = 'evaluate-ticket';
+                        $messagePart = 'Evaluate request # ';
+                    }
+
+                }
+                break;
+
+            // Sends notification to user, when a request is closed by attendant.
+            case 'finish-ticket':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['FINISH_MAIL']) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            $cron = true;
+                        } else {
+                            $smtp = true;
+                        }
+
+                        $messageTo   = 'finish-ticket';
+                        $messagePart = 'Closed request # ';
+                    }
+                }
+
+                break;
+
+            // Sends notification to the user when a request is assumed
+            case 'operator-assume':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['NEW_ASSUMED_MAIL']) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                           $cron = true;
+                        } else {
+                            $smtp = true;
+                        }
+
+                        $messageTo   = 'operator-assume';
+                        $messagePart = 'Assumed request # ';
+                    }
+                }
+                break;
+
+            // Sends notification to the user when a request is rejected
+            case 'operator-reject':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['REJECTED_MAIL'] == 1) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            $cron = true;
+                        } else {
+                            $smtp = true;
+                        }
+                        $messageTo   = 'operator-reject';
+                        $messagePart = 'Rejected request # ';
+                    }
+                }
+                break;
+
+            // Sends a notification to the operator or group of operators when a request is opened
+            case 'new-ticket-user':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['NEW_REQUEST_OPERATOR_MAIL'] == 1) {
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            $cron = true;
+                        } else {
+                            $smtp = true;
+                        }
+                        $messageTo   = 'new-ticket-user';
+                        $messagePart = 'Inserted request # ';
+                    }
+                }
+
+                // Since November 20, 2020
+                if ($this->_existsViewByUrlTable()) {
+                    $this->_setUrlToken($ticketCode);
+                } else {
+                    $this->hdklogger->info("[hdk] hdk_tbviewbyurl table does not exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                }
+
+                break;
+
+            default:
+                return false;
+        }
+        
+        if ($media == 'email') {
+            if ($cron) {$this->hdklogger->info("[hdk] entrou na cron.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+                $retCron = $appSrc->_saveEmailCron($retInfo['push']['object']->getIdmodule(),$ticketCode,$transaction);
+                if(!$retCron['status']){
+                    $this->hdklogger->error("[hdk] Error trying to send e-mail by cron. {$retCron['message']}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+                }else{
+                    $this->hdklogger->info("[hdk] {$messagePart} {$ticketCode} - We will perform the method to send e-mail by cron.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+                }
+            } elseif($smtp){$this->hdklogger->info("[hdk] entrou no smtp.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+                $this->hdklogger->info("[hdk] {$messagePart} {$ticketCode} - We will perform the method to send e-mail.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+                $this->_sendTicketEmail($messageTo,$ticketCode);
+            }
+        }
+
+        return true ;
+    }
+    
+    /**
+     * en_us Checks if view's by URL table exists
+     * 
+     * pt_br Verifica se a tabela de visualização por URL existe
+     *
+     * @return bool
+     */
+    public function _existsViewByUrlTable()
+    {
+        $featureDAO = new featureDAO();
+        $featureModel = new featureModel();
+        $featureModel->setTableName('hdk_tbviewbyurl');
+        
+        $ret = $featureDAO->tableExists($featureModel);
+        if ($ret['status'] && ($ret['push']['object']->getExistTable()))
+            return true;
+        else
+            return false;
+    }
+    
+    /**
+     * en_us Setups URL's token to access ticket from email
+     * 
+     * pt_br Configura o token do URL para acessar o ticket do e-mail
+     *
+     * @param  mixed $ticketCode
+     * @return void
+     */
+    public function _setUrlToken($ticketCode)
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTicketCode($ticketCode);
+
+        $ret  = $ticketDAO->getInChargeByTicketCode($ticketModel);
+        if(!$ret['status'])
+            return;
+
+        $inChargeType = $ret['push']['object']->getInChargeType();
+        $inChargeID   = $ret['push']['object']->getIdInCharge();
+
+        if ($inChargeType == 'G') {
+            $groupDAO = new groupDAO();
+            $groupModel = new groupModel();
+            $groupModel->setIdGroup($inChargeID);
+
+            $retGroupOperators = $groupDAO->fetchGroupOperators($groupModel);
+            if(!$retGroupOperators['status']){
+                $this->hdklogger->error("[hdk] Error getting group's operators.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                return;
+            }
+
+            if (count($retGroupOperators['push']['object']->getGridList()) == 0) {
+                $this->hdklogger->error("[hdk] Group with id # {$inChargeID} does not have operators!",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                return;
+            }
+
+            $operators = $retGroupOperators['push']['object']->getGridList();
+
+            foreach($operators as $k=>$v) {
+                $this->_saveUrlToken($v['idperson'], $ticketCode);
+            }
+        } else {
+            $this->_saveUrlToken($inChargeID,$ticketCode);
+        }
+
+        return;
+    }
+    
+    /**
+     * en_us Saves URL's token into DB
+     * 
+     * pt_br Grava o token do URL no banco de dados
+     *
+     * @param  int      $idPerson   Emails recipient ID
+     * @param  string   $ticketCode Ticket code
+     * @return void
+     */
+    function _saveUrlToken($idPerson,$ticketCode)
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $token =  hash('sha512',rand(100,1000));
+        $ticketModel->setIdOperator($idPerson)
+                    ->setTicketCode($ticketCode)
+                    ->setTicketToken($token);
+        
+        $ret = $ticketDAO->saveViewByUrl($ticketModel);
+        if(!$ret['status']){
+            $this->hdklogger->error("[hdk] Error generating token for request preview authentication, idperson {$idPerson}, ticket code {$ticketCode}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $this->hdklogger->info("[hdk] Generated token for request preview authentication, idperson {$idPerson}, ticket code {$ticketCode}!",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+        return;
+    }
+    
+    /**
+     * en_us Sends email
+     * pt_br Envia email
+     * 
+     * @param  string $operation
+     * @param  string $ticketCode
+     * @param  mixed  $reason
+     * @return bool
+     */
+    public function _sendTicketEmail($operation,$ticketCode,$reason=NULL)
+    {
+
+        if (!isset($operation)) {
+            $this->hdklogger->error("Email code not provided!!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return false;
+        }
+
+        $appSrc = new appServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $hdkEmailFeatureDAO = new hdkEmailFeatureDAO();
+        $hdkEmailFeatureModel = new hdkEmailFeatureModel();
+
+        $hdkEmailFeatureModel->setLocaleName($_ENV['DEFAULT_LANG']);
+        
+        // Common data
+        $ticketModel->setTicketCode($ticketCode);
+        $retTicket = $ticketDAO->getTicket($ticketModel);
+        if(!$retTicket['status']){
+            $this->hdklogger->error("Can't get ticket data, # {$ticketCode}. Error: {$retTicket['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return false;
+        }
+
+        $ticket = $retTicket['push']['object'];
+        $sentTo = "";
+        $arrAttach = array();
+        
+        //$EVALUATION     = $ticketDAO->getEvaluationGiven($ticket);
+        $REQUEST        = $ticketCode;
+        $SUBJECT        = $ticket->getSubject();
+        $REQUESTER      = $ticket->getOwner();
+        $RECORD         = $appSrc->_formatDate($ticket->getEntryDate());
+        $DESCRIPTION    = $ticket->getDescription();
+        $INCHARGE       = $ticket->getInCharge();
+        $PHONE          = $ticket->getOwnerPhone();
+        $BRANCH         = $ticket->getOwnerBranch();
+        //$LINK_OPERATOR  = $this->makeLinkOperator($code_request);
+        //$LINK_USER      = $this->makeLinkUser($code_request);
+        // Notes
+        $table          = $this->_makeNotesTable($ticketCode);
+        $NT_OPERATOR    = $table;
+
+        switch ($operation) {
+
+            //Sends a email to the operator or group of operators when a request is opened
+            case "new-ticket-user":
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("NEW_REQUEST_OPERATOR_MAIL");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
+                }
+
+                $template = $retTemplate['push']['object'];
+
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $template->getSubject();
+                eval("\$subject = \"$subject\";");
+
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
+
+                break;
+
+            // Sends email to the user when a request is assumed
+            /*case 'operator-assume':
+                $templateId = $dbEmailConfig->getEmailIdBySession("NEW_ASSUMED_MAIL");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
+                $sentTo = $reqEmail->fields['email'];
+                $typeuser = $reqEmail->fields['idtypeperson'];
+
+                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+
+                if($typeuser == 2)
+                    $LINK_USER     = $this->makeLinkUser($code_request);
+                else
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+
+                $date = date('Y-m-d H:i');
+                $ASSUME = $this->formatDate($date);
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                break;
+
+            // Sends email to the user, when a request is closed by the attendant.
+            case 'finish-ticket':
+                $templateId = $dbEmailConfig->getEmailIdBySession("FINISH_MAIL");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
+                $sentTo = $reqEmail->fields['email'];
+                $typeuser = $reqEmail->fields['idtypeperson'];
+
+                $date = date('Y-m-d H:i');
+                $FINISH_DATE = $this->formatDate($date);
+
+                $this->loadModel('evaluation_model');
+                $ev = new evaluation_model();
+                $tk = $ev->getToken($code_request);
+                $token = $tk->fields['token'];
+                if($token)
+                    $LINK_EVALUATE =  $this->helpdezkUrl."/helpdezk/evaluate/index/token/".$token;
+
+                $table = $this->makeNotesTable($code_request,false);
+                $NT_USER = $table;
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+
+                break;
+
+            case 'operator-reject':
+                $templateId = $dbEmailConfig->getEmailIdBySession("REJECTED_MAIL");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
+                $sentTo = $reqEmail->fields['email'];
+
+                $typeuser = $reqEmail->fields['idtypeperson'];
+
+                $date = date('Y-m-d H:i');
+                $REJECTION = $this->formatDate($date);
+                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+
+                if($typeuser == 2)
+                    $LINK_USER     = $this->makeLinkUser($code_request);
+                else
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+
+                $table = $this->makeNotesTable($code_request,false);
+                $NT_USER = $table;
+
+                $goto = ('/helpdezk/hdkTicket/viewrequest/id/' . $code_request);
+                //$url = '<a href="' . $this->helpdezkUrl . urlencode($goto) . '">' . $l_eml["link_solicitacao"] . '</a>';
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                break;
+
+             // Sends email to user when the request receives a note
+            case 'user-note' :
+
+                $templateId = $dbEmailConfig->getEmailIdBySession("USER_NEW_NOTE_MAIL");
+
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                //
+                $FINISH_DATE = $this->formatDate(date('Y-m-d H:i'));
+                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+
+                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
+                $typeuser = $reqEmail->fields['idtypeperson'];
+
+                if($typeuser == 2)
+                    $LINK_USER = $this->makeLinkUser($code_request);
+                else
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+
+                $table = $this->makeNotesTable($code_request,false);
+                $NT_USER = $table;
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                $sentTo = $reqEmail->fields['email'];
+
+                //if($_SESSION['hdk']['SES_ATTACHMENT_OPERATOR_NOTE']){
+                    $rsAttachs = $this->dbTicket->getNoteAttchByCodeRequest($code_request);
+                    if($rsAttachs) {
+                        $att_path = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' ;
+                        while (!$rsAttachs->EOF) {
+                            $ext = strrchr($rsAttachs->fields['filename'], '.');
+                            $attachment_dest = $att_path . $rsAttachs->fields['idnote_attachments'] . $ext;
+
+                            $bus = array("filepath" => $attachment_dest,
+                                         "filename" => $rsAttachs->fields['filename']);
+                            array_push($arrAttach,$bus);
+
+                            $rsAttachs->MoveNext();
+                        }
+                    }
+
+                //}
+
+                break;
+
+            // Sends email to operator when the request receives a note
+            case 'operator-note' :
+
+                $templateId = $dbEmailConfig->getEmailIdBySession("OPERATOR_NEW_NOTE");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+
+                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
+                $typeuser = $reqEmail->fields['idtypeperson'];
+
+                $FINISH_DATE = $this->formatDate(date('Y-m-d H:i'));
+                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+                if($typeuser == 2)
+                    $LINK_USER     = $this->makeLinkUser($code_request);
+                else
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+
+                $table = $this->makeNotesTable($code_request);
+                $NT_USER = $table;
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                break;
+
+            // Send email to the attendant, or group of attendants, when a request is reopened by user
+            case 'reopen-ticket':
+
+                $templateId = $dbEmailConfig->getEmailIdBySession("REQUEST_REOPENED");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                break;
+
+            // Send email to the attendant, or group of attendants, when a request is evaluated by user
+            case "evaluate-ticket":
+
+                $templateId = $dbEmailConfig->getEmailIdBySession("EM_EVALUATED");
+
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+
+                }
+
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                break;
+
+            // Send email to the attendant, or group of attendants, when a request is forwarded
+            case "forward-ticket":
+                $templateId = $dbEmailConfig->getEmailIdBySession("REPASS_REQUEST_OPERATOR_MAIL");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+
+                break;
+
+            // Sends email to the user, when a request is closed by  attendant.
+            case 'finish-ticket':
+                $templateId = $dbEmailConfig->getEmailIdBySession("FINISH_MAIL");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $ev = new evaluation_model();
+                $tk = $ev->getToken($code_request);
+                $token = $tk->fields['token'];
+                if($token)
+                    $LINK_EVALUATE =  $this->helpdezkUrl."helpdezk/evaluate/index/token/".$token;
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                break;
+
+            case "approve":
+                $templateId = $dbEmailConfig->getEmailIdBySession("SES_REQUEST_APPROVE");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                //$bdop = new operatorview_model();
+                $reqdata = $this->dbTicket->getRequestData("WHERE code_request = $code_request");
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                break;
+
+            // Sends email to the user when a request is rejected
+            case "operator_reject":
+                $templateId = $dbEmailConfig->getEmailIdBySession("SES_MAIL_OPERATOR_REJECT");
+                if($this->log) {
+                    if (empty($templateId)) {
+                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
+                    }
+                }
+                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $grpEmails = $dbEmailConfig->getEmailsfromGroupOperators($_SESSION['hdk']['SES_MAIL_OPERATOR_REJECT_ID']);
+                while (!$grpEmails->EOF) {
+                    if (!$sentTo) {
+                        $sentTo = $grpEmails->Fields('email');
+                    } else {
+                        $sentTo .= ";" . $grpEmails->Fields('email');
+                    }
+                    $grpEmails->MoveNext();
+                }
+
+                $date = date('Y-m-d H:i');
+                $REJECTION = $this->formatDate($date);
+                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+
+                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $rsTemplate->fields['name'];
+                eval("\$subject = \"$subject\";");
+
+                break;*/
+
+        }
+
+        $customHeader = 'X-hdkRequest: '. $REQUEST;
+
+        $msgLog = "request # ".$REQUEST." - Operation: ".$operation;
+        $msgLog2 = "request # ".$REQUEST;
+
+        $params = array("subject"       => $subject,
+                        "contents"      => $contents,
+                        "address"       => $sentTo,
+                        "attachment"    => $arrAttach,
+                        "idmodule"      => $appSrc->_getModuleID("Helpdezk"),
+                        "tracker"       => $this->tracker,
+                        "msg"           => $msgLog,
+                        "msg2"          => $msgLog2,
+                        "customHeader"  => $customHeader,
+                        "code_request"  => $REQUEST);
+
+
+        $done = $appSrc->_sendEmail($params);
+
+        if (!$done['status']) {
+            $this->hdkEmailLogger->error("[hdk] E-mail not sent. Ticket # {$REQUEST}. Error: {$done['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return false ;
+        } else {
+            $this->hdkEmailLogger->info("[hdk] E-mail sent. Ticket # {$REQUEST}.", ['Cron-job' => 'bmm_routines','Function' => 'sendNotification','Line' => __LINE__]);
+            return true ;
+        }
+
+    }
+    
+    /**
+     * en_us Setups a list with recipients
+     * 
+     * pt_br Configura uma lista com destinatários
+     *
+     * @param  string $ticketCode Ticket code
+     * @return string Recipients list (Email addresses)
+     */
+    public function _setSendTo($ticketCode)
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTicketCode($ticketCode);
+
+        $ret  = $ticketDAO->getInChargeByTicketCode($ticketModel);
+        if(!$ret['status'])
+            return;
+
+        $inChargeType   = $ret['push']['object']->getInChargeType(); 
+        $inChargeID     = $ret['push']['object']->getIdInCharge();
+        $inChargeEmail  = $ret['push']['object']->getInChargeEmail();
+        $sentTo = '';
+
+        if ($inChargeType == 'G') {
+            $groupDAO = new groupDAO();
+            $groupModel = new groupModel();
+            $groupModel->setIdGroup($inChargeID);
+
+            $retGroupOperators = $groupDAO->fetchGroupOperators($groupModel);
+            if(!$retGroupOperators['status']){
+                $this->hdklogger->error("[hdk] Error getting group's operators.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                return;
+            }
+
+            if (count($retGroupOperators['push']['object']->getGridList()) == 0) {
+                $this->hdklogger->error("[hdk] Group with id # {$inChargeID} does not have operators!",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                return;
+            }
+
+            $operators = $retGroupOperators['push']['object']->getGridList();
+
+            foreach($operators as $k=>$v) {
+                $sentTo .= (empty($sentTo) ? "" : ";") . $v['email'];
+            }
+        } else {
+            $sentTo = $inChargeEmail;
+        }
+
+        return $sentTo;
+    }
+    
+    /**
+     * makeNotesTable
+     *
+     * @param  mixed $ticketCode    Ticket code
+     * @param  mixed $public        List all notes or not - true: all false: notes for attendants
+     * @return string               Note's table in html
+     */
+    public function _makeNotesTable($ticketCode,$public=true)
+    {
+        $appSrc = new appServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTicketCode($ticketCode);
+
+        $table = "";
+        $ret  = $ticketDAO->fetchTicketNotes($ticketModel);
+        if(!$ret['status'])
+            return $table;
+
+        $notes = $ret['push']['object']->getNoteList();
+        if(count($notes) <= 0)
+            return $table;
+        
+        $table = "<table width='100%'  border='0' cellspacing='3' cellpadding='0'>";
+        foreach($notes as $k=>$v) {
+            if($public){
+                $table.= "<tr><td height=28><font size=2 face=arial>";
+                $table.= $appSrc->_formatDate($v['entry_date']) . " [" . $v["name"] . "] " . str_replace(chr(10), "<BR>", strip_tags($v["description"]));
+                $table.= "</font><br></td></tr>";
+            }else{
+                if($v['idtype'] != '2'){
+                    $table.= "<tr><td height=28><font size=2 face=arial>";
+                    $table.= $appSrc->_formatDate($v['entry_date']) . " [" . $v["name"] . "] " . str_replace(chr(10), "<BR>", strip_tags($v["description"]));
+                    $table.= "</font><br></td></tr>";
+                }
+            }
+        }
+        $table.= "</table>";
+        
+        return $table;
     }
 }

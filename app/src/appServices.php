@@ -97,7 +97,14 @@ class appServices
         }
 
     }
-
+    
+    /**
+     * en_us Returns system's version to display on the login screen and footer
+     * 
+     * pt_br Retorna a versão do sistema para exibição na tela de login e no rodapé
+     *
+     * @return string
+     */
     public function _getHelpdezkVersion(): string
     {
         // Read the version.txt file
@@ -108,20 +115,32 @@ class appServices
             if ($info) {
                 return trim($info);
             } else {
-                return '1.0';
+                return '2.0';
             }
         } else {
-            return '1.0';
+            return '2.0';
         }
 
     }
-
+    
+    /**
+     * en_us Returns directory path
+     * 
+     * pt_br Retorna o caminho do diretório
+     *
+     * @return string
+     */
     public function _getHelpdezkPath()
     {
         $pathInfo = pathinfo(dirname(__DIR__));
         return $pathInfo['dirname'];
     }
-    
+        
+    /**
+     * _getPath
+     *
+     * @return string
+     */
     public function _getPath()
     {
         $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
@@ -141,22 +160,42 @@ class appServices
         
         return $path;
     }
-    
+        
+    /**
+     * _getLayoutTemplate
+     *
+     * @return void
+     */
     public function _getLayoutTemplate()
     {
         return $this->_getHelpdezkPath().'/app/modules/main/views/layout.latte';
     }
-    
+        
+    /**
+     * _getNavbarTemplate
+     *
+     * @return void
+     */
     public function _getNavbarTemplate()
     {
         return $this->_getHelpdezkPath().'/app/modules/main/views/nav-main.latte';
     }
-    
+        
+    /**
+     * _getFooterTemplate
+     *
+     * @return void
+     */
     public function _getFooterTemplate()
     {
         return $this->_getHelpdezkPath().'/app/modules/main/views/footer.latte';
     }
-    
+        
+    /**
+     * en_us Returns common parameters for all programs
+     *
+     * @return array
+     */
     public function _getDefaultParams(): array
     {
         $loginSrc = new loginServices();
@@ -193,13 +232,23 @@ class appServices
             "lang"              => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"])
         );
     }
-
+    
+    /**
+     * _getHelpdezkVersionNumber
+     *
+     * @return void
+     */
     public function _getHelpdezkVersionNumber()
     {
         $exp = explode('-', $this->_getHelpdezkVersion());
         return $exp[2];
     }
-
+    
+    /**
+     * _getActiveModules
+     *
+     * @return void
+     */
     public function _getActiveModules()
     {
         $moduleDAO = new moduleDAO();
@@ -261,7 +310,6 @@ class appServices
         
 		return $aRet;
     }
-
 	
 	/**
 	 * en_us Returns an array with module data for the side menu
@@ -484,7 +532,6 @@ class appServices
         return date($format,strtotime($date));
     }
 
-
     /**
      * Returns an array with ID and name of search options
      *
@@ -683,6 +730,8 @@ class appServices
             if (!mkdir ($path, 0766 )) {
                 $this->applogger->error("I could not create the directory: $path",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
+            }else{
+                $this->applogger->info("The directory $path, was created successfully.",['Class' => __CLASS__, 'Method' => __METHOD__]);
             }
         }
 
@@ -691,6 +740,8 @@ class appServices
             if (!chmod($path,0766)){
                 $this->applogger->error("Directory: $path is not writable!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
+            }else{
+                $this->applogger->info("The directory $path is writable!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
             }
         }
 
@@ -1251,7 +1302,7 @@ class appServices
     /**
      * en_us Returns the expiration date
      * 
-     * pt_br Retorna a data do expiração
+     * pt_br Retorna a data de expiração
      *
      * @param  mixed $startDate
      * @param  mixed $days

@@ -112,14 +112,13 @@ class ticketRulesDAO extends Database
             $stmt->bindValue(':isRecalculate', $ticketRulesModel->getIsRecalculate());
             $stmt->execute();
 
-            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            $ticketRulesModel->setGridList($aRet);
+            $ticketRulesModel->setIdTicketApproval($this->db->lastInsertId());
 
             $ret = true;
             $result = array("message"=>"","object"=>$ticketRulesModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error getting rules. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error save approval rules. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

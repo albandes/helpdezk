@@ -1,7 +1,7 @@
 //Initial settings of Dropzone
 Dropzone.autoDiscover = false;
 var dropzonefiles = 0, filesended = 0, flgerror = 0, errorname=[], upname=[], flgDefault=0, btnClicked = 0,
-    htmlArea = '', showDefs  = '', global_coderequest, global_ticket, global_incharge;
+    htmlArea = '', showDefs  = '', global_coderequest, global_ticket, global_incharge, global_expiry_date;
 
 /**
  * Combos
@@ -175,7 +175,7 @@ $(document).ready(function () {
 
     if($("#update-ticket-form").length <= 0){
         var myDropzone = new Dropzone("#attachments", {
-            url: path + "/lgp/lgpDPORequest/saveAttachments/",
+            url: path + "/helpdezk/hdkTicket/saveTicketAttachments/",
             method: "post",
             dictDefaultMessage: "<br><i class='fa fa-file fa-2x' aria-hidden='true'></i><br>" + vocab['Tckt_drop_file'],
             createImageThumbnails: true,
@@ -230,10 +230,10 @@ $(document).ready(function () {
                 errorname.forEach(element => {
                     list = list+element+'<br>';
                 });
-                list = list+'<br><strong>'+vocab['scm_attach_after']+'</strong>';
+                list = list+'<br><strong>'+vocab['hdk_attach_after']+'</strong>';
                 typeMsg = 'warning';
-                msg = vocab['save_anyway_question'];
-                showNextStep(list,msg,typeMsg,totalAttach);
+                msg = vocab['open_ticket_anyway_question'];
+                showNextStep(list,msg,typeMsg,totalAttach,'modal-lg');
             }        
             
             dropzonefiles = 0; 
@@ -266,9 +266,8 @@ $(document).ready(function () {
 
     }else{
         if($('#idstatus').val() == 3 && $('#myDropzone').length > 0 ) {
-            Dropzone.autoDiscover = false;
             var myDropzone = new Dropzone("#myDropzone", {
-                url: path + "/lgp/lgpDPORequest/saveNoteAttach/",
+                url: path + "/helpdezk/hdkTicket/saveNoteAttach/",
                 method: "post",
                 dictDefaultMessage: "<br><i class='fa fa-file fa-2x' aria-hidden='true'></i><br>" + vocab['Tckt_drop_file'],
                 createImageThumbnails: true,
@@ -312,13 +311,14 @@ $(document).ready(function () {
                     saveNote(upname,myDropzone);            
                 }else{
                     var totalAttach = dropzonefiles - filesended;
-                    msg = '<h4>'+vocab['files_not_attach_list']+'</h4><br>';
+                    list = '<h4>'+vocab['files_not_attach_list']+'</h4><br>';
                     errorname.forEach(element => {
-                        msg = msg+element+'<br>';
+                        list = list+element+'<br>';
                     });
-                    msg = msg+'<br>'+vocab['hdk_attach_after_note'];
+                    list = list+'<br><strong>'+vocab['hdk_attach_after']+'</strong>';
+                    msg = '<br>'+vocab['save_note_anyway_question'];
                     typeMsg = 'warning';
-                    showNextStep(msg,typeMsg,totalAttach);
+                    showNextStep(list,msg,typeMsg,totalAttach,'modal-lg');
                 }        
                 
                 dropzonefiles = 0; 
@@ -439,6 +439,28 @@ $(document).ready(function () {
 
     });
 
+    $("#btnNextYes").click(function(){        
+        $('#modal-next-step').modal('hide');
+        if(btnClicked=="1"){
+            saveTicket(upname);
+        }else if(btnClicked=="2"){
+            saveRepassTicket(upname);
+        }else if(btnClicked=="3"){
+            saveFinishTicket(upname);
+        }
+    });
+
+    $("#btnNextNo").click(function(){
+        if (!$("#btnNextNo").hasClass('disabled')) {
+            $("#btnNextNo").removeClass('disabled');
+            $('#modal-next-step').modal('hide');
+            errorname = [];
+            upname = [];
+
+            location.href = path + "/helpdezk/hdkTicket/index";
+        }
+    });
+
     /*
      * Validate
      */
@@ -522,13 +544,13 @@ $(document).ready(function () {
     });
 
     /* when the modal is hidden */
-    $('#modal-reason-create').on('hidden.bs.modal', function() { 
-        location.href = path + "/helpdezk/hdkReason/index";        
+    $('#modal-ticket-create').on('hidden.bs.modal', function() { 
+        location.href = path + "/helpdezk/hdkTicket/index";        
     });
 
     if($("#update-reason-form").length > 0){
         $('#modal-alert').on('hidden.bs.modal', function() { 
-            location.href = path + "/helpdezk/hdkReason/index" ;        
+            location.href = path + "/helpdezk/hdkTicket/index";        
         });
     }
 });
@@ -595,12 +617,14 @@ function saveTicket(aAttachs)
                 global_coderequest = ticket;
                 global_ticket = ticket.substr(0,4)+'-'+ticket.substr(4,2)+'.'+ticket.substr(6,6);
                 global_incharge = obj.inChargeName;
+                global_expiry_date = obj.expiryDate;
 
                 //sendNotification('new-ticket-user',global_coderequest,hasAtt);
 
                 $('#modal-request-code').val(global_ticket);
                 $('#modal-incharge-name').val(global_incharge);
-                $('#modal-dporequest-create').modal('show');
+                $('#modal-expiry-date').val(global_expiry_date);
+                $('#modal-ticket-create').modal('show');
                 
                 errorname = [];
                 upname = [];
@@ -613,7 +637,7 @@ function saveTicket(aAttachs)
         },
         complete: function(){
             $("#btnCancel").removeClass('disabled');
-            $("#btnCreateTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']);
+            $("#btnCreateTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']).removeClass('disabled');
         }
     });
 

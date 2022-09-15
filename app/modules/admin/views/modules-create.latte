@@ -1,0 +1,138 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='Modules'|translate} / <strong>{='Add'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="create-module-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">
+                                             <div id="moduleLogo" class="dropzone dz-default dz-message" ></div>
+                                        </div>
+
+                                        <div class="row col-sm-12 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="moduleName" class="col-form-label text-end"><strong>{='Module_name'|translate}</strong>:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="moduleName" name="moduleName" class="form-control" placeholder="{='plh_module_description'|translate}" value="" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="modulePath" class="col-form-label text-end"><strong>{='Module_path'|translate}</strong>:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="modulePath" name="modulePath" class="form-control" placeholder="{='plh_module_path'|translate}" value="" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="modulePrefix" class="col-form-label text-end"><strong>{='Table_prefix'|translate}</strong>:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="modulePrefix" name="modulePrefix" class="form-control" placeholder="{='plh_module_prefix'|translate}" value="" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="moduleKeyName" class="col-form-label text-end"><strong>{='key_name_translate'|translate}</strong>:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_module_btn'|translate}">
+                                                    <input type="text" id="moduleKeyName" name="moduleKeyName" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="" >
+                                                </div>
+
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddKeyName" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="moduleDefault" class="col-form-label text-end"><strong>{='Module_default'|translate}?</strong></label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="moduleDefault" name="moduleDefault" value=""  > <label class="col-form-label">{='Yes'|translate}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-module"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateModule" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/modules/modal-alert-create.latte'}
+    {include $modalNextStep}
+</body>
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <script src="{$path}/app/modules/admin/views/js/modules-crud.js"></script>
+
+
+{/block}

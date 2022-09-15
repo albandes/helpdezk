@@ -485,6 +485,41 @@ final class ticketModel
     private $noteIsCallback;
 
     /**
+     * @var array
+     */
+    private $attachments;
+
+    /**
+     * @var string
+     */
+    private $fileName;
+
+    /**
+     * @var int
+     */
+    private $idAttachment;
+
+    /**
+     * @var string
+     */
+    private $newFileName;
+
+    /**
+     * @var int
+     */
+    private $idOperator;
+
+    /**
+     * @var string
+     */
+    private $ticketToken;
+
+    /**
+     * @var string
+     */
+    private $inChargeEmail;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -2736,6 +2771,174 @@ final class ticketModel
     public function setNoteIpAddress($noteIpAddress)
     {
         $this->noteIpAddress = $noteIpAddress;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attachments
+     *
+     * @return  array
+     */ 
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * Set the value of attachments
+     *
+     * @param  array  $attachments
+     *
+     * @return  self
+     */ 
+    public function setAttachments(array $attachments)
+    {
+        $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fileName
+     *
+     * @return  string
+     */ 
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+    /**
+     * Set the value of fileName
+     *
+     * @param  string  $fileName
+     *
+     * @return  self
+     */ 
+    public function setFileName(string $fileName)
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idAttachment
+     *
+     * @return  int
+     */ 
+    public function getIdAttachment()
+    {
+        return $this->idAttachment;
+    }
+
+    /**
+     * Set the value of idAttachment
+     *
+     * @param  int  $idAttachment
+     *
+     * @return  self
+     */ 
+    public function setIdAttachment(int $idAttachment)
+    {
+        $this->idAttachment = $idAttachment;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of newFileName
+     *
+     * @return  string
+     */ 
+    public function getNewFileName()
+    {
+        return $this->newFileName;
+    }
+
+    /**
+     * Set the value of newFileName
+     *
+     * @param  string  $newFileName
+     *
+     * @return  self
+     */ 
+    public function setNewFileName(string $newFileName)
+    {
+        $this->newFileName = $newFileName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idOperator
+     *
+     * @return  int
+     */ 
+    public function getIdOperator()
+    {
+        return $this->idOperator;
+    }
+
+    /**
+     * Set the value of idOperator
+     *
+     * @param  int  $idOperator
+     *
+     * @return  self
+     */ 
+    public function setIdOperator(int $idOperator)
+    {
+        $this->idOperator = $idOperator;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketToken
+     *
+     * @return  string
+     */ 
+    public function getTicketToken()
+    {
+        return $this->ticketToken;
+    }
+
+    /**
+     * Set the value of ticketToken
+     *
+     * @param  string  $ticketToken
+     *
+     * @return  self
+     */ 
+    public function setTicketToken(string $ticketToken)
+    {
+        $this->ticketToken = $ticketToken;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inChargeEmail
+     *
+     * @return  string
+     */ 
+    public function getInChargeEmail()
+    {
+        return $this->inChargeEmail;
+    }
+
+    /**
+     * Set the value of inChargeEmail
+     *
+     * @param  string  $inChargeEmail
+     *
+     * @return  self
+     */ 
+    public function setInChargeEmail(string $inChargeEmail)
+    {
+        $this->inChargeEmail = $inChargeEmail;
 
         return $this;
     }

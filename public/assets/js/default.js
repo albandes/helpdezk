@@ -145,12 +145,13 @@ countdown = {
 
 }
 
-function showNextStep(list,msg,typeAlert,totalAttach)
+function showNextStep(list,msg,typeAlert,totalAttach,modalSize="")
 {
     $('#nexttotalattach').val(totalAttach);
     $('#next-step-list').html(list);
     $('#next-step-message').html(msg);
     $("#type-alert").attr('class', 'col-sm-12 col-xs-12 bs-callout-'+typeAlert);
+    $(".modal-dialog").addClass(modalSize);
     $('#modal-next-step').modal('show');
 
     return false;

@@ -155,4 +155,46 @@ class groupDAO extends Database
         
     }
 
+    /**
+     * Return an array with group's operators
+     *
+     * @param  groupModel $groupModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */  
+    
+    public function fetchGroupOperators(groupModel $groupModel): array
+    {
+        
+        $sql = "SELECT pers.idperson, pers.email, pers.name operator_name, grpname.name
+                  FROM tbperson pers, tbperson grpname, hdk_tbgroup grp, hdk_tbgroup_has_person pergrp
+                 WHERE pers.idperson = pergrp.idperson
+                   AND pers.status = 'A'
+                   AND grp.idgroup = pergrp.idgroup
+                   AND grpname.idperson = grp.idperson
+                   AND grpname.idperson = :groupID";
+               // echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':groupID', $groupModel->getIdGroup());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $groupModel->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$groupModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error query department ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
 }

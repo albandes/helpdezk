@@ -50,7 +50,7 @@ class awsServices
      */
     protected $_credentials;
 
-    public function __construct()
+    public function __construct($region=null,$bucket=null,$key=null,$secret=null)
     {
         $appSrc = new appServices();
         // create a log channel
@@ -65,10 +65,15 @@ class awsServices
         // Clone the first one to only change the channel
         $this->awsEmailLogger = $this->awslogger->withName('email');
 
+        $region = (!is_null($region)) ? $region : $_ENV['S3BUCKET_REGION'];
+        $bucket = (!is_null($bucket)) ? $bucket : $_ENV['S3BUCKET_NAME'];
+        $key    = (!is_null($key)) ? $key : $_ENV['S3BUCKET_ACCESS_KEY'];
+        $secret = (!is_null($secret)) ? $secret : $_ENV['S3BUCKET_SECRET_KEY'];
+
         //access aws s3 settings
-        $this->_region      = $_ENV['S3BUCKET_REGION'];
-        $this->_bucket      = $_ENV['S3BUCKET_NAME'];
-        $this->_credentials = new Credentials($_ENV['S3BUCKET_ACCESS_KEY'],$_ENV['S3BUCKET_SECRET_KEY']);      
+        $this->_region      = $region;
+        $this->_bucket      = $bucket;
+        $this->_credentials = new Credentials($key,$secret);
 
     }
 
