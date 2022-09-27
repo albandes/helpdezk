@@ -261,7 +261,22 @@ $(document).ready(function () {
                         $tabAbiGrp.html('<div class="panel-body">'+aLang['No_data'].replace (/\"/g, "")+'</div>');
 		           	}
 		        });
-		}
+		},
+        showAreaFields: function() {
+            var areaId = $("#areaId").val();
+            if(!$("#extra-fields-line").hasClass('hide'))
+                $("#extra-fields-line").addClass('hide');
+                
+            $("#extra-fields-line").html('');
+            
+            $.post(path+"/helpdezk/hdkTicket/ajaxExtraFields",{areaId: areaId},
+                function(valor){                    
+                    if($("#extra-fields-line").hasClass('hide'))
+                        $("#extra-fields-line").removeClass('hide');
+                        
+                    $("#extra-fields-line").html(valor);
+                })
+        }
 
     };
 
@@ -415,6 +430,9 @@ $(document).ready(function () {
 
     $("#areaId").change(function(){
         objNewTicket.changeArea();
+        if(showextrafields == 1){
+            objNewTicket.showAreaFields();
+        }
     });
 
     $("#typeId").change(function(){

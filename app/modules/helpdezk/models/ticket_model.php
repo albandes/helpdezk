@@ -1949,6 +1949,63 @@ class ticket_model extends DynamicTicket_model
 
     }
 
+    public function getExtraFieldsByAreaId($areaId)
+    {
+        $sql =  "SELECT a.idextra_field, b.name, b.type, b.lang_key_name
+                   FROM `hdk_tbcore_area_has_extra_field` a, `hdk_tbextra_field` b
+                  WHERE b.idextra_field = a.idextra_field
+                    AND a.idarea = {$areaId}
+               ORDER BY a.num_order";
+
+        $ret = $this->select($sql);
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return $ret;
+
+    }
+    
+    /**
+     * Insert link ticket with extra fields
+     *
+     * @param  mixed $codeRequest
+     * @param  mixed $extrafieldID
+     * @param  mixed $extrafieldValue
+     * @return void
+     */
+    public function insertExtraField($codeRequest,$extrafieldID,$extrafieldValue) {
+        $sql = "INSERT INTO `hdk_tbrequest_has_extra_field` (code_request,idextra_field,field_value)
+                     VALUES ('{$codeRequest}','{$extrafieldID}','{$extrafieldValue}')";
+
+        $ret = $this->db->Execute($sql);
+        if (!$ret) {
+            $sError = "Arq: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg() . "query; " . $sql;
+            $this->error($sError);
+            return false;
+        }
+        return $ret;
+    }
+
+    public function getRequestExtraFields($codeRequest)
+    {
+        $sql =  "SELECT a.idextra_field, c.name, c.type, c.lang_key_name, a.field_value
+                   FROM `hdk_tbrequest_has_extra_field` a, `hdk_tbcore_area_has_extra_field` b, `hdk_tbextra_field` c
+                  WHERE b.idextra_field = a.idextra_field
+                    AND b.idextra_field = c.idextra_field
+                    AND a.code_request = '202209000001'
+               ORDER BY b.num_order";
+
+        $ret = $this->select($sql);
+        if (!$ret) {
+            $sError = "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " . $this->db->ErrorMsg();
+            $this->error($sError);
+            return false;
+        }
+        return $ret;
+
+    }
 
 
 }

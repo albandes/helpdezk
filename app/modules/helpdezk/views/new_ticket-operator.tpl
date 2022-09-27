@@ -72,6 +72,8 @@
     <!-- Clockpicker  -->
     {head_item type="css" src="$path/css/plugins/clockpicker/" files="clockpicker.css"}
     {head_item type="js"  src="$path/includes/js/plugins/clockpicker/" files="clockpicker.js"}
+    <!-- Input Mask-->
+    {head_item type="js" src="$path/includes/js/plugins/jquery-mask/" files="jquery.mask.min.js"}
     {literal}
     <script type="text/javascript">
          var     default_lang = "{/literal}{$lang}{literal}",
@@ -85,7 +87,8 @@
                  ticketAttMaxFiles = '{/literal}{$ticketattmaxfiles}{literal}',
                  ticketAcceptedFiles = '{/literal}{$ticketacceptedfiles}{literal}',
                  hdkMaxSize = '{/literal}{$hdkMaxSize}{literal}',
-                 demoVersion = '{/literal}{$demoversion}{literal}';
+                 demoVersion = '{/literal}{$demoversion}{literal}',
+                 showextrafields = '{/literal}{$showextrafields}{literal}';
 
 
     </script>
@@ -324,6 +327,10 @@
                             <input type="hidden" id="hidden-serial_number"  />
                         {/if}
 
+                        <!-- Extra fields -->
+                        <div id="extra-fields-line" class="hide">
+                            <!-- ajax data here -->
+                        </div>
 
                         <!-- Subject -->
                         <div class="col-sm-12 b-l">

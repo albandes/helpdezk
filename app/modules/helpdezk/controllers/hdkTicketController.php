@@ -145,7 +145,7 @@ class hdkTicket extends hdkCommon {
         if($_SESSION['SES_IND_EQUIPMENT'] == 1)
             $smarty->assign('equipment', 1);
         else
-            $smarty->assign('equipment',1);
+            $smarty->assign('equipment',0);
 
         $smarty->assign('id_person', $_SESSION['SES_COD_USUARIO']);
         $smarty->assign('id_company', $_SESSION['SES_COD_EMPRESA']);
@@ -165,6 +165,10 @@ class hdkTicket extends hdkCommon {
 
         $smarty->assign('hidden_login',$_SESSION['SES_LOGIN_PERSON']) ; // Demo Version
         $smarty->assign('demoversion', $this->demoVersion);             // Demo version
+
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS']){
+            $smarty->assign('showextrafields', 1);
+        }
 
         if($typePerson == 3){
             $arrRequestUser = $this->_comboRequestUser();
@@ -206,7 +210,7 @@ class hdkTicket extends hdkCommon {
 
         $this->loadModel('ticketrules_model');
         $dbRules = new ticketrules_model();
-
+        
         //CREATE THE CODE REQUEST
         $code_request = $this->createRequestCode();
 
@@ -458,6 +462,20 @@ class hdkTicket extends hdkCommon {
                     $this->logIt("Insert ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
                 return false;
             }				
+        }
+
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+            foreach($_POST['extraFields'] as $key=>$val){
+                if(!empty($val)){
+                    $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
+                    if(!$insExtra){
+                        $this->dbTicket->RollbackTrans();
+                        if($this->log)
+                            $this->logIt("Insert extra fields of ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                        return false;
+                    }
+                }
+            }
         }
 
         $this->dbTicket->CommitTrans();
@@ -817,6 +835,36 @@ class hdkTicket extends hdkCommon {
                 $myGroupsIdPerson->MoveNext();
             }
         }*/
+
+        if(isset($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS']) && $_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] == 1){
+            $retExtraFields = $this->dbTicket->getRequestExtraFields($this->getParam('id'));
+
+            if($retExtraFields && $retExtraFields->RecordCount() > 0){
+                while(!$retExtraFields->EOF){
+                    $html .= "<div class='col-sm-12 b-l'>
+                                <label class='col-sm-1 control-label'>".$this->getLanguageWord($retExtraFields->fields['lang_key_name']).":</label>
+                                <div class='col-sm-6 control-text'>";
+                    
+                    switch($retExtraFields->fields['type']){
+                        case 'input':
+                            $html .= $retExtraFields->fields['field_value'];
+                            break;
+                    }                
+                    
+                    $html .= "</div></div><div class='col-xs-12 white-bg' style='height:10px;'></div>";
+    
+                    $retExtraFields->MoveNext();
+                }
+
+                $smarty->assign('hasExtraFields', 1);             // Show extra fields
+                $smarty->assign('extraFieldsHtml', $html);
+            }else{
+                $smarty->assign('hasExtraFields', 0);             // Hide extra fields
+            }
+            
+        }else{
+            $smarty->assign('hasExtraFields', 0);             // Hide extra fields
+        }
 
         if($typeperson == 3 && $flgOpeAsUser != 1){
             $smarty->display('viewticket_operator.tpl');
@@ -2598,6 +2646,20 @@ class hdkTicket extends hdkCommon {
                 return false;
             }
 
+            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+                foreach($_POST['extraFields'] as $key=>$val){
+                    if(!empty($val)){
+                        $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
+                        if(!$insExtra){
+                            $this->dbTicket->RollbackTrans();
+                            if($this->log)
+                                $this->logIt("Insert extra fields of ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                            return false;
+                        }
+                    }
+                }
+            }
+
 
             $this->dbTicket->CommitTrans();
 
@@ -2809,6 +2871,20 @@ class hdkTicket extends hdkCommon {
             if(!$con){
                 $this->dbTicket->RollbackTrans();
                 return false;
+            }
+
+            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+                foreach($_POST['extraFields'] as $key=>$val){
+                    if(!empty($val)){
+                        $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
+                        if(!$insExtra){
+                            $this->dbTicket->RollbackTrans();
+                            if($this->log)
+                                $this->logIt("Insert extra fields of ticket # ". $code_request . ' - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
+                            return false;
+                        }
+                    }
+                }
             }
 
             $this->dbTicket->CommitTrans();
@@ -4287,7 +4363,6 @@ class hdkTicket extends hdkCommon {
 
     }
 
-
     public function linkNoteAttachments($idNote,$aAttachs)
     {
         $saveMode = " ";
@@ -4338,12 +4413,36 @@ class hdkTicket extends hdkCommon {
 
         }
         
-        
-        
         return array("success"=>true,"message"=>"");
 
     }
 
+    public function ajaxExtraFields()
+    {
+        $areaID = $_POST['areaId'];
+        $ret = $this->dbTicket->getExtraFieldsByAreaId($areaID);
+        $html = '';
+        
+        if($ret && $ret->RecordCount() > 0){
+            while(!$ret->EOF){
+                $html .= "<div class='col-sm-12 b-l'>
+                            <label class='col-sm-3 control-label'>".$this->getLanguageWord($ret->fields['lang_key_name']).":</label>
+                            <div class='col-sm-9'>";
+                
+                switch($ret->fields['type']){
+                    case 'input':
+                        $html .= "<input type='text' id='extraField_".$ret->fields['idextra_field']."' name='extraField_".$ret->fields['idextra_field']."' class='form-control input-sm extra-field'>";
+                        break;
+                }                
+                
+                $html .= "</div></div><div class='col-xs-12 white-bg' style='height:10px;'></div>";
+
+                $ret->MoveNext();
+            }
+        }
+
+        echo $html;
+    }
 
 }
 

@@ -363,8 +363,6 @@
                     </div>
                 </div>
 
-
-
                 {if $hasattach == 1}
                     <div class="row wrapper  white-bg ">
                         <div class="col-sm-12 ">
@@ -378,7 +376,6 @@
                     </div>
                 {/if}
 
-
                 <div class="row wrapper  white-bg ">
                     <div class="col-sm-12 ">
                         <div class="form-group">
@@ -390,6 +387,11 @@
                     </div>
                 </div>
 
+                {if $hasExtraFields == 1}
+                    <div class="row wrapper white-bg">
+                        {$extraFieldsHtml}
+                    </div>
+                {/if}
 
             </form>
             <!-- End form area -->

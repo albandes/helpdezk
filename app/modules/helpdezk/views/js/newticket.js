@@ -15,7 +15,7 @@ $(document).ready(function () {
 
     console.log('exist: '+ showDefs);
 
-    if (showDefs == 'YES') {
+    if (showDefs == 'YES') { console.log('aquiii');
         $("#areaId").html(htmlArea);
         $.post(path + "/helpdezk/hdkTicket/ajaxTypeWithAreaDefault",
             function (valor) {
@@ -245,12 +245,30 @@ $(document).ready(function () {
                         $("#reasonId").trigger("chosen:updated");
                     }
                 })
+        },
+        showAreaFields: function() {
+            var areaId = $("#areaId").val();
+            if(!$("#extra-fields-line").hasClass('hide'))
+                $("#extra-fields-line").addClass('hide');
+                
+            $("#extra-fields-line").html('');
+            
+            $.post(path+"/helpdezk/hdkTicket/ajaxExtraFields",{areaId: areaId},
+                function(valor){                    
+                    if($("#extra-fields-line").hasClass('hide'))
+                        $("#extra-fields-line").removeClass('hide');
+                        
+                    $("#extra-fields-line").html(valor);
+                })
         }
     };
 
 
     $("#areaId").change(function(){
         objNewTicket.changeArea();
+        if(showextrafields == 1){
+            objNewTicket.showAreaFields();
+        }
     });
 
     $("#typeId").change(function(){
@@ -385,7 +403,15 @@ function showNextStep(msg,typeAlert,totalAttach)
 
 function saveTicket(aAttachs)
 {
-    var hasAtt = aAttachs.length > 0 ? true : false;
+    var hasAtt = aAttachs.length > 0 ? true : false,
+        aExtraFields = $(".extra-field"), aExtraFieldsData = [], extraFiedlID, aID;
+    
+    //extra fields
+    aExtraFields.each(function(){
+        extraFiedlID = $(this).attr('id'); aID = extraFiedlID.split('_');
+        if($(this).val())
+            aExtraFieldsData[aID[1]] = $(this).val();
+    });
 
     $.ajax({
         type: "POST",
@@ -402,7 +428,8 @@ function saveTicket(aAttachs)
             reason:			$('#reasonId').val(),
             subject: 		$('#subject').val(),
             description: 	$('#description').summernote('code'),
-            attachments:    aAttachs
+            attachments:    aAttachs,
+            extraFields:    aExtraFieldsData
         },
         error: function (ret) {
             modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-newticket');
