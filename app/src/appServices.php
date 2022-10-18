@@ -494,6 +494,20 @@ class appServices
         
         return date("Y-m-d",strtotime($date));
     }
+
+    /**
+     * en_us Format a date to write to BD
+     * 
+     * pt_br Formata uma data para gravar no BD
+     *
+     * @return string
+     */
+    public function _formatSaveDateTime($date): string
+    {
+        $date = str_replace("/","-",$date);
+        
+        return date("Y-m-d H:i:s",strtotime($date));
+    }
     
     /**
      * en_us Format a date to view on screen
@@ -511,6 +525,24 @@ class appServices
         }
 
         return date($_ENV["SCREEN_DATE_FORMAT"],strtotime($date));
+    }
+
+    /**
+     * en_us Format a time to view on screen
+     * 
+     * pt_br Formata uma hora para visualizar em tela
+     *
+     * @param  mixed $date
+     * @return string
+     */
+    public function _formatHour(string $date): string
+    {
+        $date = str_replace("/","-",$date);
+        if(!isset($_ENV["SCREEN_HOUR_FORMAT"]) || empty($_ENV["SCREEN_HOUR_FORMAT"])){
+            $this->applogger->error("Environment variable SCREEN_HOUR_FORMAT doesn't exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
+        }
+
+        return date($_ENV["SCREEN_HOUR_FORMAT"],strtotime($date));
     }
 
     /**
@@ -727,7 +759,7 @@ class appServices
     {
         if(!is_dir($path)) {
             $this->applogger->info("Directory: $path does not exists, I will try to create it.",['Class' => __CLASS__, 'Method' => __METHOD__]);
-            if (!mkdir ($path, 0766 )) {
+            if (!mkdir ($path, 0777 )) {
                 $this->applogger->error("I could not create the directory: $path",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
             }else{
@@ -737,7 +769,7 @@ class appServices
 
         if (!is_writable($path)) {
             $this->applogger->info('Directory: '. $path.' is not writable, I will try to make it writable',['Class' => __CLASS__, 'Method' => __METHOD__]);
-            if (!chmod($path,0766)){
+            if (!chmod($path,0777)){
                 $this->applogger->error("Directory: $path is not writable!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
                 return false;
             }else{
@@ -930,7 +962,7 @@ class appServices
                 $retSend = $this->_sendSMTP($params);
                 break;
             case "API"://API
-                echo "{$aEmailSrv[0]['servertype']}\n";
+                $retSend = $this->_sendMandrill($params);
                 break;
             default:
                 echo "Case default\n";
@@ -1266,14 +1298,21 @@ class appServices
             $mail->AddAddress($sentTo);
         }
     }
-
-    public function _sendMandrill($message)
+    
+    /**
+     * en_us Sends an email using Mandrill API
+     * pt_br Envia um e-mail usando a API do Mandrill
+     *
+     * @param  mixed $params
+     * @return array
+     */
+    public function _sendMandrill(array $params)
     {
-        $dbCommon = new common();
-        $emconfigs = $dbCommon->getEmailConfigs();
+        $endPoint = $params['apiendpoint'];
+        $token = $params['apikey'];
 
-        $endPoint = $emconfigs['MANDRILL_ENDPOINT'];
-        $token = $emconfigs['MANDRILL_TOKEN'];
+        $message = $this->_formatMandrillMessage($params);
+        
         $params = array(
             "key" => $token,
             "message" => $message
@@ -1292,11 +1331,11 @@ class appServices
             CURLOPT_POSTFIELDS => json_encode($params)
         ];
         curl_setopt_array($ch,$ch_options);
-        $callback = curl_exec($ch);
+        $callback = curl_exec($ch); 
         $result   = (($callback) ? json_decode($callback,true) : curl_error($ch));
-        
-        return $result;
-            
+        $result['status'] = ($result['status'] != 'error') ? true : false;
+
+        return $result;            
     }
         
     /**
@@ -1899,7 +1938,6 @@ class appServices
     {
         $this->_sessionDestroy();
         header('Location:' . $_ENV['HDK_URL'] . '/admin/login');
-
     }
 
     /**
@@ -2035,5 +2073,86 @@ class appServices
             $this->applogger->error("{$function} support is NOT available ",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
+    }
+    
+    /**
+     * en_us Formats the message to send by Mandrill API
+     * pt_br Formata a mensagem a ser enviada pela API do Mandrill
+     *
+     * @param  array $params
+     * @return array
+     */
+    public function _formatMandrillMessage(array $params): array
+    {
+        $aAttachments = array();
+        foreach($params['attachment'] as $key=>$value){
+            $bus = array(
+                'type' => mime_content_type($value['filepath']),
+                'name' => $value['filename'],
+                'content' => base64_encode(file_get_contents($value['filepath']))
+            );
+    
+            array_push($aAttachments,$bus);
+        }
+    
+        foreach ($params['address'] as $key => $sendEmailTo) {
+            $params['to'] = array(array('email' => $sendEmailTo['to_address'],
+                    'name' => $sendEmailTo['to_name'],
+                    'type' => 'to'));
+        }
+    
+        $message = array(
+            'html' => $params['contents'],
+            'subject' => $params['subject'],
+            'from_email' => $params['sender'],
+            'from_name' => $params['sender_name'],
+            'to' => $params['to'],
+            'headers' => $params['extra_headers'],
+            'important' => false,
+            'track_opens' => null,
+            'track_clicks' => null,
+            'auto_text' => null,
+            'auto_html' => null,
+            'inline_css' => null,
+            'url_strip_qs' => null,
+            'preserve_recipients' => null,
+            'view_content_link' => null,
+            'tracking_domain' => null,
+            'signing_domain' => null,
+            'return_path_domain' => null,
+            'merge' => true,
+            'merge_language' => 'mailchimp',
+            'global_merge_vars' => $params['global_merge_vars'],
+            'merge_vars' => $params['merge_vars'],
+            'tags' => $params['tags'],
+            'google_analytics_domains' => $params['analytics_domains'],
+            'google_analytics_campaign' => 'teste',
+            'metadata' => $params['metadata'],
+            'recipient_metadata' => $params['recipient_metadata'],
+            'attachments' => $aAttachments,
+            'images' => $params['images']
+        );
+
+        return $message;
+    }
+    
+    /**
+     * en_us Removes special characters, accents, whitespaces
+     * pt_br Remove caracteres especiais, acentos, espaços em branco
+     *
+     * @param  mixed $string
+     * @return string
+     */
+    public function _clearAccent($string)
+    {
+        $forbidden = Array(",",".","'","\"","&","|","!","#","$","¨","*","(",")","`","´","<",">",";","=","+","§","{","}","[","]","^","~","?","%","°","º");
+        $special =  Array('Á','È','ô','Ç','á','è','Ò','ç','Â','Ë','ò','â','ë','Ø','Ñ','À','Ð','ø','ñ','à','ð','Õ','Å','õ','Ý','å','Í','Ö','ý','Ã','í','ö','ã','Î','Ä','î','Ú','ä','Ì','ú','Æ','ì','Û','æ','Ï','û','ï','Ù','®','É','ù','©','é','Ó','Ü','Þ','Ê','ó','ü','þ','ê','Ô','ß','‘','’','‚','“','”','„');
+        $clearspc = Array('A','E','o','C','a','e','o','c','A','E','o','a','e','o','N','A','D','o','n','a','o','O','A','o','y','a','I','O','y','A','i','o','a','I','A','i','U','a','I','u','A','i','U','a','I','u','i','U','','E','u','c','e','O','U','p','E','o','u','b','e','O','b','','','','','','');
+        
+        $newString = str_replace($special, $clearspc, $string);
+        $newString = str_replace($forbidden, "", trim($newString));
+        $newString = str_replace(" ", "_", $newString);
+        
+        return strtolower($newString);
     }
 }

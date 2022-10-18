@@ -102,8 +102,8 @@ class awsServices
 
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
-            $this->awslogger->error("Error connecting to AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            return array("success"=>false,"message"=>"Error connecting to AWS S3, Error Code: " . $errorCode);
+            $this->awslogger->error("Error connecting to AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error connecting to AWS S3, Error Code: " . $eCode);
 
         }
         
@@ -140,8 +140,8 @@ class awsServices
 
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
-            $this->awslogger->error("Error putting file to AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            return array("success"=>false,"message"=>"Error putting file to AWS S3, Error Code: " . $errorCode); 
+            $this->awslogger->error("Error putting file to AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error putting file to AWS S3, Error Code: " . $eCode); 
 
         }
         
@@ -186,8 +186,8 @@ class awsServices
         } catch (S3Exception $e) {
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
-            $this->awslogger->error("Error copying file to AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            return array("success"=>false,"message"=>"Error putting file's copy to AWS S3, Error Code: " . $errorCode);    
+            $this->awslogger->error("Error copying file to AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error putting file's copy to AWS S3, Error Code: " . $eCode);    
         }        
         
         $s3Obj->deleteObject(array(
@@ -225,8 +225,8 @@ class awsServices
         } catch (S3Exception $e) {
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
-            $this->awslogger->error("Error removing the file from AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            return array("success"=>false,"message"=>"Error removing the file from AWS S3, Error Code: " . $errorCode);    
+            $this->awslogger->error("Error removing the file from AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error removing the file from AWS S3, Error Code: " . $eCode);    
         }        
 
         return array("success"=>true, "message"=>"");
@@ -238,7 +238,9 @@ class awsServices
     }
     
     /**
-     * Creates and returns a presigned URL
+     * en_us Creates and returns a presigned URL
+     * 
+     * pt_br Cria e retorna um URL pré-assinado
      *
      * @param string    $file  Filename that is in the bucket
      * @param int       $time  Time in minutes
@@ -262,13 +264,56 @@ class awsServices
         } catch (S3Exception $e) {
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
-            $this->awslogger->error("Error creating file's presigned URL on AWS S3, Error Code: " . $errorCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            return array("success"=>false,"message"=>"Error creating file's presigned URL on AWS S3, Error Code: " . $errorCode,"fileUrl"=>"");    
+            $this->awslogger->error("Error creating file's presigned URL on AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error creating file's presigned URL on AWS S3, Error Code: " . $eCode,"fileUrl"=>"");    
         }
         
         // Get the actual presigned-url
         $presignedUrl = (string)$request->getUri();
         return array("success"=>true, "message"=>"","fileUrl"=>$presignedUrl);       
+    
+    }
+
+    function _getFolders($prefix) {
+        $s3Obj = $this->_getS3Connection();
+
+        try{
+            $ret = $s3Obj->listObjectsV2([
+                'Bucket'    => $this->_bucket,
+                'Delimiter'    => "/",
+                'Prefix'    => $prefix              
+            ]);
+            
+            $objectList = array_column($ret['CommonPrefixes'],'Prefix');
+
+        } catch (S3Exception $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error getting objects from {$this->_bucket}, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error getting objects from {$this->_bucket}, Error Code: " . $eCode,"objectList"=>"");    
+        }
+
+        return array("success"=>true, "message"=>"","objectList"=>$objectList);       
+    
+    }
+
+    function _setFolders($dir) {
+        $s3Obj = $this->_getS3Connection();
+
+        try{
+            $s3Obj->putObject([
+                'Bucket'     => $this->_bucket,
+                'Key'        => $dir                
+            ]);
+
+        } catch (S3Exception $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error putting folder on {$this->_bucket}, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error putting folder on {$this->_bucket}, Error Code: " . $eCode);    
+        }
+
+        return array("success"=>true, "message"=>"");       
     
     }
 
