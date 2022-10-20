@@ -1,0 +1,18 @@
+#hangtagList {
+    vertical-align:middle;
+    font-family:Arial;
+    font-size:9px;
+    font-weight:bold;
+    table-layout:fixed;
+    border-collapse: separate;
+    border-spacing: 10px 0;
+}
+
+.hangtagTd {
+    padding: 0 10px 10px 10px;
+}
+
+#hangtagList .hangtagTd {
+    border: 0px solid #000000;
+    border-radius: 25px;
+}

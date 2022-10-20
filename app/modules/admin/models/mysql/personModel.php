@@ -237,7 +237,37 @@ final class personModel
     /**
      * @var int
      */
-    private $totalRows;   
+    private $totalRows;
+    
+    /**
+     * @var array
+     */
+    private $countryList;
+
+    /**
+     * @var array
+     */
+    private $citiesList;
+
+    /**
+     * @var array
+     */
+    private $neighborhoodList;
+
+    /**
+     * @var string
+     */
+    private $location;
+
+    /**
+     * @var array
+     */
+    private $streetTypeList;
+
+    /**
+     * @var array
+     */
+    private $streetList;
 
     /**
      * Get the value of idPerson
@@ -1363,6 +1393,150 @@ final class personModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of countryList
+     *
+     * @return  array
+     */ 
+    public function getCountryList()
+    {
+        return $this->countryList;
+    }
+
+    /**
+     * Set the value of countryList
+     *
+     * @param  array  $countryList
+     *
+     * @return  self
+     */ 
+    public function setCountryList(array $countryList)
+    {
+        $this->countryList = $countryList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of citiesList
+     *
+     * @return  array
+     */ 
+    public function getCitiesList()
+    {
+        return $this->citiesList;
+    }
+
+    /**
+     * Set the value of citiesList
+     *
+     * @param  array  $citiesList
+     *
+     * @return  self
+     */ 
+    public function setCitiesList(array $citiesList)
+    {
+        $this->citiesList = $citiesList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of neighborhoodList
+     *
+     * @return  array
+     */ 
+    public function getNeighborhoodList()
+    {
+        return $this->neighborhoodList;
+    }
+
+    /**
+     * Set the value of neighborhoodList
+     *
+     * @param  array  $neighborhoodList
+     *
+     * @return  self
+     */ 
+    public function setNeighborhoodList(array $neighborhoodList)
+    {
+        $this->neighborhoodList = $neighborhoodList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of location
+     *
+     * @return  string
+     */ 
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    /**
+     * Set the value of location
+     *
+     * @param  string  $location
+     *
+     * @return  self
+     */ 
+    public function setLocation(string $location)
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of streetTypeList
+     *
+     * @return  array
+     */ 
+    public function getStreetTypeList()
+    {
+        return $this->streetTypeList;
+    }
+
+    /**
+     * Set the value of streetTypeList
+     *
+     * @param  array  $streetTypeList
+     *
+     * @return  self
+     */ 
+    public function setStreetTypeList(array $streetTypeList)
+    {
+        $this->streetTypeList = $streetTypeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of streetList
+     *
+     * @return  array
+     */ 
+    public function getStreetList()
+    {
+        return $this->streetList;
+    }
+
+    /**
+     * Set the value of streetList
+     *
+     * @param  array  $streetList
+     *
+     * @return  self
+     */ 
+    public function setStreetList(array $streetList)
+    {
+        $this->streetList = $streetList;
 
         return $this;
     }

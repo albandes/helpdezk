@@ -1,0 +1,76 @@
+<div class="modal fade" id="modal-change-deadline" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Change_date'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-change-deadline-form">
+                    <input type="hidden" id="deadlineExtensionNumber" value="{$deadlineExtensionNumber}">
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-3 text-end">
+                            <label for="currentDate" class="hdk-label col-form-label control-label">{='Current_date'|translate}:</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" readonly class="form-control-plaintext ps-2" id="currentDate" value="{$currentDeadlineDate}">
+                        </div>
+
+                        <div class="col-sm-3 text-end">
+                            <label for="currentTime" class="hdk-label col-form-label control-label">{='Current_time'|translate}:</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" readonly class="form-control-plaintext ps-2" id="currentTime" value="{$currentDeadlineTime}">
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mt-2">
+                        <div class="col-sm-3 text-end">
+                            <label for="newDate" class="hdk-label col-form-label control-label">{='New_date'|translate}:</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group date">
+                                <input type="text" id="newDate" name="newDate" class="form-control form-control-sm" value="" readonly />
+                                <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3 text-end">
+                            <label for="newTime" class="hdk-label col-form-label control-label">{='New_time'|translate}:</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input type="text" id="newTime" name="newTime" class="form-control form-control-sm newDeadlineTime" value="" readonly />
+                                <span id="btnNewDeadlineTime" class="input-group-addon"><i class="fa fa-clock"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg mt-2">
+                        <div class="col-sm-3 text-end">
+                            <label for="changeDeadlineReason" class="hdk-label col-form-label control-label">{='Reason'|translate}:</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <div id="changeDeadlineReason"></div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-change-deadline"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnChangeDeadlineSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+                <button type="button" id="btnChangeDeadlineClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

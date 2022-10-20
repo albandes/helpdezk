@@ -14,37 +14,40 @@ class groupDAO extends Database
     }
     
     /**
-     * Return an array with department to display in grid
+     * en_us Returns an array with groups data to display in grid
+     * pt_br Retorna um array com os dados dos grupos para visualização no grid
      *
      * @param  string $where
      * @param  string $group
      * @param  string $order
      * @param  string $limit
-     * @return array
-     */  
-    
-    /*public function queryGroup($where=null,$group=null,$order=null,$limit=null): array
+     * @return array            Parameters returned in array: 
+     *                          [status = true/false
+     *                           push =  [message = PDO Exception message 
+     *                                    object = model's object]]
+     */
+    public function queryGroups($where=null,$group=null,$order=null,$limit=null): array
     {
         
-        $sql = "SELECT a.iddepartment, b.name company, a.status, a.name AS department, 
-                    a.idperson AS idcompany
-                FROM hdk_tbdepartment a, tbperson b 
-                WHERE a.idperson = b.idperson 
+        $sql = "SELECT tbg.idgroup, tbg.idperson, tbp.name, tbg.level, tbg.status, tbg.idcustomer AS idcompany, tbp2.name AS company
+                  FROM hdk_tbgroup tbg, tbperson tbp, tbperson tbp2
+                 WHERE tbg.idperson = tbp.idperson
+                   AND tbp2.idperson = tbg.idcustomer
                 $where $group $order $limit";
-               // echo "{$sql}\n";
+
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
 
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            $department = new departmentModel(); 
-            $department->setgridList($aRet);
+            $groupModel = new groupModel(); 
+            $groupModel->setGridList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
 
             $ret = true;
-            $result = array("message"=>"","object"=>$department);
+            $result = array("message"=>"","object"=>$groupModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error query department ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error query groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
@@ -52,12 +55,23 @@ class groupDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
-    public function countDepartment($where=null): array
+    
+    /**
+     * en_us Returns an array with rows total for grid pagination
+     * pt_br Retorna um array com o total de registros para paginação do grid
+     *
+     * @param  mixed $where
+     * @return array            Parameters returned in array: 
+     *                          [status = true/false
+     *                           push =  [message = PDO Exception message 
+     *                                    object = model's object]]
+     */
+    public function countGroups($where=null): array
     {        
-        $sql = "SELECT COUNT(iddepartment) total
-                FROM hdk_tbdepartment a, tbperson b 
-                WHERE a.idperson = b.idperson  
+        $sql = "SELECT COUNT(tbg.idgroup) total
+                  FROM hdk_tbgroup tbg, tbperson tbp, tbperson tbp2
+                 WHERE tbg.idperson = tbp.idperson
+                   AND tbp2.idperson = tbg.idcustomer  
                 $where";
     
         try{
@@ -65,21 +79,21 @@ class groupDAO extends Database
             $stmt->execute();
 
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $department = new departmentModel();
-            $department->setTotalRows($aRet['total']);
+            $groupModel = new departmentModel();
+            $groupModel->setTotalRows($aRet['total']);
 
             $ret = true;
-            $result = array("message"=>"","object"=>$department);
+            $result = array("message"=>"","object"=>$groupModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error counting department ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error counting groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
         
         return array("status"=>$ret,"push"=>$result);
-    }*/
+    }
     
     /**
      * Checks if the group is for repassing only
@@ -163,8 +177,7 @@ class groupDAO extends Database
      *               [status = true/false
      *                push =  [message = PDO Exception message 
      *                         object = model's object]]
-     */  
-    
+     */
     public function fetchGroupOperators(groupModel $groupModel): array
     {
         
@@ -188,7 +201,48 @@ class groupDAO extends Database
             $result = array("message"=>"","object"=>$groupModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error query department ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error fetching group's operators ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with user's groups
+     * pt_br Retorna um array com os grupos do usuário
+     *
+     * @param  groupModel $groupModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchUserGroups(groupModel $groupModel): array
+    {
+        
+        $sql = "SELECT grppr.name as pername, per.idperson, grp.idperson as idpergroup, grp.idgroup
+                  FROM hdk_tbgroup grp, tbperson per, tbperson grppr, hdk_tbgroup_has_person rel
+                 WHERE per.idperson = rel.idperson
+                   AND grppr.idperson = grp.idperson
+                   AND grp.idgroup = rel.idgroup
+                   AND per.idperson = :userID";
+               // echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':userID', $groupModel->getIdUser());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $groupModel->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$groupModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error fetching operator's groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

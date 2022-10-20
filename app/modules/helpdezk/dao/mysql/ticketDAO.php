@@ -5,9 +5,11 @@ namespace App\modules\helpdezk\dao\mysql;
 use App\core\Database;
 
 use App\modules\helpdezk\dao\mysql\ticketRulesDAO;
+use App\modules\helpdezk\dao\mysql\evaluationDAO;
 
 use App\modules\helpdezk\models\mysql\ticketModel;
 use App\modules\helpdezk\models\mysql\ticketRulesModel;
+use App\modules\helpdezk\models\mysql\evaluationModel;
 
 class ticketDAO extends Database
 {
@@ -17,13 +19,16 @@ class ticketDAO extends Database
     }
 
     /**
-     * Return an array with ticket to display in grid
+     * en_us Returns an array with ticket to display in grid
      *
      * @param  string $where
      * @param  string $group
      * @param  string $order
      * @param  string $limit
-     * @return array
+     * @return array    Parameters returned in array: 
+     *                  [status = true/false
+     *                   push =  [message = PDO Exception message 
+     *                            object = model's object]]
      */
     public function queryTickets($where=null,$group=null,$order=null,$limit=null): array
     {        
@@ -65,13 +70,13 @@ class ticketDAO extends Database
     }
 
     /**
-     * Return an array with rows total for grid pagination 
+     * en_us Return an array with rows total for grid pagination 
      *
      * @param  string $where
-     * @param  string $group
-     * @param  string $order
-     * @param  string $limit
-     * @return array
+     * @return array    Parameters returned in array: 
+     *                  [status = true/false
+     *                   push =  [message = PDO Exception message 
+     *                            object = model's object]]
      */
     public function countTickets($where=null): array
     {
@@ -87,6 +92,173 @@ class ticketDAO extends Database
                    AND inch.ind_in_charge = 1 
                 $where";
         
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticket = new ticketModel();
+            $ticket->setTotalRows($aRet['total']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticket);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error counting tickets ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with ticket to display in grid
+     *
+     * @param  string $where
+     * @param  string $group
+     * @param  string $order
+     * @param  string $limit
+     * @return array    Parameters returned in array: 
+     *                  [status = true/false
+     *                   push =  [message = PDO Exception message 
+     *                            object = model's object]]
+     */
+    public function queryAttendantTickets($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $sql = "SELECT `req`.`code_request` AS `code_request`, `req`.`expire_date`  AS `expire_date`, `req`.`entry_date` AS `entry_date`,
+                        `req`.`flag_opened` AS `flag_opened`, `req`.`subject`  AS `subject`, `req`.`idperson_owner` AS `idperson_owner`,
+                        `req`.`idperson_creator` AS `idperson_creator`, `cre`.`name` AS `name_creator`, `cre`.`phone_number` AS `phone_number`,
+                        `cre`.`cel_phone` AS `cel_phone`, `cre`.`branch_number`  AS `branch_number`, `req`.`idperson_juridical` AS `idcompany`,
+                        `req`.`idsource` AS `idsource`, `req`.`extensions_number` AS `extensions_number`, `source`.`name` AS `source`,
+                        `req`.`idstatus` AS `idstatus`, `req`.`idattendance_way` AS `idattendance_way`, `req`.`os_number` AS `os_number`,
+                        `req`.`serial_number` AS `serial_number`, `req`.`label` AS `label`, `req`.`description` AS `description`,
+                        `comp`.`name` AS `company`, `stat`.`name` AS `status`, `rtype`.`name` AS `type`, `rtype`.`idtype` AS `idtype`,
+                        `item`.`iditem` AS `iditem`, `item`.`name` AS `item`, `serv`.`idservice` AS `idservice`, `serv`.`name` AS `service`,
+                        `prio`.`name` AS `priority`, `prio`.`idpriority` AS `idpriority`, `inch`.`ind_in_charge` AS `ind_in_charge`,
+                        `inch`.`id_in_charge`  AS `id_in_charge`, `resp`.`name` AS `in_charge`, `prio`.`color` AS `priority_color`,
+                        `pers`.`name` AS `personname`, `pers`.`email` AS `email`, `pers`.`phone_number` AS `phone`, `pers`.`branch_number` AS `branch`,
+                        `inch`.`type` AS `typeincharge`, `dep`.`name` AS `department`, `dep`.`iddepartment` AS `iddepartment`, 
+                        `source`.`name` AS `source_name`, `are`.`idarea` AS `idarea`, `are`.`name` AS `area`, `reason`.`name` AS `reason`,
+                        `req`.`idreason` AS `idreason`, `attway`.`way` AS `way_name`, `stat`.`color` AS `status_color`, `stat`.`idstatus_source`,
+                        COUNT(`req_attach`.`idrequest_attachment`) total_attachs, `inch`.`ind_track`
+                  FROM hdk_tbrequest req
+                  JOIN `tbperson` `pers`
+                    ON `req`.`idperson_owner` = `pers`.`idperson`
+                  JOIN `tbperson` `comp`
+                    ON `req`.`idperson_juridical` = `comp`.`idperson`
+                  JOIN `hdk_tbrequest_in_charge` `inch`
+                    ON `req`.`code_request` = `inch`.`code_request`
+                  JOIN `tbperson` `resp`
+                    ON `inch`.`id_in_charge` = `resp`.`idperson`/*  AND 
+                       `inch`.`ind_in_charge` = 1 */
+                  JOIN `tbperson` `cre`
+                    ON `req`.`idperson_creator` = `cre`.`idperson`
+                  JOIN `hdk_tbdepartment_has_person` `dep_pers`
+                    ON `pers`.`idperson` = `dep_pers`.`idperson`
+                  JOIN `hdk_tbdepartment` `dep`
+                    ON `dep`.`iddepartment` = `dep_pers`.`iddepartment`
+                  JOIN `hdk_tbcore_type` `rtype`
+                    ON `req`.`idtype` = `rtype`.`idtype`
+                  JOIN `hdk_tbcore_service` `serv`
+                    ON `req`.`idservice` = `serv`.`idservice`
+                  JOIN `hdk_tbcore_area` `are`
+                    ON `are`.`idarea` = `rtype`.`idarea`
+                  JOIN `hdk_tbpriority` `prio`
+                    ON `req`.`idpriority` = `prio`.`idpriority`
+                  JOIN `hdk_tbcore_item` `item`
+                    ON `req`.`iditem` = `item`.`iditem`
+                  JOIN `hdk_tbstatus` `stat`
+                    ON `req`.`idstatus` = `stat`.`idstatus`
+                  JOIN `hdk_tbsource` `source`
+                    ON `req`.`idsource` = `source`.`idsource`
+       LEFT OUTER JOIN `hdk_tbcore_reason` `reason`
+                    ON `req`.`idreason` = `reason`.`idreason`
+       LEFT OUTER JOIN `hdk_tbgroup` `grp`
+                    ON `resp`.`idperson` = `grp`.`idperson`
+                  JOIN `hdk_tbattendance_way` `attway`
+                    ON `attway`.`idattendanceway` = `req`.`idattendance_way`
+       LEFT OUTER JOIN `hdk_tbrequest_attachment` `req_attach`
+                    ON `req_attach`.`code_request` = `req`.`code_request`
+                $where
+              GROUP BY  `req`.`code_request`
+                $order $limit";
+        //echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticket = new ticketModel(); 
+            $ticket->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticket);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting tickets ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Return an array with rows total for grid pagination 
+     *
+     * @param  string $where
+     * @return array    Parameters returned in array: 
+     *                  [status = true/false
+     *                   push =  [message = PDO Exception message 
+     *                            object = model's object]]
+     */
+    public function countAttendantTickets($where=null): array
+    {
+        
+        $sql = "SELECT COUNT(`req`.`code_request`) total
+                  FROM hdk_tbrequest req
+                  JOIN `tbperson` `pers`
+                    ON `req`.`idperson_owner` = `pers`.`idperson`
+                  JOIN `tbperson` `comp`
+                    ON `req`.`idperson_juridical` = `comp`.`idperson`
+                  JOIN `hdk_tbrequest_in_charge` `inch`
+                    ON `req`.`code_request` = `inch`.`code_request`
+                  JOIN `tbperson` `resp`
+                    ON `inch`.`id_in_charge` = `resp`.`idperson` AND 
+                    `inch`.`ind_in_charge` = 1
+                  JOIN `tbperson` `cre`
+                    ON `req`.`idperson_creator` = `cre`.`idperson`
+                  JOIN `hdk_tbdepartment_has_person` `dep_pers`
+                    ON `pers`.`idperson` = `dep_pers`.`idperson`
+                  JOIN `hdk_tbdepartment` `dep`
+                    ON `dep`.`iddepartment` = `dep_pers`.`iddepartment`
+                  JOIN `hdk_tbcore_type` `rtype`
+                    ON `req`.`idtype` = `rtype`.`idtype`
+                  JOIN `hdk_tbcore_service` `serv`
+                    ON `req`.`idservice` = `serv`.`idservice`
+                  JOIN `hdk_tbcore_area` `are`
+                    ON `are`.`idarea` = `rtype`.`idarea`
+                  JOIN `hdk_tbpriority` `prio`
+                    ON `req`.`idpriority` = `prio`.`idpriority`
+                  JOIN `hdk_tbcore_item` `item`
+                    ON `req`.`iditem` = `item`.`iditem`
+                  JOIN `hdk_tbstatus` `stat`
+                    ON `req`.`idstatus` = `stat`.`idstatus`
+                  JOIN `hdk_tbsource` `source`
+                    ON `req`.`idsource` = `source`.`idsource`
+       LEFT OUTER JOIN `hdk_tbcore_reason` `reason`
+                    ON `req`.`idreason` = `reason`.`idreason`
+       LEFT OUTER JOIN `hdk_tbgroup` `grp`
+                    ON `resp`.`idperson` = `grp`.`idperson`
+                  JOIN `hdk_tbattendance_way` `attway`
+                    ON `attway`.`idattendanceway` = `req`.`idattendance_way`
+       LEFT OUTER JOIN `hdk_tbrequest_attachment` `req_attach`
+                    ON `req_attach`.`code_request` = `req`.`code_request`
+                $where";
+        //echo "{$sql}\n";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -711,7 +883,9 @@ class ticketDAO extends Database
         $stmt->bindValue(":isCallback",$ticketModel->getNoteHourType());
         $stmt->bindValue(":isOpen",$ticketModel->getNoteIsOpen());
         $stmt->bindValue(":emailCode",(empty($ticketModel->getEmailCode()) ? 'NULL': $ticketModel->getEmailCode()));
-        $stmt->execute(); 
+        $stmt->execute();
+
+        $ticketModel->setIdNote($this->db->lastInsertId());
 
         $ret = true;
         $result = array("message"=>"","object"=>$ticketModel);         
@@ -720,7 +894,8 @@ class ticketDAO extends Database
     }
 
     /**
-     * Checks if the user is a VIP
+     * en_us Saves the new ticket into DB
+     * pt_br Grava o novo ticket no banco de dados
      *
      * @param  ticketModel $ticketModel
      * @return array Parameters returned in array: 
@@ -776,6 +951,13 @@ class ticketDAO extends Database
                                 ->setNoteTypeID($v['type'])
                                 ->setNote($v['note'])
                                 ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
 
                     $insNote = $this->insertTicketNote($ticketModel);
@@ -983,7 +1165,59 @@ class ticketDAO extends Database
      */
     public function getTicket(ticketModel $ticketModel): array
     {        
-        $sql = "SELECT * FROM hdk_viewrequestdata WHERE code_request = :ticketCode";
+        $sql = "SELECT `req`.`code_request` AS `code_request`, `req`.`expire_date` AS `expire_date`, `req`.`entry_date` AS `entry_date`,
+                        `req`.`flag_opened` AS `flag_opened`, `req`.`subject` AS `subject`, `req`.`idperson_owner` AS `idperson_owner`,
+                        `req`.`idperson_creator` AS `idperson_creator`, `cre`.`name` AS `name_creator`, `cre`.`phone_number` AS `phone_number`,
+                        `cre`.`cel_phone` AS `cel_phone`, `cre`.`branch_number` AS `branch_number`, `req`.`idperson_juridical` AS `idcompany`,
+                        `req`.`idsource` AS `idsource`, `req`.`extensions_number` AS `extensions_number`, `source`.`name` AS `source`,
+                        `req`.`idstatus` AS `idstatus`, `req`.`idattendance_way` AS `idattendance_way`, `req`.`os_number` AS `os_number`,
+                        `req`.`serial_number` AS `serial_number`, `req`.`label` AS `label`, `req`.`description` AS `description`,
+                        `comp`.`name`  AS `company`, `stat`.`user_view` AS `status`, `rtype`.`name` AS `type`, `rtype`.`idtype` AS `idtype`,
+                        `item`.`iditem` AS `iditem`, `item`.`name` AS `item`, `serv`.`idservice` AS `idservice`, `serv`.`name` AS `service`,
+                        `prio`.`name` AS `priority`, `prio`.`idpriority` AS `idpriority`, `inch`.`ind_in_charge` AS `ind_in_charge`,
+                        `inch`.`id_in_charge` AS `id_in_charge`, `resp`.`name` AS `in_charge`, `prio`.`color` AS `priority_color`,
+                        `pers`.`name` AS `personname`, `pers`.`email` AS `email`, `pers`.`phone_number` AS `phone`,
+                        `pers`.`branch_number` AS `branch`, `inch`.`type` AS `typeincharge`, `dep`.`name` AS `department`, 
+                        `dep`.`iddepartment` AS `iddepartment`, `source`.`name` AS `source_name`, `are`.`idarea` AS `idarea`,
+                        `are`.`name` AS `area`, `reason`.`name`  AS `reason`, `req`.`idreason` AS `idreason`, `attway`.`way` AS `way_name`,
+                        `stat`.`color` AS `status_color`, `pers`.`idtypeperson` AS `owner_type`
+                  FROM hdk_tbrequest req
+                  JOIN `tbperson` `pers`
+                    ON `req`.`idperson_owner` = `pers`.`idperson`
+                  JOIN `tbperson` `comp`
+                    ON `req`.`idperson_juridical` = `comp`.`idperson`
+                  JOIN `hdk_tbrequest_in_charge` `inch`
+                    ON `req`.`code_request` = `inch`.`code_request`
+                  JOIN `tbperson` `resp`
+                    ON `inch`.`id_in_charge` = `resp`.`idperson` AND 
+                       `inch`.`ind_in_charge` = 1
+                  JOIN `tbperson` `cre`
+                    ON `req`.`idperson_creator` = `cre`.`idperson`
+                  JOIN `hdk_tbdepartment_has_person` `dep_pers`
+                    ON `pers`.`idperson` = `dep_pers`.`idperson`
+                  JOIN `hdk_tbdepartment` `dep`
+                    ON `dep`.`iddepartment` = `dep_pers`.`iddepartment`
+                  JOIN `hdk_tbcore_type` `rtype`
+                    ON `req`.`idtype` = `rtype`.`idtype`
+                  JOIN `hdk_tbcore_service` `serv`
+                    ON`req`.`idservice` = `serv`.`idservice`
+                  JOIN `hdk_tbcore_area` `are`
+                    ON `are`.`idarea` = `rtype`.`idarea`
+                  JOIN `hdk_tbpriority` `prio`
+                    ON `req`.`idpriority` = `prio`.`idpriority`
+                  JOIN `hdk_tbcore_item` `item`
+                    ON `req`.`iditem` = `item`.`iditem`
+                  JOIN `hdk_tbstatus` `stat`
+                    ON `req`.`idstatus` = `stat`.`idstatus`
+                  JOIN `hdk_tbsource` `source`
+                    ON `req`.`idsource` = `source`.`idsource`
+       LEFT OUTER JOIN `hdk_tbcore_reason` `reason`
+                    ON `req`.`idreason` = `reason`.`idreason`
+       LEFT OUTER JOIN `hdk_tbgroup` `grp`
+                    ON `resp`.`idperson` = `grp`.`idperson`
+                  JOIN `hdk_tbattendance_way` `attway`
+                    ON `attway`.`idattendanceway` = `req`.`idattendance_way` 
+                 WHERE `req`.`code_request` = :ticketCode";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -1001,6 +1235,7 @@ class ticketDAO extends Database
                         ->setOwnerEmail($aRet['email'])
                         ->setOwnerPhone($aRet['phone'])
                         ->setOwnerBranch($aRet['branch'])
+                        ->setOwnerTypeId($aRet['owner_type'])
                         ->setIdCreator($aRet['idperson_creator'])
                         ->setCreator($aRet['name_creator'])
                         ->setCreatorPhone($aRet['phone_number'])
@@ -1013,14 +1248,14 @@ class ticketDAO extends Database
                         ->setExtensionsNumber($aRet['extensions_number'])
                         ->setIdStatus($aRet['idstatus'])
                         ->setStatus($aRet['status'])
-                        ->setColor($aRet['color'])
+                        ->setColor($aRet['status_color'])
                         ->setIdAttendanceWay($aRet['idattendance_way'])
                         ->setAttendanceWay($aRet['way_name'])
                         ->setOsNumber($aRet['os_number'])
                         ->setSerialNumber($aRet['serial_number'])
                         ->setLabel($aRet['label'])
                         ->setIdArea($aRet['idarea'])
-                        ->setArea($aRet['AREA'])
+                        ->setArea($aRet['area'])
                         ->setIdType($aRet['idtype'])
                         ->setType($aRet['type'])
                         ->setIdItem($aRet['iditem'])
@@ -1088,6 +1323,1701 @@ class ticketDAO extends Database
             $result = array("message"=>$msg,"object"=>null);
         }
 
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Returns a object with ticket's attachments
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchTicketAttachments(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT file_name,idrequest_attachment 
+                  FROM hdk_tbrequest_attachment 
+                  WHERE code_request = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setAttachments((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's attachments. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Get status source id
+     *
+     * @param  ticketModel $ticketModel
+     * @return array            Parameters returned in array: 
+     *                          [status = true/false
+     *                           push = [message = PDO Exception message 
+     *                                   object = model's object]]
+     */
+    public function getIdStatusSource(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idstatus_source FROM hdk_tbstatus WHERE idstatus = :statusID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':statusID', $ticketModel->getIdStatus());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticketModel->setIdStatusSource($aRet['idstatus_source']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's status ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Returns a object with notes attachments
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchNoteAttachments(ticketModel $ticketModel): array
+    {        
+        $sql = " SELECT b.idnote_attachments,b.filename
+                   FROM hdk_tbnote_has_attachments a
+             INNER JOIN hdk_tbnote_attachments b
+                     ON a.idnote_attachments = b.idnote_attachments
+                  WHERE a.idnote = :noteID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':noteID', $ticketModel->getIdNote());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setNoteAttachmentsList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's notes. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Returns a object with notes attachments
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchTicketApprover(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT a.idperson, a.`order` 
+                  FROM hdk_tbrequest_approval a, hdk_tbrequest b 
+                 WHERE a.request_code = b.code_request 
+                   AND idnote IS NULL 
+                   AND fl_rejected = 0
+                   AND b.idstatus != 6 
+                   AND a.request_code = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setTicketApproversList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's approvers. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves cancellation of ticket into DB
+     * pt_br Grava o cancelamento do ticket no banco de dados
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveCancelTicket(ticketModel $ticketModel): array
+    {   
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $retTicketLog = $this->insertTicketLog($ticketModel);
+
+            if($retTicketLog['status']){
+                // -- changes status to cancelled
+                $retCancel = $this->updateTicketStatus($ticketModel);
+                
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retTicketLog['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying save ticket's cancellation ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Changes ticket's status
+     * 
+     * pt_br Altera o status do ticket
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateTicketStatus(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest SET idstatus = :statusID WHERE code_request = :ticketCode";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->bindValue(":statusID",$ticketModel->getIdStatus());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates ticket's dates
+     * 
+     * pt_br Atualiza as datas da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateTicketDate(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest_dates SET ". $ticketModel->getTicketDateField() ." = NOW() WHERE code_request = :ticketCode";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves reopen of the ticket into DB
+     * pt_br Grava a reabertura do ticket no banco de dados
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveReopenTicket(ticketModel $ticketModel): array
+    {   
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $retTicketLog = $this->insertTicketLog($ticketModel);
+
+            if($retTicketLog['status']){
+                // -- changes status to cancelled
+                $retCancel = $this->updateTicketStatus($ticketModel);
+                
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retTicketLog['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying save ticket's cancellation ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with auxiliary attendant list
+     * pt_br Retorna array com a lista de atendentes auxiliares
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchAuxiliaryAttendant(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idperson, TRIM(name) AS `name`
+                  FROM tbperson
+                 WHERE idperson ";
+        $sql .= ($ticketModel->getInCond()) ? "IN " : "NOT IN "; 
+        $sql .= "(SELECT id_in_charge
+                    FROM hdk_tbrequest_in_charge 
+                   WHERE code_request = :ticketCode
+                     AND ind_operator_aux = 1
+                     AND type = 'P')
+                   AND idtypeperson IN (1,3)
+                   AND status = 'A'
+              ORDER BY name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setAuxiliaryAttendantList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's auxiliary attendants. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with auxiliary attendant list
+     * pt_br Retorna array com a lista de atendentes auxiliares
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchNoteType(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idtypenote, b.key_value note_type_label
+                  FROM hdk_tbnote_type a, tbvocabulary b, tblocale c
+                 WHERE a.lang_key_name = b.key_name
+                   AND b.idlocale = c.idlocale
+                   AND LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
+                   AND a.available = 1
+              ORDER BY note_type_label";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setNoteTypeList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting note's type. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with attendant's groups id list
+     * pt_br Retorna array com a lista de id real de grupos do atendente
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchAttendantGroupRealID(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idperson FROM hdk_tbgroup WHERE idgroup IN (:groups)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':groups', $ticketModel->getIdGroupList());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setGroupRealIDList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error fetching attendant's group real id. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Update ticket deadline date
+     * pt_br Atualiza o prazo de atendimento da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateTicketDeadline(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest SET extensions_number = :extensionNumber, expire_date = :newDeadline WHERE code_request = :ticketCode";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->bindValue(":extensionNumber",$ticketModel->getExtensionsNumber());
+        $stmt->bindValue(":newDeadline",$ticketModel->getExpireDate());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Save ticket deadline change in DB
+     * pt_br Grava a alteração da data do prazo de atendimento no BD
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertTicketDeadlineChange(ticketModel $ticketModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbrequest_change_expire (code_request,reason,idperson,changedate) 
+                     VALUES (:ticketCode,:reason,:personID,NOW())";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->bindValue(":reason",$ticketModel->getReason());
+        $stmt->bindValue(":personID",$ticketModel->getIdUserLog());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves deadline date change
+     * pt_br Grava a alteração da data do prazo de atendimento
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveChangeTicketDeadline(ticketModel $ticketModel): array
+    {   
+        try{
+            $this->db->beginTransaction();
+
+            // -- update ticket deadline in [hdk_tbrequest]
+            $updDeadline = $this->updateTicketDeadline($ticketModel);
+
+            if($updDeadline['status']){
+                // -- insert deadline change in [hdk_tbrequest_change_expire]
+                $retCancel = $this->insertTicketDeadlineChange($updDeadline['push']['object']);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$updDeadline['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying save ticket's deadline change ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates ticket's data
+     * pt_br Atualiza os dados da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateTicket(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest 
+                   SET idtype = :typeID, 
+                       iditem = :itemID,
+                       idservice = :serviceID,
+                       idreason = NULLIF(:reasonID,'NULL'),
+                       idattendance_way = NULLIF(:attendanceTypeID,'NULL'),
+                       idpriority = :priorityID
+                WHERE code_request = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+            $stmt->bindValue(":typeID",$ticketModel->getIdType());
+            $stmt->bindValue(":itemID",$ticketModel->getIdItem());
+            $stmt->bindValue(":serviceID",$ticketModel->getIdService());
+            $stmt->bindValue(":reasonID",(($ticketModel->getIdReason() <= 0) ? 'NULL' : $ticketModel->getIdReason()));
+            $stmt->bindValue(":attendanceTypeID",(($ticketModel->getIdAttendanceWay() <= 0) ? 'NULL' : $ticketModel->getIdAttendanceWay()));
+            $stmt->bindValue(":priorityID",$ticketModel->getIdPriority());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update ticket's data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes in charge by the ticket
+     * 
+     * pt_br Remove o responsável pela solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function removeTicketInCharge(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest_in_charge SET ind_in_charge = '0' WHERE code_request = :ticketCode";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates ticket's times
+     * 
+     * pt_br Atualiza as horas da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateTicketTime(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest_times SET ". $ticketModel->getTicketTimeField() ." = :timeValue WHERE CODE_REQUEST = :ticketCode";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->bindValue(":timeValue",$ticketModel->getTicketTimeValue());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates in charge of the ticket into DB
+     * pt_br Atualiza o responsável pela solicitação no banco de dados
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveAssumeTicket(ticketModel $ticketModel): array
+    {   
+        $aInCharge = $ticketModel->getInChargeList();
+        $aNotes = $ticketModel->getNoteList();
+        $aTimes = $ticketModel->getTimesList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $retTicketLog = $this->insertTicketLog($ticketModel);
+
+            if($retTicketLog['status']){
+                $remInCharge = $this->removeTicketInCharge($retTicketLog['push']['object']);
+                
+                // -- save in charge
+                foreach($aInCharge as $k=>$v){
+                    $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                                ->setIdInCharge($v['id'])
+                                ->setInChargeType($v['type'])
+                                ->setIsInCharge($v['isInCharge'])
+                                ->setIsRepass($v['isRepassed'])
+                                ->setIsTrack($v['isTrack']);
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                }
+                
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+
+                // -- changes status to in attendance
+                $upStatus = $this->updateTicketStatus($ticketModel);
+
+                // -- changes ticket's time
+                foreach($aTimes as $k=>$v){
+                    $ticketModel->setTicketTimeField($v['field'])
+                                ->setTicketTimeValue($v['value']);
+
+                    $upStatus = $this->updateTicketTime($ticketModel);
+                }
+                
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retTicketLog['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update ticket's in charge (assume) ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with attendants list
+     * pt_br Retorna array com a lista de atendentes
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchAttendants(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idperson, TRIM(name) AS `name`
+                  FROM tbperson
+                 WHERE idtypeperson IN (1,3)
+                   AND `status` = 'A'
+              ORDER BY `name` ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setAttendantList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting attendants. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with partners list
+     * pt_br Retorna array com a lista de parcerias
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchPartners(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idperson, TRIM(name) AS `name`
+                  FROM tbperson
+                 WHERE idtypeperson IN (5)
+                   AND `status` = 'A'
+              ORDER BY `name` ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setPartnerList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting partners. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with group's abilities list
+     * pt_br Retorna array com a lista de habilidades do grupo
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchGroupAbilities(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT grpp.name, serv.name as service, grp.idgroup, serv.idservice
+                  FROM hdk_tbcore_service  serv,
+                       hdk_tbgroup  grp,
+                       tbperson  grpp,
+                       hdk_tbgroup_has_service  relat
+                 WHERE grp.idgroup = relat.idgroup
+                   AND grpp.idperson = grp.idperson
+                   AND serv.idservice = relat.idservice
+                   AND grpp.idperson = :groupID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':groupID', $ticketModel->getIdOperator());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setGridList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error fetching group's abilities. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with attendant's abilities list
+     * pt_br Retorna array com a lista de habilidades do atendente
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchAttendantAbilities(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT per.name, serv.name as service, per.idperson, serv.idservice, grpper.name
+                  FROM hdk_tbcore_service serv,
+                       hdk_tbgroup grp,
+                       hdk_tbgroup_has_service relat,
+                       tbperson per,
+                       tbperson grpper,
+                       hdk_tbgroup_has_person relatp
+                 WHERE grp.idgroup = relat.idgroup
+                   AND grpper.idperson = grp.idperson
+                   AND serv.idservice = relat.idservice
+                   AND relatp.idperson = per.idperson
+                   AND relatp.idgroup = grp.idgroup
+                   AND per.idperson = :attendantID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':attendantID', $ticketModel->getIdOperator());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setGridList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error fetching attendant's abilities. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts repass date in 
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertRepassTicket(ticketModel $ticketModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbrequest_repassed (date,idnote,code_request) 
+                     VALUES (:logDate,:noteID,:ticketCode)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->bindValue(":logDate",$ticketModel->getLogDate());
+        $stmt->bindValue(":noteID",$ticketModel->getIdNote());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Save ticket's repass data into DB
+     * pt_br Grava os dados da solicitação repassada
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveRepassTicket(ticketModel $ticketModel): array
+    {   
+        $aInCharge = $ticketModel->getInChargeList();
+        $aNotes = $ticketModel->getNoteList();
+        $lastKey = array_pop(array_keys($aNotes));
+        
+        try{
+            $this->db->beginTransaction();
+
+            $retTicketLog = $this->insertTicketLog($ticketModel);
+
+            if($retTicketLog['status']){
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                    if($insNote['status']){
+                        $noteID = ($lastKey == $key) ? $insNote['push']['object']->getIdNote(): 0;
+                    }
+                }
+
+                if(isset($noteID) && $noteID > 0){
+                    $insRepass = $this->insertRepassTicket($ticketModel);
+                }
+                
+                $remInCharge = $this->removeTicketInCharge($retTicketLog['push']['object']);
+                
+                // -- save in charge
+                foreach($aInCharge as $k=>$v){
+                    $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                                ->setIdInCharge($v['id'])
+                                ->setInChargeType($v['type'])
+                                ->setIsInCharge($v['isInCharge'])
+                                ->setIsRepass($v['isRepassed'])
+                                ->setIsTrack($v['isTrack']);
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                }                
+
+                // -- changes status to in attendance
+                $upStatus = $this->updateTicketStatus($ticketModel);
+
+                // -- update ticket action date
+                $ticketModel->setTicketDateField("forwarded_date");                    
+                $updTicketDate = $this->updateTicketDate($ticketModel);
+                
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retTicketLog['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying save ticket's repass ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts ticket's auxiliary attendant in DB
+     * pt_br Adiciona attendente auxiliar da solicitação no BD
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertAuxiliaryAttendant(ticketModel $ticketModel): array
+    {        
+        $aInCharge = $ticketModel->getInChargeList();
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+            // -- save in charge
+            foreach($aInCharge as $k=>$v){
+                $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                            ->setIdInCharge($v['id'])
+                            ->setInChargeType($v['type'])
+                            ->setIsInCharge($v['isInCharge'])
+                            ->setIsRepass($v['isRepassed'])
+                            ->setIsTrack($v['isTrack'])
+                            ->setIsOperatorAux($v['isOperatorAux']);
+
+                $insInCharge = $this->insertTicketInCharge($ticketModel);
+            }
+
+            // -- save notes
+            foreach($aNotes as $k=>$v){
+                $ticketModel->setNotePublic($v['public'])
+                            ->setNoteTypeID($v['type'])
+                            ->setNote($v['note'])
+                            ->setNoteDateTime($v['date'])
+                            ->setNoteTotalMinutes($v['totalMinutes'])
+                            ->setNoteStartHour($v['startHour'])
+                            ->setNoteFinishHour($v['finishHour'])
+                            ->setNoteExecutionDate($v['executionDate'])
+                            ->setNoteHourType($v['executionDate'])
+                            ->setNoteIpAddress($v['ipAddress'])
+                            ->setNoteIsCallback($v['callback'])
+                            ->setNoteIsOpen(0);
+
+                $insNote = $this->insertTicketNote($ticketModel);
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying insert ticket's auxiliary attendant ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * en_us Updates ticket's data
+     * pt_br Atualiza os dados da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteAuxiliaryAttendant(ticketModel $ticketModel): array
+    {        
+        $sql = "DELETE FROM hdk_tbrequest_in_charge WHERE id_in_charge = :attendantID AND code_request = :ticketCode AND ind_operator_aux = 1";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+            $stmt->bindValue(":attendantID",$ticketModel->getIdInCharge());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying remove ticket's auxiliary attendant ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Save ticket's note into DB
+     * pt_br Grava o apontamento da solicitação no banco de dados
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveTicketNote(ticketModel $ticketModel): array
+    {   
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            // -- save notes
+            foreach($aNotes as $k=>$v){
+                $ticketModel->setNotePublic($v['public'])
+                            ->setNoteTypeID($v['type'])
+                            ->setNote($v['note'])
+                            ->setNoteDateTime($v['date'])
+                            ->setNoteTotalMinutes($v['totalMinutes'])
+                            ->setNoteStartHour($v['startHour'])
+                            ->setNoteFinishHour($v['finishHour'])
+                            ->setNoteExecutionDate($v['executionDate'])
+                            ->setNoteHourType($v['executionDate'])
+                            ->setNoteIpAddress($v['ipAddress'])
+                            ->setNoteIsCallback($v['callback'])
+                            ->setNoteIsOpen(1);
+
+                $insNote = $this->insertTicketNote($ticketModel);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update ticket's in charge (assume) ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves in DB the link between note and attachment 
+     * pt_br Grava no DB o vínculo entre apontamento e o anexo
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertNoteAttachment(ticketModel $ticketModel): array
+    {        
+        $sql = "CALL hdk_insertNoteAttachments(:noteID,:fileName,@id)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(":noteID",$ticketModel->getIdNote(),\PDO::PARAM_INT|\PDO::PARAM_INPUT_OUTPUT);
+            $stmt->bindParam(":fileName",$ticketModel->getFileName(),\PDO::PARAM_STR|\PDO::PARAM_INPUT_OUTPUT);
+            $stmt->execute();
+            
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticketModel->setIdAttachment((!empty($aRet) && !is_null($aRet['noteatt_ID'])) ? $aRet['noteatt_ID'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying save link between note and attachment ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Deletes note's attachment from hdk_tbnote_has_attachments table
+     * pt_br Exclui o anexo do apontamento da tabela hdk_tbnote_has_attachments
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteNoteHasAttachment(ticketModel $ticketModel): array
+    {        
+        $sql = "DELETE FROM hdk_tbnote_has_attachments WHERE idnote_attachments = :attachmentID";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":attachmentID",$ticketModel->getIdAttachment());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Deletes note's attachment from hdk_tbnote_attachments table
+     * pt_br Exclui o anexo do apontamento da tabela hdk_tbnote_attachments
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteNoteAttachmentData(ticketModel $ticketModel): array
+    {        
+        $sql = "DELETE FROM hdk_tbnote_attachments WHERE idnote_attachments = :attachmentID";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":attachmentID",$ticketModel->getIdAttachment());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Deletes in DB the link between note and attachment 
+     * pt_br Exclui no DB o vínculo entre apontamento e o anexo
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function removeNoteAttachment(ticketModel $ticketModel): array
+    {        
+        try{
+            $rem = $this->deleteNoteHasAttachment($ticketModel);
+            if($rem['status']){
+                $delAttachment = $this->deleteNoteAttachmentData($rem['push']['object']);
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$rem['push']['object']);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying delete link note to uploaded file ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns date when attendant assumes the ticket
+     * pt_br Retorna a data em que o atendente assume a solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getAssumedDate(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT `date` FROM hdk_tbrequest_log WHERE cod_request = :ticketCode AND idstatus = 3 ORDER BY id ASC LIMIT 1";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticketModel->setAssumeDate((isset($aRet['date']) && !is_null($aRet['date'])) ? $aRet['date'] : "");
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting assuming date ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns total minutes expended to attendance
+     * pt_br Retorna o total de minutos gastos para atendimento
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getExpendedDate(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT SUM(minutes) as minutes FROM hdk_tbnote WHERE code_request = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticketModel->setMinExpendedTime((isset($aRet['minutes']) && !is_null($aRet['minutes'])) ? $aRet['minutes'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting attendance expended time. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates in charge of the ticket into DB
+     * pt_br Atualiza o responsável pela solicitação no banco de dados
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveCloseTicket(ticketModel $ticketModel): array
+    {   
+        $evaluationDAO = new evaluationDAO();
+        $evaluationModel = new evaluationModel();
+
+        $aNotes = $ticketModel->getNoteList();
+        $aTimes = $ticketModel->getTimesList();
+        $statusID = $ticketModel->getIdStatus();
+        
+        try{
+            $this->db->beginTransaction();
+
+            // -- update ticket finish date
+            $ticketModel->setTicketDateField("finish_date");                    
+            $updTicketDate = $this->updateTicketDate($ticketModel);
+
+            if($updTicketDate['status']){
+                if($statusID == 4){
+                    $evaluationModel->setTicketCode($updTicketDate['push']['object']->getTicketCode());
+                    $retEvalToken = $evaluationDAO->insertEvaluationToken($evaluationModel);
+                }elseif($statusID == 5){
+                    // -- update ticket approval date
+                    $ticketModel->setTicketDateField("approval_date");                    
+                    $updApprovalDate = $this->updateTicketDate($ticketModel);
+                }
+
+                // -- update ticket log
+                $retTicketLog = $this->insertTicketLog($ticketModel);
+                
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+
+                // -- changes ticket's status
+                $upStatus = $this->updateTicketStatus($ticketModel);
+
+                // -- changes ticket's time
+                foreach($aTimes as $k=>$v){
+                    $ticketModel->setTicketTimeField($v['field'])
+                                ->setTicketTimeValue($v['value']);
+
+                    $upStatus = $this->updateTicketTime($ticketModel);
+                }
+                
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$updTicketDate['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying close ticket ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves ticket's reject into DB
+     * pt_br Atualiza o responsável pela solicitação no banco de dados
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveRejectTicket(ticketModel $ticketModel): array
+    {   
+        $aInCharge = $ticketModel->getInChargeList();
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $retTicketLog = $this->insertTicketLog($ticketModel);
+
+            if($retTicketLog['status']){
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+
+                // -- changes status to rejected
+                $upStatus = $this->updateTicketStatus($ticketModel);
+
+                $remInCharge = $this->removeTicketInCharge($retTicketLog['push']['object']);
+                
+                // -- save in charge
+                foreach($aInCharge as $k=>$v){
+                    $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                                ->setIdInCharge($v['id'])
+                                ->setInChargeType($v['type'])
+                                ->setIsInCharge($v['isInCharge'])
+                                ->setIsRepass($v['isRepassed'])
+                                ->setIsTrack($v['isTrack']);
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                }
+
+                // -- update ticket rejection date
+                $ticketModel->setTicketDateField("rejection_date");                    
+                $updTicketDate = $this->updateTicketDate($ticketModel);
+                
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retTicketLog['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying reject ticket ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns array with attendance source list
+     * pt_br Retorna array com a lista de origens da solcitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchSources(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idsource, name, icon FROM hdk_tbsource ORDER BY name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setSourceList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting sources. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves the ticket opening and repass
+     * pt_br Grava abertura e repasse da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveOpenRepassTicket(ticketModel $ticketModel): array
+    {   
+        $aInCharge = $ticketModel->getInChargeList();
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $insTicket = $this->insertTicket($ticketModel);
+
+            if($insTicket['status']){
+                // -- save in charge
+                foreach($aInCharge as $k=>$v){
+                    $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                                ->setIdInCharge($v['id'])
+                                ->setInChargeType($v['type'])
+                                ->setIsInCharge($v['isInCharge'])
+                                ->setIsRepass($v['isRepassed'])
+                                ->setIsTrack($v['isTrack']);
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                }
+
+                $insTicketTimes = $this->insertTicketTimesNew($ticketModel);
+                $insTicketDate = $this->insertTicketDate($ticketModel);
+                
+                // -- update ticket repass date
+                $ticketModel->setTicketDateField("forwarded_date");                    
+                $updTicketDate = $this->updateTicketDate($ticketModel);
+                
+                $insTicketLog = $this->insertTicketLog($ticketModel);
+                
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$insTicket['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save ticket info ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves the ticket opening and repass
+     * pt_br Grava abertura e repasse da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveOpenFinishTicket(ticketModel $ticketModel): array
+    {   
+        $aInCharge = $ticketModel->getInChargeList();
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $insTicket = $this->insertTicket($ticketModel);
+
+            if($insTicket['status']){
+                // -- save in charge
+                foreach($aInCharge as $k=>$v){
+                    $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                                ->setIdInCharge($v['id'])
+                                ->setInChargeType($v['type'])
+                                ->setIsInCharge($v['isInCharge'])
+                                ->setIsRepass($v['isRepassed'])
+                                ->setIsTrack($v['isTrack']);
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                }
+
+                $insTicketTimes = $this->insertTicketTimesNew($ticketModel);
+                $insTicketDate = $this->insertTicketDate($ticketModel);
+                
+                // -- update ticket repass date
+                $ticketModel->setTicketDateField("finish_date");                    
+                $updTicketDate = $this->updateTicketDate($ticketModel);
+                
+                $insTicketLog = $this->insertTicketLog($ticketModel);
+                
+                // -- save notes
+                foreach($aNotes as $k=>$v){
+                    $ticketModel->setNotePublic($v['public'])
+                                ->setNoteTypeID($v['type'])
+                                ->setNote($v['note'])
+                                ->setNoteDateTime($v['date'])
+                                ->setNoteTotalMinutes($v['totalMinutes'])
+                                ->setNoteStartHour($v['startHour'])
+                                ->setNoteFinishHour($v['finishHour'])
+                                ->setNoteExecutionDate($v['executionDate'])
+                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteIpAddress($v['ipAddress'])
+                                ->setNoteIsCallback($v['callback'])
+                                ->setNoteIsOpen(0);
+
+                    $insNote = $this->insertTicketNote($ticketModel);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$insTicket['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save ticket info ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Link the ticket with uploaded file 
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertTrelloCard(ticketModel $ticketModel): array
+    {
+        $sql = "INSERT INTO hdk_tbrequest_has_trello_card (code_request,idtrellocard,idperson)
+                     VALUES(:ticketCode,:cardId,:personId)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+            $stmt->bindValue(":cardId",$ticketModel->getTrelloCardId());
+            $stmt->bindValue(":personId",$ticketModel->getTrelloUserId());
+            $stmt->execute();
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying link ticket to trello card ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
         return array("status"=>$ret,"push"=>$result);
     }
 }

@@ -1,3 +1,5 @@
 $(document).ready(function () {
-    countdown.start(timesession);
+    if($("#frm-login").length <= 0){
+        countdown.start(timesession);
+    }    
 });

@@ -1,0 +1,56 @@
+<div class="modal fade" id="modal-assume-ticket" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Assume_request'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-assume-ticket-form">
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-11 text-end">
+                            <label for="groupKeepView" class="hdk-label col-form-label control-label">{='Group_still_viewing'|translate}:</label>
+                        </div>
+                        <div class="col-sm-1">
+                            <label class="checkbox-inline i-checks"> <input type="checkbox" name="groupKeepView" id="groupKeepView" value="S" {if $checkedAssume}checked="checked"{/if}></label>
+                        </div>
+                    </div>
+
+                    <!--<div id="approvalComments" class="row white-bg g-2 mt-2 d-none">
+                        
+                    </div>-->
+                    {if $inChargeType == "P"}
+                    <div id="assumeGroupsList" class="row white-bg g-2 {if !$checkedAssume} d-none {/if}">
+                        <div class="col-sm-5 text-end">
+                            <label for="cmbAssumeGroups" class="hdk-label col-form-label control-label">{='Group'|translate}:</label>
+                        </div>
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="cmbAssumeGroups" name="cmbAssumeGroups">
+                                <option></option>
+                                {foreach $cmbAssumeGroups as $k=>$v}
+                                    <option value="{$v['id']}" {if $v['isdefault'] == "Y"}selected="selected"{/if}>{$v['text']}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    {/if}
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-assume-ticket"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAssumeSave" class="btn btn-primary btn-sm"><i class="fa fa-clipboard-check"></i> {='btn_assume'|translate}</button>
+                <button type="button" id="btnAssumeClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

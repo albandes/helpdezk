@@ -31,16 +31,16 @@
                                 </div>
                                 <div class="row col-sm-7">
                                     {if $typeUser == 3}
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-5">
                                         <select class="form-control input-sm" id="cmbTypeExpireDate" name="cmbTypeExpireDate">
                                             {foreach $cmbTypeExpireDate as $k=>$v}
                                                 <option value="{$v['id']}" {if $v['id'] == $idcompany}selected="selected"{/if}>{$v['text']}</option>
                                             {/foreach}
                                         </select>
                                     </div>                                    
-                                    <div class="col-sm-3">
-                                        <select class="form-control input-sm" id="cmbTipeView" name="cmbTipeView">
-                                            {foreach $cmbTipeView as $k=>$v}
+                                    <div class="col-sm-5">
+                                        <select class="form-control input-sm" id="cmbViewType" name="cmbViewType">
+                                            {foreach $cmbViewType as $k=>$v}
                                                 <option value="{$v['id']}" {if $v['id'] == $idcompany}selected="selected"{/if}>{$v['text']}</option>
                                             {/foreach}
                                         </select>

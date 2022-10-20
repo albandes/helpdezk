@@ -1,0 +1,37 @@
+<div class="modal fade" id="modal-reject-ticket" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='btn_reject'|translate} {='Request'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-reject-ticket-form">
+                    <div class="row white-bg mt-2">
+                        <div class="row col-sm-3 text-end">
+                            <label for="rejectReason" class="hdk-label col-form-label control-label">{='Reason'|translate}:</label>
+                        </div>
+                        <div class="row col-sm-9">
+                            <div id="rejectReason"></div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-reject-ticket"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnRejectTicketSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+                <button type="button" id="btnRejectTicketClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -302,4 +302,42 @@ class externalappDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
+    /**
+     * Returns a object with notes attachments
+     *
+     * @param  externalappModel $externalappModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchExternalSettingsByUser(externalappModel $externalappModel): array
+    {        
+        $sql = "SELECT a.idexternalapp, b.idperson, c.fieldname, c.value
+                  FROM hdk_tbexternallapp a, hdk_tbexternalsettings b, hdk_tbexternalfield c
+                 WHERE a.idexternalapp = b.idexternalapp
+                   AND c.idexternalsettings = b.idexternalsetting
+                   AND b.idperson = :userID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':userID', $externalappModel->getUserID());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $externalappModel->setSettingsList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$externalappModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error fetching external app settings by user. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
 }

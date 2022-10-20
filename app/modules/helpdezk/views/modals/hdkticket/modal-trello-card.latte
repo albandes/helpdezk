@@ -1,0 +1,100 @@
+<div class="modal fade" id="modal-trello-card" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='trello_integration'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-repass-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-trello-card-form">
+                    <div class="row wrapper white-bg">
+                        <div class="row col-sm-12 b-l mb-2">
+                            <div class="col-sm-4 text-end">
+                                <label for="cmbBoard" class="hdk-label col-form-label control-label">{='trello_boards'|translate}:</label>
+                            </div>
+                             <div class="col-sm-8">
+                                <select class="form-control input-sm" name="cmbBoard" id="cmbBoard">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12 b-l mb-2">
+                            <div class="col-sm-4 text-end">
+                                <label for="cmbList" class="hdk-label col-form-label control-label">{='trello_lists'|translate}:</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <select class="form-control input-sm" name="cmbList" id="cmbList" disabled>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- show registered cards list -->
+                        <div id="card-list-row" class="row col-sm-12 b-l mb-2 d-none">
+                            <div class="col-sm-4 text-end">
+                                <label for="card-list-table" class="hdk-label col-form-label control-label">{='trello_cards'|translate}:</label>
+                            </div>
+                            <div id="card-list-table" class="col-sm-7">
+                            </div>
+                            <div class="col-sm-1 ">
+                                <button class="btn btn-default btn-sm tooltip-buttons" id="btnAddCard" type="button" data-toggle="tooltip" data-placement="top" title="{='trello_tooltip_card'|translate}" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                        <!-- add a new card -->
+                        <div class="row col-sm-12 b-l mb-2 add-card d-none"> 
+                            <div class="col-sm-4 text-end">
+                                <label for="cardTitle" class="hdk-label col-form-label control-label">{='trello_title'|translate}:</label>
+                            </div>
+                            <div class="col-sm-8">
+                               <input type="text" id="cardTitle" name="cardTitle" class="form-control input-sm" required placeholder="{$plh_holiday_description}" value="{='Request_code'|translate}: {$formatedTicketCode} - {$ticketSubject}" >
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12 b-l mb-2 add-card d-none"> 
+                            <div class="col-sm-4 text-end">
+                                <label for="cardDescription" class="hdk-label col-form-label control-label">{='trello_description'|translate}:</label>
+                            </div>
+                            <div class="col-sm-8">
+                               <div id="cardDescription">{=$ticketDescription|noescape}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-trello-card"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnTrelloSave" class="btn btn-primary btn-sm d-none"><i class="fa fa-save"></i> {='btn_save_changes'|translate}</button>
+                <button type="button" id="btnTrelloClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollable-ul{
+        max-height: 150px;
+        overflow: auto;
+    }
+
+    .scrollable-ul::-webkit-scrollbar {
+        width: 16px;
+    }
+
+    .scrollable-ul::-webkit-scrollbar-track {
+        background-color: #e4e4e4;
+        border-radius: 100px;
+    }
+
+    .scrollable-ul::-webkit-scrollbar-thumb {
+        background-color: #d4d4d4;
+        border-radius: 100px;
+    }
+</style>

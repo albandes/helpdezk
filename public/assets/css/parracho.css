@@ -1687,7 +1687,7 @@ table.dataTable thead .sorting:after {
   background-color: #FFFFFF;
   background-image: none;
   border: 1px solid #e5e6e7;
-  border-radius: 1px;
+  border-radius: 0.2rem;
   color: inherit;
   display: block;
   padding: 6px 12px;
@@ -1720,13 +1720,14 @@ table.dataTable thead .sorting:after {
 .input-group-addon {
   background-color: #fff;
   border: 1px solid #E5E6E7;
-  border-radius: 1px;
+  border-radius: 0.2rem;;
   color: inherit;
   font-size: 14px;
   font-weight: 400;
   line-height: 1;
   padding: 6px 12px;
   text-align: center;
+  vertical-align: middle;
 }
 .spinner-buttons.input-group-btn .btn-xs {
   line-height: 1.13;
@@ -3768,7 +3769,7 @@ ul.clear-list:first-child {
 }
 .timeline-item .date {
   text-align: right;
-  width: 110px;
+  width: 40px;
   position: relative;
   padding-top: 30px;
 }
@@ -5228,4 +5229,20 @@ select, #btnTimer,
   margin-bottom: 14px;
   border: 2px solid #e1e1e8;
   border-radius: 6px;
+}
+
+.card-primary {
+  border-color: #1ab394;
+}
+
+.card-header{
+  background-color: #1ab394;
+  border-color: #1ab394;
+  color: #ffffff;
+}
+
+.hdk-toolbar.active {
+  color: #1ab394;
+  font-weight: bold;
+  border-bottom: solid 1px #1ab394;
 }

@@ -1,0 +1,112 @@
+<div class="modal fade" id="modal-repass-ticket" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Repass_btn'|translate} {='Request'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-repass-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-repass-ticket-form">
+                    <div class="row wrapper white-bg">
+                        <div class="row col-sm-12 b-l mb-2">
+                            <div class="col-sm-4 text-end">
+                                <label for="groupKeepView" class="hdk-label col-form-label control-label">{='Repass_request_to'|translate}:</label>
+                            </div>
+                             <div class="col-sm-8">
+                                <label class="radio-inline i-checks"> <input type="radio" name="repassType" id="cmbGroup" value="group" checked>&nbsp;{='Group'|translate}</label>&nbsp;&nbsp;&nbsp;
+                                <label class="radio-inline i-checks"> <input type="radio" name="repassType" id="cmbOperator" value="operator">&nbsp;{='Operator'|translate}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper white-bg">
+                         <div class="row col-sm-12 b-l mb-2">
+                            <div class="col-sm-4 text-end">
+                                &nbsp;
+                            </div>
+                             <div class="col-sm-8">
+                                <select class="form-control input-sm" name="repassList" id="repassList">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper white-bg">
+                        <div class="row col-sm-12 b-l mb-3">
+                            <div class="col-sm-4 text-center">
+                                <button type="button" id="btnAbilities" class="btn btn-default btn-sm">{='Abilities'|translate}</button>
+                                <button type="button" id="btnGroups" class="btn btn-white  btn-sm off">{='Groups'|translate}</button>
+                            </div>
+                             <div class="col-sm-8">
+                                <div class="card card-primary">
+                                    <div class="card-header" id="titleAbilityGroup"></div>
+                                    <ul id="abilityGroupList" class="list-group list-group-flush scrollable-ul">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper white-bg">
+                        <div class="col-sm-10 b-l">
+                            <div class="row col-sm-12 mb-2"><label class="radio i-checks"> <input type="radio" name="trackOptions" id="trackOptionsG" value="G" {if $checkedAssume}checked="checked"{/if}>&nbsp;{='Group_still_viewing'|translate}</label></div>
+                            {if $inChargeType == "P" || (isset($showGroupTrack) && $showGroupTrack == 1)}
+                            <div id="OpeGroupsList" class="row col-sm-12  mb-2 {if !$checkedAssume} d-none {/if}">
+                                <div class="col-sm-3 text-end">
+                                    <label for="groupKeepView" class="hdk-label col-form-label control-label">{='Group'|translate}:</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm" name="cmbOpeGroups" id="cmbOpeGroups">
+                                        <option></option>
+                                        {foreach $cmbAssumeGroups as $k=>$v}
+                                            <option value="{$v['id']}" {if $v['isdefault'] == "Y"}selected="selected"{/if}>{$v['text']}</option>
+                                        {/foreach}
+                                    </select>
+                                </div>
+                            </div>
+                            {/if}
+                            <div class="row col-sm-12 mb-2"><label class="radio i-checks"> <input type="radio" name="trackOptions" id="trackOptionsP" value="P">&nbsp;{='Still_viewing'|translate}</label></div>
+                            <div class="row col-sm-12 mb-2"><label class="radio i-checks"> <input type="radio" name="trackOptions" id="trackOptionsN" value="N">&nbsp;{='Stop_viewing'|translate}</label></div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-repass-ticket"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnRepassSave" class="btn btn-primary btn-sm"><i class="fa fa-share"></i> {='Repass_btn'|translate}</button>
+                <button type="button" id="btnRepassClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollable-ul{
+        max-height: 150px;
+        overflow: auto;
+    }
+
+    .scrollable-ul::-webkit-scrollbar {
+        width: 16px;
+    }
+
+    .scrollable-ul::-webkit-scrollbar-track {
+        background-color: #e4e4e4;
+        border-radius: 100px;
+    }
+
+    .scrollable-ul::-webkit-scrollbar-thumb {
+        background-color: #d4d4d4;
+        border-radius: 100px;
+    }
+</style>

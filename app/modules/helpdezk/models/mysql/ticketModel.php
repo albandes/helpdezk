@@ -520,6 +520,131 @@ final class ticketModel
     private $inChargeEmail;
 
     /**
+     * @var int
+     */
+    private $idStatusSource;
+
+    /**
+     * @var string
+     */
+    private $statusSource;
+
+    /**
+     * @var int
+     */
+    private $idNote;
+
+    /**
+     * @var array
+     */
+    private $noteAttachmentsList;
+
+    /**
+     * @var int
+     */
+    private $idUser;
+
+    /**
+     * @var string
+     */
+    private $idGroupList;
+
+    /**
+     * @var array
+     */
+    private $ticketApproversList;
+
+    /**
+     * @var array
+     */
+    private $attendanceTypeList;
+
+    /**
+     * @var string
+     */
+    private $ticketDateField;
+
+     /**
+     * @var bool
+     */
+    private $inCond;
+
+    /**
+     * @var array
+     */
+    private $auxiliaryAttendantList;
+
+    /**
+     * @var array
+     */
+    private $noteTypeList;
+
+    /**
+     * @var array
+     */
+    private $groupRealIDList;
+
+    /**
+     * @var string
+     */
+    private $newDeadlineDate;
+
+    /**
+     * @var string
+     */
+    private $newDeadlineTime;
+
+    /**
+     * @var array
+     */
+    private $timesList;
+
+    /**
+     * @var string
+     */
+    private $ticketTimeField;
+
+    /**
+     * @var string
+     */
+    private $ticketTimeValue;
+
+    /**
+     * @var array
+     */
+    private $attendantList;
+
+    /**
+     * @var array
+     */
+    private $partnerList;
+
+    /**
+     * @var mixed
+     */
+    private $assumeDate;
+
+    /**
+     * @var array
+     */
+    private $sourceList;
+
+    /**
+     * @var int
+     */
+    private $ownerTypeId;
+
+    /**
+     * @var string
+     */
+    private $trelloCardId;
+
+     /**
+     * @var int
+     */
+    private $trelloUserId;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -2776,6 +2901,30 @@ final class ticketModel
     }
 
     /**
+     * Get the value of noteIsCallback
+     *
+     * @return  mixed
+     */ 
+    public function getNoteIsCallback()
+    {
+        return $this->noteIsCallback;
+    }
+
+    /**
+     * Set the value of noteIsCallback
+     *
+     * @param  mixed  $noteIsCallback
+     *
+     * @return  self
+     */ 
+    public function setNoteIsCallback($noteIsCallback)
+    {
+        $this->noteIsCallback = $noteIsCallback;
+
+        return $this;
+    }
+
+    /**
      * Get the value of attachments
      *
      * @return  array
@@ -2939,6 +3088,606 @@ final class ticketModel
     public function setInChargeEmail(string $inChargeEmail)
     {
         $this->inChargeEmail = $inChargeEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idStatusSource
+     *
+     * @return  int
+     */ 
+    public function getIdStatusSource()
+    {
+        return $this->idStatusSource;
+    }
+
+    /**
+     * Set the value of idStatusSource
+     *
+     * @param  int  $idStatusSource
+     *
+     * @return  self
+     */ 
+    public function setIdStatusSource(int $idStatusSource)
+    {
+        $this->idStatusSource = $idStatusSource;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statusSource
+     *
+     * @return  string
+     */ 
+    public function getStatusSource()
+    {
+        return $this->statusSource;
+    }
+
+    /**
+     * Set the value of statusSource
+     *
+     * @param  string  $statusSource
+     *
+     * @return  self
+     */ 
+    public function setStatusSource(string $statusSource)
+    {
+        $this->statusSource = $statusSource;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idNote
+     *
+     * @return  int
+     */ 
+    public function getIdNote()
+    {
+        return $this->idNote;
+    }
+
+    /**
+     * Set the value of idNote
+     *
+     * @param  int  $idNote
+     *
+     * @return  self
+     */ 
+    public function setIdNote(int $idNote)
+    {
+        $this->idNote = $idNote;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteAttachmentsList
+     *
+     * @return  array
+     */ 
+    public function getNoteAttachmentsList()
+    {
+        return $this->noteAttachmentsList;
+    }
+
+    /**
+     * Set the value of noteAttachmentsList
+     *
+     * @param  array  $noteAttachmentsList
+     *
+     * @return  self
+     */ 
+    public function setNoteAttachmentsList(array $noteAttachmentsList)
+    {
+        $this->noteAttachmentsList = $noteAttachmentsList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idUser
+     *
+     * @return  int
+     */ 
+    public function getIdUser()
+    {
+        return $this->idUser;
+    }
+
+    /**
+     * Set the value of idUser
+     *
+     * @param  int  $idUser
+     *
+     * @return  self
+     */ 
+    public function setIdUser(int $idUser)
+    {
+        $this->idUser = $idUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idGroupList
+     *
+     * @return  string
+     */ 
+    public function getIdGroupList()
+    {
+        return $this->idGroupList;
+    }
+
+    /**
+     * Set the value of idGroupList
+     *
+     * @param  string  $idGroupList
+     *
+     * @return  self
+     */ 
+    public function setIdGroupList(string $idGroupList)
+    {
+        $this->idGroupList = $idGroupList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketApproversList
+     *
+     * @return  array
+     */ 
+    public function getTicketApproversList()
+    {
+        return $this->ticketApproversList;
+    }
+
+    /**
+     * Set the value of ticketApproversList
+     *
+     * @param  array  $ticketApproversList
+     *
+     * @return  self
+     */ 
+    public function setTicketApproversList(array $ticketApproversList)
+    {
+        $this->ticketApproversList = $ticketApproversList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attendanceTypeList
+     *
+     * @return  array
+     */ 
+    public function getAttendanceTypeList()
+    {
+        return $this->attendanceTypeList;
+    }
+
+    /**
+     * Set the value of attendanceTypeList
+     *
+     * @param  array  $attendanceTypeList
+     *
+     * @return  self
+     */ 
+    public function setAttendanceTypeList(array $attendanceTypeList)
+    {
+        $this->attendanceTypeList = $attendanceTypeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketDateField
+     *
+     * @return  string
+     */ 
+    public function getTicketDateField()
+    {
+        return $this->ticketDateField;
+    }
+
+    /**
+     * Set the value of ticketDateField
+     *
+     * @param  string  $ticketDateField
+     *
+     * @return  self
+     */ 
+    public function setTicketDateField(string $ticketDateField)
+    {
+        $this->ticketDateField = $ticketDateField;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inCond
+     *
+     * @return  bool
+     */ 
+    public function getInCond()
+    {
+        return $this->inCond;
+    }
+
+    /**
+     * Set the value of inCond
+     *
+     * @param  bool  $inCond
+     *
+     * @return  self
+     */ 
+    public function setInCond(bool $inCond)
+    {
+        $this->inCond = $inCond;
+
+        return $this;
+    }
+    
+    /**
+     * Get the value of auxiliaryAttendantList
+     *
+     * @return  array
+     */ 
+    public function getAuxiliaryAttendantList()
+    {
+        return $this->auxiliaryAttendantList;
+    }
+
+    /**
+     * Set the value of auxiliaryAttendantList
+     *
+     * @param  array  $auxiliaryAttendantList
+     *
+     * @return  self
+     */ 
+    public function setAuxiliaryAttendantList(array $auxiliaryAttendantList)
+    {
+        $this->auxiliaryAttendantList = $auxiliaryAttendantList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteTypeList
+     *
+     * @return  array
+     */ 
+    public function getNoteTypeList()
+    {
+        return $this->noteTypeList;
+    }
+
+    /**
+     * Set the value of noteTypeList
+     *
+     * @param  array  $noteTypeList
+     *
+     * @return  self
+     */ 
+    public function setNoteTypeList(array $noteTypeList)
+    {
+        $this->noteTypeList = $noteTypeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupRealIDList
+     *
+     * @return  array
+     */ 
+    public function getGroupRealIDList()
+    {
+        return $this->groupRealIDList;
+    }
+
+    /**
+     * Set the value of groupRealIDList
+     *
+     * @param  array  $groupRealIDList
+     *
+     * @return  self
+     */ 
+    public function setGroupRealIDList(array $groupRealIDList)
+    {
+        $this->groupRealIDList = $groupRealIDList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of newDeadlineDate
+     *
+     * @return  string
+     */ 
+    public function getNewDeadlineDate()
+    {
+        return $this->newDeadlineDate;
+    }
+
+    /**
+     * Set the value of newDeadlineDate
+     *
+     * @param  string  $newDeadlineDate
+     *
+     * @return  self
+     */ 
+    public function setNewDeadlineDate(string $newDeadlineDate)
+    {
+        $this->newDeadlineDate = $newDeadlineDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of newDeadlineTime
+     *
+     * @return  string
+     */ 
+    public function getNewDeadlineTime()
+    {
+        return $this->newDeadlineTime;
+    }
+
+    /**
+     * Set the value of newDeadlineTime
+     *
+     * @param  string  $newDeadlineTime
+     *
+     * @return  self
+     */ 
+    public function setNewDeadlineTime(string $newDeadlineTime)
+    {
+        $this->newDeadlineTime = $newDeadlineTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of timesList
+     *
+     * @return  array
+     */ 
+    public function getTimesList()
+    {
+        return $this->timesList;
+    }
+
+    /**
+     * Set the value of timesList
+     *
+     * @param  array  $timesList
+     *
+     * @return  self
+     */ 
+    public function setTimesList(array $timesList)
+    {
+        $this->timesList = $timesList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketTimeField
+     *
+     * @return  string
+     */ 
+    public function getTicketTimeField()
+    {
+        return $this->ticketTimeField;
+    }
+
+    /**
+     * Set the value of ticketTimeField
+     *
+     * @param  string  $ticketTimeField
+     *
+     * @return  self
+     */ 
+    public function setTicketTimeField(string $ticketTimeField)
+    {
+        $this->ticketTimeField = $ticketTimeField;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketTimeValue
+     *
+     * @return  string
+     */ 
+    public function getTicketTimeValue()
+    {
+        return $this->ticketTimeValue;
+    }
+
+    /**
+     * Set the value of ticketTimeValue
+     *
+     * @param  string  $ticketTimeValue
+     *
+     * @return  self
+     */ 
+    public function setTicketTimeValue(string $ticketTimeValue)
+    {
+        $this->ticketTimeValue = $ticketTimeValue;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attendantList
+     *
+     * @return  array
+     */ 
+    public function getAttendantList()
+    {
+        return $this->attendantList;
+    }
+
+    /**
+     * Set the value of attendantList
+     *
+     * @param  array  $attendantList
+     *
+     * @return  self
+     */ 
+    public function setAttendantList(array $attendantList)
+    {
+        $this->attendantList = $attendantList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of partnerList
+     *
+     * @return  array
+     */ 
+    public function getPartnerList()
+    {
+        return $this->partnerList;
+    }
+
+    /**
+     * Set the value of partnerList
+     *
+     * @param  array  $partnerList
+     *
+     * @return  self
+     */ 
+    public function setPartnerList(array $partnerList)
+    {
+        $this->partnerList = $partnerList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of assumeDate
+     *
+     * @return  mixed
+     */ 
+    public function getAssumeDate()
+    {
+        return $this->assumeDate;
+    }
+
+    /**
+     * Set the value of assumeDate
+     *
+     * @param  mixed  $assumeDate
+     *
+     * @return  self
+     */ 
+    public function setAssumeDate($assumeDate)
+    {
+        $this->assumeDate = $assumeDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sourceList
+     *
+     * @return  array
+     */ 
+    public function getSourceList()
+    {
+        return $this->sourceList;
+    }
+
+    /**
+     * Set the value of sourceList
+     *
+     * @param  array  $sourceList
+     *
+     * @return  self
+     */ 
+    public function setSourceList(array $sourceList)
+    {
+        $this->sourceList = $sourceList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ownerTypeId
+     *
+     * @return  int
+     */ 
+    public function getOwnerTypeId()
+    {
+        return $this->ownerTypeId;
+    }
+
+    /**
+     * Set the value of ownerTypeId
+     *
+     * @param  int  $ownerTypeId
+     *
+     * @return  self
+     */ 
+    public function setOwnerTypeId(int $ownerTypeId)
+    {
+        $this->ownerTypeId = $ownerTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of trelloCardId
+     *
+     * @return  string
+     */ 
+    public function getTrelloCardId()
+    {
+        return $this->trelloCardId;
+    }
+
+    /**
+     * Set the value of trelloCardId
+     *
+     * @param  string  $trelloCardId
+     *
+     * @return  self
+     */ 
+    public function setTrelloCardId(string $trelloCardId)
+    {
+        $this->trelloCardId = $trelloCardId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of trelloUserId
+     *
+     * @return  int
+     */ 
+    public function getTrelloUserId()
+    {
+        return $this->trelloUserId;
+    }
+
+    /**
+     * Set the value of trelloUserId
+     *
+     * @param  int  $trelloUserId
+     *
+     * @return  self
+     */ 
+    public function setTrelloUserId(int $trelloUserId)
+    {
+        $this->trelloUserId = $trelloUserId;
 
         return $this;
     }

@@ -22,7 +22,6 @@
                             <div class="row">
                                 <!-- Form area -->
                                 <form method="get" class="form-horizontal" id="create-ticket-form">
-
                                     <!-- Hidden -->
                                     <input type="hidden" name="_token" id= "_token" value="{$token}">
                                     <input type="hidden" id="hiddenIdPerson" value="{$_SESSION['SES_COD_USUARIO']}"/>
@@ -43,9 +42,8 @@
                                                 </div>
                                                 <div class="col-sm-7">
                                                     <select class="form-control input-sm" id="cmbUser" name="cmbUser">
-                                                        <option></option>
                                                         {foreach $cmbUser as $k=>$v}
-                                                            <option value="{$v['id']}" {if $v['id'] == $areaID}selected="selected"{/if}>{$v['text']}</option>
+                                                            <option value="{$v['id']}" {if $v['id'] == $ownerID}selected="selected"{/if}>{$v['text']}</option>
                                                         {/foreach}
                                                     </select>
                                                 </div>
@@ -58,6 +56,47 @@
                                                 </div>
                                                 {/if}
                                             </div>
+
+                                            {if $typeUser == 3}
+                                            <!-- Source -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbSource" class="hdk-label col-form-label text-end">{='Source'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbSource" name="cmbSource">
+                                                        <option></option>
+                                                        {foreach $cmbSource as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $sourceID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Date -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="ticketDate" class="hdk-label col-form-label text-end">{='Date'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <div class="input-group date">
+                                                        <input type="text" id="ticketDate" name="ticketDate" class="form-control form-control-sm" value="{date($_ENV['SCREEN_DATE_FORMAT'])}" readonly />
+                                                        <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                             <!-- Time -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbSource" class="hdk-label col-form-label text-end">{='Hour'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <div class="input-group">
+                                                        <input type="text" id="ticketTime" name="ticketTime" class="form-control form-control-sm" value="{date('H:i:s')}" readonly />
+                                                        <span id="btnTicketTime" class="input-group-addon"><i class="fa fa-clock"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {/if}
 
                                             <div class="row g-2 mb-2">                                                 
                                                 <div class="col-sm-3 text-end">
@@ -130,6 +169,22 @@
                                                 </div>
                                             </div>
 
+                                            {if $typeUser == 3}
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbAttendanceType" class="hdk-label col-form-label text-end">{='Att_way'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-control input-sm" id="cmbAttendanceType" name="cmbAttendanceType">
+                                                        <option></option>
+                                                        {foreach $cmbAttendanceType as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $attendanceTypeID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {/if}
+
                                             <div class="row g-2 mb-2">
                                                 <div class="col-sm-3 text-end">
                                                     <label for="attachments" class="hdk-label col-form-label text-end">{='Attachments'|translate}:</label>
@@ -138,7 +193,22 @@
                                                 <div class="col-sm-7 text-center">
                                                    <div id="attachments" class="dropzone dz-default dz-message"></div>
                                                 </div>
-                                            </div>                                                                           
+                                            </div>  
+
+                                            {if $typeUser == 3} <!-- attendance timer -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="attendanceTime" class="hdk-label col-form-label text-end">{='Attend_time'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <div class="input-group">
+                                                        <input type="hidden" id="attendanceTime" name="attendanceTime" class="form-control form-control-sm timer" value="" />
+                                                        <span class="form-control timer"></span>
+                                                        <span id="btnAttendanceTimer" class="input-group-addon"><i class="fa fa-clock"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {/if}                                                                         
                                         </div>
 
                                         <!-- right side -->
@@ -180,7 +250,18 @@
                                                 <div class="col-sm-8">
                                                     <div id="description" name="description"></div>
                                                 </div>
-                                            </div>                                                                            
+                                            </div>
+                                            {if $typeUser == 3}
+                                            <!-- Solution -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="item" class="hdk-label col-form-label text-end">{='Solution'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <div id="solution" name="solution"></div>
+                                                </div>
+                                            </div>
+                                            {/if}
                                         </div>
                                     </div>
 
@@ -200,8 +281,16 @@
                                         <div class="col-sm-12 form-group">
                                             <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
                                             <button type="button" class="btn btn-primary btn-sm" id="btnCreateTicket" >
-                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                                <i class="fa fa-save"></i>  &nbsp;{='Save'|translate}
                                             </button>
+                                            {if $typeUser == 3}
+                                            <button type="button" class="btn btn-success btn-sm" id="btnRepassTicket" >
+                                                <i class="fa fa-share"></i>  &nbsp;{='Repass_btn'|translate}
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm" id="btnFinishTicket" >
+                                                <i class="fa fa-window-close"></i>  &nbsp;{='Finish_btn'|translate}
+                                            </button>
+                                            {/if}
                                         </div>
                                     </div>
 
@@ -218,6 +307,7 @@
         {include $footer}	
 	</div>
     {include 'modals/hdkticket/modal-alert-create.latte'}
+    {include 'modals/hdkticket/modal-repass-ticket.latte'}
     {include $modalNextStep}
 </body>
     <script type="text/javascript">
@@ -225,13 +315,44 @@
             noteAcceptedFiles = {$noteAcceptedFiles},
             ticketAttMaxFiles = {$ticketAttMaxFiles},
             ticketAcceptedFiles = {$ticketAcceptedFiles},
-            hdkMaxSize = {$hdkMaxSize};
+            hdkMaxSize = {$hdkMaxSize},
+            typeUser = {$typeUser},
+            flgOperator = {$flgOperator},
+            operatorAsUser = {$operatorAsUser},
+            dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation},
+            requireTaskTime = {$requireTaskTime},
+            allowEmptyNote = {$allowEmptyNote},
+            momentFormat = {$momentFormat};
 	</script>
 
     <!-- Summernote -->
     <link rel="stylesheet" href="{$path}/public/assets/js/plugins/summernote/summernote-bs5.css" />
-    <script src="{$path}/public/assets/js/plugins/summernote/summernote-bs5.js"></script> 
+    <script src="{$path}/public/assets/js/plugins/summernote/summernote-bs5.js"></script>
+    
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/datepicker/bootstrap-datepicker.css" />
+    <script src="{$path}/public/assets/js/plugins/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/plugins/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
 
+    <!-- Moment -->
+    <script src="{$path}/public/assets/js/plugins/moment/moment-with-locales.js"></script>
+
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <!-- Clockpicker -->
+    <link rel="stylesheet" type="text/css" href="{$path}/public/assets/css/plugins/mdtimepicker/mdtimepicker.css">
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/mdtimepicker/mdtimepicker.js"></script>
+
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/countimer/countimer.js" ></script>
+
+    <script src="{$path}/app/modules/helpdezk/views/js/hdk-common.js"></script>
     <script src="{$path}/app/modules/helpdezk/views/js/ticket-crud.js"></script>
 
     

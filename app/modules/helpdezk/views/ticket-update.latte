@@ -1,0 +1,674 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title-ticket">
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <h4>{='Request_code'|translate}: {$formatedTicketCode}</h4>
+                                </div>
+                                <div class="col-sm-6 text-end">
+                                    <button type="button" class="btn btn-default btn-sm" id="button-reload">
+                                        <span class="fa fa-sync-alt"></span> &nbsp;{='reload_request'|translate}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">&nbsp;</div>
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="update-ticket-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="ticketCode" id="ticketCode" value="{$ticketCode}"/>
+                                    <input type="hidden" name="statusID" id="statusID" value="{$statusID}"/>
+                                    <input type="hidden" name="inChargeID" id="inChargeID" value="{$inChargeID}" />
+                                    <input type="hidden" name="inChargeType" id="inChargeType" value="{$inChargeType}" />
+
+                                    <div class="row white-bg g-2">
+                                        <!-- left side -->
+                                        <div class="col col-sm-6 b-l">
+                                            <div class="row g-2 mb-2"> <!-- owner -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbUser" class="hdk-label col-form-label text-end">{='Request_owner'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="cmbUser" value="{$owner}">
+                                                    <input type="hidden" name="ownerID" id="ownerID" value="{$ownerID}" />
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- owner department -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="txtDepartment" class="hdk-label col-form-label text-end">{='Department'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="txtDepartment" value="{$department}">
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- source -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="txtSource" class="hdk-label col-form-label text-end">{='Source'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="txtSource" value="{$sourceName}">
+                                                </div>
+                                            </div>
+
+                                            {if $typeUser == 3}
+                                            <div class="row g-2 mb-2 "> <!-- creator -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="creatorName" class="hdk-label col-form-label text-end">{='Opened_by'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="creatorName" value="{$creatorName}">
+                                                </div>
+                                            </div>
+                                            {/if}
+
+                                            <div class="row g-2 mb-2"> <!-- area -->                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbArea" class="hdk-label col-form-label text-end">{='Area'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    {if $typeUser == 3}
+                                                    <select class="form-control input-sm" id="cmbArea" name="cmbArea">
+                                                        <option></option>
+                                                        {foreach $cmbArea as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $areaID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    {else}
+                                                        <input type="text" readonly id="cmbArea" name="cmbArea" class="form-control-plaintext" value="{$areaName}">
+                                                    {/if}
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- type -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    {if $typeUser == 3}
+                                                    <select class="form-control input-sm" id="cmbType" name="cmbType">
+                                                        <option></option>
+                                                        {foreach $cmbType as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $typeID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    {else}
+                                                        <input type="text" readonly id="cmbType" name="cmbType" class="form-control-plaintext" value="{$typeName}">
+                                                    {/if}
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- item -->  
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbItem" class="hdk-label col-form-label text-end">{='Item'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    {if $typeUser == 3}
+                                                    <select class="form-control input-sm" id="cmbItem" name="cmbItem">
+                                                        <option></option>
+                                                        {foreach $cmbItem as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $itemID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    {else}
+                                                        <input type="text" readonly id="cmbItem" name="cmbItem" class="form-control-plaintext" value="{$itemName}">
+                                                    {/if}
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- service -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbService" class="hdk-label col-form-label text-end">{='Service'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    {if $typeUser == 3}
+                                                    <select class="form-control input-sm" id="cmbService" name="cmbService">
+                                                        <option></option>
+                                                        {foreach $cmbService as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $serviceID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    {else}
+                                                        <input type="text" readonly id="cmbService" name="cmbService" class="form-control-plaintext" value="{$serviceName}">
+                                                    {/if}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row g-2 mb-2"> <!-- reason -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbReason" class="hdk-label col-form-label text-end">{='Reason'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7">
+                                                    {if $typeUser == 3}
+                                                    <select class="form-control input-sm" id="cmbReason" name="cmbReason">
+                                                        <option></option>
+                                                        {foreach $cmbReason as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $reasonID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    {else}
+                                                        <input type="text" readonly id="cmbReason" name="cmbReason" class="form-control-plaintext" value="{$reason}">
+                                                    {/if}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- right side -->
+                                        <div class="col col-sm-6 b-l">
+                                            <div class="row g-2 mb-2"> <!-- status -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="lblStatus" class="hdk-label col-form-label text-end">{='status'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" style="color:#{$statusColor};" id="lblStatus" value="{$status}">
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- opening date -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="openingDate" class="hdk-label col-form-label text-end">{='Opening_date'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="openingDate" value="{$openingDate}">
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- in charge -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="inChargeName" class="hdk-label col-form-label text-end">{='Tckt_incharge'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly class="form-control-plaintext" id="inChargeName" value="{$inChargeName}">
+                                                </div>
+                                            </div>
+
+                                            {if $typeUser == 3}
+                                            <div class="row g-2 mb-2"> <!-- attendance deadline -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="attendanceDeadline" class="hdk-label col-form-label text-end">{='Expire_date'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <input type="text" readonly class="form-control-plaintext" id="attendanceDeadline" value="{$attendanceDeadline}">
+                                                </div>
+                                                {if $showBtnDeadlineChange == 1}
+                                                <div class="col-sm-4">
+                                                    <button class="btn btn-default btn-sm" id="btnChangeDeadline" type="button" tabindex="-1"><i class="fa fa-calendar" aria-hidden="true"></i> {='Change_date'|translate}</button>
+                                                </div>
+                                                {/if}
+                                            </div>
+                                            {/if}
+
+                                            <div id="auxiliaryAttendantLine" class="row g-2 mb-2 {if empty($auxiliaryAttendantList)}d-none{/if}"> <!-- auxiliary attendant -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="auxiliaryAttendantList" class="hdk-label col-form-label text-end">{='lbl_auxiliary_operator'|translate}:</label>
+                                                </div>
+                                                <div id="auxiliaryAttendantList" class="col-sm-7 ms-3">
+                                                    {=$auxiliaryAttendantList|noescape}
+                                                </div>
+                                            </div>
+                                            
+                                            {if $equipment == 1} <!-- Equipment -->
+                                            <div class="row g-2 mb-2">                                                 
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="equipmentTag" class="hdk-label col-form-label text-end">{='Equipment'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <input type="text" readonly id="equipmentTag" name="equipmentTag" class="col-sm-3 input-group-text" value="{$equipmentTag}" placeholder="{='Tag_min'|translate}" />
+                                                        <input type="text" readonly id="equipmentOsNumber" name="equipmentOsNumber" class="col-sm-3 input-group-text" value="{$equipmentOsNumber}" placeholder="{='Service_order_number'|translate}" />
+                                                        <input type="text" readonly id="equipmentSerialNumber" name="equipmentSerialNumber" class="col-sm-3 input-group-text" value="{$equipmentSerialNumber}" placeholder="{='Serial_number'|translate}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {/if}
+
+                                            <div class="row g-2 mb-2"> <!-- priority -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbPriority" class="hdk-label col-form-label text-end">{='Priority'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7">
+                                                    {if $typeUser == 3}
+                                                    <select class="form-control input-sm" id="cmbPriority" name="cmbPriority">
+                                                        <option></option>
+                                                        {foreach $cmbPriority as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $priorityID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    {else}
+                                                        <input type="text" readonly id="cmbPriority" name="cmbPriority" class="form-control-plaintext" value="{$priorityName}">
+                                                    {/if}
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2"> <!-- attendance type -->
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbAttendanceType" class="hdk-label col-form-label text-end">{='Att_way'|translate}:</label>
+                                                </div>
+                                                {if $typeUser == 3}
+                                                <div class="col-sm-6">                                                    
+                                                    <select class="form-control input-sm" id="cmbAttendanceType" name="cmbAttendanceType">
+                                                        <option></option>
+                                                        {foreach $cmbAttendanceType as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $attendanceTypeID}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>                                                    
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-default btn-sm" id="btnAddAttendanceType" type="button" tabindex="-1"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                                {else}
+                                                <div class="col-sm-7">
+                                                    <input type="text" readonly id="cmbAttendanceType" name="cmbAttendanceType" class="form-control-plaintext" value="{$attendanceType}">                                                    
+                                                </div>
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row white-bg g-2 mb-2">
+                                        <!-- Subject -->
+                                        <div class="row g-2 mb-1">                                                 
+                                            <div class="col-sm-1 text-end">
+                                                <label for="ticketSubject" class="hdk-label col-form-label text-end">{='Subject'|translate}:</label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <input type="text" readonly id="ticketSubject" name="ticketSubject" class="form-control-plaintext" value="{$ticketSubject}" >
+                                            </div>
+                                        </div>
+                                        <!-- Description -->
+                                        <div class="row g-2 mb-1">                                                 
+                                            <div class="col-sm-1 text-end">
+                                                <label for="ticketDescription" class="hdk-label col-form-label text-end">{='Description'|translate}:</label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <div class="gray-bg ticket-highlight" id="ticketDescription" name="ticketDescription">{=$ticketDescription|noescape}</div>
+                                            </div>
+                                        </div>
+                                        <!-- Attachments -->
+                                        {if $hasAttachment == 1}
+                                        <div class="row g-2 mb-1">                                                 
+                                            <div class="col-sm-1 text-end">
+                                                <label for="ticketDescription" class="hdk-label col-form-label text-end">{='Attachments'|translate}:</label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                {=$attach_files|noescape}
+                                            </div>
+                                        </div>
+                                        {/if}
+                                    </div>
+
+                                    <div class="row wrapper white-bg">
+                                        <div class="col-sm-12 b-l">
+                                            <hr style="margin-bottom:3px !important; margin-top:2px !important; margin-right:20px !important; margin-left:2px !important;"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action buttons -->
+                                    <div class="row wrapper white-bg">
+                                        <div class="col-sm-12 b-l">
+                                            {if $displaychanges == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnSaveChanges">
+                                                <i class="fa fa-save"></i>  &nbsp;{='btn_save_changes'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayassume == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnAssume">
+                                                <i class="fa fa-check-square"></i>  &nbsp;{='btn_assume'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayopaux == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnAuxAttendant">
+                                                <i class="fa fa-user-plus"></i>  &nbsp;{='btn_ope_aux'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayrepass == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnRepass">
+                                                <i class="fa fa-share"></i>  &nbsp;{='Repass_btn'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayreject == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnReject">
+                                                <i class="fa fa-times"></i>  &nbsp;{='btn_reject'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayclose == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnCloseTicket">
+                                                <i class="fa fa-times-circle"></i>  &nbsp;{='btn_close'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayreopen == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnReopen">
+                                                <i class="fa fa-sync"></i>  &nbsp;{='btn_reopen'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayevaluate == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnEvaluate">
+                                                <i class="fas fa-comment-alt"></i>  &nbsp;{='Btn_evaluate'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayapprove == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnRequestApproveApp">
+                                                <i class="fa fa-thumbs-up"></i>  &nbsp;{='Request_approve_app'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayreturn == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnRequestReturnApp">
+                                                <i class="fa fa-undo-alt"></i>  &nbsp;{='Request_return_app'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayreprove == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnRequestDisapproveApp">
+                                                <i class="fa fa-thumbs-down"></i>  &nbsp;{='Request_reprove_app'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displayprint == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnPrint">
+                                                <i class="fa fa-print"></i> &nbsp;{='Print'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displaycancel == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnCancelTicket">
+                                                <i class="fa fa-times"></i>  &nbsp;{='Cancel_btn'|translate}
+                                            </button>
+                                            {/if}
+
+                                            {if $displaytrello == 1}
+                                            <button type="button" class="btn btn-default btn-sm" id="btnTrello">
+                                                <i class="fab fa-trello"></i>  &nbsp;Trello
+                                            </button>
+                                            {/if}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row wrapper white-bg">
+                                        <div class="col-sm-12 b-l">
+                                            <hr style="margin-bottom:3px !important; margin-top:2px !important; margin-right:20px !important; margin-left:2px !important;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <!--<div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-ticket"></div>
+                                        </div>
+                                    </div>-->
+                                    <!-- Notes -->
+                                    <div class="row white-bg g-2" >
+                                        <hr class="hr-pipe-black"/>
+                                        <br>
+                                    </div>
+
+                                    <div class="row white-bg g-2">
+                                        <!-- Added Notes -->
+                                        <div class=" {if in_array($statusID,array(1,2,3))}col col-sm-5{else}row col-sm-12{/if} b-l">
+                                            <div class="row wrapper  white-bg ">
+                                                <div class="row white-bg g-2">
+                                                    <label for="cmbNoteType" class="hdk-label col-form-label">{='Added_notes'|translate}</label>
+                                                </div>
+
+                                                <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                                <div id="ticketNotesAdded" class="row white-bg g-2">
+                                                    {=$notes|noescape}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Add notes form -->
+                                        {if in_array($statusID,array(1,2,3))}
+                                        <div class="col col-sm-7 b-l">
+                                            <form method="get" id="note-form-insert">
+                                                {if $typeUser == 3}
+                                                <div class="row wrapper  white-bg ">
+                                                    <div class="row g-2">
+                                                        <div class="col-sm-3 text-end">
+                                                            <label for="cmbNoteType" class="hdk-label col-form-label text-end">{='Time_expended'|translate}:   </label>
+                                                        </div>
+                                                        
+                                                        <div class="col-sm-9">
+                                                            <div class="row g-2 mb-2"> <!-- Task execution date -->
+                                                                <div class="col-sm-5 text-end">
+                                                                    <label for="executionDate" class="hdk-label col-form-label text-end">{='Execution_date'|translate}:</label>
+                                                                </div>
+                                                                <div class="col-sm-7">
+                                                                    <div class="input-group date">
+                                                                        <input type="text" id="executionDate" name="executionDate" class="form-control form-control-sm" value="{date($_ENV['SCREEN_DATE_FORMAT'])}" readonly />
+                                                                        <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row g-2 mb-2"> <!-- Task execution period -->
+                                                                <div class="col-sm-3 text-end">
+                                                                    <label for="executionStarted" class="hdk-label col-form-label text-end">{='Started'|translate}:</label>
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <input type="text" id="executionStarted" name="executionStarted" class="form-control form-control-sm" value="{date('H:i:s')}" />
+                                                                </div>
+
+                                                                <div class="col-sm-3 text-end">
+                                                                    <label for="executionFinished" class="hdk-label col-form-label text-end">{='Finished_alt'|translate}:</label>
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <input type="text" id="executionFinished" name="executionFinished" class="form-control form-control-sm" value="" />
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row g-2 mb-2"> <!-- Task execution total minutes -->
+                                                                <div class="col-sm-3 text-end">
+                                                                    <label for="totalMinutes" class="hdk-label col-form-label text-end">{='Total_minutes'|translate}:</label>
+                                                                </div>
+                                                                <div class="col-sm-5">
+                                                                    <div class="input-group timer">
+                                                                        <input type="text" id="totalMinutes" name="totalMinutes" class="form-control form-control-sm" value="" readonly />
+                                                                        <span id="btnTimer" class="input-group-addon"><i class="fa fa-clock"></i></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row g-2 mb-2"> <!-- Hour type, note visibility type -->
+                                                                <div class="col-sm-3 text-end">
+                                                                    <label for="cmbHourType" class="hdk-label col-form-label text-end">{='Hour'|translate}:</label>
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <select class="form-control  m-b" name="cmbHourType" id="cmbHourType">
+                                                                        <option></option>
+                                                                        {foreach $cmbHourType as $k=>$v}
+                                                                        <option value="{$v['id']}" {if $v['id'] == $hourTypeDefault}selected="selected"{/if}>{$v['text']}</option>
+                                                                        {/foreach}
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-sm-3 text-end">
+                                                                    <label for="cmbNoteVisibility" class="hdk-label col-form-label text-end">{='Visible'|translate}:</label>
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <select class="form-control  m-b" name="cmbNoteVisibility" id="cmbNoteVisibility">
+                                                                        <option></option>
+                                                                        {foreach $cmbNoteVisibility as $k=>$v}
+                                                                        <option value="{$v['id']}" {if $v['id'] == $noteTypeDefault}selected="selected"{/if}>{$v['text']}</option>
+                                                                        {/foreach}
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row g-2 mb-2"> <!-- Callback -->
+                                                                <div class="col-sm-3 text-end">
+                                                                    &nbsp;
+                                                                </div>
+                                                                <div class="col-sm-9">
+                                                                    <label class="checkbox-inline i-checks"> <input type="checkbox" id="callback" name="callback" value="1">&nbsp;{='Time_return'|translate}</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {/if}
+
+                                                <div class="row wrapper  white-bg ">
+                                                    <div class="row g-2">
+                                                        <div class="col-sm-3 text-end">
+                                                            <label for="ticketNote" class="hdk-label col-form-label text-end">{='Insert_note'|translate}:   </label>
+                                                        </div>
+                                                        
+                                                        <div class="col-sm-9">
+                                                            <div id="ticketNote"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Note Attachments -->
+                                                <div class="row wrapper  white-bg ">
+                                                    <div class="row g-2 mb-4">
+                                                        <div class="col-sm-3 text-end">
+                                                            <label for="noteAttachs" class="hdk-label col-form-label text-end">{='Attachments'|translate}:</label>
+                                                        </div>
+                                                        
+                                                        <div class="col-sm-9 text-center">
+                                                            <div id="noteAttachments" class="dropzone dz-default dz-message"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <!-- -->
+
+                                            <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                            <div class="row white-bg g-2 mb-2">
+                                                <hr style="margin-bottom:3px !important; margin-top:2px !important; margin-right:20px !important; margin-left:2px !important;"/>
+                                            </div>
+
+                                            <div class="row white-bg g-2 mb-3">
+                                                <div class="col g-2 col-sm-2 ms-2 text-center">
+                                                    <button type="button" class="btn btn-primary btn-sm" id="btnSendNote" >
+                                                        <i class='fa fa-paper-plane'></i>
+                                                        {='Send'|translate}
+                                                    </button>
+                                                </div>
+
+                                                <div class="col g-2 col-sm-7 ms-2">
+                                                    <div id="alert-note-add"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row white-bg g-2">
+                                                <hr style="margin-bottom:3px !important; margin-top:2px !important; margin-right:20px !important; margin-left:2px !important;"/>
+                                            </div>
+                                        </div>
+                                        {/if}
+                                    </div>
+
+                                    <div class="row white-bg g-2">
+                                        <hr class="hr-pipe-black"/>
+                                    </div>
+                                    <!-- End Notes -->
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/hdkticket/modal-cancel-ticket.latte'}
+    {include 'modals/hdkticket/modal-evaluate-ticket.latte'}
+    {include 'modals/hdkticket/modal-reopen-ticket.latte'}
+    {include 'modals/hdkticket/modal-change-deadline.latte'}
+    {include 'modals/hdkticket/modal-assume-ticket.latte'}
+    {include 'modals/hdkticket/modal-repass-ticket.latte'}
+    {include 'modals/hdkticket/modal-add-aux-attendant.latte'}
+    {include 'modals/hdkticket/modal-close-ticket.latte'}
+    {include 'modals/hdkticket/modal-reject-ticket.latte'}
+    {include 'modals/hdkticket/modal-trello-card.latte'}
+    {include $modalNextStep}
+    {include $modalAlert}
+</body>
+    <script type="text/javascript">
+		var noteAttMaxFiles = {$noteAttMaxfiles},
+            noteAcceptedFiles = {$noteAcceptedFiles},
+            ticketAttMaxFiles = {$ticketAttMaxFiles},
+            ticketAcceptedFiles = {$ticketAcceptedFiles},
+            hdkMaxSize = {$hdkMaxSize},
+            typeUser = {$typeUser},
+            flgOperator = {$flgOperator},
+            operatorAsUser = {$operatorAsUser},
+            dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation},
+            requireTaskTime = {$requireTaskTime},
+            allowEmptyNote = {$allowEmptyNote},
+            momentFormat = {$momentFormat};
+	</script>
+
+    <!-- Summernote -->
+    <link rel="stylesheet" href="{$path}/public/assets/js/plugins/summernote/summernote-bs5.css" />
+    <script src="{$path}/public/assets/js/plugins/summernote/summernote-bs5.js"></script> 
+
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/datepicker/bootstrap-datepicker.css" />
+    <script src="{$path}/public/assets/js/plugins/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/plugins/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
+
+    <!-- Moment -->
+    <script src="{$path}/public/assets/js/plugins/moment/moment-with-locales.js"></script>
+
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <!-- Clockpicker -->
+    <link rel="stylesheet" type="text/css" href="{$path}/public/assets/css/plugins/mdtimepicker/mdtimepicker.css">
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/mdtimepicker/mdtimepicker.js"></script>
+
+    <script src="{$path}/app/modules/helpdezk/views/js/hdk-common.js"></script>
+    <script src="{$path}/app/modules/helpdezk/views/js/ticket-crud.js"></script>
+
+    
+
+
+
+{/block}

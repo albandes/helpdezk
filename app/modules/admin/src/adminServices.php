@@ -235,10 +235,34 @@ class adminServices
         return $aRet;
     }
 
+    public function _comboCountries()
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        $retCountries = $personDAO->fetchCountries($personModel);
+         
+        if($retCountries['status']){
+            $countries = $retCountries['push']['object']->getCountryList();
+            $aRet = array();
+            foreach($countries as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idcountry'],
+                    "text" => $v['printablename']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
     /**
-     * Returns an array with ID and name of states
+     * en_us Returns an array with ID and name of states
+     * pt_br Retorna um array com Id e nome dos estados
      *
-     * @param  mixed $countryID
+     * @param  mixed $countryID Country Id
      * @return array
      */
     public function _comboStates($countryID=null): array
@@ -255,6 +279,187 @@ class adminServices
             foreach($states as $k=>$v) {
                 $bus =  array(
                     "id" => $v['idstate'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Formats states list in HTML to show in the dropdown
+     * pt_br Formata a lista de estados em HTML para mostrar no combo
+     *
+     * @param  mixed $countryID
+     * @return void
+     */
+    public function _comboStatesHtml($countryID=null)
+    {
+        $countryID = !$countryID ? $_SESSION['COUNTRY_DEFAULT'] : $countryID;
+        $states = $this->_comboStates($countryID);
+        $select = '';
+        
+        foreach($states as $key=>$val) {
+            $default = ($val['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+        }
+        return $select;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of cities
+     * pt_br Retorna um array com Id e nome das cidades
+     *
+     * @param  mixed $stateID State Id
+     * @return array
+     */
+    public function _comboCities($stateID): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $personModel->setIdState($stateID);
+
+        $retCities = $personDAO->fetchCities($personModel);
+        
+        if($retCities['status']){
+            $cities = $retCities['push']['object']->getCitiesList();
+            $aRet = array();
+            foreach($cities as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idcity'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Formats cities list in HTML to show in the dropdown
+     * pt_br Formata a lista de cidades em HTML para mostrar no combo
+     *
+     * @param  mixed $stateID
+     * @return string
+     */
+    public function _comboCitiesHtml($stateID)
+    {
+        $cities = $this->_comboCities($stateID);
+        $select = '';
+
+        foreach($cities as $key=>$val) { echo "",print_r($val,true),"\n";
+            $default = ($val['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+        }
+        return $select;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of neighborhoods
+     * pt_br Retorna um array com Id e nome dos bairros
+     *
+     * @param  mixed $cityID City Id
+     * @return array
+     */
+    public function _comboNeighborhood($cityID): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $personModel->setIdCity($cityID);
+
+        $retNeighborhoods = $personDAO->fetchNeighborhoods($personModel);
+         
+        if($retNeighborhoods['status']){
+            $neighborhoods = $retNeighborhoods['push']['object']->getNeighborhoodList();
+            $aRet = array();
+            foreach($neighborhoods as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idneighborhood'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Formats neighborhoods list in HTML to show in the dropdown
+     * pt_br Formata a lista de bairros em HTML para mostrar no combo
+     *
+     * @param  mixed $cityID
+     * @return string
+     */
+    public function _comboNeighborhoodHtml($cityID)
+    {
+        $states = $this->_comboNeighborhood($cityID);
+        $select = '';
+
+        foreach($states as $key=>$val) {
+            $default = ($val['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+        }
+        return $select;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of street types
+     * pt_br Retorna um array com Id e nome dos tipos de logradouro
+     *
+     * @return array
+     */
+    public function _comboStreetType(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $personModel->setLocation($_ENV['DEFAULT_LANG']);
+
+        $retStreetType = $personDAO->fetchStreetTypes($personModel);
+         
+        if($retStreetType['status']){
+            $streetTypes = $retStreetType['push']['object']->getStreetTypeList();
+            $aRet = array();
+            foreach($streetTypes as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtypestreet'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of streets
+     * pt_br Retorna um array com Id e nome dos endereços
+     *
+     * @param  mixed $streetTypeID Street type Id
+     * @return array
+     */
+    public function _comboStreet($streetTypeID): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $personModel->setIdTypeStreet($streetTypeID);
+
+        $retStreet = $personDAO->fetchStreets($personModel);
+         
+        if($retStreet['status']){
+            $streets = $retStreet['push']['object']->getStreetList();
+            $aRet = array();
+            foreach($streets as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idstreet'],
                     "text" => $v['name']
                 );
 

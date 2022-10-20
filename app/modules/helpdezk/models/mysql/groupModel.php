@@ -50,6 +50,11 @@ final class groupModel
     private $newIdGroup;
 
     /**
+     * @var int
+     */
+    private $idUser;
+
+    /**
      * Get the value of idGroup
      *
      * @return  int
@@ -261,6 +266,30 @@ final class groupModel
     public function setNewIdGroup(int $newIdGroup)
     {
         $this->newIdGroup = $newIdGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idUser
+     *
+     * @return  int
+     */ 
+    public function getIdUser()
+    {
+        return $this->idUser;
+    }
+
+    /**
+     * Set the value of idUser
+     *
+     * @param  int  $idUser
+     *
+     * @return  self
+     */ 
+    public function setIdUser(int $idUser)
+    {
+        $this->idUser = $idUser;
 
         return $this;
     }

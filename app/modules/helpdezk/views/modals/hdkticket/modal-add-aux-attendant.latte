@@ -1,0 +1,75 @@
+<div class="modal fade" id="modal-add-aux-attendant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='auxiliary_operator_include'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-repass-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-aux-attendant-form">
+                    <div class="row wrapper white-bg">
+                        <div class="row col-sm-12 b-l mb-2">
+                            <div class="col-sm-4 text-end">
+                                <label for="groupKeepView" class="hdk-label col-form-label control-label">{='Operator'|translate}:</label>
+                            </div>
+                             <div class="col-sm-8">
+                                <select class="form-control input-sm" name="cmbAttendants" id="cmbAttendants">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                    <div class="row wrapper white-bg">
+                         <div class="row col-sm-12 b-l mb-2">
+                            <table id='auxAttendantList' class="table table-hover">
+                                <colgroup>
+                                    <col width='90%'/>
+                                    <col width='5%'/>
+                                </colgroup>
+                                <tbody>                                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-add-aux-attendant"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAuxAttendantClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollable-ul{
+        max-height: 150px;
+        overflow: auto;
+    }
+
+    .scrollable-ul::-webkit-scrollbar {
+        width: 16px;
+    }
+
+    .scrollable-ul::-webkit-scrollbar-track {
+        background-color: #e4e4e4;
+        border-radius: 100px;
+    }
+
+    .scrollable-ul::-webkit-scrollbar-thumb {
+        background-color: #d4d4d4;
+        border-radius: 100px;
+    }
+</style>

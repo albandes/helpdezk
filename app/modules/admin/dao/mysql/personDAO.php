@@ -259,6 +259,40 @@ class personDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * en_us Returns a list with registered countries
+     * pt_br Retorna uma lista com países cadastrdos
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchCountries(personModel $personModel): array
+    {        
+        $sql = "SELECT idcountry, iso, printablename FROM tbcountry WHERE idcountry != 1 ORDER BY name";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setCountryList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting countries ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
     
     /**
      * Return an array with states data
@@ -292,6 +326,150 @@ class personDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting states data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered cities
+     * pt_br Retorna uma lista com cidades cadastradas
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchCities(personModel $personModel): array
+    {        
+        $sql = "SELECT idcity, `name` FROM tbcity WHERE idstate = :stateID ORDER BY `name`";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":stateID",$personModel->getIdState());
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setCitiesList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting cities ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered neighborhoods
+     * pt_br Retorna uma lista com bairros cadastrados
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchNeighborhoods(personModel $personModel): array
+    {        
+        $sql = "SELECT idneighborhood, `name` FROM tbneighborhood WHERE idcity = :cityID ORDER BY `name`";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":cityID",$personModel->getIdCity());
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setNeighborhoodList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting neighborhoods ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered street types
+     * pt_br Retorna uma lista com tipos de logradouros cadastrados
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchStreetTypes(personModel $personModel): array
+    {        
+        $sql = "SELECT idtypestreet, `name` 
+                  FROM tbtypestreet 
+                 WHERE idtypestreet != 1 
+                   AND UPPER(location) = UPPER(:location) 
+              ORDER BY `name` ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":location",$personModel->getLocation());
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setStreetTypeList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting street types ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered streets
+     * pt_br Retorna uma lista com endereços cadastrados
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchStreets(personModel $personModel): array
+    {        
+        $sql = "SELECT idstreet,idtypestreet,`name` FROM tbstreet WHERE idtypestreet = :streetTypeID ORDER BY `name` ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":streetTypeID",$personModel->getIdTypeStreet());
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setStreetList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting streets ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

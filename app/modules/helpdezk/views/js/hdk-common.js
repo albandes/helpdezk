@@ -8,7 +8,7 @@ $(document).ready(function () {
     }
 
     $("#btnNewTck").click(function(e){
-        if(typeUser == 3){
+        if(typeUser == 3){console.log('olaaa Atendente');
             location.href = path + "/helpdezk/hdkTicket/newTicket" ;
         }else{
             if(flgOperator == 1){

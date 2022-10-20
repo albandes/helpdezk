@@ -4,21 +4,27 @@ namespace App\modules\helpdezk\src;
 
 use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\featureDAO;
+use App\modules\admin\dao\mysql\personDAO;
 use App\modules\helpdezk\dao\mysql\hdkServiceDAO;
 use App\modules\helpdezk\dao\mysql\ticketDAO;
 use App\modules\helpdezk\dao\mysql\reasonDAO;
 use App\modules\helpdezk\dao\mysql\expireDateDAO;
 use App\modules\helpdezk\dao\mysql\groupDAO;
 use App\modules\helpdezk\dao\mysql\hdkEmailFeatureDAO;
+use App\modules\helpdezk\dao\mysql\priorityDAO;
+use App\modules\helpdezk\dao\mysql\attendanceTypeDAO;
 
 use App\modules\admin\models\mysql\moduleModel;
 use App\modules\admin\models\mysql\featureModel;
+use App\modules\admin\models\mysql\personModel;
 use App\modules\helpdezk\models\mysql\hdkServiceModel;
 use App\modules\helpdezk\models\mysql\ticketModel;
 use App\modules\helpdezk\models\mysql\reasonModel;
 use App\modules\helpdezk\models\mysql\expireDateModel;
 use App\modules\helpdezk\models\mysql\groupModel;
 use App\modules\helpdezk\models\mysql\hdkEmailFeatureModel;
+use App\modules\helpdezk\models\mysql\priorityModel;
+use App\modules\helpdezk\models\mysql\attendanceTypeModel;
 
 use App\src\appServices;
 use App\src\localeServices;
@@ -604,7 +610,7 @@ class hdkServices
      * @param  mixed $aParams
      * @return void
      */
-    public function  _sendNotification($aParams)
+    public function _sendNotification($aParams)
     {
         $appSrc = new appServices();
         $moduleDAO = new moduleDAO();        
@@ -784,6 +790,22 @@ class hdkServices
                 }
 
                 break;
+            
+            // Send an email to the attendant, or group of attendants, when an auxiliary attendant is add
+            case 'add-aux-operator':
+                if ($midia == 'email') {
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['MAIL_AUX_OPERATOR'] == 1) {
+                        if ( $_SESSION['EM_BY_CRON'] == '1') {
+                            $cron = true;
+                        } else {
+                            $smtp =  true;
+                        }
+                        $messageTo   = 'add-aux-operator';
+                        $messagePart = 'An auxiliary attendant was added to the request # ';
+                    }
+                }
+
+                break;
 
             default:
                 return false;
@@ -949,7 +971,7 @@ class hdkServices
         $INCHARGE       = $ticket->getInCharge();
         $PHONE          = $ticket->getOwnerPhone();
         $BRANCH         = $ticket->getOwnerBranch();
-        //$LINK_OPERATOR  = $this->makeLinkOperator($code_request);
+        $LINK_OPERATOR  = "<pipegrep></pipegrep>";
         //$LINK_USER      = $this->makeLinkUser($code_request);
         // Notes
         $table          = $this->_makeNotesTable($ticketCode);
@@ -981,148 +1003,155 @@ class hdkServices
                 break;
 
             // Sends email to the user when a request is assumed
-            /*case 'operator-assume':
-                $templateId = $dbEmailConfig->getEmailIdBySession("NEW_ASSUMED_MAIL");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+            case 'operator-assume':
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("NEW_ASSUMED_MAIL");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $sentTo = $reqEmail->fields['email'];
-                $typeuser = $reqEmail->fields['idtypeperson'];
+                $template = $retTemplate['push']['object'];
 
-                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+                $sentTo = $this->_setSendTo($ticketCode);
+                $sentTo .= (!$sentTo) ? "{$ticket->getOwnerEmail()}" : ";{$ticket->getOwnerEmail()}";
+                $userType = $ticket->getOwnerTypeId();
 
-                if($typeuser == 2)
+                //$LINK_OPERATOR = $this->makeLinkOperator($code_request);
+
+                /* if($userType == 2)
                     $LINK_USER     = $this->makeLinkUser($code_request);
                 else
-                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
                 $date = date('Y-m-d H:i');
-                $ASSUME = $this->formatDate($date);
+                $ASSUME = $appSrc->_formatDate($date);
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
                 break;
 
             // Sends email to the user, when a request is closed by the attendant.
             case 'finish-ticket':
-                $templateId = $dbEmailConfig->getEmailIdBySession("FINISH_MAIL");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("FINISH_MAIL");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
 
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+                $template = $retTemplate['push']['object'];
 
-                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $sentTo = $reqEmail->fields['email'];
-                $typeuser = $reqEmail->fields['idtypeperson'];
+                $sentTo = $this->_setSendTo($ticketCode);
+                $sentTo .= (!$sentTo) ? "{$ticket->getOwnerEmail()}" : ";{$ticket->getOwnerEmail()}";
+                $userType = $ticket->getOwnerTypeId();
 
                 $date = date('Y-m-d H:i');
-                $FINISH_DATE = $this->formatDate($date);
+                $FINISH_DATE = $appSrc->_formatDate($date);
 
-                $this->loadModel('evaluation_model');
+                //TODO: url to evaluate attendance
+                /* $this->loadModel('evaluation_model');
                 $ev = new evaluation_model();
                 $tk = $ev->getToken($code_request);
                 $token = $tk->fields['token'];
                 if($token)
-                    $LINK_EVALUATE =  $this->helpdezkUrl."/helpdezk/evaluate/index/token/".$token;
+                    $LINK_EVALUATE =  $this->helpdezkUrl."/helpdezk/evaluate/index/token/".$token; */
 
-                $table = $this->makeNotesTable($code_request,false);
+                $table = $this->_makeNotesTable($code_request,false);
                 $NT_USER = $table;
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
-
 
                 break;
 
+            // Sends email to the user, when a request is rejected by the attendant.
             case 'operator-reject':
-                $templateId = $dbEmailConfig->getEmailIdBySession("REJECTED_MAIL");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("REJECTED_MAIL");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $sentTo = $reqEmail->fields['email'];
+                $template = $retTemplate['push']['object'];
 
-                $typeuser = $reqEmail->fields['idtypeperson'];
+                $sentTo = $this->_setSendTo($ticketCode);
+                $sentTo .= (!$sentTo) ? "{$ticket->getOwnerEmail()}" : ";{$ticket->getOwnerEmail()}";
+                $userType = $ticket->getOwnerTypeId();
 
                 $date = date('Y-m-d H:i');
-                $REJECTION = $this->formatDate($date);
-                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+                $REJECTION = $appSrc->_formatDate($date);
 
-                if($typeuser == 2)
+                /* if($typeuser == 2)
                     $LINK_USER     = $this->makeLinkUser($code_request);
                 else
-                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
-                $table = $this->makeNotesTable($code_request,false);
+                $table = $this->_makeNotesTable($code_request,false);
                 $NT_USER = $table;
 
-                $goto = ('/helpdezk/hdkTicket/viewrequest/id/' . $code_request);
+                //$goto = ('/helpdezk/hdkTicket/viewrequest/id/' . $code_request);
                 //$url = '<a href="' . $this->helpdezkUrl . urlencode($goto) . '">' . $l_eml["link_solicitacao"] . '</a>';
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
                 break;
 
-             // Sends email to user when the request receives a note
+            // Sends email to user when the request receives a note
             case 'user-note' :
-
-                $templateId = $dbEmailConfig->getEmailIdBySession("USER_NEW_NOTE_MAIL");
-
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("USER_NEW_NOTE_MAIL");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+
+                $template = $retTemplate['push']['object'];
+
+                $sentTo = $this->_setSendTo($ticketCode);
+                $sentTo .= (!$sentTo) ? "{$ticket->getOwnerEmail()}" : ";{$ticket->getOwnerEmail()}";
+                $userType = $ticket->getOwnerTypeId();
 
                 //
-                $FINISH_DATE = $this->formatDate(date('Y-m-d H:i'));
-                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
+                $FINISH_DATE = $appSrc->_formatDate(date('Y-m-d H:i'));
+                //$LINK_OPERATOR = $this->makeLinkOperator($code_request);
 
                 $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
                 $typeuser = $reqEmail->fields['idtypeperson'];
 
-                if($typeuser == 2)
+               /*  if($typeuser == 2)
                     $LINK_USER = $this->makeLinkUser($code_request);
                 else
-                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
-                $table = $this->makeNotesTable($code_request,false);
+                $table = $this->_makeNotesTable($code_request,false);
                 $NT_USER = $table;
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
-                $sentTo = $reqEmail->fields['email'];
-
+                //TODO: attach from S3 and new local storage dir
                 //if($_SESSION['hdk']['SES_ATTACHMENT_OPERATOR_NOTE']){
-                    $rsAttachs = $this->dbTicket->getNoteAttchByCodeRequest($code_request);
+                   /*  $rsAttachs = $this->dbTicket->getNoteAttchByCodeRequest($code_request);
                     if($rsAttachs) {
                         $att_path = $this->helpdezkPath . '/app/uploads/helpdezk/noteattachments/' ;
                         while (!$rsAttachs->EOF) {
@@ -1135,7 +1164,7 @@ class hdkServices
 
                             $rsAttachs->MoveNext();
                         }
-                    }
+                    } */
 
                 //}
 
@@ -1143,134 +1172,112 @@ class hdkServices
 
             // Sends email to operator when the request receives a note
             case 'operator-note' :
-
-                $templateId = $dbEmailConfig->getEmailIdBySession("OPERATOR_NEW_NOTE");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("OPERATOR_NEW_NOTE");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
+                $template = $retTemplate['push']['object'];
 
-                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $typeuser = $reqEmail->fields['idtypeperson'];
+                // -- owner data
+                $userType = $ticket->getOwnerTypeId();
 
-                $FINISH_DATE = $this->formatDate(date('Y-m-d H:i'));
-                $LINK_OPERATOR = $this->makeLinkOperator($code_request);
-                if($typeuser == 2)
+                $FINISH_DATE = $appSrc->_formatDate(date('Y-m-d H:i'));
+                //$LINK_OPERATOR = $this->makeLinkOperator($code_request);
+                /* if($typeuser == 2)
                     $LINK_USER     = $this->makeLinkUser($code_request);
                 else
-                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request);
+                    $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
-                $table = $this->makeNotesTable($code_request);
+                $table = $this->_makeNotesTable($code_request);
                 $NT_USER = $table;
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
-                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
 
                 break;
 
             // Send email to the attendant, or group of attendants, when a request is reopened by user
             case 'reopen-ticket':
-
-                $templateId = $dbEmailConfig->getEmailIdBySession("REQUEST_REOPENED");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("REQUEST_REOPENED");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
 
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+                $template = $retTemplate['push']['object'];
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
-                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
 
                 break;
 
             // Send email to the attendant, or group of attendants, when a request is evaluated by user
             case "evaluate-ticket":
-
-                $templateId = $dbEmailConfig->getEmailIdBySession("EM_EVALUATED");
-
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
-
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("EM_EVALUATED");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
 
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+                $template = $retTemplate['push']['object'];
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
-                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
 
                 break;
 
             // Send email to the attendant, or group of attendants, when a request is forwarded
             case "forward-ticket":
-                $templateId = $dbEmailConfig->getEmailIdBySession("REPASS_REQUEST_OPERATOR_MAIL");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("REPASS_REQUEST_OPERATOR_MAIL");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
 
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $template = $retTemplate['push']['object'];
+
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
-
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
 
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
 
                 break;
 
-            // Sends email to the user, when a request is closed by  attendant.
-            case 'finish-ticket':
-                $templateId = $dbEmailConfig->getEmailIdBySession("FINISH_MAIL");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
-                }
-
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
-
-                $ev = new evaluation_model();
-                $tk = $ev->getToken($code_request);
-                $token = $tk->fields['token'];
-                if($token)
-                    $LINK_EVALUATE =  $this->helpdezkUrl."helpdezk/evaluate/index/token/".$token;
-
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
-                eval("\$contents = \"$contents\";");
-
-                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
-
-                $subject = $rsTemplate->fields['name'];
-                eval("\$subject = \"$subject\";");
-
-                break;
-
-            case "approve":
+            //TODO: Request's approval flow
+            // Sends email to the attendant, or group of attendants, when a request need approve
+            /*case "approve":
                 $templateId = $dbEmailConfig->getEmailIdBySession("SES_REQUEST_APPROVE");
                 if($this->log) {
                     if (empty($templateId)) {
@@ -1324,6 +1331,29 @@ class hdkServices
 
                 break;*/
 
+            // Send email to the attendant, or group of attendants, when a auxiliar attendant is added
+            case "add-aux-operator":
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("MAIL_AUX_OPERATOR");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
+                }
+
+                $template = $retTemplate['push']['object'];
+
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $template->getSubject();
+                eval("\$subject = \"$subject\";");
+
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
+
+                break;
+
         }
 
         $customHeader = 'X-hdkRequest: '. $REQUEST;
@@ -1340,7 +1370,8 @@ class hdkServices
                         "msg"           => $msgLog,
                         "msg2"          => $msgLog2,
                         "customHeader"  => $customHeader,
-                        "code_request"  => $REQUEST);
+                        "code_request"  => $REQUEST,
+                        "tokenOperatorLink"=> true);
 
 
         $done = $appSrc->_sendEmail($params);
@@ -1447,4 +1478,483 @@ class hdkServices
         
         return $table;
     }
+    
+    /**
+     * _getTicketAttachments
+     *
+     * @param  mixed $ticketCode    Ticket code
+     * @return array                Parameters returned in array: 
+     *                                  [hasAttachment = true/false
+     *                                   attachmentHtml =  html of attachments for download]
+     */
+    public function _getTicketAttachments($ticketCode)
+    {
+        $appSrc = new appServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTicketCode($ticketCode);
+        
+        $ret  = $ticketDAO->fetchTicketAttachments($ticketModel);
+        if(!$ret['status'])
+            return array("hasAttachment" => 0, "attachmentHtml" => "");
+        
+        $attachments = $ret['push']['object']->getAttachments();
+        if(count($attachments) <= 0)
+            return array("hasAttachment" => 0, "attachmentHtml" => "");
+        
+        foreach($attachments as $k=>$v) {
+            $filename = $v['file_name'];
+            $ext = strrchr($filename, '.');
+            $idAttach = $v['idrequest_attachment'];
+            $attach[$filename] = '<button type="button" class="btn btn-default btn-sm" id="'.$idAttach.'" onclick="download('.$idAttach.',\'request\')"><span class="fa fa-file-alt"></span>  &nbsp;'.$filename.'</button>';
+        }
+        
+        $html = implode(" ", $attach);
+        
+        return array("hasAttachment" => 1, "attachmentHtml" => $html);
+    }
+
+    /**
+     * en_us Return an array with priorities data
+     * pt_br Retorna um array com dados de prioridades
+     *
+     * @return array
+     */
+    public function _comboPriority(): array
+    {
+        $priorityDAO = new priorityDAO();
+        
+        $ret = $priorityDAO->queryPriorities();        
+        if($ret['status']){
+            $priorities = $ret['push']['object']->getGridList();
+            $aRet = array();
+            foreach($priorities as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idpriority'],
+                    "text" => "{$v['name']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+        return $aRet;
+    }
+
+    /**
+     * en_us Return an array with attendance type data
+     * pt_br Retorna um array com dados do tipo de atendimento
+     *
+     * @return array
+     */
+    public function _comboAttendanceType($where=null,$group=null,$order=null,$limit=null): array
+    {
+        $attendanceTypeDAO = new attendanceTypeDAO();
+        $order = (!$order) ? "ORDER BY way ASC" : $order;
+        
+        $ret = $attendanceTypeDAO->queryAttendanceTypes($where,$group,$order,$limit);        
+        if($ret['status']){
+            $attendanceTypes = $ret['push']['object']->getGridList();
+            $aRet = array();
+            foreach($attendanceTypes as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idattendanceway'],
+                    "text" => "{$v['way']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+        return $aRet;
+    }
+    
+    /**
+     * en_us Returns an array with ticket's auxiliary attendants
+     * pt_br Retorna um array com os atendentes auxiliares da solicitação
+     *
+     * @param  string   $ticketCode    Ticket code
+     * @param  bool     $inCond        Indicates type of return [false = all attendants - true = only attendants assigned to the ticket]
+     * @return array                   
+     */
+    public function _comboAuxiliaryAttendant($ticketCode,$inCond=false): array
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTicketCode($ticketCode)
+                    ->setInCond($inCond);
+
+        $ret = $ticketDAO->fetchAuxiliaryAttendant($ticketModel);
+        if($ret['status']){
+            $auxiliaryAttendants = $ret['push']['object']->getAuxiliaryAttendantList();
+            $aRet = array();
+            foreach($auxiliaryAttendants as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idperson'],
+                    "text" => "{$v['name']}"
+                );
+                array_push($aRet,$bus);
+            }
+        }else{
+            return false;
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with note's type
+     * pt_br Retorna um array com os tipos de apontamentos
+     *
+     * @return array                   
+     */
+    public function _comboNoteType(): array
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $ret = $ticketDAO->fetchNoteType($ticketModel);        
+        if($ret['status']){
+            $noteTypes = $ret['push']['object']->getNoteTypeList();
+            $aRet = array();
+            foreach($noteTypes as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtypenote'],
+                    "text" => "{$v['note_type_label']}"
+                );
+                array_push($aRet,$bus);
+            }
+        }else{
+            return false;
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with hour's type
+     * pt_br Retorna um array com os tipos de hora
+     *
+     * @return array                   
+     */
+    public function _comboHourType(): array
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $aRet = array(
+            array("id" => 1,"text" => "Normal"),
+            array("id" => 2,"text" => "Extra")
+        );
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Returns an array with attendant's groups
+     * pt_br Retorna um array com os grupos do atendente
+     *
+     * @param  int $personID    Attendant id
+     * @return array
+     */
+    public function _comboAttendantGroups($personID): array
+    {
+        $groupDAO = new groupDAO();
+        $groupModel = new groupModel();
+        $groupModel->setIdUser($personID);
+
+        $ret = $groupDAO->fetchUserGroups($groupModel);
+        if($ret['status']){
+            $attendantGroups = $ret['push']['object']->getGridList();
+            $aRet = array();
+            foreach($attendantGroups as $k=>$v) {
+                if((!isset($v['default']) && $k==0)){
+                    $isDefault = "Y";
+                }elseif(isset($v['default'])){
+                    $isDefault = $v['default'];
+                }else{
+                    $isDefault = "N";
+                }
+
+                $bus =  array(
+                    "id" => $v['idpergroup'],
+                    "text" => "{$v['pername']}",
+                    "isdefault" =>  $isDefault
+                );
+                array_push($aRet,$bus);
+            }
+        }else{
+            return false;
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Returns string with a difference between dates
+     * pt_br Retorna uma string com uma diferença entre as datas
+     *
+     * @param  string $start Start datetime
+     * @param  string $end   End datetime
+     * @return string
+     */
+    public function _dateDiff(string $start, string $end): string
+    {
+        $startDate = getdate(strtotime($start));
+        $endDate = getdate(strtotime($end));
+        $dif = ($endDate[0] - $startDate[0]) / 60;
+
+        return number_format($dif, 0, '', '');
+    }
+    
+    /**
+     * en_us Returns an array with groups/attendants/partners data for dropdown list
+     * pt_br Retorna um array com dados de grupos/atendentes/parceiros para lista suspensa
+     * 
+     * @param  string $type
+     * @return array
+     */
+    public function _comboRepassUsers($type)
+    {
+        $groupDAO = new groupDAO();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $aRet = array();
+        
+        switch($type){
+            case "group":
+                $ret = $groupDAO->queryGroups("AND tbg.status = 'A'",null,"ORDER BY `name`");
+                if($ret['status']){
+                    $groups = $ret['push']['object']->getGridList();
+                   
+                    foreach($groups as $k=>$v) {
+                        $bus =  array(
+                            "id" => $v['idperson'],
+                            "text" => "({$v['level']}) {$v['name']}"
+                        );
+                        array_push($aRet,$bus);
+                    }
+                }else{
+                    return false;
+                }
+                break;
+            case "operator":
+                $ret = $ticketDAO->fetchAttendants($ticketModel);
+                if($ret['status']){
+                    $attendants = $ret['push']['object']->getAttendantList();
+                   
+                    foreach($attendants as $k=>$v) {
+                        $bus =  array(
+                            "id" => $v['idperson'],
+                            "text" => "{$v['name']}"
+                        );
+                        array_push($aRet,$bus);
+                    }
+                }else{
+                    return false;
+                }
+                break;
+            default:
+                $ret = $ticketDAO->fetchPartners($ticketModel);
+                if($ret['status']){
+                    $partners = $ret['push']['object']->getPartnerList();
+                
+                    foreach($partners as $k=>$v) {
+                        $bus =  array(
+                            "id" => $v['idperson'],
+                            "text" => "{$v['name']}"
+                        );
+                        array_push($aRet,$bus);
+                    }
+                }else{
+                    return false;
+                }
+                break;
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Convert groups/attendants/partners data in HTML string to show in the dropdown list
+     * pt_br Converter dados de grupos/atendentes/parceiros em string HTML para mostrar na lista suspensa
+     *
+     * @param  string $type
+     * @return string
+     */
+    public function _comboRepassListHtml($type)
+    {
+        $repassList = $this->_comboRepassUsers($type);
+        $select = '';
+
+        foreach($repassList as $key=>$val) {
+            $default = ($val['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+        }
+        return $select;
+    }
+    
+    /**
+     * en_us Returns a string with groups/attendants/partners abilities list
+     * pt_br Retorna uma string com a lista de habilidades de grupos/atendentes/parceiros
+     *
+     * @param  string $type
+     * @param  int $repassID
+     * @return string
+     */
+    public function _abilitiesListHtml($type,$repassID) {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setIdOperator($repassID);
+
+        $abilities = "";
+		if ($type == 'group') {
+            $ret = $ticketDAO->fetchGroupAbilities($ticketModel);
+            if ($ret['status']) {
+                $aAbilities = $ret['push']['object']->getGridList();
+                foreach ($aAbilities as $k=>$v) {
+                    $abilities .= '<li class="list-group-item">'.$v['service'].'</li>';
+                }
+            }
+        }
+		elseif ($type == 'operator') {
+            $ret = $ticketDAO->fetchAttendantAbilities($ticketModel);
+            if ($ret['status']) {
+                $aAbilities = $ret['push']['object']->getGridList();
+                foreach ($aAbilities as $k=>$v) {
+                    $abilities .= '<li class="list-group-item">'.$v['service'].'</li>';
+                }
+            }
+        }
+		return $abilities;
+    }
+
+	/**
+     * en_us Returns a string with group attendants list or attendants/partners groups list
+     * pt_br Retorna uma string com lista de atendentes do grupo ou lista de grupos de atendentes/parceiros
+     *
+     * @param  string $type
+     * @param  int $repassID
+     * @return string
+     */
+    public function _groupsListHtml($type,$repassID) {
+        $groupDAO = new groupDAO();
+        $groupModel = new groupModel();
+        
+        $html = "";
+        if ($type == 'group') {
+            $groupModel->setIdGroup($repassID);
+
+            $ret = $groupDAO->fetchGroupOperators($groupModel);
+            if ($ret['status']) {
+                $aOperators = $ret['push']['object']->getGridList();
+                foreach ($aOperators as $k=>$v) {
+                    $html .= '<li class="list-group-item">'.$v['operator_name'].'</li>';
+                }
+            }
+        } elseif ($type == 'operator') {
+            $groupModel->setIdUser($repassID);
+
+            $ret = $groupDAO->fetchUserGroups($groupModel);
+            if ($ret['status']) {
+                $aOperators = $ret['push']['object']->getGridList();
+                foreach ($aOperators as $k=>$v) {
+                    $html .= '<li class="list-group-item">'.$v['pername'].'</li>';
+                }
+            }
+        }
+		return $html;
+    }
+
+    public function _getRepassName($type,$repassID) {
+        $groupDAO = new groupDAO();
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        
+        switch($type){
+            case "group":
+                $ret = $groupDAO->queryGroups("AND tbg.idperson = {$repassID}");
+                if($ret['status']){
+                    if($ret['status']){
+                        $retRs = $ret['push']['object']->getGridList();
+                        $repassName = $retRs[0]['name'];
+                    }else{
+                        $repassName = "";
+                    }
+                }else{
+                    $repassName = "";
+                }
+                break;
+            case "operator":
+                $personModel->setIdPerson($repassID);
+                $ret = $personDAO->getPersonByID($personModel);
+                if($ret['status']){
+                    $repassName = $ret['push']['object']->getName();
+                }else{
+                    $repassName = "";
+                }
+                break;
+            default:
+                //TODO: Get name partner
+                $repassName = "";
+                break;
+        }
+
+        return $repassName;
+    }
+
+    /**
+     * en_us Returns an array with users data for dropdown list
+     * pt_br Retorna um array com dados dos usuários para lista suspensa
+     * 
+     * @param  string $type
+     * @return array
+     */
+    public function _comboUsers()
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $aRet = array();
+        
+        $ret = $personDAO->queryPersons(null,null,"ORDER BY tbp.name");
+        if($ret['status']){
+            $users = $ret['push']['object']->getGridList();
+            foreach($users as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idperson'],
+                    "text" => "{$v['name']}"
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with users data for dropdown list
+     * pt_br Retorna um array com dados dos usuários para lista suspensa
+     * 
+     * @param  string $type
+     * @return array
+     */
+    public function _comboSource()
+    {
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $aRet = array();
+        
+        $ret = $ticketDAO->fetchSources($ticketModel);
+        if($ret['status']){
+            $users = $ret['push']['object']->getSourceList();
+            foreach($users as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idsource'],
+                    "text" => "{$v['name']}"
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
 }

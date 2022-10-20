@@ -9,11 +9,13 @@ $(document).ready(function () {
 
     if(typeUser == 3){
         $('#cmbTypeExpireDate').select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
-        $('#cmbTipeView').select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
+        $('#cmbViewType').select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
 
         var btnWaitApp = vocab['Waiting_for_approval'],
             modelUrl =  path + '/helpdezk/hdkTicket/jsonGridAttendant',
             titleLbl = vocab['Grid_new_tickets'];
+            
+        makeActive("1");
     }else{
         if(flgOperator == 0){
             var flgApvRequire = $.ajax({type: "POST",url: path+"/helpdezk/hdkTicket/checkApproval",async: false}).responseText;
@@ -21,7 +23,9 @@ $(document).ready(function () {
 
         var btnWaitApp = vocab['Grid_waiting_my_approval'],
             modelUrl =  path + '/helpdezk/hdkTicket/jsonGrid',
-            titleLbl = (flgApvRequire > 0) ? vocab['Grid_waiting_my_approval_tickets'] : vocab['Grid_all'];
+            titleLbl = (flgApvRequire > 0) ? vocab['Grid_waiting_my_approval_tickets'] : vocab['Grid_all_tickets'];
+        
+        (flgApvRequire > 0) ? makeActive("4") : makeActive("ALL");
     }
 
     /** 
@@ -37,16 +41,25 @@ $(document).ready(function () {
      * */ 
      if(typeUser == 3){
         var colM = [ 
-            { title: " ", width: '1%', dataIndx: "star", halign: "center"  },
-            { title: "<i class='fa fa-paperclip'></i>", width: '1%', dataIndx: "attachments", halign: "center"  },      
-            { title: "<b>N&deg;</b> ", width: '15%', dataIndx: "ticketCode", halign: "center"  },
-            { title: "<b>"+vocab["Grid_opening_date"]+"</b> ", width: '15%', dataIndx: "entryDate", halign: "center"  },        
-            { title: "<b>"+vocab["Grid_subject"]+"</b> ", width: '20%', dataIndx: "subject", halign: "center"  },
-            { title: "<b>"+vocab["Grid_expire_date"]+"</b> ", width: '15%', dataIndx: "expiryDate", halign: "center"  },
-            { title: "<b>"+vocab["Grid_incharge"]+"</b> ", width: '20%', dataIndx: "inCharge", halign: "center"  },
-            { title: "<b>"+vocab["status"]+"</b> ", width: '9%', dataIndx: "status", align: "center", halign: "center"  },
+            { title: " ", width: '1%', dataIndx: "star", align: "center", halign: "center"  },
+            { title: "<i class='fa fa-paperclip'></i>", width: '1%', dataIndx: "attachments", align: "center", halign: "center"  },      
+            { title: "<b>N&deg;</b> ", width: '10%', dataIndx: "ticketCode", halign: "center", hidden:true  },
+            { title: "<b>N&deg;</b> ", width: '10%', dataIndx: "ticketCodeLink", halign: "center"  },
+            { title: "<b>"+vocab["Grid_opening_date"]+"</b> ", width: '10%', dataIndx: "entryDate", halign: "center"  },
+            { title: "<b>"+vocab["Company"]+"</b> ", width: '5%', dataIndx: "company", halign: "center"  },
+            { title: "<b>"+vocab["From"]+"</b> ", width: '5%', dataIndx: "owner", halign: "center"  },
+            { title: "<b>"+vocab["Type"]+"</b> ", width: '5%', dataIndx: "type", halign: "center"  },
+            { title: "<b>"+vocab["Item"]+"</b> ", width: '5%', dataIndx: "item", halign: "center"  },
+            { title: "<b>"+vocab["Service"]+"</b> ", width: '7%', dataIndx: "service", halign: "center"  },
+            { title: "<b>"+vocab["Grid_subject"]+"</b> ", width: '8%', dataIndx: "subject", halign: "center"  },
+            { title: "<b>"+vocab["Grid_expire_date"]+"</b> ", width: '10%', dataIndx: "expiryDate", halign: "center"  },
+            { title: "<b>"+vocab["status"]+"</b> ", width: '9%', dataIndx: "status", align: "left", halign: "center"  },
+            { title: "<b>"+vocab["Grid_incharge"]+"</b> ", width: '10%', dataIndx: "inCharge", halign: "center"  },
+            { title: "<b>"+vocab["Priority"]+"</b> ", width: '9%', dataIndx: "priority", align: "left", halign: "center"  },
             { title: "", width: '27%', dataIndx: "",  halign: "center", hidden:true  }  
         ];
+        $orderBy = "expiryDate";
+        
     }else{
         var colM = [ 
             { title: " ", width: 2, dataIndx: "star", halign: "center", align: "center" },       
@@ -55,9 +68,10 @@ $(document).ready(function () {
             { title: "<b>"+vocab["Grid_subject"]+"</b> ", width: 218, dataIndx: "subject", halign: "center" },
             { title: "<b>"+vocab["Grid_expire_date"]+"</b> ", width: 150, dataIndx: "expiryDate", halign: "center", align: "center" },
             { title: "<b>"+vocab["Grid_incharge"]+"</b> ", width: 220, dataIndx: "inCharge", halign: "center" },
-            { title: "<b>"+vocab["status"]+"</b> ", width: 220, dataIndx: "status", align: "center", halign: "center"  },
+            { title: "<b>"+vocab["status"]+"</b> ", width: 220, dataIndx: "status", align: "left", halign: "center"  },
             { title: "", width: '27%', dataIndx: "",  halign: "center", hidden:true  }  
         ];
+        $orderBy = "entryDate";
     }
 
 
@@ -94,7 +108,7 @@ $(document).ready(function () {
     var sortModel = {
         cancel: false,
         type: "remote",
-        sorter:[ { dataIndx: "code_request", dir: "up" } ]
+        sorter:[ { dataIndx: $orderBy, dir: "down" } ]
     };
 
     /** 
@@ -117,18 +131,18 @@ $(document).ready(function () {
     var toolbar = {
         cls: 'pq-toolbar-crud',
         items: [
-            { type: "<span class='hdkToolbar' id='btnAll'>"+vocab['Grid_all']+"</span>"},
-            { type: "<span class='hdkToolbar' id='btnListNew'>"+vocab['Grid_new']+"</span>"},
-            { type: "<span class='hdkToolbar' id='btnListAttended'>"+vocab['Grid_being_attended']+"</span>",listener:''},
-            { type: "<span class='hdkToolbar' id='btnListWaiting'>"+btnWaitApp+"</span>",listener:''},
-            { type: "<span class='hdkToolbar' id='btnListFinished'>"+vocab['Grid_finished']+"</span>",listener:''},
-            { type: "<span class='hdkToolbar' id='btnListRejected'>"+vocab['Grid_rejected']+"</span>",listener:''}
+            { type: "<span class='hdk-toolbar' id='btnAll'>"+vocab['Grid_all']+"</span>"},
+            { type: "<span class='hdk-toolbar ' id='btnListNew'>"+vocab['Grid_new']+"</span>"},
+            { type: "<span class='hdk-toolbar' id='btnListAttended'>"+vocab['Grid_being_attended']+"</span>",listener:''},
+            { type: "<span class='hdk-toolbar' id='btnListWaiting'>"+btnWaitApp+"</span>",listener:''},
+            { type: "<span class='hdk-toolbar' id='btnListFinished'>"+vocab['Grid_finished']+"</span>",listener:''},
+            { type: "<span class='hdk-toolbar' id='btnListRejected'>"+vocab['Grid_rejected']+"</span>",listener:''}
         ]
     };
     
     var obj = { 
         width: '100%', 
-        height: 500,
+        height: 530,
         wrap:false,
         dataModel: dataModel,
         colModel: colM,
@@ -143,22 +157,16 @@ $(document).ready(function () {
         selectionModel: { mode: 'single', type: 'row' },
         collapsible: false,
         selectChange: function (evt, ui) {
-            var rowIndx = getRowIndx(),
-                row = $("#grid_ticket").pqGrid('getRowData', {rowIndx: rowIndx}),
-                rowSt = row.status_val;
-                
-            $('#btnEnable').removeClass('disabled').addClass('active');
-            $('#btnDisable').removeClass('disabled').addClass('active');
-            if (rowSt == 'A')
-                $('#btnEnable').removeClass('active').addClass('disabled');
-            else
-                $('#btnDisable').removeClass('active').addClass('disabled');
-        },
-        rowDblClick: function (evt, ui) {
-            var rowIndx = getRowIndx(),
+            var rowIndx = getRowIndx("grid_ticket"),
                 row = $("#grid_ticket").pqGrid('getRowData', {rowIndx: rowIndx});
                 
-            location.href = path + "/helpdezk/hdkReason/formUpdate/"+row.id;
+                goTicket(row.ticketCode);
+        },
+        rowDblClick: function (evt, ui) {
+            var rowIndx = getRowIndx("grid_ticket"),
+                row = $("#grid_ticket").pqGrid('getRowData', {rowIndx: rowIndx});
+                
+            location.href = path + "/helpdezk/hdkTicket/viewTicket/"+row.ticketCode;
         }
     };
 
@@ -168,6 +176,12 @@ $(document).ready(function () {
     var locale = default_lang.replace('_','-');
     $("#grid_ticket").pqGrid("option", $.paramquery.pqGrid.regional[locale]);
     $("#grid_ticket").find(".pq-pager").pqPager("option", $.paramquery.pqPager.regional[locale]);
+
+    if(typeUser == 3){
+        makeActive("1");
+    }else{
+        (flgApvRequire > 0) ? makeActive("4") : makeActive("ALL");
+    }
 
     // Buttons
     $("#btnFilters").click(function(){
@@ -195,6 +209,7 @@ $(document).ready(function () {
         
         $("#grid_ticket").pqGrid("refreshDataAndView");
     });
+
     $('#txtSearch').keypress(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
@@ -202,41 +217,54 @@ $(document).ready(function () {
         }
     });
 
-    $("#btnUpdate").click(function(){
-        var rowIndx = getRowIndx(),msg="";
+    // -- show tickets by deadline
+    $("#cmbTypeExpireDate").change(function(){
+       var deadlineType = $(this).val();
+        $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
+            return {deadlineType:deadlineType};
+        });
         
-        if (rowIndx != null) {
-            var row = $("#grid_ticket").pqGrid('getRowData', {rowIndx: rowIndx});
-            location.href = path + "/helpdezk/hdkReason/formUpdate/"+row.id;
-            
-        }else{            
-            msg = vocab['Alert_select_one'];
-            showAlert(msg,'warning');
-        }
+        $("#grid_ticket").pqGrid("refreshDataAndView");
     });
+
+    // -- show tickets by view type
+    $("#cmbViewType").change(function(){
+        var viewType = $(this).val();
+         $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
+             return {viewType:viewType};
+         });
+         
+         $("#grid_ticket").pqGrid("refreshDataAndView");
+     });
 
     $("#btnAll").click(function(){
         getDataByStatus("ALL","<b>"+vocab['Grid_all_tickets'].toUpperCase()+"</b>");
+        makeActive("ALL");
     });
 
     $("#btnListNew").click(function(){
         getDataByStatus("1","<b>"+vocab['Grid_new_tickets'].toUpperCase()+"</b>");
+        makeActive("1");
     });
 
     $("#btnListAttended").click(function(){
         getDataByStatus("3","<b>"+vocab['Grid_being_attended_tickets'].toUpperCase()+"</b>");
+        makeActive("3");
     });
 
     $("#btnListWaiting").click(function(){
         getDataByStatus("4","<b>"+vocab['Grid_waiting_my_approval_tickets'].toUpperCase()+"</b>");
+        makeActive("4");
     });
 
     $("#btnListFinished").click(function(){
         getDataByStatus("5","<b>"+vocab['Grid_finished_tickets'].toUpperCase()+"</b>");
+        makeActive("5");
     });
 
     $("#btnListRejected").click(function(){
         getDataByStatus("6","<b>"+vocab['Grid_rejected_tickets'].toUpperCase()+"</b>");
+        makeActive("6");
     });
 
     //close modal alert
@@ -259,6 +287,15 @@ function getDataByStatus(statusID,titleLabel) {
     $("#grid_ticket").pqGrid( "option", "title", titleLabel );
     
     $("#grid_ticket").pqGrid("refreshDataAndView");
+}
+
+function goTicket(ticketCode)
+{
+    if(operatorAsUser == '1'){
+        document.location.href = path+"/helpdezk/hdkTicket/viewTicket/" + ticketCode + "/0/1";
+    }else{
+        document.location.href = path+"/helpdezk/hdkTicket/viewTicket/" + ticketCode;
+    }
 }
 
 /**
@@ -297,5 +334,131 @@ function postStatus(reasonID,newStatus)
     });
 
     return false;
+}
+
+/**
+ * Makes active toolbar button
+ * 
+ * @param  {string} statusID
+ * @return {void}      
+ */
+function makeActive(statusID) {
+    switch(statusID){
+        case 'ALL':
+            if(!$("#btnAll").hasClass("active"))
+                $("#btnAll").addClass("active");
+        
+            if($("#btnListNew").hasClass("active"))
+                $("#btnListNew").removeClass("active");
+        
+            if($("#btnListAttended").hasClass("active"))
+                $("#btnListAttended").removeClass("active");
+        
+            if($("#btnListWaiting").hasClass("active"))
+                $("#btnListWaiting").removeClass("active");
+        
+            if($("#btnListFinished").hasClass("active"))
+                $("#btnListFinished").removeClass("active");
+        
+            if($("#btnListRejected").hasClass("active"))
+                $("#btnListRejected").removeClass("active");
+            break;
+        case '1':
+            if($("#btnAll").hasClass("active"))
+                $("#btnAll").removeClass("active");
+        
+            if(!$("#btnListNew").hasClass("active"))
+                $("#btnListNew").addClass("active");
+        
+            if($("#btnListAttended").hasClass("active"))
+                $("#btnListAttended").removeClass("active");
+        
+            if($("#btnListWaiting").hasClass("active"))
+                $("#btnListWaiting").removeClass("active");
+        
+            if($("#btnListFinished").hasClass("active"))
+                $("#btnListFinished").removeClass("active");
+        
+            if($("#btnListRejected").hasClass("active"))
+                $("#btnListRejected").removeClass("active");
+            break;
+        case '3':
+            if($("#btnAll").hasClass("active"))
+                $("#btnAll").removeClass("active");
+        
+            if($("#btnListNew").hasClass("active"))
+                $("#btnListNew").removeClass("active");
+        
+            if(!$("#btnListAttended").hasClass("active"))
+                $("#btnListAttended").addClass("active");
+        
+            if($("#btnListWaiting").hasClass("active"))
+                $("#btnListWaiting").removeClass("active");
+        
+            if($("#btnListFinished").hasClass("active"))
+                $("#btnListFinished").removeClass("active");
+        
+            if($("#btnListRejected").hasClass("active"))
+                $("#btnListRejected").removeClass("active");
+            break;
+        case '4':
+            if($("#btnAll").hasClass("active"))
+                $("#btnAll").removeClass("active");
+        
+            if($("#btnListNew").hasClass("active"))
+                $("#btnListNew").removeClass("active");
+        
+            if($("#btnListAttended").hasClass("active"))
+                $("#btnListAttended").removeClass("active");
+        
+            if(!$("#btnListWaiting").hasClass("active"))
+                $("#btnListWaiting").addClass("active");
+        
+            if($("#btnListFinished").hasClass("active"))
+                $("#btnListFinished").removeClass("active");
+        
+            if($("#btnListRejected").hasClass("active"))
+                $("#btnListRejected").removeClass("active");
+            break;
+        case '5':
+            if($("#btnAll").hasClass("active"))
+                $("#btnAll").removeClass("active");
+        
+            if($("#btnListNew").hasClass("active"))
+                $("#btnListNew").removeClass("active");
+        
+            if($("#btnListAttended").hasClass("active"))
+                $("#btnListAttended").removeClass("active");
+        
+            if($("#btnListWaiting").hasClass("active"))
+                $("#btnListWaiting").removeClass("active");
+        
+            if(!$("#btnListFinished").hasClass("active"))
+                $("#btnListFinished").addClass("active");
+        
+            if($("#btnListRejected").hasClass("active"))
+                $("#btnListRejected").removeClass("active");
+            break;
+        case '6':
+            if($("#btnAll").hasClass("active"))
+                $("#btnAll").removeClass("active");
+        
+            if($("#btnListNew").hasClass("active"))
+                $("#btnListNew").removeClass("active");
+        
+            if($("#btnListAttended").hasClass("active"))
+                $("#btnListAttended").removeClass("active");
+        
+            if($("#btnListWaiting").hasClass("active"))
+                $("#btnListWaiting").removeClass("active");
+        
+            if($("#btnListFinished").hasClass("active"))
+                $("#btnListFinished").removeClass("active");
+        
+            if(!$("#btnListRejected").hasClass("active"))
+                $("#btnListRejected").addClass("active");
+            break;
+
+    }
 }
 
