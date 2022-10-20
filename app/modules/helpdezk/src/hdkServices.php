@@ -936,7 +936,7 @@ class hdkServices
      */
     public function _sendTicketEmail($operation,$ticketCode,$reason=NULL)
     {
-
+        
         if (!isset($operation)) {
             $this->hdklogger->error("Email code not provided!!!",['Class' => __CLASS__, 'Method' => __METHOD__]);
             return false;
@@ -1063,7 +1063,7 @@ class hdkServices
                 if($token)
                     $LINK_EVALUATE =  $this->helpdezkUrl."/helpdezk/evaluate/index/token/".$token; */
 
-                $table = $this->_makeNotesTable($code_request,false);
+                $table = $this->_makeNotesTable($ticketCode);
                 $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
@@ -1098,7 +1098,7 @@ class hdkServices
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
-                $table = $this->_makeNotesTable($code_request,false);
+                $table = $this->_makeNotesTable($ticketCode,false);
                 $NT_USER = $table;
 
                 //$goto = ('/helpdezk/hdkTicket/viewrequest/id/' . $code_request);
@@ -1132,15 +1132,12 @@ class hdkServices
                 $FINISH_DATE = $appSrc->_formatDate(date('Y-m-d H:i'));
                 //$LINK_OPERATOR = $this->makeLinkOperator($code_request);
 
-                $reqEmail = $dbEmailConfig->getRequesterEmail($code_request);
-                $typeuser = $reqEmail->fields['idtypeperson'];
-
                /*  if($typeuser == 2)
                     $LINK_USER = $this->makeLinkUser($code_request);
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
-                $table = $this->_makeNotesTable($code_request,false);
+                $table = $this->_makeNotesTable($ticketCode);
                 $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
@@ -1192,7 +1189,7 @@ class hdkServices
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
 
-                $table = $this->_makeNotesTable($code_request);
+                $table = $this->_makeNotesTable($ticketCode);
                 $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
@@ -1440,7 +1437,7 @@ class hdkServices
     /**
      * makeNotesTable
      *
-     * @param  mixed $ticketCode    Ticket code
+     * @param  string $ticketCode    Ticket code
      * @param  mixed $public        List all notes or not - true: all false: notes for attendants
      * @return string               Note's table in html
      */
@@ -1450,7 +1447,7 @@ class hdkServices
         $ticketDAO = new ticketDAO();
         $ticketModel = new ticketModel();
         $ticketModel->setTicketCode($ticketCode);
-
+        
         $table = "";
         $ret  = $ticketDAO->fetchTicketNotes($ticketModel);
         if(!$ret['status'])
