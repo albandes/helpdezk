@@ -5246,3 +5246,11 @@ select, #btnTimer,
   font-weight: bold;
   border-bottom: solid 1px #1ab394;
 }
+
+.hdk-vr-blurry {
+  background-image: linear-gradient(180deg,#e7eaec,#666,#e7eaec);
+  background-color: transparent;
+  width: 1px;
+  opacity: .45;
+  margin-right: 2px;
+}
