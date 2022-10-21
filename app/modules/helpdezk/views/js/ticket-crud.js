@@ -912,7 +912,7 @@ $(document).ready(function () {
                         $("#btnEvaluateSave").addClass('d-none');
                         setTimeout(function(){
                             $('#modal-evaluate-ticket').modal('hide');
-                            location.href = path + "/helpdezk/hdkTicket/viewrequest/"+$("#ticketCode").val();
+                            location.href = path + "/helpdezk/hdkTicket/viewTicket/"+$("#ticketCode").val();
                         },3000);
                     } else {
                         modalAlertMultiple('danger',vocab['Alert_failure'],'alert-evaluate-ticket');
