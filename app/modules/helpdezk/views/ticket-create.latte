@@ -23,7 +23,7 @@
                                 <!-- Form area -->
                                 <form method="get" class="form-horizontal" id="create-ticket-form">
                                     <!-- Hidden -->
-                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}" />
                                     <input type="hidden" id="hiddenIdPerson" value="{$_SESSION['SES_COD_USUARIO']}"/>
                                     <input type="hidden" id="hiddenIdJuridical" value="{$_SESSION['SES_COD_EMPRESA']}"/>
                                     <input type="hidden" id="hiddenTimerClock" value="{$timer}"/>
@@ -52,7 +52,7 @@
                                                     <label for="cmbUser" class="hdk-label col-form-label text-end">{='Request_owner'|translate}:</label>
                                                 </div>
                                                 <div class="col-sm-7">
-                                                    <input type="text" readonly class="form-control-plaintext" id="cmbUser" value="{$owner}">
+                                                    <input type="text" readonly class="form-control-plaintext" id="cmbUser" value="{$owner}" />
                                                 </div>
                                                 {/if}
                                             </div>
@@ -239,7 +239,7 @@
                                                     <label for="type" class="hdk-label col-form-label text-end">{='Subject'|translate}:</label>
                                                 </div>
                                                 <div class="col-sm-8">
-                                                    <input type="text" id="subject" name="subject" class="form-control" value="" placeholder="{='Placeholder_subject'|translate}">
+                                                    <input type="text" id="subject" name="subject" class="form-control" value="" placeholder="{='Placeholder_subject'|translate}" />
                                                 </div>
                                             </div>
                                             <!-- Description -->
@@ -277,7 +277,7 @@
 
                                     <div class="col-xs-12 white-bg" style="height:10px;"></div>
 
-                                    <div class="row wrapper  white-bg text-center">
+                                    <div class="row wrapper white-bg text-center">
                                         <div class="col-sm-12 form-group">
                                             <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
                                             <button type="button" class="btn btn-primary btn-sm" id="btnCreateTicket" >

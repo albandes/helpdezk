@@ -316,15 +316,27 @@ class hdkTicket extends Controller
             $filterOp = $_POST["filterOperation"];           
                    
             switch($filterIndx){
-                case "ticket":
-                    $filterIndx = "a.name";
+                case "ticketCode":
+                    $filterIndx = "req.code_request";
                     break;
-                case "company":
-                    $filterIndx = "b.name";
+                case "openingDate":
+                    $filterIndx = "req.entry_date";
+                    break;
+                case "subject":
+                    $filterIndx = "req.subject";
+                    break;
+                case "deadline":
+                    $filterIndx = "req.expire_date";
+                    break;
+                case "inCharge":
+                    $filterIndx = "resp.name";
+                    break;
+                case "status":
+                    $filterIndx = "stat.user_view";
                     break;
                 default:
                     $filterIndx = $filterIndx;
-                break;
+                    break;
             }
             
             $where .=  " AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
@@ -335,7 +347,7 @@ class hdkTicket extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%')";
+            $where .= " AND " . " (pipeLatinToUtf8(req.code_request) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.entry_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.expire_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(resp.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.subject) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(stat.user_view) LIKE '%{$quickValue}%')";
         }
 
         //sort options
@@ -465,7 +477,7 @@ class hdkTicket extends Controller
         if($_ENV['LICENSE'] == '200701006'){
             $where .= ((empty($where)) ? "WHERE " : "AND ") ."`req`.`iditem` <> 124 ";
         }
-
+       
         if(isset($_SESSION['SES_PERSON_GROUPS'])){
             $ticketModel->setIdGroupList($_SESSION['SES_PERSON_GROUPS']);
         
@@ -474,7 +486,7 @@ class hdkTicket extends Controller
             if(!$retGroups['status']){
                 $this->logger->error("Can't get attendant's group real id", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
-
+            
             $attendantGroups = ($retGroups['status'] && count($retGroups['push']['object']->getGroupRealIDList()) > 0) ? array_column($retGroups['push']['object']->getGroupRealIDList(),"idperson"): array();
             $attendantGroups = (count($attendantGroups) > 0) ? implode(",",$attendantGroups) : "";
         }else{
@@ -518,11 +530,23 @@ class hdkTicket extends Controller
             $filterOp = $_POST["filterOperation"];           
                    
             switch($filterIndx){
-                case "ticket":
-                    $filterIndx = "a.name";
+                case "ticketCode":
+                    $filterIndx = "req.code_request";
+                    break;
+                case "openingDate":
+                    $filterIndx = "req.entry_date";
                     break;
                 case "company":
-                    $filterIndx = "b.name";
+                    $filterIndx = "comp.name";
+                    break;
+                case "owner":
+                    $filterIndx = "pers.name";
+                    break;
+                case "subject":
+                    $filterIndx = "req.subject";
+                    break;
+                case "description":
+                    $filterIndx = "req.description";
                     break;
                 default:
                     $filterIndx = $filterIndx;
@@ -537,7 +561,7 @@ class hdkTicket extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%')";
+            $where .= " AND " . " (pipeLatinToUtf8(req.code_request) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.entry_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(comp.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(pers.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.subject) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(stat.name) LIKE '%{$quickValue}%')";
         }
 
         //sort options
@@ -545,11 +569,23 @@ class hdkTicket extends Controller
         $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "ticketCode";
 
         switch($sortIndx){
-            case "ticketCode":
+            case "ticketCodeLink":
                 $sortIndx = "req.code_request";
                 break;
+            case "entryDate":
+                $sortIndx = "entry_date";
+                break;
             case "expiryDate":
-                $sortIndx = "req.expire_date";
+                $sortIndx = "expire_date";
+                break;
+            case "owner":
+                $sortIndx = "personname";
+                break;
+            case "inCharge":
+                $sortIndx = "in_charge";
+                break;
+            case "attachments":
+                $sortIndx = "total_attachs";
                 break;
             default:
                 $sortIndx = $sortIndx;
@@ -626,7 +662,7 @@ class hdkTicket extends Controller
     public function comboUserTicketFilters(): array
     {
         $aRet = array(
-            array("id" => 'ticketCode',"text"=>"N"),
+            array("id" => 'ticketCode',"text"=>"Nº"),
             array("id" => 'openingDate',"text"=>$this->translator->translate('Grid_opening_date')),
             array("id" => 'subject',"text"=>$this->translator->translate('Grid_subject')),
             array("id" => 'deadline',"text"=>$this->translator->translate('Grid_expire_date')),
@@ -646,7 +682,7 @@ class hdkTicket extends Controller
     public function comboAttendantTicketFilters(): array
     {
         $aRet = array(
-            array("id" => 'ticketCode',"text"=>"N"),
+            array("id" => 'ticketCode',"text"=>"Nº"),
             array("id" => 'openingDate',"text"=>$this->translator->translate('Grid_opening_date')),
             array("id" => 'company',"text"=>$this->translator->translate('Company')),
             array("id" => 'owner',"text"=>$this->translator->translate('From')),
@@ -1000,6 +1036,7 @@ class hdkTicket extends Controller
             return false;
         }
         
+        $hdkSrc = new hdkServices();
         $ticketDAO = new ticketDAO();
         $ticketModel = new ticketModel();
         $evaluationDAO = new evaluationDAO();

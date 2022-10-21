@@ -47,7 +47,7 @@ class ticketDAO extends Database
                    AND a.code_request = inch.code_request
                    AND inch.ind_in_charge = 1
                 $where $group $order $limit";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -182,9 +182,9 @@ class ticketDAO extends Database
        LEFT OUTER JOIN `hdk_tbrequest_attachment` `req_attach`
                     ON `req_attach`.`code_request` = `req`.`code_request`
                 $where
-              GROUP BY  `req`.`code_request`
+              GROUP BY  `req`.`code_request` $group
                 $order $limit";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -258,7 +258,7 @@ class ticketDAO extends Database
        LEFT OUTER JOIN `hdk_tbrequest_attachment` `req_attach`
                     ON `req_attach`.`code_request` = `req`.`code_request`
                 $where";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -907,7 +907,7 @@ class ticketDAO extends Database
     {   
         $ticketRulesDAO = new ticketRulesDAO();
         $ticketRulesModel = new ticketRulesModel();
-        //echo "",print_r($ticketModel,true),"\n"; die();
+        
         $aApproval = $ticketModel->getApprovalList();
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
@@ -1737,11 +1737,12 @@ class ticketDAO extends Database
      */
     public function fetchAttendantGroupRealID(ticketModel $ticketModel): array
     {        
-        $sql = "SELECT idperson FROM hdk_tbgroup WHERE idgroup IN (:groups)";
+        $groupsID = $ticketModel->getIdGroupList();
+        
+        $sql = "SELECT idperson FROM hdk_tbgroup WHERE idgroup IN ({$groupsID})";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(':groups', $ticketModel->getIdGroupList());
             $stmt->execute();
 
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);

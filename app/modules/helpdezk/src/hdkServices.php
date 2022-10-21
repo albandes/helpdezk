@@ -1024,9 +1024,12 @@ class hdkServices
                     $LINK_USER     = $this->makeLinkUser($code_request);
                 else
                     $LINK_USER = $this->makeLinkOperatorLikeUser($code_request); */
-
+                
                 $date = date('Y-m-d H:i');
                 $ASSUME = $appSrc->_formatDate($date);
+
+                $table = $this->_makeNotesTable($ticketCode,false);
+                $NT_USER = $table;
 
                 $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");

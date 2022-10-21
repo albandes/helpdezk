@@ -753,7 +753,7 @@ $(document).ready(function () {
         
         if(!$("#btnCreateTicket").hasClass('disabled')){
             $("#btnCancel").addClass('disabled');
-            $("#btnCreateTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+            $("#btnCreateTicket").html('<i class="fa fa-spinner fa-spin"></i> '+ vocab['Processing']).addClass('disabled');
             if(typeUser == 3){
                 $("#btnRepassTicket").addClass('disabled');
                 $("#btnFinishTicket").addClass('disabled');
@@ -901,6 +901,7 @@ $(document).ready(function () {
                 type: "POST",
                 url: path + "/helpdezk/hdkTicket/evaluateTicket",
                 data: data,
+                dataType: 'json',
                 error: function (ret) {
                     modalAlertMultiple('danger',vocab['Alert_failure'],'alert-evaluate-ticket');
                 },
@@ -911,7 +912,7 @@ $(document).ready(function () {
                         $("#btnEvaluateSave").addClass('d-none');
                         setTimeout(function(){
                             $('#modal-evaluate-ticket').modal('hide');
-                            location.href = path + "/helpdezk/hdkTicket/viewrequest/"+$("#coderequest").val() ;
+                            location.href = path + "/helpdezk/hdkTicket/viewrequest/"+$("#ticketCode").val();
                         },3000);
                     } else {
                         modalAlertMultiple('danger',vocab['Alert_failure'],'alert-evaluate-ticket');
@@ -1549,7 +1550,7 @@ $(document).ready(function () {
      * Validate
      */
     $("#create-ticket-form").validate({
-        ignore:[],
+        ignore:['.note-editor'],
         rules: {
             cmbArea:{required:true,number:true},
             cmbType:{required:true,number:true},
@@ -1630,6 +1631,11 @@ $(document).ready(function () {
         messages: {            
             cardTitle:{required:vocab['Alert_field_required'], minlength:vocab['Alert_minimum_five_characters']}
         }
+    });
+
+    $('form').each(function(){
+        if($(this).data('validator'))
+            $(this).data('validator').settings.ignore = ".note-editor *";
     });
 
     /* when the modal is hidden */
@@ -1749,7 +1755,12 @@ function saveTicket(aAttachs)
             }
         },
         beforeSend: function(){
-            
+            $("#btnCancel").removeClass('disabled');
+            $("#btnCreateTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']).removeClass('disabled');
+            if(typeUser == 3){
+                $("#btnRepassTicket").removeClass('disabled');
+                $("#btnFinishTicket").removeClass('disabled');
+            }            
         },
         complete: function(){
             $("#btnCancel").removeClass('disabled');
