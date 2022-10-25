@@ -2094,11 +2094,15 @@ class appServices
     
             array_push($aAttachments,$bus);
         }
-    
+
+        $params['to'] = array();    
         foreach ($params['address'] as $key => $sendEmailTo) {
-            $params['to'] = array(array('email' => $sendEmailTo['to_address'],
-                    'name' => $sendEmailTo['to_name'],
-                    'type' => 'to'));
+            $busAddress = array(
+                'email' => $sendEmailTo['to_address'],
+                'name' => $sendEmailTo['to_name'],
+                'type' => 'to'
+            );
+            array_push($params['to'],$busAddress);
         }
     
         $message = array(

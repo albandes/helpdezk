@@ -53,6 +53,11 @@ class hdkTicket extends Controller
      */
     protected $downloadDir;
 
+    /**
+     * @var string
+     */
+    protected $bucketUrl;
+
     public function __construct()
     {
         parent::__construct();
@@ -64,21 +69,20 @@ class hdkTicket extends Controller
             $bucket = $_ENV['S3BUCKET_NAME'];
             $this->ticketStoragePath = 'helpdezk/attachments/';
             $this->noteStoragePath = 'helpdezk/noteattachments/';
-            //$this->fileBucket = "https://{$bucket}.s3.amazonaws.com/".$this->fileDir;
+            $this->bucketUrl = "https://{$bucket}.s3.amazonaws.com/";
         }else{
             if($_ENV['EXTERNAL_STORAGE']){
                 $modDir = $this->appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/helpdezk/');
                 $this->ticketStoragePath = $this->appSrc->_setFolder($modDir.'attachments/');
                 $this->noteStoragePath = $this->appSrc->_setFolder($modDir.'noteattachments/');
-                //$this->fileBucket = $_ENV['EXTERNAL_STORAGE_URL'].'helpdezk/mapping/';
+                $this->bucketUrl = "{$_ENV['EXTERNAL_STORAGE_URL']}/";
             }else{
                 $storageDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath().'/storage/');
                 $upDir = $this->appSrc->_setFolder($storageDir.'uploads/');
                 $modDir = $this->appSrc->_setFolder($upDir.'helpdezk/');
                 $this->ticketStoragePath = $this->appSrc->_setFolder($modDir.'attachments/');
                 $this->noteStoragePath = $this->appSrc->_setFolder($modDir.'noteattachments/');
-                //$this->fileBucket = $_ENV['HDK_URL']."/storage/uploads/lgp/mapping/";
-                
+                $this->bucketUrl = "{$_ENV['HDK_URL']}/";                
             }
         }
 
@@ -2552,7 +2556,7 @@ class hdkTicket extends Controller
 
         $retScreen = $this->makeNotesScreen($ticketCode,$_POST['statusID'],$_POST['flagNote'],$_POST['ownerID']);
 
-        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
+        /* if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
             if($_POST['flagNote'] == 3){ // Note created by operator
                 $transaction = 'user-note' ;
             } elseif ($_POST['flagNote'] == 2) { // Note created by user
@@ -2566,7 +2570,7 @@ class hdkTicket extends Controller
             ) ;
 
             $hdkSrc->_sendNotification($aParam);
-        }
+        } */
 
         $aRet = array(
             "success" => $st,
@@ -2962,15 +2966,16 @@ class hdkTicket extends Controller
         switch($trackType){
             case "G": // Redirect ticket, but the group continues to follow
                 $bus = array("id"=> $trackGroupID,"type" => "G","isInCharge" => 0,"isRepassed" => 'Y',"isTrack"=>1);
+                array_push($aInCharge,$bus);
                 break;
             case "P": // Redirect ticket and continue following
                 $bus = array("id"=> $_SESSION['SES_COD_USUARIO'],"type" => "P","isInCharge" => 0,"isRepassed" => 'Y',"isTrack"=>1);
+                array_push($aInCharge,$bus);
                 break;
             case "N": // Do not follow
 
                 break;
         }
-        array_push($aInCharge,$bus);
 
         // -- new in charge --
         $newInCharge = array(
@@ -3534,10 +3539,174 @@ class hdkTicket extends Controller
      * @param  mixed $attendantID
      * @param  mixed $isTrack
      * @param  mixed $ticketCode
-     * @return void
+     * @return string
      */
     public function makeLinkCode($inChargeID,$inChargeType,$attendantID,$isTrack,$ticketCode)
     {
         return "<a href='{$_ENV['HDK_URL']}/helpdezk/hdkTicket/viewTicket/{$ticketCode}' style=' text-decoration: none !important;'>{$this->highlightTicketCode($inChargeID,$inChargeType,$attendantID,$isTrack,$ticketCode)}</a>";
+    }
+    
+    /**
+     * en_us Download the attachment
+     *
+     * @param  mixed $fileId    Attachment Id
+     * @param  mixed $fileType  Attachment type: [request = Ticket's attachment. note =  Note's attachment] 
+     * @return void
+     */
+    public function downloadFile($fileId=null,$fileType=null)
+    {
+        $awsSrc = new awsServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $ticketModel->setIdAttachment($fileId)
+                    ->setAttachmentType($fileType);
+
+        $ret = $ticketDAO->getAttachment($ticketModel);
+        if(!$ret['status']){
+            return false;
+        }
+
+        $name = $ret['push']['object']->getFileName();
+        $ext = strrchr($name, '.');
+
+        switch ($fileType) {
+            case 'note':
+                if($this->saveMode == 'aws-s3') {
+                    $retUrl = $awsSrc->_getFile("{$this->noteStoragePath}{$fileId}{$ext}");
+                    $url = $retUrl['fileUrl'];
+                    
+                    if(!file_put_contents("{$this->tmp}{$fileId}{$ext}",file_get_contents($url))) {
+                        $this->logger->error("Can\'t save S3 temp file {$fileId}{$ext}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    }
+
+                    $fileName = "{$this->downloadDir}{$fileId}{$ext}" ;
+                } else {
+                    if($this->_externalStorage) {
+                        $fileName = "{$this->noteStoragePath}{$fileId}{$ext}";
+                    } else {
+                        $fileName = "{$this->noteStoragePath}{$fileId}{$ext}";
+                    }
+                }
+                
+                break;
+
+                case 'request':
+                if($this->saveMode == 'aws-s3') {
+                    $retUrl = $awsSrc->_getFile("{$this->ticketStoragePath}{$fileId}{$ext}");
+                    $url = $retUrl['fileUrl'];
+                    
+                    if(!file_put_contents("{$this->tmp}{$fileId}{$ext}",file_get_contents($url))) {
+                        $this->logger->error("Can\'t save S3 temp file {$fileId}{$ext}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    }
+
+                    $fileName = "{$this->downloadDir}{$fileId}{$ext}";
+                } else {
+                    if($this->_externalStorage) {
+                        $fileName = "{$this->ticketStoragePath}{$fileId}{$ext}";
+                    } else {
+                        $fileName = "{$this->ticketStoragePath}{$fileId}{$ext}";
+                    }
+                }
+
+                break;
+        }
+
+        // required for IE
+        if(ini_get('zlib.output_compression')) {
+            ini_set('zlib.output_compression', 'Off');
+        }
+
+        // get the file mime type 
+        $mime =  mime_content_type($fileName);
+        if (empty($mime))
+            $mime = 'application/force-download';
+
+        header('Pragma: public');   // required
+        header('Expires: 0');       // no cache
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Last-Modified: ' . gmdate ('D, d M Y H:i:s', filemtime ($fileName)) . ' GMT');
+        header('Cache-Control: private',false);
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="' . basename($name) . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: '. filesize($fileName));  
+        header('Connection: close');
+        // push it out
+        readfile($fileName);    
+        // delete the file
+        if($this->saveMode == 'aws-s3') 
+            unlink($fileName);
+        
+        exit();
+    }
+
+    public function deleteNote()
+    { 
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $hdkSrc = new hdkServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $noteId = $_POST['noteId'];
+
+        //Setting up the model
+        $ticketModel->setIdNote($noteId);
+
+        $ret = $ticketDAO->deleteNote($ticketModel);
+        if($ret['status']){
+            $st = true;
+            $msg = "";
+            $this->logger->info("Delete note # {$noteId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+            //-- delete note's attachmrnt from storage
+            $aAttachments = $ret['push']['object']->getNoteAttachmentsList();
+            if(count($aAttachments) > 0){
+
+                foreach($aAttachments as $key=>$val){
+                    $idAttach = $val['idnote_attachments'];
+                    $extension = strrchr($val['filename'], ".");
+                    
+                    if($this->saveMode == 'disk'){
+                        if(!unlink("{$this->noteStoragePath}{$idAttach}{$extension}")) {
+                            $this->logger->error("I could not remove note's attachment file: {$idAttach}{$extension} from disk !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        } else {
+                            $this->logger->info("Remove note's attachment file: {$idAttach}{$extension}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }
+                            
+                    }elseif($this->saveMode == "aws-s3"){
+                        
+                        $aws = new awsServices();
+                        
+                        $awsRet = $aws->_removeFile("{$this->noteStoragePath}{$idAttach}{$extension}");
+                        
+                        if($awsRet['success']) {
+                            $this->logger->info("Remove note's attachment file: {$idAttach}{$extension}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);     
+                        } else {
+                            $this->logger->error("I could not remove note's attachment file: {$idAttach}{$extension} from S3 bucket !! Error: {$awsRet['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }
+                    }
+                }
+            }
+        }else{
+            $st = false;
+            $msg = $ret['push']['message'];
+            $this->logger->error("Error trying delete note # {$noteId} - Message: {$msg}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $retScreen = $this->makeNotesScreen($_POST['ticketCode'],$_POST['statusID'],$_POST['flagNote'],$_POST['ownerID']);
+
+        $aRet = array(
+            "success" => $st,
+            "message" => $msg,
+            "noteId" => $noteId,
+            "notesAdded" => $retScreen
+        );
+
+        echo json_encode($aRet);
     }
 }

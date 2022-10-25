@@ -1849,7 +1849,7 @@ function saveOpenRepassTicket(aAttachs)
         },
         complete: function(){
             $("#btnCancel").removeClass('disabled');
-            $("#btnRepassTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']).removeClass('disabled');
+            $("#btnRepassTicket").html("<i class='fa fa-share'></i> "+vocab['Repass_btn']).removeClass('disabled');
             $("#btnCreateTicket").removeClass('disabled');
             $("#btnFinishTicket").removeClass('disabled');
         }
@@ -1921,7 +1921,7 @@ function saveOpenFinishTicket(aAttachs)
         },
         complete: function(){
             $("#btnCancel").removeClass('disabled');
-            $("#btnFinishTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']).removeClass('disabled');
+            $("#btnFinishTicket").html("<i class='fa fa-window-close'></i>  " + vocab['Finish_btn']).removeClass('disabled');
             $("#btnCreateTicket").removeClass('disabled');
             $("#btnRepassTicket").removeClass('disabled');
         }
@@ -2120,11 +2120,11 @@ function calcmin(start,finish) {
 
     hour1 = split[1][0];
     minute1 = split[1][1];
-    second1 = split[1][2];
+    second1 = (typeof(split[1][2]) != 'undefined') ? split[1][2] : "00";
 
     hour2 = split[2][0];
     minute2 = split[2][1];
-    second2 = split[2][2];
+    second2 =  (typeof(split[2][2]) != 'undefined') ? split[2][2] : "00";
 
     total_minutes = (((hour1 * 60) - (hour2 * 60)) + (minute1 - minute2) + ((second1 / 60) - (second2 / 60)));
     return total_minutes.toFixed(2);
@@ -2151,4 +2151,168 @@ function getTrelloCard(listId){
         $("#card-list-table").html(valor);
         $("#card-list-row").removeClass('d-none');
     });
+}
+
+function download(idFile, typeAttach)
+{
+    var urlDownload = path+'/helpdezk/hdkTicket/downloadFile/'+idFile+'/'+typeAttach+'/';
+    $(location).attr('href',urlDownload);
+}
+
+function deleteNote(idnote)
+{ 
+    $("#modal-header-delete-note-lbltitle").html(vocab['Note']+': '+idnote);
+    $("#modal-delete-note").modal('show');
+
+    $("#btnDeleteNoteYes").click(function(){
+        if(!$("#btnDeleteNoteYes").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/helpdezk/hdkTicket/deleteNote',
+                dataType: 'json',
+                async: false,
+                data: {
+                    _token: $("#_token").val(),
+                    ticketCode: $("#ticketCode").val(),
+                    noteId: idnote,
+                    statusID: $("#statusID").val(), 
+                    ownerID: $("#ownerID").val(),
+                    flagNote: (typeUser == 3) ? 3 : 2
+                },
+                error: function (ret) {
+                    if($("#modal-header-delete-note").hasClass('bg-success')){
+                        $("#modal-header-delete-note").removeClass('bg-success').addClass('bg-danger');
+                    }
+
+                    if($("#deleteNoteMessageLine").hasClass('alert-warning')){
+                        $("#deleteNoteMessageLine").removeClass('alert-warning').addClass('alert-danger');
+                    }
+
+                    $("#deleteNoteMessageIcon").html('<i class="fa fa-exclamation-circle fa-3x"></i>');
+                    $("#deleteNoteText").html(vocab['Alert_close_ticket_failure']);
+                    
+                    setTimeout(function(){
+                        $('#modal-delete-note').modal('hide');
+                        if($("#deleteNoteMessageLine").hasClass('alert-success')){
+                            $("#deleteNoteMessageLine").removeClass('alert-success').addClass('alert-warning');
+                        }
+                        $("#deleteNoteMessageIcon").html('<i class="fa fa-question-circle fa-3x"></i>');
+                        $("#deleteNoteText").html(vocab['Tckt_delete_note']);              
+                    },2000);
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+        
+                    if(obj.success) {
+                        if($("#modal-header-delete-note").hasClass('bg-danger')){
+                            $("#modal-header-delete-note").removeClass('bg-danger').addClass('bg-success');
+                        }
+
+                        if($("#deleteNoteMessageLine").hasClass('alert-danger')){
+                            $("#deleteNoteMessageLine").removeClass('alert-danger').addClass('alert-success');
+                        }
+
+                        $("#deleteNoteMessageIcon").html('<i class="fa fa-exclamation-circle fa-3x"></i>');
+                        $("#deleteNoteText").html(vocab['Alert_close_request']);
+                        setTimeout(function(){
+                            $('#modal-delete-note').modal('hide');
+                            $('#ticketNotesAdded').html(obj.notesAdded);
+                            
+                            if($("#modal-header-delete-note").hasClass('bg-success')){
+                                $("#modal-header-delete-note").removeClass('bg-success').addClass('bg-danger');
+                            }
+        
+                            if($("#deleteNoteMessageLine").hasClass('alert-success')){
+                                $("#deleteNoteMessageLine").removeClass('alert-success').addClass('alert-danger');
+                            }
+        
+                            $("#deleteNoteMessageIcon").html('<i class="fa fa-question-circle fa-3x"></i>');
+                            $("#deleteNoteText").html(vocab['Tckt_delete_note']);
+
+                        },2000);
+                    } else {
+                        if($("#deleteNoteMessageLine").hasClass('alert-warning')){
+                            $("#deleteNoteMessageLine").removeClass('alert-warning').addClass('alert-danger');
+                        }
+                        $("#deleteNoteMessageIcon").html('<i class="fa fa-exclamation-circle fa-3x"></i>');
+                        $("#deleteNoteText").html(vocab['Alert_close_ticket_failure']);
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnDeleteNoteNo").addClass('disabled');
+                    $("#btnDeleteNoteYes").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');                    
+                },
+                complete: function(){
+                    $("#btnDeleteNoteNo").removeClass('disabled');
+                    $("#btnDeleteNoteYes").html(vocab['Yes']).removeClass('disabled');
+                }
+            });
+        }
+    });
+    // Create Instances
+   /*  var dialogInstanceAlertOK = new BootstrapDialog({
+        title: makeSmartyLabel('Note') + ': ' + idnote,
+        message: makeSmartyLabel('Alert_deleted_note'),
+        type: BootstrapDialog.TYPE_SUCCESS,
+        buttons:    [{
+                        label: makeSmartyLabel('Close'),
+                        action: function(dialogItself){
+                            dialogItself.close();
+                            //location.reload();
+                            showNotes( $('#coderequest').val());
+                        }
+                     }]
+
+    });
+
+    var dialogInstanceAlertERROR = new BootstrapDialog({
+        title: makeSmartyLabel('Note') + ': ' + idnote,
+        message: makeSmartyLabel('Tckt_del_note_failure'),
+        type: BootstrapDialog.TYPE_WARNING,
+        buttons:    [{
+            label: makeSmartyLabel('Close'),
+            action: function(dialogItself){
+                dialogItself.close();
+            }
+        }]
+
+    });
+
+    BootstrapDialog.show({
+        message: makeSmartyLabel('Tckt_delete_note'),
+        type: BootstrapDialog.TYPE_DANGER,
+        title: makeSmartyLabel('Note') + ': ' + idnote,
+        buttons:    [{
+                        label: makeSmartyLabel('Close'),
+                        action: function(dialogItself){
+                            dialogItself.close();
+                        }
+                    },
+                    {
+                        label: makeSmartyLabel('Send'),
+                        // no title as it is optional
+                        cssClass: 'btn-primary',
+                        action: function(dialogItself){
+                            $.post( path + '/helpdezk/hdkTicket/deleteNote', {
+                                idnote : idnote
+                            }, function(ret) {
+                                if(ret){
+                                    console.log('r: '+ret);
+                                    if(ret=='OK') {
+                                        dialogItself.close();
+                                        dialogInstanceAlertOK.open();
+                                    } else {
+                                        dialogItself.close();
+                                        dialogInstanceAlertERROR.open();
+                                    }
+                                } else {
+                                    dialogItself.close();
+                                    dialogInstanceAlertERROR.open();
+                                }
+                            });
+                        }
+                    }]
+    }); */
+
+    return false;  // <- cancel event
 }

@@ -639,10 +639,15 @@ final class ticketModel
      */
     private $trelloCardId;
 
-     /**
+    /**
      * @var int
      */
     private $trelloUserId;
+
+    /**
+     * @var string
+     */
+    private $attachmentType;
 
     /**
      * Get the value of ticketCode
@@ -3688,6 +3693,30 @@ final class ticketModel
     public function setTrelloUserId(int $trelloUserId)
     {
         $this->trelloUserId = $trelloUserId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attachmentType
+     *
+     * @return  string
+     */ 
+    public function getAttachmentType()
+    {
+        return $this->attachmentType;
+    }
+
+    /**
+     * Set the value of attachmentType
+     *
+     * @param  string  $attachmentType
+     *
+     * @return  self
+     */ 
+    public function setAttachmentType(string $attachmentType)
+    {
+        $this->attachmentType = $attachmentType;
 
         return $this;
     }

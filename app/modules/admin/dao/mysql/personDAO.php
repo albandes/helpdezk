@@ -477,4 +477,83 @@ class personDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * en_us Returns company's data
+     * pt_br Retorna os dados da empresa
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getCompanyByID(personModel $personModel): array
+    {        
+        $sql = "SELECT a.idperson, a.idnatureperson, b.name naturetype, a.name, phone_number, cel_phone, contact_person, a.status,
+                        c.ein_cnpj, h.idcountry,  i.printablename country, f.idstate, h.name state, h.abbr uf,
+                        e.idcity, f.name city, e.idneighborhood, g.name neighborhood, j.idtypestreet, k.name type_street, e.idstreet,
+                        j.name street, e.number, e.complement, e.zipcode                       
+                  FROM tbperson a
+                  JOIN tbnatureperson b
+                    ON b.idnatureperson = a.idnatureperson
+                  JOIN tbjuridicalperson c
+                    ON c.idperson = a.idperson 
+       LEFT OUTER JOIN tbaddress e
+                    ON e.idperson = a.idperson
+       LEFT OUTER JOIN tbcity f
+                    ON f.idcity = e.idcity
+       LEFT OUTER JOIN tbneighborhood g
+                    ON g.idneighborhood = e.idneighborhood
+       LEFT OUTER JOIN tbstate h
+                    ON h.idstate = f.idstate
+       LEFT OUTER JOIN tbcountry i
+                    ON i.idcountry = h.idcountry
+       LEFT OUTER JOIN tbstreet j
+                    ON j.idstreet = e.idstreet
+       LEFT OUTER JOIN tbtypestreet k
+                    ON (k.idtypestreet = j.idtypestreet AND
+                        UPPER(location) = UPPER('pt_br'))
+                 WHERE a.idtypeperson IN (4,5,7)
+                   AND a.idperson = :companyID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':companyID', $personModel->getIdPerson());
+            $stmt->execute();
+            $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+            $personModel->setIdPerson($rows['idperson'])
+                        ->setName($rows['name'])
+                        ->setTelephone((!empty($rows['phone_number']) && !is_null($rows['phone_number'])) ? $rows['phone_number'] : "")
+                        ->setCellphone((!empty($rows['cel_phone']) && !is_null($rows['cel_phone'])) ? $rows['cel_phone'] : "")
+                        ->setCountry($rows['country'])
+                        ->setIdCountry($rows['idcountry'])
+                        ->setState($rows['state'])
+                        ->setStateAbbr($rows['uf'])
+                        ->setIdState($rows['idstate'])
+                        ->setNeighborhood($rows['neighborhood'])
+                        ->setIdNeighborhood($rows['idneighborhood'])
+                        ->setCity($rows['city'])
+                        ->setIdCity($rows['idcity'])
+                        ->setTypeStreet((!empty($rows['typestreet']) && !is_null($rows['typestreet'])) ? $rows['typestreet'] : "")
+                        ->setIdTypeStreet((!empty($rows['idtypestreet']) && !is_null($rows['idtypestreet'])) ? $rows['idtypestreet'] : 0)
+                        ->setStreet((!empty($rows['street']) && !is_null($rows['street'])) ? $rows['street'] : "")
+                        ->setNumber((!empty($rows['number']) && !is_null($rows['number'])) ? $rows['number'] : "")
+                        ->setComplement((!empty($rows['complement']) && !is_null($rows['complement'])) ? $rows['complement'] : "")
+                        ->setZipCode((!empty($rows['zipcode']) && !is_null($rows['zipcode'])) ? $rows['zipcode'] : "")
+                        ->setIdStreet((!empty($rows['idstreet']) && !is_null($rows['idstreet'])) ? $rows['idstreet'] : "")
+                        ->setEinCnpj((!empty($rows['ein_cnpj']) && !is_null($rows['ein_cnpj'])) ? $rows['ein_cnpj'] : "");
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting company data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

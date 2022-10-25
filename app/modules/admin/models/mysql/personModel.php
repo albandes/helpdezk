@@ -270,6 +270,11 @@ final class personModel
     private $streetList;
 
     /**
+     * @var string
+     */
+    private $einCnpj;
+
+    /**
      * Get the value of idPerson
      *
      * @return  int
@@ -1537,6 +1542,30 @@ final class personModel
     public function setStreetList(array $streetList)
     {
         $this->streetList = $streetList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of einCnpj
+     *
+     * @return  string
+     */ 
+    public function getEinCnpj()
+    {
+        return $this->einCnpj;
+    }
+
+    /**
+     * Set the value of einCnpj
+     *
+     * @param  string  $einCnpj
+     *
+     * @return  self
+     */ 
+    public function setEinCnpj(string $einCnpj)
+    {
+        $this->einCnpj = $einCnpj;
 
         return $this;
     }

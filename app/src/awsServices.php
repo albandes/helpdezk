@@ -273,8 +273,16 @@ class awsServices
         return array("success"=>true, "message"=>"","fileUrl"=>$presignedUrl);       
     
     }
-
-    function _getFolders($prefix) {
+    
+    /**
+     * en_us Lists the subfolders contained in the selected folder
+     * pt_br Lista as subpastas contidas na pasta selecionada
+     *
+     * @param  mixed $prefix Folder name to list from
+     * @return array 
+     */
+    function _getFolders($prefix) 
+    {
         $s3Obj = $this->_getS3Connection();
 
         try{
@@ -296,7 +304,14 @@ class awsServices
         return array("success"=>true, "message"=>"","objectList"=>$objectList);       
     
     }
-
+    
+    /**
+     * en_us Makes a folder in bucket
+     * pt_br Cria uma pasta no bucket
+     *
+     * @param  string $dir
+     * @return void
+     */
     function _setFolders($dir) {
         $s3Obj = $this->_getS3Connection();
 

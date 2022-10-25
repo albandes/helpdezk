@@ -110,6 +110,31 @@ final class emailServerModel
     private $idEmailCron;
 
     /**
+     * @var string
+     */
+    private $sessionName;
+    
+    /**
+     * @var int
+     */
+    private $idEmailTemplate;
+
+    /**
+     * @var string
+     */
+    private $emailTemplateSubject;
+
+    /**
+     * @var string
+     */
+    private $emailTemplateBody;
+
+    /**
+     * @var string
+     */
+    private $tablePrefix;
+
+    /**
      * Get the value of idEmailServer
      *
      * @return  int
@@ -609,6 +634,126 @@ final class emailServerModel
     public function setIdEmailCron(int $idEmailCron)
     {
         $this->idEmailCron = $idEmailCron;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sessionName
+     *
+     * @return  string
+     */ 
+    public function getSessionName()
+    {
+        return $this->sessionName;
+    }
+
+    /**
+     * Set the value of sessionName
+     *
+     * @param  string  $sessionName
+     *
+     * @return  self
+     */ 
+    public function setSessionName(string $sessionName)
+    {
+        $this->sessionName = $sessionName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idEmailTemplate
+     *
+     * @return  int
+     */ 
+    public function getIdEmailTemplate()
+    {
+        return $this->idEmailTemplate;
+    }
+
+    /**
+     * Set the value of idEmailTemplate
+     *
+     * @param  int  $idEmailTemplate
+     *
+     * @return  self
+     */ 
+    public function setIdEmailTemplate(int $idEmailTemplate)
+    {
+        $this->idEmailTemplate = $idEmailTemplate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of emailTemplateSubject
+     *
+     * @return  string
+     */ 
+    public function getEmailTemplateSubject()
+    {
+        return $this->emailTemplateSubject;
+    }
+
+    /**
+     * Set the value of emailTemplateSubject
+     *
+     * @param  string  $emailTemplateSubject
+     *
+     * @return  self
+     */ 
+    public function setEmailTemplateSubject(string $emailTemplateSubject)
+    {
+        $this->emailTemplateSubject = $emailTemplateSubject;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of emailTemplateBody
+     *
+     * @return  string
+     */ 
+    public function getEmailTemplateBody()
+    {
+        return $this->emailTemplateBody;
+    }
+
+    /**
+     * Set the value of emailTemplateBody
+     *
+     * @param  string  $emailTemplateBody
+     *
+     * @return  self
+     */ 
+    public function setEmailTemplateBody(string $emailTemplateBody)
+    {
+        $this->emailTemplateBody = $emailTemplateBody;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tablePrefix
+     *
+     * @return  string
+     */ 
+    public function getTablePrefix()
+    {
+        return $this->tablePrefix;
+    }
+
+    /**
+     * Set the value of tablePrefix
+     *
+     * @param  string  $tablePrefix
+     *
+     * @return  self
+     */ 
+    public function setTablePrefix(string $tablePrefix)
+    {
+        $this->tablePrefix = $tablePrefix;
 
         return $this;
     }

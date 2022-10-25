@@ -2940,7 +2940,7 @@ class ticketDAO extends Database
                                 ->setInChargeType($v['type'])
                                 ->setIsInCharge($v['isInCharge'])
                                 ->setIsRepass($v['isRepassed'])
-                                ->setIsTrack($v['isTrack']);
+                                ->setIsTrack((isset($v['isTrack']) && !empty($v['isTrack'])) ? $v['isTrack'] : 0);
 
                     $insInCharge = $this->insertTicketInCharge($ticketModel);
                 }
@@ -3018,6 +3018,156 @@ class ticketDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns note attachment data
+     * pt_br Retorna os dados do anexo do apontamento
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getNoteAttachment(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT filename FROM hdk_tbnote_attachments WHERE idnote_attachments = :attachmentID";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":attachmentID",$ticketModel->getIdAttachment());
+        $stmt->execute();
+
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $ticketModel->setFileName((!empty($aRet['filename']) && !is_null($aRet['filename'])) ? $aRet['filename'] : "");
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns ticket's attachment data
+     * pt_br Retorna os dados do anexo da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getTicketAttachment(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT file_name FROM hdk_tbrequest_attachment WHERE idrequest_attachment = :attachmentID";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":attachmentID",$ticketModel->getIdAttachment());
+        $stmt->execute();
+
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $ticketModel->setFileName((!empty($aRet['file_name']) && !is_null($aRet['file_name'])) ? $aRet['file_name'] : "");
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns ticket's attachment or note's attachment
+     * pt_br Retorna o anexo do ticket ou do apontamento
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getAttachment(ticketModel $ticketModel): array
+    {   
+        try{
+            switch($ticketModel->getAttachmentType()){
+                case 'note':
+                    $retAttachment = $this->getNoteAttachment($ticketModel);
+                    break;
+                case 'request':
+                    $retAttachment = $this->getTicketAttachment($ticketModel);
+                    break;
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retAttachment['push']['object']);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting attachment data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Deletes ticket's note from hdk_tbnote table
+     * pt_br Exclui o apontamento da tabela hdk_tbnote
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteTicketNote(ticketModel $ticketModel): array
+    {        
+        $sql = "CALL hdk_deletenote(:noteID)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":noteID",$ticketModel->getIdNote());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves the ticket opening and repass
+     * pt_br Grava abertura e repasse da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteNote(ticketModel $ticketModel): array
+    {   
+        try{
+            $this->db->beginTransaction();
+
+            $retNoteAttach = $this->fetchNoteAttachments($ticketModel);
+
+            if($retNoteAttach['status']){
+                
+                $delNote = $this->deleteTicketNote($retNoteAttach['push']['object']);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$retNoteAttach['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying delete ticket's note", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
         
         return array("status"=>$ret,"push"=>$result);
     }

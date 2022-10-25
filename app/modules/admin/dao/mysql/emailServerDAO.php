@@ -120,4 +120,46 @@ class emailServerDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
+    /**
+     * Returns email template data
+     *
+     * @param  mixed $emailSrvModel
+     * @return array
+     */
+    public function getEmailTemplate(emailServerModel $emailServerModel): array
+    {        
+        $prefix = $emailServerModel->getTablePrefix();
+
+        $sql = "SELECT c.idtemplate, c.name template_name, c.description template_body
+                  FROM {$prefix}_tbconfig a, {$prefix}_tbconfig_has_template b, {$prefix}_tbtemplate_email c,
+                        tblocale d
+                 WHERE a.idconfig = b.idconfig
+                   AND b.idtemplate = c.idtemplate
+                   AND c.idlocale = d.idlocale
+                   AND d.name = ''
+                   AND session_name = :sessionName";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':sessionName', $emailServerModel->getSessionName());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $emailServerModel->setIdEmailTemplate($aRet['idtemplate'])
+                             ->setEmailTemplateSubject($aRet['template_name'])
+                             ->setEmailTemplateBody($aRet['template_body']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailServerModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting email template", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
 }
