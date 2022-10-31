@@ -1076,7 +1076,7 @@ class appServices
         $normalProcedure = true;
 
         if((isset($params['tracker']) && $params['tracker']) || (isset($params['tokenOperatorLink']) && $params['tokenOperatorLink'])) {
-
+            
             $aEmail = $this->_makeArrayTracker($params['address']);
             $body = $mailHeader . $params['contents'] . $mailFooter;
 
@@ -1105,9 +1105,14 @@ class appServices
                 }
 
                 $mail->Body = $body;
-
+                
                 //sent email
                 $retSend = $this->_isEmailDone($mail,$paramsDone);
+                if(!$retSend['status'])
+                    $this->appEmailLogger->error("Can't send email to {$sendEmailTo} Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                else
+                    $this->appEmailLogger->info("Email sent to {$sendEmailTo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
 
                 $mail->ClearAddresses();
             }

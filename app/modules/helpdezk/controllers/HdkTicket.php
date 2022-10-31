@@ -3599,6 +3599,7 @@ class hdkTicket extends Controller
     
     /**
      * en_us Download the attachment
+     * pt_br Baixa o anexo
      *
      * @param  mixed $fileId    Attachment Id
      * @param  mixed $fileType  Attachment type: [request = Ticket's attachment. note =  Note's attachment] 
@@ -3691,7 +3692,13 @@ class hdkTicket extends Controller
         
         exit();
     }
-
+    
+    /**
+     * en_us Delete the selected note
+     * pt_br Remove o apontamento selecionado
+     *
+     * @return json
+     */
     public function deleteNote()
     { 
         if (!$this->appSrc->_checkToken()) {
@@ -3714,7 +3721,7 @@ class hdkTicket extends Controller
             $msg = "";
             $this->logger->info("Delete note # {$noteId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
 
-            //-- delete note's attachmrnt from storage
+            //-- delete note's attachment from storage
             $aAttachments = $ret['push']['object']->getNoteAttachmentsList();
             if(count($aAttachments) > 0){
 

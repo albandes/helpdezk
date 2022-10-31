@@ -225,6 +225,11 @@ $(document).ready(function () {
         });
         
         $("#grid_ticket").pqGrid("refreshDataAndView");
+
+        if(deadlineType == 3)
+            makeActive("3");
+        else if(deadlineType == 4)
+            makeActive("1");
     });
 
     // -- show tickets by view type

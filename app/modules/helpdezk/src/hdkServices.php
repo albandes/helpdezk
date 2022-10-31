@@ -1381,7 +1381,7 @@ class hdkServices
             $this->hdkEmailLogger->error("[hdk] E-mail not sent. Ticket # {$REQUEST}. Error: {$done['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
             return false ;
         } else {
-            $this->hdkEmailLogger->info("[hdk] E-mail sent. Ticket # {$REQUEST}.", ['Cron-job' => 'bmm_routines','Function' => 'sendNotification','Line' => __LINE__]);
+            $this->hdkEmailLogger->info("[hdk] E-mail sent. Ticket # {$REQUEST}.", ['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
             return true ;
         }
 
@@ -1864,7 +1864,15 @@ class hdkServices
         }
 		return $html;
     }
-
+    
+    /**
+     * en_us Returns the name of the attendant or group to whom the request was forwarded
+     * pt_br Retorna o nome do atendente ou grupo para quem a solicitação foi repassada
+     *
+     * @param  mixed $type      Attendant type [group or operator]
+     * @param  mixed $repassID  Attendant id
+     * @return string
+     */
     public function _getRepassName($type,$repassID) {
         $groupDAO = new groupDAO();
         $personDAO = new personDAO();
