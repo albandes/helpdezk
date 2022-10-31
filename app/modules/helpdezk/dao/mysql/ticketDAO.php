@@ -993,7 +993,7 @@ class ticketDAO extends Database
         $sql = "SELECT id_in_charge, `name`, `type`, b.email
                   FROM hdk_tbrequest_in_charge a, tbperson b
                  WHERE b.idperson =  a.id_in_charge
-                   AND (ind_in_charge = 1 OR ind_track = 1 OR ind_operator_aux = 1)
+                   AND ind_in_charge = 1
                    AND code_request = :ticketCode";
         
         try{
@@ -3279,6 +3279,45 @@ class ticketDAO extends Database
             $result = array("message"=>$msg,"object"=>null);
         }
         
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns in charge, user/group who track and auxiliary attendant data
+     * pt_br Retorna os dados do responsável pelo solicitação, usuário/grupo que acompanha e atendente auxiliar
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchInChargeEmail(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT id_in_charge, `name`, `type`, b.email
+                  FROM hdk_tbrequest_in_charge a, tbperson b
+                 WHERE b.idperson =  a.id_in_charge
+                   AND (ind_in_charge = 1 OR ind_track = 1 OR ind_operator_aux = 1)
+                   AND code_request = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setGridList((!empty($aRet) && !is_null($aRet)) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting in charge data. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
         return array("status"=>$ret,"push"=>$result);
     }
 }

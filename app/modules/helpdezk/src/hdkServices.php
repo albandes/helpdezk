@@ -1401,38 +1401,40 @@ class hdkServices
         $ticketModel = new ticketModel();
         $ticketModel->setTicketCode($ticketCode);
 
-        $ret  = $ticketDAO->getInChargeByTicketCode($ticketModel);
+        $ret  = $ticketDAO->fetchInChargeEmail($ticketModel);
         if(!$ret['status'])
             return;
 
-        $inChargeType   = $ret['push']['object']->getInChargeType(); 
-        $inChargeID     = $ret['push']['object']->getIdInCharge();
-        $inChargeEmail  = $ret['push']['object']->getInChargeEmail();
-        $sentTo = '';
-
-        if ($inChargeType == 'G') {
-            $groupDAO = new groupDAO();
-            $groupModel = new groupModel();
-            $groupModel->setIdGroup($inChargeID);
-
-            $retGroupOperators = $groupDAO->fetchGroupOperators($groupModel);
-            if(!$retGroupOperators['status']){
-                $this->hdklogger->error("[hdk] Error getting group's operators.",['Class' => __CLASS__, 'Method' => __METHOD__]);
-                return;
+        foreach($ret['push']['object']->getGridList() as $key=>$val){
+            $inChargeType   = $val['type']; 
+            $inChargeID     = $val['id_in_charge'];
+            $inChargeEmail  = $val['email'];
+            $sentTo = '';
+    
+            if ($inChargeType == 'G') {
+                $groupDAO = new groupDAO();
+                $groupModel = new groupModel();
+                $groupModel->setIdGroup($inChargeID);
+    
+                $retGroupOperators = $groupDAO->fetchGroupOperators($groupModel);
+                if(!$retGroupOperators['status']){
+                    $this->hdklogger->error("[hdk] Error getting group's operators.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return;
+                }
+    
+                if (count($retGroupOperators['push']['object']->getGridList()) == 0) {
+                    $this->hdklogger->error("[hdk] Group with id # {$inChargeID} does not have operators!",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return;
+                }
+    
+                $operators = $retGroupOperators['push']['object']->getGridList();
+    
+                foreach($operators as $k=>$v) {
+                    $sentTo .= (empty($sentTo) ? "" : ";") . $v['email'];
+                }
+            } else {
+                $sentTo = $inChargeEmail;
             }
-
-            if (count($retGroupOperators['push']['object']->getGridList()) == 0) {
-                $this->hdklogger->error("[hdk] Group with id # {$inChargeID} does not have operators!",['Class' => __CLASS__, 'Method' => __METHOD__]);
-                return;
-            }
-
-            $operators = $retGroupOperators['push']['object']->getGridList();
-
-            foreach($operators as $k=>$v) {
-                $sentTo .= (empty($sentTo) ? "" : ";") . $v['email'];
-            }
-        } else {
-            $sentTo = $inChargeEmail;
         }
 
         return $sentTo;
