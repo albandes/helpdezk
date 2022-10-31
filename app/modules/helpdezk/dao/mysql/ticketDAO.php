@@ -993,7 +993,7 @@ class ticketDAO extends Database
         $sql = "SELECT id_in_charge, `name`, `type`, b.email
                   FROM hdk_tbrequest_in_charge a, tbperson b
                  WHERE b.idperson =  a.id_in_charge
-                   AND ind_in_charge = 1
+                   AND (ind_in_charge = 1 OR ind_track = 1 OR ind_operator_aux = 1)
                    AND code_request = :ticketCode";
         
         try{

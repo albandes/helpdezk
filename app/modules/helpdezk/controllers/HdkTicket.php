@@ -238,7 +238,7 @@ class hdkTicket extends Controller
             
             $updNoteFlag = $ticketDAO->updateNoteFlag($obj);
             if($updNoteFlag['status']){
-                $this->logger->info("Ticket's opening flag updated", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $this->logger->info("Note's view flag updated. Ticket # {$obj->getTicketCode()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
 
             $params['status'] = $obj->getStatus();
@@ -1378,6 +1378,7 @@ class hdkTicket extends Controller
 
             $ins = $ticketDAO->insertTicketAttachment($ticketModel);
             if(!$ins['status']) {
+                $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}");
             }
 
@@ -1392,8 +1393,10 @@ class hdkTicket extends Controller
                 if(!rename($targetOld,$targetNew)){
                     $del = $ticketDAO->deleteTicketAttachment($ins['push']['object']);
                     if(!$del['status']) {
+                        $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: {$del['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                         return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getRequestCode()}");
                     }
+                    $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()} in disk!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket #{$ticketModel->getRequestCode()}");
                 }
                 
@@ -1406,6 +1409,7 @@ class hdkTicket extends Controller
                 } else {
                     $del = $ticketDAO->deleteTicketAttachment($ins['push']['object']);
                     if(!$del['status']) {
+                        $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: {$del['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                         return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getRequestCode()}");
                     }
 
@@ -1615,7 +1619,7 @@ class hdkTicket extends Controller
                     }
                 }
             }
-            
+           
             // search auxiliary attendants
             $retAuxiliaryAttendant = $hdkSrc->_comboAuxiliaryAttendant($ticketCode,true);
             if(!$retAuxiliaryAttendant){
@@ -2663,6 +2667,7 @@ class hdkTicket extends Controller
             }
 
         }else{
+            $this->logger->error("Error: {$_FILES['file']['error']}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
         }
         
@@ -2686,6 +2691,7 @@ class hdkTicket extends Controller
 
             $ins = $ticketDAO->insertNoteAttachment($ticketModel); //inserts into DB
             if(!$ins['status'] && $ins['push']['object']->getIdAttachment() <= 0) {
+                $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}");
             }
             
@@ -2701,8 +2707,10 @@ class hdkTicket extends Controller
                 if(!rename($targetOld,$targetNew)){
                     $del = $ticketDAO->removeNoteAttachment($ins['push']['object']);// remove attachment from DB
                     if(!$del['status']) {
+                        $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: {$del['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                         return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}");
                     }
+                    $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()} in disk!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket #{$ticketModel->getTicketCode()}");
                 }
                 
@@ -2715,6 +2723,7 @@ class hdkTicket extends Controller
                 } else {
                     $del = $ticketDAO->removeNoteAttachment($ins['push']['object']);// remove attachment from DB
                     if(!$del['status']) {
+                        $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: {$del['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                         return array("success"=>false,"message"=>"Can't link file {$fileName} to note of ticket # {$ticketModel->getTicketCode()}");
                     }
 
@@ -3086,6 +3095,8 @@ class hdkTicket extends Controller
                     $ticketCode = "";
                     $inChargeName = "";
                     $expiryDate = "";
+                }else{
+                    $this->logger->info("Ticket # {$ticketCode} was created successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 }
             }
         }else{
@@ -3094,6 +3105,7 @@ class hdkTicket extends Controller
             $ticketCode = "";
             $inChargeName = "";
             $expiryDate = "";
+            $this->logger->error("Unable to create a ticket. Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
 
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
@@ -3277,6 +3289,8 @@ class hdkTicket extends Controller
                     $inChargeName = "";
                     $expiryDate = "";
                 }
+            }else{
+                $this->logger->info("Ticket # {$ticketCode} was created successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
         }else{
             $st = false;
@@ -3284,6 +3298,7 @@ class hdkTicket extends Controller
             $ticketCode = "";
             $inChargeName = "";
             $expiryDate = "";
+            $this->logger->error("Unable to create a ticket. Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
 
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
@@ -3550,12 +3565,10 @@ class hdkTicket extends Controller
 		if($isTrack == 1 && $inChargeID != $attendantID && $inChargeType == "P"){
 			// -- I am following
 			$ret = "<span style='color: #808080; border-bottom:1px solid #808080; font-weight:bold;' title='{$this->translator->translate('tlt_span_track_me')}' > {$ticketCode} </span>";
-		}
-		elseif($isTrack == 1 && $inChargeType == "G"){
+		}elseif($isTrack == 1 && $inChargeType == "G"){
 			// -- Group is following
 			$ret = "<span style='color: #000000; border-bottom:1px solid #000000; font-weight:bold;' title='{$this->translator->translate('tlt_span_track_group')}' > {$ticketCode} </span>";
-		}
-		elseif($inChargeID == $attendantID && $inChargeType == "P"){
+		}elseif($inChargeID == $attendantID && $inChargeType == "P"){
 			// -- My ticket
 			$ret = "<span style='color: #DF6300; border-bottom:1px solid #DF6300; font-weight:bold;' title='{$this->translator->translate('tlt_span_my')}' > {$ticketCode} </span>";
 		}elseif($isTrack == 0 && $inChargeType == "G"){
