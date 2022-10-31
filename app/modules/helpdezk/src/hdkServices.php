@@ -28,6 +28,7 @@ use App\modules\helpdezk\models\mysql\attendanceTypeModel;
 
 use App\src\appServices;
 use App\src\localeServices;
+use App\modules\admin\src\loginServices;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -793,7 +794,7 @@ class hdkServices
             
             // Send an email to the attendant, or group of attendants, when an auxiliary attendant is add
             case 'add-aux-operator':
-                if ($midia == 'email') {
+                if ($media == 'email') {
                     if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['MAIL_AUX_OPERATOR'] == 1) {
                         if ( $_SESSION['EM_BY_CRON'] == '1') {
                             $cron = true;
@@ -1340,7 +1341,7 @@ class hdkServices
                     $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
                     return false;
                 }
-
+                
                 $template = $retTemplate['push']['object'];
 
                 $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
@@ -1955,6 +1956,61 @@ class hdkServices
         }
 
         return $aRet;
+    }
+    
+    /**
+     * en_us Authenticates the user by the token
+     * pt_br Autentica o usuário pelo token
+     *
+     * @param  string $ticketCode   Ticket code
+     * @param  string $token        Token sended by email
+     * @return bool
+     */
+    function _tokenAuthentication(string $ticketCode,string $token): bool
+    {
+        $loginSrc = new loginServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $ticketModel->setTicketCode($ticketCode)
+                    ->setTicketToken($token);
+
+        // -- Get user data by ticket code and token
+        $retUser = $ticketDAO->getUserDataByToken($ticketModel);
+        if(!$retUser['status']){
+            return false;
+        }
+
+        $userID = $retUser['push']['object']->getIdUser();
+        $userTypeID = $retUser['push']['object']->getUserTypeId();
+
+        if($userID == 0){
+            $this->hdklogger->info("User data not found. Ticket #: {$ticketCode} Token: {$token}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+
+        if ($userTypeID != 3){// Only attendants
+            $this->hdklogger->info("User {$userID} is not an attendant. Ticket #: {$ticketCode} Token: {$token}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        } 
+            
+
+        if ($_SESSION['SES_COD_USUARIO'] == $userID){
+            $this->hdklogger->info("User {$userID} is already logged. Ticket #: {$ticketCode} Token: {$token}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            return true;
+        }
+            
+
+        $loginSrc->_startSession($userID);
+        $loginSrc->_getConfigSession();
+        if($_SESSION['SES_MAINTENANCE'] == 1){
+            //TODO: make a message page for maintenance
+            /* $msg = html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8');
+            die($msg); */
+        }
+
+        $this->hdklogger->info("User {$userID} logged successfully. Ticket #: {$ticketCode} Token: {$token}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+        return true;
     }
 
 }

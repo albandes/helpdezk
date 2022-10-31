@@ -650,6 +650,11 @@ final class ticketModel
     private $attachmentType;
 
     /**
+     * @var int
+     */
+    private $userTypeId;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -3717,6 +3722,30 @@ final class ticketModel
     public function setAttachmentType(string $attachmentType)
     {
         $this->attachmentType = $attachmentType;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userTypeId
+     *
+     * @return  int
+     */ 
+    public function getUserTypeId()
+    {
+        return $this->userTypeId;
+    }
+
+    /**
+     * Set the value of userTypeId
+     *
+     * @param  int  $userTypeId
+     *
+     * @return  self
+     */ 
+    public function setUserTypeId(int $userTypeId)
+    {
+        $this->userTypeId = $userTypeId;
 
         return $this;
     }

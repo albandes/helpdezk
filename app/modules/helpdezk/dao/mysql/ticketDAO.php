@@ -294,8 +294,8 @@ class ticketDAO extends Database
         $sql = "SELECT b.token
                   FROM tbperson a, hdk_tbviewbyurl b 
                  WHERE a.idperson = b.idperson
-                 AND a.email = :email 
-                 AND b.code_request = :ticketCode";
+                   AND a.email = :email 
+                   AND b.code_request = :ticketCode";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -3168,6 +3168,116 @@ class ticketDAO extends Database
             $result = array("message"=>$msg,"object"=>null);
             $this->db->rollBack();
         }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a object with user id
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getUserDataByToken(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT b.idperson, a.idtypeperson
+                  FROM tbperson a, hdk_tbviewbyurl b 
+                 WHERE a.idperson = b.idperson
+                   AND b.code_request = :ticketCode
+                   AND b.token = :token";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':token', $ticketModel->getTicketToken());
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticketModel->setIdUser((isset($aRet['idperson']) && !is_null($aRet['idperson'])) ? $aRet['idperson'] : 0)
+                        ->setUserTypeId((isset($aRet['idtypeperson']) && !is_null($aRet['idtypeperson'])) ? $aRet['idtypeperson'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting user's data by url token. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates ticket's open flag
+     * pt_br Atualiza a flag de abertura de solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateTicketFlag(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbrequest SET flag_opened = :ticketFlag WHERE code_request = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+            $stmt->bindValue(":ticketFlag",$ticketModel->getNoteIsOpen());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update ticket's opened flag ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates note's view flag
+     * pt_br Atualiza a flag de visualização do apontamento
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateNoteFlag(ticketModel $ticketModel): array
+    {        
+        $sql = "UPDATE hdk_tbnote 
+                   SET flag_opened = :noteFlag
+                 WHERE code_request = :ticketCode 
+                   AND idperson !=  :userID";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+            $stmt->bindValue(":noteFlag",$ticketModel->getNoteIsOpen());
+            $stmt->bindValue(":userID",$ticketModel->getIdUser());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update note's view flag ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }

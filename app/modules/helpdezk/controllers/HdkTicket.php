@@ -62,8 +62,6 @@ class hdkTicket extends Controller
     {
         parent::__construct();
 
-        $this->appSrc->_sessionValidate();
-
         $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
         if($this->saveMode == "aws-s3"){
             $bucket = $_ENV['S3BUCKET_NAME'];
@@ -97,6 +95,8 @@ class hdkTicket extends Controller
     
     public function index($myTickets=null)
     {
+        $this->appSrc->_sessionValidate();
+
         $params = $this->makeScreenHdkTicket('idx',null,$myTickets);
 
 		$this->view('helpdezk','ticket',$params);
@@ -116,6 +116,9 @@ class hdkTicket extends Controller
         $hdkSrc = new hdkServices();
         $params = $this->appSrc->_getDefaultParams();
         $params = $hdkSrc->_makeNavHdk($params);
+
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
 
         if($myTickets){
             $params['typeUser'] = 2;
@@ -185,6 +188,9 @@ class hdkTicket extends Controller
             $params['creatorName'] = $obj->getCreator();
             $params['department'] = $obj->getDepartment();
             $params['formatedTicketCode'] = $hdkSrc->_formatTicketCode($obj->getTicketCode());
+
+            $obj->setNoteIsOpen(0)
+                ->setIdUser($_SESSION['SES_COD_USUARIO']);
             
             if($params['typeUser'] == 3){ // attendant's view
                 $params['cmbArea'] = $hdkSrc->_comboArea();
@@ -221,6 +227,18 @@ class hdkTicket extends Controller
                 $params['reason'] = empty($obj->getReason()) ? $this->translator->translate('Reason_no_registered'): $obj->getReason();
                 $params['priorityName'] = $obj->getPriority();
                 $params['attendanceType'] = $obj->getAttendanceWay();
+                
+                if($params['typeUser'] == 2 && $obj->getNoteIsOpen() == 1){
+                    $updTicketFlag = $ticketDAO->updateTicketFlag($obj);
+                    if($updTicketFlag['status']){
+                        $this->logger->info("Ticket's opening flag updated", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    }
+                }
+            }
+            
+            $updNoteFlag = $ticketDAO->updateNoteFlag($obj);
+            if($updNoteFlag['status']){
+                $this->logger->info("Ticket's opening flag updated", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
 
             $params['status'] = $obj->getStatus();
@@ -704,6 +722,8 @@ class hdkTicket extends Controller
      */
     public function newTicket()
     {
+        $this->appSrc->_sessionValidate();
+
         /** 
          * The Ticket is not registered as a regular program, as it is not in the menu - it is part of the helpdezk core,
          * so only the test is done to check if it is a user or operator
@@ -903,6 +923,8 @@ class hdkTicket extends Controller
                     $inChargeName = "";
                     $expiryDate = "";
                 }
+            }else{
+                $this->logger->info("Ticket # {$ticketCode} was created successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
         }else{
             $st = false;
@@ -910,6 +932,7 @@ class hdkTicket extends Controller
             $ticketCode = "";
             $inChargeName = "";
             $expiryDate = "";
+            $this->logger->error("Unable to create a ticket. Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
 
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
@@ -945,8 +968,19 @@ class hdkTicket extends Controller
      */
     public function viewTicket($ticketCode=null,$urlToken=null,$myTicket=null)
     {
+        //-- set session by token
+        if (!is_null($urlToken)){
+            $hdkSrc = new hdkServices();
+            if (!$hdkSrc->_tokenAuthentication($ticketCode,$urlToken)) {
+                $this->appSrc->_accessDenied();
+            }
+        }
+
+        $this->appSrc->_sessionValidate();
+        
         if(!in_array($_SESSION['SES_TYPE_PERSON'],array(2,3)))
             $this->appSrc->_accessDenied();
+        
 
         $ticketDAO = new ticketDAO();
         $ticketModel = new ticketModel();
@@ -1003,9 +1037,11 @@ class hdkTicket extends Controller
         if($ret['status']){
             $st = true;
             $msg = "";
+            $this->logger->info("Ticket # {$ticketCode} was canceled successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }else{
             $st = false;
             $msg = $ret['push']['message'];
+            $this->logger->error("Unable to cancel ticket# {$ticketCode}. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
 
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
@@ -2411,6 +2447,7 @@ class hdkTicket extends Controller
         }
 
         $retScreen = $this->makeAuxAttendantScreen($ticketCode);
+        $notesScreen = $this->makeNotesScreen($ticketCode,$_POST['statusID'],$_POST['flagNote'],$_POST['ownerID']);
 
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
             $aParam = array(
@@ -2426,7 +2463,8 @@ class hdkTicket extends Controller
             "success" => $st,
             "message" => $msg,
             "ticketCode" => $ticketCode,
-            "auxAttendantsData" => $retScreen
+            "auxAttendantsData" => $retScreen,
+            "notesAdded" => $notesScreen
         );
 
         echo json_encode($aRet);
@@ -2556,7 +2594,7 @@ class hdkTicket extends Controller
 
         $retScreen = $this->makeNotesScreen($ticketCode,$_POST['statusID'],$_POST['flagNote'],$_POST['ownerID']);
 
-        /* if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
+        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
             if($_POST['flagNote'] == 3){ // Note created by operator
                 $transaction = 'user-note' ;
             } elseif ($_POST['flagNote'] == 2) { // Note created by user
@@ -2570,7 +2608,7 @@ class hdkTicket extends Controller
             ) ;
 
             $hdkSrc->_sendNotification($aParam);
-        } */
+        }
 
         $aRet = array(
             "success" => $st,

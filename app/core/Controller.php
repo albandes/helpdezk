@@ -39,6 +39,7 @@ class Controller
     
     public function __construct()
     {
+        session_name("hdk-v2");
         session_start();
         $this->appSrc = new appServices();
         $this->translator = new localeServices();

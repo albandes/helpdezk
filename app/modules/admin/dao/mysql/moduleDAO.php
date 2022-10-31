@@ -146,14 +146,18 @@ class moduleDAO extends Database
                           WHERE idperson = '{$moduleModel->getUserID()}')";
         }
         
-        $sql = "(SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty
+        $sql = "SELECT category_id, category, cat_smarty, cat_printable FROM 
+                ((SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty, v.key_value cat_printable
                    FROM tbperson p, tbtypepersonpermission g, tbaccesstype a, tbprogram pr, tbmodule m,
-                        tbprogramcategory cat, tbtypeperson tp
+                        tbprogramcategory cat, tbtypeperson tp, tbvocabulary v, tblocale l
                   WHERE g.idaccesstype = a.idaccesstype
                     AND g.idprogram = pr.idprogram
                     AND m.idmodule = cat.idmodule
                     AND cat.idprogramcategory = pr.idprogramcategory
                     AND tp.idtypeperson = g.idtypeperson
+                    AND cat.smarty = v.key_name
+                    AND v.idlocale = l.idlocale
+                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
                     AND m.status = 'A'
                     AND pr.status = 'A'
                     AND p.idperson = :userID
@@ -162,19 +166,23 @@ class moduleDAO extends Database
                     AND g.allow = 'Y'
                     AND m.idmodule = :moduleID)
                   UNION
-                (SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty
-                   FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc
+                (SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty, v.key_value cat_printable
+                   FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc, tbvocabulary v, tblocale l
                   WHERE m.idmodule = cat.idmodule
                     AND pr.idprogramcategory = cat.idprogramcategory
                     AND per.idperson = p.idperson
                     AND pr.idprogram = p.idprogram
+                    AND cat.smarty = v.key_name
+                    AND v.idlocale = l.idlocale
+                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
                     AND m.status = 'A'
                     AND pr.status = 'A'
                     AND p.idperson = :userID
                     AND p.idaccesstype = acc.idaccesstype
                     AND p.idaccesstype = '1'
                     AND p.allow = 'Y'
-                    AND m.idmodule = :moduleID)";
+                    AND m.idmodule = :moduleID)) AS tmp
+                    ORDER BY cat_printable";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -220,17 +228,23 @@ class moduleDAO extends Database
 
         $andModule = " m.idmodule = {$moduleModel->getIdModule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
         
-        $sql = "(SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
+        $sql = "SELECT idmodule_pai, module, path, idmodule_origem, category, category_pai, cat_smarty, idcategory_origem, program, controller,
+                        pr_smarty, idprogram, allow,pr_printable
+                  FROM 
+                ((SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
                         cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
                         pr.idprogramcategory as idcategory_origem, pr.name as program, pr.controller as controller,
-                        pr.smarty   as pr_smarty, pr.idprogram as idprogram, g.allow
+                        pr.smarty   as pr_smarty, pr.idprogram as idprogram, g.allow, v.key_value pr_printable
                    FROM tbperson p, tbtypepersonpermission g, tbaccesstype a, tbprogram pr, tbmodule m,
-                        tbprogramcategory cat, tbtypeperson tp
+                        tbprogramcategory cat, tbtypeperson tp, tbvocabulary v, tblocale l
                   WHERE g.idaccesstype = a.idaccesstype
                     AND g.idprogram = pr.idprogram
                     AND m.idmodule = cat.idmodule
                     AND cat.idprogramcategory = pr.idprogramcategory
                     AND tp.idtypeperson = g.idtypeperson
+                    AND pr.smarty = v.key_name
+                    AND v.idlocale = l.idlocale
+                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
                     AND m.status = 'A'
                     AND pr.status = 'A'
                     AND p.idperson = :userID
@@ -242,19 +256,23 @@ class moduleDAO extends Database
                 (SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
                         cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
                         pr.idprogramcategory as idcategory_origem, pr.name as program, pr.controller as controller,
-                        pr.smarty as pr_smarty, pr.idprogram as idprogram, p.allow
-                   FROM tbperson per, tbpermission p, tbprogram  pr, tbmodule  m, tbprogramcategory  cat, tbaccesstype  acc
+                        pr.smarty as pr_smarty, pr.idprogram as idprogram, p.allow, v.key_value pgr_printable
+                   FROM tbperson per, tbpermission p, tbprogram  pr, tbmodule  m, tbprogramcategory  cat, tbaccesstype  acc,
+                        tbvocabulary v, tblocale l
                   WHERE m.idmodule = cat.idmodule
                     AND pr.idprogramcategory = cat.idprogramcategory
                     AND per.idperson = p.idperson
                     AND pr.idprogram = p.idprogram
+                    AND pr.smarty = v.key_name
+                    AND v.idlocale = l.idlocale
+                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
                     AND m.status = 'A'
                     AND pr.status = 'A'
                     AND p.idperson = :userID
                     AND p.idaccesstype = acc.idaccesstype
                     AND p.idaccesstype = '1'
-                    AND $andModule
-            )";
+                    AND $andModule)) AS tmp
+                    ORDER BY pr_printable";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -338,12 +356,16 @@ class moduleDAO extends Database
     {        
         $sql = "SELECT DISTINCT temp.idmodule, temp.name, temp.index, temp.path, temp.smarty, temp.class, temp.headerlogo,
                         temp.reportslogo, temp.tableprefix
-                  FROM ((SELECT m.idmodule, m.name, m.index, m.path, m.smarty, m.class, m.headerlogo, m.reportslogo,  m.tableprefix
-                           FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc
+                  FROM ((SELECT m.idmodule, m.name, m.index, m.path, m.smarty, m.class, m.headerlogo, m.reportslogo,  m.tableprefix, v.key_value module_printable
+                           FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc,
+                                tbvocabulary v, tblocale l
                           WHERE m.idmodule = cat.idmodule
                             AND pr.idprogramcategory = cat.idprogramcategory
                             AND per.idperson = p.idperson
                             AND pr.idprogram = p.idprogram
+                            AND m.smarty = v.key_name
+                            AND v.idlocale = l.idlocale
+                            AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
                             AND m.status = 'A'
                             AND pr.status = 'A'
                             AND p.idperson = :userID
@@ -353,8 +375,8 @@ class moduleDAO extends Database
                             AND m.idmodule > 3
                        GROUP BY m.idmodule)
                           UNION
-                        (SELECT d.idmodule, d.name, d.index, d.path, d.smarty, d.class, d.headerlogo, d.reportslogo, d.tableprefix
-                           FROM tbtypepersonpermission a, tbprogram b, tbprogramcategory c, tbmodule d
+                        (SELECT d.idmodule, d.name, d.index, d.path, d.smarty, d.class, d.headerlogo, d.reportslogo, d.tableprefix, v.key_value module_printable
+                           FROM tbtypepersonpermission a, tbprogram b, tbprogramcategory c, tbmodule d, tbvocabulary v, tblocale l
                           WHERE a.idtypeperson IN (SELECT idtypeperson FROM tbpersontypes WHERE idperson = :userID)
                             AND a.allow = 'Y'
                             AND d.status = 'A'
@@ -362,7 +384,11 @@ class moduleDAO extends Database
                             AND a.idprogram = b.idprogram
                             AND c.idprogramcategory = b.idprogramcategory
                             AND d.idmodule = c.idmodule
-                       GROUP BY d.idmodule)) AS temp";
+                            AND d.smarty = v.key_name
+                            AND v.idlocale = l.idlocale
+                            AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
+                       GROUP BY d.idmodule)) AS temp
+                       ORDER BY module_printable";
         
         try{
             $stmt = $this->db->prepare($sql);

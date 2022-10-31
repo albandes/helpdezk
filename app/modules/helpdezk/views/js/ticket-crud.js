@@ -141,12 +141,16 @@ var objTicket = {
             $.post(path+"/helpdezk/hdkTicket/insertAuxiliaryAttendant",{
                 _token: $("#_token").val(),
                 ticketCode: $("#ticketCode").val(),
-                attendantID: $("#cmbAttendants").val()
+                attendantID: $("#cmbAttendants").val(),
+                statusID: $("#statusID").val(), 
+                ownerID: $("#ownerID").val(),
+                flagNote: (typeUser == 3) ? 3 : 2
             },
             function(valor){
                 var obj = jQuery.parseJSON(JSON.stringify(valor));
                 $('#cmbAttendants').html(obj.auxAttendantsData.cmbAttendants);
                 $("#cmbAttendants").trigger("change");
+                $('#ticketNotesAdded').html(obj.notesAdded);
 
                 if(obj.auxAttendantsData.auxAttendantList){
                     $("#auxAttendantList tbody").html(obj.auxAttendantsData.auxAttendantList);
@@ -1189,14 +1193,17 @@ $(document).ready(function () {
             return false ;
         }
 
+        if(typeof($('input:radio[name=trackOptions]:checked').val()) == "undefined"){
+            modalAlertMultiple('danger',vocab['Alert_follow_repass'],'alert-repass-ticket');
+            return false;
+        }
+
         if(!$("#btnRepassSave").hasClass("disabled")){
             if($("#update-ticket-form").length > 0 && typeUser == 3){
-                console.log();
                 saveRepassTicket();
             }else{
                 // open ticket with repass
                 if(!$("#btnRepassTicket").hasClass('disabled')){
-                    $('#modal-repass-ticket').modal('hide');
 
                     $("#btnCancel").addClass('disabled');
                     $("#btnRepassTicket").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
@@ -1783,11 +1790,6 @@ function saveOpenRepassTicket(aAttachs)
         trackType = $('input:radio[name=trackOptions]:checked').val(),
         trackGroupID;
 
-    if(typeof(trackType) == "undefined"){
-        modalAlertMultiple('danger',vocab['Alert_follow_repass'],'alert-repass-form');
-        return false;
-    }
-
     trackGroupID = (trackType == "G") ? $("#cmbOpeGroups").val() : 0;
 
     $.ajax({
@@ -1845,7 +1847,7 @@ function saveOpenRepassTicket(aAttachs)
             }
         },
         beforeSend: function(){
-            
+            $('#modal-repass-ticket').modal('hide');  
         },
         complete: function(){
             $("#btnCancel").removeClass('disabled');
@@ -1935,11 +1937,6 @@ function saveRepassTicket()
     var trackType = $('input:radio[name=trackOptions]:checked').val(),
         inChargeType = $("#inChargeType").val(),
         trackGroupID;
-
-    if(typeof(trackType) == "undefined"){
-        modalAlertMultiple('danger',vocab['Alert_follow_repass'],'alert-repass-form');
-        return false;
-    }
 
     trackGroupID = (inChargeType == "P" && trackType == "G") ? $("#cmbOpeGroups").val() : 0;
 
@@ -2249,70 +2246,6 @@ function deleteNote(idnote)
             });
         }
     });
-    // Create Instances
-   /*  var dialogInstanceAlertOK = new BootstrapDialog({
-        title: makeSmartyLabel('Note') + ': ' + idnote,
-        message: makeSmartyLabel('Alert_deleted_note'),
-        type: BootstrapDialog.TYPE_SUCCESS,
-        buttons:    [{
-                        label: makeSmartyLabel('Close'),
-                        action: function(dialogItself){
-                            dialogItself.close();
-                            //location.reload();
-                            showNotes( $('#coderequest').val());
-                        }
-                     }]
-
-    });
-
-    var dialogInstanceAlertERROR = new BootstrapDialog({
-        title: makeSmartyLabel('Note') + ': ' + idnote,
-        message: makeSmartyLabel('Tckt_del_note_failure'),
-        type: BootstrapDialog.TYPE_WARNING,
-        buttons:    [{
-            label: makeSmartyLabel('Close'),
-            action: function(dialogItself){
-                dialogItself.close();
-            }
-        }]
-
-    });
-
-    BootstrapDialog.show({
-        message: makeSmartyLabel('Tckt_delete_note'),
-        type: BootstrapDialog.TYPE_DANGER,
-        title: makeSmartyLabel('Note') + ': ' + idnote,
-        buttons:    [{
-                        label: makeSmartyLabel('Close'),
-                        action: function(dialogItself){
-                            dialogItself.close();
-                        }
-                    },
-                    {
-                        label: makeSmartyLabel('Send'),
-                        // no title as it is optional
-                        cssClass: 'btn-primary',
-                        action: function(dialogItself){
-                            $.post( path + '/helpdezk/hdkTicket/deleteNote', {
-                                idnote : idnote
-                            }, function(ret) {
-                                if(ret){
-                                    console.log('r: '+ret);
-                                    if(ret=='OK') {
-                                        dialogItself.close();
-                                        dialogInstanceAlertOK.open();
-                                    } else {
-                                        dialogItself.close();
-                                        dialogInstanceAlertERROR.open();
-                                    }
-                                } else {
-                                    dialogItself.close();
-                                    dialogInstanceAlertERROR.open();
-                                }
-                            });
-                        }
-                    }]
-    }); */
 
     return false;  // <- cancel event
 }

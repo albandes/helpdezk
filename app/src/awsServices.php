@@ -292,7 +292,7 @@ class awsServices
                 'Prefix'    => $prefix              
             ]);
             
-            $objectList = array_column($ret['CommonPrefixes'],'Prefix');
+            $objectList = (!empty($ret['CommonPrefixes'])) ? array_column($ret['CommonPrefixes'],'Prefix') : "";
 
         } catch (S3Exception $e) {
             $eCode = $e->getAwsErrorCode();
