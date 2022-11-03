@@ -285,6 +285,7 @@ class hdkTicket extends Controller
 
             $params = $this->makeViewTicketBtns($params,$obj->getTicketCode(),$obj->getIdStatus(),$obj->getIdInCharge());
             $params['notes'] = $this->makeNotesScreen($obj->getTicketCode(),$obj->getIdStatus(),$params['typeUser'],$params['ownerID']);
+            $params['showInsertNote'] = (in_array($params['statusID'],array(2,3)) || ($params['statusID'] == 1 && $params['ownerID'] == $_SESSION['SES_COD_USUARIO'])) ? 1 : 0;
 
             $params['momentFormat'] = ($_ENV['DEFAULT_LANG'] == 'en_us') ? "MM/DD/YYYY" : "DD/MM/YYYY";
             
