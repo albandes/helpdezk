@@ -33,6 +33,9 @@ class Login extends Controller
         session_destroy();
         
         $params = $this->makeScreenLogin();
+
+        $ip = $this->appSrc->_getUserIpAddress();
+        $this->logger->info("User IP: {$ip}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         
         $this->view('admin','login',$params);
     }
