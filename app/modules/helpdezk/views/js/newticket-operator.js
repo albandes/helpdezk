@@ -189,6 +189,9 @@ $(document).ready(function () {
                     if (showDefs == 'YES') {
                         $("#serviceId").html(valor);
                         $("#serviceId").trigger("chosen:updated");
+                        if(showextrafields == 1){
+                            objNewTicket.showExtraFields();
+                        }
                         return objNewTicket.changeReason();
                     } else if (showDefs == 'NO') {
                         $("#serviceId").html('<option value="X">'+makeSmartyLabel('Select')+'</option>' + valor);
@@ -262,14 +265,14 @@ $(document).ready(function () {
 		           	}
 		        });
 		},
-        showAreaFields: function() {
-            var areaId = $("#areaId").val();
+        showExtraFields: function() {
+            var serviceId = $("#serviceId").val();
             if(!$("#extra-fields-line").hasClass('hide'))
                 $("#extra-fields-line").addClass('hide');
                 
             $("#extra-fields-line").html('');
             
-            $.post(path+"/helpdezk/hdkTicket/ajaxExtraFields",{areaId: areaId},
+            $.post(path+"/helpdezk/hdkTicket/ajaxExtraFields",{serviceId: serviceId},
                 function(valor){                    
                     if($("#extra-fields-line").hasClass('hide'))
                         $("#extra-fields-line").removeClass('hide');
@@ -430,9 +433,6 @@ $(document).ready(function () {
 
     $("#areaId").change(function(){
         objNewTicket.changeArea();
-        if(showextrafields == 1){
-            objNewTicket.showAreaFields();
-        }
     });
 
     $("#typeId").change(function(){
@@ -445,6 +445,9 @@ $(document).ready(function () {
 
     $("#serviceId").change(function(){
         objNewTicket.changeReason();
+        if(showextrafields == 1){
+            objNewTicket.showExtraFields();
+        }
     });
 
     $("input[name='typerep']").on('ifChecked', function() { // bind a function to the change event

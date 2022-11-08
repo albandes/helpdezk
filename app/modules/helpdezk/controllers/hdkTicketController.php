@@ -464,7 +464,7 @@ class hdkTicket extends hdkCommon {
             }				
         }
 
-        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
             foreach($_POST['extraFields'] as $key=>$val){
                 if(!empty($val)){
                     $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
@@ -2646,7 +2646,7 @@ class hdkTicket extends hdkCommon {
                 return false;
             }
 
-            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
                 foreach($_POST['extraFields'] as $key=>$val){
                     if(!empty($val)){
                         $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
@@ -2873,7 +2873,7 @@ class hdkTicket extends hdkCommon {
                 return false;
             }
 
-            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
                 foreach($_POST['extraFields'] as $key=>$val){
                     if(!empty($val)){
                         $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
@@ -4419,8 +4419,8 @@ class hdkTicket extends hdkCommon {
 
     public function ajaxExtraFields()
     {
-        $areaID = $_POST['areaId'];
-        $ret = $this->dbTicket->getExtraFieldsByAreaId($areaID);
+        $serviceID = $_POST['serviceId'];
+        $ret = $this->dbTicket->getExtraFieldsByServiceId($serviceID);
         $html = '';
         
         if($ret && $ret->RecordCount() > 0){
@@ -4432,6 +4432,19 @@ class hdkTicket extends hdkCommon {
                 switch($ret->fields['type']){
                     case 'input':
                         $html .= "<input type='text' id='extraField_".$ret->fields['idextra_field']."' name='extraField_".$ret->fields['idextra_field']."' class='form-control input-sm extra-field'>";
+                        break;
+                    case 'select':
+                        $html .= "<select class='form-control  m-b' id='extraField_".$ret->fields['idextra_field']."' name='extraField_".$ret->fields['idextra_field']."'>
+                                    <option value='0'>".$this->getLanguageWord('Select')."</option>";
+
+                        $aOptions = explode(",",$ret->fields['combo_options']);
+                        if(is_array($aOptions) && count($aOptions) > 0){
+                            foreach ($aOptions as $key=>$value) {
+                                $html .= "<option value='".$value."'>".$value."</option>";
+                            }
+                        }
+
+                        $html .= "</select>";
                         break;
                 }                
                 

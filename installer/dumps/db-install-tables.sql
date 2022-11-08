@@ -1915,7 +1915,7 @@ INSERT INTO tbconfig VALUES("108","Log Level","","5","LOG_LEVEL","input","A","lo
 INSERT INTO tbconfig VALUES("112","Tracker Status","","5","TRACKER_STATUS","checkbox","A","tracker_status","1");
 INSERT INTO tbconfig VALUES("113","Country default","","5","COUNTRY_DEFAULT","input","A","country_default","227");
 INSERT INTO tbconfig VALUES("114","Email Secure","Use TLS","5","EM_TLS","checkbox","A","email_tls","1");
-
+insert INTO tbconfig VALUES (115,'LDAP Add User','Add user in Helpdezk if existis in LDAP/AD Server',13,'SES_LDAP_ADD_USER','checkbox','A','ldap_add_user','0');
 
 
 DROP TABLE IF EXISTS tbconfig_category;
