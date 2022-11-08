@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 # --- Generated at June 2, 2022, 3:20 pm --- 
 Abbreviation = "K?saltma"
 Abilities = "Yetenekleri"
@@ -521,3 +523,4 @@ Wednesday = "Çar?amba"
 Widget = "Widget"
 Yes = "Evet"
 Zipcode = "Posta kodu"
+>>>>>>> master

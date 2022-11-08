@@ -87,6 +87,7 @@ class features  extends admCommon {
 		$smarty->assign('ldapdn', $ldapconfs['SES_LDAP_DN']);
 		$smarty->assign('ldapdomain', $ldapconfs['SES_LDAP_DOMAIN']);
         $smarty->assign('ldapfield', $ldapconfs['SES_LDAP_FIELD']);
+        $smarty->assign('ldapadduser', $ldapconfs['SES_LDAP_ADD_USER']);
         
         $smarty->assign('summernote_version', $this->summernote);
 
@@ -384,7 +385,8 @@ class features  extends admCommon {
         $ldapdn = addslashes($_POST['ldapdn']);
         $ldapdomain = addslashes($_POST['ldapdomain']);
         $ldapfield = addslashes($_POST['ldapfield']);
-        
+        $ldapadduser = addslashes($_POST['ldapadduser']);
+
         $this->dbConfig->BeginTrans();
 
         $retType = $this->dbConfig->updateConfigsVals('SES_LDAP_AD', $ldaptype);
@@ -424,6 +426,14 @@ class features  extends admCommon {
             $this->dbConfig->RollbackTrans();
             if($this->log)
                 $this->logIt('Update LDAP Config: [SES_LDAP_FIELD] - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
+            return false;
+        }
+
+        $retField = $this->dbConfig->updateConfigsVals('SES_LDAP_ADD_USER', $ldapadduser);
+        if(!$retField){
+            $this->dbConfig->RollbackTrans();
+            if($this->log)
+                $this->logIt('Update LDAP Config: [SES_LDAP_ADD_USER] - User: '.$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program.' - method: '. __METHOD__ ,3,'general',__LINE__);
             return false;
         }
 
