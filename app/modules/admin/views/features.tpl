@@ -395,12 +395,21 @@
                                         <div class="col-sm-5 control-text">
                                             <input type="text" id="ldapfield" name="ldapfield" class="form-control input-sm" value="{$ldapfield}" >
                                         </div>
+                                        <!--
                                         <div class="col-sm-4">
                                             <div class="col-sm-12 alert alert-info">
                                                 <small>{$smarty.config.ldap_field_obs}</small>
                                             </div>
                                         </div>
+                                        -->
                                     </div>
+                                    <!-- Albandes -->
+                                    <div class="form-group">
+                                        <label  class="col-sm-3 control-label">{$smarty.config.ldap_add_user}?</label>
+                                        <div class="checkbox i-checks"><label> <input type="checkbox" id="ldapadduser" name="ldapadduser" value="1" {$ldapadduser} > </label></div>
+                                    </div>
+
+
                                 </div>
                             </div>
                             <div  class="panel-footer text-center">
@@ -426,7 +435,7 @@
                                 <div class="row col-sm-12 b-l">
                                     <div class="form-group">
                                         <label  class="col-sm-3 control-label">{$smarty.config.Maintenance}?</label>
-                                        <div class="checkbox i-checks"><label> <input type="checkbox" id="maintenanceChk" name="maintenanceChk" value="S" {$maintenancecheck} > </label></div>
+                                        <div class="checkbox i-checks"><label> <input type="checkbox" id="maintenanceChk" name="maintenanceChk" value="1" {$maintenancecheck} > </label></div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-sm-3 control-label">{$smarty.config.Header}:</label>

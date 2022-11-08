@@ -26,6 +26,8 @@ class Login extends admCommon {
 
         // Log settings
         $this->log = parent::$_logStatus;
+
+
     }
 
     public function index() {
@@ -236,32 +238,50 @@ class Login extends admCommon {
         $rsLogintype = $this->dbIndex->getTypeLogin($frm_login);
 		$logintype = $rsLogintype->fields['idtypelogin'];
 
+        if($this->log)
+            $this->logIt("Login type: ". $logintype . ' - User: '.$frm_login .' - program: '.$this->program ,5,'general',__LINE__);
+
+
 		if(!$logintype){
-            $license =  $this->getConfig("license");
 
-            if($license != '201601001') {
-                // Return with error message
-                $success = array(
-                    "success" => 0,
-                    "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
-                );
-                echo json_encode($success);
-                return;
-
-           } else {
+            if($_SESSION['SES_LDAP_ADD_USER'] == 1){
                 /*
-                 *  Client 201601001
-                 *  Create a new user, if don't exists
-                 *  Set type login to 4 [autenticate by request number]
+                 *  If the user logs in to LDAP/AD:
+                 *    1. Creates a new user if it doesn't exist;
+                 *    2. Set type login to 2
                  */
 
+                
+                $login = $this->ldapAuth($frm_login,$frm_password);
+                
+                if (!$login) {
+                    if($this->log)
+                        $this->logIt("User unknow in LDAP/AD: " . $frm_login .' - program: '.$this->program ,3,'general',__LINE__);
+        
+                    $success = array(
+                        "success" => 0,
+                        "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
+                    );
+                    echo json_encode($success);
+                    return;
+                }
+
+                
+
+                $ldapData = $this->ldapGetData($frm_login,$frm_password);
+                
+                $email =  $ldapData['email'];
+                $name  =  $ldapData['displayname']   ;
+                
+                //print_r($ldapData);
+                //die('email: ' . $ldapData['email']);
                 $dbPerson->BeginTrans();
 
                 $dtcreate = date('Y-m-d H:i:s');
-                $logintype = 4 ; // Need in the first access
+                $logintype = 2 ; // Need in the first access
                 $iddepartment =  '72' ;
-
-                $idNewPerson = $dbPerson->insertPerson('4','2','1','1',$login,$login,$dtcreate,'A','N','','','',$login);
+                
+                $idNewPerson = $dbPerson->insertPerson($logintype,'2','1','1',$name,$email,$dtcreate,'A','N','','','',$frm_login);
                 if (!$idNewPerson) {
                     $error = true ;
                 }
@@ -271,13 +291,14 @@ class Login extends admCommon {
                         $error = true;
                     }
                 }
+                /*
                 if (!$error) {
                     $depart = $dbPerson->insertInDepartment($idNewPerson, $iddepartment);
                     if (!$depart) {
                         $error = true ;
                     }
                 }
-
+                */    
 
                 if($error){
                     $dbPerson->RollbackTrans();
@@ -288,11 +309,23 @@ class Login extends admCommon {
                     echo json_encode($success);
                     return;
                 } else {
-
+                    if($this->log)
+                        $this->logIt("User LDAP/AD add in Helpdezk: " . $frm_login .' - program: '.$this->program ,5,'general',__LINE__);
+ 
                     $dbPerson->CommitTrans();
                 }
 
+            
+            } else {
+                // Return with error message
+                $success = array(
+                    "success" => 0,
+                    "msg" => html_entity_decode($langVars['Login_user_not_exist'],ENT_COMPAT, 'UTF-8')
+                );
+                echo json_encode($success);
+                return;            
             }
+
 		}
 
         switch ($logintype) {
@@ -309,7 +342,7 @@ class Login extends admCommon {
                 break;
 
             case '1': // Pop/Imap Server
-                if (!function_exists('imap_open')) {
+                if (function_exists('imap_open')) {
                     $login = false ;
                     $msg = "IMAP functions are not available!!!";
                     break;
@@ -326,7 +359,7 @@ class Login extends admCommon {
 				}
 
                 $login = $this->ldapAuth($frm_login,$frm_password);
-                $idperson = $this->dbIndex->getIdPerson($login);
+                $idperson = $this->dbIndex->getIdPerson($frm_login);
                 break;
         }
 
@@ -504,6 +537,9 @@ class Login extends admCommon {
 				if($rs == "A") $msg = $langVars['Login_error_error'];
 				elseif($rs == "I") $msg = $langVars['Login_user_inactive'];
 			}
+            if($logintype == 2){ // LDAP
+                $msg = $langVars['Login_error_error'];
+            }
 			$success = array("success" => 0,
 							 "msg" => $msg );
 			echo json_encode($success);
@@ -718,18 +754,18 @@ class Login extends admCommon {
         //$senha  = "carol";
         //$dn     = "OU=users,DC=testathon,DC=net";
 
-        // =================
-
+       
+        //$dn  = $object."=".$login.",$dn";
         $dn  = $object."=".$login.",$dn";
-
+        
         $userdomain = $login."@".$domain;
-        //$AD = @ldap_connect($server) ;
-
+        
         if (!($AD = @ldap_connect($server))) {
             $msg = "Can't connecto to LDAP server !";
+            if($this->log)
+                $this->logIt("Can't connecto to LDAP server: ". $server .' - program: '.$this->program ,3,'general',__LINE__);
             return false;
         }
-
 
         ldap_set_option($AD, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($AD, LDAP_OPT_REFERRALS, 0);
@@ -742,25 +778,88 @@ class Login extends admCommon {
 
         $ret =  $this->LdapValidate($AD, $dn, $password, $userdomain, $type) ;
 
-        /*
-         * Search for user informations in ldap
-         *
-        $busca = ldap_search($AD, $dn , "(".$object."=".$_POST['login'].")");
-        $result = ldap_get_entries($AD, $busca);
-        for ($item = 0; $item < $result['count']; $item++){
-            for ($attribute = 0; $attribute < $result[$item]['count']; $attribute++){
-                  $data = $result[$item][$attribute];
-                echo $data. ": ".$result[$item][$data][0]."<br>";
-            }
-        }
-        */
-
         if ( $ret != '0') {
             $msg = $ret ;
+            if($this->log)
+                $this->logIt("Error validating user in LDAP/AD : ". $ret .' - program: '.$this->program ,5,'general',__LINE__);
+
+
             return false;
         } else {
             return true;
         }
+
+    }
+
+    public function ldapGetData($login,$password)
+    {
+        $ldapconfigs = $this->dbConfig->getArrayConfigs(13);
+
+        $type 	= $ldapconfigs['SES_LDAP_AD']; //1 LDAP / 2 AD
+        $server = $ldapconfigs['SES_LDAP_SERVER'];
+        $dn     = $ldapconfigs['SES_LDAP_DN'];
+        $domain = $ldapconfigs['SES_LDAP_DOMAIN'];
+        $object = $ldapconfigs['SES_LDAP_FIELD'];
+       
+        $dn  = $object."=".$login.",$dn";
+
+        $userdomain = $login."@".$domain;
+        
+        if (!($AD = @ldap_connect($server))) {
+            $msg = "Can't connecto to LDAP server !";
+            if($this->log)
+                $this->logIt("Can't connecto to LDAP server: ". $server .' - program: '.$this->program ,3,'general',__LINE__);
+            return false;
+        }
+
+        ldap_set_option($AD, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($AD, LDAP_OPT_REFERRALS, 0);
+
+        /**
+         ** The only way to test the connection is to actually call ldap_bind( $ds, $username, $password ).
+         ** But if that fails, is it because you have the wrong username/password or is it because the connection is down?
+         ** As far as I can see there isn't any way to tell.
+         **/
+
+        $type=2;
+
+        $dn = $ldapconfigs['SES_LDAP_DN'];
+        $dn = utf8_encode($dn);
+		$pass = utf8_encode($password);
+		
+		if($type == 1)
+			$bind = @ldap_bind($AD,$dn,"$pass");
+		elseif($type == 2)
+			$bind = @ldap_bind($AD,$userdomain,"$pass");
+
+		if($bind) 
+		{
+            if ($type == 2) {
+                $search = "sAMAccountName=" . $login;
+            }
+                        
+            $sr = @ldap_search($AD,$dn,$search);
+            
+            $data = ldap_get_entries($AD, $sr);
+            if(empty($data)) {
+                if($this->log)
+                    $this->logIt("Error get LDAP/AD data : ". $login .' - program: '.$this->program ,5,'general',__LINE__);
+                return false;    
+            }
+            $aRet = array("email" =>  $data[0]['mail'][0],
+                          "displayname" => $data[0]['displayname'][0]);
+
+            return $aRet;
+		}  else {
+            $ldapErrorCode = ldap_errno($AD);
+            $ldapErrorText = ldap_error($AD);
+            if($this->log)
+                $this->logIt("[LDAP] Error: " . $ldapErrorCode . " - " . $ldapErrorText . " - program: ".$this->program ,5,'general',__LINE__);
+            return false;
+        }
+        
+        
+
 
     }
 
