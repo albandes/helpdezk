@@ -1990,7 +1990,7 @@ class ticket_model extends DynamicTicket_model
 
     public function getRequestExtraFields($codeRequest)
     {
-        $sql =  "SELECT a.idextra_field, c.name, c.type, c.lang_key_name, a.field_value
+        $sql =  "SELECT DISTINCT a.idextra_field, c.name, c.type, c.lang_key_name, a.field_value
                    FROM `hdk_tbrequest_has_extra_field` a, `hdk_tbcore_service_has_extra_field` b, `hdk_tbextra_field` c
                   WHERE b.idextra_field = a.idextra_field
                     AND b.idextra_field = c.idextra_field

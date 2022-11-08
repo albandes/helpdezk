@@ -464,7 +464,7 @@ class hdkTicket extends hdkCommon {
             }				
         }
 
-        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
             foreach($_POST['extraFields'] as $key=>$val){
                 if(!empty($val)){
                     $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
@@ -2646,7 +2646,7 @@ class hdkTicket extends hdkCommon {
                 return false;
             }
 
-            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
                 foreach($_POST['extraFields'] as $key=>$val){
                     if(!empty($val)){
                         $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
@@ -2873,7 +2873,7 @@ class hdkTicket extends hdkCommon {
                 return false;
             }
 
-            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']))){
+            if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
                 foreach($_POST['extraFields'] as $key=>$val){
                     if(!empty($val)){
                         $insExtra = $this->dbTicket->insertExtraField($code_request, $key, $val);
