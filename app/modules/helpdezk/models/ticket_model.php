@@ -1747,7 +1747,7 @@ class ticket_model extends DynamicTicket_model
 					  AND a.idservice = h.idservice
 					  AND a.idpriority = i.idpriority
 					  $where";
-//echo $query;
+        //echo $query;
         $ret = $this->select($query);
         if(!$ret) {
             $sError = $query . "File: " . __FILE__ . " Line: " . __LINE__ . "<br>DB ERROR: " .  $this->db->ErrorMsg() . "Query: " . $query  ;
@@ -1949,12 +1949,12 @@ class ticket_model extends DynamicTicket_model
 
     }
 
-    public function getExtraFieldsByAreaId($areaId)
+    public function getExtraFieldsByServiceId($serviceId)
     {
-        $sql =  "SELECT a.idextra_field, b.name, b.type, b.lang_key_name
-                   FROM `hdk_tbcore_area_has_extra_field` a, `hdk_tbextra_field` b
+        $sql =  "SELECT a.idextra_field, b.name, b.type, b.lang_key_name, b.combo_options
+                   FROM `hdk_tbcore_service_has_extra_field` a, `hdk_tbextra_field` b
                   WHERE b.idextra_field = a.idextra_field
-                    AND a.idarea = {$areaId}
+                    AND a.idservice = {$serviceId}
                ORDER BY a.num_order";
 
         $ret = $this->select($sql);
@@ -1990,11 +1990,11 @@ class ticket_model extends DynamicTicket_model
 
     public function getRequestExtraFields($codeRequest)
     {
-        $sql =  "SELECT a.idextra_field, c.name, c.type, c.lang_key_name, a.field_value
-                   FROM `hdk_tbrequest_has_extra_field` a, `hdk_tbcore_area_has_extra_field` b, `hdk_tbextra_field` c
+        $sql =  "SELECT DISTINCT a.idextra_field, c.name, c.type, c.lang_key_name, a.field_value
+                   FROM `hdk_tbrequest_has_extra_field` a, `hdk_tbcore_service_has_extra_field` b, `hdk_tbextra_field` c
                   WHERE b.idextra_field = a.idextra_field
                     AND b.idextra_field = c.idextra_field
-                    AND a.code_request = '202209000001'
+                    AND a.code_request = '{$codeRequest}'
                ORDER BY b.num_order";
 
         $ret = $this->select($sql);
