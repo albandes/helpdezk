@@ -843,15 +843,9 @@ class hdkTicket extends hdkCommon {
                 while(!$retExtraFields->EOF){
                     $html .= "<div class='col-sm-12 b-l'>
                                 <label class='col-sm-1 control-label'>".$this->getLanguageWord($retExtraFields->fields['lang_key_name']).":</label>
-                                <div class='col-sm-6 control-text'>";
-                    
-                    switch($retExtraFields->fields['type']){
-                        case 'input':
-                            $html .= $retExtraFields->fields['field_value'];
-                            break;
-                    }                
-                    
-                    $html .= "</div></div><div class='col-xs-12 white-bg' style='height:10px;'></div>";
+                                <div class='col-sm-6 control-text'>".$retExtraFields->fields['field_value']."</div>
+                            </div>
+                            <div class='col-xs-12 white-bg' style='height:10px;'></div>";
     
                     $retExtraFields->MoveNext();
                 }
