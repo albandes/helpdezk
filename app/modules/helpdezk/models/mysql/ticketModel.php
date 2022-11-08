@@ -655,6 +655,21 @@ final class ticketModel
     private $userTypeId;
 
     /**
+     * @var array
+     */
+    private $extraFieldList;
+
+    /**
+     * @var int
+     */
+    private $extraFieldId;
+
+    /**
+     * @var string
+     */
+    private $extraFieldValue;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -3746,6 +3761,78 @@ final class ticketModel
     public function setUserTypeId(int $userTypeId)
     {
         $this->userTypeId = $userTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of extraFieldList
+     *
+     * @return  array
+     */ 
+    public function getExtraFieldList()
+    {
+        return $this->extraFieldList;
+    }
+
+    /**
+     * Set the value of extraFieldList
+     *
+     * @param  array  $extraFieldList
+     *
+     * @return  self
+     */ 
+    public function setExtraFieldList(array $extraFieldList)
+    {
+        $this->extraFieldList = $extraFieldList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of extraFieldId
+     *
+     * @return  int
+     */ 
+    public function getExtraFieldId()
+    {
+        return $this->extraFieldId;
+    }
+
+    /**
+     * Set the value of extraFieldId
+     *
+     * @param  int  $extraFieldId
+     *
+     * @return  self
+     */ 
+    public function setExtraFieldId(int $extraFieldId)
+    {
+        $this->extraFieldId = $extraFieldId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of extraFieldValue
+     *
+     * @return  string
+     */ 
+    public function getExtraFieldValue()
+    {
+        return $this->extraFieldValue;
+    }
+
+    /**
+     * Set the value of extraFieldValue
+     *
+     * @param  string  $extraFieldValue
+     *
+     * @return  self
+     */ 
+    public function setExtraFieldValue(string $extraFieldValue)
+    {
+        $this->extraFieldValue = $extraFieldValue;
 
         return $this;
     }

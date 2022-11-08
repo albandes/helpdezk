@@ -291,29 +291,33 @@
                                     <div class="row white-bg g-2 mb-2">
                                         <!-- Subject -->
                                         <div class="row g-2 mb-1">                                                 
-                                            <div class="col-sm-1 text-end">
+                                            <div class="col-sm-2 text-end">
                                                 <label for="ticketSubject" class="hdk-label col-form-label text-end">{='Subject'|translate}:</label>
                                             </div>
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-9">
                                                 <input type="text" readonly id="ticketSubject" name="ticketSubject" class="form-control-plaintext" value="{$ticketSubject}" >
                                             </div>
                                         </div>
                                         <!-- Description -->
                                         <div class="row g-2 mb-1">                                                 
-                                            <div class="col-sm-1 text-end">
+                                            <div class="col-sm-2 text-end">
                                                 <label for="ticketDescription" class="hdk-label col-form-label text-end">{='Description'|translate}:</label>
                                             </div>
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-9">
                                                 <div class="gray-bg ticket-highlight" id="ticketDescription" name="ticketDescription">{=$ticketDescription|noescape}</div>
                                             </div>
                                         </div>
+                                        <!-- Extra fields -->
+                                        {if $hasExtraFields == 1}
+                                            {=$extraFieldsHtml|noescape}
+                                        {/if}
                                         <!-- Attachments -->
                                         {if $hasAttachment == 1}
                                         <div class="row g-2 mb-1">                                                 
-                                            <div class="col-sm-1 text-end">
+                                            <div class="col-sm-2 text-end">
                                                 <label for="ticketDescription" class="hdk-label col-form-label text-end">{='Attachments'|translate}:</label>
                                             </div>
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-9">
                                                 {=$attach_files|noescape}
                                             </div>
                                         </div>

@@ -233,6 +233,10 @@
                                             <input type="hidden" id="equipmentOsNumber"/>
                                             <input type="hidden" id="equipmentSerialNumber"/>
                                             {/if}
+                                            <!-- Extra fields -->
+                                            <div id="extra-fields-line" class="row g-2 mb-2 d-none">
+                                                <!-- ajax data here -->
+                                            </div>
                                             <!-- Subject -->
                                             <div class="row g-2 mb-2">                                                 
                                                 <div class="col-sm-3 text-end">
@@ -325,7 +329,8 @@
             dtpOrientation = {$dtpOrientation},
             requireTaskTime = {$requireTaskTime},
             allowEmptyNote = {$allowEmptyNote},
-            momentFormat = {$momentFormat};
+            momentFormat = {$momentFormat},
+            showextrafields = {$showextrafields};
 	</script>
 
     <!-- Summernote -->

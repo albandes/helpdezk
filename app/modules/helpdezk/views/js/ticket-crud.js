@@ -222,6 +222,22 @@ var objTicket = {
                 $("#way").html(valor);
                 $("#way").trigger("chosen:updated");
             })
+    },
+    showExtraFields: function() {
+        var serviceId = $("#cmbService").val();
+        if(!$("#extra-fields-line").hasClass('d-none'))
+            $("#extra-fields-line").addClass('d-none');
+            
+        $("#extra-fields-line").html('');
+        if(serviceId != "X" && serviceId != 0){
+            $.post(path+"/helpdezk/hdkTicket/ajaxExtraFields",{_token: $("#_token").val(),serviceId: serviceId},
+            function(valor){                    
+                if($("#extra-fields-line").hasClass('d-none'))
+                    $("#extra-fields-line").removeClass('d-none');
+                    
+                $("#extra-fields-line").html(valor);
+            });
+        }
     }
 };
 
@@ -310,6 +326,9 @@ $(document).ready(function () {
 
     $("#cmbService").change(function(){
         objTicket.changeReason();
+        if(showextrafields == 1){
+            objTicket.showExtraFields();
+        }
     });
 
     $("#cmbAttendants").change(function(){
@@ -1687,7 +1706,16 @@ function showDefaults()
 
 function saveTicket(aAttachs)
 {
-    var hasAtt = aAttachs.length > 0 ? true : false;
+    var hasAtt = aAttachs.length > 0 ? true : false,
+        aExtraFields = $(".extra-field"), aExtraFieldsData = [], extraFiedlID, aID;
+
+    //extra fields
+    aExtraFields.each(function(){
+        extraFiedlID = $(this).attr('id'); aID = extraFiedlID.split('_');
+        
+        if($(this).val() != "")
+            aExtraFieldsData[aID[1]] = $(this).val();
+    });
 
     if(typeUser == 3){
         var periods =  $('#attendanceTime').val().split(":"), 
@@ -1711,7 +1739,8 @@ function saveTicket(aAttachs)
                 solution: 	        $('#solution').summernote('code'),
                 attendanceTypeID:   $('#cmbAttendanceType').val(),
                 openTime:           openTime,
-                attachments:        aAttachs
+                attachments:        aAttachs,
+                extraFields:    aExtraFieldsData
             };
 
     }else{
@@ -1727,7 +1756,8 @@ function saveTicket(aAttachs)
             reason:			$('#cmbReason').val(),
             subject: 		$('#subject').val(),
             description: 	$('#description').summernote('code'),
-            attachments:        aAttachs
+            attachments:        aAttachs,
+            extraFields:    aExtraFieldsData
         };
     }
 
@@ -1788,7 +1818,16 @@ function saveOpenRepassTicket(aAttachs)
         periods =  $('#attendanceTime').val().split(":"), 
         openTime = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60),
         trackType = $('input:radio[name=trackOptions]:checked').val(),
-        trackGroupID;
+        trackGroupID,
+        aExtraFields = $(".extra-field"), aExtraFieldsData = [], extraFiedlID, aID;
+
+    //extra fields
+    aExtraFields.each(function(){
+        extraFiedlID = $(this).attr('id'); aID = extraFiedlID.split('_');
+        
+        if($(this).val() != "")
+            aExtraFieldsData[aID[1]] = $(this).val();
+    });
 
     trackGroupID = (trackType == "G") ? $("#cmbOpeGroups").val() : 0;
 
@@ -1820,7 +1859,8 @@ function saveOpenRepassTicket(aAttachs)
             repassID: $("#repassList").val(),
             trackType: trackType,
             trackGroupID: trackGroupID,
-            attachments:        aAttachs
+            attachments:        aAttachs,
+            extraFields:    aExtraFieldsData
         },
         error: function (ret) {
             modalAlertMultiple('danger',vocab['Alert_failure'],'alert-create-ticket');
@@ -1863,8 +1903,17 @@ function saveOpenRepassTicket(aAttachs)
 function saveOpenFinishTicket(aAttachs)
 {
     var hasAtt = aAttachs.length > 0 ? true : false,
-    periods =  $('#attendanceTime').val().split(":"), 
-    openTime = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60);
+        periods =  $('#attendanceTime').val().split(":"), 
+        openTime = (parseInt(periods[0])*60) + (parseFloat(periods[1])) + (parseFloat(periods[2])/60),
+        aExtraFields = $(".extra-field"), aExtraFieldsData = [], extraFiedlID, aID;
+
+    //extra fields
+    aExtraFields.each(function(){
+        extraFiedlID = $(this).attr('id'); aID = extraFiedlID.split('_');
+        
+        if($(this).val() != "")
+            aExtraFieldsData[aID[1]] = $(this).val();
+    });
 
     $.ajax({
         type: "POST",
@@ -1890,7 +1939,8 @@ function saveOpenFinishTicket(aAttachs)
             solution: 	        $('#solution').summernote('code'),
             attendanceTypeID:   $('#cmbAttendanceType').val(),
             openTime:           openTime,
-            attachments:        aAttachs
+            attachments:        aAttachs,
+            extraFields:    aExtraFieldsData
         },
         error: function (ret) {
             modalAlertMultiple('danger',vocab['Alert_failure'],'alert-create-ticket');

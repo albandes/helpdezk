@@ -179,6 +179,10 @@ class hdkTicket extends Controller
             }else{
                 $params['owner'] = $_SESSION['SES_NAME_PERSON'];
             }
+
+            if(isset($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS']) && $_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS']){
+                $params['showextrafields'] = 1;
+            }
         }
 
         if($option=='upd'){
@@ -288,6 +292,10 @@ class hdkTicket extends Controller
             $params['showInsertNote'] = (in_array($params['statusID'],array(2,3)) || ($params['statusID'] == 1 && $params['ownerID'] == $_SESSION['SES_COD_USUARIO'])) ? 1 : 0;
 
             $params['momentFormat'] = ($_ENV['DEFAULT_LANG'] == 'en_us') ? "MM/DD/YYYY" : "DD/MM/YYYY";
+
+            if(isset($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS']) && $_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] == 1){
+                $params = $this->makeTicketExtraFieldScreen($params,$obj->getTicketCode());
+            }
             
         }
         //echo "<pre>",print_r($params,true),"</pre>";
@@ -899,7 +907,12 @@ class hdkTicket extends Controller
             $aSize = count($aAttachs); // count attachs files
             
             $ticketModel->setAttachments($aAttachs);
-        }                
+        }
+        
+        // -- add extra fields to model
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
+            $ticketModel->setExtraFieldList($_POST['extraFields']);
+        }
         
         $ins = $ticketDAO->saveTicket($ticketModel);
         if($ins['status']){
@@ -970,7 +983,7 @@ class hdkTicket extends Controller
     public function viewTicket($ticketCode=null,$urlToken=null,$myTicket=null)
     {
         //-- set session by token
-        if (!is_null($urlToken)){
+        if (!is_null($urlToken) && $urlToken > 0){
             $hdkSrc = new hdkServices();
             if (!$hdkSrc->_tokenAuthentication($ticketCode,$urlToken)) {
                 $this->appSrc->_accessDenied();
@@ -3072,7 +3085,12 @@ class hdkTicket extends Controller
             $aSize = count($aAttachs); // count attachs files
             
             $ticketModel->setAttachments($aAttachs);
-        }                
+        }
+        
+        // -- add extra fields to model
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
+            $ticketModel->setExtraFieldList($_POST['extraFields']);
+        }
         
         $ins = $ticketDAO->saveOpenRepassTicket($ticketModel);
         if($ins['status']){
@@ -3265,7 +3283,12 @@ class hdkTicket extends Controller
             $aSize = count($aAttachs); // count attachs files
             
             $ticketModel->setAttachments($aAttachs);
-        }                
+        }
+        
+        // -- add extra fields to model
+        if($_SESSION['hdk']['SES_SHOW_TICKET_EXTRA_FIELDS'] && (isset($_POST['extraFields']) && count($_POST['extraFields']) > 0)){
+            $ticketModel->setExtraFieldList($_POST['extraFields']);
+        }
         
         $ins = $ticketDAO->saveOpenFinishTicket($ticketModel);
         if($ins['status']){
@@ -3633,7 +3656,7 @@ class hdkTicket extends Controller
                         $this->logger->error("Can\'t save S3 temp file {$fileId}{$ext}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     }
 
-                    $fileName = "{$this->downloadDir}{$fileId}{$ext}" ;
+                    $fileName = "{$this->tmp}{$fileId}{$ext}" ;
                 } else {
                     if($this->_externalStorage) {
                         $fileName = "{$this->noteStoragePath}{$fileId}{$ext}";
@@ -3653,7 +3676,7 @@ class hdkTicket extends Controller
                         $this->logger->error("Can\'t save S3 temp file {$fileId}{$ext}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     }
 
-                    $fileName = "{$this->downloadDir}{$fileId}{$ext}";
+                    $fileName = "{$this->tmp}{$fileId}{$ext}";
                 } else {
                     if($this->_externalStorage) {
                         $fileName = "{$this->ticketStoragePath}{$fileId}{$ext}";
@@ -3767,5 +3790,120 @@ class hdkTicket extends Controller
         );
 
         echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Updates group/attendant/partner list to repass
+     * pt_br Atualiza a lista de grupos/atendentes/parceiros para repasse
+     *
+     * @return json
+     */
+    public function ajaxExtraFields()
+    { 
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $hdkSrc = new hdkServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+
+        $serviceId = $_POST['serviceId'];
+        $html = "";
+
+        //Setting up the model
+        $ticketModel->setIdService($serviceId);
+
+        $ret = $ticketDAO->fetchExtraFieldsByService($ticketModel);
+        if($ret['status']){
+            $aExtras = $ret['push']['object']->getExtraFieldList();
+            if(count($aExtras) > 0){
+                $st = true;
+                $msg = "";
+
+                foreach($aExtras as $k=>$v){
+                    $html .= "<div class='row g-2 mb-2'>
+                                    <div class='col-sm-3 text-end'>
+                                        <label for='extraField_{$v['idextra_field']}' class='hdk-label col-form-label text-end'>{$this->translator->translate($v['lang_key_name'])}:</label>
+                                    </div>
+                                    <div class='col-sm-8'>";
+                
+                    switch($v['type']){
+                        case 'input':
+                            $html .= "<input type='text' id='extraField_{$v['idextra_field']}' name='extraField_{$v['idextra_field']}' class='form-control extra-field'>";
+                            break;
+                        case 'select':
+                            $html .= "<select class='form-control m-b extra-field' id='extraField_{$v['idextra_field']}' name='extraField_{$v['idextra_field']}'>
+                                        <option value='0'>{$this->translator->translate('Select')}</option>";
+    
+                            $aOptions = explode(",",$v['combo_options']);
+                            if(is_array($aOptions) && count($aOptions) > 0){
+                                foreach ($aOptions as $key=>$value) {
+                                    $html .= "<option value='".$value."'>".$value."</option>";
+                                }
+                            }
+    
+                            $html .= "</select>";
+                            break;
+                    }                
+                    
+                    $html .= "</div></div>";
+                }
+
+                $this->logger->info("Extra fields list was made successfully ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            }else{
+                $st = false;
+                $msg = "";
+                $this->logger->info("Extra fields not found ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            }
+        }else{
+            $st = false;
+            $msg = $ret['push']['message'];
+            $this->logger->error("Error trying get extra fields - Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        echo $html;
+    }
+
+    /**
+     * en_us Setups ticket's view screen buttons
+     * pt_br Configura os botões da tela de visualização da solicitação
+     *
+     * @param  mixed $params        Array with others parameters
+     * @param  mixed $ticketCode    Ticket code
+     * @param  mixed $idStatus      Ticket status
+     * @param  mixed $inChargeID    In charge Id
+     * @return array $params
+     */
+    function makeTicketExtraFieldScreen($params,$ticketCode)
+    {
+        $hdkSrc = new hdkServices();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
+        $ticketModel->setTicketCode($ticketCode);
+        
+        $retExtraFields = $ticketDAO->fetchTicketExtraFields($ticketModel);
+    
+        if($retExtraFields['status'] && count($retExtraFields['push']['object']->getExtraFieldList()) > 0){
+            $aExtraFields = $retExtraFields['push']['object']->getExtraFieldList();
+            foreach($aExtraFields as $k=>$v){
+                $html .= "<div class='row g-2 mb-1'>
+                            <div class='col-sm-2 text-end'>
+                                <label for='extraField_{$v['idextra_field']}' class='hdk-label col-form-label text-end'>{$this->translator->translate($v['lang_key_name'])}:</label>
+                            </div>
+                            <div class='col-sm-9 ms-1'>
+                                <input type='text' readonly id='extraField_{$v['idextra_field']}' name='extraField_{$v['idextra_field']}' class='form-control-plaintext' value='{$v['field_value']}' >
+                            </div>
+                        </div>";
+            }
+
+            $params['hasExtraFields'] = 1;             // Show extra fields
+            $params['extraFieldsHtml'] = $html;
+        }else{
+            $params['hasExtraFields'] = 0;             // Hide extra fields
+        }
+
+        return $params;
     }
 }

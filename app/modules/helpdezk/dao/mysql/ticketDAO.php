@@ -911,6 +911,7 @@ class ticketDAO extends Database
         $aApproval = $ticketModel->getApprovalList();
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
+        $aExtraFields = $ticketModel->getExtraFieldList();
         
         try{
             $this->db->beginTransaction();
@@ -961,6 +962,18 @@ class ticketDAO extends Database
                                 ->setNoteIsOpen(0);
 
                     $insNote = $this->insertTicketNote($ticketModel);
+                }
+
+                // -- save extra fields
+                if(!empty($aExtraFields) && count($aExtraFields) > 0){
+                    foreach($aExtraFields as $k=>$v){
+                        if(!empty($v)){
+                            $ticketModel->setExtraFieldId($k)
+                                        ->setExtraFieldValue($v);
+                            
+                            $insExtraField = $this->insertTicketExtraField($ticketModel);
+                        }
+                    }
                 }
             }
             
@@ -2850,6 +2863,7 @@ class ticketDAO extends Database
     {   
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
+        $aExtraFields = $ticketModel->getExtraFieldList();
         
         try{
             $this->db->beginTransaction();
@@ -2895,6 +2909,18 @@ class ticketDAO extends Database
 
                     $insNote = $this->insertTicketNote($ticketModel);
                 }
+
+                // -- save extra fields
+                if(!empty($aExtraFields) && count($aExtraFields) > 0){
+                    foreach($aExtraFields as $k=>$v){
+                        if(!empty($v)){
+                            $ticketModel->setExtraFieldId($k)
+                                        ->setExtraFieldValue($v);
+                            
+                            $insExtraField = $this->insertTicketExtraField($ticketModel);
+                        }
+                    }
+                }
             }
             
             $ret = true;
@@ -2926,6 +2952,7 @@ class ticketDAO extends Database
     {   
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
+        $aExtraFields = $ticketModel->getExtraFieldList();
         
         try{
             $this->db->beginTransaction();
@@ -2970,6 +2997,18 @@ class ticketDAO extends Database
                                 ->setNoteIsOpen(0);
 
                     $insNote = $this->insertTicketNote($ticketModel);
+                }
+
+                // -- save extra fields
+                if(!empty($aExtraFields) && count($aExtraFields) > 0){
+                    foreach($aExtraFields as $k=>$v){
+                        if(!empty($v)){
+                            $ticketModel->setExtraFieldId($k)
+                                        ->setExtraFieldValue($v);
+                            
+                            $insExtraField = $this->insertTicketExtraField($ticketModel);
+                        }
+                    }
                 }
             }
             
@@ -3313,6 +3352,114 @@ class ticketDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting in charge data. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with extra fields
+     * pt_br Retorna um array com campos adicionais
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchExtraFieldsByService(ticketModel $ticketModel): array
+    {
+        $sql = "SELECT a.idextra_field, b.name, b.type, b.lang_key_name, b.combo_options
+                  FROM `hdk_tbcore_service_has_extra_field` a, `hdk_tbextra_field` b
+                 WHERE b.idextra_field = a.idextra_field
+                   AND a.idservice = :serviceId
+              ORDER BY a.num_order";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':serviceId', $ticketModel->getIdService());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setExtraFieldList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting service's extra fields. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves ticket's extra fields
+     * pt_br Grava os campos adicionais da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertTicketExtraField(ticketModel $ticketModel): array
+    {        
+        $sql = "INSERT INTO `hdk_tbrequest_has_extra_field` (code_request,idextra_field,field_value)
+                     VALUES (:ticketCode,:extraFieldId,:extraFieldName)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());
+        $stmt->bindValue(":extraFieldId",$ticketModel->getExtraFieldId());
+        $stmt->bindValue(":extraFieldName",$ticketModel->getExtraFieldValue());
+        $stmt->execute();
+
+        $ticketModel->setIdNote($this->db->lastInsertId());
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$ticketModel);         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+     /**
+     * en_us Returns an array with ticket's extra fields
+     * pt_br Retorna um array com campos adicionais da solicitação
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchTicketExtraFields(ticketModel $ticketModel): array
+    {
+        $sql = "SELECT DISTINCT a.idextra_field, c.name, c.type, c.lang_key_name, a.field_value
+                  FROM `hdk_tbrequest_has_extra_field` a, `hdk_tbcore_service_has_extra_field` b, `hdk_tbextra_field` c
+                 WHERE b.idextra_field = a.idextra_field
+                   AND b.idextra_field = c.idextra_field
+                   AND a.code_request = :ticketCode
+              ORDER BY b.num_order";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $ticketModel->setExtraFieldList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's extra fields. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
