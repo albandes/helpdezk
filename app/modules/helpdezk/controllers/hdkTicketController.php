@@ -49,6 +49,8 @@ class hdkTicket extends hdkCommon {
         $dbEvaluation = new evaluation_model();
         $this->dbEvaluation = $dbEvaluation;
         
+        if($this->log)
+                $this->logIt("Test git - User: ".$_SESSION['SES_LOGIN_PERSON'].' - program: '.$this->program ,3,'general',__LINE__);
     }
 
     public function index()
