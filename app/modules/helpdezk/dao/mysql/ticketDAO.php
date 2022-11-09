@@ -2490,7 +2490,7 @@ class ticketDAO extends Database
             
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             $ticketModel->setIdAttachment((!empty($aRet) && !is_null($aRet['noteatt_ID'])) ? $aRet['noteatt_ID'] : 0);
-
+            $this->loggerDB->info("Check sql return ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'Ret' => $aRet]);
             $ret = true;
             $result = array("message"=>"","object"=>$ticketModel);
         }catch(\PDOException $ex){
