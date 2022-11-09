@@ -2713,7 +2713,7 @@ class hdkTicket extends Controller
             $attachmentID = $ins['push']['object']->getIdAttachment();
             $newFile = $attachmentID.$extension;
             $ins['push']['object']->setNewFileName($newFile);
-
+            $this->logger->info("Check new file name: ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'newName'=>$newFile,'attachmentID'=>$attachmentID]);
             if($this->saveMode == 'disk'){
                 $targetOld = $this->noteStoragePath.$fileName;
                 $targetNew =  $this->noteStoragePath.$newFile;
