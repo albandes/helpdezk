@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # --- Generated at June 2, 2022, 3:20 pm --- 
 404_msg = "Página não encontrada"
 404_text = "A página que você está procurando não existe. Você pode clicar no botão abaixo para voltar à página anterior."
@@ -1306,4 +1304,3 @@ Widget = "Widget"
 Year = "Ano"
 Yes = "Sim"
 Zipcode = "Cep"
->>>>>>> master

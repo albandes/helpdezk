@@ -174,4 +174,9 @@ class department_model extends DynamicDepartment_model {
         return $ret;
     }
 
+
+    public function InsertID() {
+        return $this->db->Insert_ID();
+    }
+
 }
