@@ -2731,7 +2731,7 @@ class hdkTicket extends Controller
             }elseif($this->saveMode == 'aws-s3'){
                 $aws = new awsServices();
                 $arrayRet = $aws->_renameFile("{$this->noteStoragePath}{$fileName}","{$this->noteStoragePath}{$newFile}");
-                
+                $this->logger->info("Check rename file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Ret'=>$arrayRet]);
                 if($arrayRet['success']) {
                     $this->logger->info("Rename note attachment file {$fileName} to {$newFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 } else {
