@@ -131,8 +131,10 @@ $(document).ready(function () {
     };
 
     /** chart's create **/
-    var ctx = document.getElementById("itTicketsChart").getContext("2d");
-    itChart = new Chart(ctx,{type: 'pie',data: itChar,options: optionMedia});
+    if($("#itTicketsChart").length > 0){
+        var ctx = document.getElementById("itTicketsChart").getContext("2d");
+        itChart = new Chart(ctx,{type: 'pie',data: itChar,options: optionMedia});
+    }
 
 });
 
