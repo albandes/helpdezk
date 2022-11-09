@@ -301,17 +301,7 @@ class Login extends admCommon {
                     
                 }   
 
-<<<<<<< HEAD
-=======
-                //print_r($rsDepartment->fields[]);
-                die(__LINE__);
-                //if ($check->RecordCount() > 0) {
 
-                
-                //print_r($ldapData);
-                //die('email: ' . $ldapData['email']);
-
->>>>>>> 6207a3cf6ea51175c445a1b5d27b6f17319b6cf4
                 $dbPerson->BeginTrans();
 
                 $dtcreate = date('Y-m-d H:i:s');
