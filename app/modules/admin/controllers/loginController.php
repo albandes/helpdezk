@@ -272,6 +272,7 @@ class Login extends admCommon {
                 
                 $email =  $ldapData['email'];
                 $name  =  $ldapData['displayname']   ;
+
                 $department  =  $ldapData['department']   ;
                 //$department = 'Infrastructure';
                 
@@ -297,6 +298,11 @@ class Login extends admCommon {
                 //print_r($rsDepartment->fields[]);
                 die(__LINE__);
                 //if ($check->RecordCount() > 0) {
+
+                
+                //print_r($ldapData);
+                //die('email: ' . $ldapData['email']);
+
                 $dbPerson->BeginTrans();
 
                 $dtcreate = date('Y-m-d H:i:s');
@@ -869,8 +875,12 @@ class Login extends admCommon {
                 return false;    
             }
             $aRet = array("email" =>  $data[0]['mail'][0],
+
                           "displayname" => $data[0]['displayname'][0],
                           "department" => $data[0]['department'][0]);
+
+                          "displayname" => $data[0]['displayname'][0]);
+
 
             return $aRet;
 		}  else {
