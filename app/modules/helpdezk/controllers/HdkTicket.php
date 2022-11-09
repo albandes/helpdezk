@@ -1401,6 +1401,11 @@ class hdkTicket extends Controller
             $newFile = $attachmentID.$extension;
             $ins['push']['object']->setNewFileName($newFile);
 
+            if($attachmentID <= 0){
+                $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: Attacchment Id not found", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}");
+            }
+
             if($this->saveMode == 'disk'){
                 $targetOld = $this->ticketStoragePath.$fileName;
                 $targetNew =  $this->ticketStoragePath.$newFile;
@@ -1428,7 +1433,7 @@ class hdkTicket extends Controller
                     }
 
                     $this->logger->error("I could not rename ticket attachment file {$fileName} to {$newFile} in S3 bucket !! Error: {$arrayRet['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    return json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
+                    return array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}");
                 }
             
             }
@@ -2713,7 +2718,12 @@ class hdkTicket extends Controller
             $attachmentID = $ins['push']['object']->getIdAttachment();
             $newFile = $attachmentID.$extension;
             $ins['push']['object']->setNewFileName($newFile);
-            $this->logger->info("Check new file name: ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'newName'=>$newFile,'attachmentID'=>$attachmentID]);
+
+            if($attachmentID <= 0){
+                $this->logger->error("Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}! Error: Attachment Id not found", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return array("success"=>false,"message"=>"Can't link file {$fileName} to ticket # {$ticketModel->getTicketCode()}. Attachment Id not found");
+            }
+            
             if($this->saveMode == 'disk'){
                 $targetOld = $this->noteStoragePath.$fileName;
                 $targetNew =  $this->noteStoragePath.$newFile;

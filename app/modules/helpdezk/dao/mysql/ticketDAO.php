@@ -2480,17 +2480,21 @@ class ticketDAO extends Database
      */
     public function insertNoteAttachment(ticketModel $ticketModel): array
     {        
-        $sql = "CALL hdk_insertNoteAttachments(:noteID,:fileName,@id)";
+        $sql = "CALL hdk_insertnoteattachments(:noteID,:fileName,@id)";
         
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(":noteID",$ticketModel->getIdNote(),\PDO::PARAM_INT|\PDO::PARAM_INPUT_OUTPUT);
             $stmt->bindParam(":fileName",$ticketModel->getFileName(),\PDO::PARAM_STR|\PDO::PARAM_INPUT_OUTPUT);
             $stmt->execute();
+
+            $stmt = null;
+            $sql2 = "SELECT @id noteatt_ID";
+            $stmt2 = $this->db->prepare($sql2);
+            $stmt2->execute();
+            $aRet = $stmt2->fetch(\PDO::FETCH_ASSOC);
             
-            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             $ticketModel->setIdAttachment((!empty($aRet) && !is_null($aRet['noteatt_ID'])) ? $aRet['noteatt_ID'] : 0);
-            $this->loggerDB->info("Check sql return ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'Ret' => $aRet]);
             $ret = true;
             $result = array("message"=>"","object"=>$ticketModel);
         }catch(\PDOException $ex){
