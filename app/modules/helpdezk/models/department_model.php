@@ -123,7 +123,7 @@ class department_model extends DynamicDepartment_model {
     }
 	
 	public function getDepartmentData($where=null){
-        $query = "SELECT `name`, idperson FROM hdk_tbdepartment
+        $query = "SELECT iddepartment, `name`, idperson FROM hdk_tbdepartment
                   $where";
         $ret = $this->db->Execute($query);
 

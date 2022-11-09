@@ -241,6 +241,7 @@ class Login extends admCommon {
         if($this->log)
             $this->logIt("Login type: ". $logintype . ' - User: '.$frm_login .' - program: '.$this->program ,5,'general',__LINE__);
 
+           
 
 		if(!$logintype){
 
@@ -273,10 +274,13 @@ class Login extends admCommon {
                 $email =  $ldapData['email'];
                 $name  =  $ldapData['displayname']   ;
                 $department  =  $ldapData['department']   ;
-                //$department = 'Infrastructure';
-                
-                //print_r($ldapData);
-                //die('email: ' . $ldapData['email']);
+                if (empty($department))
+                    $department = "Departamento default";
+
+                $license =  $this->getConfig("license");    
+                if($license == '202201001')     
+                    $idCompany = 1038;
+
                 
                 $this->loadModel('helpdezk/department_model');
                 $dbDepartment = new department_model();
@@ -284,43 +288,49 @@ class Login extends admCommon {
                 $where = "WHERE name = pipeLatinToUtf8('$department')";
 
                 $rsDepartment = $dbDepartment->getDepartmentData($where);
+                
 
-                print_r($rsDepartment->fields);
                 if ($rsDepartment->RecordCount() == 0) {
-                    echo 'tem que gravar';
-                    $ret = $dbDepartment->insertDepartment(1086,$department);
-    
-                    die('id: ' . $dbDepartment->InsertID());
+                    $ret = $dbDepartment->insertDepartment($idCompany,$department);
+                    $idDepartment = $dbDepartment->InsertID();
+                    if($this->log)
+                        $this->logIt("Department created: ". $department . ' - Id: '. $idDepartment .' - program: '.$this->program ,5,'general',__LINE__);
+                } else {
+                    $idDepartment = $rsDepartment->fields['iddepartment'];
+                    
+                }   
 
-                }    
-
-                //print_r($rsDepartment->fields[]);
-                die(__LINE__);
-                //if ($check->RecordCount() > 0) {
                 $dbPerson->BeginTrans();
 
                 $dtcreate = date('Y-m-d H:i:s');
                 $logintype = 2 ; // Need in the first access
-                $iddepartment =  '72' ;
-                
+                                
                 $idNewPerson = $dbPerson->insertPerson($logintype,'2','1','1',$name,$email,$dtcreate,'A','N','','','',$frm_login);
                 if (!$idNewPerson) {
                     $error = true ;
+                    if($this->log)
+                        $this->logIt("Error insert user: " . $frm_login .' - program: '.$this->program ,3,'general',__LINE__);
+
                 }
                 if (!$error) {
                     $insNatural = $dbPerson->insertNaturalData($idNewPerson, '', '', '');
                     if (!$insNatural) {
+                        if($this->log)
+                            $this->logIt("Error insert user: " . $frm_login .' - program: '.$this->program ,3,'general',__LINE__);
+
                         $error = true;
                     }
                 }
-                /*
+                
                 if (!$error) {
-                    $depart = $dbPerson->insertInDepartment($idNewPerson, $iddepartment);
+                    $depart = $dbPerson->insertInDepartment($idNewPerson, $idDepartment);
                     if (!$depart) {
+                        if($this->log)
+                            $this->logIt("Error insert user: " . $frm_login .' - program: '.$this->program ,3,'general',__LINE__);
                         $error = true ;
                     }
                 }
-                */    
+                    
 
                 if($error){
                     $dbPerson->RollbackTrans();
