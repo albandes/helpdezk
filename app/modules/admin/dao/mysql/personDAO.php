@@ -497,7 +497,7 @@ class personDAO extends Database
                   FROM tbperson a
                   JOIN tbnatureperson b
                     ON b.idnatureperson = a.idnatureperson
-                  JOIN tbjuridicalperson c
+       LEFT OUTER JOIN tbjuridicalperson c
                     ON c.idperson = a.idperson 
        LEFT OUTER JOIN tbaddress e
                     ON e.idperson = a.idperson
@@ -522,27 +522,27 @@ class personDAO extends Database
             $stmt->bindParam(':companyID', $personModel->getIdPerson());
             $stmt->execute();
             $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
+            
             $personModel->setIdPerson($rows['idperson'])
                         ->setName($rows['name'])
                         ->setTelephone((!empty($rows['phone_number']) && !is_null($rows['phone_number'])) ? $rows['phone_number'] : "")
                         ->setCellphone((!empty($rows['cel_phone']) && !is_null($rows['cel_phone'])) ? $rows['cel_phone'] : "")
-                        ->setCountry($rows['country'])
-                        ->setIdCountry($rows['idcountry'])
-                        ->setState($rows['state'])
-                        ->setStateAbbr($rows['uf'])
-                        ->setIdState($rows['idstate'])
-                        ->setNeighborhood($rows['neighborhood'])
-                        ->setIdNeighborhood($rows['idneighborhood'])
-                        ->setCity($rows['city'])
-                        ->setIdCity($rows['idcity'])
+                        ->setCountry((!empty($rows['country']) && !is_null($rows['country'])) ? $rows['country'] : "")
+                        ->setIdCountry((!empty($rows['idcountry']) && !is_null($rows['idcountry'])) ? $rows['idcountry'] : 0)
+                        ->setState((!empty($rows['state']) && !is_null($rows['state'])) ? $rows['state'] : "")
+                        ->setStateAbbr((!empty($rows['uf']) && !is_null($rows['uf'])) ? $rows['uf'] : "")
+                        ->setIdState((!empty($rows['idstate']) && !is_null($rows['idstate'])) ? $rows['idstate'] : 0)
+                        ->setNeighborhood((!empty($rows['neighborhood']) && !is_null($rows['neighborhood'])) ? $rows['neighborhood'] : "")
+                        ->setIdNeighborhood((!empty($rows['idneighborhood']) && !is_null($rows['idneighborhood'])) ? $rows['idneighborhood'] : 0)
+                        ->setCity((!empty($rows['city']) && !is_null($rows['city'])) ? $rows['city'] : "")
+                        ->setIdCity((!empty($rows['idcity']) && !is_null($rows['idcity'])) ? $rows['idcity'] : 0)
                         ->setTypeStreet((!empty($rows['typestreet']) && !is_null($rows['typestreet'])) ? $rows['typestreet'] : "")
                         ->setIdTypeStreet((!empty($rows['idtypestreet']) && !is_null($rows['idtypestreet'])) ? $rows['idtypestreet'] : 0)
                         ->setStreet((!empty($rows['street']) && !is_null($rows['street'])) ? $rows['street'] : "")
                         ->setNumber((!empty($rows['number']) && !is_null($rows['number'])) ? $rows['number'] : "")
                         ->setComplement((!empty($rows['complement']) && !is_null($rows['complement'])) ? $rows['complement'] : "")
                         ->setZipCode((!empty($rows['zipcode']) && !is_null($rows['zipcode'])) ? $rows['zipcode'] : "")
-                        ->setIdStreet((!empty($rows['idstreet']) && !is_null($rows['idstreet'])) ? $rows['idstreet'] : "")
+                        ->setIdStreet((!empty($rows['idstreet']) && !is_null($rows['idstreet'])) ? $rows['idstreet'] : 0)
                         ->setEinCnpj((!empty($rows['ein_cnpj']) && !is_null($rows['ein_cnpj'])) ? $rows['ein_cnpj'] : "");
             $ret = true;
             $result = array("message"=>"","object"=>$personModel);
