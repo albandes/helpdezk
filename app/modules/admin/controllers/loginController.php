@@ -290,7 +290,9 @@ class Login extends admCommon {
 
                 //print_r($rsDepartment->fields);
                 if ($rsDepartment->RecordCount() == 0) {
+
                     $ret = $dbDepartment->insertDepartment($idCompany,$department);
+
                     $idDepartment = $dbDepartment->InsertID();
                     if($this->log)
                         $this->logIt("Department created: ". $department . ' - Id: '. $idDepartment .' - program: '.$this->program ,5,'general',__LINE__);    
