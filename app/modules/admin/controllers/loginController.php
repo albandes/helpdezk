@@ -875,12 +875,9 @@ class Login extends admCommon {
                 return false;    
             }
             $aRet = array("email" =>  $data[0]['mail'][0],
-
                           "displayname" => $data[0]['displayname'][0],
-                          "department" => $data[0]['department'][0]);
-
+                          "department" => $data[0]['department'][0],
                           "displayname" => $data[0]['displayname'][0]);
-
 
             return $aRet;
 		}  else {
