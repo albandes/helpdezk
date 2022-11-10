@@ -224,8 +224,8 @@ class Login extends admCommon {
         $langVars = $this->getLangVars($smarty);
 
 
-		$ProtectSql = $this->returnProtectSql();
-		$ProtectSql->start("aio","all");
+		//$ProtectSql = $this->returnProtectSql();
+		//$ProtectSql->start("aio","all");
 
         $frm_login = $_POST['login'];
         $frm_password = $_POST['password'];
@@ -290,7 +290,7 @@ class Login extends admCommon {
 
                 //print_r($rsDepartment->fields);
                 if ($rsDepartment->RecordCount() == 0) {
-                    $ret = $dbDepartment->insertDepartment(idCompany,$department);
+                    $ret = $dbDepartment->insertDepartment($idCompany,$department);
                     $idDepartment = $dbDepartment->InsertID();
                     if($this->log)
                         $this->logIt("Department created: ". $department . ' - Id: '. $idDepartment .' - program: '.$this->program ,5,'general',__LINE__);    
@@ -785,9 +785,6 @@ class Login extends admCommon {
         //$senha  = "carol";
         //$dn     = "OU=users,DC=testathon,DC=net";
 
-       
-        //$dn  = $object."=".$login.",$dn";
-        $dn  = $object."=".$login.",$dn";
         
         $userdomain = $login."@".$domain;
         
@@ -806,7 +803,9 @@ class Login extends admCommon {
          ** But if that fails, is it because you have the wrong username/password or is it because the connection is down?
          ** As far as I can see there isn't any way to tell.
          **/
-
+        $teste = $password;
+        die('aqui: ' . $teste);
+        
         $ret =  $this->LdapValidate($AD, $dn, $password, $userdomain, $type) ;
 
         if ( $ret != '0') {
