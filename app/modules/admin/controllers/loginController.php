@@ -806,7 +806,6 @@ class Login extends admCommon {
          ** As far as I can see there isn't any way to tell.
          **/
         $teste = $password;
-        //die('aqui: ' . $teste);
         
         $ret =  $this->LdapValidate($AD, $dn, $password, $userdomain, $type) ;
 
