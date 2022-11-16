@@ -279,7 +279,7 @@ class Login extends admCommon {
                 
                 $license =  $this->getConfig("license");    
                 if($license == '202201001')     
-                    $idCompany = 1038;
+                    $idCompany = 1079;
 
                 $this->loadModel('helpdezk/department_model');
                 $dbDepartment = new department_model();
