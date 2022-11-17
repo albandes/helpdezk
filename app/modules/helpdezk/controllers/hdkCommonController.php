@@ -1125,7 +1125,11 @@ class hdkCommon extends DynamichdkCommon {
             $cron = false;
             $smtp = false;
         }
-
+        
+        if ($_SESSION['hdk']['SEND_EMAILS'] == '0'){
+            if($this->log)
+                $this->logIt('Unable to send emails. Enable this option in Modules/Admin/Config/System Resources, in the Helpdezk section. Method: ' . __METHOD__ ,6,'general');
+        }
 
         switch($transaction){
 
@@ -1333,7 +1337,7 @@ class hdkCommon extends DynamichdkCommon {
         if ($midia == 'email') {
 
             if ($cron) {
-
+                
                 $this->dbTicket->saveEmailCron($code_request, $transaction );
                 if($this->log)
                     $this->logIt($messagePart . $code_request . ' - We will perform the method to send e-mail by cron' ,6,'general');
