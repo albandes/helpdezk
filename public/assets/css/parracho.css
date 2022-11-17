@@ -5254,3 +5254,8 @@ select, #btnTimer,
   opacity: .45;
   margin-right: 2px;
 }
+
+.hdk-tab-header-bg {
+  --bs-bg-opacity: 1;
+    background-color: #9ea6b9!important;
+}

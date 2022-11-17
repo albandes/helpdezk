@@ -32,7 +32,7 @@ final class moduleModel
     /**
      * @var string
      */
-    private $smarty;
+    private $languageKeyName;
     
     /**
      * @var string
@@ -103,6 +103,26 @@ final class moduleModel
      * @var int
      */
     private $totalRows;
+
+    /**
+     * @var array
+     */
+    private $restrictionList;
+
+    /**
+     * @var string
+     */
+    private $restriction;
+
+    /**
+     * @var string
+     */
+    private $restrictionAtoN;
+
+    /**
+     * @var int
+     */
+    private $newDefaultId;
 
     /**
      * Get the value of idModule
@@ -225,25 +245,25 @@ final class moduleModel
     }
 
     /**
-     * Get the value of smarty
+     * Get the value of languageKeyName
      *
      * @return  string
      */ 
-    public function getSmarty(): string
+    public function getLanguageKeyName(): string
     {
-        return $this->smarty;
+        return $this->languageKeyName;
     }
 
     /**
-     * Set the value of smarty
+     * Set the value of languageKeyName
      *
-     * @param  string  $smarty
+     * @param  string  $languageKeyName
      *
      * @return  self
      */ 
-    public function setSmarty(string $smarty): self
+    public function setLanguageKeyName(string $languageKeyName): self
     {
-        $this->smarty = $smarty;
+        $this->languageKeyName = $languageKeyName;
 
         return $this;
     }
@@ -581,6 +601,102 @@ final class moduleModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of restrictionList
+     *
+     * @return  array
+     */ 
+    public function getRestrictionList()
+    {
+        return $this->restrictionList;
+    }
+
+    /**
+     * Set the value of restrictionList
+     *
+     * @param  array  $restrictionList
+     *
+     * @return  self
+     */ 
+    public function setRestrictionList(array $restrictionList)
+    {
+        $this->restrictionList = $restrictionList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of restriction
+     *
+     * @return  string
+     */ 
+    public function getRestriction()
+    {
+        return $this->restriction;
+    }
+
+    /**
+     * Set the value of restriction
+     *
+     * @param  string  $restriction
+     *
+     * @return  self
+     */ 
+    public function setRestriction(string $restriction)
+    {
+        $this->restriction = $restriction;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of restrictionAtoN
+     *
+     * @return  string
+     */ 
+    public function getRestrictionAtoN()
+    {
+        return $this->restrictionAtoN;
+    }
+
+    /**
+     * Set the value of restrictionAtoN
+     *
+     * @param  string  $restrictionAtoN
+     *
+     * @return  self
+     */ 
+    public function setRestrictionAtoN(string $restrictionAtoN)
+    {
+        $this->restrictionAtoN = $restrictionAtoN;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of newDefaultId
+     *
+     * @return  int
+     */ 
+    public function getNewDefaultId()
+    {
+        return $this->newDefaultId;
+    }
+
+    /**
+     * Set the value of newDefaultId
+     *
+     * @param  int  $newDefaultId
+     *
+     * @return  self
+     */ 
+    public function setNewDefaultId(int $newDefaultId)
+    {
+        $this->newDefaultId = $newDefaultId;
 
         return $this;
     }

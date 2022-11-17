@@ -1,8 +1,8 @@
-<div class="modal fade" id="modal-userType-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modal-module-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{='Notification'|translate}</h5>
+                <h5 class="modal-title"><strong>{='Notification'|translate}</strong></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -10,32 +10,34 @@
                     <div class="row g-2 text-center">
                         <h3>{='Alert_inserted'|translate}</h3>
                     </div>
-                    <div class="row g-2">              
+
                     <div class="row g-2">
                         <div class="col-sm-4 text-end">
-                            <label for="modal-userType" class="col-form-label text-end">{='userType'|translate}:</label>
+                            <label for="modal-module-code" class="col-form-label text-end">{='record_code'|translate}:</label>
                         </div>
                         
                         <div class="col-sm-5">
-                            <input type="text" readonly class="form-control-plaintext" id="modal-userType" >
+                            <input type="text" readonly class="form-control-plaintext" id="modal-module-code" >
                         </div>
                     </div>
+
                     <div class="row g-2">
                         <div class="col-sm-4 text-end">
-                            <label for="modal-permissionGroup" class="col-form-label text-end">{='permissionGroup'|translate}:</label>
+                            <label for="modal-module-name" class="col-form-label text-end">{='Module_name'|translate}:</label>
                         </div>
                         
                         <div class="col-sm-5">
-                            <input type="text" readonly class="form-control-plaintext" id="modal-permissionGroup" >
+                            <input type="text" readonly class="form-control-plaintext" id="modal-module-name" >
                         </div>
                     </div>
-                     <div class="row g-2">
+
+                    <div class="row g-2">
                         <div class="col-sm-4 text-end">
-                            <label for="modal-langKeyName" class="col-form-label text-end">{='language_variable'|translate}:</label>
+                            <label for="modal-module-path" class="col-form-label text-end">{='Module_path'|translate}:</label>
                         </div>
                         
                         <div class="col-sm-5">
-                            <input type="text" readonly class="form-control-plaintext" id="modal-langKeyName" >
+                            <input type="text" readonly class="form-control-plaintext" id="modal-module-path" >
                         </div>
                     </div>
                 </div>

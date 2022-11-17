@@ -1,5 +1,5 @@
-<div class="modal fade" id="modal-userType-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="modal-module-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{='Delete'|translate}</h4>
@@ -12,41 +12,41 @@
                     </div>
 
                     <div class="col g-2 col-sm-9">
-                        <input type="hidden" name="delete-id" id="delete-id">                        
+                        <input type="hidden" name="modal-delete-id" id="modal-delete-id">                        
                         <div class="row">
                             <div class="col-sm-5 text-end">
-                                <label for="delete-userType" class="col-form-label text-end">{='userType'|translate}:</label>
+                                <label for="modal-delete-module-name" class="col-form-label text-end">{='Module_name'|translate}:</label>
                             </div>                        
                             <div class="col-sm-5">
-                                <input type="text" readonly class="form-control-plaintext" id="delete-userType">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-delete-module-name">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm-5 text-end">
-                                <label for="delete-permissionGroup" class="col-form-label text-end">{='permissionGroup'|translate}:</label>
+                                <label for="modal-delete-module-path" class="col-form-label text-end">{='Module_path'|translate}:</label>
                             </div>                        
                             <div class="col-sm-5">
-                                <input type="text" readonly class="form-control-plaintext" id="delete-permissionGroup">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-delete-module-path">
                             </div>
                         </div>
                          <div class="row">
                             <div class="col-sm-5 text-end">
-                                <label for="delete-langKeyName" class="col-form-label text-end">{='language_variable'|translate}:</label>
+                                <label for="modal-delete-module-key" class="col-form-label text-end">{='key_name_translate'|translate}:</label>
                             </div>                        
                             <div class="col-sm-5">
-                                <input type="text" readonly class="form-control-plaintext" id="delete-langKeyName">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-delete-module-key">
                             </div>
                         </div>
                         <div class="row">&nbsp;</div>
                         <div class="row text-center">
-                            <h4>{='Tens certeza que desejas deletar?'|translate}</h4>
+                            <h4>{='Delete_module'|translate}</h4>
                         </div>                        
                     </div>
                 </div>
                 <div class="row">&nbsp;</div>
                 <div class="row">
                     <div class="form-group col-lg-12" style="padding-right: 5px;">
-                        <div id="alert-delete-userType"></div>
+                        <div id="alert-delete-module"></div>
                     </div>
                 </div>
             </div>

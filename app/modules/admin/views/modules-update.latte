@@ -15,22 +15,30 @@
                     <div class="ibox ">
 
                         <div class="ibox-title">
-                            <h5>{='cat_records'|translate} / {='Modules'|translate} / <strong>{='Add'|translate}</strong></h5>
+                            <h5>{='cat_records'|translate} / {='Modules'|translate} / <strong>{='Edit'|translate}</strong></h5>
 
                         </div>
 
                         <div class="ibox-content">
                             <div class="row">
                                 <!-- Form area -->
-                                <form method="get" class="form-horizontal" id="create-module-form">
+                                <form method="get" class="form-horizontal" id="update-module-form">
 
                                     <!-- Hidden -->
                                     <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="moduleId" id= "moduleId" value="{$moduleId}">
 
                                     <div class="row white-bg">
 
                                         <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">
-                                             <div id="moduleLogo" class="dropzone dz-default dz-message" ></div>
+                                            {if $showLogo}
+                                            <div class="row g-2">
+                                                <img src="{$moduleLogoUrl}" class="img-thumbnail" alt="">
+                                            </div>
+                                            {/if}
+                                            <div class="row g-2">
+                                                <div id="moduleLogo" class="dropzone dz-default dz-message" ></div>
+                                            </div>
                                         </div>
 
                                         <div class="row col-sm-12 col-md-10 b-l">
@@ -40,7 +48,7 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
-                                                    <input type="text" id="moduleName" name="moduleName" class="form-control" placeholder="{='plh_module_description'|translate}" value="" >
+                                                    <input type="text" id="moduleName" name="moduleName" class="form-control form-control-plaintext" placeholder="{='plh_module_description'|translate}" value="{$moduleName}">
                                                 </div>
                                             </div>
 
@@ -50,19 +58,9 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
-                                                    <input type="text" id="modulePath" name="modulePath" class="form-control" placeholder="{='plh_module_path'|translate}" value="" >
+                                                    <input type="text" id="modulePath" name="modulePath" class="form-control form-control-sm" placeholder="{='plh_module_path'|translate}" value="{$modulePath}" readonly >
                                                 </div>
                                             </div>
-
-                                            <!--<div class="row g-2">
-                                                <div class="col-sm-3 text-end">
-                                                    <label for="modulePrefix" class="col-form-label text-end"><strong>{='Table_prefix'|translate}</strong>:</label>
-                                                </div>
-                                                
-                                                <div class="col-sm-5">
-                                                    <input type="text" id="modulePrefix" name="modulePrefix" class="form-control" placeholder="{='plh_module_prefix'|translate}" value="" >
-                                                </div>
-                                            </div>-->
 
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
@@ -70,7 +68,7 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_module_btn'|translate}">
-                                                    <input type="text" id="moduleKeyName" name="moduleKeyName" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="" >
+                                                    <input type="text" id="moduleKeyName" name="moduleKeyName" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="{$moduleKeyName}" >
                                                 </div>
 
                                                 <div class="col-sm-1">
@@ -84,7 +82,7 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
-                                                    <input type="checkbox" id="moduleDefault" name="moduleDefault" value=""  > <label class="col-form-label">{='Yes'|translate}</label>
+                                                    <input type="checkbox" id="moduleDefault" name="moduleDefault" value="" {if $isDefault == 1}checked="checked"{/if} > <label class="col-form-label">{='Yes'|translate}</label>
                                                 </div>
                                             </div>
 
@@ -94,7 +92,7 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
-                                                    <input type="checkbox" id="moduleRestrictIp" name="moduleRestrictIp" value=""> <label class="col-form-label">{='Yes'|translate}</label>
+                                                    <input type="checkbox" id="moduleRestrictIp" name="moduleRestrictIp" value="" {if $hasRestriction == 1}checked="checked"{/if} > <label class="col-form-label">{='Yes'|translate}</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -103,7 +101,7 @@
 
                                     <div class="col-xs-12 white-bg" style="height:20px;"></div>
 
-                                    <div id="restrictionsLine" class="row white-bg g-2 d-none">
+                                    <div id="restrictionsLine" class="row white-bg g-2 {if $hasRestriction == 0}d-none{/if}">
                                         <div class="col-sm-2 text-center">&nbsp;</div>
                                         <div class="col-sm-8 text-center">
                                             <table id="restrictionsList" class="table table-hover">
@@ -117,6 +115,18 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    {if $aSize > 0}
+                                                    {foreach $aRestriction as $key=>$value}
+                                                        {var $i = ($key + 1)}
+                                                    <tr id="restrictItem_{$i}">
+                                                        <input type="hidden" id="restrictNumId" value="{$i}"/>
+                                                        <td class=" text-start">
+                                                            <input type="text" id="ipNumber_{$i}" name="ipNumber[]" class="form-control form-control-sm" value="{$value['ip']}" />
+                                                        </td>
+                                                        <td class="text-center"><a href="javascript:;" onclick="removeRow(this,'restrictionsList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
+                                                    </tr>
+                                                    {/foreach}
+                                                    {else}
                                                     <tr id="restrictItem_1">
                                                         <input type="hidden" id="restrictNumId" value="1"/>
                                                         <td class=" text-start">
@@ -124,6 +134,7 @@
                                                         </td>
                                                         <td class="text-center"><a href="javascript:;" onclick="removeRow(this,'restrictionsList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
                                                     </tr>
+                                                    {/if}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -148,7 +159,7 @@
 
                                     <div class="row white-bg g-2">
                                         <div class="col-sm-12 b-l mb-2">
-                                            <div id="alert-create-module"></div>
+                                            <div id="alert-update-module"></div>
                                         </div>
                                     </div>
 
@@ -159,7 +170,7 @@
                                     <div class="row wrapper  white-bg text-center">
                                         <div class="col-sm-12 form-group">
                                             <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
-                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateModule" >
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnUpdateModule" >
                                                 <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
                                             </button>
                                         </div>
@@ -177,7 +188,7 @@
 
         {include $footer}	
 	</div>
-    {include 'modals/modules/modal-alert-create.latte'}
+    {include $modalAlert}
     {include $modalNextStep}
 </body>
     <!-- Input Mask-->

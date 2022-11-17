@@ -99,11 +99,26 @@ class Modules extends Controller
         $params['modalNextStep'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-next-step.latte';
 
         if($option=='upd'){
-            $params['cityID'] = $obj->getIdCity();
-            $params['stateID'] = $obj->getIdState();
-            $params['cityName'] = $obj->getName();
-            $params['foundationDate'] = $this->appSrc->_formatDate($obj->getDtFoundation());
-            $params['isDefault'] = $obj->getIsDefault();
+            $params['moduleName'] = $obj->getName();
+            $params['modulePath'] = $obj->getPath();
+            $params['moduleKeyName'] = $obj->getLanguageKeyName();
+            $params['isDefault'] = (!empty($obj->getIsDefault())) ? 1 : 0;
+
+            if(!empty($obj->getHeaderLogo())){
+                if($this->saveMode == "aws-s3"){
+                    $awsSrc = new awsServices();
+                    $retS3 = $awsSrc->_getFile("{$this->imgDir}{$obj->getHeaderLogo()}");
+                    $params['showLogo'] = !$retS3['success'] ? false : true;
+                    $params['moduleLogoUrl'] = !$retS3['success'] ? "" : $retS3['fileUrl'];
+                }else{
+                    $fileSize = filesize($this->imgDir.$obj->getHeaderLogo()); 
+                    $params['showLogo'] = ($fileSize <= 0) ? false : true;
+                    $params['moduleLogoUrl'] = "{$this->imgBucket}{$obj->getHeaderLogo()}";
+                }
+            }else{
+                $params['showLogo'] = false;
+                $params['moduleLogoUrl'] = "";
+            }
         }
         
         return $params;
@@ -153,6 +168,11 @@ class Modules extends Controller
             $quickValue = str_replace(" ","%",$quickValue);
             $where .= " AND (a.name LIKE '%{$quickValue}%' OR dtfoundation LIKE '".$this->appSrc->_formatSaveDate($quickValue)."')";
         }
+
+        if(!isset($_POST["allRecords"]) || (isset($_POST["allRecords"]) && $_POST["allRecords"] != "true"))
+        {
+            $where .= ((empty($where)) ? "WHERE " : " AND ") . " status = 'A' ";
+        }
         
         //sort options
         $pq_sort = json_decode($_POST['pq_sort']);
@@ -200,8 +220,9 @@ class Modules extends Controller
                     'status'        => $status_fmt,
                     'status_val'    => $v['status'],
                     'default'       => $default_fmt,
-                    'default_val'   => $v['defaultmodule']
-    
+                    'default_val'   => $v['defaultmodule'],
+                    'module_path'   => $v['path'],
+                    'lang_key'      => $v['smarty']  
                 );
             }
 
@@ -245,91 +266,99 @@ class Modules extends Controller
     }
 
     /**
-     * en_us Renders the module's update screen
-     *
-     * pt_br Renderiza o template da tela de atualização do cadastro
+     * en_us Write the module information to the DB
+     * pt_br Grava no BD as informações do módulo
      */
-    public function formUpdate($idCity=null)
-    {
-        $moduleDAO = new moduleDAO();
-        $cityMod = new cityModel();
-        $cityMod->setIdCity($idCity);
-
-        $cityUpd = $cityDao->getCity($cityMod);
-
-        $params = $this->makeScreenCity('upd',$cityUpd['push']['object']);
-        $params['cityID'] = $idCity;
-      
-        $this->view('exp','city-update',$params);
-    }
-
-    /**
-     * en_us Write the city information to the DB
-     *
-     * pt_br Grava no BD as informações da cidade
-     */
-    public function createCity()
+    public function createModule()
     {
         if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }        
         
-        $cityDao = new cityDAO();
-        $cityMod = new cityModel();        
+        $moduleDao = new moduleDAO();
+        $moduleMod = new moduleModel();
+
+        $isDefault = (isset($_POST['moduleDefault'])) ? "YES" : "";
 
         //Setting up the model
-        $cityMod->setIdState($_POST['cmbUF'])
-                ->setName(trim($_POST['cityName']))
-                ->setDtFoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
-                ->setIsDefault($_POST['cityDefault']);        
+        $moduleMod->setName(trim(strip_tags($_POST['moduleName'])))
+                  ->setPath(trim(strip_tags($_POST['modulePath'])))
+                  ->setTablePrefix(trim(strip_tags($_POST['modulePath'])))
+                  ->setLanguageKeyName(trim(strip_tags($_POST['moduleKeyName'])))
+                  ->setIsDefault($isDefault)
+                  ->setRestrictionList((isset($_POST['moduleRestrictIp'])) ? $_POST["ipNumber"] : array());// if module has restrictions
 
         if(isset($_POST["attachments"])){
-            $aAttachs = $_POST["attachments"]; // Attachments
-            $aSize = count($aAttachs); // count attachs files
-            
-            $cityMod->setAttachments($aAttachs);
+            $aAttachs = $_POST["attachments"]; // logo
+            $moduleMod->setHeaderLogo($aAttachs[0]);
+        }else{
+            $moduleMod->setHeaderLogo("");
         }
-                
         
-        $ins = $cityDao->insertCity($cityMod);
+        $ins = $moduleDao->saveModule($moduleMod);
         if($ins['status']){
             $st = true;
             $msg = "";
-            $cityID = $ins['push']['object']->getIdCity();
-            $cityDescription = $ins['push']['object']->getName();
-            $cityFoundation = $this->appSrc->_formatDate($ins['push']['object']->getDtFoundation());
-            
-            // link attachments to the city
-            if($aSize > 0){
-                $insAttachs = $this->linkCityAttachments($ins['push']['object']);
-                
-                if(!$insAttachs['success']){
-                    $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    $st = false;
-                    $msg = $insAttachs['message'];
-                    $cityID = "";
-                    $cityDescription = "";
-                    $cityFoundation = "";
-                }
+            $moduleID = $ins['push']['object']->getIdModule();
+            $moduleName = $ins['push']['object']->getName();
+            $modulePath = $ins['push']['object']->getPath();
+
+            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/")){
+                $this->logger->error("Could not create module dir", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
+
+            $this->logger->info("Module was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }else{
             $st = false;
             $msg = $ins['push']['message'];
-            $cityID = "";
-            $cityDescription = "";
-            $cityFoundation = "";
+            $moduleID = "";
+            $moduleName = "";
+            $modulePath = "";
+
+            $this->logger->error("Could not save module. Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }       
         
         $aRet = array(
             "success" => $st,
             "message" => $msg,
-            "idcity" => $cityID,
-            "description" => $cityDescription,
-            "dtfoundation"  => $cityFoundation
+            "moduleId" => $moduleID,
+            "moduleName" => $moduleName,
+            "modulePath"  => $moduleName
         );       
 
         echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Renders the module's update screen
+     *
+     * pt_br Renderiza o template da tela de atualização do cadastro
+     */
+    public function formUpdate($idModule=null)
+    {
+        $moduleDAO = new moduleDAO();
+        $moduleModel = new moduleModel();
+        $moduleModel->setIdModule($idModule);
+
+        $moduleUpd = $moduleDAO->getModule($moduleModel);
+
+        $params = $this->makeScreenModules('upd',$moduleUpd['push']['object']);
+        $params['moduleId'] = $idModule;
+
+        $retRestriction =  $moduleDAO->fetchModuleRestrictions($moduleUpd['push']['object']);
+        if(!$retRestriction['status']){
+            $params['hasRestriction'] = 0;
+            $params['aRestriction'] = array();
+            $params['aSize'] = 0;
+
+        }else{
+            $params['aRestriction'] = $retRestriction['push']['object']->getRestrictionList();
+            $params['aSize'] = sizeof($params['aRestriction']);
+            $params['hasRestriction'] = ($params['aSize'] > 0) ? 1 : 0;
+        }
+      
+        $this->view('admin','modules-update',$params);
     }
 
     /**
@@ -337,57 +366,51 @@ class Modules extends Controller
      *
      * pt_br Atualiza no BD as informações da cidade
      */
-    public function updateCity()
+    public function updateModule()
     { 
         if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
         
-        $cityDao = new cityDAO();
-        $cityMod = new cityModel();        
+        $moduleDao = new moduleDAO();
+        $moduleMod = new moduleModel();
+
+        $isDefault = (isset($_POST['moduleDefault'])) ? "YES" : "";
 
         //Setting up the model
-        $cityMod->setIdCity($_POST['cityID'])
-                ->setIdState($_POST['cmbUF'])
-                ->setName(trim($_POST['cityName']))
-                ->setDtFoundation($this->appSrc->_formatSaveDate($_POST['foundationDate']))
-                ->setIsDefault($_POST['cityDefault']);        
+        $moduleMod->setIdModule(trim(strip_tags($_POST['moduleId'])))
+                  ->setName(trim(strip_tags($_POST['moduleName'])))
+                  ->setLanguageKeyName(trim(strip_tags($_POST['moduleKeyName'])))
+                  ->setIsDefault($isDefault)
+                  ->setRestrictionList((isset($_POST['moduleRestrictIp'])) ? $_POST["ipNumber"] : array());// if module has restrictions
 
         if(isset($_POST["attachments"])){
-            $aAttachs = $_POST["attachments"]; // Attachments
-            $aSize = count($aAttachs); // count attachs files
-            
-            $cityMod->setAttachments($aAttachs);
+            $aAttachs = $_POST["attachments"]; // logo
+            $moduleMod->setHeaderLogo($aAttachs[0]);
+        }else{
+            $moduleMod->setHeaderLogo("");
         }
         
-        $upd = $cityDao->updateCity($cityMod);
+        $upd = $moduleDao->saveUpdateModule($moduleMod);
         if($upd['status']){
             $st = true;
             $msg = "";
-            $cityID = $upd['push']['object']->getIdCity();
-            
-            // link attachments to the city
-            if($aSize > 0){
-                $insAttachs = $this->linkCityAttachments($upd['push']['object']);
-                
-                if(!$insAttachs['success']){
-                    $this->logger->error("{$insAttachs['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    $st = false;
-                    $msg = $insAttachs['message'];
-                    $cityID = "";
-                }
-            }
+            $moduleId = $upd['push']['object']->getIdModule();
+
+            $this->logger->info("Module was updated successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }else{
             $st = false;
             $msg = $upd['push']['message'];
-            $cityID = "";
+            $moduleId = "";
+
+            $this->logger->error("Could not update module. Error: {$upd['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }       
         
         $aRet = array(
             "success" => $st,
             "message" => $msg,
-            "idcity" => $cityID
+            "moduleId" => $moduleId
         );        
 
         echo json_encode($aRet);
@@ -404,15 +427,16 @@ class Modules extends Controller
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
-
-        $cityDao = new cityDAO();
-        $cityMod = new cityModel();        
+        
+        $moduleDAO = new moduleDAO();
+        $moduleMod = new moduleModel();        
 
         //Setting up the model
-        $cityMod->setIdCity($_POST['cityID'])
-                ->setStatus($_POST['newstatus']);
+        $moduleMod->setIdModule($_POST['moduleId'])
+                  ->setIsDefault($_POST['isDefault'])
+                  ->setStatus($_POST['newstatus']);
         
-        $upd = $cityDao->updateStatus($cityMod);
+        $upd = $moduleDAO->changeModuleStatus($moduleMod);
         if(!$upd['status']){
             return false;
         }
@@ -430,33 +454,35 @@ class Modules extends Controller
      *
      * pt_br Remove a cidade do BD
      */
-    function deleteCity()
+    function deleteModule()
     {
         if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
 
-        $cityDao = new cityDAO();
-        $cityMod = new cityModel();        
+        $moduleDAO = new moduleDAO();
+        $moduleModel = new moduleModel();        
 
         //Setting up the model
-        $cityMod->setIdCity($_POST['cityID']);
-
-        // First delete image linked with city
-        $delImage = $cityDao->deleteCityImageByCity($cityMod);
-        if(!$delImage['status']){
-            return false;
-        }
+        $moduleModel->setIdModule($_POST['moduleId'])
+                    ->setTablePrefix($_POST['path']);
 
         // Delete city registration
-        $del = $cityDao->deleteCity($cityMod);
+        $del = $moduleDAO->saveDeleteModule($moduleModel);
 		if(!$del['status']){
-            return false;
+            $st = false;
+            $msg = $this->translator->translate("generic_error_msg");
+            $this->logger->error("Could not remove module # {$_POST['moduleId']}. Error: {$del['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+            $msg = "";
+            $this->logger->info("Module # {$_POST['moduleId']} was removed successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
 
         $aRet = array(
-            "success" => true
+            "success"   => $st,
+            "message"   => $msg
         );
 
         echo json_encode($aRet);
@@ -464,26 +490,24 @@ class Modules extends Controller
     }
 
     /**
-     * en_us Check if the city has already been registered before
-     *
-     * pt_br Verifica se a cidade já foi cadastrada anteriormente
+     * en_us Check if the module has already been registered before
+     * pt_br Verifica se o módulo já foi cadastrado anteriormente
      */
-    function checkExist(){
+    function checkModule(){
         
         if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
         
-        $cityDao = new cityDAO();
+        $moduleDao = new moduleDAO();
 
-        $stateID = $_POST['uf'];
-        $name = strip_tags($_POST['cityName']);
+        $name = strip_tags($_POST['moduleName']);
 
-        $where = "AND a.name = '$name' AND a.idstate = $stateID";
-        $where .= (isset($_POST['cityID'])) ? " AND idcity != {$_POST['cityID']}" : "";
+        $where = "WHERE name = '{$name}'";
+        $where .= (isset($_POST['moduleId'])) ? " AND idmodule != {$_POST['moduleId']}" : "";
 
-        $check =  $cityDao->queryCities($where);
+        $check =  $moduleDao->queryModules($where);
         if(!$check['status']){
             return false;
         }
@@ -491,7 +515,46 @@ class Modules extends Controller
         $checkObj = $check['push']['object']->getGridList();
         
         if(count($checkObj) > 0){
-            echo json_encode($this->translator->translate('city_already_registered'));
+            echo json_encode($this->translator->translate('module_already_exists'));
+        }else{
+            echo json_encode(true);
+        }
+
+    }
+
+    /**
+     * en_us Check if the module path has already been registered before
+     * pt_br Verifica se o caminho do módulo já foi cadastrado anteriormente
+     */
+    function checkModulePath(){
+        
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $moduleDao = new moduleDAO();
+        $aReserved = array('hdk','helpdezk','admin','adm','main');
+
+        $path = strip_tags($_POST['modulePath']);
+
+        $where = "WHERE `path` = '{$path}'";
+        $where .= (isset($_POST['moduleId'])) ? " AND idmodule != {$_POST['moduleId']}" : "";
+
+        if(in_array($path,$aReserved)){
+            echo json_encode($this->translator->translate('module_path_exists'));
+            exit;
+        }
+
+        $check =  $moduleDao->queryModules($where);
+        if(!$check['status']){
+            return false;
+        }
+
+        $checkObj = $check['push']['object']->getGridList();
+        
+        if(count($checkObj) > 0){
+            echo json_encode($this->translator->translate('module_path_exists'));
         }else{
             echo json_encode(true);
         }
@@ -500,7 +563,6 @@ class Modules extends Controller
 
     /**
      * en_us Uploads the file in the directory
-     *
      * pt_br Carrega o arquivo no diretório
      */
     function saveLogo()
@@ -515,183 +577,33 @@ class Modules extends Controller
                 $targetFile =  $this->imgDir.$fileName;
     
                 if (move_uploaded_file($tempFile,$targetFile)){
-                    $this->logger->info("Module's logo saved", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $this->logger->info("Module's logo saved. {$targetFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     echo json_encode(array("success"=>true,"message"=>""));
                 } else {
                     $this->logger->error("Error trying save module's logo: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
-                }
-                    
+                }        
             }elseif($this->saveMode == "aws-s3"){
                 
                 $aws = new awsServices();
-                
-                $arrayRet = $aws->_copyToBucket($tempFile,$this->imgDir.$fileName);
+                $arrayRet = $aws->_copyToBucket($tempFile,"{$this->imgDir}{$fileName}");
                 
                 if($arrayRet['success']) {
-                    $this->logger->info("Save temp attachment file {$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $this->logger->info("Save temp attachment file {$fileName}. {$this->imgDir}{$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
 
                     echo json_encode(array("success"=>true,"message"=>""));     
                 } else {
-                    $this->logger->error("I could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $this->logger->error("Could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
-                }             
-
+                }
             }
 
         }else{
+            $this->logger->error("Error trying save module's logo. Error: {$_FILES['file']['error']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
         }
 
         exit;
     }
-
-    /**
-     * en_us Loads the file linked with the city in the dropzone of the update screen
-     *
-     * pt_br Carrega o arquivo vinculado à cidade no dropzone da tela de atualização
-     */
-    function loadImage()
-    {
-        $cityDao = new cityDAO();
-        $cityMod = new cityModel();
-        $cityMod->setIdCity($_POST['cityID']);
-
-        $imgList = $cityDao->fetchCityImage($cityMod);
-        
-        if(!$imgList['status']) {
-            return false;
-        }
-        
-        $imgListObj = $imgList['push']['object']->getAttachments();
-        $aImage = [];
-        
-        if(!empty($imgListObj)){
-            foreach ($imgListObj as $key => $value){
-                if($this->saveMode == "aws-s3"){
-                    $size = strlen(file_get_contents($this->imgBucket.$value['fileuploaded']));
-                }else{
-                    $size = filesize($this->imgDir.$value['fileuploaded']);
-                }            
-                
-                $aImage[] = array(
-                    'idimage'   => $value['idimage'],
-                    'idcity'    => $value['idcity'], 
-                    'filename'      => $value['filename'],
-                    'fmtname'   => $value['fileuploaded'],
-                    'size'      => $size,
-                    'url'       => $this->imgBucket
-                );
-            }
-        }
-        
-        echo json_encode($aImage);
-    }
-
-    /**
-     * en_us Removes the file linked with the city
-     *
-     * pt_br Deleta o arquivo vinculado à cidade
-     */
-    function removeImage()
-    {
-        $cityDao = new cityDAO();
-        $cityMod = new cityModel();        
-
-        //Setting up the model
-        $cityMod->setIdImage($_POST['idimage']);
-        $filename = $_POST['filename'];
-
-        $del = $cityDao->deleteCityImage($cityMod);
-        if(!$del['status']){
-            return false;
-        }
-
-        if($this->saveMode == 'disk') {
-            unlink($this->imgDir.$filename);
-            $msg = true;
-        }elseif($this->saveMode == 'aws-s3'){           
-            $aws = new awsServices();
-            $arrayRet = $aws->_removeFile("{$this->imgDir}{$filename}");
-            if($arrayRet['success']) {
-                $msg = true;
-            } else {
-                $this->logger->error("I could not remove the image file: {$filename} from S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                $msg = false;
-            }
-        }
-
-        $aRet = array(
-            "success" => $msg,
-        );
-
-        echo json_encode($aRet);
-    }
-    
-    /**
-     * Link City to uploaded files
-     *
-     * @param  cityModel $cityModel
-     * @return array
-     */
-    public function linkCityAttachments(cityModel $cityModel): array
-    {
-        $cityDao = new cityDAO();
-        $aAttachs = $cityModel->getAttachments();
-        
-        foreach($aAttachs as $key=>$fileName){
-            $cityModel->setFileName($fileName);
-
-            $ins = $cityDao->insertCityImage($cityModel);
-
-            if(!$ins['status']) {
-                return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityModel->getIdCity()}");
-            }
-
-            $extension = strrchr($fileName, ".");
-            $imageID = $ins['push']['object']->getIdImage();
-            $newFile = $imageID.$extension;
-            $ins['push']['object']->setNewFileName($newFile);
-
-            if($this->saveMode == 'disk'){
-                $targetOld = $this->imgDir.$fileName;
-                $targetNew =  $this->imgDir.$newFile;
-                if(!rename($targetOld,$targetNew)){
-                    $del = $cityDao->deleteCityImage($ins['push']['object']);
-                    if(!$del['status']) {
-                        return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityID}");
-                    }
-                    return array("success"=>false,"message"=>"Can't link file {$fileName} to city #{$productID}");
-                }
-                
-            }elseif($this->saveMode == 'aws-s3'){
-                $aws = new awsServices();
-                $arrayRet = $aws->_renameFile("{$this->imgDir}{$fileName}","{$this->imgDir}{$newFile}");
-                
-                if($arrayRet['success']) {
-                    $this->logger->info("Rename city image file {$fileName} to {$newFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                } else {
-                    $del = $cityDao->deleteCityImage($ins['push']['object']);
-                    if(!$del['status']) {
-                        return array("success"=>false,"message"=>"Can't link file {$fileName} to city # {$cityID}");
-                    }
-
-                    $this->logger->error("I could not rename city image file {$fileName} to {$newFile} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    return json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
-                }
-            
-            }
-
-            $upd = $cityDao->updateCityImageName($ins['push']['object']);
-            if(!$upd['status']){
-                return array("success"=>false,"message"=>"Can't update link file {$fileName} to city {$cityID}");
-            }
-
-        }
-
-        return array("success"=>true,"message"=>"");
-
-    }
-
 
 }

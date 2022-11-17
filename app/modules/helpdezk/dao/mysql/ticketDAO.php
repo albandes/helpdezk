@@ -3432,7 +3432,7 @@ class ticketDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
-     /**
+    /**
      * en_us Returns an array with ticket's extra fields
      * pt_br Retorna um array com campos adicionais da solicitação
      *

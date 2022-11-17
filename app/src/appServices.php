@@ -960,22 +960,27 @@ class appServices
         switch($aEmailSrv[0]['servertype']){
             case "SMTP"://STMP
                 $retSend = $this->_sendSMTP($params);
+                if(!$retSend['status']){
+                    $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return array('status'=>false,"message"=>"{$retSend['message']}","data"=>"");
+                }
+                $data = "";
                 break;
             case "API"://API
                 $retSend = $this->_sendMandrill($params);
+                if(!$retSend['status']){
+                    $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return array('status'=>false,"message"=>"{$retSend['data']['message']}","data"=>"");
+                }
+                $data = $retSend['data'];
                 break;
             default:
                 echo "Case default\n";
                 break;
 
         }
-        
-        if(!$retSend['status']){
-            $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-            return array('status'=>false,"message"=>"{$retSend['message']}");
-        }
 
-        return array('status'=>true,"message"=>"");
+        return array('status'=>true,"message"=>"","data"=>$data);
     }
 
     /**
@@ -1338,9 +1343,9 @@ class appServices
         curl_setopt_array($ch,$ch_options);
         $callback = curl_exec($ch); 
         $result   = (($callback) ? json_decode($callback,true) : curl_error($ch));
-        $result['status'] = ($result['status'] != 'error') ? true : false;
-
-        return $result;            
+        $aRet = ($result['status'] != 'error') ? array("status"=>true,"data"=>$result) : array("status"=>false,"data"=>$result);
+        
+        return $aRet;            
     }
         
     /**
@@ -2182,5 +2187,34 @@ class appServices
             $ip = $_SERVER['REMOTE_ADDR'];
         }
         return $ip;
+    }
+
+    /**
+     * en_us Formats IP string to his numeric representation to save into DB
+     * pt_br Formata a string IP para sua representação numérica para salvar no banco de dados
+     *
+     * @param  mixed $ip    IP dotted-quad representation
+     * @return string
+     */
+    public function _formatIpToLong($ip)
+    {
+        if(strpos($ip, '/') !== false){
+            list($ipTmp, $netMask) = explode('/', $ip, 2);
+            $aTmp = explode(".",$ipTmp);
+            $size = sizeof($aTmp);
+            $aTmp[($size - 1)] = 1;
+            $aTmp2 = $aTmp;
+            $aTmp2[($size - 1)] = 255;
+
+            $newIp = ip2long(implode(".",$aTmp)) . "-" . ip2long(implode(".",$aTmp2));
+        }elseif(strpos($ip, '-') !== false){
+            list($aTmp, $aTmp2) = explode('-', $ip);
+            
+            $newIp = ip2long($aTmp) . "-" . ip2long($aTmp2);
+        }else{
+            $newIp = ip2long($ip);
+        }
+        
+        return $newIp;
     }
 }

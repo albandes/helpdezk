@@ -39,7 +39,7 @@ class moduleDAO extends Database
                         ->setIndex($aRet['index'])
                         ->setStatus($aRet['status'])
                         ->setPath($aRet['path'])
-                        ->setSmarty($aRet['smarty'])
+                        ->setLanguageKeyName($aRet['smarty'])
                         ->setClass($aRet['class'])
                         ->setHeaderLogo($aRet['headerlogo'])
                         ->setReportsLogo($aRet['reportslogo'])
@@ -323,7 +323,7 @@ class moduleDAO extends Database
                         ->setIndex($aRet['index'])
                         ->setStatus($aRet['status'])
                         ->setPath($aRet['path'])
-                        ->setSmarty($aRet['smarty'])
+                        ->setLanguageKeyName($aRet['smarty'])
                         ->setClass($aRet['class'])
                         ->setHeaderLogo($aRet['headerlogo'])
                         ->setReportsLogo($aRet['reportslogo'])
@@ -423,7 +423,7 @@ class moduleDAO extends Database
     public function queryModules($where=null,$group=null,$order=null,$limit=null): array
     {
         
-        $sql = "SELECT idmodule, name, status, defaultmodule 
+        $sql = "SELECT idmodule, name, status, defaultmodule, path, smarty
                   FROM tbmodule
                 $where $group $order $limit";
         
@@ -480,6 +480,570 @@ class moduleDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes the default module flag
+     * pt_br Remove o sinalizador de módulo padrão
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function removeDefault(moduleModel $moduleModel): array
+    {        
+        $sql = "UPDATE tbmodule SET defaultmodule = NULL";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * en_us Inserts module data into tbmodule
+     * pt_br Insere os dados do módulo no tbmodule
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertModule(moduleModel $moduleModel): array
+    {        
+        $sql = "INSERT INTO tbmodule (name, path, smarty, headerlogo, tableprefix, defaultmodule) 
+                     VALUES (:name, :path, :langKey, NULLIF(:logo,'NULL'), :prefix, NULLIF(:isDefault,'NULL'))";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":name",$moduleModel->getName());
+        $stmt->bindValue(":path",$moduleModel->getPath());
+        $stmt->bindValue(":langKey",$moduleModel->getLanguageKeyName());
+        $stmt->bindValue(":logo",(empty($moduleModel->getHeaderLogo()) ? 'NULL': $moduleModel->getHeaderLogo()));
+        $stmt->bindValue(":prefix",$moduleModel->getTablePrefix());
+        $stmt->bindValue(":isDefault",(empty($moduleModel->getIsDefault()) ? 'NULL': $moduleModel->getIsDefault()));
+        $stmt->execute();
+
+        $moduleModel->setIdModule($this->db->lastInsertId());
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts module restrictions
+     * pt_br Insere as restrições do módulo
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertModuleRestriction(moduleModel $moduleModel): array
+    {        
+        $sql = "INSERT INTO tbmodule_has_restriction (idmodule,ip,ip_aton) 
+                     VALUES (:moduleId, :ip, :ipAtoN)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+        $stmt->bindValue(":ip",$moduleModel->getRestriction());
+        $stmt->bindValue(":ipAtoN",$moduleModel->getRestrictionAtoN());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Creates config tables
+     * pt_br Cria tabelas de configuração
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function createConfigTables(moduleModel $moduleModel): array
+    {        
+        $sql = "CALL adm_createconfigtables(:prefix)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":prefix",$moduleModel->getTablePrefix());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * en_us Saves the new module into DB
+     * pt_br Grava o novo módulo no banco de dados
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveModule(moduleModel $moduleModel): array
+    {   
+        $aRestriction = $moduleModel->getRestrictionList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            if(!empty($moduleModel->getIsDefault())){
+                $this->removeDefault($moduleModel);
+            }
+
+            $insModule = $this->insertModule($moduleModel);
+
+            if($insModule['status']){
+                // insert modules's restrictions
+                if(count($aRestriction) > 0){
+                    foreach($aRestriction as $k=>$v){
+                        $retrictionAtoN = $this->appSrcDB->_formatIpToLong($v);
+
+                        $insModule['push']['object']->setRestriction($v)
+                                                    ->setRestrictionAtoN($retrictionAtoN);
+
+                        $this->insertModuleRestriction($insModule['push']['object']);
+                    }
+                }
+
+                // makes config tables
+                $this->createConfigTables($insModule['push']['object']);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$insModule['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save module info ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns module's data
+     * pt_br Retorna os dados do módulo
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getModule(moduleModel $moduleModel): array
+    {        
+        $sql = "SELECT name, path, smarty, headerlogo, tableprefix, defaultmodule FROM tbmodule WHERE idmodule = :moduleId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+            $stmt->execute();
+            
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $moduleModel->setName($aRet['name'])
+                        ->setPath($aRet['path'])
+                        ->setLanguageKeyName($aRet['smarty'])
+                        ->setHeaderLogo((!empty($aRet['headerlogo']) && !is_null($aRet['headerlogo'])) ? $aRet['headerlogo'] : "")
+                        ->setTablePrefix((!empty($aRet['tableprefix']) && !is_null($aRet['tableprefix'])) ? $aRet['tableprefix'] : "")
+                        ->setIsDefault((!empty($aRet['defaultmodule']) && !is_null($aRet['defaultmodule'])) ? $aRet['defaultmodule'] : "");
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting module data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns module's restrictions
+     * pt_br Retorna as restrições do módulo
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchModuleRestrictions(moduleModel $moduleModel): array
+    {        
+        $sql = "SELECT idrestriction, idmodule, ip, ip_aton FROM tbmodule_has_restriction WHERE idmodule = :moduleId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $moduleModel->setRestrictionList((!empty($aRet) && count($aRet) > 0) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$moduleModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting module's restrictions ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Setup helpdezk's module as default
+     * pt_br Remove as restrições do módulo da tabela tbmodule_has_restriction
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function setHdkAsDefault(moduleModel $moduleModel): array
+    {        
+        $sql = "UPDATE tbmodule SET defaultmodule = 'YES' WHERE idmodule = 2";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates module's data
+     * pt_br Atualiza os dados do módulo
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateModule(moduleModel $moduleModel): array
+    {        
+        $sql = "UPDATE tbmodule 
+                   SET name = :name,
+                       smarty = :langKey";
+        
+        $sql .= (empty($moduleModel->getHeaderLogo()))  ? "" : ", headerlogo = '{$moduleModel->getHeaderLogo()}'";
+        $sql .= (empty($moduleModel->getIsDefault()))  ? "" : ", defaultmodule = 'YES'";
+
+        $sql .= " WHERE idmodule = :moduleId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":name",$moduleModel->getName());
+        $stmt->bindValue(":langKey",$moduleModel->getLanguageKeyName());
+        $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes module's restrictions from table tbmodule_has_restriction
+     * pt_br Remove as restrições do módulo da tabela tbmodule_has_restriction
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteModuleRestriction(moduleModel $moduleModel): array
+    {        
+        $sql = "DELETE FROM tbmodule_has_restriction WHERE idmodule = :moduleId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves module's update data into DB
+     * pt_br Grava os dados de atualização do módulo no banco de dados
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveUpdateModule(moduleModel $moduleModel): array
+    {   
+        $aRestriction = $moduleModel->getRestrictionList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            if(!empty($moduleModel->getIsDefault())){
+                $this->removeDefault($moduleModel);
+            }else{
+                $this->removeDefault($moduleModel);
+                $this->setHdkAsDefault($moduleModel);
+            }
+            
+            $updModule = $this->updateModule($moduleModel);
+            
+            if($updModule['status']){
+                if(count($aRestriction) > 0){
+                    // remove modules's restrictions
+                    $delRestriction = $this->deleteModuleRestriction($updModule['push']['object']);
+
+                    // insert modules's restrictions
+                    foreach($aRestriction as $k=>$v){
+                        $retrictionAtoN = $this->appSrcDB->_formatIpToLong($v);
+
+                        $updModule['push']['object']->setRestriction($v)
+                                                    ->setRestrictionAtoN($retrictionAtoN);
+
+                        $this->insertModuleRestriction($updModule['push']['object']);
+                    }
+                }else{
+                    // remove modules's restrictions
+                    $delRestriction = $this->deleteModuleRestriction($updModule['push']['object']);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$updModule['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying update module data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            //$this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Setup the first active module as default
+     * pt_br Configura o primeiro módulo ativo como padrão
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function setModuleDefault(moduleModel $moduleModel): array
+    {        
+        $sql = "UPDATE tbmodule 
+                   SET defaultmodule = 'YES' 
+                 WHERE idmodule = :newDefaultId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":newDefaultId",$moduleModel->getNewDefaultId());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates module's data
+     * pt_br Atualiza os dados do módulo
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateModuleStatus(moduleModel $moduleModel): array
+    {        
+        $sql = "UPDATE tbmodule SET `status` = :newStatus WHERE idmodule = :moduleId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":newStatus",$moduleModel->getStatus());
+        $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves module's update data into DB
+     * pt_br Grava os dados de atualização do módulo no banco de dados
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function changeModuleStatus(moduleModel $moduleModel): array
+    {   
+        try{
+            $this->db->beginTransaction();
+
+            if($moduleModel->getIsDefault() == "YES" && $moduleModel->getIdModule() == 2){ // if trying to inactivate helpdezk's module set an active module as the default
+                $this->removeDefault($moduleModel);
+                $retNewDefault = $this->queryModules("WHERE `status` = 'A' AND idmodule NOT IN (1,2)",null,"ORDER BY `name` ASC","LIMIT 1");
+                if($retNewDefault['status']){
+                    $aNewDefault = $retNewDefault['push']['object']->getGridList();
+                    $newDefaultId = $aNewDefault[0]['idmodule'];
+                    $moduleModel->setNewDefaultId($newDefaultId);
+                    $this->setModuleDefault($moduleModel);
+                }
+            }elseif($moduleModel->getIsDefault() == "YES" && $moduleModel->getIdModule() != 2){ // if trying to inactivate other module set helpdezk as the default
+                $this->removeDefault($moduleModel);
+                $this->setHdkAsDefault($moduleModel);
+            }
+            
+            $updModule = $this->updateModuleStatus($moduleModel);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$updModule['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying change module data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            //$this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes module's config tables
+     * pt_br Remove as tabelas de configuração do módulo
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteConfigTables(moduleModel $moduleModel): array
+    {        
+        $sql = "CALL adm_deleteTables(:dbName,:prefix,@msg)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":dbName",$_ENV['DB_NAME']);
+        $stmt->bindValue(":prefix",$moduleModel->getTablePrefix());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes module's data from tbmodule table
+     * pt_br Remove os dados do módulo da tabela tbmodule
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteModule(moduleModel $moduleModel): array
+    {        
+        $sql = "DELETE FROM tbmodule WHERE idmodule = :moduleId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":moduleId",$moduleModel->getIdModule());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$moduleModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes module's data from DB
+     * pt_br Remove os dados do módulo do banco de dados
+     *
+     * @param  moduleModel $moduleModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveDeleteModule(moduleModel $moduleModel): array
+    {   
+        try{
+            $this->db->beginTransaction();
+
+            // remove module's config tables
+            $remConfig = $this->deleteConfigTables($moduleModel);
+            if($remConfig['status']){
+                // remove module's restrictions
+                $remRestrictions = $this->deleteModuleRestriction($remConfig['push']['object']);
+
+                // remove module's data
+                $rem = $this->deleteModule($remConfig['push']['object']);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$remConfig['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying remove module data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            //$this->db->rollBack();
+        }         
         
         return array("status"=>$ret,"push"=>$result);
     }

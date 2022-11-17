@@ -20,10 +20,10 @@ $(document).ready(function () {
      * */ 
     var colM = [ 
         { title: vocab["ID"], width: '10%', dataIndx: "idmodule", hidden:true, halign: "center"  },        
-        { title: "<b>"+vocab["Name"]+"</b> ", width: 800, dataIndx: "name", halign: "center"  },
-        { title: "<b>"+vocab["status"]+"</b> ", width: 150, dataIndx: "status", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["Name"]+"</b> ", width: '70%', dataIndx: "name", halign: "center"  },
+        { title: "<b>"+vocab["status"]+"</b> ", width: '15%', dataIndx: "status", align: "center", halign: "center"  },
         { title: "", width: '10%', dataIndx: "status_val", hidden:true, halign: "center"  },
-        { title: "<b>"+vocab["Default"]+"</b> ", width: 150, dataIndx: "default", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["Default"]+"</b> ", width: '14%', dataIndx: "default", align: "center", halign: "center"  },
         { title: "", width: '10%', dataIndx: "default_val", hidden:true, halign: "center"  }        
     ];
 
@@ -113,7 +113,7 @@ $(document).ready(function () {
             var rowIndx = getRowIndx("grid_modules"),
                 row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
                 
-                location.href = path + "/admin/modules/formUpdate/"+row.id;
+                location.href = path + "/admin/modules/formUpdate/"+row.idmodule;
         }
     };
 
@@ -176,11 +176,11 @@ $(document).ready(function () {
 
     $("#btnEnable").click(function(){
         if(!$("#btnEnable").hasClass('disabled')){
-            var rowIndx = getRowIndx(),msg="";
+            var rowIndx = getRowIndx("grid_modules"),msg="";
         
             if (rowIndx != null) {
                 var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
-                postStatus(row.id,'A');
+                postStatus(row.idmodule,row.default_val,'A');
             }else{
                 msg = vocab['Alert_select_one'];
                 showAlert(msg,'warning');
@@ -190,11 +190,17 @@ $(document).ready(function () {
 
     $("#btnDisable").click(function(){
         if(!$("#btnDisable").hasClass('enabled')){
-            var rowIndx = getRowIndx(),msg="";
+            var rowIndx = getRowIndx("grid_modules"),msg="";
         
             if (rowIndx != null) {
                 var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
-                postStatus(row.id,'I');
+
+                if(row.idmodule == 1){
+                    showAlert(vocab['module_not_disable'],'warning','');
+                }else{
+                    postStatus(row.idmodule,row.default_val,'I');
+                }
+                
             }else{
                 msg = vocab['Alert_select_one'];
                 showAlert(msg,'warning');
@@ -203,16 +209,20 @@ $(document).ready(function () {
     });
 
     $("#btnDelete").click(function(){
-        var rowIndx = getRowIndx(),msg="";
+        var rowIndx = getRowIndx("grid_modules"),msg="";
         
         if (rowIndx != null) {
             var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
-            
-            $("#delete-id").val(row.id);          
-            $("#delete-userType").val(row.userType);
-            $("#delete-permissionGroup").val(row.permissionGroup_val);
-            $("#delete-langKeyName").val(row.langKeyName);
-            $("#modal-userType-delete").modal('show');
+
+            if(row.idmodule == 1 || row.idmodule == 2){
+                showAlert(vocab['module_not_delete'],'warning','');
+            }else{
+                $("#modal-delete-id").val(row.idmodule);          
+                $("#modal-delete-module-name").val(row.name);
+                $("#modal-delete-module-path").val(row.module_path);
+                $("#modal-delete-module-key").val(row.lang_key);
+                $("#modal-module-delete").modal('show');
+            }
         }else{
             msg = vocab['Alert_select_one'];
             showAlert(msg,'warning');
@@ -225,11 +235,12 @@ $(document).ready(function () {
         if(!$("#btnDeleteYes").hasClass('disabled')){
             $.ajax({
                 type: "POST",
-                url: path + '/admin/UserType/deleteUserType',
+                url: path + '/admin/modules/deleteModule',
                 dataType: 'json',
                 data: {
                     _token : $("#_token").val(),
-                    userTypeID: $("#delete-id").val()
+                    moduleId: $("#modal-delete-id").val(),
+                    path: $("#modal-delete-module-path").val()
                 },
                 error: function (ret) {
                     modalAlertMultiple('danger',vocab['Alert_deleted_error'],'alert-delete-userType');
@@ -239,13 +250,13 @@ $(document).ready(function () {
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
     
                     if(obj.success) {
-                        modalAlertMultiple('success',vocab['Alert_deleted'],'alert-delete-userType');
+                        modalAlertMultiple('success',vocab['Alert_deleted'],'alert-delete-module');
                         setTimeout(function(){
-                            $('#modal-userType-delete').modal('hide');
+                            $('#modal-module-delete').modal('hide');
                             $("#grid_modules").pqGrid("refreshDataAndView");
                         },4000);
                     } else {
-                        modalAlertMultiple('danger',vocab['Alert_deleted_error'],'alert-delete-userType');
+                        modalAlertMultiple('danger',obj.message,'alert-delete-module');
                     }
                 },
                 beforeSend: function(){
@@ -260,6 +271,15 @@ $(document).ready(function () {
             });
         }
 
+    });
+
+    $('#viewInactive').on('click', function() {
+        var flg = $(this).is(':checked');
+        $("#grid_modules").pqGrid( "option", "dataModel.postData", function(){
+            return {allRecords:flg};
+        });
+        
+        $("#grid_modules").pqGrid("refreshDataAndView");     
     });
 
     //close modal alert
@@ -280,18 +300,19 @@ $(document).ready(function () {
  * @param  {string} newStatus
  * @return {void}      
  */
-function postStatus(userTypeID,newStatus)
+function postStatus(moduleId,isDefault,newStatus)
 {
     var msgErr = newStatus == "A" ? vocab['Alert_activated_error'] : vocab['Alert_deactivated_error'],
         msg = newStatus == "A" ? vocab['Alert_activated'] :vocab['Alert_deactivated'];
 
     $.ajax({
         type: "POST",
-        url: path + '/admin/UserType/changeStatus',
+        url: path + '/admin/modules/changeStatus',
         dataType: 'json',
         data: {
             _token: $("#_token").val(),
-            userTypeID: userTypeID,
+            moduleId: moduleId,
+            isDefault: isDefault,
             newstatus: newStatus
         },
         error: function (ret) {

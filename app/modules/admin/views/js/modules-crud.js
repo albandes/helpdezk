@@ -1,6 +1,6 @@
 //Initial settings of Dropzone
 Dropzone.autoDiscover = false;
-var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[], flgDefault=0, btnClicked = 0;
+var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[], hasRestrict=0, btnClicked = 0;
 
 $(document).ready(function () {
     countdown.start(timesession);
@@ -13,12 +13,20 @@ $(document).ready(function () {
     /**
      * Mask
      */
-    $('#modulePrefix').mask('AAA');
+    if($("#create-module-form").length > 0) {
+        $('#modulePath').mask('ZZZ', {
+            translation: {
+              'Z': {
+                pattern: /[a-z|A-Z]/, optional: true
+              }
+            }
+        });
+    }
 
     /**
      * iCheck - checkboxes/radios styling
      */
-    $('#moduleDefault').iCheck({
+    $('#moduleDefault,#moduleRestrictIp').iCheck({
         checkboxClass: 'icheckbox_square-green',
         radioClass: 'iradio_square-green',
     });
@@ -97,7 +105,7 @@ $(document).ready(function () {
             errorname.forEach(element => {
                 list = list+element+'<br>';
             });
-            list = list+'<br><strong>'+vocab['scm_attach_after']+'</strong>';
+            list = list+'<br><strong>'+vocab['logo_attach_after']+'</strong>';
             typeMsg = 'warning';
             msg = vocab['save_anyway_question'];
             showNextStep(list,msg,typeMsg,totalAttach);
@@ -118,15 +126,17 @@ $(document).ready(function () {
         if (!$("#create-module-form").valid()) {
             return false ;
         }
-
-        var checkFields = validateFields();        
-        if (!checkFields[0][0]) {
-            modalAlertMultiple('danger',checkFields[1][0],'alert-create-title');
-            return false ;
+        
+        if(hasRestrict == 1){
+            var checkFields = validateFields();        
+            if (!checkFields[0][0]) {
+                modalAlertMultiple('danger',checkFields[1][0],'alert-create-module');
+                return false ;
+            }
         }
         
-        if(!$("#btnCreateTitle").hasClass('disabled')){
-            $("#btnCreateTitle").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+        if(!$("#btnCreateModule").hasClass('disabled')){
+            $("#btnCreateModule").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
 
             if (myDropzone.getQueuedFiles().length > 0) {
                 btnClicked = "1";
@@ -139,25 +149,27 @@ $(document).ready(function () {
         
     });
 
-    $("#btnUpdateTitle").click(function(){
+    $("#btnUpdateModule").click(function(){
 
-        if (!$("#update-title-form").valid()) {
+        if (!$("#update-module-form").valid()) {
             return false ;
         }
 
-        var checkFields = validateFields();        
-        if (!checkFields[0][0]) {
-            modalAlertMultiple('danger',checkFields[1][0],'alert-update-title');
-            return false ;
+        if(hasRestrict == 1){
+            var checkFields = validateFields();        
+            if (!checkFields[0][0]) {
+                modalAlertMultiple('danger',checkFields[1][0],'alert-update-module');
+                return false ;
+            }
         }
 
-        if(!$("#btnUpdateTitle").hasClass('disabled')){
-            $("#btnUpdateTitle").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+        if(!$("#btnUpdateModule").hasClass('disabled')){
+            $("#btnUpdateModule").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
 
             if (myDropzone.getQueuedFiles().length > 0) {
                 btnClicked = "2";
                 dropzonefiles = myDropzone.getQueuedFiles().length;
-                    myDropzone.processQueue();
+                myDropzone.processQueue();
             } else {
                 saveData(upname,'upd');
             }
@@ -181,7 +193,7 @@ $(document).ready(function () {
             errorname = [];
             upname = [];
 
-            location.href = path + '/lmm/lmmTitles/index'
+            location.href = path + '/admin/modules/index'
         }
     });
     
@@ -263,13 +275,22 @@ $(document).ready(function () {
 
     });
 
+    // -- add new row to restrictions list
+    $("#btnAddRow").click(function(){
+        duplicateRow();
+    });
+
     /**
      * Validate
      */
     $("#create-module-form").validate({
         ignore:[],
         rules: {
-            moduleName:        {
+            moduleName:{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
                 required: true,
                 minlength: 3,
                 remote: {
@@ -282,6 +303,10 @@ $(document).ready(function () {
                 }
             },
             modulePath:{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
                 required: true,
                 minlength: 3,
                 remote: {
@@ -293,10 +318,6 @@ $(document).ready(function () {
                     }
                 }
             },
-            modulePrefix:      {
-                required: true,
-                minlength: 3
-            },
             moduleKeyName:   {
                 required: true,
                 minlength: 3
@@ -305,7 +326,6 @@ $(document).ready(function () {
         messages: {
             moduleName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
             modulePath: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            modulePrefix: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
             moduleKeyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
         }
     });
@@ -313,63 +333,52 @@ $(document).ready(function () {
     $("#update-module-form").validate({
         ignore:[],
         rules: {
-            cmbMatType:{
-                required:true            
-            },
-            isbn:{
-                required:true            
-            },
-            titleName: {
-                required:true,
-                remote:{
-                    url: path+'/lmm/lmmTitles/checkExist',
-                    type: 'post',
+            moduleName:{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/modules/checkModule",
+                    type: "post",
                     dataType:'json',
-                    async: false,
                     data:{
-                        _token:function(element){return $("#_token").val()},                    
-                        isbn:function(element){return $("#isbn").val()},
-                        titleID:function(element){return $("#titleID").val()}
+                        _token: function(element){return $('#_token').val();},
+                        moduleId: function(element){return $('#moduleId').val();}
                     }
                 }
             },
-            cmbCdd:{
-                required:true            
-            },
-            cmbPublisher:{
-                required:true            
-            },
-            cmbColor:{
-                required:true            
+            moduleKeyName:   {
+                required: true,
+                minlength: 3
             }
         },
         messages: {
-            cmbMatType: {required:vocab['Alert_field_required']},
-            isbn: {required:vocab['Alert_field_required']},
-            titleName: {required:vocab['Alert_field_required']},
-            cmbCdd: {required:vocab['Alert_field_required']},
-            cmbPublisher: {required:vocab['Alert_field_required']},
-            cmbColor: {required:vocab['Alert_field_required']}
+            moduleName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
+            moduleKeyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
         }
     });
 
     /* when the modal is hidden */
-    $('#modal-title-create').on('hidden.bs.modal', function() { 
-        location.href = path + "/lmm/lmmTitles/index";        
+    $('#modal-module-create').on('hidden.bs.modal', function() { 
+        location.href = path + "/admin/modules/index";        
     });
 
-    if($("#update-title-form").length > 0){
-        $('#modal-title-update').on('hidden.bs.modal', function() { 
-            location.href = path + "/lmm/lmmTitles/index" ;
+    if($("#update-module-form").length > 0){
+        $('#modal-alert').on('hidden.bs.modal', function() { 
+            location.href = path + "/admin/modules/index" ;
         });
     }
 
-    $("input[name='inCollection']").on('ifClicked',function(e){
-        if($(this).val() == 'Y'){
-            $("#inCollectionLine").removeClass('d-none');
-            $('#cmbCollection').select2({with:'100%',placeholder:vocab['Select'],allowClear:true});
+    $("#moduleRestrictIp").on('ifChecked ifUnchecked',function(e){
+        if(e.type == 'ifChecked'){
+            $("#restrictionsLine").removeClass('d-none');
+            hasRestrict = 1;
         }else{
-            $("#inCollectionLine").addClass('d-none');
+            $("#restrictionsLine").addClass('d-none');
+            hasRestrict = 0;
         }
     });
 
@@ -378,10 +387,10 @@ $(document).ready(function () {
 
 function saveData(aAttachs,op)
 {
-    var method = op == 'add' ? 'createTitle' : 'updateTitle', 
-        alert = op == 'add' ? 'alert-create-title' : 'alert-update-title',
-        btn = op == 'add' ? 'btnCreateTitle' : 'btnUpdateTitle',
-        formName = op == 'add' ? 'create-title-form' : 'update-title-form',
+    var method = op == 'add' ? 'createModule' : 'updateModule', 
+        alert = op == 'add' ? 'alert-create-module' : 'alert-update-module',
+        btn = op == 'add' ? 'btnCreateModule' : 'btnUpdateModule',
+        formName = op == 'add' ? 'create-module-form' : 'update-module-form',
         data_save = $('#'+formName).serialize();
     
     // Add attachment's object to form serialized
@@ -391,7 +400,7 @@ function saveData(aAttachs,op)
 
     $.ajax({
         type: "POST",
-        url: path + '/lmm/lmmTitles/'+ method,
+        url: path + '/admin/modules/'+ method,
         dataType: 'json',
         data: data_save,
         error: function (ret) {
@@ -403,32 +412,13 @@ function saveData(aAttachs,op)
 
             if(obj.success){
                 if(op == 'add'){
-                    $('#modal-idtitle').val(obj.idtitle);
-                    $('#modal-title-name').val(obj.description);
-                    $('#copyIDList tbody').html(obj.copiesList);
+                    $('#modal-module-code').val(obj.moduleId);
+                    $('#modal-module-name').val(obj.moduleName);
+                    $('#modal-module-path').html(obj.modulePath);
     
-                    $('#modal-title-create').modal('show');
+                    $('#modal-module-create').modal('show');
                 }else{
-                    var copiesHtml = '', aCopies;
-                    $('#modal-idtitle').val(obj.idtitle);
-                    $('#modal-title-name').val(obj.description);
-
-                    if(obj.displayCopies) {
-                        $.each(obj.copiesList, function(key,value) {
-                            copiesHtml = copiesHtml + "<tr>"+
-                                "<td class='text-center'>"+ value.registrationnumber +"</td>"+
-                                "<td class='text-center'>"+ value.volume +"</td>"+
-                                "<td class='text-center'>"+ value.edition +"</td>"+
-                                "<td class='text-center'>"+ value.bookyear +"</td>"+
-                              "</tr>";
-                        });
-                        
-                        $('#copyIDList tbody').html(copiesHtml);
-                        $('#copiesLine').removeClass('d-none');
-                    }
-    
-                    $('#modal-title-update').modal('show');
-                    //showAlert(vocab['Edit_sucess'],'success');
+                    showAlert(vocab['Edit_sucess'],'success');
                 }
                 
             }else{
@@ -447,321 +437,67 @@ function saveData(aAttachs,op)
 
 }
 
-function duplicateAuthorRow(){
+function duplicateRow(){
     // First, lets create the new row using the last one as template...
-    var clonedRow = $( "#authorList tr:last" ).clone();
+    var clonedRow = $( "#restrictionsList tr:last" ).clone();
     // Take the current identifier, some number in the first cell of the row
-    intCurrentRowId = parseInt($( "#authorNumId:last",clonedRow ).val());
+    intCurrentRowId = parseInt($( "#restrictNumId:last",clonedRow ).val());
     // Set the new ID
     intNewRowId = intCurrentRowId + 1;
     // Change the current identifier of the row to the new one
-    $( "#authorNumId:last", clonedRow ).val( intNewRowId );
+    $( "#restrictNumId:last", clonedRow ).val( intNewRowId );
 
     // Change the Id / Name or anything you want for the new attribs...
     //here is where you need to add a lot of stuff to change the id of your variables
 
     // The following code works without problems on Firefox or IE7
-    $( "#cmbTabAuthor_"+ intCurrentRowId , clonedRow ).attr( { "id" :"cmbTabAuthor_" + intNewRowId, "accesskey" : intNewRowId } ).val("");
-    $( "#tabCutter_"+ intCurrentRowId , clonedRow ).attr( { "id" :"tabCutter_" + intNewRowId, "accesskey" : intNewRowId } ).val('');
+    $( "#ipNumber_"+ intCurrentRowId , clonedRow ).attr( { "id" :"ipNumber_" + intNewRowId, "accesskey" : intNewRowId } ).val("");
 
     // Add to the new row to the original table
-    $( "#authorList" ).append( clonedRow );
-
-    $('#cmbTabAuthor_' +intNewRowId).closest("td").find("#cmbTabAuthor_"+ intCurrentRowId+"-flexdatalist").remove();
-    /**
-     * Flexdatalist
-     */
-     $('#cmbTabAuthor_' +intNewRowId).flexdatalist({
-        visibleProperties: ["name"],
-        searchByWord: true,
-        searchIn: 'name',
-        minLength: 3,
-        selectionRequired: true,
-        valueProperty: 'id',
-        url: path + '/lmm/lmmTitles/searchAuthor',
-        noResultsText: vocab['no_result_found_for']+" {keyword}",
-        requestType: 'post'
-    });
-
-    $('#cmbTabAuthor_' +intNewRowId).on('select:flexdatalist', function () {
-        var element = $(this).attr('id'), aElement = element.split("_"), id = aElement[1];        
-        objTitleData.loadCutter(id,$(this).val());
-    });
+    $( "#restrictionsList" ).append( clonedRow );    
 
     // And finally change the ID of the last row to something we can
     //delete later, not sure why can not be done before the append :S
-    $( "#authorList tr:last" ).attr( "id", "authorItem_" + intNewRowId );
+    $( "#restrictionsList tr:last" ).attr( "id", "restrictItem_" + intNewRowId );
 
-    $( "#cmbTabAuthor_"+ intNewRowId + "-flexdatalist" ).focus();
+    $( "#ipNumber_"+ intNewRowId + "-flexdatalist" ).focus();
 }
 
-function removeAuthorRow(id,strTableName){
-    var i = id.parentNode.parentNode.rowIndex;
+function removeRow(id,strTableName){
+    var i = id.parentNode.parentNode.rowIndex,
+        alertSection = 'alert-restrict-list';
     
     if($("#"+strTableName+" tbody tr").length == 1){
-        modalAlertMultiple('info',vocab['Unable_to_Delete_Required_Items'],"alert-author-list");
+        modalAlertMultiple('info',vocab['Unable_to_Delete_Required_Items'],alertSection);
     }else{
         document.getElementById(strTableName).deleteRow(i);
-        reorderAuthorList();
-    }
-}
-
-function duplicateCopyRow(){
-    // First, lets create the new row using the last one as template...
-    var clonedRow = $( "#copyList tr:last" ).clone();
-    // Take the current identifier, some number in the first cell of the row
-    intCurrentRowId = parseInt( $( "#copyNumId:last", clonedRow ).val() );    
-    // Set the new ID
-    intNewRowId = intCurrentRowId + 1;
-    // Change the current identifier of the row to the new one
-    $( "#copyNumId:last", clonedRow ).val( intNewRowId );
-
-    // Change the Id / Name or anything you want for the new attribs...
-    //here is where you need to add a lot of stuff to change the id of your variables
-
-    // The following code works without problems on Firefox or IE7
-    $( "#copyNum_"+ intCurrentRowId , clonedRow ).attr( { "id" :"copyNum_" + intNewRowId, "accesskey" : intNewRowId } ).val(intNewRowId);
-    $( "#cmbLibrary_"+ intCurrentRowId , clonedRow ).attr( { "id" :"cmbLibrary_" + intNewRowId, "accesskey" : intNewRowId } ).removeAttr("data-select2-id","aria-hidden","tabindex").removeClass("select2-hidden-accessible");
-    $( "#dtAcquisition_"+ intCurrentRowId , clonedRow ).attr( { "id" :"dtAcquisition_" + intNewRowId, "accesskey" : intNewRowId } ).val('');
-    $( "#cmbOrigin_"+ intCurrentRowId , clonedRow ).attr( { "id" :"cmbOrigin_" + intNewRowId, "accesskey" : intNewRowId } ).removeAttr("data-select2-id","aria-hidden","tabindex").removeClass("select2-hidden-accessible");
-    $( "#copyVol_"+ intCurrentRowId , clonedRow ).attr( { "id" :"copyVol_" + intNewRowId, "accesskey" : intNewRowId } ).val('');
-    $( "#copyEdition_"+ intCurrentRowId , clonedRow ).attr( { "id" :"copyEdition_" + intNewRowId, "accesskey" : intNewRowId } ).val('');
-    $( "#copyYear_"+ intCurrentRowId , clonedRow ).attr( { "id" :"copyYear_" + intNewRowId, "accesskey" : intNewRowId } ).val(''); 
-    $( "#radioCell_"+ intCurrentRowId , clonedRow ).attr( { "id" :"radioCell_" + intNewRowId, "accesskey" : intNewRowId } );
-       
-    if($("#update-title-form").length > 0){
-        $( "#idbookcopy_"+ intCurrentRowId , clonedRow ).attr( { "id" :"idbookcopy_" + intNewRowId, "accesskey" : intNewRowId } ).val('');
-        $( ".register_"+ intCurrentRowId , clonedRow ).removeClass("register_"+ intCurrentRowId).addClass("register_"+ intNewRowId);
-    }
-
-    var checkedPrev = $("#copyList tbody tr input[type=radio]:checked");
-
-    // Add to the new row to the original table
-    $( "#copyList" ).append( clonedRow );
-    
-    $('#cmbLibrary_' +intNewRowId + ' + span').remove();
-    $('#cmbLibrary_' +intNewRowId).select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
-    $('#cmbOrigin_' +intNewRowId + ' + span').remove();
-    $('#cmbOrigin_' +intNewRowId).select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
-    $('#radioCell_' +intNewRowId).html("<input type='radio' name='hasCD["+intNewRowId+"]' id='hasCDYes_"+intNewRowId+"' value='Y' class='radio-inline copy-checks'> <label class='col-form-label'>"+vocab['Yes']+"</label>"+
-    "&nbsp;&nbsp;"+
-    "<input type='radio' name='hasCD["+intNewRowId+"]' id='hasCDNo_"+intNewRowId+"' value='N' class='radio-inline copy-checks' checked='checked'> <label class='col-form-label'>"+vocab['No']+"</label>");
-    $('#copyYear_'+intNewRowId).mask('#0000');
-
-    if($("#update-title-form").length > 0){
-        $(".register_"+ intNewRowId).remove();
-    }
-    
-    $('#hasCDYes_'+intNewRowId + ', #hasCDNo_'+intNewRowId).iCheck({
-        checkboxClass: 'icheckbox_square-green',
-        radioClass: 'iradio_square-green',
-    });
-    
-    checkedPrev.each(function(){
-        $(this).iCheck('check');
-    });
-    
-    $('.input-group.date').datepicker(dpOptions);
-    
-    // And finally change the ID of the last row to something we can
-    //delete later, not sure why can not be done before the append :S
-    $( "#copyList tr:last" ).attr( "id", "copyItem_" + intNewRowId );
-  
-    $( "#cmbLibrary_"+ intNewRowId ).focus();
-    
-    $('.lbltooltip').tooltip({container:'body',trigger:'hover'});
-
-} 
-
-function removeCopyRow(id,strTableName){
-    var i = id.parentNode.parentNode.rowIndex;
-    $('.tooltip').hide();
-    
-    if($("#create-title-form").length>0){
-        if($("#"+strTableName+" tbody tr").length == 1){
-            modalAlertMultiple('warning',vocab['Unable_to_Delete_Required_Items'],"alert-copy-list");          
-        }else{
-            document.getElementById(strTableName).deleteRow(i);
-            reorderCopyList();
-        }   
-    }else{        
-        if($("#"+strTableName+" tbody tr").length == 1){
-            modalAlertMultiple('warning',vocab['Unable_to_Delete_Required_Items'],"alert-copy-list");         
-        }else if($("#idbookcopy_"+i).val()==""){
-            $("#copyItem_"+i).remove();
-            reorderCopyList();
-        }else{           
-            $("#modalCopyNum").val($("#idbookcopy_"+i).val());
-            $("#lineToDel").val("copyItem_"+i);
-            $("#modal-del-copy").modal('show');
-        }       
     }
 }
 
 function validateFields(){
-    var ret = [], tabautor=[], isAuthorEmpty=0, authorExists=0,
-        isLibEmpty=0,isAdquisDtEmpty=0, isVolEmpty=0, isYearEmpty=0,msg;
+    var ret = [], isEmpty=0, isValid=false, msg, re = new RegExp("^(((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(((\/([4-9]|[12][0-9]|3[0-2]))?)|\s?-\s?((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))))(-\s?|$))+","gm");
 
-    // check Authors items
-    $("input[name='cmbTabAuthor[]']").each(function(index, element) {
-        if($(this).val()==""){
-            isAuthorEmpty=1;
-        }else{   
-            if(jQuery.inArray($(this).val(), tabautor) !== -1)
-            {
-                authorExists=1;                        
-            }else{                
-                tabautor.push($(this).val());
-            } 
+    // check restrictions items
+    $("input[name='ipNumber[]']").each(function(index, element) {
+        if($(this).val() == ""){
+            isEmpty = 1;
+        }else{
+            isValid = re.test($(this).val());
         }
         
     }); 
                 
-    if(isAuthorEmpty==1){
-        ret.push([false],[vocab['The_author_field_is_empty']]);
+    if(isEmpty == 1){
+        ret.push([false],[vocab['restrict_empty']]);
         return ret;
     }
-
-    if(authorExists==1){
-        ret.push([false],[vocab['Duplicate_author']]);
-        return ret;
-    }
-
-    // check adquisiton date items
-    $("input[name='dtAcquisition[]']").each(function(index, element) {
-        if($(this).val()==""){
-            isAdquisDtEmpty=1;
-        }           
-    });
-
-    if(isAdquisDtEmpty==1){
-        msg = vocab['The_date_acquisition_field_is_empty'];
-        ret.push([false],[msg]);
-        return ret;
-    }
-
-    // check volume items
-    $("input[name='copyVol[]']").each(function(index, element) {
-        if($(this).val()==""){
-            isVolEmpty=1;
-        }           
-    });
-
-    if(isVolEmpty==1){  
-        ret.push([false],[vocab['The_volume_field_is_empty']]);
-        return ret;
-    }
-
-    // check copy year items
-    $("input[name='copyYear[]']").each(function(index, element) {
-        if($(this).val()==""){
-            isYearEmpty=1;
-        }            
-    });
-
-    if(isYearEmpty==1){ 
-        ret.push([false],[vocab['The_year_field_is_empty']]);
+    
+    if(!isValid){
+        ret.push([false],[vocab['restrict_invalid_format']]);
         return ret;
     }
 
     ret.push([true],['']);
     return ret;
-}
-
-function reloadCmbTabAuthor(){
-    $(".cmbTabAuthor").each(function(index, element) {
-        var id = $(this).attr('id'), aID = id.split('_'), i = aID[1];
-        objTitleData.loadAuthor(i);     
-    });
-}
-
-function reorderAuthorList(){
-    var i = 1;
-    $("#authorList tbody tr").each(function(index, element) {
-        var childs = $(this).children(), child, aChild;
-        childs.each(function(index, element) {
-            if( $(this).prop('tagName') == "INPUT"){    
-                child = $(this).attr('id'); aChild = child.split('_');
-                                            
-                if(child == "authorNumId"){                                
-                    $(this).val(i);                                 
-                }
-            }else{
-                $(this).find('input,select').each(function(index, element) {
-                    child = $(this).attr('id'); aChild = child.split('_');
-                    var suffix = aChild[1].split('-');
-                    console.log();
-                    
-                    if(suffix.length > 1){
-                        $("#"+child).attr( { "id" : aChild[0]+"_"+i+"-"+suffix[1], "aria-owns" : aChild[0]+"_"+i+"-"+suffix[1]+"-results" });
-                        $("#"+aChild[0]+"_"+i+"-"+suffix[1]).removeClass(child);
-                        $("#"+aChild[0]+"_"+i+"-"+suffix[1]).addClass(aChild[0]+"_"+i+"-"+suffix[1]);
-                    }else{
-                        $("#"+child).attr( { "id" : aChild[0]+"_"+i, "accesskey" : i });
-                    }
-                });
-            }                        
-        });
-        $(this).attr( { "id" : "authorItem_"+i, "accesskey" : i });
-        i = i + 1;
-    });
-}
-
-function reorderCopyList(){
-    var i = 1;
-    $("#copyList tbody tr").each(function(index, element) {
-        var childs = $(this).children(), child, aChild;
-        childs.each(function(index, element) {
-            if($(this).prop('tagName') == "INPUT"){    
-                child = $(this).attr('id'); aChild = child.split('_');
-                                            
-                if(child == "copyNumId"){                                
-                    $(this).val(i);                                 
-                }else if(aChild[0] == "idbookcopy"){ 
-                    $("#"+child).attr( { "id" : "idbookcopy_"+i, "accesskey" : i });
-                }
-            }else{
-                $(this).find('input,select,label,div').each(function(index, element) {
-                    var itemParent = $(this).parent();
-                    if($(this).prop('tagName') == "LABEL"){
-                        child = $(this).attr('for'); 
-                        if(typeof child !== 'undefined' && child !== false){
-                            aChild = child.split('_');
-                            $(this).attr( { "for" : aChild[0]+"_"+i, "accesskey" : i });
-                            if(itemParent.hasClass("registerCell")){
-                                itemParent.removeClass("register_"+aChild[1]).addClass("register_"+i)
-                            }                                
-                        }
-                    }else if($(this).prop('tagName') == "DIV"){
-                        child = $(this).attr('id'); 
-                        if(typeof child !== 'undefined' && child !== false){
-                            aChild = child.split('_');
-                            $(this).attr( { "id" : aChild[0]+"_"+i, "accesskey" : i });
-                        }
-                    }else{
-                        child = $(this).attr('id'); aChild = child.split('_');
-
-                        $("#"+child).attr( { "id" : aChild[0]+"_"+i, "accesskey" : i });
-                        if($(this).prop('tagName') == "SELECT"){
-                            $("#"+child).removeAttr("data-select2-id","aria-hidden","tabindex").removeClass("select2-hidden-accessible");
-                            $("#"+aChild[0]+"_"+i+" + span").remove();
-                            $("#"+aChild[0]+"_"+i).select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
-                        }else if (aChild[0] == 'copyNum'){
-                            $("#"+aChild[0]+"_"+i).val(i);
-                        }else if (aChild[0] == 'hasCDYes' || aChild[0] == 'hasCDNo'){
-                            $("#"+aChild[0]+"_"+i).attr({"name":"hasCD["+i+"]"});
-                        }
-
-                        if(itemParent.hasClass("registerCell")){
-                            itemParent.removeClass("register_"+aChild[1]).addClass("register_"+i)
-                            console.log("tem");
-                        }
-                    }                    
-                });
-            }                        
-        });
-        $(this).attr( { "id" : "copyItem_"+i, "accesskey" : i });
-        i = i + 1;
-    });
 }
             
