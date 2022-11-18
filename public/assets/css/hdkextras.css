@@ -1,0 +1,16 @@
+/** remove bottom divider from grid header*/
+.pq-grid>.pq-grid-top {
+    border-width: 0;
+    border-style: solid;
+    margin-top: -1px;
+    position: relative;
+}
+/** stylizes grid header*/
+table.pq-grid-header-table {
+    table-layout: fixed;
+    width: 0;
+    border-spacing: 0;
+    border-collapse: separate;
+    margin-bottom: -1px;
+    background-color: #f8ac59;
+}
