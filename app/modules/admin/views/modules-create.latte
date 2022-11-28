@@ -36,7 +36,7 @@
                                         <div class="row col-sm-12 col-md-10 b-l">
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="moduleName" class="col-form-label text-end"><strong>{='Module_name'|translate}</strong>:</label>
+                                                    <label for="moduleName" class="hdk-label col-form-label text-end">{='Module_name'|translate}</label>
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
@@ -46,7 +46,7 @@
 
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="modulePath" class="col-form-label text-end"><strong>{='Module_path'|translate}</strong>:</label>
+                                                    <label for="modulePath" class="hdk-label col-form-label text-end">{='Module_path'|translate}</label>
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
@@ -54,33 +54,19 @@
                                                 </div>
                                             </div>
 
-                                            <!--<div class="row g-2">
-                                                <div class="col-sm-3 text-end">
-                                                    <label for="modulePrefix" class="col-form-label text-end"><strong>{='Table_prefix'|translate}</strong>:</label>
-                                                </div>
-                                                
-                                                <div class="col-sm-5">
-                                                    <input type="text" id="modulePrefix" name="modulePrefix" class="form-control" placeholder="{='plh_module_prefix'|translate}" value="" >
-                                                </div>
-                                            </div>-->
-
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="moduleKeyName" class="col-form-label text-end"><strong>{='key_name_translate'|translate}</strong>:</label>
+                                                    <label for="moduleKeyName" class="hdk-label col-form-label text-end">{='key_name_translate'|translate}</label>
                                                 </div>
                                                 
-                                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_module_btn'|translate}">
+                                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_module'|translate}">
                                                     <input type="text" id="moduleKeyName" name="moduleKeyName" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="" >
-                                                </div>
-
-                                                <div class="col-sm-1">
-                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddKeyName" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                 </div>
                                             </div>
 
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="moduleDefault" class="col-form-label text-end"><strong>{='Module_default'|translate}?</strong></label>
+                                                    <label for="moduleDefault" class="hdk-label col-form-label text-end">{='Module_default'|translate}?</label>
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
@@ -90,7 +76,7 @@
 
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="moduleRestrictIp" class="col-form-label text-end"><strong>{='module_restrict'|translate}?</strong></label>
+                                                    <label for="moduleRestrictIp" class="hdk-label col-form-label text-end">{='module_restrict'|translate}?</label>
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
@@ -179,6 +165,7 @@
 	</div>
     {include 'modals/modules/modal-alert-create.latte'}
     {include $modalNextStep}
+    {include $modalAddVocabulary}
 </body>
     <!-- Input Mask-->
     <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>

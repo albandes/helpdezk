@@ -496,4 +496,33 @@ class adminServices
 
         return $aRet;
     }
+
+    /**
+     * en_us Returns an array with ID and name of modules
+     * pt_br Retorna um array com Id e nome dos módulos
+     *
+     * @return array
+     */
+    public function _comboModules(): array
+    {
+        $moduleDAO = new moduleDAO();
+        $moduleModel = new moduleModel();
+
+        $ret = $moduleDAO->queryModules(null,null,"ORDER BY `name`");
+         
+        if($ret['status']){
+            $aModules = $ret['push']['object']->getGridList();
+            $aRet = array();
+            foreach($aModules as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idmodule'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
 }

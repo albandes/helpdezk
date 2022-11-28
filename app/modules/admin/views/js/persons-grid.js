@@ -19,12 +19,16 @@ $(document).ready(function () {
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
     var colM = [ 
-        { title: vocab["ID"], width: '10%', dataIndx: "idmodule", hidden:true, halign: "center"  },        
-        { title: "<b>"+vocab["Name"]+"</b> ", width: '70%', dataIndx: "name", halign: "center"  },
-        { title: "<b>"+vocab["status"]+"</b> ", width: '15%', dataIndx: "status", align: "center", halign: "center"  },
-        { title: "", width: '10%', dataIndx: "status_val", hidden:true, halign: "center"  },
-        { title: "<b>"+vocab["Default"]+"</b> ", width: '14%', dataIndx: "default", align: "center", halign: "center"  },
-        { title: "", width: '10%', dataIndx: "default_val", hidden:true, halign: "center"  }        
+        { title: vocab["ID"], width: '10%', dataIndx: "idperson", hidden:true, halign: "center"  },
+        { title: " ", width: '5%', dataIndx: "personIcon", halign: "center", align: "center"  },
+        { title: "<b>"+vocab["Name"]+"</b> ", width: '30%', dataIndx: "name", halign: "center"  },
+        { title: "<b>"+vocab["Login"]+"</b> ", width: '10%', dataIndx: "login", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["email"]+"</b> ", width: '10%', dataIndx: "email", halign: "center"  },
+        { title: "<b>"+vocab["Type"]+"</b> ", width: '10%', dataIndx: "personType", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["Company"]+"</b> ", width: '10%', dataIndx: "company", halign: "center"  },
+        { title: "<b>"+vocab["Department"]+"</b> ", width: '15%', dataIndx: "department", halign: "center"  },
+        { title: "<b>"+vocab["status"]+"</b> ", width: '9%', dataIndx: "status", align: "center", halign: "center"  },
+        { title: "", width: '10%', dataIndx: "statusVal", hidden:true, halign: "center"  }        
     ];
 
 
@@ -43,7 +47,7 @@ $(document).ready(function () {
         location: "remote",
         dataType: "JSON",
         method: "POST",
-        url: path + '/admin/modules/jsonGrid',
+        url: path + '/admin/person/jsonGrid',
         getData: function (dataJSON) {                
             return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };                
         }
@@ -88,7 +92,7 @@ $(document).ready(function () {
         dataModel: dataModel,
         colModel: colM,
         editable: false,
-        title: "<b>"+vocab['Modules']+"</b>",
+        title: "<b>"+vocab['people']+"</b>",
         bootstrap: {on : true, thead: 'table table-striped table-condensed table-bordered', tbody: 'table table-striped table-condensed table-bordered' },
         topVisible: false,
         sortModel: sortModel,
@@ -98,8 +102,8 @@ $(document).ready(function () {
         collapsible: false,
         dragColumns: { enabled: false },
         selectChange: function (evt, ui) {
-            var rowIndx = getRowIndx("grid_modules"),
-                row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx}),
+            var rowIndx = getRowIndx("grid_persons"),
+                row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx}),
                 rowSt = row.status_val;
                 
             $('#btnEnable').removeClass('disabled').addClass('active');
@@ -110,19 +114,19 @@ $(document).ready(function () {
                 $('#btnDisable').removeClass('active').addClass('disabled');
         },
         rowDblClick: function (evt, ui) {
-            var rowIndx = getRowIndx("grid_modules"),
-                row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
+            var rowIndx = getRowIndx("grid_persons"),
+                row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
                 
                 location.href = path + "/admin/modules/formUpdate/"+row.idmodule;
         }
     };
 
-    $("#grid_modules").pqGrid(obj);
+    $("#grid_persons").pqGrid(obj);
 
     //Grid i18n
     var locale = default_lang.replace('_','-');
-    $("#grid_modules").pqGrid("option", $.paramquery.pqGrid.regional[locale]);
-    $("#grid_modules").find(".pq-pager").pqPager("option", $.paramquery.pqPager.regional[locale]);
+    $("#grid_persons").pqGrid("option", $.paramquery.pqGrid.regional[locale]);
+    $("#grid_persons").find(".pq-pager").pqPager("option", $.paramquery.pqPager.regional[locale]);
 
     // Buttons
     $("#btnFilters").click(function(){
@@ -134,21 +138,21 @@ $(document).ready(function () {
             filterValue = $("#filter-value").val(),
             filterOperation = $("#action-list").val();
             
-        $("#grid_modules").pqGrid( "option", "dataModel.postData", function(){
+        $("#grid_persons").pqGrid( "option", "dataModel.postData", function(){
             return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation};
         } );
         
-        $("#grid_modules").pqGrid("refreshDataAndView");
+        $("#grid_persons").pqGrid("refreshDataAndView");
     });
 
     $("#btnSearch").click(function(){
         var quickValue = $("#txtSearch").val();
             
-        $("#grid_modules").pqGrid( "option", "dataModel.postData", function(){
+        $("#grid_persons").pqGrid( "option", "dataModel.postData", function(){
             return {quickSearch:true,quickValue:quickValue};
         });
         
-        $("#grid_modules").pqGrid("refreshDataAndView");
+        $("#grid_persons").pqGrid("refreshDataAndView");
     });
 
     $('#txtSearch').keypress(function(event){
@@ -163,10 +167,10 @@ $(document).ready(function () {
     });
 
     $("#btnUpdate").click(function(){
-        var rowIndx = getRowIndx("grid_modules"),msg="";
+        var rowIndx = getRowIndx("grid_persons"),msg="";
         
         if (rowIndx != null) {
-            var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
+            var row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
             location.href = path + "/admin/modules/formUpdate/"+row.idmodule;
         }else{
             msg = vocab['Alert_select_one'];
@@ -176,10 +180,10 @@ $(document).ready(function () {
 
     $("#btnEnable").click(function(){
         if(!$("#btnEnable").hasClass('disabled')){
-            var rowIndx = getRowIndx("grid_modules"),msg="";
+            var rowIndx = getRowIndx("grid_persons"),msg="";
         
             if (rowIndx != null) {
-                var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
+                var row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
                 postStatus(row.idmodule,row.default_val,'A');
             }else{
                 msg = vocab['Alert_select_one'];
@@ -190,10 +194,10 @@ $(document).ready(function () {
 
     $("#btnDisable").click(function(){
         if(!$("#btnDisable").hasClass('enabled')){
-            var rowIndx = getRowIndx("grid_modules"),msg="";
+            var rowIndx = getRowIndx("grid_persons"),msg="";
         
             if (rowIndx != null) {
-                var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
+                var row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
 
                 if(row.idmodule == 1){
                     showAlert(vocab['module_not_disable'],'warning','');
@@ -209,10 +213,10 @@ $(document).ready(function () {
     });
 
     $("#btnDelete").click(function(){
-        var rowIndx = getRowIndx("grid_modules"),msg="";
+        var rowIndx = getRowIndx("grid_persons"),msg="";
         
         if (rowIndx != null) {
-            var row = $("#grid_modules").pqGrid('getRowData', {rowIndx: rowIndx});
+            var row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
 
             if(row.idmodule == 1 || row.idmodule == 2){
                 showAlert(vocab['module_not_delete'],'warning','');
@@ -253,7 +257,7 @@ $(document).ready(function () {
                         modalAlertMultiple('success',vocab['Alert_deleted'],'alert-delete-module');
                         setTimeout(function(){
                             $('#modal-module-delete').modal('hide');
-                            $("#grid_modules").pqGrid("refreshDataAndView");
+                            $("#grid_persons").pqGrid("refreshDataAndView");
                         },4000);
                     } else {
                         modalAlertMultiple('danger',obj.message,'alert-delete-module');
@@ -275,11 +279,11 @@ $(document).ready(function () {
 
     $('#viewInactive').on('click', function() {
         var flg = $(this).is(':checked');
-        $("#grid_modules").pqGrid( "option", "dataModel.postData", function(){
+        $("#grid_persons").pqGrid( "option", "dataModel.postData", function(){
             return {allRecords:flg};
         });
         
-        $("#grid_modules").pqGrid("refreshDataAndView");     
+        $("#grid_persons").pqGrid("refreshDataAndView");     
     });
 
     //close modal alert
@@ -292,6 +296,8 @@ $(document).ready(function () {
         $("#filter-list").trigger("change");
         $("#action-list").trigger("change");        
     });
+
+    $('.lbltooltip').tooltip();
 });
 
 /**

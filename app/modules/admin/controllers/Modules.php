@@ -10,6 +10,7 @@ use App\modules\admin\models\mysql\moduleModel;
 
 //services
 use App\modules\admin\src\adminServices;
+use App\modules\main\src\mainServices;
 use App\src\awsServices;
 
 
@@ -81,6 +82,7 @@ class Modules extends Controller
     public function makeScreenModules($option='idx',$obj=null)
     {
         $adminSrc = new adminServices();
+        $mainSrc = new mainServices();
         $params = $this->appSrc->_getDefaultParams();
         $params = $adminSrc->_makeNavAdm($params);
 
@@ -98,11 +100,18 @@ class Modules extends Controller
         $params['modalAlert'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
         $params['modalNextStep'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-next-step.latte';
 
+        if($option != 'idx'){
+            $params['cmbModules'] = $adminSrc->_comboModules();
+            $params['cmbLocales'] = $mainSrc->_comboLocale();
+            $params['modalAddVocabulary'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-add-vocabulary.latte';
+        }
+
         if($option=='upd'){
             $params['moduleName'] = $obj->getName();
             $params['modulePath'] = $obj->getPath();
             $params['moduleKeyName'] = $obj->getLanguageKeyName();
             $params['isDefault'] = (!empty($obj->getIsDefault())) ? 1 : 0;
+            $params['moduleSelected'] = $obj->getIdModule();
 
             if(!empty($obj->getHeaderLogo())){
                 if($this->saveMode == "aws-s3"){
@@ -260,7 +269,7 @@ class Modules extends Controller
      */
     public function formCreate()
     {
-        $params = $this->makeScreenModules();
+        $params = $this->makeScreenModules('add');
         
         $this->view('admin','modules-create',$params);
     }

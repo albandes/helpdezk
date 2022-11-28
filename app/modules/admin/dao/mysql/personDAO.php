@@ -82,16 +82,7 @@ class personDAO extends Database
      */
     public function countPersons($where=null): array
     {        
-        $sql = "SELECT
-                        tbp.idperson      as idperson,
-                        tbp.name          as name,
-                        tbp.login         as login,
-                        tbp.email         as email,
-                        tbp.status        as status,
-                        tbtp.idtypeperson as idtypeperson,
-                        tbtp.name         as typeperson,
-                        comp.name         as company,
-                        dep.name          as department
+        $sql = "SELECT COUNT(tbp.idperson) total
                   FROM (tbperson as tbp,
                         tbtypeperson as tbtp)
              LEFT JOIN hdk_tbdepartment_has_person as depP

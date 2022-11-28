@@ -27,7 +27,7 @@ class Person extends Controller
     {
         $params = $this->makeScreenHolidays();
 		
-		$this->view('admin','holidays',$params);
+		$this->view('admin','persons',$params);
     }
 
     /**
@@ -52,9 +52,9 @@ class Person extends Controller
         array_push($params['cmbCompanies'],array("id"=>0,"text"=>$this->translator->translate('National_holiday')));
 
         // -- Search action --
-        if($option=='idx'){
+        if($option == 'idx'){
             $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
-            $params['cmbFilters'] = $this->comboHolidayFilters();
+            $params['cmbFilters'] = $this->comboPersonFilters();
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
 
@@ -78,7 +78,7 @@ class Person extends Controller
 
     public function jsonGrid()
     {
-        $holidayDao = new holidayDAO(); 
+        $personDAO = new personDAO(); 
 
         $where = "";
         $group = "";
@@ -114,9 +114,9 @@ class Person extends Controller
         $pq_rPP = $_POST["pq_rpp"];
         
         //Count records
-        $countHolidays = $holidayDao->countHolidays($where,$group); 
-        if($countHolidays['status']){
-            $total_Records = $countHolidays['push']['object']->getTotalRows();
+        $countPersons = $personDAO->countPersons($where,$group); 
+        if($countPersons['status']){
+            $total_Records = $countPersons['push']['object']->getTotalRows();
         }else{
             $total_Records = 0;
         }
@@ -124,24 +124,43 @@ class Person extends Controller
         $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
         $limit = "LIMIT {$skip},$pq_rPP";
 
-        $holidays = $holidayDao->queryHolidays($where,$group,$order,$limit);
+        $persons = $personDAO->queryPersons($where,$group,$order,$limit);
         
-        if($holidays['status']){     
-            $holidaysObj = $holidays['push']['object']->getGridList();
+        if($persons['status']){     
+            $aPersons = $persons['push']['object']->getGridList();
 
-            foreach($holidaysObj as $k=>$v) {
-                if(isset($v['idperson'])){
-                    $type_holiday = $v['name'];
-                }else{
-                    $type_holiday = $this->translator->translate('National_holiday');
+            foreach($aPersons as $k=>$v) {
+                $statusFmt = ($v['status'] == 'A' ) ? '<span class="label label-info">A</span>' : '<span class="label label-danger">I</span>';
+
+                switch($v['idtypeperson']){
+                    case 1:
+                        $icon = "<i class='fa fa-tools'></i>";
+                        break;
+                    case 2:
+                        $icon = "<i class='fa fa-user'></i>";
+                        break;
+                    case 3:
+                        $icon = "<i class='fa fa-headset'></i>";
+                        break;
+                    case 4:
+                        $icon = "<i class='fa fa-building'></i>";
+                        break;
+                    default:
+                        $icon = "<i class='fa fa-hands-helping'></i>";
+                        break;
                 }
 
                 $data[] = array(
-                    'idholiday'           => $v['idholiday'],
-                    'holiday_description' => $v['holiday_description'],//utf8_decode($v['holiday_description']),
-                    'holiday_date'        => $this->appSrc->_formatDate($v['holiday_date']),
-                    'company'             => $type_holiday
-    
+                    'idperson'      => $v['idperson'],
+                    'personIcon'    => $icon,
+                    'name'          => $v['name'],
+                    'login'         => $v['login'],
+                    'email'         => $v['email'],
+                    'personType'    => $v['typeperson'],
+                    'company'       => $v['company'],
+                    'department'    => $v['department'],
+                    'status'        => $statusFmt,
+                    'statusVal'     => $v['status']    
                 );
             }
             
@@ -192,7 +211,7 @@ class Person extends Controller
      */
     public function formUpdate($idholiday=null)
     {
-        $holidayDao = new holidayDAO();
+        $personDAO = new holidayDAO();
         $holidayMod = new holidayModel();
         $holidayMod->setIdHoliday($idholiday);
 
