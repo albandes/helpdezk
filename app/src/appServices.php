@@ -200,6 +200,16 @@ class appServices
     {
         $loginSrc = new loginServices();
         $aHeader = $this->_getHeaderData();
+
+        if($this->saveMode == "aws-s3"){
+            $awsSrc = new awsServices();
+            
+            $retAdmUrl = $awsSrc->_getFile($this->imgDir.'adm_header.png');
+            $admImgSrc = $retAdmUrl['fileUrl'];
+        }else{
+            $admImgSrc = $this->imgBucket.'adm_header.png';
+        }
+
         
         return array(
             "path"			    => $this->_getPath(),
@@ -213,7 +223,7 @@ class appServices
             "hasadmin"          => ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) ? true : false,
             "navlogin"          => ($_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
             "adminhome"         => $_ENV['HDK_URL'].'/admin/home/index',
-            "adminlogo"         => $this->imgBucket.'adm_header.png',
+            "adminlogo"         => $admImgSrc,
             "hashelpdezk"       => $loginSrc->_isActiveHelpdezk(),
             "helpdezkhome"      => $_ENV['HDK_URL'].'/helpdezk/home/index',
             "hdklogo"           => $aHeader['image'],
@@ -268,12 +278,19 @@ class appServices
     {
         $logoDAO = new logoDao(); 
         $logoModel = new logoModel();
+        $awsSrc = new awsServices();
 
         $logoModel->setName("header");
         $logo = $logoDAO->getLogoByName($logoModel);
 		
         if(!$logo['status']){ //(empty($objLogo->getFileName()) or !){
-            $image 	= $this->imgBucket . 'default/header.png';
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/header.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/header.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+            
 			$width 	= "227";
 			$height = "70";
         }else{
@@ -285,18 +302,28 @@ class appServices
                 if($this->saveMode == 'disk'){
                     $pathLogoImage = $this->imgDir . $objLogo->getFileName();                
                     $st = file_exists($pathLogoImage) ? true : false;
-                }elseif($this->saveMode == "aws-s3"){
-                    $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
+                }elseif($this->saveMode == "aws-s3"){            
+                    $retLogoUrl = $awsSrc->_getFile($this->imgDir.$objLogo->getFileName());
+                    $pathLogoImage = $retLogoUrl['fileUrl'];
                     $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
                 }
             }
 
             if(!$st){
-                $image 	= $this->imgBucket . 'default/header.png';
+                if($this->saveMode == 'disk'){
+                    $image 	= $this->imgBucket . 'default/header.png';
+                }elseif($this->saveMode == "aws-s3"){
+                    $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/header.png');
+                    $image = $retDefaultLogoUrl['fileUrl'];
+                }
                 $width 	= "227";
                 $height = "70";
             }else{
-                $image 	= $this->imgBucket . $objLogo->getFileName();
+                if($this->saveMode == 'disk'){
+                    $image 	=$this->imgBucket . $objLogo->getFileName();
+                }elseif($this->saveMode == "aws-s3"){
+                    $image = $pathLogoImage;
+                }
 			    $width 	= $objLogo->getWidth();
 			    $height = $objLogo->getHeight();
             }
@@ -336,11 +363,21 @@ class appServices
                     $retSettings = $moduleDAO->fetchConfigDataByModule($moduleModel);
                     if ($retSettings['status']){
                         $modSettings = $retSettings['push']['object']->getSettingsList();
+
+                        if($this->saveMode == "aws-s3"){
+                            $awsSrc = new awsServices();
+                            
+                            $retUrl = $awsSrc->_getFile($this->imgDir.$v['headerlogo']);
+                            $imageSrc = $retUrl['fileUrl'];
+                        }else{
+                            $imageSrc = $this->imgBucket.$v['headerlogo'];
+                        }
+
                         $aRet[] = array(
                             'idmodule' => $v['idmodule'],
                             'path' => $v['path'],
                             'class' => $v['class'],
-                            'headerlogo' => $this->imgBucket.$v['headerlogo'],
+                            'headerlogo' => $imageSrc,
                             'reportslogo' => $v['reportslogo'],
                             'varsmarty' => $v['smarty']
                         );

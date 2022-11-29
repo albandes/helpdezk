@@ -15,6 +15,7 @@ use App\modules\admin\models\mysql\moduleModel;
 use App\modules\admin\models\mysql\personModel;
 
 use App\src\appServices;
+use App\src\awsServices;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -90,12 +91,18 @@ class loginServices
     {
         $logoDAO = new logoDao(); 
         $logoModel = new logoModel();
+        $awsSrc = new awsServices();
 
         $logoModel->setName("login");
         $logo = $logoDAO->getLogoByName($logoModel);
 		
-        if(!$logo['status']){ //(empty($objLogo->getFileName()) or !){
-            $image 	= $this->imgBucket . 'default/login.png';
+        if(!$logo['status']){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/login.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/login.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
 			$width 	= "227";
 			$height = "70";
         }else{
@@ -105,16 +112,26 @@ class loginServices
                 $pathLogoImage = $this->imgDir . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName());
                 $st = file_exists($pathLogoImage) ? true : false;
             }elseif($this->saveMode == "aws-s3"){
-                $pathLogoImage = $this->imgBucket . $objLogo->getFileName();
-                $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+                $retLogoUrl = $awsSrc->_getFile($this->imgDir . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName()));
+                $pathLogoImage = $retLogoUrl['fileUrl'];
+                $st = (@fopen($pathLogoImage, 'r')) ? true : false;
             }
             
             if(!$st){
-                $image 	= $this->imgBucket . 'default/login.png';
+                if($this->saveMode == 'disk'){
+                    $image 	= $this->imgBucket . 'default/login.png';
+                }elseif($this->saveMode == "aws-s3"){
+                    $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName()));
+                    $image = $retDefaultLogoUrl['fileUrl'];
+                }
                 $width 	= "227";
                 $height = "70";
             }else{
-                $image 	= $this->imgBucket . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName());
+                if($this->saveMode == 'disk'){
+                    $image 	= $this->imgBucket . (empty($objLogo->getFileName()) ? 'default/login.png' : $objLogo->getFileName());
+                }elseif($this->saveMode == "aws-s3"){
+                    $image = $pathLogoImage;
+                }
 			    $width 	= $objLogo->getWidth();
 			    $height = $objLogo->getHeight();
             }
