@@ -154,20 +154,7 @@ class Modules extends Controller
             $filterValue = $_POST["filterValue"];
             $filterOp = $_POST["filterOperation"];
 
-            switch($filterIndx){
-                case "city_uf": //Search for the acronym or the full name of the state
-                    $where .= "AND (" . $this->appSrc->_formatGridOperation($filterOp,"b.name",$filterValue) ." OR ". $this->appSrc->_formatGridOperation($filterOp,"b.abbr",$filterValue) . ")" ;
-                    break;
-                case "dtfoundation": //Search for city's foundation date
-                    $filterValue = $this->appSrc->_formatSaveDate($filterValue);
-                    $where .= "AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
-                    break;
-                case "city_name": //Search for city's name
-                    $filterIndx = "a.name";
-                    $where .= "AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
-                    break;
-            }            
-            
+            $where .= ((empty($where)) ? "WHERE " : " AND ") . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);          
         } 
         
         //Search with params sended from quick search input
@@ -175,7 +162,7 @@ class Modules extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= " AND (a.name LIKE '%{$quickValue}%' OR dtfoundation LIKE '".$this->appSrc->_formatSaveDate($quickValue)."')";
+            $where .= ((empty($where)) ? "WHERE " : " AND ") . "(`name` LIKE '%{$quickValue}%' OR `path` LIKE '%{$quickValue}%')";
         }
 
         if(!isset($_POST["allRecords"]) || (isset($_POST["allRecords"]) && $_POST["allRecords"] != "true"))
