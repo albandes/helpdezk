@@ -1,0 +1,93 @@
+<div class="modal fade" id="modal-add-vocabulary" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>{='Add'|translate} {='pgr_vocabulary'|translate}</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modal-add-vocabulary-form">
+                    <div class="row">
+                        <div class="row g-2">
+                            <div class="col-sm-4 text-end">
+                                <label for="modal-color-theme" class="hdk-label col-form-label text-end">{='Module'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-5 mb-3">
+                                <select class="form-control form-control-sm" id="modal-cmb-module" name="modal-cmb-module" >
+                                    <option></option>
+                                    {foreach $cmbModules as $k=>$v}
+                                    <option value="{$v['id']}" {if $v['id'] == $moduleSelected}selected="selected"{/if}>{$v['text']}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-sm-4 text-end">
+                                <label for="modal-cmblocale" class="hdk-label col-form-label text-end">{='vocabulary_key_name'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-5 mb-3">
+                                <input type="text" class="form-control form-control-sm" id="modal-key-name" name="modal-key-name" value="">
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="row">
+                                <table id="localeList" class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-lg-3 text-center"><h4><strong>{='vocabulary_locale'|translate}</strong></h4></th>
+                                        <th class="col-lg-8 text-center"><h4><strong>{='vocabulary_key_value'|translate}</strong></h4></th>
+                                        <th class="col-lg-1 text-center"><h4><strong>{='TMS_Delete'|translate}</strong></h4></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr id="localeItem_1">>
+                                        <td>
+                                            <select class="form-control input-sm" name="localeID[]" id="localeID_1">
+                                                <option></option>
+                                                {foreach $cmbLocales as $k=>$v}
+                                                <option value="{$v['id']}">{$v['text']}</option>
+                                                {/foreach}
+                                            </select>
+                                            <input type="hidden" id="numId" value="1"/>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="keyValue[]" id="keyValue_1" class="form-control form-control-sm" />
+                                        </td>
+                                        <td class="text-center"><a href="javascript:;" onclick="removeRow(this,'localeList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <button id="btnAddRowUser" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='Add_user'|translate}</button>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div id="alert-user-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-usersettings"></div>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnUserSetCancel" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+                <button type="button" id="btnUserSetSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
