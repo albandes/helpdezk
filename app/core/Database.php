@@ -70,6 +70,20 @@ class Database
             
             die("<br>Error connecting to database: " . $ex->getMessage() . " File: " . __FILE__ . " Line: " . __LINE__ );
         }
+        
+        //set user app into DB
+        $sqlUser = "SET @user_app = :userApp";
+        try{
+            $userApp = (isset($_SESSION['SES_LOGIN_PERSON'])) ? $_SESSION['SES_LOGIN_PERSON'] : 'admin';
+            $stmt = $this->db->prepare($sqlUser);
+            $stmt->bindValue(":userApp",$userApp);
+            $stmt->execute();
+
+            //$this->loggerDB->info("App's user: {$userApp} seted into DB", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }catch(\PDOException $ex){
+            $this->loggerDB->error("Error setting app's user into DB", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $ex->getMessage()]);
+        }
+
     }
 
 }
