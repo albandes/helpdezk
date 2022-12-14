@@ -171,7 +171,7 @@ class personDAO extends Database
                         ->setTelephone($rows['telephone'])
                         ->setBranchNumber($rows['branch_number'])
                         ->setCellphone($rows['cellphone'])
-                        ->setTypeperson($rows['typeperson'])
+                        ->setTypePerson($rows['typeperson'])
                         ->setIdTypePerson($rows['idtypeperson'])
                         ->setCountry($rows['country'])
                         ->setIdCountry($rows['idcountry'])
@@ -544,6 +544,1175 @@ class personDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered login types
+     * pt_br Retorna uma lista com os tipos de login cadastrados
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchLoginTypes(personModel $personModel): array
+    {        
+        $sql = "SELECT idtypelogin, `name` FROM tbtypelogin ORDER BY name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setLoginTypeList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered access levels for natural person
+     * pt_br Retorna uma lista com os tipos de nível de acessos cadastrados para pessoas físicas
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchNaturalPersonTypes(personModel $personModel): array
+    {        
+        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status 
+                  FROM tbtypeperson a, tbvocabulary b, tblocale c
+                 WHERE a.lang_key_name = b.key_name
+                   AND b.idlocale = c.idlocale
+                   AND LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
+                   AND a.idtypeperson IN (1,2,3)
+              ORDER BY name_fmt ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setNaturalPersonTypeList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting natural person types ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered access levels for juridical person
+     * pt_br Retorna uma lista com os tipos de nível de acessos cadastrados para pessoas jurídicas
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchJuridicalPersonTypes(personModel $personModel): array
+    {        
+        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status 
+                  FROM tbtypeperson a, tbvocabulary b, tblocale c
+                 WHERE a.lang_key_name = b.key_name
+                   AND b.idlocale = c.idlocale
+                   AND LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
+                   AND a.idtypeperson IN (4,5,8)
+              ORDER BY name_fmt ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setJuridicalPersonTypeList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting juridical person types ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered access levels for juridical person
+     * pt_br Retorna uma lista com os tipos de nível de acessos cadastrados para pessoas jurídicas
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchPermissionGroups(personModel $personModel): array
+    {        
+        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status 
+                  FROM tbtypeperson a, tbvocabulary b, tblocale c
+                 WHERE a.lang_key_name = b.key_name
+                   AND b.idlocale = c.idlocale
+                   AND LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
+                   AND a.permissiongroup = 'Y'
+              ORDER BY name_fmt ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setPermissionGroupsList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting permission groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with registered locations
+     * pt_br Retorna uma lista com as localizações cadastradas
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchLocations(personModel $personModel): array
+    {        
+        $sql = "SELECT idlocation, `name` FROM tblocation ORDER BY name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setLocationsList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting locations data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with countries data
+     * pt_br Retorna um array com os dados dos países
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function queryCountries($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $where = !$where ? "WHERE idcountry != 1" : $where;
+        $order = !$order ? "ORDER BY `name`" : $order;
+
+        $sql = "SELECT idcountry, iso, printablename FROM tbcountry $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $personModel = new personModel(); 
+            $personModel->setCountryList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting countries data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with cities data
+     * pt_br Retorna um array com os dados das cidades
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function queryCities($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $where = !$where ? "WHERE idcity != 1" : $where;
+        $order = !$order ? "ORDER BY `name` ASC" : $order;
+
+        $sql = "SELECT idcity, `name` FROM tbcity $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $personModel = new personModel(); 
+            $personModel->setCitiesList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting cities data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with neighborhoods data
+     * pt_br Retorna um array com os dados dos bairros
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function queryNeighborhoods($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $where = !$where ? "WHERE idneighborhood != 1" : $where;
+        $order = !$order ? "ORDER BY `name` ASC" : $order;
+
+        $sql = "SELECT idneighborhood, `name` FROM tbneighborhood $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $personModel = new personModel(); 
+            $personModel->setNeighborhoodList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting neighborhoods data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns an array with strees data
+     * pt_br Retorna um array com os dados das ruas
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function queryStreets($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $where = !$where ? "WHERE idstreet != 1" : $where;
+        $order = !$order ? "ORDER BY `name` ASC" : $order;
+
+        $sql = "SELECT idstreet,idtypestreet,`name` FROM tbstreet $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $personModel = new personModel(); 
+            $personModel->setStreetList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting streets data ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts person data into tbperson table
+     * pt_br Insere os dados da pessoa na tabela tbperson
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertPerson(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO tbperson (idtypelogin,idtypeperson,idnatureperson,idtheme,name,login,password,email,dtcreate,user_vip,
+                                      phone_number,branch_number,cel_phone,fax,cod_location,time_value,overtime,change_pass) 
+                              VALUES (:loginTypeId,:personTypeId,:personNature,:themeId,:name,:login,:password,:email,NOW(),:isUserVip,:phone,
+                                      :branchNumber,:mobile,:fax,:locationId,:timeValue,:overtime,:changePassword)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":loginTypeId",$personModel->getIdTypeLogin());
+        $stmt->bindValue(":personTypeId",$personModel->getIdTypePerson());
+        $stmt->bindValue(":personNature",$personModel->getPersonNatureId());
+        $stmt->bindValue(":themeId",$personModel->getThemeId());
+        $stmt->bindValue(":name",$personModel->getName());
+        $stmt->bindValue(":login",$personModel->getLogin());
+        $stmt->bindValue(":password",$personModel->getPassword());
+        $stmt->bindValue(":email",$personModel->getEmail());
+        $stmt->bindValue(":isUserVip",$personModel->getUserVip());
+        $stmt->bindValue(":phone",$personModel->getTelephone());
+        $stmt->bindValue(":branchNumber",$personModel->getBranchNumber());
+        $stmt->bindValue(":mobile",$personModel->getCellphone());
+        $stmt->bindValue(":fax",$personModel->getFax());
+        $stmt->bindValue(":locationId",$personModel->getLocationId());
+        $stmt->bindValue(":timeValue",$personModel->getTimeValue());
+        $stmt->bindValue(":overtime",$personModel->getOvertimeWork());
+        $stmt->bindValue(":changePassword",$personModel->getChangePasswordFlag());
+        $stmt->execute();
+
+        $personModel->setIdPerson($this->db->lastInsertId());
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts person address into tbaddress tabel
+     * pt_br Insere o endereço da pessoa na tabela tbaddress
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertAddress(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO tbaddress (idperson,idcity,idneighborhood,idstreet,idtypeaddress,number,complement,zipcode)  
+                     VALUES (:personId,:cityId,:neighborhoodId,:streetId,:addressTypeId,:number,:complement,:zipcode)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":cityId",$personModel->getIdCity());
+        $stmt->bindValue(":neighborhoodId",$personModel->getIdNeighborhood());
+        $stmt->bindValue(":streetId",$personModel->getIdStreet());
+        $stmt->bindValue(":addressTypeId",$personModel->getAddressTypeId());
+        $stmt->bindValue(":number",$personModel->getNumber());
+        $stmt->bindValue(":complement",$personModel->getComplement());
+        $stmt->bindValue(":zipcode",$personModel->getZipCode());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts natural person data into tbnaturalperson table
+     * pt_br Insere os dados da pessoa física na tabela tbnaturalperson
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertNaturalData(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO tbnaturalperson (idperson, ssn_cpf, dtbirth, gender) VALUES (:personId, :ssnCpf, :birthDt, :gender)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":ssnCpf",$personModel->getSsnCpf());
+        $stmt->bindValue(":birthDt",$personModel->getDtBirth());
+        $stmt->bindValue(":gender",$personModel->getGender());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts the bind of the person with the department
+     * pt_br Insere o vínculo da pessoa com o departamento
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertInDepartment(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbdepartment_has_person (idperson, iddepartment) VALUES (:personId, :departmentId)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":departmentId",$personModel->getIdDepartment());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts the bind of the person with the department
+     * pt_br Insere o vínculo da pessoa com o departamento
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertPermissionGroup(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO tbpersontypes (idperson, idtypeperson) VALUES (:personId, :permissionGroupId)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":permissionGroupId",$personModel->getPermissionGroupId());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts the bind of the person with group(s)
+     * pt_br Insere o vínculo da pessoa com o(s) grupo(s) 
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertGroup(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbgroup_has_person (idgroup,idperson) VALUES (:groupId,:personId)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":groupId",$personModel->getGroupId());
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts natural person data into tbnaturalperson table
+     * pt_br Insere os dados da pessoa física na tabela tbnaturalperson
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertJuridicalData(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO tbjuridicalperson (idperson, ein_cnpj, contact_person, observation) VALUES (:personId, :einCnpj, :contact, :observation)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":einCnpj",$personModel->getEinCnpj());
+        $stmt->bindValue(":contact",$personModel->getContactName());
+        $stmt->bindValue(":observation",$personModel->getObsevation());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts the bind of the person with the department
+     * pt_br Insere o vínculo da pessoa com o departamento
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertDepartment(personModel $personModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbdepartment (idperson, cod_area, `name`) VALUES (:personId, 0, :departmentName)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":departmentName",$personModel->getDepartment());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * en_us Saves the new person into DB
+     * pt_br Grava a nova pessoa no banco de dados
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function savePersonData(personModel $personModel): array
+    {   
+        $aPermissionGroups = $personModel->getPermissionGroupsList();
+        $aGroups = $personModel->getPersonGroupsList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $ins = $this->insertPerson($personModel);
+
+            if($ins['status']){
+                //insert person addrress
+                $insAddress = $this->insertAddress($ins['push']['object']);
+                if($insAddress['status'])
+                    $this->loggerDB->info('Person address was included', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                
+                // insert natural person data
+                if($ins['push']['object']->getPersonNatureId() == 1){
+                    // inserts data into tbnaturalperson table
+                    $insNatural = $this->insertNaturalData($ins['push']['object']);
+                    if($insNatural['status'])
+                        $this->loggerDB->info('Natural person data was included', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    // bind person with the department
+                    if($ins['push']['object']->getIdDepartment() > 0){
+                        $insInDepartment = $this->insertInDepartment($ins['push']['object']);
+                        if($insInDepartment['status'])
+                            $this->loggerDB->info('Natural person has been linked to the department', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    }
+
+                    // insert permission group
+                    if(!empty($aPermissionGroups) && count($aPermissionGroups) > 0) {
+                        foreach($aPermissionGroups as $k=>$v){
+                            $ins['push']['object']->setPermissionGroupId($v);
+    
+                            $retPermGrps = $this->insertPermissionGroup($ins['push']['object']);
+                            if($retPermGrps['status'])
+                                $this->loggerDB->info('Natural person has been linked to the permission group', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }
+                    }
+
+                    // insert group - (attendant)
+                    if(!empty($aGroups) && count($aGroups) > 0) {
+                        foreach($aGroups as $k=>$v){
+                            $ins['push']['object']->setGroupId($v);
+    
+                            $retGroup = $this->insertGroup($ins['push']['object']);
+                            if($retGroup['status'])
+                                $this->loggerDB->info('Natural person has been linked to the group', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }
+                    }
+                }else{
+                    // inserts data into tbjuridicalperson table
+                    $insJuridical = $this->insertJuridicalData($ins['push']['object']);
+                    if($insJuridical['status'])
+                        $this->loggerDB->info('Juridical person data was included', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    // insert department
+                    $insDepartment = $this->insertDepartment($ins['push']['object']);
+                    if($insDepartment['status'])
+                        $this->loggerDB->info('Department of juridica person was included', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$ins['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save person info', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns person's data
+     * pt_br Retorna os dados da pessoa
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getPerson(personModel $personModel): array
+    {        
+        $sql = "SELECT tbp.idperson, tbp.name, tbp.login, tbp.email, tbp.status, tbp.user_vip, tbp.phone_number,
+                        tbp.branch_number, tbp.cel_phone, tbp.fax, tbtp.name AS typeperson, tbtp.idtypeperson, 
+                        ctry.printablename AS country, ctry.idcountry, stt.name AS state, stt.abbr AS state_abbr, stt.idstate,
+                        nbh.name AS neighborhood, nbh.idneighborhood, ct.name AS city, ct.idcity, tpstr.name AS typestreet,
+                        tpstr.idtypestreet, st.name AS street, addr.idstreet, addr.number, addr.complement, addr.zipcode, nat.ssn_cpf, 
+                        IFNULL(nat.rg,'') rg, IFNULL(nat.rgoexp,'') rgoexp, nat.dtbirth, IFNULL(nat.mother,'') mother,
+                        IFNULL(nat.father,'') father, nat.gender, a.iddepartment, b.name AS department,
+                        pcomp.name AS company, b.idperson idcompany, tbp.idtypelogin,
+                        pjur.ein_cnpj, pjur.iestadual, pjur.contact_person, pjur.observation,
+                        GROUP_CONCAT(DISTINCT c.idtypeperson) idpermission_groups,
+                        GROUP_CONCAT(DISTINCT d.name) permission_groups,
+                        GROUP_CONCAT(DISTINCT f.idgroup) idgroups,
+                        GROUP_CONCAT(DISTINCT pgroup.name) groups,
+                        ptvoc.key_value persontype_fmt, tbp.idnatureperson, np.name natureperson,
+                        tbp.time_value,tbp.overtime,tbp.cod_location
+                  FROM tbperson tbp
+                  JOIN tbtypeperson tbtp
+                    ON tbtp.idtypeperson = tbp.idtypeperson
+                  JOIN tbnatureperson np
+                    ON np.idnatureperson = tbp.idnatureperson
+       LEFT OUTER JOIN tbaddress addr
+                    ON addr.idperson = tbp.idperson
+       LEFT OUTER JOIN tbcity ct
+                    ON ct.idcity = addr.idcity
+       LEFT OUTER JOIN tbneighborhood nbh
+                    ON nbh.idneighborhood = addr.idneighborhood
+       LEFT OUTER JOIN tbstreet st
+                    ON st.idstreet = addr.idstreet
+       LEFT OUTER JOIN tbtypeaddress tpad
+                    ON tpad.idtypeaddress = addr.idtypeaddress
+       LEFT OUTER JOIN tbtypestreet tpstr
+                    ON tpstr.idtypestreet = st.idtypestreet
+       LEFT OUTER JOIN tbstate stt
+                    ON stt.idstate = ct.idstate
+       LEFT OUTER JOIN tbcountry ctry 
+                    ON ctry.idcountry = stt.idcountry
+       LEFT OUTER JOIN tbnaturalperson nat
+                    ON nat.idperson = tbp.idperson
+       LEFT OUTER JOIN hdk_tbdepartment_has_person a
+                    ON a.idperson = tbp.idperson
+       LEFT OUTER JOIN hdk_tbdepartment b
+                    ON b.iddepartment = a.iddepartment
+       LEFT OUTER JOIN tbperson pcomp
+                    ON pcomp.idperson = b.idperson
+       LEFT OUTER JOIN tbpersontypes c
+                    ON c.idperson = tbp.idperson
+       LEFT OUTER JOIN tbtypeperson d
+                    ON d.idtypeperson = c.idtypeperson
+       LEFT OUTER JOIN hdk_tbgroup_has_person e
+                    ON e.idperson = tbp.idperson
+       LEFT OUTER JOIN hdk_tbgroup f
+                    ON f.idgroup = e.idgroup
+       LEFT OUTER JOIN tbperson pgroup
+                    ON pgroup.idperson = f.idperson
+       LEFT OUTER JOIN tbjuridicalperson pjur
+                    ON pjur.idperson = tbp.idperson
+       LEFT OUTER JOIN tbvocabulary ptvoc
+                    ON ptvoc.key_name = tbtp.lang_key_name
+       LEFT OUTER JOIN tblocale ptloc
+                    ON (ptloc.idlocale = ptvoc.idlocale AND
+                        LOWER(ptloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                 WHERE tbp.idperson = :userID
+              GROUP BY tbp.idperson";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':userID', $personModel->getIdPerson());
+            $stmt->execute();
+            $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+            $personModel->setIdPerson($rows['idperson'])
+                        ->setName($rows['name'])
+                        ->setLogin((!empty($rows['login']) && !is_null($rows['login'])) ? $rows['login'] : '')
+                        ->setEmail((!empty($rows['email']) && !is_null($rows['email'])) ? $rows['email'] : '')
+                        ->setStatus($rows['status'])
+                        ->setUserVip($rows['user_vip'])
+                        ->setTelephone((!empty($rows['phone_number']) && !is_null($rows['phone_number'])) ? $rows['phone_number'] : '')
+                        ->setBranchNumber((!empty($rows['branch_number']) && !is_null($rows['branch_number'])) ? $rows['branch_number'] : '')
+                        ->setCellphone((!empty($rows['cel_phone']) && !is_null($rows['cel_phone'])) ? $rows['cel_phone'] : '')
+                        ->setFax((!empty($rows['fax']) && !is_null($rows['fax'])) ? $rows['fax'] : '')
+                        ->setTypePerson((!empty($rows['persontype_fmt']) && !is_null($rows['persontype_fmt'])) ? $rows['persontype_fmt'] : '')
+                        ->setIdTypePerson((!empty($rows['idtypeperson']) && !is_null($rows['idtypeperson'])) ? $rows['idtypeperson'] : 0)
+                        ->setCountry((!empty($rows['country']) && !is_null($rows['country'])) ? $rows['country'] : '')
+                        ->setIdCountry((!empty($rows['idcountry']) && !is_null($rows['idcountry'])) ? $rows['idcountry'] : 0)
+                        ->setState((!empty($rows['state']) && !is_null($rows['state'])) ? $rows['state'] : '')
+                        ->setStateAbbr((!empty($rows['state_abbr']) && !is_null($rows['state_abbr'])) ? $rows['state_abbr'] : '')
+                        ->setIdState((!empty($rows['idstate']) && !is_null($rows['idstate'])) ? $rows['idstate'] : 0)
+                        ->setNeighborhood((!empty($rows['neighborhood']) && !is_null($rows['neighborhood'])) ? $rows['neighborhood'] : '')
+                        ->setIdNeighborhood($rows['idneighborhood'])
+                        ->setCity((!empty($rows['city']) && !is_null($rows['city'])) ? $rows['city'] : '')
+                        ->setIdCity((!empty($rows['idcity']) && !is_null($rows['idcity'])) ? $rows['idcity'] : 0)
+                        ->setTypeStreet((!empty($rows['typestreet']) && !is_null($rows['typestreet'])) ? $rows['typestreet'] : '')
+                        ->setIdTypeStreet((!empty($rows['idtypestreet']) && !is_null($rows['idtypestreet'])) ? $rows['idtypestreet'] : 0)
+                        ->setStreet((!empty($rows['street']) && !is_null($rows['street'])) ? $rows['street'] : '')
+                        ->setIdStreet((!empty($rows['idstreet']) && !is_null($rows['idstreet'])) ? $rows['idstreet'] : 0)
+                        ->setNumber((!empty($rows['number']) && !is_null($rows['number'])) ? $rows['number'] : '')
+                        ->setComplement((!empty($rows['complement']) && !is_null($rows['complement'])) ? $rows['complement'] : '')
+                        ->setZipCode((!empty($rows['zipcode']) && !is_null($rows['zipcode'])) ? $rows['zipcode'] : '')
+                        ->setSsnCpf((!empty($rows['ssn_cpf']) && !is_null($rows['ssn_cpf'])) ? $rows['ssn_cpf'] : '')
+                        ->setRg((!empty($rows['rg']) && !is_null($rows['rg'])) ? $rows['rg'] : '')
+                        ->setRgoExp((!empty($rows['rgoexp']) && !is_null($rows['rgoexp'])) ? $rows['rgoexp'] : '')
+                        ->setDtBirth((!empty($rows['dtbirth']) && !is_null($rows['dtbirth'])) ? $rows['dtbirth'] : '')
+                        ->setMother((!empty($rows['mother']) && !is_null($rows['mother'])) ? $rows['mother'] : '')
+                        ->setFather((!empty($rows['father']) && !is_null($rows['father'])) ? $rows['father'] : '')
+                        ->setGender((!empty($rows['gender']) && !is_null($rows['gender'])) ? $rows['gender'] : '')
+                        ->setIdDepartment((!empty($rows['iddepartment']) && !is_null($rows['iddepartment'])) ? $rows['iddepartment'] : 0)
+                        ->setDepartment((!empty($rows['department']) && !is_null($rows['department'])) ? $rows['department'] : '')
+                        ->setCompany((!empty($rows['company']) && !is_null($rows['company'])) ? $rows['company'] : '')
+                        ->setIdCompany((!empty($rows['idcompany']) && !is_null($rows['idcompany'])) ? $rows['idcompany'] : 0)
+                        ->setIdTypeLogin((!empty($rows['idtypelogin']) && !is_null($rows['idtypelogin'])) ? $rows['idtypelogin'] : 0)
+                        ->setEinCnpj((!empty($rows['ein_cnpj']) && !is_null($rows['ein_cnpj'])) ? $rows['ein_cnpj'] : '')
+                        ->setIestadual((!empty($rows['iestadual']) && !is_null($rows['iestadual'])) ? $rows['iestadual'] : '')
+                        ->setContactName((!empty($rows['contact_person']) && !is_null($rows['contact_person'])) ? $rows['contact_person'] : '')
+                        ->setObsevation((!empty($rows['observation']) && !is_null($rows['observation'])) ? $rows['observation'] : '')
+                        ->setPermissionGroupsIdList((!empty($rows['idpermission_groups']) && !is_null($rows['idpermission_groups'])) ? explode(',',$rows['idpermission_groups']) : array())
+                        ->setPermissionGroupsList((!empty($rows['permission_groups']) && !is_null($rows['permission_groups'])) ? explode(',',$rows['permission_groups']) : array())
+                        ->setPersonGroupsIdList((!empty($rows['idgroups']) && !is_null($rows['idgroups'])) ? explode(',',$rows['idgroups']) : array())
+                        ->setPersonGroupsList((!empty($rows['groups']) && !is_null($rows['groups'])) ? explode(',',$rows['groups']) : array())
+                        ->setPersonNatureId($rows['idnatureperson'])
+                        ->setPersonNature($rows['natureperson'])
+                        ->setTimeValue((!empty($rows['time_value']) && !is_null($rows['time_value'])) ? $rows['time_value'] : 0)
+                        ->setOvertimeWork((!empty($rows['overtime']) && !is_null($rows['overtime'])) ? $rows['overtime'] : 0)
+                        ->setLocationId((!empty($rows['cod_location']) && !is_null($rows['cod_location'])) ? $rows['cod_location'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting person data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates person data into tbperson table
+     * pt_br Atualiza os dados da pessoa na tabela tbperson
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updatePerson(personModel $personModel): array
+    {        
+        $sql = "UPDATE tbperson 
+                   SET idtypelogin = :loginTypeId,
+                       idtypeperson = :personTypeId,
+                       `name` = :name,
+                       email = :email,
+                       user_vip = :isUserVip,
+                       phone_number = :phone,
+                       branch_number = :branchNumber,
+                       cel_phone = :mobile,
+                       fax = :fax,
+                       cod_location = :locationId,
+                       time_value = :timeValue,
+                       overtime = :overtime
+                 WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":loginTypeId",$personModel->getIdTypeLogin());
+        $stmt->bindValue(":personTypeId",$personModel->getIdTypePerson());
+        $stmt->bindValue(":name",$personModel->getName());
+        $stmt->bindValue(":email",$personModel->getEmail());
+        $stmt->bindValue(":isUserVip",$personModel->getUserVip());
+        $stmt->bindValue(":phone",$personModel->getTelephone());
+        $stmt->bindValue(":branchNumber",$personModel->getBranchNumber());
+        $stmt->bindValue(":mobile",$personModel->getCellphone());
+        $stmt->bindValue(":fax",$personModel->getFax());
+        $stmt->bindValue(":locationId",$personModel->getLocationId());
+        $stmt->bindValue(":timeValue",$personModel->getTimeValue());
+        $stmt->bindValue(":overtime",$personModel->getOvertimeWork());
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+     /**
+     * en_us Updates person address into tbaddress tabel
+     * pt_br Atualiza o endereço da pessoa na tabela tbaddress
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateAddress(personModel $personModel): array
+    {        
+        $sql = "UPDATE tbaddress 
+                   SET idcity = :cityId,
+                       idneighborhood = :neighborhoodId,
+                       idstreet = :streetId,
+                       number = :number,
+                       complement = :complement,
+                       zipcode = :zipcode
+                 WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":cityId",$personModel->getIdCity());
+        $stmt->bindValue(":neighborhoodId",$personModel->getIdNeighborhood());
+        $stmt->bindValue(":streetId",$personModel->getIdStreet());
+        $stmt->bindValue(":number",$personModel->getNumber());
+        $stmt->bindValue(":complement",$personModel->getComplement());
+        $stmt->bindValue(":zipcode",$personModel->getZipCode());
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates natural person data into tbnaturalperson table
+     * pt_br Atualiza os dados da pessoa física na tabela tbnaturalperson
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateNaturalData(personModel $personModel): array
+    {        
+        $sql = "UPDATE tbnaturalperson 
+                   SET ssn_cpf = :ssnCpf, 
+                       dtbirth = :birthDt, 
+                       gender = :gender
+                WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":ssnCpf",$personModel->getSsnCpf());
+        $stmt->bindValue(":birthDt",$personModel->getDtBirth());
+        $stmt->bindValue(":gender",$personModel->getGender());
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates the bind of the person with the department
+     * pt_br Atualiza o vínculo da pessoa com o departamento
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateInDepartment(personModel $personModel): array
+    {        
+        $sql = "UPDATE hdk_tbdepartment_has_person SET iddepartment = :departmentId WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":departmentId",$personModel->getIdDepartment());
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes the bind of the person with permission group
+     * pt_br Elimina o vínculo da pessoa com o grupo de permissões
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deletePermissionGroup(personModel $personModel): array
+    {        
+        $sql = "DELETE FROM tbpersontypes WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Removes the bind of the person with group(s)
+     * pt_br Elimina o vínculo da pessoa com o(s) grupo(s) 
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteGroup(personModel $personModel): array
+    {        
+        $sql = "DELETE FROM hdk_tbgroup_has_person WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates natural person data into tbnaturalperson table
+     * pt_br Atualiza os dados da pessoa física na tabela tbnaturalperson
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateJuridicalData(personModel $personModel): array
+    {        
+        $sql = "UPDATE tbjuridicalperson 
+                   SET ein_cnpj = :einCnpj, 
+                       contact_person = :contact, 
+                       observation = :observation
+                 WHERE idperson = :personId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":einCnpj",$personModel->getEinCnpj());
+        $stmt->bindValue(":contact",$personModel->getContactName());
+        $stmt->bindValue(":observation",$personModel->getObsevation());
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates person data
+     * pt_br Atualiza os dados da pessoa
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updatePersonData(personModel $personModel): array
+    {   
+        $aPermissionGroups = $personModel->getPermissionGroupsList();
+        $aGroups = $personModel->getPersonGroupsList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            $upd = $this->updatePerson($personModel);
+
+            if($upd['status']){
+                //update person address
+                $updAddress = $this->updateAddress($upd['push']['object']);
+                if($updAddress['status'])
+                    $this->loggerDB->info('Person address was updated', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                
+                // update natural person data
+                if($upd['push']['object']->getPersonNatureId() == 1){
+                    // updates data into tbnaturalperson table
+                    $updNatural = $this->updateNaturalData($upd['push']['object']);
+                    if($updNatural['status'])
+                        $this->loggerDB->info('Natural person data was updated', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    // bind person with the department
+                    if($upd['push']['object']->getIdDepartment() > 0){
+                        $updInDepartment = $this->updateInDepartment($upd['push']['object']);
+                        if($updInDepartment['status'])
+                            $this->loggerDB->info('Natural person has been linked to the department', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    }
+
+                    // remove link person with the permission groups
+                    $delPermGrps = $this->deletePermissionGroup($upd['push']['object']);
+                    if($delPermGrps['status'])
+                        $this->loggerDB->info('Link between natural person and permission groups was deleted', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    // insert new permission group
+                    if(!empty($aPermissionGroups) && count($aPermissionGroups) > 0) {
+                        foreach($aPermissionGroups as $k=>$v){
+                            $upd['push']['object']->setPermissionGroupId($v);
+    
+                            $retPermGrps = $this->insertPermissionGroup($upd['push']['object']);
+                            if($retPermGrps['status'])
+                                $this->loggerDB->info('Natural person has been linked to the permission group', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }
+                    }
+
+                    // remove link person with the group
+                    $delPermGrps = $this->deletePermissionGroup($upd['push']['object']);
+                    if($delPermGrps['status'])
+                        $this->loggerDB->info('Link between natural person and group was deleted', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    // insert new group - (attendant)
+                    if(!empty($aGroups) && count($aGroups) > 0) {
+                        foreach($aGroups as $k=>$v){
+                            $upd['push']['object']->setGroupId($v);
+    
+                            $retGroup = $this->insertGroup($upd['push']['object']);
+                            if($retGroup['status'])
+                                $this->loggerDB->info('Natural person has been linked to the group', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }
+                    }
+                }else{
+                    // updates data into tbjuridicalperson table
+                    $updJuridical = $this->updateJuridicalData($upd['push']['object']);
+                    if($updJuridical['status'])
+                        $this->loggerDB->info('Juridical person data was updated', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$upd['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying update person info', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates person's status
+     * pt_br Atualiza o status da pessoa
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function changePersonStatus(personModel $personModel): array
+    {   
+        $sql = "UPDATE tbperson SET `status` = :status  WHERE idperson = :personId";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":status",$personModel->getStatus());
+            $stmt->bindValue(":personId",$personModel->getIdPerson());
+            $stmt->execute();
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying change module data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
         
         return array("status"=>$ret,"push"=>$result);
     }

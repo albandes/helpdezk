@@ -1,0 +1,464 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='people'|translate} / <strong>{='Edit'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="update-person-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="personId" id= "personId" value="{$personId}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">
+                                            <!--<div id="personPhoto" class="dropzone dz-default dz-message" ></div>-->
+                                        </div>
+
+                                        <div class="row col-sm-10 col-md-10 col-lg-10 b-l">
+                                            <div class="row g-2"><!-- person's nature section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="natureType" class="hdk-label col-form-label text-end">{='Category'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="hidden" name="natureType" id= "natureType" value="{$natureTypeId}">
+                                                    <input type="text" id="txtNatureType" name="txtNatureType" class="form-control-plaintext ps-2" readonly value="{$natureType}">
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayNatural}"><!-- natural person login section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="login" class="hdk-label col-form-label text-end">{='Login'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-3">
+                                                    <input type="text" id="login" name="login" class="form-control-plaintext ps-2" readonly value="{$login}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbLoginType" class="hdk-label col-form-label text-end">{='Login_type'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-3">
+                                                    <select class="form-control form-control-sm" id="cmbLoginType" name="cmbLoginType" >
+                                                        {foreach $cmbLoginTypes as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $selectedLoginType}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <button id="btnChangePassword" type="button" class="btn btn-default btn-sm" data-toggle="tooltip" data-placement="top" title="{$smarty.config.Change_password}" tabindex="-1"><i class="fa fa-key" aria-hidden="true"></i>&nbsp;{='Change_password'|translate}</button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2"><!-- person name section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="personName" class="hdk-label col-form-label text-end">{='Name'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="personName" name="personName" class="form-control" value="{$personName}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayNatural}"><!-- natural person ssn, birth date and gender section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="ssnCpf" class="hdk-label col-form-label text-end">{='cpf'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="ssnCpf" name="ssnCpf" class="form-control" value="{$ssnCpf}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="personBirthDt" class="hdk-label col-form-label text-end">{='Birth_date'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-2">
+                                                    <div class="input-group date">
+                                                        <input type="text" id="personBirthDt" name="personBirthDt" class="form-control input-sm" value="{$personBirthDt}" readonly />
+                                                        <span class="input-group-addon"><i class="fa fa-calendar-alt"></i></span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="personGender" class="hdk-label col-form-label text-end">{='Gender'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-3">
+                                                    <input type="radio" name="personGender" id="male" value="M" class="radio-inline i-checks" {if $personGender == 'M'}checked=checked{/if} > <label class="col-form-label">{='Male'|translate}</label>
+                                                    &nbsp;&nbsp;
+                                                    <input type="radio" name="personGender" id="female" value="F"class="radio-inline i-checks" {if $personGender == 'F'}checked=checked{/if} > <label class="col-form-label">{='Female'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayJuridical}"><!-- juridical person ein and type section-->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="einCnpj" class="hdk-label col-form-label text-end">{='EIN_CNPJ'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <input type="text" id="einCnpj" name="einCnpj" class="form-control" value="{$einCnpj}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbJuridicalType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbJuridicalType" name="cmbJuridicalType" >
+                                                        <option></option>
+                                                        {foreach $cmbJuridicalTypes as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $juridicalTypeSelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2"><!-- person email section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="personEmail" class="hdk-label col-form-label text-end">{='email'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7">
+                                                    <input type="text" id="personEmail" name="personEmail" class="form-control" value="{$personEmail}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayNatural}"><!-- natural person company and department section-->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbCompany" class="hdk-label col-form-label text-end">{='Company'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbCompany" name="cmbCompany" >
+                                                        <option></option>
+                                                        {foreach $cmbCompanies as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $companySelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbDepartment" class="hdk-label col-form-label text-end">{='Department'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbDepartment" name="cmbDepartment" >
+                                                        {foreach $cmbDepartments as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $departmentSelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2"><!-- person phones section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="phone" class="hdk-label col-form-label text-end">{='Phone'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="phone" name="phone" class="form-control" value="{$phone}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="branch" class="hdk-label col-form-label text-end">{='Branch'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="branch" name="branch" class="form-control" value="{$branch}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end {$displayNatural}">
+                                                    <label for="mobile" class="hdk-label col-form-label text-end">{='Mobile_phone'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-2 {$displayNatural}">
+                                                    <input type="text" id="mobile" name="mobile" class="form-control" value="{$mobile}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end {$displayJuridical}">
+                                                    <label for="fax" class="hdk-label col-form-label text-end">Fax:</label>
+                                                </div>                                                
+                                                <div class="col-sm-2 {$displayJuridical}">
+                                                    <input type="text" id="fax" name="fax" class="form-control" value="{$fax}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayNatural}"><!-- natural person vip and access level section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="login" class="hdk-label col-form-label text-end">{='VIP_user'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-3">
+                                                    <input type="checkbox" class="i-checks" id="isUserVip" name="isUserVip" value="1" {if $isUserVip == "Y"}checked=checked{/if}> <label class="col-form-label">{='Yes'|translate}</label>
+                                                </div>
+
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbAccessLevel" class="hdk-label col-form-label text-end">{='Acess_level'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbAccessLevel" name="cmbAccessLevel" >
+                                                        <option></option>
+                                                        {foreach $cmbAccessLevels as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $accessLevelSelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayNatural}"><!-- natural person permissions group and groups section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbPermissionGroups" class="hdk-label col-form-label text-end">{='Permission_Groups'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbPermissionGroups" name="cmbPermissionGroups[]" multiple >
+                                                        {foreach $cmbPermissionGroups as $k=>$v}
+                                                        <option value="{$v['id']}" {if in_array($v['id'],$aPermissionGroups)}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-2 text-end attendantView {$displayAttendant}"> <!-- when person is attendant -->
+                                                    <label for="cmbGroup" class="hdk-label col-form-label text-end">{='Groups'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-3 attendantView {$displayAttendant}">
+                                                    <select class="form-control form-control-sm" id="cmbGroup" name="cmbGroup[]" multiple >
+                                                        {foreach $cmbGroups as $k=>$v}
+                                                        <option value="{$v['id']}" {if in_array($v['id'],$aGroups)}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-1 text-center attendantView {$displayAttendant}">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddGroup" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 attendantView {$displayAttendant}"><!-- natural person attendant time value and overtime section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="timeValue" class="hdk-label col-form-label text-end">{='Time_value'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-4">
+                                                    <input type="number" id="timeValue" name="timeValue" class="form-control" min="0" step=".01" value="{$timeValue}" >
+                                                </div>
+
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="overtimeWork" class="hdk-label col-form-label text-end">{='Overtime'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-4">
+                                                    <input type="number" id="overtimeWork" name="overtimeWork" class="form-control" min="0" step=".01" value="{$overtimeWork}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 userView {$displayUser}"><!-- natural person user location section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbLocation" class="hdk-label col-form-label text-end">{='Location'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbLocation" name="cmbLocation" >
+                                                        <option></option>
+                                                        {foreach $cmbLocations as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $locationSelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-1 text-center">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddLocation" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayJuridical}"><!-- juridical person contact person section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="contactPerson" class="hdk-label col-form-label text-end">{='Contact_person'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="contactPerson" name="contactPerson" class="form-control" value="{$contactPerson}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2"><!-- person country, state and city section -->
+                                                <!-- country -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="country" class="hdk-label col-form-label text-end">{='Country'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="country" name="country" class="form-control" value="{$country}" >
+                                                </div>
+                                                <!-- state -->
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="state" class="hdk-label col-form-label text-end">{='state'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="state" name="state" class="form-control" value="{$state}" >
+                                                </div>
+                                                <div class="col-sm-1 text-center">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddState" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                                <!-- city -->
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="city" class="hdk-label col-form-label text-end">{='City'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="city" name="city" class="form-control" value="{$city}" >
+                                                </div>
+                                                <div class="col-sm-1 text-center">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddCity" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2"><!-- person neighborhood and zipcode section -->
+                                                <!-- neighborhood -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="neighborhood" class="hdk-label col-form-label text-end">{='Neighborhood'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-6">
+                                                    <input type="text" id="neighborhood" name="neighborhood" class="form-control" value="{$neighborhood}" >
+                                                </div>
+                                                <div class="col-sm-1 text-center">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddNeighborhood" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                                <!-- zipcode -->
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="zipcode" class="hdk-label col-form-label text-end">{='Zipcode'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input type="text" id="zipcode" name="zipcode" class="form-control" value="{$zipcode}" placeholder="{='Placeholder_zipcode'|translate}" >
+                                                </div>                                                
+                                            </div>
+
+                                            <div class="row g-2"><!-- person street type, street and number section -->
+                                                <!-- street type -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="cmbStreetType" class="hdk-label col-form-label text-end">{='Type_adress'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <select class="form-control form-control-sm" id="cmbStreetType" name="cmbStreetType" >
+                                                        {foreach $cmbStreetTypes as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $streetTypeSelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                                <!-- street -->
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="street" class="hdk-label col-form-label text-end">{='Adress'|translate}:</label>
+                                                </div>                                                
+                                                <div class="col-sm-4">
+                                                    <input type="text" id="street" name="street" class="form-control" value="{$street}" >
+                                                    <input type="hidden" name="streetId" id= "streetId" value="{$street}">
+                                                </div>
+                                                <div class="col-sm-1 text-center">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddstreet" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                                <!-- number -->
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="number" class="hdk-label col-form-label text-end">{='Number'|translate}:</label>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <input type="text" id="number" name="number" class="form-control" value="{$number}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2"><!-- person complement section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="complement" class="hdk-label col-form-label text-end">{='Complement'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7">
+                                                    <input type="text" id="complement" name="complement" class="form-control" value="{$complement}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 {$displayJuridical}"><!-- juridical person observation section -->
+                                                <div class="col-sm-2 text-end">
+                                                    <label for="complement" class="hdk-label col-form-label text-end">{='Observation'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-7">
+                                                    <textarea rows="6" id="observation" name="observation" class="form-control input-sm">{$observation}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-update-person"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnUpdatePerson" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include $modalAlert}
+    {*include $modalNextStep*}
+</body>
+    <script type="text/javascript">
+		var dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation};
+	</script>
+
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/datepicker/bootstrap-datepicker.css" />
+    <script src="{$path}/public/assets/js/plugins/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/plugins/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
+
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <!-- Flexdatalist -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/jquery-flexdatalist/jquery.flexdatalist.css" />
+    <script src="{$path}/public/assets/js/plugins/jquery-flexdatalist/jquery.flexdatalist.js"></script>
+
+    <script src="{$path}/app/modules/admin/views/js/person-crud.js"></script>
+
+
+{/block}

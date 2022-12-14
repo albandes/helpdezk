@@ -8,11 +8,15 @@ use App\modules\admin\dao\mysql\moduleDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\holidayDAO;
+use App\modules\helpdezk\dao\mysql\departmentDAO;
+use App\modules\helpdezk\dao\mysql\groupDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
 use App\modules\admin\models\mysql\personModel;
 use App\modules\admin\models\mysql\holidayModel;
+use App\modules\helpdezk\models\mysql\departmentModel;
+use App\modules\helpdezk\models\mysql\groupModel;
 
 use App\src\appServices;
 
@@ -166,7 +170,8 @@ class adminServices
     }
         
     /**
-     * Returns an array with ID and name of companies
+     * en_us Returns an array with ID and name of companies
+     * pt_br Retorna um array com ID e nome das empresas
      *
      * @return array
      */
@@ -525,4 +530,447 @@ class adminServices
 
         return $aRet;
     }
+
+    /**
+     * en_us Returns an array with ID and name of companies
+     * pt_br Retorna um array com ID e nome das empresas
+     *
+     * @return array
+     */
+    public function _comboLoginType(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $retLoginType = $personDAO->fetchLoginTypes($personModel);
+        
+        if($retLoginType['status']){
+            $loginTypes = $retLoginType['push']['object']->getLoginTypeList();
+            $aRet = array();
+            foreach($loginTypes as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtypelogin'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of access level for natural person
+     * pt_br Retorna um array com ID e nome dos níveis de acesso para pessoa física
+     *
+     * @return array
+     */
+    public function _comboNaturalPersonType(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $retNaturalType = $personDAO->fetchNaturalPersonTypes($personModel);
+        
+        if($retNaturalType['status']){
+            $naturalTypes = $retNaturalType['push']['object']->getNaturalPersonTypeList();
+            $aRet = array();
+            foreach($naturalTypes as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtypeperson'],
+                    "text" => $v['name_fmt']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of access level for juridical person
+     * pt_br Retorna um array com ID e nome dos níveis de acesso para pessoa jurídica
+     *
+     * @return array
+     */
+    public function _comboJuridicalPersonType(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $retJuridicalType = $personDAO->fetchJuridicalPersonTypes($personModel);
+        
+        if($retJuridicalType['status']){
+            $juridicalTypes = $retJuridicalType['push']['object']->getJuridicalPersonTypeList();
+            $aRet = array();
+            foreach($juridicalTypes as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtypeperson'],
+                    "text" => $v['name_fmt']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of permission groups
+     * pt_br Retorna um array com ID e nome dos grupos de permissões
+     *
+     * @return array
+     */
+    public function _comboPermissionGroups(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $retPermissionGrp = $personDAO->fetchPermissionGroups($personModel);
+        
+        if($retPermissionGrp['status']){
+            $permissionGrp = $retPermissionGrp['push']['object']->getPermissionGroupsList();
+            $aRet = array();
+            foreach($permissionGrp as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idtypeperson'],
+                    "text" => $v['name_fmt']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of access level for juridical person
+     * pt_br Retorna um array com ID e nome dos níveis de acesso para pessoa jurídica
+     *
+     * @return array
+     */
+    public function _comboLocation(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $retLocation = $personDAO->fetchLocations($personModel);
+        
+        if($retLocation['status']){
+            $locations = $retLocation['push']['object']->getLocationsList();
+            $aRet = array();
+            foreach($locations as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idlocation'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns array with countries data found by the keyword
+     * pt_br Retorna array com dados de países encontrados pela palavra-chave
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchCountry($keyword): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(printablename) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = "WHERE ($keyword OR pipeLatinToUtf8(iso) LIKE pipeLatinToUtf8('%{$searchStr}%') OR pipeLatinToUtf8(iso3) LIKE pipeLatinToUtf8('%{$searchStr}%'))";
+        $order = "ORDER BY printablename";
+        
+        $ret = $personDAO->queryCountries($where,null,$order);
+        
+        if($ret['status']){
+            $countries = $ret['push']['object']->getCountryList();
+            $aRet = array();
+            foreach($countries as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idcountry'],
+                    "name" => $v['printablename'],
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns array with states data found by the keyword
+     * pt_br Retorna array com dados de estados encontrados pela palavra-chave
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchState($keyword,$countryId): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $aRet = array();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = (!is_null($countryId) && !empty($countryId)) ? "WHERE ($keyword OR pipeLatinToUtf8(abbr) LIKE pipeLatinToUtf8('%{$searchStr}%')) AND idcountry = {$countryId}" : "";
+        $order = "ORDER BY `name` ASC";
+        
+        $ret = $personDAO->queryStates($where,null,$order);
+        
+        if($ret['status']){
+            $states = $ret['push']['object']->getStateList();
+            
+            foreach($states as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idstate'],
+                    "name" => $v['name'],
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns array with states data found by the keyword
+     * pt_br Retorna array com dados de estados encontrados pela palavra-chave
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchCity($keyword,$stateId): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $aRet = array();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = (!is_null($stateId) && !empty($stateId)) ? "WHERE ($keyword) AND idstate = {$stateId}" : "";
+        $order = "ORDER BY `name` ASC";
+        
+        $ret = $personDAO->queryCities($where,null,$order);
+        
+        if($ret['status']){
+            $cities = $ret['push']['object']->getCitiesList();
+
+            foreach($cities as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idcity'],
+                    "name" => $v['name'],
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns array with states data found by the keyword
+     * pt_br Retorna array com dados de estados encontrados pela palavra-chave
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchNeighborhood($keyword,$cityId): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $aRet = array();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = (!is_null($cityId) && !empty($cityId)) ? "WHERE ($keyword) AND idcity = {$cityId}" : "";
+        $order = "ORDER BY `name` ASC";
+        
+        $ret = $personDAO->queryNeighborhoods($where,null,$order);
+        
+        if($ret['status']){
+            $neighborhoods = $ret['push']['object']->getNeighborhoodList();
+            
+            foreach($neighborhoods as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idneighborhood'],
+                    "name" => $v['name'],
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns array with states data found by the keyword
+     * pt_br Retorna array com dados de estados encontrados pela palavra-chave
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchStreet($keyword,$typeId): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $aRet = array();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = "WHERE ($keyword) AND idtypestreet = {$typeId}";
+        $order = "ORDER BY `name` ASC";
+        
+        $ret = $personDAO->queryStreets($where,null,$order);
+        
+        if($ret['status']){
+            $neighborhoods = $ret['push']['object']->getStreetList();
+            
+            foreach($neighborhoods as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idstreet'],
+                    "name" => $v['name'],
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of departements
+     * pt_br Retorna um array com Id e nome dos departmentos da empresa selecionada
+     *
+     * @param  mixed $companyId Company Id
+     * @return array
+     */
+    public function _comboDepartment($companyId): array
+    {
+        $departmentDAO = new departmentDAO();
+        $aRet = array();
+
+        $where = "AND a.idperson = $companyId AND a.status = 'A'";
+        $order = "ORDER BY a.name ASC";
+
+        $retDepartment = $departmentDAO->queryDepartment($where,null,$order);
+         
+        if($retDepartment['status']){
+            $departments = $retDepartment['push']['object']->getGridList();
+            
+            foreach($departments as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['iddepartment'],
+                    "text" => $v['department']
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Formats departments list in HTML to show in the dropdown
+     * pt_br Formata a lista de departamentos em HTML para mostrar no combo
+     *
+     * @param  mixed $companyId Company Id
+     * @return string
+     */
+    public function _comboDepartmentHtml($companyId)
+    {
+        $aDepartments = $this->_comboDepartment($companyId);
+        $select = '';
+
+        if($aDepartments && count($aDepartments) > 0){
+            foreach($aDepartments as $key=>$val) {
+                $default = ($val['isdefault'] == 1) ? 'selected="selected"' : '';
+                $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+            }
+        }
+
+        return $select;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of groups
+     * pt_br Retorna um array com Id e nome dos grupos
+     *
+     * @return array
+     */
+    public function _comboGroup(): array
+    {
+        $groupDAO = new groupDAO();
+        $aRet = array();
+
+        $retGroup = $groupDAO->queryGroups(null,null,"ORDER BY tbp.name ASC");
+         
+        if($retGroup['status']){
+            $groups = $retGroup['push']['object']->getGridList();
+            
+            foreach($groups as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idgroup'],
+                    "text" => $v['name']
+                );
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
+    
 }

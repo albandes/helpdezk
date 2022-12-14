@@ -956,7 +956,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -1520,7 +1520,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -1628,7 +1628,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -2007,7 +2007,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -2269,7 +2269,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -2362,7 +2362,7 @@ class ticketDAO extends Database
                             ->setNoteStartHour($v['startHour'])
                             ->setNoteFinishHour($v['finishHour'])
                             ->setNoteExecutionDate($v['executionDate'])
-                            ->setNoteHourType($v['executionDate'])
+                            ->setNoteHourType($v['hourType'])
                             ->setNoteIpAddress($v['ipAddress'])
                             ->setNoteIsCallback($v['callback'])
                             ->setNoteIsOpen(0);
@@ -2445,7 +2445,7 @@ class ticketDAO extends Database
                             ->setNoteStartHour($v['startHour'])
                             ->setNoteFinishHour($v['finishHour'])
                             ->setNoteExecutionDate($v['executionDate'])
-                            ->setNoteHourType($v['executionDate'])
+                            ->setNoteHourType($v['hourType'])
                             ->setNoteIpAddress($v['ipAddress'])
                             ->setNoteIsCallback($v['callback'])
                             ->setNoteIsOpen(1);
@@ -2706,7 +2706,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -2773,7 +2773,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -2906,7 +2906,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);
@@ -2995,7 +2995,7 @@ class ticketDAO extends Database
                                 ->setNoteStartHour($v['startHour'])
                                 ->setNoteFinishHour($v['finishHour'])
                                 ->setNoteExecutionDate($v['executionDate'])
-                                ->setNoteHourType($v['executionDate'])
+                                ->setNoteHourType($v['hourType'])
                                 ->setNoteIpAddress($v['ipAddress'])
                                 ->setNoteIsCallback($v['callback'])
                                 ->setNoteIsOpen(0);

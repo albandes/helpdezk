@@ -15,7 +15,7 @@ use App\src\awsServices;
 
 
 class Modules extends Controller
-{    
+{
     /**
      * @var string
      */

@@ -7,6 +7,7 @@ use App\modules\admin\dao\mysql\personDAO;
 use App\modules\admin\models\mysql\personModel;
 
 use App\modules\admin\src\adminServices;
+use App\modules\helpdezk\src\hdkServices;
 
 class Person extends Controller
 {
@@ -25,9 +26,9 @@ class Person extends Controller
      */
     public function index()
     {
-        $params = $this->makeScreenHolidays();
+        $params = $this->makeScreenPerson();
 		
-		$this->view('admin','persons',$params);
+		$this->view('admin','person',$params);
     }
 
     /**
@@ -35,9 +36,10 @@ class Person extends Controller
 	 * 
 	 *  pt_br Configura as telas do programa
 	 */
-    public function makeScreenHolidays($option='idx',$obj=null)
+    public function makeScreenPerson($option='idx',$obj=null)
     {
         $adminSrc = new adminServices();
+        $hdkSrc = new hdkServices();
         $params = $this->appSrc->_getDefaultParams();
         $params = $adminSrc->_makeNavAdm($params);
 
@@ -49,7 +51,31 @@ class Person extends Controller
         
         // -- Companies --
         $params['cmbCompanies'] = $adminSrc->_comboCompany();
-        array_push($params['cmbCompanies'],array("id"=>0,"text"=>$this->translator->translate('National_holiday')));
+
+        // -- Login types --
+        $params['cmbLoginTypes'] = $adminSrc->_comboLoginType();
+        $params['defaultLoginType'] = 3;
+
+        // -- Natural person types --
+        $params['cmbAccessLevels'] = $adminSrc->_comboNaturalPersonType();
+
+        // -- Juridical person types --
+        $params['cmbJuridicalTypes'] = $adminSrc->_comboJuridicalPersonType();
+
+        // -- Permissions groups --
+        $params['cmbPermissionGroups'] = $adminSrc->_comboPermissionGroups();
+
+        // -- Groups for attendant --
+        $params['cmbGroups'] = $adminSrc->_comboGroup();
+
+        // -- Locations --
+        $params['cmbLocations'] = $adminSrc->_comboLocation();
+        
+        // -- Street types --
+        $params['cmbStreetTypes'] = $adminSrc->_comboStreetType();
+
+        // -- Country default --
+        $params['countryDefault'] = $_SESSION['COUNTRY_DEFAULT'];
 
         // -- Search action --
         if($option == 'idx'){
@@ -63,15 +89,50 @@ class Person extends Controller
         $params['modalError'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-error.latte';
 
         if($option=='upd'){
-            $params['idholiday'] = $obj->getIdHoliday();
-            $params['holidayDesc'] = $obj->getDescription();
-            $params['holidayDate'] = $this->appSrc->_formatDate($obj->getDate());           
-        }elseif($option=='add'){
-            $params['companyID'] = $obj->getIdCompany();
-        }
+            $params['natureTypeId'] = $obj->getPersonNatureId();
+            $params['natureType'] = $this->translator->translate($obj->getPersonNature());
+            $params['login'] = $obj->getLogin(); 
+            $params['selectedLoginType'] = $obj->getIdTypeLogin();
+            $params['personName'] = $obj->getName();
+            $params['ssnCpf'] = $obj->getSsnCpf();
+            $params['personBirthDt'] = (!empty($obj->getDtBirth()) && $obj->getDtBirth() != '0000-00-00') ? $this->appSrc->_formatDate($obj->getDtBirth()) : '';
+            $params['personGender'] = $obj->getGender();
+            $params['einCnpj'] = $obj->getEinCnpj();
+            $params['juridicalTypeSelected'] = $obj->getIdTypePerson();
+            $params['personEmail'] = $obj->getEmail();
+            $params['companySelected'] = $obj->getIdCompany();
+            $params['departmentSelected'] = $obj->getIdDepartment();
+            $params['phone'] = $obj->getTelephone();
+            $params['branch'] = $obj->getBranchNumber();
+            $params['mobile'] = $obj->getCellphone();
+            $params['fax'] = $obj->getFax();
+            $params['isUserVip'] = $obj->getUserVip();
+            $params['accessLevelSelected'] = $obj->getIdTypePerson();
+            $params['aPermissionGroups'] = $obj->getPermissionGroupsIdList();
+            $params['aGroups'] = $obj->getPersonGroupsIdList();
+            $params['timeValue'] = $obj->getTimeValue();
+            $params['overtimeWork'] = $obj->getOvertimeWork();
+            $params['locationSelected'] = $obj->getLocationId();
+            $params['country'] = ($obj->getIdCountry() == 1) ? $_SESSION['COUNTRY_DEFAULT'] : $obj->getIdCountry();
+            $params['state'] = $obj->getIdState();
+            $params['city'] = $obj->getIdCity();
+            $params['neighborhood'] = $obj->getIdNeighborhood();
+            $params['zipcode'] = $obj->getZipCode();
+            $params['streetTypeSelected'] = $obj->getIdTypeStreet();
+            $params['street'] = ($obj->getIdStreet() == 1) ? '' : $obj->getIdStreet();
+            $params['number'] = $obj->getNumber();
+            $params['complement'] = $obj->getComplement();
+            $params['contactPerson'] = $obj->getContactName();
+            $params['observation'] = $obj->getObsevation();
+            
+            $params['displayNatural'] = ($params['natureTypeId'] == 1) ? "" : "d-none";
+            $params['displayJuridical'] = ($params['natureTypeId'] == 1) ? "d-none" : "";
+            $params['displayAttendant'] = ($params['natureTypeId'] == 1 && $params['accessLevelSelected'] == 3) ? "" : "d-none";
+            $params['displayUser'] = ($params['natureTypeId'] == 1 && $params['accessLevelSelected'] == 2) ? "" : "d-none";
 
-        // -- Last year --
-        $params['cmbLastYear'] = $adminSrc->_comboLastYear();
+            // -- Departments --
+            $params['cmbDepartments'] = $adminSrc->_comboDepartment($params['companySelected']);
+        }
       
         return $params;
     }
@@ -90,8 +151,29 @@ class Person extends Controller
             $filterIndx = $_POST["filterIndx"];
             $filterValue = $_POST["filterValue"];
             $filterOp = $_POST["filterOperation"];
+
+            switch($filterIndx){                
+                case "name": 
+                    $filterIndx = "tbp.name";
+                    break;
+                case "login": 
+                    $filterIndx = "tbp.login";
+                    break;
+                case "email": 
+                    $filterIndx = "tbp.email";
+                    break;
+                case "company": 
+                    $filterIndx = "comp.name";
+                    break;
+                case "department": 
+                    $filterIndx = "dep.name";
+                    break;
+                default:
+                    $filterIndx = $filterIndx;
+                break;
+            }
             
-            $where .= (empty($where) ? "WHERE " : " AND ") . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+            $where .= " AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
         } 
         
         //Search with params sended from quick search input
@@ -99,7 +181,13 @@ class Person extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= (empty($where) ? "WHERE " : " AND ") . "(tbh.holiday_description LIKE '%{$quickValue}%' OR tbh.holiday_date LIKE '".$this->appSrc->_formatSaveDate($quickValue)."')";
+            $where .= " AND (pipeLatinToUtf8(tbp.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(tbp.email) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(tbp.login) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(comp.name) LIKE pipeLatinToUtf8('%{$quickValue}%'))";
+        }
+
+        //show all records (inactive included)
+        if(!isset($_POST["allRecords"]) || (isset($_POST["allRecords"]) && $_POST["allRecords"] != "true"))
+        {
+            $where .= " AND tbp.status = 'A' ";
         }
         
         //sort options
@@ -126,7 +214,7 @@ class Person extends Controller
 
         $persons = $personDAO->queryPersons($where,$group,$order,$limit);
         
-        if($persons['status']){     
+        if($persons['status']){
             $aPersons = $persons['push']['object']->getGridList();
 
             foreach($aPersons as $k=>$v) {
@@ -185,8 +273,11 @@ class Person extends Controller
     public function comboPersonFilters(): array
     {
         $aRet = array(
-            array("id" => 'holiday_description',"text"=>$this->translator->translate('Name')), // equal
-            array("id" => 'holiday_date',"text"=>$this->translator->translate('Date'))
+            array("id" => 'name',"text"=>$this->translator->translate('Name')),
+            array("id" => 'login',"text"=>$this->translator->translate('Login')),
+            array("id" => 'email',"text"=>$this->translator->translate('email')),
+            array("id" => 'company',"text"=>$this->translator->translate('Company')),
+            array("id" => 'department',"text"=>$this->translator->translate('Department'))
         );
         
         return $aRet;
@@ -199,81 +290,131 @@ class Person extends Controller
      */
     public function formCreate()
     {
-        $params = $this->makeScreenHolidays();
+        $params = $this->makeScreenPerson('add');
         
-        $this->view('admin','holidays-create',$params);
+        $this->view('admin','person-create',$params);
     }
 
     /**
-     * en_us Renders the holidays update screen
-     *
+     * en_us Renders the person update screen
      * pt_br Renderiza o template da tela de atualização do cadastro
      */
-    public function formUpdate($idholiday=null)
+    public function formUpdate($personId=null)
     {
-        $personDAO = new holidayDAO();
-        $holidayMod = new holidayModel();
-        $holidayMod->setIdHoliday($idholiday);
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $personModel->setIdPerson($personId);
 
-        $holidayUpd = $holidayDao->getHoliday($holidayMod);
+        $ret = $personDAO->getPerson($personModel);
         
-        $params = $this->makeScreenHolidays('upd',$holidayUpd['push']['object']);
-        $params['holidayID'] = $idholiday;
+        $params = $this->makeScreenPerson('upd',$ret['push']['object']);
+        $params['personId'] = $personId;
       
-        $this->view('admin','holidays-update',$params);
+        $this->view('admin','person-update',$params);
     }
 
     /**
-     * en_us Write the holiday information to the DB
-     *
-     * pt_br Grava no BD as informações do feriado
+     * en_us Write the person or company information to the DB 
+     * pt_br Grava no BD as informações da pessoa ou empresa
      */
-    public function createHoliday()
+    public function createPerson()
     {
-        $holidayDao = new holidayDAO();
-        $holidayMod = new holidayModel();
+        $personDAO = new personDAO();
+        $personModel = new personModel();
 
         if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
-
-        $holidayMod->setDate($this->appSrc->_formatSaveDate($_POST['holiday_date']))
-                   ->setDescription(trim($_POST['holiday_description']));        
         
-        $ins = $holidayDao->insertHoliday($holidayMod);
-        if($ins['status']){
-            $companyID = $_POST['company'];
+        $charSearch = array("(",")","-"," ",".");
+        $charReplace = array("","","","","");
+        $aAdminOpe = array(1,3);
 
+        $natureType = $_POST['natureType'];
+        $fax = ($natureType == 1) ? '' : str_replace($charSearch,$charReplace,trim(strip_tags($_POST['fax'])));
+        $mobile = ($natureType == 1) ? str_replace($charSearch,$charReplace,trim(strip_tags($_POST['mobile']))) : '';
+        $vip =  ($natureType == 1) ? ((isset($_POST['isUserVip'])) ? 'Y' : 'N') : 'N';
+        $timeValue = ($natureType == 1 && in_array($_POST['cmbAccessLevel'],$aAdminOpe) && !empty($_POST['timeValue'])) ? $_POST['timeValue'] : 0;
+        $overtimeWork = ($natureType == 1 && in_array($_POST['cmbAccessLevel'],$aAdminOpe) && !empty($_POST['overtimeWork'])) ? $_POST['overtimeWork'] : 0;
+        $locationId = ($natureType == 1 && $_POST['cmbAccessLevel'] == 2) ? ((isset($_POST['cmbLocation']) && (!empty($_POST['cmbLocation']) && $_POST['cmbLocation'] > 0)) ? $_POST['cmbLocation'] : 0) : 0;
+
+        $personModel->setLogin(($natureType == 1) ? strtolower(trim(strip_tags($_POST['login']))) : '')
+                    ->setIdTypeLogin(($natureType == 1) ? $_POST['cmbLoginType'] : 3)
+                    ->setPersonNatureId($natureType)
+                    ->setPassword(($natureType == 1) ? trim(strip_tags($_POST['password'])) : '')
+                    ->setName(trim(strip_tags($_POST['personName'])))
+                    ->setEmail(trim(strip_tags($_POST['personEmail'])))
+                    ->setTelephone(str_replace($charSearch,$charReplace,trim(strip_tags($_POST['phone']))))
+                    ->setBranchNumber(str_replace($charSearch,$charReplace,trim(strip_tags($_POST['branch']))))
+                    ->setFax($fax)
+                    ->setCellphone($mobile)
+                    ->setUserVip($vip)
+                    ->setIdTypePerson(($natureType == 1) ? $_POST['cmbAccessLevel'] : $_POST['cmbJuridicalType'])
+                    ->setTimeValue($timeValue)
+                    ->setOvertimeWork($overtimeWork)
+                    ->setLocationId($locationId)
+                    ->setChangePasswordFlag(($natureType == 1 && isset($_POST['changePassword'])) ? 1 : 0)
+                    ->setThemeId(1)
+                    ->setSsnCpf(preg_replace('/[^0-9]/','',trim(strip_tags($_POST['ssnCpf']))))
+                    ->setDtBirth((!empty($_POST['personBirthDt'])) ? $this->appSrc->_formatSaveDate($_POST['personBirthDt']) : '0000-00-00')
+                    ->setGender((isset($_POST['personGender'])) ? $_POST['personGender'] : '')
+                    ->setIdDepartment(($natureType == 1) ? $_POST['cmbDepartment'] : 0)
+                    ->setEinCnpj(preg_replace('/[^0-9]/','',trim(strip_tags($_POST['einCnpj']))))
+                    ->setDepartment(trim(strip_tags($_POST['defaultDepartment'])))
+                    ->setContactName(trim(strip_tags($_POST['contactPerson'])))
+                    ->setObsevation(trim(strip_tags($_POST['observation'])))
+                    ->setPermissionGroupsList((isset($_POST['cmbPermissionGroups'])) ? $_POST['cmbPermissionGroups'] : array())
+                    ->setPersonGroupsList((isset($_POST['cmbGroup'])) ? $_POST['cmbGroup'] : array())
+                    ->setIdCity((isset($_POST['fillAddress'])) ? $_POST['city'] : 1)
+                    ->setIdNeighborhood((isset($_POST['fillAddress'])) ? $_POST['neighborhood'] : 1)
+                    ->setIdStreet((isset($_POST['fillAddress'])) ? $_POST['street'] : 1)
+                    ->setAddressTypeId(($natureType == 1) ? 2 : 3)
+                    ->setZipCode((isset($_POST['fillAddress'])) ? str_replace($charSearch,$charReplace,trim(strip_tags($_POST['zipcode']))) : '')
+                    ->setNumber((isset($_POST['fillAddress'])) ? trim(strip_tags($_POST['number'])) : '')
+                    ->setComplement((isset($_POST['fillAddress'])) ? trim(strip_tags($_POST['complement'])) : '');
+                    
+        $ins = $personDAO->savePersonData($personModel);
+        if($ins['status']){
             $st = true;
             $msg = "";
-            $holidayID = $ins['push']['object']->getIdHoliday();
-            $holidayDescription = $ins['push']['object']->getDescription();
             
-            //Link holiday with the company
-            if($companyID != 0){
-                $ins['push']['object']->setIdCompany($companyID);
-               
-                $insCompany = $holidayDao->insertHolidayHasCompany($ins['push']['object']);
-                if(!$insCompany['status']){
-                    $st = false;
-                    $msg = $insCompany['push']['message'];
-                    $holidayID = "";
-                    $holidayDescription = "";
-                }
+            $retInfo = $personDAO->getPerson($ins['push']['object']);
+            if($retInfo['status']){
+                $personID = $retInfo['push']['object']->getIdPerson();
+                $personName = $retInfo['push']['object']->getName();
+                $natureID = $retInfo['push']['object']->getPersonNatureId();
+                $nature = $retInfo['push']['object']->getPersonNature();
+                $login = $retInfo['push']['object']->getLogin();
+                $accessLevel = $retInfo['push']['object']->getTypePerson();
+            }else{
+                $personID = "";
+                $personName = "";
+                $natureID = "";
+                $nature = "";
+                $login = "";
+                $accessLevel = "";
             }
         }else{
             $st = false;
             $msg = $ins['push']['message'];
-            $holidayID = "";
-            $holidayDescription = "";
+            $personID = "";
+            $personName = "";
+            $natureID = "";
+            $nature = "";
+            $login = "";
+            $accessLevel = "";
         }       
         
         $aRet = array(
             "success" => $st,
             "message" => $msg,
-            "idholiday" => $holidayID,
-            "description" => $holidayDescription
+            "personId" => $personID,
+            "personName" => $personName,
+            "natureId" => $natureID,
+            "nature" => $nature,
+            "login" => $login,
+            "accessLevel" => $accessLevel
         );       
 
         echo json_encode($aRet);
@@ -284,21 +425,59 @@ class Person extends Controller
      *
      * pt_br Atualiza no BD as informações do feriado
      */
-    public function updateHoliday()
+    public function updatePerson()
     {
-        $holidayDao = new holidayDAO();
-        $holidayMod = new holidayModel();
+        $personDAO = new personDAO();
+        $personModel = new personModel();
 
         if (!$this->appSrc->_checkToken()) {
             $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return false;
         }
         
-        $holidayMod->setIdHoliday($_POST['holidayID'])
-                   ->setDate($this->appSrc->_formatSaveDate($_POST['holiday_date']))
-                   ->setDescription(trim($_POST['holiday_description']));
+        $charSearch = array("(",")","-"," ",".");
+        $charReplace = array("","","","","");
+        $aAdminOpe = array(1,3);
+
+        $natureType = $_POST['natureType'];
+        $fax = ($natureType == 1) ? '' : str_replace($charSearch,$charReplace,trim(strip_tags($_POST['fax'])));
+        $mobile = ($natureType == 1) ? str_replace($charSearch,$charReplace,trim(strip_tags($_POST['mobile']))) : '';
+        $vip =  ($natureType == 1) ? ((isset($_POST['isUserVip'])) ? 'Y' : 'N') : 'N';
+        $timeValue = ($natureType == 1 && in_array($_POST['cmbAccessLevel'],$aAdminOpe) && !empty($_POST['timeValue'])) ? $_POST['timeValue'] : 0;
+        $overtimeWork = ($natureType == 1 && in_array($_POST['cmbAccessLevel'],$aAdminOpe) && !empty($_POST['overtimeWork'])) ? $_POST['overtimeWork'] : 0;
+        $locationId = ($natureType == 1 && $_POST['cmbAccessLevel'] == 2) ? ((isset($_POST['cmbLocation']) && (!empty($_POST['cmbLocation']) && $_POST['cmbLocation'] > 0)) ? $_POST['cmbLocation'] : 0) : 0;
+
+        $personModel->setIdPerson($_POST['personId'])
+                    ->setIdTypeLogin(($natureType == 1) ? $_POST['cmbLoginType'] : 3)
+                    ->setPersonNatureId($natureType)
+                    ->setName(trim(strip_tags($_POST['personName'])))
+                    ->setEmail(trim(strip_tags($_POST['personEmail'])))
+                    ->setTelephone(str_replace($charSearch,$charReplace,trim(strip_tags($_POST['phone']))))
+                    ->setBranchNumber(str_replace($charSearch,$charReplace,trim(strip_tags($_POST['branch']))))
+                    ->setFax($fax)
+                    ->setCellphone($mobile)
+                    ->setUserVip($vip)
+                    ->setIdTypePerson(($natureType == 1) ? $_POST['cmbAccessLevel'] : $_POST['cmbJuridicalType'])
+                    ->setTimeValue($timeValue)
+                    ->setOvertimeWork($overtimeWork)
+                    ->setLocationId($locationId)
+                    ->setSsnCpf(preg_replace('/[^0-9]/','',trim(strip_tags($_POST['ssnCpf']))))
+                    ->setDtBirth((!empty($_POST['personBirthDt'])) ? $this->appSrc->_formatSaveDate($_POST['personBirthDt']) : '0000-00-00')
+                    ->setGender((isset($_POST['personGender'])) ? $_POST['personGender'] : '')
+                    ->setIdDepartment(($natureType == 1) ? $_POST['cmbDepartment'] : 0)
+                    ->setEinCnpj(preg_replace('/[^0-9]/','',trim(strip_tags($_POST['einCnpj']))))
+                    ->setContactName(trim(strip_tags($_POST['contactPerson'])))
+                    ->setObsevation(trim(strip_tags($_POST['observation'])))
+                    ->setPermissionGroupsList((isset($_POST['cmbPermissionGroups'])) ? $_POST['cmbPermissionGroups'] : array())
+                    ->setPersonGroupsList((isset($_POST['cmbGroup'])) ? $_POST['cmbGroup'] : array())
+                    ->setIdCity((!empty($_POST['city'])) ? $_POST['city'] : 1)
+                    ->setIdNeighborhood((!empty($_POST['neighborhood'])) ? $_POST['neighborhood'] : 1)
+                    ->setIdStreet((!empty($_POST['street'])) ? $_POST['street'] : 1)
+                    ->setZipCode((!empty($_POST['zipcode'])) ? str_replace($charSearch,$charReplace,trim(strip_tags($_POST['zipcode']))) : '')
+                    ->setNumber((!empty($_POST['number'])) ? trim(strip_tags($_POST['number'])) : '')
+                    ->setComplement((!empty($_POST['complement'])) ? trim(strip_tags($_POST['complement'])) : '');
         
-        $upd = $holidayDao->updateHoliday($holidayMod);
+        $upd = $personDAO->updatePersonData($personModel);
         
         if(!$upd['status']){
             $st = false;
@@ -309,13 +488,17 @@ class Person extends Controller
         $aRet = array(
             "success" => $st,
             "message" => $upd['push']['message'],
-            "idholiday" => (!is_null($upd['push']['object']) && !empty($upd['push']['object'])) ? $holidayMod->getIdHoliday() : ""
+            "personId" => (!is_null($upd['push']['object']) && !empty($upd['push']['object'])) ? $personModel->getIdPerson() : ""
         );        
 
         echo json_encode($aRet);
     }
 
-    
+    /**
+     * en_us Returns states list in HTML to reload combo
+     *
+     * @return void
+     */
     function ajaxStates()
     {
         $adminSrc = new adminServices();
@@ -334,6 +517,156 @@ class Person extends Controller
     {
         $adminSrc = new adminServices();
         echo $adminSrc->_comboNeighborhoodHtml($_POST['cityId']);
+
+    }
+
+    /**
+     * en_us Returns list with data found by the keyword
+     * pt_br Retorna a lista com os dados encontrados pela palavra-chave
+     *
+     * @return void
+     */
+    function searchCountry()
+    {
+        $adminSrc = new adminServices();
+        
+        echo json_encode($adminSrc->_searchCountry($_POST['keyword']));
+    }
+
+    /**
+     * en_us Returns list with data found by the keyword
+     * pt_br Retorna a lista com os dados encontrados pela palavra-chave
+     *
+     * @return void
+     */
+    function searchState()
+    {
+        $adminSrc = new adminServices();
+        
+        echo json_encode($adminSrc->_searchState($_POST['keyword'],$_POST['countryId']));
+    }
+
+    /**
+     * en_us Returns list with city's data found by the keyword
+     * pt_br Retorna a lista com os dados da cidade encontrados pela palavra-chave
+     *
+     * @return void
+     */
+    function searchCity()
+    {
+        $adminSrc = new adminServices();
+        
+        echo json_encode($adminSrc->_searchCity($_POST['keyword'],$_POST['stateId']));
+    }
+
+    /**
+     * en_us Returns list with neighborhood's data found by the keyword
+     * pt_br Retorna a lista com os dados do bairro encontrados pela palavra-chave
+     *
+     * @return void
+     */
+    function searchNeighborhood()
+    {
+        $adminSrc = new adminServices();
+        
+        echo json_encode($adminSrc->_searchNeighborhood($_POST['keyword'],$_POST['cityId']));
+    }
+
+    /**
+     * en_us Returns list with street's data found by the keyword
+     * pt_br Retorna a lista com os dados da rua encontrados pela palavra-chave
+     *
+     * @return void
+     */
+    function searchStreet()
+    {
+        $adminSrc = new adminServices();
+        
+        echo json_encode($adminSrc->_searchStreet($_POST['keyword'],$_POST['typeStreetId']));
+    }
+
+    /**
+     * 
+     * en_us Check if the operator has already been registered before
+     *
+     * pt_br Verifica se o operador já foi cadastrado anteriormente
+     */
+    function checkLogin(){
+        
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        
+        $login = trim(strip_tags($_POST['login']));
+
+        $where = "AND tbp.login = '{$login}'";
+
+        $check =  $personDAO->queryPersons($where);
+        if(!$check['status']){
+            return false;
+        }
+        
+        $checkObj = $check['push']['object']->getGridList();
+        
+        if(count($checkObj) > 0){
+            echo json_encode($this->translator->translate('Login_exists'));
+        }else{
+            echo json_encode(true);
+        }
+    }
+    
+    /**
+     * en_us Returns a list of deparment in HTML
+     * pt_br Retorna uma lista de departamentos em HTML
+     *
+     * @return void
+     */
+    function ajaxDepartment()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $adminSrc = new adminServices();
+        echo $adminSrc->_comboDepartmentHtml($_POST['companyId']);
+    }
+    
+    /**
+     * en_us Changes person's status
+     * pt_br Muda o status da pessoa
+     *
+     * @return void
+     */
+    function changeStatus()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdPerson($_POST['personId'])
+                    ->setStatus(($_POST['newStatus'] == "I") ? "N" : $_POST['newStatus']);
+        
+        $upd = $personDAO->changePersonStatus($personModel);
+        if(!$upd['status']){
+            return false;
+        }
+
+        $this->logger->info("Person # {$_POST['personId']} status was updated.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+        $aRet = array(
+            "success" => true
+        );
+
+        echo json_encode($aRet);
 
     }
 

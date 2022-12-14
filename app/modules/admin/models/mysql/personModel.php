@@ -275,6 +275,127 @@ final class personModel
     private $einCnpj;
 
     /**
+     * @var array
+     */
+    private $loginTypeList;
+
+    /**
+     * @var array
+     */
+    private $naturalPersonTypeList;
+
+    /**
+     * @var array
+     */
+    private $juridicalPersonTypeList;
+
+    /**
+     * @var array
+     */
+    private $permissionGroupsList;
+
+    /**
+     * @var array
+     */
+    private $locationsList;
+
+    /**
+     * @var string
+     */
+    private $password;
+
+    /**
+     * @var string
+     */
+    private $confirmPassword;
+
+    /**
+     * @var string
+     */
+    private $fax;
+
+    /**
+     * @var float
+     */
+    private $timeValue;
+
+    /**
+     * @var float
+     */
+    private $overtimeWork;
+
+    /**
+     * @var int
+     */
+    private $locationId;
+
+    /**
+     * @var int
+     */
+    private $changePasswordFlag;
+
+    /**
+     * @var int
+     */
+    private $themeId;
+
+    /**
+     * @var string
+     */
+    private $contactName;
+
+    /**
+     * @var string
+     */
+    private $obsevation;
+
+    /**
+     * @var array
+     */
+    private $personGroupsList;
+
+     /**
+     * @var int
+     */
+    private $addressTypeId;
+
+    /**
+     * @var int
+     */
+    private $personNatureId;
+
+    /**
+     * @var string
+     */
+    private $personNature;
+
+    /**
+     * @var int
+     */
+    private $permissionGroupId;
+
+    /**
+     * @var int
+     */
+    private $groupId;
+
+    /**
+     * @var string
+     */
+    private $iestadual;
+
+    /**
+     * @var array
+     */
+    private $personGroupsIdList;
+
+    /**
+     * @var array
+     */
+    private $permissionGroupsIdList;
+    
+
+    /**
      * Get the value of idPerson
      *
      * @return  int
@@ -1566,6 +1687,582 @@ final class personModel
     public function setEinCnpj(string $einCnpj)
     {
         $this->einCnpj = $einCnpj;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of loginTypeList
+     *
+     * @return  array
+     */ 
+    public function getLoginTypeList()
+    {
+        return $this->loginTypeList;
+    }
+
+    /**
+     * Set the value of loginTypeList
+     *
+     * @param  array  $loginTypeList
+     *
+     * @return  self
+     */ 
+    public function setLoginTypeList(array $loginTypeList)
+    {
+        $this->loginTypeList = $loginTypeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of naturalPersonTypeList
+     *
+     * @return  array
+     */ 
+    public function getNaturalPersonTypeList()
+    {
+        return $this->naturalPersonTypeList;
+    }
+
+    /**
+     * Set the value of naturalPersonTypeList
+     *
+     * @param  array  $naturalPersonTypeList
+     *
+     * @return  self
+     */ 
+    public function setNaturalPersonTypeList(array $naturalPersonTypeList)
+    {
+        $this->naturalPersonTypeList = $naturalPersonTypeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of juridicalPersonTypeList
+     *
+     * @return  array
+     */ 
+    public function getJuridicalPersonTypeList()
+    {
+        return $this->juridicalPersonTypeList;
+    }
+
+    /**
+     * Set the value of juridicalPersonTypeList
+     *
+     * @param  array  $juridicalPersonTypeList
+     *
+     * @return  self
+     */ 
+    public function setJuridicalPersonTypeList(array $juridicalPersonTypeList)
+    {
+        $this->juridicalPersonTypeList = $juridicalPersonTypeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of permissionGroupsList
+     *
+     * @return  array
+     */ 
+    public function getPermissionGroupsList()
+    {
+        return $this->permissionGroupsList;
+    }
+
+    /**
+     * Set the value of permissionGroupsList
+     *
+     * @param  array  $permissionGroupsList
+     *
+     * @return  self
+     */ 
+    public function setPermissionGroupsList(array $permissionGroupsList)
+    {
+        $this->permissionGroupsList = $permissionGroupsList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of locationsList
+     *
+     * @return  array
+     */ 
+    public function getLocationsList()
+    {
+        return $this->locationsList;
+    }
+
+    /**
+     * Set the value of locationsList
+     *
+     * @param  array  $locationsList
+     *
+     * @return  self
+     */ 
+    public function setLocationsList(array $locationsList)
+    {
+        $this->locationsList = $locationsList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of password
+     *
+     * @return  string
+     */ 
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * Set the value of password
+     *
+     * @param  string  $password
+     *
+     * @return  self
+     */ 
+    public function setPassword(string $password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of confirmPassword
+     *
+     * @return  string
+     */ 
+    public function getConfirmPassword()
+    {
+        return $this->confirmPassword;
+    }
+
+    /**
+     * Set the value of confirmPassword
+     *
+     * @param  string  $confirmPassword
+     *
+     * @return  self
+     */ 
+    public function setConfirmPassword(string $confirmPassword)
+    {
+        $this->confirmPassword = $confirmPassword;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fax
+     *
+     * @return  string
+     */ 
+    public function getFax()
+    {
+        return $this->fax;
+    }
+
+    /**
+     * Set the value of fax
+     *
+     * @param  string  $fax
+     *
+     * @return  self
+     */ 
+    public function setFax(string $fax)
+    {
+        $this->fax = $fax;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of timeValue
+     *
+     * @return  float
+     */ 
+    public function getTimeValue()
+    {
+        return $this->timeValue;
+    }
+
+    /**
+     * Set the value of timeValue
+     *
+     * @param  float  $timeValue
+     *
+     * @return  self
+     */ 
+    public function setTimeValue(float $timeValue)
+    {
+        $this->timeValue = $timeValue;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of overtimeWork
+     *
+     * @return  float
+     */ 
+    public function getOvertimeWork()
+    {
+        return $this->overtimeWork;
+    }
+
+    /**
+     * Set the value of overtimeWork
+     *
+     * @param  float  $overtimeWork
+     *
+     * @return  self
+     */ 
+    public function setOvertimeWork(float $overtimeWork)
+    {
+        $this->overtimeWork = $overtimeWork;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of locationId
+     *
+     * @return  int
+     */ 
+    public function getLocationId()
+    {
+        return $this->locationId;
+    }
+
+    /**
+     * Set the value of locationId
+     *
+     * @param  int  $locationId
+     *
+     * @return  self
+     */ 
+    public function setLocationId(int $locationId)
+    {
+        $this->locationId = $locationId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of changePasswordFlag
+     *
+     * @return  int
+     */ 
+    public function getChangePasswordFlag()
+    {
+        return $this->changePasswordFlag;
+    }
+
+    /**
+     * Set the value of changePasswordFlag
+     *
+     * @param  int  $changePasswordFlag
+     *
+     * @return  self
+     */ 
+    public function setChangePasswordFlag(int $changePasswordFlag)
+    {
+        $this->changePasswordFlag = $changePasswordFlag;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of themeId
+     *
+     * @return  int
+     */ 
+    public function getThemeId()
+    {
+        return $this->themeId;
+    }
+
+    /**
+     * Set the value of themeId
+     *
+     * @param  int  $themeId
+     *
+     * @return  self
+     */ 
+    public function setThemeId(int $themeId)
+    {
+        $this->themeId = $themeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of contactName
+     *
+     * @return  string
+     */ 
+    public function getContactName()
+    {
+        return $this->contactName;
+    }
+
+    /**
+     * Set the value of contactName
+     *
+     * @param  string  $contactName
+     *
+     * @return  self
+     */ 
+    public function setContactName(string $contactName)
+    {
+        $this->contactName = $contactName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of obsevation
+     *
+     * @return  string
+     */ 
+    public function getObsevation()
+    {
+        return $this->obsevation;
+    }
+
+    /**
+     * Set the value of obsevation
+     *
+     * @param  string  $obsevation
+     *
+     * @return  self
+     */ 
+    public function setObsevation(string $obsevation)
+    {
+        $this->obsevation = $obsevation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personGroupsList
+     *
+     * @return  array
+     */ 
+    public function getPersonGroupsList()
+    {
+        return $this->personGroupsList;
+    }
+
+    /**
+     * Set the value of personGroupsList
+     *
+     * @param  array  $personGroupsList
+     *
+     * @return  self
+     */ 
+    public function setPersonGroupsList(array $personGroupsList)
+    {
+        $this->personGroupsList = $personGroupsList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of addressTypeId
+     *
+     * @return  int
+     */ 
+    public function getAddressTypeId()
+    {
+        return $this->addressTypeId;
+    }
+
+    /**
+     * Set the value of addressTypeId
+     *
+     * @param  int  $addressTypeId
+     *
+     * @return  self
+     */ 
+    public function setAddressTypeId(int $addressTypeId)
+    {
+        $this->addressTypeId = $addressTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personNatureId
+     *
+     * @return  int
+     */ 
+    public function getPersonNatureId()
+    {
+        return $this->personNatureId;
+    }
+
+    /**
+     * Set the value of personNatureId
+     *
+     * @param  int  $personNatureId
+     *
+     * @return  self
+     */ 
+    public function setPersonNatureId(int $personNatureId)
+    {
+        $this->personNatureId = $personNatureId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personNature
+     *
+     * @return  string
+     */ 
+    public function getPersonNature()
+    {
+        return $this->personNature;
+    }
+
+    /**
+     * Set the value of personNature
+     *
+     * @param  string  $personNature
+     *
+     * @return  self
+     */ 
+    public function setPersonNature(string $personNature)
+    {
+        $this->personNature = $personNature;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of permissionGroupId
+     *
+     * @return  int
+     */ 
+    public function getPermissionGroupId()
+    {
+        return $this->permissionGroupId;
+    }
+
+    /**
+     * Set the value of permissionGroupId
+     *
+     * @param  int  $permissionGroupId
+     *
+     * @return  self
+     */ 
+    public function setPermissionGroupId(int $permissionGroupId)
+    {
+        $this->permissionGroupId = $permissionGroupId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupId
+     *
+     * @return  int
+     */ 
+    public function getGroupId()
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * Set the value of groupId
+     *
+     * @param  int  $groupId
+     *
+     * @return  self
+     */ 
+    public function setGroupId(int $groupId)
+    {
+        $this->groupId = $groupId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of iestadual
+     *
+     * @return  string
+     */ 
+    public function getIestadual()
+    {
+        return $this->iestadual;
+    }
+
+    /**
+     * Set the value of iestadual
+     *
+     * @param  string  $iestadual
+     *
+     * @return  self
+     */ 
+    public function setIestadual(string $iestadual)
+    {
+        $this->iestadual = $iestadual;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personGroupsIdList
+     *
+     * @return  array
+     */ 
+    public function getPersonGroupsIdList()
+    {
+        return $this->personGroupsIdList;
+    }
+
+    /**
+     * Set the value of personGroupsIdList
+     *
+     * @param  array  $personGroupsIdList
+     *
+     * @return  self
+     */ 
+    public function setPersonGroupsIdList(array $personGroupsIdList)
+    {
+        $this->personGroupsIdList = $personGroupsIdList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of permissionGroupsIdList
+     *
+     * @return  array
+     */ 
+    public function getPermissionGroupsIdList()
+    {
+        return $this->permissionGroupsIdList;
+    }
+
+    /**
+     * Set the value of permissionGroupsIdList
+     *
+     * @param  array  $permissionGroupsIdList
+     *
+     * @return  self
+     */ 
+    public function setPermissionGroupsIdList(array $permissionGroupsIdList)
+    {
+        $this->permissionGroupsIdList = $permissionGroupsIdList;
 
         return $this;
     }

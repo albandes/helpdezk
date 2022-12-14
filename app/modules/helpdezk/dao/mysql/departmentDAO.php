@@ -27,18 +27,18 @@ class departmentDAO extends Database
     {
         
         $sql = "SELECT a.iddepartment, b.name company, a.status, a.name AS department, 
-                    a.idperson AS idcompany
-                FROM hdk_tbdepartment a, tbperson b 
-                WHERE a.idperson = b.idperson 
+                       a.idperson AS idcompany
+                  FROM hdk_tbdepartment a, tbperson b 
+                 WHERE a.idperson = b.idperson 
                 $where $group $order $limit";
-               // echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
 
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $department = new departmentModel(); 
-            $department->setgridList($aRet);
+            $department->setGridList($aRet);
 
             $ret = true;
             $result = array("message"=>"","object"=>$department);
