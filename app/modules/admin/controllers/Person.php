@@ -4,7 +4,12 @@ use App\core\Controller;
 
 
 use App\modules\admin\dao\mysql\personDAO;
+use App\modules\admin\dao\mysql\programDAO;
+use App\modules\admin\dao\mysql\permissionDAO;
+
 use App\modules\admin\models\mysql\personModel;
+use App\modules\admin\models\mysql\programModel;
+use App\modules\admin\models\mysql\permissionModel;
 
 use App\modules\admin\src\adminServices;
 use App\modules\helpdezk\src\hdkServices;
@@ -192,8 +197,16 @@ class Person extends Controller
         
         //sort options
         $pq_sort = json_decode($_POST['pq_sort']);
-        $sortIndx = $pq_sort[0]->dataIndx;
+        $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "name";
         
+        switch($sortIndx){
+            case "personType":
+                $sortIndx = "typeperson"; 
+                break;
+            default:
+                $sortIndx = $sortIndx;
+                break;
+        }
         $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
         $order = "ORDER BY {$sortIndx} {$sortDir}";
         
@@ -661,6 +674,249 @@ class Person extends Controller
         }
 
         $this->logger->info("Person # {$_POST['personId']} status was updated.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+        $aRet = array(
+            "success" => true
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Renders manage permissions screen
+     * pt_br Renderiza a tela de gerenciamento de permissiões
+     */
+    public function managePermissions($personId=null)
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $personModel->setIdPerson($personId);
+
+        $ret = $personDAO->getPerson($personModel);
+        
+        $params = $this->makeScreenPerson('permission',$ret['push']['object']);
+        $params['personId'] = $personId;
+        $params['lblPersonName'] = $ret['push']['object']->getName();
+      
+        $this->view('admin','person-manage-permission',$params);
+    }
+    
+    /**
+     * en_us Returns person's permissions to display in grid
+     * pt_br Retorna as permissões da pessoa para exibir no grid
+     *
+     * @return void
+     */
+    public function jsonGridPermissions()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+
+        $programDAO = new programDAO(); 
+
+        $personId = $_POST['personId'];
+        $where = "";
+        $group = "";
+        
+        //Search with params sended from quick search input
+        if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
+        {
+            $quickValue = trim($_POST['quickValue']);
+            $quickValue = str_replace(" ","%",$quickValue);
+            $where .= " WHERE (pipeLatinToUtf8(tbp.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(tbm.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(pvoc.key_value) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(mvoc.key_value) LIKE pipeLatinToUtf8('%{$quickValue}%'))";
+        }
+
+        //sort options
+        $pq_sort = json_decode($_POST['pq_sort']);
+        $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "name";
+        
+        $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
+
+        switch($sortIndx){
+            case "module":
+                $sortIndx = "module_fmt {$sortDir}, name_fmt ASC"; 
+                break;
+            case "program":
+                $sortIndx = "module_fmt {$sortDir}, name_fmt {$sortDir}"; 
+                break;
+            default:
+                $sortIndx = "{$sortIndx} {$sortDir}";
+                break;
+        }
+
+        $order = "ORDER BY {$sortIndx}";
+        
+        $pq_curPage = !isset($_POST["pq_curpage"]) ? 1 : $_POST["pq_curpage"];    
+    
+        $pq_rPP = $_POST["pq_rpp"];
+        
+        //Count records
+        $countPrograms = $programDAO->countPrograms($where,$group); 
+        if($countPrograms['status']){
+            $total_Records = $countPrograms['push']['object']->getTotalRows();
+        }else{
+            $total_Records = 0;
+        }
+        
+        $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
+        $limit = "LIMIT {$skip},$pq_rPP";
+
+        $programs = $programDAO->queryPrograms($where,$group,$order,$limit);
+        
+        if($programs['status']){
+            $aPrograms = $programs['push']['object']->getGridList();
+
+            foreach($aPrograms as $k=>$v) {
+                $retPermissions = $this->makePermissionOptions($v['idprogram'],$personId);
+
+                $data[] = array(
+                    'idprogram'     => $v['idprogram'],
+                    'module'        => $v['module_fmt'],
+                    'program'       => $v['name_fmt'],
+                    'access'        => ($retPermissions['success']) ? $retPermissions['access'] : "",
+                    'new'           => ($retPermissions['success']) ? $retPermissions['new'] : "",
+                    'edit'          => ($retPermissions['success']) ? $retPermissions['edit'] : "",
+                    'delete'        => ($retPermissions['success']) ? $retPermissions['delete'] : "",
+                    'export'        => ($retPermissions['success']) ? $retPermissions['export'] : "",
+                    'email'         => ($retPermissions['success']) ? $retPermissions['email'] : "",
+                    'sms'           => ($retPermissions['success']) ? $retPermissions['sms'] : "",
+                    'idperson'      => $personId  
+                );
+            }
+            
+            $aRet = array(
+                "totalRecords" => $total_Records,
+                "curPage" => $pq_curPage,
+                "data" => $data
+            );
+
+            echo json_encode($aRet);
+            
+        }else{
+            echo json_encode(array());            
+        }
+    }
+    
+    /**
+     * en_us Make a list of permission by program in HTML
+     * pt_br Cria uma lista de permissões por programa em HTML
+     *
+     * @param  int $programId
+     * @return array
+     */
+    public function makePermissionOptions($programId,$personId): array
+    {
+        $permissionDAO = new permissionDAO();
+        $permissionModel = new permissionModel();
+        $permissionModel->setProgramId($programId)
+                        ->setPersonId($personId);
+
+        $ret = $permissionDAO->fetchDefaultPermissionsByProgram($permissionModel);
+        if(!$ret['status']){
+            $this->logger->error("Could not get default permissions", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return array("success"=>false);
+        }
+        $aDefPermissions = $ret['push']['object']->getDefaultPermissionList();
+
+        foreach($aDefPermissions as $k=>$v){
+            $aDefPerm[$v['idaccesstype']] = $v['idaccesstype'];
+        }
+
+        for($accessType = 1;$accessType <=7;$accessType++){
+            $ret['push']['object']->setAccessTypeId($accessType);
+            
+            $retUserPermission = $permissionDAO->getUserPermission($ret['push']['object']);
+            if(!$retUserPermission['status']){
+                $this->logger->error("Could not get user's permissions", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return array("success"=>false);
+            }
+
+            $allow = $retUserPermission['push']['object']->getAllow();
+            switch ($accessType) {
+                case 1 :
+                    $disabled = (!$aDefPerm[1]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $access = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+                case 2 :
+                    $disabled = (!$aDefPerm[2]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $new = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+                case 3 :
+                    $disabled = (!$aDefPerm[3]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $edit = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+                case 4 :
+                    $disabled = (!$aDefPerm[4]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $delete = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+                case 5 :
+                    $disabled = (!$aDefPerm[5]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $export = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+                case 6 :
+                    $disabled = (!$aDefPerm[6]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $email = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+                case 7 :
+                    $disabled = (!$aDefPerm[7]) ? "disabled='disabled'" : "";
+                    $checked = ($allow == 'Y') ? "checked='checked'" : "";
+                    $sms = "<input type='checkbox' $disabled $checked id='{$accessType}-{$programId}-{$personId}' name='{$accessType}-{$programId}-{$personId}' onchange='grantPermission(this.id,{$programId},{$accessType},{$personId});'>";
+                    break;
+            }
+        }
+
+        $aRet = array(
+            "success" => true,
+            "access"        => $access,
+            "new"           => $new,
+            "edit"          => $edit,
+            "delete"        => $delete,
+            "export"        => $export,
+            "email"         => $email,
+            "sms"           => $sms,
+        );
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Changes person's status
+     * pt_br Muda o status da pessoa
+     *
+     * @return void
+     */
+    function grantPermission()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $permissionDAO = new permissionDAO();
+        $permissionModel = new permissionModel();
+
+        //Setting up the model
+        $permissionModel->setProgramId($_POST['programId'])
+                        ->setPersonId($_POST['personId'])
+                        ->setAccessTypeId($_POST['accessTypeId'])
+                        ->setAllow($_POST['allow']);
+        
+        $upd = $permissionDAO->grantUserPermission($permissionModel);
+        if(!$upd['status']){
+            return false;
+        }
+
+        $logMsg = ($_POST['allow'] == 'Y') ? "granted" : "removed";
+        $this->logger->info("Permission for program # {$_POST['programId']} and user # {$_POST['personId']} was $logMsg.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
 
         $aRet = array(
             "success" => true

@@ -34,19 +34,24 @@ class personDAO extends Database
                        tbp.email         as email,
                        tbp.status        as status,
                        tbtp.idtypeperson as idtypeperson,
-                       tbtp.name         as typeperson,
+                       ptvoc.key_value   as typeperson,
                        comp.name         as company,
                        dep.name          as department
-                  FROM (tbperson as tbp,
-                       tbtypeperson as tbtp)
+                  FROM tbperson as tbp
+                  JOIN tbtypeperson as tbtp
+                    ON tbp.idtypeperson = tbtp.idtypeperson
              LEFT JOIN hdk_tbdepartment_has_person as depP
                     ON (tbp.idperson = depP.idperson)
              LEFT JOIN hdk_tbdepartment as dep
                     ON (depP.iddepartment = dep.iddepartment)
              LEFT JOIN tbperson as comp
                     ON (dep.idperson = comp.idperson)
-                 WHERE tbp.idtypeperson = tbtp.idtypeperson
-                   AND tbp.idperson != 1
+                  JOIN tbvocabulary ptvoc
+                    ON ptvoc.key_name = tbtp.lang_key_name
+                  JOIN tblocale ptloc
+                    ON (ptloc.idlocale = ptvoc.idlocale AND
+                        LOWER(ptloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                 WHERE tbp.idperson != 1
                    AND tbp.idtypeperson < 6 
                 $where $group $order $limit";
         
@@ -83,16 +88,16 @@ class personDAO extends Database
     public function countPersons($where=null): array
     {        
         $sql = "SELECT COUNT(tbp.idperson) total
-                  FROM (tbperson as tbp,
-                        tbtypeperson as tbtp)
+                  FROM tbperson as tbp
+                  JOIN tbtypeperson as tbtp
+                    ON tbp.idtypeperson = tbtp.idtypeperson
              LEFT JOIN hdk_tbdepartment_has_person as depP
                     ON (tbp.idperson = depP.idperson)
              LEFT JOIN hdk_tbdepartment as dep
                     ON (depP.iddepartment = dep.iddepartment)
              LEFT JOIN tbperson as comp
                     ON (dep.idperson = comp.idperson)
-                 WHERE tbp.idtypeperson = tbtp.idtypeperson
-                   AND tbp.idperson != 1
+                 WHERE tbp.idperson != 1
                    AND tbp.idtypeperson < 6 
                 $where";
 
@@ -639,7 +644,7 @@ class personDAO extends Database
                  WHERE a.lang_key_name = b.key_name
                    AND b.idlocale = c.idlocale
                    AND LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                   AND a.idtypeperson IN (4,5,8)
+                   AND a.idtypeperson IN (4,5)
               ORDER BY name_fmt ASC";
         
         try{
@@ -1288,9 +1293,9 @@ class personDAO extends Database
                     ON pgroup.idperson = f.idperson
        LEFT OUTER JOIN tbjuridicalperson pjur
                     ON pjur.idperson = tbp.idperson
-       LEFT OUTER JOIN tbvocabulary ptvoc
+                  JOIN tbvocabulary ptvoc
                     ON ptvoc.key_name = tbtp.lang_key_name
-       LEFT OUTER JOIN tblocale ptloc
+                  JOIN tblocale ptloc
                     ON (ptloc.idlocale = ptvoc.idlocale AND
                         LOWER(ptloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
                  WHERE tbp.idperson = :userID

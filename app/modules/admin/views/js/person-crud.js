@@ -294,7 +294,7 @@ $(document).ready(function () {
             errorname = [];
             upname = [];
 
-            location.href = path + '/admin/person/index'
+            location.href = path + '/admin/person/index';
         }
     });
     

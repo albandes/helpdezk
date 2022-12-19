@@ -206,6 +206,18 @@ $(document).ready(function () {
         }
     });
 
+    $("#btnPermissions").click(function(){
+        var rowIndx = getRowIndx("grid_persons"),msg="";
+        
+        if (rowIndx != null) {
+            var row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
+            location.href = path + "/admin/person/managePermissions/"+row.idperson;
+        }else{
+            msg = vocab['Alert_select_one'];
+            showAlert(msg,'warning');
+        }
+    });
+
     $("#btnDelete").click(function(){
         var rowIndx = getRowIndx("grid_persons"),msg="";
         
