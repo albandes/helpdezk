@@ -853,7 +853,7 @@ class adminServices
      * @param  string $keyword  Keyword to search
      * @return array
      */
-    public function _searchStreet($keyword,$typeId): array
+    public function _searchStreet($keyword): array
     {
         $personDAO = new personDAO();
         $personModel = new personModel();
@@ -865,11 +865,11 @@ class adminServices
         $keyword = "";
 
         foreach($aSearch as $k=>$v){
-            $keyword .= "pipeLatinToUtf8(name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+            $keyword .= "(pipeLatinToUtf8(a.name) LIKE pipeLatinToUtf8('%{$v}%') OR CONCAT(pipeLatinToUtf8(b.name),' ',pipeLatinToUtf8(a.name)) LIKE pipeLatinToUtf8('%{$v}%')) OR ";
         }
         $keyword = substr($keyword, 0, -4);
         
-        $where = "WHERE ($keyword) AND idtypestreet = {$typeId}";
+        $where = "AND ($keyword)";
         $order = "ORDER BY `name` ASC";
         
         $ret = $personDAO->queryStreets($where,null,$order);
@@ -881,6 +881,7 @@ class adminServices
                 $bus =  array(
                     "id" => $v['idstreet'],
                     "name" => $v['name'],
+                    "typeStreetId" => $v['idtypestreet']
                 );
 
                 array_push($aRet,$bus);
@@ -969,6 +970,51 @@ class adminServices
             }
         }
 
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns array with groups data found by the keyword
+     * pt_br Retorna array com dados de grupos encontrados pela palavra-chave
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchGroup($keyword): array
+    {
+        $groupDAO = new groupDAO();
+        $groupModel = new groupModel();
+        $aRet = array();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "(pipeLatinToUtf8(tbp.name) LIKE pipeLatinToUtf8('%{$v}%') OR pipeLatinToUtf8(tbp2.name) LIKE pipeLatinToUtf8('%{$v}%')) OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = "AND ($keyword) ";
+        $order = "ORDER BY company ASC, `name` ASC";
+        
+        $ret = $groupDAO->queryGroups($where,null,$order);
+        
+        if($ret['status']){
+            $groups = $ret['push']['object']->getGridList();
+            
+            foreach($groups as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idgroup'],
+                    "name" => $v['name'],
+                    "company" => $v['company']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
         return $aRet;
     }
 

@@ -879,10 +879,14 @@ class personDAO extends Database
      */
     public function queryStreets($where=null,$group=null,$order=null,$limit=null): array
     {        
-        $where = !$where ? "WHERE idstreet != 1" : $where;
+        $where = !$where ? "AND idstreet != 1" : $where;
         $order = !$order ? "ORDER BY `name` ASC" : $order;
 
-        $sql = "SELECT idstreet,idtypestreet,`name` FROM tbstreet $where $group $order $limit";
+        $sql = "SELECT a.idstreet,a.idtypestreet,a.name, b.name type_street 
+                  FROM tbstreet a, tbtypestreet b
+                  WHERE a.idtypestreet = b.idtypestreet
+                    AND UPPER(b.location) = UPPER('{$_ENV['DEFAULT_LANG']}')  
+                  $where $group $order $limit";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -1423,7 +1427,7 @@ class personDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
-     /**
+    /**
      * en_us Updates person address into tbaddress tabel
      * pt_br Atualiza o endereço da pessoa na tabela tbaddress
      *
@@ -1706,6 +1710,116 @@ class personDAO extends Database
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(":status",$personModel->getStatus());
+            $stmt->bindValue(":personId",$personModel->getIdPerson());
+            $stmt->execute();
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying change module data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns a list with the attendant's groups
+     * pt_br Retorna uma lista com os grupos do atendente
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchAttendantGroups(personModel $personModel): array
+    {        
+        $sql = "SELECT b.idgroup, c.idperson, c.name, d.name company_name 
+                  FROM hdk_tbgroup_has_person a, hdk_tbgroup b, tbperson c, tbperson d
+                 WHERE a.idgroup = b.idgroup
+                   AND b.idperson = c.idperson
+                   AND b.idcustomer = d.idperson
+                   AND a.idperson = :personId
+              ORDER BY c.name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":personId",$personModel->getIdPerson());
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setPersonGroupsList((!empty($aRet)) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting the attendant's groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Link group to attendant
+     * pt_br Vincula o grupo ao atendente
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function linkAttendantGroup(personModel $personModel): array
+    {   
+        try{
+            $this->db->beginTransaction();
+
+            $ins = $this->insertGroup($personModel);
+
+            if($ins['status']){
+                $this->loggerDB->info('Group was linked to attendant {$personModel->getIdPerson()}', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$ins['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying link attendant to group', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Remove the link between group and attendant
+     * pt_br Deleta o vincula entre o grupo e o atendente
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteAttendantGroup(personModel $personModel): array
+    {   
+        $sql = "DELETE FROM hdk_tbgroup_has_person WHERE idgroup = :groupId AND idperson = :personId";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":groupId",$personModel->getGroupId());
             $stmt->bindValue(":personId",$personModel->getIdPerson());
             $stmt->execute();
             
