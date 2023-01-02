@@ -39,8 +39,8 @@ $(document).ready(function () {
         $('#cmbGroup').select2({width:"100%",height:"100%",placeholder:vocab['Select_group'],allowClear:true,minimumResultsForSearch: 10});
         $('#cmbLocation').select2({width:"100%",height:"100%",placeholder:vocab['Select_location'],allowClear:true,minimumResultsForSearch: 10});
         $('#cmbStreetType').select2({width:"100%",height:"100%",placeholder:vocab['phl_select_street_type'],allowClear:true,minimumResultsForSearch: 10});
-        /* $('#modal-cmb-module').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-vocabulary-form')});
-        $('#localeID_1').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-vocabulary-form')}); */
+        $('#modal-street-type').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-street-form')});
+        /*$('#localeID_1').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-vocabulary-form')}); */
     //}
     
     /**
@@ -198,8 +198,12 @@ $(document).ready(function () {
         url: path + '/admin/person/searchStreet',
         noResultsText: vocab['no_result_found_for']+" {keyword}",
         requestType: 'post',
-        params:{typeStreetId:function(element){return $("#cmbStreetType").val();}},
         cache: false
+    });
+
+    $("#street").on('select:flexdatalist', function (event, set, options) {
+        $("#cmbStreetType").val(set.typeStreetId);
+        $("#cmbStreetType").trigger('change');
     });
 
 
@@ -278,6 +282,354 @@ $(document).ready(function () {
 
     });
 
+    $("#btnChangePassword").click(function(){
+        $('#modal-change-password').modal('show');       
+    });
+
+    $("#btnChangePassSave").click(function(){
+        
+        if (!$("#modal-change-password-form").valid()) {
+            return false;
+        }
+
+        if(!$("#btnChangePassSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/person/changePassword',
+                dataType: 'json',
+                data: {
+                    _token:$('#_token').val(),
+                    personId:$('#personId').val(),
+                    newPassword:$('#modal-new-password').val(),
+                    changePassFlag: ($('#modal-change-pass-check').is(':checked')) ? 1 : 0
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Lost_password_err'],'alert-modal-change-password');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success', vocab['Alert_change_password'],'alert-modal-change-password');
+
+                        setTimeout(function(){
+                            $('#modal-change-password').modal('hide');
+                            $('#modal-change-pass-check').iCheck('uncheck');
+                            $('#modal-change-password-form').trigger('reset');
+                        },2000);
+
+                        $('#state').val(obj.stateId);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Lost_password_err'],'alert-modal-change-password');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnChangePassSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnChangePassClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnChangePassSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnChangePassClose").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
+    $("#btnAddLocation").click(function(){
+        $('#modal-add-localization').modal('show');       
+    });
+
+    $("#btnAddLocalizationSave").click(function(){
+        
+        if (!$("#modal-add-localization-form").valid()) {
+            return false;
+        }
+
+        if(!$("#btnAddLocalizationSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/person/insertLocation',
+                dataType: 'json',
+                data: {
+                    _token:$('#_token').val(),
+                    localizationName:$('#modal-localization-name').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-localization');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success', vocab['Alert_inserted'],'alert-modal-add-localization');
+
+                        setTimeout(function(){
+                            $('#modal-add-localization').modal('hide');
+                            $('#modal-add-localization-form').trigger('reset');
+                        },2000);
+
+                        $('#state').val(obj.stateId);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-localization');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnAddLocalizationSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddStateClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddLocalizationSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddStateClose").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
+    $("#btnAddState").click(function(){
+        var countryId = $('#country').val();
+        if(countryId.length <= 0 || countryId == ""){
+            modalAlertMultiple('danger',vocab['select_country'],'alert-create-person');
+        }else{
+            $('#countryId').val(countryId);
+            $('#modal-country-txt').val($('#country-flexdatalist').val());
+            $('#modal-add-state').modal('show');
+        }        
+    });
+
+    $("#btnAddStateSave").click(function(){
+        
+        if (!$("#modal-add-state-form").valid()) {
+            return false;
+        }
+
+        if(!$("#btnAddStateSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/person/insertState',
+                dataType: 'json',
+                data: {
+                    _token:$('#_token').val(),
+                    countryId:$('#countryId').val(),
+                    stateName:$('#modal-state-name').val(),
+                    stateAbbreviation:$('#modal-state-abbrevation').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-state');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success', vocab['Alert_inserted'],'alert-modal-add-state');
+
+                        setTimeout(function(){
+                            $('#modal-add-state').modal('hide');
+                            $('#modal-add-state-form').trigger('reset');
+                        },2000);
+
+                        $('#state').val(obj.stateId);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-state');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnAddStateSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddStateClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddStateSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddStateClose").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
+    $("#btnAddCity").click(function(){
+        var stateId = $('#state').val();
+        if(stateId.length <= 0 || stateId == ""){
+            modalAlertMultiple('danger',vocab['select_country_state'],'alert-create-person');
+        }else{
+            $('#stateId').val(stateId);
+            $('#modal-country-city').val($('#country-flexdatalist').val());
+            $('#modal-state-city').val($('#state-flexdatalist').val());
+            $('#modal-add-city').modal('show');
+        }        
+    });
+
+    $("#btnAddCitySave").click(function(){
+        
+        if (!$("#modal-add-city-form").valid()) {
+            return false;
+        }
+
+        if(!$("#btnAddCitySave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/person/insertCity',
+                dataType: 'json',
+                data: {
+                    _token:$('#_token').val(),
+                    stateId:$('#stateId').val(),
+                    cityName:$('#modal-city-name').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-city');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success', vocab['Alert_inserted'],'alert-modal-add-city');
+
+                        setTimeout(function(){
+                            $('#modal-add-city').modal('hide');
+                            $('#modal-add-city-form').trigger('reset');
+                        },2000);
+
+                        $('#city').val(obj.cityId);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-city');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnAddCitySave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddCityClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddCitySave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddCityClose").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
+    $("#btnAddNeighborhood").click(function(){
+        var cityId = $('#city').val();
+        if(cityId.length <= 0 || cityId == ""){
+            modalAlertMultiple('danger',vocab['select_country_state_city'],'alert-create-person');
+        }else{
+            $('#cityId').val(cityId);
+            $('#modal-country-neighborhood').val($('#country-flexdatalist').val());
+            $('#modal-state-neighborhood').val($('#state-flexdatalist').val());
+            $('#modal-city-neighborhood').val($('#city-flexdatalist').val());
+            $('#modal-add-neighborhood').modal('show');
+        }        
+    });
+
+    $("#btnAddNeighborhoodSave").click(function(){
+        
+        if (!$("#modal-add-neighborhood-form").valid()) {
+            return false;
+        }
+
+        if(!$("#btnAddNeighborhoodSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/person/insertNeighborhood',
+                dataType: 'json',
+                data: {
+                    _token:$('#_token').val(),
+                    cityId:$('#cityId').val(),
+                    neighborhoodName:$('#modal-neighborhood-name').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-neighborhood');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success', vocab['Alert_inserted'],'alert-modal-add-neighborhood');
+
+                        setTimeout(function(){
+                            $('#modal-add-neighborhood').modal('hide');
+                            $('#modal-add-neighborhood-form').trigger('reset');
+                        },2000);
+
+                        $('#neighborhood').val(obj.neighborhoodId);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-neighborhood');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnAddNeighborhoodSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddNeighborhoodClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddNeighborhoodSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddNeighborhoodClose").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
+    $("#btnAddstreet").click(function(){
+        var cityId = $('#city').val(), streetTypeId = $('#cmbStreetType').val();
+        if(cityId.length <= 0 || cityId == ""){
+            modalAlertMultiple('danger',vocab['select_country_state_city'],'alert-create-person');
+        }else if(streetTypeId <= 0 || streetTypeId == ""){
+            modalAlertMultiple('danger',vocab['phl_select_street_type'],'alert-create-person');
+        }else{
+            $('#cityId').val(cityId);
+            $('#modal-country-street').val($('#country-flexdatalist').val());
+            $('#modal-state-street').val($('#state-flexdatalist').val());
+            $('#modal-city-street').val($('#city-flexdatalist').val());
+            $("#modal-street-type").val(streetTypeId);
+            $("#modal-street-type").trigger('change');
+            $('#modal-add-street').modal('show');
+        }        
+    });
+
+    $("#btnAddStreetSave").click(function(){
+        
+        if (!$("#modal-add-street-form").valid()) {
+            return false;
+        }
+
+        if(!$("#btnAddStreetSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/person/insertStreet',
+                dataType: 'json',
+                data: {
+                    _token:$('#_token').val(),
+                    cityId:$('#cityId').val(),
+                    streetTypeId:$('#modal-street-type').val(),
+                    streetName:$('#modal-street-name').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-street');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success', vocab['Alert_inserted'],'alert-modal-add-street');
+
+                        setTimeout(function(){
+                            $('#modal-add-street').modal('hide');
+                            $('#modal-add-street-form').trigger('reset');
+                        },2000);
+
+                        $("#modal-street-type").val(obj.streetTypeId);
+                        $("#modal-street-type").trigger('change');
+                        $('#street').val(obj.streetId);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-street');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnAddStreetSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddStreetClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddStreetSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddStreetClose").removeClass('disabled');
+                }
+            });
+        }
+
+    });
+
     $("#btnNextYes").click(function(){        
         $('#modal-next-step').modal('hide');
         if(btnClicked=="1"){
@@ -296,91 +648,6 @@ $(document).ready(function () {
 
             location.href = path + '/admin/person/index';
         }
-    });
-    
-    //show modal to add vocabulary key name
-    $("#btnAddKeyName").click(function(){
-        $("#modal-add-vocabulary").modal('show');
-
-        
-
-        /**
-         * iCheck - checkboxes/radios styling
-         */
-        /* $('#materialTypeDefault').iCheck({
-            checkboxClass: 'icheckbox_square-green',
-            radioClass: 'iradio_square-green',
-        });
-        
-        $("#material-type-form").validate({
-            ignore:[],
-            rules: {
-                materialType: {
-                    required:true,
-                    minlength: 5,
-                    remote:{
-                        url: path+'/lmm/lmmMaterialType/checkExist',
-                        type: 'post',
-                        dataType:'json',
-                        async: false,
-                        data:{
-                            _token:function(element){return $("#_token").val()}
-                        }
-                    }
-                }
-            },
-            messages: {
-                materialType: {required:vocab['Alert_field_required'], minlength:vocab['Alert_minimum_five_characters']}
-            }
-        });  */
-    });
-
-    $("#btnModMatTypeSave").click(function(){
-
-        if (!$("#material-type-form").valid()) {
-            return false ;
-        }
-
-        if(!$("#btnModMatTypeSave").hasClass('disabled')){  
-            var data_save = $("#material-type-form").serialize();
-            data_save = data_save + "&_token="+$("#_token").val();
-
-            $.ajax({     
-            type: "POST",
-            url: path + '/lmm/lmmMaterialType/createMaterialType',
-            dataType: 'json',
-            data: data_save,
-            error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_failure'],'alert-add-material-type-modal');
-            },
-            success: function(ret){    
-                var obj = jQuery.parseJSON(JSON.stringify(ret));    
-                if(obj.success) {
-                    modalAlertMultiple('success',vocab['Alert_inserted'],'alert-add-material-type-modal');
-                    objTitleData.loadMaterialType(obj.idmaterialtype);
-                    setTimeout(function(){
-                        $('#modal-add-material-type').modal('hide');
-                    },2000);
-                } else {
-                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-add-material-type-modal');
-                }
-            },
-            beforeSend: function(){
-                $("#btnModMatTypeSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
-                $("#btnModMatTypeClose").addClass('disabled');
-            },
-            complete: function(){
-                $("#btnModMatTypeSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
-                $("#btnModMatTypeClose").removeClass('disabled');
-            }    
-        });
-    }
-
-    });
-
-    // -- add new row to restrictions list
-    $("#btnAddRow").click(function(){
-        duplicateRow();
     });
 
     /**
@@ -509,6 +776,112 @@ $(document).ready(function () {
             cmbCompany:{required:vocab['Alert_field_required']},
             cmbDepartment:{required:vocab['Alert_field_required']},
             "cmbGroup[]":{required:vocab['Alert_field_required']}
+        }
+    });
+
+    $("#modal-change-password-form").validate({
+        ignore:[],
+        rules: {
+            "modal-new-password":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required:true
+            },
+            "modal-confirm-new-pass":  {
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                equalTo: "#modal-new-password"
+            }
+        },
+        messages: {
+            "modal-new-password":{required:vocab['Alert_field_required']},
+            "modal-confirm-new-pass":{equalTo: vocab['Alert_different_passwords']}
+        }
+    });
+
+    $("#modal-add-localization-form").validate({
+        ignore:[],
+        rules: {
+            "modal-localization-name":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required:true
+            }
+        },
+        messages: {
+            "modal-localization-name":{required:vocab['Alert_field_required']}
+        }
+    });
+
+    $("#modal-add-state-form").validate({
+        ignore:[],
+        rules: {
+            "modal-state-name":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required:true
+            }
+        },
+        messages: {
+            "modal-state-name":{required:vocab['Alert_field_required']}
+        }
+    });
+
+    $("#modal-add-city-form").validate({
+        ignore:[],
+        rules: {
+            "modal-city-name":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required:true
+            }
+        },
+        messages: {
+            "modal-city-name":{required:vocab['Alert_field_required']}
+        }
+    });
+
+    $("#modal-add-neighborhood-form").validate({
+        ignore:[],
+        rules: {
+            "modal-neighborhood-name":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required:true
+            }
+        },
+        messages: {
+            "modal-neighborhood-name":{required:vocab['Alert_field_required']}
+        }
+    });
+
+    $("#modal-add-street-form").validate({
+        ignore:[],
+        rules: {
+            "modal-street-type":{required:true},
+            "modal-street-name":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required:true
+            }
+        },
+        messages: {
+            "modal-street-type":{required:vocab['Alert_field_required']},
+            "modal-street-name":{required:vocab['Alert_field_required']}
         }
     });
 

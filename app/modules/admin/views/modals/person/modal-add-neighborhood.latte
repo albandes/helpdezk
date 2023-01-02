@@ -1,0 +1,74 @@
+<div class="modal fade" id="modal-add-neighborhood" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Add'|translate} {='Neighborhood'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-neighborhood-form">
+                    <input type="hidden" id="cityId" name="cityId" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-country-neighborhood" class="hdk-label col-form-label text-end">{='Country'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-country-neighborhood" name="modal-country-neighborhood" >
+                            </div>
+
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-state-neighborhood" class="hdk-label col-form-label text-end">{='state'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-state-neighborhood" name="modal-state-neighborhood" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-city-neighborhood" class="hdk-label col-form-label text-end">{='City'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-city-neighborhood" name="modal-city-neighborhood" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-neighborhood-name" class="hdk-label col-form-label text-end">{='Neighborhood'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="modal-neighborhood-name" name="modal-neighborhood-name" value="" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-neighborhood"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddNeighborhoodSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+                <button type="button" id="btnAddNeighborhoodClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

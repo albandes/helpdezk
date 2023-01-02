@@ -306,7 +306,7 @@
                                                 </div>
 
                                                 <div class="col-sm-1 text-center">
-                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddLocation" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddLocation" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='Location_insert'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                 </div>
                                             </div>
 
@@ -360,7 +360,7 @@
                                                     <input type="text" id="state" name="state" class="form-control" value="" >
                                                 </div>
                                                 <div class="col-sm-1 text-center">
-                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddState" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddState" type="button" tabindex="-1" data-toggle="tooltip" data-placement="auto" title="{='tooltip_state'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                 </div>
                                                 <!-- city -->
                                                 <div class="col-sm-1 text-end">
@@ -370,7 +370,7 @@
                                                     <input type="text" id="city" name="city" class="form-control" value="" >
                                                 </div>
                                                 <div class="col-sm-1 text-center">
-                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddCity" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddCity" type="button" tabindex="-1" data-toggle="tooltip" data-placement="auto" title="{='tooltip_city'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                 </div>
                                             </div>
 
@@ -383,7 +383,7 @@
                                                     <input type="text" id="neighborhood" name="neighborhood" class="form-control" value="" >
                                                 </div>
                                                 <div class="col-sm-1 text-center">
-                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddNeighborhood" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddNeighborhood" type="button" tabindex="-1" data-toggle="tooltip" data-placement="auto" title="{='tooltip_neighborhood'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                 </div>
                                                 <!-- zipcode -->
                                                 <div class="col-sm-1 text-end">
@@ -414,7 +414,7 @@
                                                     <input type="text" id="street" name="street" class="form-control" value="" >
                                                 </div>
                                                 <div class="col-sm-1 text-center">
-                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddstreet" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddstreet" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tooltip_street'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                 </div>
                                                 <!-- number -->
                                                 <div class="col-sm-1 text-end">
@@ -482,6 +482,11 @@
         {include $footer}	
 	</div>
     {include 'modals/person/modal-alert-create.latte'}
+    {include 'modals/person/modal-add-localization.latte'}
+    {include 'modals/person/modal-add-state.latte'}
+    {include 'modals/person/modal-add-city.latte'}
+    {include 'modals/person/modal-add-neighborhood.latte'}
+    {include 'modals/person/modal-add-street.latte'}
     {*include $modalNextStep*}
 </body>
     <script type="text/javascript">

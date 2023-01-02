@@ -1,0 +1,86 @@
+<div class="modal fade" id="modal-add-street" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Add'|translate} {='Adress'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-street-form">
+                    <input type="hidden" id="cityId" name="cityId" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-country-street" class="hdk-label col-form-label text-end">{='Country'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-country-street" name="modal-country-street" >
+                            </div>
+
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-state-street" class="hdk-label col-form-label text-end">{='state'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-state-street" name="modal-state-street" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-city-street" class="hdk-label col-form-label text-end">{='City'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <input type="text" readonly class="form-control-plaintext" id="modal-city-street" name="modal-city-street" >
+                            </div>
+
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-street-type" class="hdk-label col-form-label text-end">{='Type_adress'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <select class="form-control form-control-sm" id="modal-street-type" name="modal-street-type" >
+                                    {foreach $cmbStreetTypes as $k=>$v}
+                                    <option value="{$v['id']}">{$v['text']}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-3 text-end">
+                                <label for="modal-street-name" class="hdk-label col-form-label text-end">{='Adress'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="modal-street-name" name="modal-street-name" value="" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-street"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddStreetSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+                <button type="button" id="btnAddStreetClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

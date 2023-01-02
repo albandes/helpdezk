@@ -1,0 +1,67 @@
+<div class="modal fade" id="modal-user-groups" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="lblHeader"class="modal-title"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-user-groups-form">
+                    <input type="hidden" id="personID" name="personID" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-4 text-end">
+                                <label for="modal-select-group" class="hdk-label col-form-label text-end">{='search_select_group'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="modal-select-group" id="modal-select-group" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-user-groups"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+                    
+                    <div class="row white-bg g-2 text-center listView d-none">
+                        <hr class="hr-pipe-black"/>
+                    </div>
+
+                    <div class="col-xs-12 white-bg listView d-none" style="height:40px;"></div>
+
+                    <div class="row white-bg g-2 mb-3 listView d-none">
+                       <div class="row col-sm-12 text-center">
+                            <table id="userGroups" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="col-sm-3 text-center"><h4><strong>{='Company'|translate}</strong></h4></th>
+                                        <th class="col-sm-4 text-center"><h4><strong>{='Group'|translate}</strong></h4></th>
+                                        <th class="col-sm-1 text-center"><h4><strong>{='Delete'|translate}</strong></h4></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!--<button type="button" id="btnAddDirSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>-->
+                <button type="button" id="btnUserGroupsClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

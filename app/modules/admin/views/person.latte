@@ -35,15 +35,14 @@
                                     <button id="btnDisable" type="button" class="btn btn-primary btn-sm disabled"><i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{='Deactivate'|translate}</button>
                                     <button id="btnEnable" type="button" class="btn btn-primary btn-sm disabled"><i class="fa fa-unlock" aria-hidden="true"></i>&nbsp;{='Activate'|translate}</button>
                                     <button id="btnPermissions" type="button" class="btn btn-primary btn-sm"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;{='manage_permissions'|translate}</button>
-                                    <button id="btnGroup" type="button" class="btn btn-primary btn-sm"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;{='View_groups'|translate}</button>
+                                    <button id="btnGroups" type="button" class="btn btn-primary btn-sm"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;{='View_groups'|translate}</button>
                                 </div>
                                 <div class="col-sm-1 text-center">
                                     <div class="mb-4 form-check form-switch form-switch-md lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='view_inactive_record'|translate}">
                                         <input class="form-check-input" type="checkbox" id="viewInactive">&nbsp;
                                         <!--<label class="hdk-label form-check-label" for="viewInactive">{='view_inactive_record'|translate}</label> -->
                                     </div>
-                                </div>                               
-                                
+                                </div>                                
                             </div>
 
                             <div id="grid_persons" style="margin:auto;"></div>
@@ -60,7 +59,7 @@
     <!-- Modals -->
     {include $modalFilters}
     {include $modalAlert}
-    {include 'modals/modules/modal-delete.latte'}
+    {include 'modals/person/modal-user-groups.latte'}
 
 </body>
 
@@ -75,6 +74,10 @@
     <script src="{$path}/public/assets/js/plugins/paramquery/grid/localize/pq-localize-{str_replace('_','-',$_ENV['DEFAULT_LANG'])}.js"></script> 
     <!--Include jsZip file to support xlsx and zip export (optional)-->
     <script type="text/javascript" src="{$path}/public/assets/js/plugins/paramquery/grid/jsZip-2.5.0/jszip.min.js" ></script>
+
+    <!-- Flexdatalist -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/jquery-flexdatalist/jquery.flexdatalist.css" />
+    <script src="{$path}/public/assets/js/plugins/jquery-flexdatalist/jquery.flexdatalist.js"></script>
     
     <link rel="stylesheet" href="{$path}/public/assets/css/hdkextras.css" />
 

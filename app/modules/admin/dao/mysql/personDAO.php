@@ -1827,7 +1827,235 @@ class personDAO extends Database
             $result = array("message"=>"","object"=>$personModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error('Error trying change module data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error('Error trying delete attendant group ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Updates the user's password
+     * pt_br Atualiza a senha do usuário
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updatePassword(personModel $personModel): array
+    {   
+        $sql = "UPDATE tbperson SET `password` = MD5(:password), change_pass = :changePassword WHERE idperson = :personId";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":password",$personModel->getPassword());
+            $stmt->bindValue(":changePassword",$personModel->getChangePasswordFlag());
+            $stmt->bindValue(":personId",$personModel->getIdPerson());
+            $stmt->execute();
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying update user's password ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts state data into tbstate
+     * pt_br Insere os dados do estado em tbstate
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertLocation(personModel $personModel): array
+    {   
+        $sql = "INSERT INTO tblocation (name) VALUES (:name)";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":name",$personModel->getLocation());
+            $stmt->execute();
+
+            $personModel->setLocationId($this->db->lastInsertId());
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save localization data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts state data into tbstate
+     * pt_br Insere os dados do estado em tbstate
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertState(personModel $personModel): array
+    {   
+        $sql = "INSERT INTO tbstate (idcountry,name,abbr) VALUES (:countryId,:name,NULLIF(:abbreviation,NULL))";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":countryId",$personModel->getIdCountry());
+            $stmt->bindValue(":name",$personModel->getState());
+            $stmt->bindValue(":abbreviation",(!empty($personModel->getStateAbbr())) ? $personModel->getStateAbbr() : null);
+            $stmt->execute();
+
+            $personModel->setIdState($this->db->lastInsertId());
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save state data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts city data into tbcity
+     * pt_br Insere os dados da cidade em tbcity
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertCity(personModel $personModel): array
+    {   
+        $sql = "CALL hdk_updatecity(:stateId,:name,@id);";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":stateId",$personModel->getIdState());
+            $stmt->bindValue(":name",$personModel->getCity());
+            $stmt->execute();
+
+            $stmt = null;
+            $sql2 = "SELECT @id cityId";
+            $stmt2 = $this->db->prepare($sql2);
+            $stmt2->execute();
+            $aRet = $stmt2->fetch(\PDO::FETCH_ASSOC);
+
+            $personModel->setIdCity((!empty($aRet) && !is_null($aRet['cityId'])) ? $aRet['cityId'] : 0);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save city data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts neighborhood data into tbneighborhood
+     * pt_br Insere os dados do bairro em tbneighborhood
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertNeighborhood(personModel $personModel): array
+    {   
+        $sql = "CALL hdk_updateneighborhood(:cityId,:name,@id);";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":cityId",$personModel->getIdCity());
+            $stmt->bindValue(":name",$personModel->getNeighborhood());
+            $stmt->execute();
+
+            $stmt = null;
+            $sql2 = "SELECT @id neighborhoodId";
+            $stmt2 = $this->db->prepare($sql2);
+            $stmt2->execute();
+            $aRet = $stmt2->fetch(\PDO::FETCH_ASSOC);
+
+            $personModel->setIdNeighborhood((!empty($aRet) && !is_null($aRet['neighborhoodId'])) ? $aRet['neighborhoodId'] : 0);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save neighborhood data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts street data into tbstreet
+     * pt_br Insere os dados do bairro em tbstreet
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertStreet(personModel $personModel): array
+    {   
+        $sql = "CALL hdk_updatestreet(:cityId,:streetTypeId,:name,@id);";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":cityId",$personModel->getIdCity());
+            $stmt->bindValue(":streetTypeId",$personModel->getIdTypeStreet());
+            $stmt->bindValue(":name",$personModel->getStreet());
+            $stmt->execute();
+
+            $stmt = null;
+            $sql2 = "SELECT @id streetId";
+            $stmt2 = $this->db->prepare($sql2);
+            $stmt2->execute();
+            $aRet = $stmt2->fetch(\PDO::FETCH_ASSOC);
+
+            $personModel->setIdStreet((!empty($aRet) && !is_null($aRet['streetId'])) ? $aRet['streetId'] : 0);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save street data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

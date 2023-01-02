@@ -4,8 +4,44 @@ $(document).ready(function () {
     /*
      * Select2
      */
-   $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
-   $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+
+    var objPerson = {
+        addGroup: function(personId,groupId){
+            var aGroups = $("#userGroups tbody").find("input"), flgExists=0;
+            aGroups.each(function(index, element) {
+                if($(this).val() == groupId){
+                    modalAlertMultiple('danger',vocab['alert_linked_group_exists'],'alert-modal-user-groups');
+                    flgExists = 1;
+                    return false;
+                }            
+            });
+
+            if(flgExists == 0){
+                $.post(path+"/admin/person/insertAttendantGroup",{_token: $("#_token").val(), personId: personId, groupId: groupId},
+                function(valor){
+                    var obj = jQuery.parseJSON(JSON.stringify(valor));
+                    if(obj.success){
+                        var html = obj.html;
+                        if(html.length > 0){
+                            $("#userGroups tbody").html(html);
+                            
+                            if($(".listView").hasClass('d-none'))
+                                $(".listView").removeClass('d-none');
+                        }
+                    }else{
+                        $("#userGroups tbody").html('');
+                            
+                        if(!$(".listView").hasClass('d-none'))
+                            $(".listView").addClass('d-none');
+                    }
+                },
+                'json'
+            );
+            }
+        }
+    };
 
     /** 
      * Define a model for grid's columns
@@ -28,7 +64,8 @@ $(document).ready(function () {
         { title: "<b>"+vocab["Company"]+"</b> ", width: '10%', dataIndx: "company", halign: "center"  },
         { title: "<b>"+vocab["Department"]+"</b> ", width: '15%', dataIndx: "department", halign: "center"  },
         { title: "<b>"+vocab["status"]+"</b> ", width: '9%', dataIndx: "status", align: "center", halign: "center"  },
-        { title: "", width: '10%', dataIndx: "statusVal", hidden:true, halign: "center"  }        
+        { title: "", width: '10%', dataIndx: "statusVal", hidden:true, halign: "center"  },
+        { title: "", width: '10%', dataIndx: "personTypeId", hidden:true, halign: "center"  }
     ];
 
 
@@ -218,27 +255,75 @@ $(document).ready(function () {
         }
     });
 
-    $("#btnDelete").click(function(){
+    $("#btnGroups").click(function(){
         var rowIndx = getRowIndx("grid_persons"),msg="";
         
         if (rowIndx != null) {
             var row = $("#grid_persons").pqGrid('getRowData', {rowIndx: rowIndx});
 
-            if(row.idmodule == 1 || row.idmodule == 2){
-                showAlert(vocab['module_not_delete'],'warning','');
+            if(row.personTypeId != 1 && row.personTypeId != 3){
+                showAlert(vocab['Option_only_operator'],'danger','');
             }else{
-                $("#modal-delete-id").val(row.idmodule);          
-                $("#modal-delete-module-name").val(row.name);
-                $("#modal-delete-module-path").val(row.module_path);
-                $("#modal-delete-module-key").val(row.lang_key);
-                $("#modal-module-delete").modal('show');
+                if(row.statusVal == 'A') {
+                    $("#lblHeader").html(vocab['Groups']+" "+vocab['to']+" "+row.name);
+                    $("#personID").val(row.idperson);
+
+                    $.ajax({
+                        type: "POST",
+                        url: path + "/admin/person/modalAttendantGroups",
+                        dataType: 'json',
+                        data: {
+                            _token: $("#_token").val(),
+                            personId: row.idperson
+                        },
+                        error: function (ret) {
+                            showAlert(vocab['Permission_error'],'danger','');
+                        },
+                        success: function(ret) {
+                            var obj = jQuery.parseJSON(JSON.stringify(ret));
+                            //console.log(obj);
+                            if(obj.success) {
+                                var html = obj.html;
+                                if(html.length > 0){
+                                    $("#userGroups tbody").html(html);
+                                    
+                                    if($(".listView").hasClass('d-none'))
+                                        $(".listView").removeClass('d-none');
+                                }
+
+                                $("#modal-select-group").flexdatalist({
+                                    visibleProperties: ["company","name"],
+                                    searchByWord: true,
+                                    searchIn: ["company","name"],
+                                    minLength: 2,
+                                    selectionRequired: true,
+                                    valueProperty: 'id',
+                                    textProperty: '{company} - {name}',
+                                    url: path + '/admin/person/searchGroup',
+                                    noResultsText: vocab['no_result_found_for']+" {keyword}",
+                                    requestType: 'post'
+                                });
+                            
+                                $("#modal-select-group").on('select:flexdatalist', function () {
+                                    objPerson.addGroup(row.idperson,$(this).val());
+                                });
+
+                                $("#modal-user-groups").modal('show');
+
+                            } else {
+                                showAlert(vocab['Permission_error'],'danger','');
+                            }
+                        }
+                    });
+                } else {
+                    showAlert(vocab['Option_only_attendant_active'],'danger','');
+                }
             }
         }else{
             msg = vocab['Alert_select_one'];
             showAlert(msg,'warning');
         }
     });
-  
   
     $("#btnDeleteYes").click(function(){
         
@@ -303,6 +388,13 @@ $(document).ready(function () {
         $("#action-list").trigger("change");        
     });
 
+    $('#modal-user-groups').on('hidden.bs.modal', function() { 
+        $("#modal-user-groups-form").trigger('reset');
+        $("#userGroups tbody").html('');
+        if(!$(".listView").hasClass('d-none'))
+            $(".listView").addClass('d-none');
+    });
+
     $('.lbltooltip').tooltip();
 });
 
@@ -342,5 +434,44 @@ function postStatus(personId,newStatus)
     });
 
     return false;
+}
+
+/**
+ * en_us Send data to grant/revoke permission
+ * pt_br Envia os dados para conceder/remover a permissão
+ * 
+ * @param  {int}id              Checkbox Id
+ * @param  {int} programId      Program to grant or revoke permission
+ * @param  {int} accessTypeId   Permission's type to grant or revoke
+ * @param  {int} personId       Person to grant or revoke permission
+ * @return {void}      
+ */
+function removeGroup(personId,groupId){
+    console.log(personId+" "+groupId);
+    $.post(path+"/admin/person/removeAttendantGroup",{_token: $("#_token").val(), personId: personId, groupId: groupId},
+        function(valor){
+            var obj = jQuery.parseJSON(JSON.stringify(valor));
+            if(obj.success){
+                var html = obj.html;
+                if(html.length > 0){
+                    $("#userGroups tbody").html(html);
+                    
+                    if($(".listView").hasClass('d-none'))
+                        $(".listView").removeClass('d-none');
+                }else{
+                    $("#userGroups tbody").html('');
+                    
+                if(!$(".listView").hasClass('d-none'))
+                    $(".listView").addClass('d-none');
+                }
+            }else{
+                $("#userGroups tbody").html('');
+                    
+                if(!$(".listView").hasClass('d-none'))
+                    $(".listView").addClass('d-none');
+            }
+        },
+        'json'
+    );
 }
 

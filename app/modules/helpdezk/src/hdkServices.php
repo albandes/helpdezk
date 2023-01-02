@@ -813,14 +813,18 @@ class hdkServices
         }
         
         if ($media == 'email') {
-            if ($cron) {$this->hdklogger->info("[hdk] entrou na cron.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            if ($cron) {
+                $this->hdklogger->info("[hdk] Send by cron.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+
                 $retCron = $appSrc->_saveEmailCron($retInfo['push']['object']->getIdmodule(),$ticketCode,$transaction);
                 if(!$retCron['status']){
                     $this->hdklogger->error("[hdk] Error trying to send e-mail by cron. {$retCron['message']}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
                 }else{
                     $this->hdklogger->info("[hdk] {$messagePart} {$ticketCode} - We will perform the method to send e-mail by cron.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
                 }
-            } elseif($smtp){$this->hdklogger->info("[hdk] entrou no smtp.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            } elseif($smtp){
+                $this->hdklogger->info("[hdk] Send by smtp.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+
                 $this->hdklogger->info("[hdk] {$messagePart} {$ticketCode} - We will perform the method to send e-mail.",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
                 $this->_sendTicketEmail($messageTo,$ticketCode);
             }
@@ -1405,11 +1409,11 @@ class hdkServices
         if(!$ret['status'])
             return;
 
+        $sentTo = '';
         foreach($ret['push']['object']->getGridList() as $key=>$val){
             $inChargeType   = $val['type']; 
             $inChargeID     = $val['id_in_charge'];
             $inChargeEmail  = $val['email'];
-            $sentTo = '';
     
             if ($inChargeType == 'G') {
                 $groupDAO = new groupDAO();
@@ -1433,7 +1437,7 @@ class hdkServices
                     $sentTo .= (empty($sentTo) ? "" : ";") . $v['email'];
                 }
             } else {
-                $sentTo = $inChargeEmail;
+                $sentTo .= (empty($sentTo) ? "" : ";") . $inChargeEmail;
             }
         }
 
@@ -1441,9 +1445,10 @@ class hdkServices
     }
     
     /**
-     * makeNotesTable
+     * en_us Makes HTML table of ticket's notes
+     * pt_br Faz tabela HTML de apontamentos da solicitação
      *
-     * @param  string $ticketCode    Ticket code
+     * @param  string $ticketCode   Ticket code
      * @param  mixed $public        List all notes or not - true: all false: notes for attendants
      * @return string               Note's table in html
      */

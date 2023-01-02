@@ -258,6 +258,7 @@ class Person extends Controller
                     'login'         => $v['login'],
                     'email'         => $v['email'],
                     'personType'    => $v['typeperson'],
+                    'personTypeId'  => $v['idtypeperson'],
                     'company'       => $v['company'],
                     'department'    => $v['department'],
                     'status'        => $statusFmt,
@@ -595,7 +596,7 @@ class Person extends Controller
     {
         $adminSrc = new adminServices();
         
-        echo json_encode($adminSrc->_searchStreet($_POST['keyword'],$_POST['typeStreetId']));
+        echo json_encode($adminSrc->_searchStreet($_POST['keyword']));
     }
 
     /**
@@ -920,6 +921,410 @@ class Person extends Controller
 
         $aRet = array(
             "success" => true
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Shows the attendant's groups
+     * pt_br Mostra os grupos do atendente
+     *
+     * @return void
+     */
+    function modalAttendantGroups()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $ret = $this->makeAttendantGroupHtml($_POST['personId']);
+        $st = ($ret) ?  true : false;
+        $html = ($ret) ?  $ret : "";
+
+        $aRet = array(
+            "success" => true,
+            "html"    => $html
+        );
+
+        echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Shows the attendant's groups
+     * pt_br Mostra os grupos do atendente
+     *
+     * @return string
+     */
+    public function makeAttendantGroupHtml($personId)
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdPerson($personId);
+        
+        $ret = $personDAO->fetchAttendantGroups($personModel);
+        if(!$ret['status']){
+            return false;
+        }
+
+        $aGroups =  $ret['push']['object']->getPersonGroupsList();
+        $html = "";
+
+        if(count($aGroups) > 0){
+            foreach($aGroups as $k=>$v){
+                $html .= "<tr>
+                            <td>{$v['company_name']}</td>
+                            <td>
+                                {$v['name']}
+                                <input type='hidden' name='admAttGrps[]' id='admAttGrps_{$v['idgroup']}' value='{$v['idgroup']}'>
+                            </td>
+                            <td><a href='javascript:;' onclick='removeGroup({$_POST['personId']},{$v['idgroup']})' class='btn btn-danger'><i class='fa fa-times'></i></a></td>
+                        </tr>"; 
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * en_us Returns list with street's data found by the keyword
+     * pt_br Retorna a lista com os dados da rua encontrados pela palavra-chave
+     *
+     * @return void
+     */
+    function searchGroup()
+    {
+        $adminSrc = new adminServices();
+        
+        echo json_encode($adminSrc->_searchGroup($_POST['keyword']));
+    }
+
+    /**
+     * en_us Links the group to the attendant
+     * pt_br Vincula o grupo ao atendente
+     *
+     * @return void
+     */
+    function insertAttendantGroup()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdPerson($_POST['personId'])
+                    ->setGroupId($_POST['groupId']);
+        
+        $ret = $personDAO->linkAttendantGroup($personModel);
+        if(!$ret['status']){
+            return false;
+        }else{
+            $retHtml = $this->makeAttendantGroupHtml($_POST['personId']);
+            $html = ($retHtml) ?  $retHtml : "";
+        }
+
+        $aRet = array(
+            "success" => true,
+            "html"    => $html
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Links the group to the attendant
+     * pt_br Vincula o grupo ao atendente
+     *
+     * @return void
+     */
+    function removeAttendantGroup()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdPerson($_POST['personId'])
+                    ->setGroupId($_POST['groupId']);
+        
+        $ret = $personDAO->deleteAttendantGroup($personModel);
+        if(!$ret['status']){
+            return false;
+        }else{
+            $retHtml = $this->makeAttendantGroupHtml($_POST['personId']);
+            $html = ($retHtml) ?  $retHtml : "";
+        }
+
+        $aRet = array(
+            "success" => true,
+            "html"    => $html
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Adds a new localization in DB
+     * pt_br Adiciona uma nova localização no BD
+     *
+     * @return void
+     */
+    function insertLocation()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setLocation(trim(strip_tags($_POST['localizationName'])));
+        
+        $ret = $personDAO->insertLocation($personModel);
+        if(!$ret['status']){
+            $st = false;
+            $localizationId = "";
+
+            $this->logger->error("Could not save a new localization. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+            $localizationId = $ret['push']['object']->getLocationId();
+
+            $this->logger->info("A new localization was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "localizationId"    => $localizationId
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+     /**
+     * en_us Change the user's password in DB
+     * pt_br Altera a senha do usuário no BD
+     *
+     * @return void
+     */
+    function changePassword()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdPerson($_POST['personId'])
+                    ->setPassword(trim(strip_tags($_POST['newPassword'])))
+                    ->setChangePasswordFlag($_POST['changePassFlag']);
+        
+        $ret = $personDAO->updatePassword($personModel);
+        if(!$ret['status']){
+            $st = false;
+
+            $this->logger->error("Could not save the new password. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+
+            $this->logger->info("The new password was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aRet = array(
+            "success" => $st
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Adds a new state in DB
+     * pt_br Adiciona um novo estado no BD
+     *
+     * @return void
+     */
+    function insertState()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdCountry($_POST['countryId'])
+                    ->setState(trim(strip_tags($_POST['stateName'])))
+                    ->setStateAbbr(trim(strip_tags($_POST['stateAbbreviation'])));
+        
+        $ret = $personDAO->insertState($personModel);
+        if(!$ret['status']){
+            $st = false;
+            $stateId = "";
+
+            $this->logger->error("Could not save a new state. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+            $stateId = $ret['push']['object']->getIdState();
+
+            $this->logger->info("A new state was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "stateId"    => $stateId
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Adds a new city in DB
+     * pt_br Adiciona uma nova cidade no BD
+     *
+     * @return void
+     */
+    function insertCity()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdState($_POST['stateId'])
+                    ->setCity(trim(strip_tags($_POST['cityName'])));
+        
+        $ret = $personDAO->insertCity($personModel);
+        if(!$ret['status']){
+            $st = false;
+            $cityId = "";
+
+            $this->logger->error("Could not save a new city. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+            $cityId = $ret['push']['object']->getIdCity();
+
+            $this->logger->info("A new city was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "cityId"    => $cityId
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Adds a new city in DB
+     * pt_br Adiciona uma nova cidade no BD
+     *
+     * @return void
+     */
+    function insertNeighborhood()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdCity($_POST['cityId'])
+                    ->setNeighborhood(trim(strip_tags($_POST['neighborhoodName'])));
+        
+        $ret = $personDAO->insertNeighborhood($personModel);
+        if(!$ret['status']){
+            $st = false;
+            $neighborhoodId = "";
+
+            $this->logger->error("Could not save a new neighborhood. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+            $neighborhoodId = $ret['push']['object']->getIdNeighborhood();
+
+            $this->logger->info("A new neighborhood was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "neighborhoodId"    => $neighborhoodId
+        );
+
+        echo json_encode($aRet);
+
+    }
+
+    /**
+     * en_us Adds a new city in DB
+     * pt_br Adiciona uma nova cidade no BD
+     *
+     * @return void
+     */
+    function insertStreet()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        //Setting up the model
+        $personModel->setIdCity($_POST['cityId'])
+                    ->setIdTypeStreet($_POST['streetTypeId'])
+                    ->setStreet(trim(strip_tags($_POST['streetName'])));
+        
+        $ret = $personDAO->insertStreet($personModel);
+        if(!$ret['status']){
+            $st = false;
+            $streetTypeId = "";
+            $streetId = "";
+
+            $this->logger->error("Could not save a new street. Error: {$ret['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = true;
+            $streetTypeId = $ret['push']['object']->getIdTypeStreet();
+            $streetId = $ret['push']['object']->getIdStreet();
+
+            $this->logger->info("A new street was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "streetTypeId"    => $streetTypeId,
+            "streetId"    => $streetId
         );
 
         echo json_encode($aRet);
