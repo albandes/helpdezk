@@ -248,6 +248,48 @@ class permissionDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * en_us Returns default permissions
+     * pt_br Retorna permissões padrões
+     *
+     * @param  permissionModel $permissionModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchUserPermissionsByProgram(permissionModel $permissionModel): array
+    {        
+        $sql = "SELECT idaccesstype,allow 
+                  FROM tbtypepersonpermission 
+                 WHERE idprogram = :programId
+                   AND (idtypeperson IN (SELECT idtypeperson FROM tbpersontypes WHERE idperson = :userId) OR idtypeperson = (SELECT idtypeperson FROM tbperson WHERE idperson = :userId))
+                 UNION
+                SELECT idaccesstype,allow FROM tbpermission WHERE idperson = :userId AND idprogram = :programId
+                ORDER BY idaccesstype";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':programId', $permissionModel->getProgramId());
+            $stmt->bindParam(':userId', $permissionModel->getPersonId());
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $permissionModel->setUserPermissionList((!empty($aRet) && !is_null($aRet)) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$permissionModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting user's permissions by program ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
     
     
 }

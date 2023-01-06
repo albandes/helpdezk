@@ -1018,5 +1018,33 @@ class adminServices
         return $aRet;
     }
 
+    /**
+     * en_us Returns an array with ID and name of ERP companies
+     * pt_br Retorna um array com ID e nome das empresas ERP
+     *
+     * @return array
+     */
+    public function _comboERPCompany(): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        $retCompanies = $personDAO->fetchERPCompanies($personModel);
+        
+        if($retCompanies['status']){
+            $companies = $retCompanies['push']['object']->getCompanyList();
+            $aRet = array();
+            foreach($companies as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idcompany'],
+                    "text" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+
+        return $aRet;
+    }
+
     
 }

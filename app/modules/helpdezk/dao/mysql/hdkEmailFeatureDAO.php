@@ -27,7 +27,7 @@ class hdkEmailFeatureDAO extends Database
      *                push =  [message = PDO Exception message 
      *                         object = model's object]]
      */    
-    public function queryhdkEmailFeature($where=null,$group=null,$order=null,$limit=null): array
+    public function queryHdkEmailFeature($where=null,$group=null,$order=null,$limit=null): array
     {
         
         $sql = "SELECT a.idhdkEmailFeature, b.name company, a.status, a.name AS hdkEmailFeature, 
@@ -68,7 +68,7 @@ class hdkEmailFeatureDAO extends Database
      *                push =  [message = PDO Exception message 
      *                         object = model's object]]
      */
-    public function counthdkEmailFeature($where=null): array
+    public function countHdkEmailFeature($where=null): array
     {        
         $sql = "SELECT COUNT(idhdkEmailFeature) total
                 FROM hdk_tbhdkEmailFeature a, tbperson b 

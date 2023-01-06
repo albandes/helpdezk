@@ -234,7 +234,7 @@ class personDAO extends Database
      */
     public function fetchCompanies(personModel $personModel): array
     {        
-        $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (7,4,5) ORDER BY name ASC";
+        $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (4) ORDER BY name ASC";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -2060,6 +2060,39 @@ class personDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+     /**
+     * Returns a list with registered companies
+     *
+     * @param  personModel $personModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchERPCompanies(personModel $personModel): array
+    {        
+        $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (7) ORDER BY name ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel->setCompanyList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting extra modules ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }

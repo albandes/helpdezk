@@ -12,6 +12,8 @@ use App\modules\helpdezk\dao\mysql\ticketDAO;
 use App\modules\admin\dao\mysql\trackerDAO;
 use App\modules\admin\dao\mysql\holidayDAO;
 use App\modules\helpdezk\dao\mysql\expireDateDAO;
+use App\modules\admin\dao\mysql\programDAO;
+use App\modules\admin\dao\mysql\permissionDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
@@ -22,6 +24,8 @@ use App\modules\helpdezk\models\mysql\ticketModel;
 use App\modules\admin\models\mysql\trackerModel;
 use App\modules\admin\models\mysql\holidayModel;
 use App\modules\helpdezk\models\mysql\expireDateModel;
+use App\modules\admin\models\mysql\programModel;
+use App\modules\admin\models\mysql\permissionModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
@@ -36,6 +40,7 @@ use Monolog\Formatter\LineFormatter;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+
 class appServices
 {
     /**
@@ -100,7 +105,6 @@ class appServices
     
     /**
      * en_us Returns system's version to display on the login screen and footer
-     * 
      * pt_br Retorna a versão do sistema para exibição na tela de login e no rodapé
      *
      * @return string
@@ -124,8 +128,7 @@ class appServices
     }
     
     /**
-     * en_us Returns directory path
-     * 
+     * en_us Returns directory path 
      * pt_br Retorna o caminho do diretório
      *
      * @return string
@@ -2253,5 +2256,127 @@ class appServices
         }
         
         return $newIp;
+    }
+
+    /**
+     * en_us Returns user's permission by program
+     * pt_br Retorna as permissões do usuário por programa
+     *
+     * @param  string $programName
+     * @return int
+     */
+    public function _getProgramIdByName(string $programName): int
+    {
+        $programDAO = new programDAO();
+        $programModel = new programModel();
+        
+        $ret = $programDAO->queryPrograms("WHERE LOWER(controller) = LOWER('{$programName}')");
+        if(!$ret['status']){
+            $this->applogger->error("Can't get program's data. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return 0;
+        }
+        
+        $programData = $ret['push']['object']->getGridList();
+        return (count($programData) > 0 && !empty($programData[0]['idprogram'])) ? $programData[0]['idprogram'] : 0;
+    }
+
+    /**
+     * en_us Returns user's permission by program
+     * pt_br Retorna as permissões do usuário por programa
+     *
+     * @param  int $userId
+     * @param  int $programId
+     * @return array
+     */
+    public function _getUserPermissionsByProgram(int $userId, int $programId): array
+    {
+        $permissionDAO = new permissionDAO();
+        $permissionModel = new permissionModel();
+        $permissionModel->setProgramId($programId)
+                        ->setPersonId($userId);
+        $aRet = array();
+        
+        $ret = $permissionDAO->fetchUserPermissionsByProgram($permissionModel);
+        if(!$ret['status']){
+            $this->applogger->error("Can't get user's permissions by program. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return $aRet;
+        }
+
+        $permissions =  $ret['push']['object']->getUserPermissionList();
+        foreach($permissions as $key=>$val){
+            $aRet[$val['idaccesstype']] = $val['allow'];
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns report's logo data
+     * pt_br Retorna os dados do logotipo do relatório
+	 * 
+     * @return array report's logo data (path, width, height)
+     */
+	public function _getReportLogo(): array 
+    {
+        $logoDAO = new logoDao(); 
+        $logoModel = new logoModel();
+        $awsSrc = new awsServices();
+
+        $logoModel->setName("reports");
+        $logo = $logoDAO->getLogoByName($logoModel);
+		
+        if(!$logo['status']){ //(empty($objLogo->getFileName()) or !){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/reports.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/reports.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+            
+			$width 	= "130";
+			$height = "40";
+        }else{
+            $objLogo = $logo['push']['object'];
+            
+            if(empty($objLogo->getFileName())){
+                $st = false;
+            }else{
+                if($this->saveMode == 'disk'){
+                    $pathLogoImage = $this->imgDir . $objLogo->getFileName();                
+                    $st = file_exists($pathLogoImage) ? true : false;
+                }elseif($this->saveMode == "aws-s3"){            
+                    $retLogoUrl = $awsSrc->_getFile($this->imgDir.$objLogo->getFileName());
+                    $pathLogoImage = $retLogoUrl['fileUrl'];
+                    $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+                }
+            }
+
+            if(!$st){
+                if($this->saveMode == 'disk'){
+                    $image 	= $this->imgBucket . 'default/reports.png';
+                }elseif($this->saveMode == "aws-s3"){
+                    $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/reports.png');
+                    $image = $retDefaultLogoUrl['fileUrl'];
+                }
+                $width 	= "130";
+                $height = "40";
+            }else{
+                if($this->saveMode == 'disk'){
+                    $image 	=$this->imgBucket . $objLogo->getFileName();
+                }elseif($this->saveMode == "aws-s3"){
+                    $image = $pathLogoImage;
+                }
+			    $width 	= $objLogo->getWidth();
+			    $height = $objLogo->getHeight();
+            }
+		}
+        
+        $aRet = array(
+            'image'  => $image,
+            'width'  => $width,
+            'height' => $height
+        );
+        
+		return $aRet;
     }
 }
