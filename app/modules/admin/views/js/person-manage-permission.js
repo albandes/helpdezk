@@ -129,7 +129,8 @@ $(document).ready(function () {
 
     //close modal alert
     $('#modal-alert').on('hidden.bs.modal', function() { 
-        location.href = path + "/admin/person/index" ;        
+        //location.href = path + "/admin/person/index" ;
+        $("#grid_permissions").pqGrid("refreshDataAndView");
     });
 
     $('.lbltooltip').tooltip();
@@ -139,10 +140,10 @@ $(document).ready(function () {
  * en_us Send data to grant/revoke permission
  * pt_br Envia os dados para conceder/remover a permissão
  * 
- * @param  {int}id 
- * @param  {int} programId
- * @param  {int} accessTypeId
- * @param  {int} personId
+ * @param  {int}id              Checkbox Id
+ * @param  {int} programId      Program to grant or revoke permission
+ * @param  {int} accessTypeId   Permission's type to grant or revoke
+ * @param  {int} personId       Person to grant or revoke permission
  * @return {void}      
  */
 function grantPermission(id,programId,accessTypeId,personId){
@@ -157,11 +158,13 @@ function grantPermission(id,programId,accessTypeId,personId){
             personId: personId,
             allow: ($("#"+id).is(':checked')) ? "Y" : "N"
         },
+        async: false,
         error: function (ret) {
             if($("#"+id).is(':checked')){
                 $("#"+id).prop( "checked", false );
             }
-            modalAlertMultiple('danger',vocab['Permission_error'],'alert-grant-permission');
+            //modalAlertMultiple('danger',vocab['Permission_error'],'alert-grant-permission');
+            showAlert(vocab['Permission_error'],'danger');
         },
         success: function(ret){
 
@@ -169,9 +172,11 @@ function grantPermission(id,programId,accessTypeId,personId){
 
             if(obj.success) {
                 var msg = ($("#"+id).is(':checked')) ? vocab['permission_granted_successfully'] : vocab['permission_removed_successfully'];
-                modalAlertMultiple('success',msg,'alert-grant-permission');
+                //modalAlertMultiple('success',msg,'alert-grant-permission');
+                showAlert(msg,'success');
             } else {
-                modalAlertMultiple('danger',vocab['Permission_error'],'alert-grant-permission');
+                //modalAlertMultiple('danger',vocab['Permission_error'],'alert-grant-permission');
+                showAlert(vocab['Permission_error'],'danger');
             }
         }
 
