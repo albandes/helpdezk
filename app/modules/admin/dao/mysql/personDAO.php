@@ -1656,8 +1656,8 @@ class personDAO extends Database
                     }
 
                     // remove link person with the group
-                    $delPermGrps = $this->deletePermissionGroup($upd['push']['object']);
-                    if($delPermGrps['status'])
+                    $delGrps = $this->deleteGroup($upd['push']['object']);
+                    if($delGrps['status'])
                         $this->loggerDB->info('Link between natural person and group was deleted', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
 
                     // insert new group - (attendant)
@@ -2064,8 +2064,9 @@ class personDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
-     /**
-     * Returns a list with registered companies
+    /**
+     * en_us Returns a list with registered companies
+     * pt_br Retorna uma lista com as empresas cadastradas
      *
      * @param  personModel $personModel
      * @return array Parameters returned in array: 
