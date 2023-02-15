@@ -5259,3 +5259,9 @@ select, #btnTimer,
   --bs-bg-opacity: 1;
     background-color: #9ea6b9!important;
 }
+
+.select2-results__group {
+  color: #1ab394;
+  font-weight: bold;
+  background-color: #e7eaec;
+}

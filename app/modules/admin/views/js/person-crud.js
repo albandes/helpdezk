@@ -610,8 +610,8 @@ $(document).ready(function () {
                             $('#modal-add-street-form').trigger('reset');
                         },2000);
 
-                        $("#modal-street-type").val(obj.streetTypeId);
-                        $("#modal-street-type").trigger('change');
+                        $("#cmbStreetType").val(obj.streetTypeId);
+                        $("#cmbStreetType").trigger('change');
                         $('#street').val(obj.streetId);
                     } else {
                         modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-street');

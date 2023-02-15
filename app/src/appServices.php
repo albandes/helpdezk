@@ -14,6 +14,7 @@ use App\modules\admin\dao\mysql\holidayDAO;
 use App\modules\helpdezk\dao\mysql\expireDateDAO;
 use App\modules\admin\dao\mysql\programDAO;
 use App\modules\admin\dao\mysql\permissionDAO;
+use App\modules\admin\dao\mysql\errorMessageDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
@@ -26,6 +27,7 @@ use App\modules\admin\models\mysql\holidayModel;
 use App\modules\helpdezk\models\mysql\expireDateModel;
 use App\modules\admin\models\mysql\programModel;
 use App\modules\admin\models\mysql\permissionModel;
+use App\modules\admin\models\mysql\errorMessageModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
@@ -2378,5 +2380,35 @@ class appServices
         );
         
 		return $aRet;
+    }
+    
+    /**
+     * en_us Returns error message of module
+     * pt_br Retorna mensagem de erro do módulo
+     *
+     * @param  int $moduleId
+     * @param  string $errorCode
+     * @return string
+     */
+    public function _getErrorMessage(int $moduleId,string $errorCode): string
+    {
+        $translator = new localeServices();
+        $errorMsgDAO = new errorMessageDAO();
+        $errorMsgModel = new errorMessageModel();
+
+        $errorMsgModel->setIdModule($moduleId)
+                      ->setErrorCode($errorCode);
+
+        $ret = $errorMsgDAO->getErrorMessage($errorMsgModel);
+        if(!$ret['status']){
+            $this->applogger->error("Can't get error message. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return $translator->translate("generic_erro_msg");
+        }else{
+            $this->applogger->info("Error message data get successfully",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            
+            $fmtCode = strtoupper($ret['push']['object']->getFormatedCode());
+            $msg = $translator->translate($ret['push']['object']->getLanguageKeyName());
+            return "[{$fmtCode}] {$msg}";
+        }
     }
 }

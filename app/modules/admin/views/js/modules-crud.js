@@ -419,7 +419,7 @@ function saveData(aAttachs,op)
                 if(op == 'add'){
                     $('#modal-module-code').val(obj.moduleId);
                     $('#modal-module-name').val(obj.moduleName);
-                    $('#modal-module-path').html(obj.modulePath);
+                    $('#modal-module-path').val(obj.modulePath);
     
                     $('#modal-module-create').modal('show');
                 }else{

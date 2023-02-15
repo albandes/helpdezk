@@ -1,0 +1,121 @@
+<div class="modal fade" id="modal-add-service" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modal-add-service-title" class="modal-title"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-service-form">
+                    <input type="hidden" id="modal-service-item" name="modal-service-item" value=""/>
+                    <input type="hidden" id="modal-service-id" name="modal-service-id" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-service-name" class="hdk-label col-form-label text-end">{='Service_name'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control input-sm" id="modal-service-name" name="modal-service-name" >
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-service-group" class="hdk-label col-form-label text-end">{='Group'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <select class="form-control input-sm" id="modal-service-group" name="modal-service-group">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-service-priority" class="hdk-label col-form-label text-end">{='Priority'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <select class="form-control input-sm" id="modal-service-priority" name="modal-service-priority">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="service-limit-days" class="hdk-label col-form-label text-end">{='Attendance_time'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-1">
+                            <input type="number" class="form-control input-sm" id="service-limit-days" name="service-limit-days" value="0" min="0" >
+                        </div>
+
+                        <div class="col-sm-1 text-center">
+                            <label for="service-limit-time" class="hdk-label col-form-label text-end">{='Days'|translate} {='and'|translate}</label>
+                        </div>
+
+                        <div class="col-sm-1">
+                            <input type="number" class="form-control input-sm" id="service-limit-time" name="service-limit-time" value="0" min="0" >
+                        </div>
+
+                        <div class="row col-sm-5 pt-2">
+                            <div class="col-sm-6">
+                                <input type="radio" name="service-time" id="time-hour" value="H" class="radio-inline i-checks" checked=checked > <label class="col-form-label">{='Hours'|translate}</label>&nbsp;&nbsp;
+                                <input type="radio" name="service-time" id="time-minute" value="M" class="radio-inline i-checks"> <label class="col-form-label">{='Minutes'|translate}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-service-available" class="hdk-label col-form-label text-end">{='Available'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-service-available" name="modal-service-available" value="">&nbsp;&nbsp;<label class="col-form-label">{='Available_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-service-default" class="hdk-label col-form-label text-end">{='Default'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-service-default" name="modal-service-default" value="">&nbsp;&nbsp;<label class="col-form-label">{='Default_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-service-classification" class="hdk-label col-form-label text-end">{='Classification'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-service-classification" name="modal-service-classification" value="">&nbsp;&nbsp;<label class="col-form-label">{='Classification_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-service"></div>
+                        </div>
+                    </div>                    
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddServiceSave" class="btn btn-primary btn-sm">
+                    <i class="fa fa-save"></i> {='Save'|translate}
+                </button>
+                <button type="button" id="btnAddServiceClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

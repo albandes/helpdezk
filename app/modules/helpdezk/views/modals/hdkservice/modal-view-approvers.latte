@@ -1,0 +1,46 @@
+<div class="modal fade" id="modal-view-approvers" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='view_approval_list'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-view-approvers-form">
+                    
+                    <div class="row white-bg g-2 mb-3">
+                       <div class="row col-sm-12 text-center">
+                            <table id="approversList" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="col-sm-3 text-center"><h4><strong>{='type'|translate}</strong></h4></th>
+                                        <th class="col-sm-3 text-center"><h4><strong>{='Item'|translate}</strong></h4></th>
+                                        <th class="col-sm-3 text-center"><h4><strong>{='Service'|translate}</strong></h4></th>
+                                        <th class="col-sm-3 text-center"><h4><strong>{='lbl_approvers'|translate}</strong></h4></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-view-approvers"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!--<button type="button" id="btnConfigApprovalSave" class="btn btn-primary btn-sm">
+                    <i class="fa fa-save"></i> {='Save'|translate}
+                </button>-->
+                <button type="button" id="btnViewApproversClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
