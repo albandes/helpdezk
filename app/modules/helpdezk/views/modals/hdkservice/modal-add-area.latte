@@ -1,0 +1,82 @@
+<div class="modal fade" id="modal-add-area" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Area_insert'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-area-form">
+                    <input type="hidden" id="stateId" name="stateId" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-area-name" class="hdk-label col-form-label text-end">{='Area_name'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control input-sm" id="modal-area-name" name="modal-area-name" >
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-area-default" class="hdk-label col-form-label text-end">{='Default'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-area-default" name="modal-area-default" value="">&nbsp;&nbsp;<label class="col-form-label">{='Default_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-area"></div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-2 text-center">&nbsp;</div>
+
+                        <div class="col-sm-8 text-end">
+                            <button type="button" id="btnAddAreaSave" class="btn btn-primary btn-sm">
+                                <i class="fa fa-save"></i> {='Save'|translate}
+                            </button>
+                        </div>
+                        
+                        <div class="col-sm-2 text-center">&nbsp;</div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-2 text-center">&nbsp;</div>
+                        <div class="col-sm-8 text-center">
+                            <table id="registeredAreas" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center hdk-tab-header-bg" colspan="3"><h4><strong>{='registered_areas'|translate}</strong></h4></th>
+                                    </tr>
+                                    <tr>
+                                        <th class="col-sm-11 text-center"><h4><strong>{='Name'|translate}</strong></h4></th>
+                                        <th class="col-sm-1 text-center"><h4><strong>{='Edit'|translate}</strong></h4></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-2 text-center">&nbsp;</div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddAreaClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

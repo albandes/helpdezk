@@ -29,6 +29,7 @@ use App\modules\helpdezk\models\mysql\attendanceTypeModel;
 use App\src\appServices;
 use App\src\localeServices;
 use App\modules\admin\src\loginServices;
+use App\modules\admin\src\adminServices;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -2026,6 +2027,90 @@ class hdkServices
 
         $this->hdklogger->info("User {$userID} logged successfully. Ticket #: {$ticketCode} Token: {$token}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
         return true;
+    }
+
+    /**
+     * en_us Returns an array with areas data to use in a dropdown list
+     * pt_br Retorna um array com dados de áreas para usar em um combo
+     *
+     * @return array
+     */
+    public function _comboAllAreas(): array
+    {
+        $hdkServiceDAO = new hdkServiceDAO();
+        $hdkServiceModel = new hdkServiceModel();
+        
+        $ret = $hdkServiceDAO->fetchAreas($hdkServiceModel);        
+        if($ret['status']){
+            $areas = $ret['push']['object']->getAreaList();
+            $aRet = array();
+            foreach($areas as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idarea'],
+                    "text" => "{$v['name']}",
+                    "isdefault" => isset($v['default']) ? $v['default'] : 0
+                );
+                array_push($aRet,$bus);
+            }
+        }
+        return $aRet;
+    }
+    
+    /**
+     * en_us Format areas data in HTML to use in a dropdown list
+     * pt_br Formata dados de áreas em HTML para usar em um combo
+     *
+     * @return void
+     */
+    public function _comboAllAreasHtml()
+    {
+        $aArea = $this->_comboAllAreas();
+        $select = "<option value=''></option>";
+
+        foreach($aArea as $k=>$v) {
+            $default = ($v['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$v['id']}' {$default}>{$v['text']}</option>";
+        }
+
+        return $select;
+    }
+
+    /**
+     * en_us Format areas data in HTML to use in a dropdown list
+     * pt_br Formata dados de áreas em HTML para usar em um combo
+     *
+     * @return void
+     */
+    public function _comboGroupHtml()
+    {
+        $admSrc = new adminServices();
+        $aArea = $admSrc->_comboGroup();
+        $select = "<option value=''></option>";
+
+        foreach($aArea as $k=>$v) {
+            $select .= "<option value='{$v['id']}'>{$v['text']}</option>";
+        }
+
+        return $select;
+    }
+
+    /**
+     * en_us Format areas data in HTML to use in a dropdown list
+     * pt_br Formata dados de áreas em HTML para usar em um combo
+     *
+     * @return void
+     */
+    public function _comboPriorityHtml()
+    {
+        $aArea = $this->_comboPriority();
+        $select = "<option value=''></option>";
+
+        foreach($aArea as $k=>$v) {
+            $default = ($v['isdefault'] == 1) ? 'selected="selected"' : '';
+            $select .= "<option value='{$v['id']}' {$default}>{$v['text']}</option>";
+        }
+
+        return $select;
     }
 
 }

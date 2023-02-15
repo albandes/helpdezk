@@ -70,6 +70,11 @@ final class ticketRulesModel
     private $idTicketApproval;
 
     /**
+     * @var array
+     */
+    private $approverList;
+
+    /**
      * Get the value of idApproval
      *
      * @return  int
@@ -377,6 +382,30 @@ final class ticketRulesModel
     public function setIdTicketApproval(int $idTicketApproval)
     {
         $this->idTicketApproval = $idTicketApproval;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of approverList
+     *
+     * @return  array
+     */ 
+    public function getApproverList()
+    {
+        return $this->approverList;
+    }
+
+    /**
+     * Set the value of approverList
+     *
+     * @param  array  $approverList
+     *
+     * @return  self
+     */ 
+    public function setApproverList(array $approverList)
+    {
+        $this->approverList = $approverList;
 
         return $this;
     }

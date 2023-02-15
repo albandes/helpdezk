@@ -65,6 +65,71 @@ final class hdkServiceModel
     private $serviceList;
 
     /**
+     * @var string
+     */
+    private $status;
+
+    /**
+     * @var int
+     */
+    private $flagDefault;
+
+     /**
+     * @var int
+     */
+    private $flagClassify;
+
+    /**
+     * @var int
+     */
+    private $idPriority;
+
+    /**
+     * @var int
+     */
+    private $idGroup;
+
+    /**
+     * @var int
+     */
+    private $limitDays;
+
+    /**
+     * @var int
+     */
+    private $limitTime;
+
+    /**
+     * @var int
+     */
+    private $attendanceTime;
+
+    /**
+     * @var string
+     */
+    private $timeType;
+
+    /**
+     * @var array
+     */
+    private $ticketList;
+
+    /**
+     * @var string
+     */
+    private $targetField;
+
+    /**
+     * @var string
+     */
+    private $targetCondition;
+
+    /**
+     * @var string
+     */
+    private $targetIdList;
+
+    /**
      * Get the value of idArea
      *
      * @return  int
@@ -348,6 +413,318 @@ final class hdkServiceModel
     public function setServiceList(array $serviceList)
     {
         $this->serviceList = $serviceList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of status
+     *
+     * @return  string
+     */ 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the value of status
+     *
+     * @param  string  $status
+     *
+     * @return  self
+     */ 
+    public function setStatus(string $status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of flagDefault
+     *
+     * @return  int
+     */ 
+    public function getFlagDefault()
+    {
+        return $this->flagDefault;
+    }
+
+    /**
+     * Set the value of flagDefault
+     *
+     * @param  int  $flagDefault
+     *
+     * @return  self
+     */ 
+    public function setFlagDefault(int $flagDefault)
+    {
+        $this->flagDefault = $flagDefault;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of flagClassify
+     *
+     * @return  int
+     */ 
+    public function getFlagClassify()
+    {
+        return $this->flagClassify;
+    }
+
+    /**
+     * Set the value of flagClassify
+     *
+     * @param  int  $flagClassify
+     *
+     * @return  self
+     */ 
+    public function setFlagClassify(int $flagClassify)
+    {
+        $this->flagClassify = $flagClassify;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idPriority
+     *
+     * @return  int
+     */ 
+    public function getIdPriority()
+    {
+        return $this->idPriority;
+    }
+
+    /**
+     * Set the value of idPriority
+     *
+     * @param  int  $idPriority
+     *
+     * @return  self
+     */ 
+    public function setIdPriority(int $idPriority)
+    {
+        $this->idPriority = $idPriority;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idGroup
+     *
+     * @return  int
+     */ 
+    public function getIdGroup()
+    {
+        return $this->idGroup;
+    }
+
+    /**
+     * Set the value of idGroup
+     *
+     * @param  int  $idGroup
+     *
+     * @return  self
+     */ 
+    public function setIdGroup(int $idGroup)
+    {
+        $this->idGroup = $idGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of limitDays
+     *
+     * @return  int
+     */ 
+    public function getLimitDays()
+    {
+        return $this->limitDays;
+    }
+
+    /**
+     * Set the value of limitDays
+     *
+     * @param  int  $limitDays
+     *
+     * @return  self
+     */ 
+    public function setLimitDays(int $limitDays)
+    {
+        $this->limitDays = $limitDays;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of limitTime
+     *
+     * @return  int
+     */ 
+    public function getLimitTime()
+    {
+        return $this->limitTime;
+    }
+
+    /**
+     * Set the value of limitTime
+     *
+     * @param  int  $limitTime
+     *
+     * @return  self
+     */ 
+    public function setLimitTime(int $limitTime)
+    {
+        $this->limitTime = $limitTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of attendanceTime
+     *
+     * @return  int
+     */ 
+    public function getAttendanceTime()
+    {
+        return $this->attendanceTime;
+    }
+
+    /**
+     * Set the value of attendanceTime
+     *
+     * @param  int  $attendanceTime
+     *
+     * @return  self
+     */ 
+    public function setAttendanceTime(int $attendanceTime)
+    {
+        $this->attendanceTime = $attendanceTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of timeType
+     *
+     * @return  string
+     */ 
+    public function getTimeType()
+    {
+        return $this->timeType;
+    }
+
+    /**
+     * Set the value of timeType
+     *
+     * @param  string  $timeType
+     *
+     * @return  self
+     */ 
+    public function setTimeType(string $timeType)
+    {
+        $this->timeType = $timeType;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketList
+     *
+     * @return  array
+     */ 
+    public function getTicketList()
+    {
+        return $this->ticketList;
+    }
+
+    /**
+     * Set the value of ticketList
+     *
+     * @param  array  $ticketList
+     *
+     * @return  self
+     */ 
+    public function setTicketList(array $ticketList)
+    {
+        $this->ticketList = $ticketList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of targetField
+     *
+     * @return  string
+     */ 
+    public function getTargetField()
+    {
+        return $this->targetField;
+    }
+
+    /**
+     * Set the value of targetField
+     *
+     * @param  string  $targetField
+     *
+     * @return  self
+     */ 
+    public function setTargetField(string $targetField)
+    {
+        $this->targetField = $targetField;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of targetCondition
+     *
+     * @return  string
+     */ 
+    public function getTargetCondition()
+    {
+        return $this->targetCondition;
+    }
+
+    /**
+     * Set the value of targetCondition
+     *
+     * @param  string  $targetCondition
+     *
+     * @return  self
+     */ 
+    public function setTargetCondition(string $targetCondition)
+    {
+        $this->targetCondition = $targetCondition;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of targetIdList
+     *
+     * @return  string
+     */ 
+    public function getTargetIdList()
+    {
+        return $this->targetIdList;
+    }
+
+    /**
+     * Set the value of targetIdList
+     *
+     * @param  string  $targetIdList
+     *
+     * @return  self
+     */ 
+    public function setTargetIdList(string $targetIdList)
+    {
+        $this->targetIdList = $targetIdList;
 
         return $this;
     }

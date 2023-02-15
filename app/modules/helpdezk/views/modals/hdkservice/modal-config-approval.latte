@@ -1,0 +1,110 @@
+<div class="modal fade" id="modal-config-approval" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='conf_approvals'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-config-approval-form">
+                    <input type="hidden" id="typeId" name="typeId" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-cmb-type" class="hdk-label col-form-label text-end">{='type'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-type" name="modal-cmb-type">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-cmb-item" class="hdk-label col-form-label text-end">{='Item'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-item" name="modal-cmb-item">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-cmb-service" class="hdk-label col-form-label text-end">{='Service'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-service" name="modal-cmb-service">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-approver" class="hdk-label col-form-label text-end">{='User'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="modal-approver" name="modal-approver" >
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+                    
+                    <div class="row white-bg g-2 text-center approverListView d-none">
+                        <hr class="hr-pipe-black"/>
+                    </div>
+
+                    <div class="col-xs-12 white-bg approverListView d-none" style="height:40px;"></div>
+
+                    <div class="row white-bg g-2 mb-3 approverListView d-none">
+                       <div class="row col-sm-12 text-center">
+                            <table id="approverList" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="col-sm-5 text-center"><h4><strong>{='Name'|translate}</strong></h4></th>
+                                        <th class="col-sm-4 text-center"><h4><strong>{='order_action'|translate}</strong></h4></th>
+                                        <th class="col-sm-1 text-center"><h4><strong>{='Delete'|translate}</strong></h4></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-recalculate" class="hdk-label col-form-label text-end">{='Recalculate'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-recalculate" name="modal-recalculate" value="">&nbsp;&nbsp;<label class="col-form-label">{='Recalculate_msg_chk'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-config-approval"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnConfigApprovalSave" class="btn btn-primary btn-sm">
+                    <i class="fa fa-save"></i> {='Save'|translate}
+                </button>
+                <button type="button" id="btnConfigApprovalClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

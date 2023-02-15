@@ -1,0 +1,74 @@
+<div class="modal fade" id="modal-add-item" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modal-add-item-title" class="modal-title"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-item-form">
+                    <input type="hidden" id="modal-item-type" name="modal-item-type" value=""/>
+                    <input type="hidden" id="modal-item-id" name="modal-item-id" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-item-name" class="hdk-label col-form-label text-end">{='Item_name'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control input-sm" id="modal-item-name" name="modal-item-name" >
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-item-available" class="hdk-label col-form-label text-end">{='Available'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-item-available" name="modal-item-available" value="">&nbsp;&nbsp;<label class="col-form-label">{='Available_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-item-default" class="hdk-label col-form-label text-end">{='Default'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-item-default" name="modal-item-default" value="">&nbsp;&nbsp;<label class="col-form-label">{='Default_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-item-classification" class="hdk-label col-form-label text-end">{='Classification'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-item-classification" name="modal-item-classification" value="">&nbsp;&nbsp;<label class="col-form-label">{='Classification_text'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-item"></div>
+                        </div>
+                    </div>                    
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddItemSave" class="btn btn-primary btn-sm">
+                    <i class="fa fa-save"></i> {='Save'|translate}
+                </button>
+                <button type="button" id="btnAddItemClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
