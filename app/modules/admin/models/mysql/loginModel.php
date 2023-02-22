@@ -80,6 +80,21 @@ final class loginModel
     private $requestCode;
 
     /**
+     * @var string
+     */
+    private $loginDate;
+
+    /**
+     * @var int
+     */
+    private $loginStatus;
+
+    /**
+     * @var int
+     */
+    private $loginDetailId;
+
+    /**
      * Get the value of idPerson
      *
      * @return  int
@@ -425,6 +440,78 @@ final class loginModel
     public function setRequestCode(string $requestCode): self
     {
         $this->requestCode = $requestCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of loginDate
+     *
+     * @return  string
+     */ 
+    public function getLoginDate()
+    {
+        return $this->loginDate;
+    }
+
+    /**
+     * Set the value of loginDate
+     *
+     * @param  string  $loginDate
+     *
+     * @return  self
+     */ 
+    public function setLoginDate(string $loginDate)
+    {
+        $this->loginDate = $loginDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of loginStatus
+     *
+     * @return  int
+     */ 
+    public function getLoginStatus()
+    {
+        return $this->loginStatus;
+    }
+
+    /**
+     * Set the value of loginStatus
+     *
+     * @param  int  $loginStatus
+     *
+     * @return  self
+     */ 
+    public function setLoginStatus(int $loginStatus)
+    {
+        $this->loginStatus = $loginStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of loginDetailId
+     *
+     * @return  int
+     */ 
+    public function getLoginDetailId()
+    {
+        return $this->loginDetailId;
+    }
+
+    /**
+     * Set the value of loginDetailId
+     *
+     * @param  int  $loginDetailId
+     *
+     * @return  self
+     */ 
+    public function setLoginDetailId(int $loginDetailId)
+    {
+        $this->loginDetailId = $loginDetailId;
 
         return $this;
     }
