@@ -219,7 +219,7 @@ class loginDAO extends Database
      */
     public function checkUser(loginModel $loginModel): array
     {      
-        $sql = "SELECT login, status FROM tbperson WHERE login = :login";
+        $sql = "SELECT idperson,login, status FROM tbperson WHERE login = :login";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -227,7 +227,9 @@ class loginDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             
-            $loginModel->setUserStatus(($aRet['status'] == "A") ? "A" : "I");
+            $loginModel->setUserStatus(($aRet['status'] == "A") ? "A" : "I")
+                       ->setIdPerson((!is_null($aRet['idperson']) && !empty($aRet['idperson'])) ? $aRet['idperson'] : 0);
+
             $ret = true;
             $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
@@ -426,6 +428,44 @@ class loginDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting global settings ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Inserts login details in tblogindetail table
+     * pt_br Grava detalhes do login na tabela tblogindetail
+     *
+     * @param  loginModel $loginModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertLoginDetail(loginModel $loginModel): array
+    {
+        
+        $sql = "INSERT INTO tblogindetail (idperson, idtypelogin, datelogin, `status`) 
+                        VALUES (:personId, :loginTypeId, NOW(), :status)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':personId', $loginModel->getIdPerson());
+            $stmt->bindParam(':loginTypeId', $loginModel->getLoginType());
+            $stmt->bindParam(':status', $loginModel->getLoginStatus());
+            $stmt->execute();
+
+            $loginModel->setLoginDetailId($this->db->lastInsertId());
+              
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error saving login detail ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

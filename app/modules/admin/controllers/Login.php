@@ -122,7 +122,15 @@ class Login extends Controller
         }
         
         if ($isLogin) {
-            
+            // inserts login details in DB
+            $loginTypeObj->setLoginStatus(1);
+            $insDetail = $loginDAO->insertLoginDetail($loginTypeObj);
+            if(!$insDetail['status']){
+                $this->logger->error("Can't insert login detail.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $insDetail['push']['message']]);
+            }else{
+                $this->logger->info("Login detail saved successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => ""]);
+            }
+
             switch  ($idtypeperson) {
                 case "1": // admin
                     $loginSrc->_startSession($idperson);
@@ -233,11 +241,23 @@ class Login extends Controller
 				$retUserSt = $loginDAO->checkUser($loginType['push']['object']); 
                 if (!$retUserSt['status'] || $retUserSt['push']['object']->getUserStatus() == 'I'){
                     $msg = $this->translator->translate('Login_user_inactive');
-				}elseif($retUserSt['push']['object']->getUserStatus() == "A") 
+				}elseif($retUserSt['push']['object']->getUserStatus() == "A"){ 
                     $msg = $this->translator->translate('Login_error_error');
+
+                    // inserts login details in DB
+                    $retUserSt['push']['object']->setLoginStatus(0);
+                    $insDetail = $loginDAO->insertLoginDetail($retUserSt['push']['object']);
+                    if(!$insDetail['status']){
+                        $this->logger->error("Can't insert login detail.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $insDetail['push']['message']]);
+                    }else{
+                        $this->logger->info("Login detail saved successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => ""]);
+                    }
+                }
 			}
+
 			$success = array("success" => 0,
 							 "msg" => $msg );
+
 			echo json_encode($success);
 			return;
         }
