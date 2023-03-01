@@ -290,6 +290,65 @@ class permissionDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * en_us Inserts default permission by program
+     * pt_br Insere permissão padrão por programa
+     *
+     * @param  permissionModel $permissionModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertDefaultPermission(permissionModel $permissionModel): array
+    {        
+        $sql = "INSERT INTO tbdefaultpermission (idprogram, idaccesstype, allow) 
+                     VALUES (:programId, :accessTypeId, :allow)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":programId",$permissionModel->getProgramId());
+        $stmt->bindValue(":accessTypeId",$permissionModel->getAccessTypeId());
+        $stmt->bindValue(":allow",$permissionModel->getAllow());
+        $stmt->execute(); echo "",print_r($permissionModel,true),"\n";
+
+        $permissionModel->setPermissionId($this->db->lastInsertId());
+		
+        $ret = true;
+        $result = array("message"=>"","object"=>$permissionModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+	/**
+     * en_us Inserts program's permission by person type 
+     * pt_br Insere permissão do programa por tipo de pessoa
+     *
+     * @param  permissionModel $permissionModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertGroupPermission(permissionModel $permissionModel): array
+    {        
+        $sql = "INSERT INTO tbtypepersonpermission (idprogram,idtypeperson,idaccesstype,allow) 
+                     VALUES (:programId, :personTypeId, :accessTypeId, :allow)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":programId",$permissionModel->getProgramId());
+		$stmt->bindValue(":personTypeId",$permissionModel->getPersonTypeId());
+        $stmt->bindValue(":accessTypeId",$permissionModel->getAccessTypeId());
+        $stmt->bindValue(":allow",$permissionModel->getAllow());
+        $stmt->execute();
+
+        $permissionModel->setPermissionId($this->db->lastInsertId());
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$permissionModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
     
     
 }

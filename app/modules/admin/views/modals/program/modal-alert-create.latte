@@ -1,4 +1,4 @@
-<div class="modal fade" id="modal-module-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modal-program-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -13,37 +13,42 @@
 
                     <div class="row g-2">
                         <div class="col-sm-4 text-end">
-                            <label for="modal-module-code" class="col-form-label text-end">{='record_code'|translate}:</label>
+                            <label for="modal-program-code" class="col-form-label text-end">{='record_code'|translate}:</label>
                         </div>
                         
                         <div class="col-sm-5">
-                            <input type="text" readonly class="form-control-plaintext" id="modal-module-code" >
+                            <input type="text" readonly class="form-control-plaintext" id="modal-program-code" >
                         </div>
                     </div>
 
                     <div class="row g-2">
                         <div class="col-sm-4 text-end">
-                            <label for="modal-module-name" class="col-form-label text-end">{='Module_name'|translate}:</label>
+                            <label for="modal-program-module" class="col-form-label text-end">{='Module'|translate}:</label>
                         </div>
                         
                         <div class="col-sm-5">
-                            <input type="text" readonly class="form-control-plaintext" id="modal-module-name" >
+                            <input type="text" readonly class="form-control-plaintext" id="modal-program-module" >
                         </div>
                     </div>
 
                     <div class="row g-2">
                         <div class="col-sm-4 text-end">
-                            <label for="modal-module-path" class="col-form-label text-end">{='Module_path'|translate}:</label>
+                            <label for="modal-program-category" class="col-form-label text-end">{='Category'|translate}:</label>
                         </div>
                         
                         <div class="col-sm-5">
-                            <input type="text" readonly class="form-control-plaintext" id="modal-module-path" >
+                            <input type="text" readonly class="form-control-plaintext" id="modal-program-category" >
                         </div>
                     </div>
-                </div>
 
-                <div id="moduleStrAlertLine" class="row alert alert-warning d-none">
-                    <div id="module-structure-alert" class="row g-2 text-center">
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-program-name" class="col-form-label text-end">{='Name'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-program-name" >
+                        </div>
                     </div>
                 </div>
             </div>

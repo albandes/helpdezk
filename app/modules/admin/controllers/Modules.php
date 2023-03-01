@@ -300,8 +300,12 @@ class Modules extends Controller
             $moduleName = $ins['push']['object']->getName();
             $modulePath = $ins['push']['object']->getPath();
 
-            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/")){
-                $this->logger->error("Could not create module dir", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            if($this->makeModuleDir($modulePath)){
+                $flgDirCreate = true;
+                $dirMsg = "";
+            }else{
+                $flgDirCreate = false;
+                $dirMsg = $this->translator->translate("dir_make_error");
             }
 
             $this->logger->info("Module was saved successfully", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
@@ -311,6 +315,8 @@ class Modules extends Controller
             $moduleID = "";
             $moduleName = "";
             $modulePath = "";
+            $flgDirCreate = false;
+            $dirMsg = "";
 
             $this->logger->error("Could not save module. Error: {$ins['push']['message']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }       
@@ -320,7 +326,9 @@ class Modules extends Controller
             "message" => $msg,
             "moduleId" => $moduleID,
             "moduleName" => $moduleName,
-            "modulePath"  => $moduleName
+            "modulePath"  => $modulePath,
+            "dirCreated" => $flgDirCreate,
+            "dirMessage" => $dirMsg
         );       
 
         echo json_encode($aRet);
@@ -600,6 +608,72 @@ class Modules extends Controller
         }
 
         exit;
+    }
+
+    function makeModuleDir($modulePath){
+        
+        if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/")){
+            $this->logger->error("Could not create module dir", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }else{
+            //controllers dir
+            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/controllers")){
+                $this->logger->error("Could not create module's controller subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return false;
+            }
+
+            //dao dir
+            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/dao")){
+                $this->logger->error("Could not create module's dao subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return false;
+            }else{
+                //mysql subdir
+                if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/dao/mysql")){
+                    $this->logger->error("Could not create module's dao/mysql subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return false;
+                }
+
+            }
+
+            //models dir
+            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/models")){
+                $this->logger->error("Could not create module's model subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return false;
+            }else{
+                //mysql subdir
+                if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/models/mysql")){
+                    $this->logger->error("Could not create module's models/mysql subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return false;
+                }
+
+            }
+
+            //src dir
+            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/src")){
+                $this->logger->error("Could not create module's src subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return false;
+            }
+
+            //views dir
+            if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/views")){
+                $this->logger->error("Could not create module's views subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                return false;
+            }else{
+                //js subdir
+                if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/views/js")){
+                    $this->logger->error("Could not create module's views/js subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return false;
+                }
+
+                //modals subdir
+                if(!$this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath()."/app/modules/{$modulePath}/views/modals")){
+                    $this->logger->error("Could not create module's views/modals subdirectory", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    return false;
+                }
+            }            
+        }
+
+        return true;
     }
 
 }
