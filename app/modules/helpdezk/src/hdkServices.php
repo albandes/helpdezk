@@ -609,7 +609,7 @@ class hdkServices
      * 
      * pt_br Configura os parâmetros para enviar notificações por e-mail
      *
-     * @param  mixed $aParams
+     * @param  array $aParams
      * @return void
      */
     public function _sendNotification($aParams)

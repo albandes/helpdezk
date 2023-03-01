@@ -181,7 +181,7 @@ class groupDAO extends Database
     public function fetchGroupOperators(groupModel $groupModel): array
     {
         
-        $sql = "SELECT pers.idperson, pers.email, pers.name operator_name, grpname.name
+        $sql = "SELECT pers.idperson, pers.email, pers.name operator_name, grpname.name, pers.login
                   FROM tbperson pers, tbperson grpname, hdk_tbgroup grp, hdk_tbgroup_has_person pergrp
                  WHERE pers.idperson = pergrp.idperson
                    AND pers.status = 'A'
@@ -243,6 +243,47 @@ class groupDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error fetching operator's groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * Return an array with group's operators
+     *
+     * @param  groupModel $groupModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchGroupUsers(groupModel $groupModel): array
+    {
+        
+        $sql = "SELECT pers.idperson, pers.email, pers.name operator_name, grpname.name, pers.login
+                  FROM tbperson pers, tbperson grpname, hdk_tbgroup grp, hdk_tbgroup_has_person pergrp
+                 WHERE pers.idperson = pergrp.idperson
+                   AND pers.status = 'A'
+                   AND grp.idgroup = pergrp.idgroup
+                   AND grpname.idperson = grp.idperson
+                   AND grp.idgroup = :groupID";
+               // echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':groupID', $groupModel->getIdGroup());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $groupModel->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$groupModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error fetching group's operators ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
