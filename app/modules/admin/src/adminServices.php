@@ -10,6 +10,7 @@ use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\holidayDAO;
 use App\modules\helpdezk\dao\mysql\departmentDAO;
 use App\modules\helpdezk\dao\mysql\groupDAO;
+use App\modules\admin\dao\mysql\programDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
@@ -17,6 +18,7 @@ use App\modules\admin\models\mysql\personModel;
 use App\modules\admin\models\mysql\holidayModel;
 use App\modules\helpdezk\models\mysql\departmentModel;
 use App\modules\helpdezk\models\mysql\groupModel;
+use App\modules\admin\models\mysql\programModel;
 
 use App\src\appServices;
 
@@ -357,7 +359,7 @@ class adminServices
         $cities = $this->_comboCities($stateID);
         $select = '';
 
-        foreach($cities as $key=>$val) { echo "",print_r($val,true),"\n";
+        foreach($cities as $key=>$val) {
             $default = ($val['isdefault'] == 1) ? 'selected="selected"' : '';
             $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
         }
@@ -1044,6 +1046,126 @@ class adminServices
         }
 
         return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with holidays list
+     * pt_br Retorna um array com a lista de feriados
+     *
+     * @param  mixed $year          Year. Default current year
+     * @param  mixed $companyId     Company Id. Default 0 (National holidays)
+     * @return array
+     */
+    public function _getHolidaysDates($year=null,$companyId=0): array
+    {
+        $year = !is_null($year) ? $year : date("Y");
+
+        $holidayDAO = new holidayDAO();
+        $holidayModel = new holidayModel();
+        $holidayModel->setYear($year)
+                     ->setIdCompany($companyId);
+
+        $retHolidays = $holidayDAO->fetchHolidays($holidayModel);
+        
+        if($retHolidays['status']){
+            $this->admlogger->info("Holiday's data got successfully.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+
+            $holidays = $retHolidays['push']['object']->getGridList();
+            $aRet = array();
+            
+            if(sizeof($holidays) <= 0)
+                return false;
+
+            foreach($holidays as $k=>$v) {
+                array_push($aRet,$this->appSrc->_formatDate($v['holiday_date']));
+            }
+        }else{
+            $this->admlogger->error("Can't get holiday's data. Error: {$retHolidays['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return false;
+        }
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of program's category
+     * pt_br Retorna um array com Id e nome das categorias de programa
+     *
+     * @param  mixed $moduleID Module Id
+     * @return array
+     */
+    public function _comboCategory($moduleID): array
+    {
+        $programDAO = new programDAO();
+        $programModel = new programModel();
+        $programModel->setModuleId($moduleID);
+
+        $retCategories = $programDAO->fetchCategoriesByModuleId($programModel);
+        
+        $aRet = array();
+        if($retCategories['status']){
+            $this->admlogger->info("Categories data got successfully.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            $categories = $retCategories['push']['object']->getGridList();
+            
+            foreach($categories as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idprogramcategory'],
+                    "text" => $v['name_fmt']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }else{
+            $this->admlogger->error("Can't get categories data. Error: {$retCategories['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * en_us Formats category list in HTML to show in the dropdown
+     * pt_br Formata a lista de categorias em HTML para mostrar no combo
+     *
+     * @param  mixed $stateID
+     * @return string
+     */
+    public function _comboCategoryHtml($moduleID,$selectedId)
+    {
+        $categories = $this->_comboCategory($moduleID);
+        $select = '';
+
+        foreach($categories as $key=>$val) {
+            if(isset($selectedId) && $selectedId > 0)
+                $default = ($val['id'] == $selectedId) ? "selected=selected": "";
+            else
+                $default = (isset($val['isdefault']) && $val['isdefault'] == 1) ? 'selected="selected"' : '';
+            
+            $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+        }
+        return $select;
+    }
+
+    /**
+     * en_us Formats category list in HTML to show in the dropdown
+     * pt_br Formata a lista de categorias em HTML para mostrar no combo
+     *
+     * @param  mixed $stateID
+     * @return string
+     */
+    public function _comboModulesHtml($selectedId)
+    {
+        $categories = $this->_comboModules();
+        $select = '';
+
+        foreach($categories as $key=>$val) {
+            if(isset($selectedId) && $selectedId > 0)
+                $default = ($val['id'] == $selectedId) ? "selected=selected": "";
+            else
+                $default = (isset($val['isdefault']) && $val['isdefault'] == 1) ? 'selected="selected"' : '';
+            
+            $select .= "<option value='{$val['id']}' {$default}>{$val['text']}</option>";
+        }
+        return $select;
     }
 
     
