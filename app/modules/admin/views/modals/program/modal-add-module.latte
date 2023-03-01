@@ -1,0 +1,125 @@
+<div class="modal fade" id="modal-add-module" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>{='Add'|translate} {='Module'|translate}</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modal-add-module-form">
+                    <div class="row">
+                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">
+                                <div id="moduleLogo" class="dropzone dz-default dz-message" ></div>
+                        </div>
+
+                        <div class="row col-sm-12 col-md-10 b-l">
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="moduleName" class="hdk-label col-form-label text-end">{='Module_name'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" id="moduleName" name="moduleName" class="form-control" placeholder="{='plh_module_description'|translate}" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="modulePath" class="hdk-label col-form-label text-end">{='Module_path'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" id="modulePath" name="modulePath" class="form-control" placeholder="{='plh_module_path'|translate}" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="moduleKeyName" class="hdk-label col-form-label text-end">{='key_name_translate'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_module'|translate}">
+                                    <input type="text" id="moduleKeyName" name="moduleKeyName" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="moduleDefault" class="hdk-label col-form-label text-end">{='Module_default'|translate}?</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="checkbox" id="moduleDefault" name="moduleDefault" value=""  > <label class="col-form-label">{='Yes'|translate}</label>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="moduleRestrictIp" class="hdk-label col-form-label text-end">{='module_restrict'|translate}?</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="checkbox" id="moduleRestrictIp" name="moduleRestrictIp" value=""> <label class="col-form-label">{='Yes'|translate}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                    <div id="restrictionsLine" class="row white-bg g-2 d-none">
+                        <div class="col-sm-2 text-center">&nbsp;</div>
+                        <div class="col-sm-8 text-center">
+                            <table id="restrictionsList" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center hdk-tab-header-bg" colspan="3"><h4><strong>{='module_restrict_header'|translate}</strong></h4></th>
+                                    </tr>
+                                    <tr>
+                                        <th class="col-sm-11 text-center"><h4><strong>{='ip'|translate}</strong></h4></th>
+                                        <th class="col-sm-1 text-center"><h4><strong>{='Delete'|translate}</strong></h4></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="restrictItem_1">
+                                        <input type="hidden" id="restrictNumId" value="1"/>
+                                        <td class=" text-start">
+                                            <input type="text" id="ipNumber_1" name="ipNumber[]" class="form-control form-control-sm" value="" />
+                                        </td>
+                                        <td class="text-center"><a href="javascript:;" onclick="removeRow(this,'restrictionsList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-2 text-center">&nbsp;</div>
+                        <div class="row col-sm-12">
+                            <div class="col-sm-2 text-center">&nbsp;</div>
+                            <div class="row col-sm-8 text-center">
+                                <div class="col-sm-4">
+                                    <button id="btnAddRow" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='add_restriction'|translate}</button>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div id="alert-restrict-list"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 text-center">&nbsp;</div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-module"></div>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddModuleCancel" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+                <button type="button" id="btnAddModuleSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -52,28 +52,6 @@ $(document).ready(function () {
         this.removeFile(file);
     });
 
-    /*myDropzone.on("removedfile", function(file) {
-        console.log(file);
-        $.ajax({
-            type: "POST",
-            dataType: 'json',
-            url: path + '/lmm/lmmTitles/removeCover',
-            data: {
-                idimage:  file.idimage,
-                filename: file.fname
-            },
-            success: function(response){
-                var obj = jQuery.parseJSON(JSON.stringify(response));
-                if(obj.success){
-                    myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
-                }
-            },
-            error: function (response) {
-                console.log("Erro no Dropzone!");
-            }
-        });
-    });*/
-
     myDropzone.on("complete", function(file) {
     
         if(file.status === "canceled" || file.status === "error"){
@@ -237,49 +215,6 @@ $(document).ready(function () {
         });  */
     });
 
-    $("#btnModMatTypeSave").click(function(){
-
-        if (!$("#material-type-form").valid()) {
-            return false ;
-        }
-
-        if(!$("#btnModMatTypeSave").hasClass('disabled')){  
-            var data_save = $("#material-type-form").serialize();
-            data_save = data_save + "&_token="+$("#_token").val();
-
-            $.ajax({     
-            type: "POST",
-            url: path + '/lmm/lmmMaterialType/createMaterialType',
-            dataType: 'json',
-            data: data_save,
-            error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_failure'],'alert-add-material-type-modal');
-            },
-            success: function(ret){    
-                var obj = jQuery.parseJSON(JSON.stringify(ret));    
-                if(obj.success) {
-                    modalAlertMultiple('success',vocab['Alert_inserted'],'alert-add-material-type-modal');
-                    objTitleData.loadMaterialType(obj.idmaterialtype);
-                    setTimeout(function(){
-                        $('#modal-add-material-type').modal('hide');
-                    },2000);
-                } else {
-                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-add-material-type-modal');
-                }
-            },
-            beforeSend: function(){
-                $("#btnModMatTypeSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
-                $("#btnModMatTypeClose").addClass('disabled');
-            },
-            complete: function(){
-                $("#btnModMatTypeSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
-                $("#btnModMatTypeClose").removeClass('disabled');
-            }    
-        });
-    }
-
-    });
-
     // -- add new row to restrictions list
     $("#btnAddRow").click(function(){
         duplicateRow();
@@ -420,6 +355,13 @@ function saveData(aAttachs,op)
                     $('#modal-module-code').val(obj.moduleId);
                     $('#modal-module-name').val(obj.moduleName);
                     $('#modal-module-path').val(obj.modulePath);
+
+                    if(!obj.dirCreated){
+                        $('#module-structure-alert').html(obj.dirMessage);
+
+                        if($('#moduleStrAlertLine').hasClass("d-none"))
+                            $('#moduleStrAlertLine').removeClass("d-none");
+                    }
     
                     $('#modal-module-create').modal('show');
                 }else{

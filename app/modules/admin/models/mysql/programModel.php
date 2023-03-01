@@ -60,6 +60,41 @@ final class programModel
     private $totalRows;
 
     /**
+     * @var array
+     */
+    private $operationList;
+
+    /**
+     * @var string
+     */
+    private $status;
+
+    /**
+     * @var int
+     */
+    private $accessTypeId;
+
+    /**
+     * @var string
+     */
+    private $allow;
+    
+    /**
+     * @var int
+     */
+    private $personTypeId;
+
+    /**
+     * @var string
+     */
+    private $fmtName;
+
+    /**
+     * @var bool
+     */
+    private $flgChangeOperations;
+
+    /**
      * Get the value of programId
      *
      * @return  int
@@ -319,6 +354,174 @@ final class programModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of operationList
+     *
+     * @return  array
+     */ 
+    public function getOperationList()
+    {
+        return $this->operationList;
+    }
+
+    /**
+     * Set the value of operationList
+     *
+     * @param  array  $operationList
+     *
+     * @return  self
+     */ 
+    public function setOperationList(array $operationList)
+    {
+        $this->operationList = $operationList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of status
+     *
+     * @return  string
+     */ 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the value of status
+     *
+     * @param  string  $status
+     *
+     * @return  self
+     */ 
+    public function setStatus(string $status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of accessTypeId
+     *
+     * @return  int
+     */ 
+    public function getAccessTypeId()
+    {
+        return $this->accessTypeId;
+    }
+
+    /**
+     * Set the value of accessTypeId
+     *
+     * @param  int  $accessTypeId
+     *
+     * @return  self
+     */ 
+    public function setAccessTypeId(int $accessTypeId)
+    {
+        $this->accessTypeId = $accessTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of allow
+     *
+     * @return  string
+     */ 
+    public function getAllow()
+    {
+        return $this->allow;
+    }
+
+    /**
+     * Set the value of allow
+     *
+     * @param  string  $allow
+     *
+     * @return  self
+     */ 
+    public function setAllow(string $allow)
+    {
+        $this->allow = $allow;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personTypeId
+     *
+     * @return  int
+     */ 
+    public function getPersonTypeId()
+    {
+        return $this->personTypeId;
+    }
+
+    /**
+     * Set the value of personTypeId
+     *
+     * @param  int  $personTypeId
+     *
+     * @return  self
+     */ 
+    public function setPersonTypeId(int $personTypeId)
+    {
+        $this->personTypeId = $personTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fmtName
+     *
+     * @return  string
+     */ 
+    public function getFmtName()
+    {
+        return $this->fmtName;
+    }
+
+    /**
+     * Set the value of fmtName
+     *
+     * @param  string  $fmtName
+     *
+     * @return  self
+     */ 
+    public function setFmtName(string $fmtName)
+    {
+        $this->fmtName = $fmtName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of flgChangeOperations
+     *
+     * @return  bool
+     */ 
+    public function getFlgChangeOperations()
+    {
+        return $this->flgChangeOperations;
+    }
+
+    /**
+     * Set the value of flgChangeOperations
+     *
+     * @param  bool  $flgChangeOperations
+     *
+     * @return  self
+     */ 
+    public function setFlgChangeOperations(bool $flgChangeOperations)
+    {
+        $this->flgChangeOperations = $flgChangeOperations;
 
         return $this;
     }

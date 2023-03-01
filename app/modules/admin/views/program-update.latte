@@ -1,0 +1,179 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='Programs'|translate} / <strong>{='Edit'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="update-program-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="programId" id= "programId" value="{$programId}">
+                                    <input type="hidden" name="categorySelected" id= "categorySelected" value="{$categorySelected}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1"></div>
+
+                                        <div class="row col-sm-12 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbModule" class="hdk-label col-form-label text-end">{='Module'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbModule" name="cmbModule" >
+                                                        <option hidden></option>
+                                                        {foreach $cmbModules as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $moduleSelected}selected="selected"{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddModule" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_module_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbCategory" class="hdk-label col-form-label text-end">{='Category'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbCategory" name="cmbCategory">
+                                                        <!--<option></option>-->
+                                                        {*foreach $cmbCategory as $k=>$v}
+                                                            <option value="{$v['id']}">{$v['text']}</option>
+                                                        {/foreach*}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddCategory" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_category_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="programName" class="hdk-label col-form-label text-end">{='Name'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="programName" name="programName" class="form-control" placeholder="{='plh_program_description'|translate}" value="{$programName}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="programController" class="hdk-label col-form-label text-end">{='Controller'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="programController" name="programController" class="form-control" placeholder="{='plh_controller_description'|translate}" value="{$programController}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="programKeyName" class="hdk-label col-form-label text-end">{='key_name_translate'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_program'|translate}">
+                                                    <input type="text" id="programKeyName" name="programKeyName" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="{$programKeyName}" >
+                                                </div>
+
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddKeyName" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_vocabulary_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="changeOperations" class="hdk-label col-form-label text-end">{='Change_permissions'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="changeOperations" name="changeOperations" value="Y"  > <label class="col-form-label">{='Yes'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div id="operationsLine" class="row g-2 d-none">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="operations" class="hdk-label col-form-label text-end">{='Operations'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="operations_2" name="operations[]" value="2" class="checkOperations" {if in_array(2,$operationList)}checked=checked{/if}> <label class="col-form-label">{='New'|translate}</label><br>
+                                                    <input type="checkbox" id="operations_3" name="operations[]" value="3" class="checkOperations" {if in_array(3,$operationList)}checked=checked{/if}> <label class="col-form-label">{='edit'|translate}</label><br>
+                                                    <input type="checkbox" id="operations_4" name="operations[]" value="4" class="checkOperations" {if in_array(4,$operationList)}checked=checked{/if}> <label class="col-form-label">{='Delete'|translate}</label><br>
+                                                    <input type="checkbox" id="operations_5" name="operations[]" value="5" class="checkOperations" {if in_array(5,$operationList)}checked=checked{/if}> <label class="col-form-label">{='Export'|translate}</label><br>
+                                                    <input type="checkbox" id="operations_6" name="operations[]" value="6" class="checkOperations" {if in_array(6,$operationList)}checked=checked{/if}> <label class="col-form-label">{='email'|translate}</label><br>
+                                                    <input type="checkbox" id="operations_7" name="operations[]" value="7" class="checkOperations" {if in_array(7,$operationList)}checked=checked{/if}> <label class="col-form-label">{='SMS'|translate}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-update-program"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnUpdateProgram" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include $modalAlert}
+    {include $modalAddVocabulary}
+</body>
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <script src="{$path}/app/modules/admin/views/js/program-crud.js"></script>
+
+
+{/block}

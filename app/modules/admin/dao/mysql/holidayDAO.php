@@ -33,7 +33,7 @@ class holidayDAO extends Database
                   LEFT JOIN tbperson c
                          ON c.idperson = b.idperson
                       WHERE YEAR(a.holiday_date) = {$holidayModel->getYear()} ";
-        $sql .= ($holidayModel->getIdCompany() != "" || $holidayModel->getIdCompany() != 0) ? "AND c.idperson = {$holidayModel->getIdCompany()} " : "AND b.idperson IS NULL ";
+        $sql .= (!empty($holidayModel->getIdCompany()) && !is_null($holidayModel->getIdCompany()) && ($holidayModel->getIdCompany() != "" || $holidayModel->getIdCompany() != 0)) ? "AND c.idperson = {$holidayModel->getIdCompany()} " : "AND b.idperson IS NULL ";
         $sql .= "ORDER BY holiday_date";
 
         try{
