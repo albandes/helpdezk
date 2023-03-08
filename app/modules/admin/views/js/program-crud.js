@@ -1,6 +1,6 @@
 //Initial settings of Dropzone
 Dropzone.autoDiscover = false;
-var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[], hasRestrict=0, btnClicked = 0;
+var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[], hasRestrict=0, btnClicked = 0, avaliableSave = true;
 
 var objProgramData = {
     changeModule: function(selectedID) {
@@ -269,6 +269,10 @@ $(document).ready(function () {
                 modalAlertMultiple('danger',checkFields[1][0],'alert-modal-add-module');
                 return false ;
             }
+        }
+        if(!avaliableSave){
+            modalAlertMultiple('danger',vocab['restrict_fields_invalid_format'],'alert-modal-add-module');
+            return false;
         }
         
         if(!$("#btnAddModuleSave").hasClass('disabled')){
@@ -544,6 +548,11 @@ $(document).ready(function () {
         $("#modal-add-category-form").trigger('reset');
     });
 
+    $('.ipRestriction').keyup(delay(function (e) {
+        if(this.value != "")
+            validateIp(this.value);
+      }, 500));
+
     $('.lbltooltip').tooltip();
 });
 
@@ -570,7 +579,12 @@ function duplicateRow(){
     //delete later, not sure why can not be done before the append :S
     $( "#restrictionsList tr:last" ).attr( "id", "restrictItem_" + intNewRowId );
 
-    $( "#ipNumber_"+ intNewRowId + "-flexdatalist" ).focus();
+    $( "#ipNumber_"+ intNewRowId).focus();
+
+    $('.ipRestriction').keyup(delay(function (e) {
+        if(this.value != "")
+            validateIp(this.value);
+    }, 500));
 }
 
 function removeRow(id,strTableName){
@@ -585,30 +599,45 @@ function removeRow(id,strTableName){
 }
 
 function validateFields(){
-    var ret = [], isEmpty=0, isValid=false, msg, re = new RegExp("^(((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(((\/([4-9]|[12][0-9]|3[0-2]))?)|\s?-\s?((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))))(-\s?|$))+","gm");
+    var ret = [], isEmpty=0;
 
     // check restrictions items
     $("input[name='ipNumber[]']").each(function(index, element) {
         if($(this).val() == ""){
             isEmpty = 1;
-        }else{
-            isValid = re.test($(this).val());
         }
-        
     }); 
-                
+    
     if(isEmpty == 1){
         ret.push([false],[vocab['restrict_empty']]);
         return ret;
     }
     
-    if(!isValid){
-        ret.push([false],[vocab['restrict_invalid_format']]);
-        return ret;
-    }
-
     ret.push([true],['']);
     return ret;
+}
+
+function validateIp(ip){
+    var re = new RegExp("^(((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(((\/([4-9]|[12][0-9]|3[0-2]))?)|\s?-\s?((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))))(-\s?|$))","gm"),
+        res, alert = 'alert-modal-add-module';
+        
+    if(!re.test(ip)){
+        modalAlertMultiple('danger',vocab['restrict_invalid_format'],alert);
+        avaliableSave = false;
+    }else{
+        avaliableSave = true;
+    }
+}
+
+function delay(callback, ms) {
+    var timer = 0;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        callback.apply(context, args);
+      }, ms || 0);
+    };
 }
 
 function saveData(aAttachs,op)
