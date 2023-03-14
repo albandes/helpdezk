@@ -808,7 +808,7 @@ class hdkTicket extends Controller
         $ticketRulesModel->setItemId($itemID)
                          ->setServiceId($serviceID);
         $totalRules = $ticketRulesDAO->getTotalRules($ticketRulesModel);
-        $statusID = (!$totalRules['status'] || $totalRules['push']['object']->getTotalRows() == 0) ? 1 : 2;
+        $statusID = (!$totalRules['status'] || $totalRules['push']['object']->getTotalRows() == 0) ? 1 : 58;
 
         $ticketDate = (!isset($_POST['ticketDate']) || empty($_POST['ticketDate'])) ? date("Y-m-d") : $this->appSrc->_formatSaveDate($_POST['ticketDate']);
         $ticketHour = (!isset($_POST['ticketTime']) || empty($_POST['ticketTime'])) ? date("H:i") : $_POST['ticketTime'];
@@ -3915,5 +3915,267 @@ class hdkTicket extends Controller
         }
 
         return $params;
+    }
+
+    /**
+     * en_us Saves ticket's approval
+     * pt_br Grava a aprovação do ticket
+     *
+     * @return json
+     */
+    public function approveTicket()
+    { 
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $hdkSrc = new hdkServices();
+        $ticketDAO = new ticketDAO();
+        $ticketDTO = new ticketModel();
+        $hdkRulesDAO = new ticketRulesDAO();
+        $hdkRulesDTO = new ticketRulesModel();
+
+        $ticketCode = $_POST['ticketCode'];
+        $reason = addslashes($_POST['reason']);
+        $extensionNumberLimit = (isset($_POST['deadlineExtensionNumber'])) ? $_POST['deadlineExtensionNumber'] : 0;
+
+        //Setting up the model
+        $hdkRulesDTO->setTicketCode($ticketCode);
+        
+        $retNum = $hdkRulesDAO->getTotalApprovals($hdkRulesDTO);
+        if(!$retNum['status']){
+            $this->logger->error("Error getting total approvals, ticket # {$ticketCode}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $retNum['push']['message']]);
+            echo json_encode(array("success" => false,"message" => $this->translator->translate('generic_error_msg'),"ticketCode" => $ticketCode));
+            exit;
+        }
+
+        if($retNum['push']['object']->getTotalRows() > 1)
+            $note = "<p>".$this->translator->translate('Request_app_rep_next')."</p><p><strong>".$this->translator->translate('Justification').":</strong></p>".$reason;
+        else
+            $note = "<p>".$this->translator->translate('Request_app_rep_care')."</p><p><strong>".$this->translator->translate('Justification').":</strong></p>".$reason;
+        
+        $noteDateTime = date("Y-m-d H:i:s");
+
+        // -- notes --
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+        $aNote = array(
+            array(
+                "public"=> 1,"type" => 3,"note" => $note, "date" => $noteDateTime, "totalMinutes" => 0,
+                "startHour" => 0,"finishHour" => 0, "executionDate" => '0000-00-00 00:00:00', "hourType" =>0,
+                "ipAddress" => $ipAddress, "callback" => 0
+            )
+        );
+
+        $retRecalc = $hdkRulesDAO->getRecalculate($hdkRulesDTO);
+        if(!$retRecalc['status']){
+            $this->logger->error("Error getting recalculate, ticket # {$ticketCode}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $retRecalc['push']['message']]);
+            echo json_encode(array("success" => false,"message" => $this->translator->translate('generic_error_msg'),"ticketCode" => $ticketCode));
+            exit;
+        }
+
+        if($retRecalc['push']['object']->getIsRecalculate() == 1){
+            $ticketDateHour = date("Y-m-d H:i");
+            $expireDate = $hdkSrc->_getTicketExpireDate($ticketDateHour,$retRecalc['push']['object']->getPriorityId(),$retRecalc['push']['object']->getServiceId());
+            if($expireDate)
+                $ticketDTO->setExpireDate($expireDate);
+        }
+
+        //Setting up the model
+        $ticketDTO->setTicketCode($ticketCode)
+                    ->setIdCreator($_SESSION['SES_COD_USUARIO'])
+                    ->setIdStatus(59) // approved
+                    ->setNoteList($aNote)
+                    ->setIdUserLog($_SESSION['SES_COD_USUARIO'])
+                    ->setLogDate($noteDateTime)
+                    ->setExtensionsNumber($extensionNumberLimit);
+        
+        $ret = $ticketDAO->saveTicketApproval($ticketDTO);
+        if($ret['status']){
+            $st = true;
+            $msg = "";
+            $this->logger->info("Ticket # {$ticketCode} was approved successfully - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = false;
+            $msg = $ret['push']['message'];
+            $this->logger->error("Error trying approve ticket # {$ticketCode} - Message: {$msg}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
+            $aParam = array(
+                'transaction' => $ret['push']['object']->getEmailTransaction(),
+                'code_request' => $ticketCode,
+                'media' => 'email'
+            ) ;
+
+            $hdkSrc->_sendNotification($aParam);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "message" => $msg,
+            "ticketCode" => $ticketCode
+        );
+
+        echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Records the return to the previous stage of ticket approval
+     * pt_br Grava o retorno à fase anterior da aprovação do ticket
+     *
+     * @return json
+     */
+    public function returnTicket()
+    { 
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $hdkSrc = new hdkServices();
+        $ticketDAO = new ticketDAO();
+        $ticketDTO = new ticketModel();
+        $hdkRulesDAO = new ticketRulesDAO();
+        $hdkRulesDTO = new ticketRulesModel();
+
+        $ticketCode = $_POST['ticketCode'];
+        $reason = addslashes($_POST['reason']);
+        $note = "<p>".$this->translator->translate('Request_rejected_app_final')."</p><p><strong>".$this->translator->translate('Justification').":</strong></p>".$reason;
+        
+        $noteDateTime = date("Y-m-d H:i:s");
+
+        // -- notes --
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+        $aNote = array(
+            array(
+                "public"=> 1,"type" => 3,"note" => $note, "date" => $noteDateTime, "totalMinutes" => 0,
+                "startHour" => 0,"finishHour" => 0, "executionDate" => '0000-00-00 00:00:00', "hourType" =>0,
+                "ipAddress" => $ipAddress, "callback" => 0
+            )
+        );
+
+        //Setting up the model
+        $hdkRulesDTO->setTicketCode($ticketCode);
+        
+        $retLastApprover = $hdkRulesDAO->getLastApprover($hdkRulesDTO); // get previous approver
+        if(!$retLastApprover['status']){
+            $this->logger->error("Error getting last approver, ticket # {$ticketCode}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $retLastApprover['push']['message']]);
+            echo json_encode(array("success" => false,"message" => $this->translator->translate('generic_error_msg'),"ticketCode" => $ticketCode));
+            exit;
+        }
+
+        //Setting up the model
+        $ticketDTO->setTicketCode($ticketCode)
+                  ->setIdCreator($_SESSION['SES_COD_USUARIO'])
+                  ->setNoteList($aNote)
+                  ->setIdUserLog($_SESSION['SES_COD_USUARIO'])
+                  ->setLogDate($noteDateTime)
+                  ->setApproverId($retLastApprover['push']['object']->getIdPerson())
+                  ->setApproverOrder($retLastApprover['push']['object']->getOrder());
+        /* echo "",print_r($ticketDTO,true),"\n";
+        die(); */
+        $ret = $ticketDAO->saveApprovalReturn($ticketDTO);
+        if($ret['status']){
+            $st = true;
+            $msg = "";
+            $this->logger->info("Ticket # {$ticketCode} was returned successfully - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = false;
+            $msg = $ret['push']['message'];
+            $this->logger->error("Error trying return ticket # {$ticketCode} - Message: {$msg}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
+            $aParam = array(
+                'transaction' => 'approve',
+                'code_request' => $ticketCode,
+                'media' => 'email'
+            ) ;
+
+            $hdkSrc->_sendNotification($aParam);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "message" => $msg,
+            "ticketCode" => $ticketCode
+        );
+
+        echo json_encode($aRet);
+    }
+
+    /**
+     * en_us Records ticket's disapproval
+     * pt_br Grava a reprovação do ticket
+     *
+     * @return json
+     */
+    public function repproveTicket()
+    { 
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $hdkSrc = new hdkServices();
+        $ticketDAO = new ticketDAO();
+        $ticketDTO = new ticketModel();
+        $hdkRulesDAO = new ticketRulesDAO();
+        $hdkRulesDTO = new ticketRulesModel();
+
+        $ticketCode = $_POST['ticketCode'];
+        $reason = addslashes($_POST['reason']);
+        $note = "<p>".$this->translator->translate('Request_rejected_app_final')."</p><p><strong>".$this->translator->translate('Justification').":</strong></p>".$reason;
+        
+        $noteDateTime = date("Y-m-d H:i:s");
+
+        // -- notes --
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+        $aNote = array(
+            array(
+                "public"=> 1,"type" => 3,"note" => $note, "date" => $noteDateTime, "totalMinutes" => 0,
+                "startHour" => 0,"finishHour" => 0, "executionDate" => '0000-00-00 00:00:00', "hourType" =>0,
+                "ipAddress" => $ipAddress, "callback" => 0
+            )
+        );
+
+        //Setting up the model
+        $ticketDTO->setTicketCode($ticketCode)
+                  ->setIdCreator($_SESSION['SES_COD_USUARIO'])
+                  ->setIdStatus(60) // disapproved
+                  ->setNoteList($aNote)
+                  ->setIdUserLog($_SESSION['SES_COD_USUARIO'])
+                  ->setLogDate($noteDateTime);
+        /* echo "",print_r($ticketDTO,true),"\n";
+        die(); */
+        $ret = $ticketDAO->saveTicketDisapproval($ticketDTO);
+        if($ret['status']){
+            $st = true;
+            $msg = "";
+            $this->logger->info("Ticket # {$ticketCode} was disapproved successfully - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }else{
+            $st = false;
+            $msg = $ret['push']['message'];
+            $this->logger->error("Error trying return ticket # {$ticketCode} - Message: {$msg}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+
+        if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
+            $aParam = array(
+                'transaction' => 'operator-reject',
+                'code_request' => $ticketCode,
+                'media' => 'email'
+            ) ;
+
+            $hdkSrc->_sendNotification($aParam);
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "message" => $msg,
+            "ticketCode" => $ticketCode
+        );
+
+        echo json_encode($aRet);
     }
 }

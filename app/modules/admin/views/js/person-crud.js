@@ -386,9 +386,9 @@ $(document).ready(function () {
     });
 
     $("#btnAddState").click(function(){
-        var countryId = $('#country').val();
+        var countryId = $('#country').val(), alert = ($("#create-person-form").length > 0) ? 'alert-create-person' : 'alert-update-person';
         if(countryId.length <= 0 || countryId == ""){
-            modalAlertMultiple('danger',vocab['select_country'],'alert-create-person');
+            modalAlertMultiple('danger',vocab['select_country'],alert);
         }else{
             $('#countryId').val(countryId);
             $('#modal-country-txt').val($('#country-flexdatalist').val());
@@ -445,9 +445,9 @@ $(document).ready(function () {
     });
 
     $("#btnAddCity").click(function(){
-        var stateId = $('#state').val();
+        var stateId = $('#state').val(), alert = ($("#create-person-form").length > 0) ? 'alert-create-person' : 'alert-update-person';
         if(stateId.length <= 0 || stateId == ""){
-            modalAlertMultiple('danger',vocab['select_country_state'],'alert-create-person');
+            modalAlertMultiple('danger',vocab['select_country_state'],alert);
         }else{
             $('#stateId').val(stateId);
             $('#modal-country-city').val($('#country-flexdatalist').val());
@@ -504,9 +504,9 @@ $(document).ready(function () {
     });
 
     $("#btnAddNeighborhood").click(function(){
-        var cityId = $('#city').val();
+        var cityId = $('#city').val(), alert = ($("#create-person-form").length > 0) ? 'alert-create-person' : 'alert-update-person';
         if(cityId.length <= 0 || cityId == ""){
-            modalAlertMultiple('danger',vocab['select_country_state_city'],'alert-create-person');
+            modalAlertMultiple('danger',vocab['select_country_state_city'],alert);
         }else{
             $('#cityId').val(cityId);
             $('#modal-country-neighborhood').val($('#country-flexdatalist').val());
@@ -564,11 +564,11 @@ $(document).ready(function () {
     });
 
     $("#btnAddstreet").click(function(){
-        var cityId = $('#city').val(), streetTypeId = $('#cmbStreetType').val();
+        var cityId = $('#city').val(), streetTypeId = $('#cmbStreetType').val(), alert = ($("#create-person-form").length > 0) ? 'alert-create-person' : 'alert-update-person';
         if(cityId.length <= 0 || cityId == ""){
-            modalAlertMultiple('danger',vocab['select_country_state_city'],'alert-create-person');
+            modalAlertMultiple('danger',vocab['select_country_state_city'],alert);
         }else if(streetTypeId <= 0 || streetTypeId == ""){
-            modalAlertMultiple('danger',vocab['phl_select_street_type'],'alert-create-person');
+            modalAlertMultiple('danger',vocab['phl_select_street_type'],alert);
         }else{
             $('#cityId').val(cityId);
             $('#modal-country-street').val($('#country-flexdatalist').val());

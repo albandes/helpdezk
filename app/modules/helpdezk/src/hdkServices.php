@@ -808,6 +808,24 @@ class hdkServices
                 }
 
                 break;
+            
+            // Sends notification to the attendant when a request is approved
+            case 'approve':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['SES_REQUEST_APPROVE'] == 1) {
+
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            $cron = true;
+                        } else {
+                            $smtp = true;
+                        }
+                        $messageTo   = 'approve';
+                        $messagePart = 'Approved. Request # ';
+                    }
+
+                }
+
+                break;
 
             default:
                 return false;
@@ -1283,30 +1301,30 @@ class hdkServices
 
             //TODO: Request's approval flow
             // Sends email to the attendant, or group of attendants, when a request need approve
-            /*case "approve":
-                $templateId = $dbEmailConfig->getEmailIdBySession("SES_REQUEST_APPROVE");
-                if($this->log) {
-                    if (empty($templateId)) {
-                        $this->logIt("Send email, request # " . $REQUEST . ', do not get Template - program: ' . $this->program, 7, 'email', __LINE__);
-                    }
+            case "approve":
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("SES_REQUEST_APPROVE");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
                 }
-                $rsTemplate = $dbEmailConfig->getTemplateData($templateId);
+                
+                $template = $retTemplate['push']['object'];
 
-                //$bdop = new operatorview_model();
-                $reqdata = $this->dbTicket->getRequestData("WHERE code_request = $code_request");
-
-                $contents = str_replace('"', "'", $rsTemplate->fields['description']) . "<br/>";
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
                 eval("\$contents = \"$contents\";");
 
-                $sentTo = $this->setSendTo($dbEmailConfig,$code_request);
-
-                $subject = $rsTemplate->fields['name'];
+                $subject = $template->getSubject();
                 eval("\$subject = \"$subject\";");
+
+                // Setups the list of recipients
+                $sentTo = $this->_setSendTo($ticketCode);
 
                 break;
 
             // Sends email to the user when a request is rejected
-            case "operator_reject":
+            /*case "operator_reject":
                 $templateId = $dbEmailConfig->getEmailIdBySession("SES_MAIL_OPERATOR_REJECT");
                 if($this->log) {
                     if (empty($templateId)) {

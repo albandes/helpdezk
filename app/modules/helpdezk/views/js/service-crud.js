@@ -159,6 +159,7 @@ var objServices = {
                 },
                 beforeSend: function(){
                     $("#modal-recalculate").iCheck('uncheck');
+                    $("#approverList tbody").html("");
                     if(!$(".approverListView").hasClass('d-none'))
                         $(".approverListView").addClass('d-none');
                 }
