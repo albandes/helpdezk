@@ -670,6 +670,21 @@ final class ticketModel
     private $extraFieldValue;
 
     /**
+     * @var string
+     */
+    private $emailTransaction;
+
+    /**
+     * @var int
+     */
+    private $approverId;
+
+    /**
+     * @var int
+     */
+    private $approverOrder;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -3833,6 +3848,78 @@ final class ticketModel
     public function setExtraFieldValue(string $extraFieldValue)
     {
         $this->extraFieldValue = $extraFieldValue;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of emailTransaction
+     *
+     * @return  string
+     */ 
+    public function getEmailTransaction()
+    {
+        return $this->emailTransaction;
+    }
+
+    /**
+     * Set the value of emailTransaction
+     *
+     * @param  string  $emailTransaction
+     *
+     * @return  self
+     */ 
+    public function setEmailTransaction(string $emailTransaction)
+    {
+        $this->emailTransaction = $emailTransaction;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of approverId
+     *
+     * @return  int
+     */ 
+    public function getApproverId()
+    {
+        return $this->approverId;
+    }
+
+    /**
+     * Set the value of approverId
+     *
+     * @param  int  $approverId
+     *
+     * @return  self
+     */ 
+    public function setApproverId(int $approverId)
+    {
+        $this->approverId = $approverId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of approverOrder
+     *
+     * @return  int
+     */ 
+    public function getApproverOrder()
+    {
+        return $this->approverOrder;
+    }
+
+    /**
+     * Set the value of approverOrder
+     *
+     * @param  int  $approverOrder
+     *
+     * @return  self
+     */ 
+    public function setApproverOrder(int $approverOrder)
+    {
+        $this->approverOrder = $approverOrder;
 
         return $this;
     }

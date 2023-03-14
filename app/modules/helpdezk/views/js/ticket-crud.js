@@ -671,6 +671,22 @@ $(document).ready(function () {
         $("#executionFinished").change(function(){
             calctotal();
         });
+
+        if($('#approval-justification').length > 0 ) {
+            $('#approval-justification').summernote(
+                {
+                    toolbar:[
+                        ["font",["bold","italic","underline","clear"]],
+                        ["insert",["link"]]
+                    ],
+                    disableDragAndDrop: true,
+                    minHeight: null,  // set minimum height of editor
+                    maxHeight: 250,   // set maximum height of editor
+                    height: 250,      // set editor height
+                    focus: false,     // set focus to editable area after initializing summernote
+                }
+            );
+        }
     }
 
     $('.i-checks').iCheck({
@@ -1508,6 +1524,89 @@ $(document).ready(function () {
         return false;
     });
 
+    $("#btnRequestApproveApp").click(function(){
+        $("#modal-title-approve").html(vocab['Request_app_rep_care']);
+        $("#approvMethod").val("approveTicket");
+        $('#modal-approval-reason').modal('show');
+        return false;
+    });
+
+    $("#btnRequestReturnApp").click(function(){
+        $("#modal-title-approve").html(vocab['Request_app_previous']);
+        $("#approvMethod").val("returnTicket");
+        $('#modal-approval-reason').modal('show');
+    });
+
+    $("#btnRequestDisapproveApp").click(function(){
+        $("#modal-title-approve").html(vocab['Request_rejected_app_final']);
+        $("#approvMethod").val("repproveTicket");
+        $('#modal-approval-reason').modal('show');
+    });
+
+    $("#btnApprovalSave").click(function(){
+        
+        var ticketCode = $("#ticketCode").val(),
+            approvMethod = $("#approvMethod").val(),
+            reason = $('#approval-justification').summernote('code'),
+            deadlineExtensionNumber = $("deadlineExtensionNumber").val(),
+            msg;
+            
+        if(approvMethod == 'approveTicket'){
+            msg = vocab['Successfully_approved'];
+        }else if(approvMethod == 'returnTicket'){
+            msg = vocab['Alert_sucess_return'];
+        }else{
+            msg = vocab['rejected_successfully'];
+        }
+
+        if ($('#approval-justification').summernote('isEmpty')) {
+            modalAlertMultiple('danger',vocab['Alert_empty_reason'],'alert-approval-reason');
+            return false;
+        }
+
+        if(!$("#btnApprovalSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/helpdezk/hdkTicket/'+approvMethod,
+                dataType: 'json',
+                data: {
+                    _token: $("#_token").val(),
+                    ticketCode: ticketCode,
+                    reason: reason,
+                    deadlineExtensionNumber:deadlineExtensionNumber
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-approval-reason');
+                },
+                success: function(ret){
+    
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+    
+                    if(obj.success) {
+                        modalAlertMultiple('success',msg,'alert-approval-reason');
+                        setTimeout(function(){
+                            $('#modal-approval-reason').modal('hide');
+                            location.href = path+"/helpdezk/hdkTicket/index";
+                        },2000);
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-approval-reason');
+                    }
+    
+                },
+                beforeSend: function(){
+                    $("#btnApprovalClose").addClass('disabled');
+                    $("#btnApprovalSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnApprovalClose").removeClass('disabled');
+                    $("#btnApprovalSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                }
+            });
+        }
+
+        return false;
+    });
+
     // https://stackoverflow.com/questions/31519812/what-about-dropzone-js-within-an-existing-form-submitted-by-ajax
     $('#btnSendNote').click(function(e) {
         e.preventDefault();
@@ -1792,16 +1891,16 @@ function saveTicket(aAttachs)
             }
         },
         beforeSend: function(){
-            $("#btnCancel").removeClass('disabled');
-            $("#btnCreateTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']).removeClass('disabled');
+            $("#btnCancel").addClass('disabled');
+            $("#btnCreateTicket").html('<i class="fa fa-spinner fa-spin"></i> '+ vocab['Processing']).addClass('disabled');
             if(typeUser == 3){
-                $("#btnRepassTicket").removeClass('disabled');
-                $("#btnFinishTicket").removeClass('disabled');
-            }            
+                $("#btnRepassTicket").addClass('disabled');
+                $("#btnFinishTicket").addClass('disabled');
+            }
         },
         complete: function(){
             $("#btnCancel").removeClass('disabled');
-            $("#btnCreateTicket").html("<span class='fa fa-save'></span>  " + vocab['Save']).removeClass('disabled');
+            $("#btnCreateTicket").html("<i class='fa fa-save'></i>  " + vocab['Save']).removeClass('disabled');
             if(typeUser == 3){
                 $("#btnRepassTicket").removeClass('disabled');
                 $("#btnFinishTicket").removeClass('disabled');

@@ -75,6 +75,21 @@ final class ticketRulesModel
     private $approverList;
 
     /**
+     * @var string
+     */
+    private $inChargeType;
+
+    /**
+     * @var int
+     */
+    private $noteId;
+
+    /**
+     * @var int
+     */
+    private $priorityId;
+
+    /**
      * Get the value of idApproval
      *
      * @return  int
@@ -406,6 +421,78 @@ final class ticketRulesModel
     public function setApproverList(array $approverList)
     {
         $this->approverList = $approverList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inChargeType
+     *
+     * @return  string
+     */ 
+    public function getInChargeType()
+    {
+        return $this->inChargeType;
+    }
+
+    /**
+     * Set the value of inChargeType
+     *
+     * @param  string  $inChargeType
+     *
+     * @return  self
+     */ 
+    public function setInChargeType(string $inChargeType)
+    {
+        $this->inChargeType = $inChargeType;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of noteId
+     *
+     * @return  int
+     */ 
+    public function getNoteId()
+    {
+        return $this->noteId;
+    }
+
+    /**
+     * Set the value of noteId
+     *
+     * @param  int  $noteId
+     *
+     * @return  self
+     */ 
+    public function setNoteId(int $noteId)
+    {
+        $this->noteId = $noteId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of priorityId
+     *
+     * @return  int
+     */ 
+    public function getPriorityId()
+    {
+        return $this->priorityId;
+    }
+
+    /**
+     * Set the value of priorityId
+     *
+     * @param  int  $priorityId
+     *
+     * @return  self
+     */ 
+    public function setPriorityId(int $priorityId)
+    {
+        $this->priorityId = $priorityId;
 
         return $this;
     }

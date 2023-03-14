@@ -3471,4 +3471,228 @@ class ticketDAO extends Database
 
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * en_us Saves the ticket approval
+     * pt_br Grava a aprovação do ticket
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveTicketApproval(ticketModel $ticketModel): array
+    {   
+        $ticketRulesDAO = new ticketRulesDAO();
+        $ticketRulesModel = new ticketRulesModel();
+
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            // -- save notes
+            foreach($aNotes as $k=>$v){
+                $ticketModel->setNotePublic($v['public'])
+                            ->setNoteTypeID($v['type'])
+                            ->setNote($v['note'])
+                            ->setNoteDateTime($v['date'])
+                            ->setNoteTotalMinutes($v['totalMinutes'])
+                            ->setNoteStartHour($v['startHour'])
+                            ->setNoteFinishHour($v['finishHour'])
+                            ->setNoteExecutionDate($v['executionDate'])
+                            ->setNoteHourType($v['hourType'])
+                            ->setNoteIpAddress($v['ipAddress'])
+                            ->setNoteIsCallback($v['callback'])
+                            ->setNoteIsOpen(0);
+
+                $insNote = $this->insertTicketNote($ticketModel);
+            }
+
+            $ticketRulesModel->setTicketCode($insNote['push']['object']->getTicketCode())
+                             ->setIdPerson($insNote['push']['object']->getIdCreator())
+                             ->setNoteId($insNote['push']['object']->getIdNote());
+            
+            $updAppNote = $ticketRulesDAO->updateApprovalNote($ticketRulesModel);// update approval status
+            $remInCharge = $this->removeTicketInCharge($insNote['push']['object']);
+
+            if($updAppNote['status']){
+                $retNext = $ticketRulesDAO->getNextApprover($ticketRulesModel);
+                if($retNext['push']['object']->getIdPerson() > 0 ){
+                    $insNote['push']['object']->setIdInCharge($retNext['push']['object']->getIdPerson())
+                                              ->setInChargeType("P")
+                                              ->setIsInCharge(1)
+                                              ->setIsRepass("N")
+                                              ->setIsTrack(0)
+                                              ->setEmailTransaction("approve");
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                }else{
+                    $retOriginal = $ticketRulesDAO->getOriginalInCharge($ticketRulesModel);
+                    $insNote['push']['object']->setIdInCharge($retOriginal['push']['object']->getIdPerson())
+                                              ->setInChargeType($retOriginal['push']['object']->getInChargeType())
+                                              ->setIsInCharge(1)
+                                              ->setIsRepass("N")
+                                              ->setIsTrack(0)
+                                              ->setEmailTransaction("new-ticket-user");
+
+                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                    // -- changes status to approved
+                    $upStatus = $this->updateTicketStatus($ticketModel);
+
+                    if(!empty($ticketModel->getExpireDate())){
+                        // -- update ticket deadline in [hdk_tbrequest]
+                        $updDeadline = $this->updateTicketDeadline($ticketModel);
+                    }
+                }              
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$insNote['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save ticket approval ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves the ticket approval
+     * pt_br Grava a aprovação do ticket
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveApprovalReturn(ticketModel $ticketModel): array
+    {   
+        $ticketRulesDAO = new ticketRulesDAO();
+        $ticketRulesModel = new ticketRulesModel();
+
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            // -- save notes
+            foreach($aNotes as $k=>$v){
+                $ticketModel->setNotePublic($v['public'])
+                            ->setNoteTypeID($v['type'])
+                            ->setNote($v['note'])
+                            ->setNoteDateTime($v['date'])
+                            ->setNoteTotalMinutes($v['totalMinutes'])
+                            ->setNoteStartHour($v['startHour'])
+                            ->setNoteFinishHour($v['finishHour'])
+                            ->setNoteExecutionDate($v['executionDate'])
+                            ->setNoteHourType($v['hourType'])
+                            ->setNoteIpAddress($v['ipAddress'])
+                            ->setNoteIsCallback($v['callback'])
+                            ->setNoteIsOpen(0);
+
+                $insNote = $this->insertTicketNote($ticketModel);
+            }
+
+            $ticketRulesModel->setTicketCode($insNote['push']['object']->getTicketCode())
+                             ->setIdPerson($insNote['push']['object']->getApproverId())
+                             ->setOrder($insNote['push']['object']->getApproverOrder());
+            
+            $updAppNote = $ticketRulesDAO->updateApprovalReturn($ticketRulesModel);// update approval status
+            $remInCharge = $this->removeTicketInCharge($insNote['push']['object']);
+
+            if($updAppNote['status']){
+                $insNote['push']['object']->setIdInCharge($insNote['push']['object']->getApproverId())
+                                          ->setInChargeType("P")
+                                          ->setIsInCharge(1)
+                                          ->setIsRepass("N")
+                                          ->setIsTrack(0);
+
+                $insInCharge = $this->insertTicketInCharge($insNote['push']['object']);
+            }
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$insNote['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save ticket approval return', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves the ticket approval
+     * pt_br Grava a aprovação do ticket
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveTicketDisapproval(ticketModel $ticketModel): array
+    {   
+        $ticketRulesDAO = new ticketRulesDAO();
+        $ticketRulesModel = new ticketRulesModel();
+
+        $aNotes = $ticketModel->getNoteList();
+        
+        try{
+            $this->db->beginTransaction();
+
+            // -- save notes
+            foreach($aNotes as $k=>$v){
+                $ticketModel->setNotePublic($v['public'])
+                            ->setNoteTypeID($v['type'])
+                            ->setNote($v['note'])
+                            ->setNoteDateTime($v['date'])
+                            ->setNoteTotalMinutes($v['totalMinutes'])
+                            ->setNoteStartHour($v['startHour'])
+                            ->setNoteFinishHour($v['finishHour'])
+                            ->setNoteExecutionDate($v['executionDate'])
+                            ->setNoteHourType($v['hourType'])
+                            ->setNoteIpAddress($v['ipAddress'])
+                            ->setNoteIsCallback($v['callback'])
+                            ->setNoteIsOpen(0);
+
+                $insNote = $this->insertTicketNote($ticketModel);
+            }
+
+            $ticketRulesModel->setTicketCode($insNote['push']['object']->getTicketCode())
+                             ->setIdPerson($insNote['push']['object']->getIdCreator())
+                             ->setNoteId($insNote['push']['object']->getIdNote());
+            
+            $updAppNote = $ticketRulesDAO->updateDisapprovalNote($ticketRulesModel);// update approval status
+            // -- changes status to approved
+            $upStatus = $this->updateTicketStatus($ticketModel);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$insNote['push']['object']);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error trying save ticket approval ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    
 }
