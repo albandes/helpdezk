@@ -51,6 +51,10 @@ class personDAO extends Database
                   JOIN tblocale ptloc
                     ON (ptloc.idlocale = ptvoc.idlocale AND
                         LOWER(ptloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+       LEFT OUTER JOIN tbjuridicalperson c
+                    ON c.idperson = tbp.idperson
+       LEFT OUTER JOIN tbnaturalperson d
+                    ON d.idperson = tbp.idperson
                  WHERE tbp.idperson != 1
                    AND tbp.idtypeperson < 6 
                 $where $group $order $limit";
@@ -97,6 +101,10 @@ class personDAO extends Database
                     ON (depP.iddepartment = dep.iddepartment)
              LEFT JOIN tbperson as comp
                     ON (dep.idperson = comp.idperson)
+       LEFT OUTER JOIN tbjuridicalperson c
+                    ON c.idperson = tbp.idperson
+       LEFT OUTER JOIN tbnaturalperson d
+                    ON d.idperson = tbp.idperson
                  WHERE tbp.idperson != 1
                    AND tbp.idtypeperson < 6 
                 $where";

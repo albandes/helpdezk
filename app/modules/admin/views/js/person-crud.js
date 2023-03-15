@@ -721,7 +721,35 @@ $(document).ready(function () {
             neighborhood:{required:function(element){return $('input[name="fillAddress"]').is(':checked');}},
             zipcode:{required:function(element){return $('input[name="fillAddress"]').is(':checked');}},
             street:{required:function(element){return $('input[name="fillAddress"]').is(':checked');}},
-            "cmbGroup[]":{required:function(element){return ($('input[name="natureType"]:checked').val() == 1 && ($("#cmbAccessLevel").val() == 1 || $("#cmbAccessLevel").val() == 3));}}
+            "cmbGroup[]":{required:function(element){return ($('input[name="natureType"]:checked').val() == 1 && ($("#cmbAccessLevel").val() == 1 || $("#cmbAccessLevel").val() == 3));}},
+            ssnCpf:{
+                remote:{
+                    param:{
+                        url: path+"/admin/person/checkCpfCNPJ",
+                        type: 'post',
+                        dataType:'json',
+                        async: false,
+                        data:{
+                            _token:function(element){return $("#_token").val()}
+                        }
+                    },
+                    depends:function(element){return ($('input[name="natureType"]:checked').val() == 1 && $("#ssnCpf").val() != "");}
+                }
+            },
+            einCnpj:{
+                remote:{
+                    param:{
+                        url: path+"/admin/person/checkCpfCNPJ",
+                        type: 'post',
+                        dataType:'json',
+                        async: false,
+                        data:{
+                            _token:function(element){return $("#_token").val()}
+                        }
+                    },
+                    depends:function(element){return ($('input[name="natureType"]:checked').val() == 2 && $("#einCnpj").val() != "");}
+                }
+            }
         },
         messages: {
             login:{required:vocab['Alert_field_required']},
@@ -766,7 +794,37 @@ $(document).ready(function () {
             },
             cmbCompany:{required:function(element){return $('#natureType').val() == 1;}},
             cmbDepartment:{required:function(element){return $('#natureType').val() == 1;}},
-            "cmbGroup[]":{required:function(element){return ($('#natureType').val() == 1 && ($("#cmbAccessLevel").val() == 1 || $("#cmbAccessLevel").val() == 3));}}
+            "cmbGroup[]":{required:function(element){return ($('#natureType').val() == 1 && ($("#cmbAccessLevel").val() == 1 || $("#cmbAccessLevel").val() == 3));}},
+            ssnCpf:{
+                remote:{
+                    param:{
+                        url: path+"/admin/person/checkCpfCNPJ",
+                        type: 'post',
+                        dataType:'json',
+                        async: false,
+                        data:{
+                            _token:function(element){return $("#_token").val()},
+                            personId:function(element){return $("#personId").val()}
+                        }
+                    },
+                    depends:function(element){return ($('input[name="natureType"]:checked').val() == 1 && $("#ssnCpf").val() != "");}
+                }
+            },
+            einCnpj:{
+                remote:{
+                    param:{
+                        url: path+"/admin/person/checkCpfCNPJ",
+                        type: 'post',
+                        dataType:'json',
+                        async: false,
+                        data:{
+                            _token:function(element){return $("#_token").val()},
+                            personId:function(element){return $("#personId").val()}
+                        }
+                    },
+                    depends:function(element){return ($('input[name="natureType"]:checked').val() == 2 && $("#einCnpj").val() != "");}
+                }
+            }
         },
         messages: {
             personName:{required:vocab['Alert_field_required']},
