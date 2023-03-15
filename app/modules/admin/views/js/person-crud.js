@@ -807,7 +807,7 @@ $(document).ready(function () {
                             personId:function(element){return $("#personId").val()}
                         }
                     },
-                    depends:function(element){return ($('input[name="natureType"]:checked').val() == 1 && $("#ssnCpf").val() != "");}
+                    depends:function(element){return ($('input[name="natureType"]').val() == 1 && $("#ssnCpf").val() != "");}
                 }
             },
             einCnpj:{
@@ -822,7 +822,7 @@ $(document).ready(function () {
                             personId:function(element){return $("#personId").val()}
                         }
                     },
-                    depends:function(element){return ($('input[name="natureType"]:checked').val() == 2 && $("#einCnpj").val() != "");}
+                    depends:function(element){return ($('input[name="natureType"]').val() == 2 && $("#einCnpj").val() != "");}
                 }
             }
         },
