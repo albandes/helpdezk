@@ -13,6 +13,7 @@ use App\modules\admin\models\mysql\permissionModel;
 
 use App\modules\admin\src\adminServices;
 use App\modules\helpdezk\src\hdkServices;
+use App\src\cpfServices;
 
 class Person extends Controller
 {
@@ -1329,6 +1330,51 @@ class Person extends Controller
 
         echo json_encode($aRet);
 
+    }
+    
+    /**
+     * en_us Checks SSN or EIN
+     * pt_br Verifica CVPF ou CNPJ
+     *
+     * @return void
+     */
+    function checkCpfCNPJ(){
+        
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
+        
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+        
+        $cpfCnpj = (isset($_POST['ssnCpf'])) ? trim(strip_tags($_POST['ssnCpf'])) : trim(strip_tags($_POST['einCnpj']));
+        $type = (isset($_POST['ssnCpf'])) ? "CPF" : "CNPJ";
+        $cpfCnpj = preg_replace('/[^0-9]/','',$cpfCnpj);
+        $cpfCnpjSrc = new cpfServices($cpfCnpj);
+
+        if(!$cpfCnpjSrc->valida()){
+            $msg = ($type == "CPF") ? $this->translator->translate("Alert_invalid_cpf") : $this->translator->translate("Alert_invalid_cnpj");
+            echo json_encode($msg);
+        }else{
+            $where = " AND IFNULL(c.ein_cnpj,d.ssn_cpf) = '{$cpfCnpj}'";
+            $where .= (isset($_POST['personId'])) ? " AND tbp.idperson != {$_POST['personId']}" : "";
+            $check = $personDAO->queryPersons($where);
+
+            if(!$check['status']){
+                echo json_encode($this->translator->translate("generic_error_msg"));
+                exit;
+            }
+
+            $checkObj = $check['push']['object']->getGridList();
+    
+            if(count($checkObj) > 0){
+                $msg =  ($type == "CPF") ? $this->translator->translate('cpf_exists') : $this->translator->translate("ein_cnpj_exists");
+                echo json_encode($msg);
+            }else{
+                echo json_encode(true);
+            }
+        }
     }
 
 
