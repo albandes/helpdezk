@@ -182,7 +182,7 @@ var objServices = {
                             "<a href='#' class='btn btn-success btn-up'><i class='fa fa-sort-up'></i></a>"+
                             "<a href='#' class='btn btn-primary btn-down'><i class='fa fa-sort-down'></i></a>"+
                         "</td>"+
-                        "<td><a href='#' class='btn btn-danger btn-remove'><i class='fa fa-times'></i></a></td>"+
+                        "<td><a href='#' class='btn btn-danger btn-remove'><i class='fa fa-user-times'></i></a></td>"+
                     "</tr>";
 
             $("#approverList tbody").append(tBodyComp);
@@ -889,6 +889,8 @@ $(document).ready(function () {
                             $('#modal-config-approval').modal('hide');
                             $('#modal-config-approval-form').trigger('reset');
                             $("#modal-recalculate").iCheck('uncheck');
+                            $("#modal-cmb-item").html('').trigger("change");
+                            $("#modal-cmb-service").html('').trigger("change");
 
                             $("#approverList tbody").html("");
                             $(".approverListView").addClass('d-none');
@@ -1240,6 +1242,8 @@ $(document).ready(function () {
     $('#modal-config-approval').on('hidden.bs.modal', function() {
         $('#modal-config-approval-form').trigger('reset');
         $("#modal-recalculate").iCheck('uncheck');
+        $("#modal-cmb-item").html('').trigger("change");
+        $("#modal-cmb-service").html('').trigger("change");
 
         $("#approverList tbody").html("");
         $(".approverListView").addClass('d-none');
