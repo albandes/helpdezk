@@ -100,12 +100,11 @@ class ticketRulesDAO extends Database
      */
     public function insertApproval(ticketRulesModel $ticketRulesModel): array
     {        
-        $sql = "INSERT INTO hdk_tbrequest_approval (idapproval,request_code,`order`,idperson,fl_recalculate)
-                     VALUES (:approvalID,:ticketCode,:order,:personID,:isRecalculate)";
+        $sql = "INSERT INTO hdk_tbrequest_approval (request_code,`order`,idperson,fl_recalculate)
+                     VALUES (:ticketCode,:order,:personID,:isRecalculate)";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(':approvalID', $ticketRulesModel->getIdApproval());
             $stmt->bindValue(':ticketCode', $ticketRulesModel->getTicketCode());
             $stmt->bindValue(':order', $ticketRulesModel->getOrder());
             $stmt->bindValue(':personID', $ticketRulesModel->getIdPerson());
