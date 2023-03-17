@@ -4073,8 +4073,7 @@ class hdkTicket extends Controller
                   ->setLogDate($noteDateTime)
                   ->setApproverId($retLastApprover['push']['object']->getIdPerson())
                   ->setApproverOrder($retLastApprover['push']['object']->getOrder());
-        /* echo "",print_r($ticketDTO,true),"\n";
-        die(); */
+        
         $ret = $ticketDAO->saveApprovalReturn($ticketDTO);
         if($ret['status']){
             $st = true;
@@ -4147,8 +4146,7 @@ class hdkTicket extends Controller
                   ->setNoteList($aNote)
                   ->setIdUserLog($_SESSION['SES_COD_USUARIO'])
                   ->setLogDate($noteDateTime);
-        /* echo "",print_r($ticketDTO,true),"\n";
-        die(); */
+        
         $ret = $ticketDAO->saveTicketDisapproval($ticketDTO);
         if($ret['status']){
             $st = true;
