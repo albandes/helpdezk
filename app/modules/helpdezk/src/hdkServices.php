@@ -617,6 +617,8 @@ class hdkServices
         $appSrc = new appServices();
         $moduleDAO = new moduleDAO();        
         $moduleModel = new moduleModel();
+        $ticketDAO = new ticketDAO();
+        $ticketModel = new ticketModel();
 
         $moduleModel->setName('Helpdezk');
         $transaction    = $aParams['transaction'] ;
@@ -630,6 +632,14 @@ class hdkServices
 
         $retInfo = $moduleDAO->getModuleInfoByName($moduleModel);
         if(!$retInfo['status']){
+            return false;
+        }        
+        
+        // Common data
+        $ticketModel->setTicketCode($ticketCode);
+        $retTicket = $ticketDAO->getTicket($ticketModel);
+        if(!$retTicket['status']){
+            $this->hdklogger->error("Can't get ticket data, # {$ticketCode}. Error: {$retTicket['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
             return false;
         }
 
@@ -786,6 +796,7 @@ class hdkServices
 
                 // Since November 20, 2020
                 if ($this->_existsViewByUrlTable()) {
+                    $this->_saveUrlToken($retTicket['push']['object']->getIdOwner(), $ticketCode); // ticket owner                    
                     $this->_setUrlToken($ticketCode);
                 } else {
                     $this->hdklogger->info("[hdk] hdk_tbviewbyurl table does not exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
@@ -804,6 +815,17 @@ class hdkServices
                         }
                         $messageTo   = 'add-aux-operator';
                         $messagePart = 'An auxiliary attendant was added to the request # ';
+                    }
+                }
+
+                $ticketModel->setInCond(true);
+                $retAux = $ticketDAO->fetchAuxiliaryAttendant($ticketModel);
+                if(!$retAux['status']){
+                    $this->hdklogger->error("Can't get ticket data, # {$ticketCode}.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $retAux['push']['message']]);
+                }else{
+                    $auxiliaryAttendants = $retAux['push']['object']->getAuxiliaryAttendantList();
+                    foreach($auxiliaryAttendants as $k=>$v) {
+                        $this->_saveUrlToken($v['idperson'], $ticketCode); // auxiliary attendant
                     }
                 }
 
@@ -996,7 +1018,7 @@ class hdkServices
         $PHONE          = $ticket->getOwnerPhone();
         $BRANCH         = $ticket->getOwnerBranch();
         $LINK_OPERATOR  = "<pipegrep></pipegrep>";
-        //$LINK_USER      = $this->makeLinkUser($code_request);
+        $LINK_USER      = "<pipegrep></pipegrep>";
         // Notes
         $table          = $this->_makeNotesTable($ticketCode);
         $NT_OPERATOR    = $table;
