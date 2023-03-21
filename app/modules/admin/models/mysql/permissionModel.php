@@ -64,6 +64,11 @@ final class permissionModel
      */
     private $personTypeId;
 
+     /**
+     * @var array
+     */
+    private $userTypePermissionList;
+
     /**
      * Get the value of permissionId
      *
@@ -348,6 +353,30 @@ final class permissionModel
     public function setPersonTypeId(int $personTypeId)
     {
         $this->personTypeId = $personTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userTypePermissionList
+     *
+     * @return  array
+     */ 
+    public function getUserTypePermissionList()
+    {
+        return $this->userTypePermissionList;
+    }
+
+    /**
+     * Set the value of userTypePermissionList
+     *
+     * @param  array  $userTypePermissionList
+     *
+     * @return  self
+     */ 
+    public function setUserTypePermissionList(array $userTypePermissionList)
+    {
+        $this->userTypePermissionList = $userTypePermissionList;
 
         return $this;
     }

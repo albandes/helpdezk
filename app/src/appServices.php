@@ -2298,6 +2298,19 @@ class appServices
                         ->setPersonId($userId);
         $aRet = array();
         
+        // first get permissions by user's type
+        $retType = $permissionDAO->fetchUserTypePermissionsByProgram($permissionModel);
+        if(!$retType['status']){
+            $this->applogger->error("Can't get user type permissions by program. Error: {$retType['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return $aRet;
+        }
+
+        $userTypePerms =  $retType['push']['object']->getUserTypePermissionList();
+        foreach($userTypePerms as $key=>$val){
+            $aRet[$val['idaccesstype']] = $val['allow'];
+        }
+
+        // get permissions by user
         $ret = $permissionDAO->fetchUserPermissionsByProgram($permissionModel);
         if(!$ret['status']){
             $this->applogger->error("Can't get user's permissions by program. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
