@@ -19,7 +19,7 @@ final class vocabularyModel
      */
     private $keyValue;
 
-     /**
+    /**
      * @var int
      */
     private $idLocale;
@@ -38,6 +38,41 @@ final class vocabularyModel
      * @var array
      */
     private $gridList;
+
+    /**
+     * @var int
+     */
+    private $totalRows;
+
+    /**
+     * @var int
+     */
+    private $idModule;
+
+    /**
+     * @var string
+     */
+    private $moduleName;
+
+    /**
+     * @var array
+     */
+    private $localeList;
+
+    /**
+     * @var array
+     */
+    private $keyValueList;
+
+    /**
+     * @var array
+     */
+    private $vocabularyIdList;
+
+    /**
+     * @var string
+     */
+    private $status;
 
     /**
      * Get the value of idVocabulary
@@ -203,6 +238,174 @@ final class vocabularyModel
     public function setGridList(array $gridList): self
     {
         $this->gridList = $gridList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalRows
+     *
+     * @return  int
+     */ 
+    public function getTotalRows()
+    {
+        return $this->totalRows;
+    }
+
+    /**
+     * Set the value of totalRows
+     *
+     * @param  int  $totalRows
+     *
+     * @return  self
+     */ 
+    public function setTotalRows(int $totalRows)
+    {
+        $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idModule
+     *
+     * @return  int
+     */ 
+    public function getIdModule()
+    {
+        return $this->idModule;
+    }
+
+    /**
+     * Set the value of idModule
+     *
+     * @param  int  $idModule
+     *
+     * @return  self
+     */ 
+    public function setIdModule(int $idModule)
+    {
+        $this->idModule = $idModule;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of moduleName
+     *
+     * @return  string
+     */ 
+    public function getModuleName()
+    {
+        return $this->moduleName;
+    }
+
+    /**
+     * Set the value of moduleName
+     *
+     * @param  string  $moduleName
+     *
+     * @return  self
+     */ 
+    public function setModuleName(string $moduleName)
+    {
+        $this->moduleName = $moduleName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of localeList
+     *
+     * @return  array
+     */ 
+    public function getLocaleList()
+    {
+        return $this->localeList;
+    }
+
+    /**
+     * Set the value of localeList
+     *
+     * @param  array  $localeList
+     *
+     * @return  self
+     */ 
+    public function setLocaleList(array $localeList)
+    {
+        $this->localeList = $localeList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of keyValueList
+     *
+     * @return  array
+     */ 
+    public function getKeyValueList()
+    {
+        return $this->keyValueList;
+    }
+
+    /**
+     * Set the value of keyValueList
+     *
+     * @param  array  $keyValueList
+     *
+     * @return  self
+     */ 
+    public function setKeyValueList(array $keyValueList)
+    {
+        $this->keyValueList = $keyValueList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of vocabularyIdList
+     *
+     * @return  array
+     */ 
+    public function getVocabularyIdList()
+    {
+        return $this->vocabularyIdList;
+    }
+
+    /**
+     * Set the value of vocabularyIdList
+     *
+     * @param  array  $vocabularyIdList
+     *
+     * @return  self
+     */ 
+    public function setVocabularyIdList(array $vocabularyIdList)
+    {
+        $this->vocabularyIdList = $vocabularyIdList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of status
+     *
+     * @return  string
+     */ 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the value of status
+     *
+     * @param  string  $status
+     *
+     * @return  self
+     */ 
+    public function setStatus(string $status)
+    {
+        $this->status = $status;
 
         return $this;
     }
