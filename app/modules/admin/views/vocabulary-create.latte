@@ -1,0 +1,159 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='pgr_vocabulary'|translate} / <strong>{='Add'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="create-vocabulary-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1"></div>
+
+                                        <div class="row col-sm-12 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbModule" class="hdk-label col-form-label text-end">{='Module'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbModule" name="cmbModule" >
+                                                        <option hidden></option>
+                                                        {foreach $cmbModules as $k=>$v}
+                                                            <option value="{$v['id']}">{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddModule" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='tt_add_module_btn'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="keyName" class="hdk-label col-form-label text-end">{='vocabulary_key_name'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="keyName" name="keyName" class="form-control" value="" >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-1 text-center">&nbsp;</div>
+                                        <div class="col-sm-10 text-center">
+                                            <table id="localeList" class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-sm-3 text-center"><h4><strong>{='vocabulary_locale'|translate}</strong></h4></th>
+                                                        <th class="col-sm-8 text-center"><h4><strong>{='vocabulary_key_value'|translate}</strong></h4></th>
+                                                        <th class="col-sm-1 text-center"><h4><strong>{='Delete'|translate}</strong></h4></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr id="localeItem_1">
+                                                        <input type="hidden" id="localeNumId" value="1"/>
+                                                        <td class="text-start">
+                                                            <select class="form-control input-sm" name="localeID[]" id="localeID_1">
+                                                                <option></option>
+                                                                {foreach $cmbLocales as $k=>$v}
+                                                                <option value="{$v['id']}">{$v['text']}</option>
+                                                                {/foreach}
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="keyValue[]" id="keyValue_1" class="form-control form-control-sm" />
+                                                        </td>
+                                                        <td class="text-center"><a href="javascript:;" onclick="removeVocabRow(this,'localeList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-1 text-center">&nbsp;</div>
+                                        <div class="row col-sm-12">
+                                            <div class="col-sm-1 text-center">&nbsp;</div>
+                                            <div class="row col-sm-8 text-center">
+                                                <div class="col-sm-4">
+                                                    <button id="btnAddVocabRow" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='Add'|translate} {='pgr_vocabulary'|translate}</button>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <div id="alert-locale-list"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1 text-center">&nbsp;</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-vocabulary"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateVocabulary" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/vocabulary/modal-alert-create.latte'}
+    {include 'modals/program/modal-add-module.latte'}
+    {include $modalNextStep}
+</body>
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <script src="{$path}/app/modules/admin/views/js/vocabulary-crud.js"></script>
+
+
+{/block}
