@@ -10,7 +10,7 @@
                     <div class="row">
                         <div class="row g-2">
                             <div class="col-sm-4 text-end">
-                                <label for="modal-color-theme" class="hdk-label col-form-label text-end">{='Module'|translate}:</label>
+                                <label for="modal-cmb-module" class="hdk-label col-form-label text-end">{='Module'|translate}:</label>
                             </div>
                             
                             <div class="col-sm-5 mb-3">
@@ -25,11 +25,11 @@
 
                         <div class="row g-2">
                             <div class="col-sm-4 text-end">
-                                <label for="modal-cmblocale" class="hdk-label col-form-label text-end">{='vocabulary_key_name'|translate}:</label>
+                                <label for="keyName" class="hdk-label col-form-label text-end">{='vocabulary_key_name'|translate}:</label>
                             </div>
                             
                             <div class="col-sm-5 mb-3">
-                                <input type="text" class="form-control form-control-sm" id="modal-key-name" name="modal-key-name" value="">
+                                <input type="text" class="form-control form-control-sm" id="keyName" name="keyName" value="">
                             </div>
                         </div>
 
@@ -40,11 +40,12 @@
                                     <tr>
                                         <th class="col-lg-3 text-center"><h4><strong>{='vocabulary_locale'|translate}</strong></h4></th>
                                         <th class="col-lg-8 text-center"><h4><strong>{='vocabulary_key_value'|translate}</strong></h4></th>
-                                        <th class="col-lg-1 text-center"><h4><strong>{='TMS_Delete'|translate}</strong></h4></th>
+                                        <th class="col-lg-1 text-center"><h4><strong>{='Delete'|translate}</strong></h4></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr id="localeItem_1">>
+                                    <tr id="localeItem_1">
+                                        <input type="hidden" id="localeNumId" value="1"/>
                                         <td>
                                             <select class="form-control input-sm" name="localeID[]" id="localeID_1">
                                                 <option></option>
@@ -52,12 +53,11 @@
                                                 <option value="{$v['id']}">{$v['text']}</option>
                                                 {/foreach}
                                             </select>
-                                            <input type="hidden" id="numId" value="1"/>
                                         </td>
                                         <td>
                                             <input type="text" name="keyValue[]" id="keyValue_1" class="form-control form-control-sm" />
                                         </td>
-                                        <td class="text-center"><a href="javascript:;" onclick="removeRow(this,'localeList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
+                                        <td class="text-center"><a href="javascript:;" onclick="removeVocabRow(this,'localeList')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a></td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -65,10 +65,10 @@
 
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <button id="btnAddRowUser" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='Add_user'|translate}</button>
+                                    <button id="btnAddVocabRow" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{='Add'|translate} {='pgr_vocabulary'|translate}</button>
                                 </div>
                                 <div class="col-sm-8">
-                                    <div id="alert-user-list"></div>
+                                    <div id="alert-locale-list"></div>
                                 </div>
                             </div>
                         </div>
@@ -78,15 +78,15 @@
 
                     <div class="row white-bg g-2">
                         <div class="col-sm-12 b-l mb-2">
-                            <div id="alert-modal-usersettings"></div>
+                            <div id="alert-modal-add-vocabulary"></div>
                         </div>
                     </div>
                     
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" id="btnUserSetCancel" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
-                <button type="button" id="btnUserSetSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+                <button type="button" id="btnAddVocabCancel" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+                <button type="button" id="btnAddVocabSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
             </div>
         </div>
     </div>

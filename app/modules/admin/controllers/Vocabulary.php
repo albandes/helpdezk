@@ -318,7 +318,7 @@ class Vocabulary extends Controller
         $vocabularyDTO = new vocabularyModel();
 
         //Setting up the model
-        $vocabularyDTO->setIdModule($_POST['cmbModule'])
+        $vocabularyDTO->setIdModule((isset($_POST['cmbModule'])) ? $_POST['cmbModule'] : $_POST['modal-cmb-module'])
                       ->setKeyName(trim(strip_tags($_POST['keyName'])))
                       ->setLocaleList($_POST['localeID'])
                       ->setKeyValueList($_POST['keyValue']);

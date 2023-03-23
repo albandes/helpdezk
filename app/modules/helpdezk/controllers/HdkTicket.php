@@ -1455,6 +1455,7 @@ class hdkTicket extends Controller
     function makeViewTicketBtns($params,$ticketCode,$idStatus,$inChargeID)
     {
         $hdkSrc = new hdkServices();
+        $awsSrc = new awsServices();
         $ticketDAO = new ticketDAO();
         $ticketModel = new ticketModel();
         $evaluationDAO = new evaluationDAO();
@@ -1541,7 +1542,8 @@ class hdkTicket extends Controller
                                         $answer     = $v['name'];
 
                                         if($this->saveMode == 'aws-s3'){
-                                            $ico = "https://{$_ENV['S3BUCKET_NAME']}.s3.amazonaws.com/icons/{$v['icon_name']}";
+                                            $retLogo = $awsSrc->_getFile("icons/{$v['icon_name']}");
+                                            $ico = $retLogo['fileUrl'];
                                         }else{
                                             if ($this->_externalStorage) {
                                                 $ico = $_ENV['EXTERNAL_STORAGE_URL'] .'/icons/'. $v['icon_name'];
@@ -2583,7 +2585,7 @@ class hdkTicket extends Controller
             $aNote = array(
                 array(
                     "public"=> 1,"type" => $_POST['typeNote'],"note" => $note, "date" => $noteDateTime, "totalMinutes" => $_POST['totalMinutes'],
-                    "startHour" => $_POST['executionStarted'],"finishHour" => $_POST['executionFinished'], "executionDate" => $_POST['executionDate'], 
+                    "startHour" => $_POST['executionStarted'],"finishHour" => $_POST['executionFinished'], "executionDate" => $this->appSrc->_formatSaveDateHour($_POST['executionDate']), 
                     "hourType" =>$_POST['typeHour'], "ipAddress" => $ipAddress, "callback" => $_POST['callback']
                 )
             );
@@ -2639,7 +2641,7 @@ class hdkTicket extends Controller
             "ticketCode" => $ticketCode,
             "notesAdded" => $retScreen
         );
-
+        
         echo json_encode($aRet);
     }
 
@@ -2813,7 +2815,7 @@ class hdkTicket extends Controller
         $retAssume = $ticketDAO->getAssumedDate($ticketModel);
         $assumeDate = ($retAssume['status'] && !empty($retAssume['push']['object']->getAssumeDate())) ? $retAssume['push']['object']->getAssumeDate() : date("Y-m-d H:i");
         $retExpended = $ticketDAO->getExpendedDate($ticketModel);
-        $minExpended = ($retExpended['status'] && !empty($retExpended['push']['object']->getAssumeDate())) ? $retExpended['push']['object']->getAssumeDate() : 0;
+        $minExpended = ($retExpended['status'] && !empty($retExpended['push']['object']->getMinExpendedTime())) ? $retExpended['push']['object']->getMinExpendedTime() : 0;
         $minClosure = $hdkSrc->_dateDiff($entryDate,date("Y-m-d H:i"));
         $minAttendance = $hdkSrc->_dateDiff($assumeDate,date("Y-m-d H:i"));
         $aTimes = array(
@@ -2823,7 +2825,7 @@ class hdkTicket extends Controller
         );
 
         $ticketModel->setTimesList($aTimes);        
-
+        
         $ret = $ticketDAO->saveCloseTicket($ticketModel);
         if($ret['status']){
             $st = true;
@@ -2850,7 +2852,7 @@ class hdkTicket extends Controller
             "message" => $msg,
             "ticketCode" => $ticketCode
         );
-
+        
         echo json_encode($aRet);
     }
 
