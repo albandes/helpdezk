@@ -858,13 +858,13 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketNote(ticketModel $ticketModel): array
-    {        
+    {  
         $sql = "INSERT INTO hdk_tbnote (code_request,idperson,description,entry_date,minutes,start_hour,
                             finish_hour,execution_date,hour_type,service_value,public,idtype,
                             ip_adress,callback,flag_opened,code_email) 
                      VALUES (:ticketCode,:personID,:note,:noteDate,:totalMinutes,:startHour,:finishHour, 
-                             :executionDate,:hourType,:serviceVal,:public,:typeID,:ipAddress, 
-                             :isCallback,:isOpen,:emailCode)";
+                             :executionDate,:hourType,NULLIF(:serviceVal,'NULL'),:public,:typeID,:ipAddress, 
+                             :isCallback,:isOpen,NULLIF(:emailCode,'NULL'))";
         
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":ticketCode",$ticketModel->getTicketCode());

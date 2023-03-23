@@ -190,39 +190,61 @@ $(document).ready(function () {
     
     //show modal to add vocabulary key name
     $("#btnAddKeyName").click(function(){
+        $("#modal-cmb-module").val($("#moduleId").val());
+        $("#modal-cmb-module").trigger("change");
         $("#modal-add-vocabulary").modal('show');
+    });
 
-        
+    // -- add new row to locale list
+    $("#btnAddVocabRow").click(function(){
+        duplicateVocabRow();
+    });
 
-        /**
-         * iCheck - checkboxes/radios styling
-         */
-        /* $('#materialTypeDefault').iCheck({
-            checkboxClass: 'icheckbox_square-green',
-            radioClass: 'iradio_square-green',
-        });
+    $("#btnAddVocabSave").click(function(){
+
+        if (!$("#modal-add-vocabulary-form").valid()) {
+            return false ;
+        }
         
-        $("#material-type-form").validate({
-            ignore:[],
-            rules: {
-                materialType: {
-                    required:true,
-                    minlength: 5,
-                    remote:{
-                        url: path+'/lmm/lmmMaterialType/checkExist',
-                        type: 'post',
-                        dataType:'json',
-                        async: false,
-                        data:{
-                            _token:function(element){return $("#_token").val()}
-                        }
+        var checkFields = validateVocabFields();
+        if (!checkFields[0][0]) {console.log(checkFields[0][0]);
+            modalAlertMultiple('danger',checkFields[1][0],'alert-modal-add-vocabulary');
+            return false ;
+        }
+        
+        if(!$("#btnAddVocabSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/vocabulary/createVocabulary',
+                dataType: 'json',
+                data: $("#modal-add-vocabulary-form").serialize() + "&_token=" + $("#_token").val(),
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-vocabulary');
+                },
+                success: function(ret){
+                    //console.log(ret);
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+        
+                    if(obj.success){
+                        modalAlertMultiple('success',vocab['Alert_inserted'],"alert-modal-add-vocabulary");
+                        setTimeout(function(){
+                            $("#modal-add-vocabulary").modal('hide');
+                        },2000);
+                    }else{
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-vocabulary');
                     }
+                },
+                beforeSend: function(){
+                    $("#btnAddVocabCancel").addClass('disabled');
+                    $("#btnAddVocabSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddVocabCancel").removeClass('disabled');
+                    $("#btnAddVocabSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
                 }
-            },
-            messages: {
-                materialType: {required:vocab['Alert_field_required'], minlength:vocab['Alert_minimum_five_characters']}
-            }
-        });  */
+            });
+        }
+        
     });
 
     // -- add new row to restrictions list
@@ -311,6 +333,42 @@ $(document).ready(function () {
         }
     });
 
+    $("#modal-add-vocabulary-form").validate({
+        ignore:[],
+        rules: {
+            'modal-cmb-module':   {
+                required: true
+            },
+            keyName:{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                required: true,
+                minlength: 3,
+                remote: {
+                    url: path + "/admin/vocabulary/checkKeyName",
+                    type: "post",
+                    dataType:'json',
+                    data:{
+                        _token: function(element){return $('#_token').val();},
+                        moduleId: function(element){return $('#modal-cmb-module').val();}
+                    }
+                },
+                noAccent:true
+            }
+        },
+        messages: {
+            'modal-cmb-module': {required:vocab['Alert_field_required']},
+            keyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
+        }
+    });
+
+    $.validator.addMethod('noAccent', function(strValue) {
+        var re = new RegExp("^[a-zA-Z0-9_]+$","i");
+        return re.test(strValue);
+    }, vocab['key_no_accents_no_whitespace']);
+
     /* when the modal is hidden */
     $('#modal-module-create').on('hidden.bs.modal', function() { 
         location.href = path + "/admin/modules/index";        
@@ -321,6 +379,10 @@ $(document).ready(function () {
             location.href = path + "/admin/modules/index" ;
         });
     }
+
+    $('#modal-add-vocabulary').on('hidden.bs.modal', function() { 
+        $("#modal-add-vocabulary-form").trigger('reset');
+    });
 
     $("#moduleRestrictIp").on('ifChecked ifUnchecked',function(e){
         if(e.type == 'ifChecked'){
@@ -481,5 +543,92 @@ function delay(callback, ms) {
         callback.apply(context, args);
       }, ms || 0);
     };
+}
+
+function duplicateVocabRow(){
+    // First, lets create the new row using the last one as template...
+    var clonedRow = $( "#localeList tr:last" ).clone();
+    // Take the current identifier, some number in the first cell of the row
+    intCurrentRowId = parseInt($( "#localeNumId:last",clonedRow ).val());
+    // Set the new ID
+    intNewRowId = intCurrentRowId + 1;
+    // Change the current identifier of the row to the new one
+    $( "#localeNumId:last", clonedRow ).val( intNewRowId );
+
+    // Change the Id / Name or anything you want for the new attribs...
+    //here is where you need to add a lot of stuff to change the id of your variables
+
+    // The following code works without problems on Firefox or IE7
+    $( "#localeID_"+ intCurrentRowId , clonedRow ).attr( { "id" :"localeID_" + intNewRowId, "accesskey" : intNewRowId } ).removeAttr("data-select2-id","aria-hidden","tabindex").removeClass("select2-hidden-accessible");
+    $( "#keyValue_"+ intCurrentRowId , clonedRow ).attr( { "id" :"keyValue_" + intNewRowId, "accesskey" : intNewRowId } ).val("");
+
+    // Add to the new row to the original table
+    $( "#localeList" ).append( clonedRow );
+
+    $('#localeID_' +intNewRowId + ' + span').remove();
+    $('#localeID_' +intNewRowId).val("");
+    $('#localeID_' +intNewRowId).select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#localeList tbody')});
+
+    // And finally change the ID of the last row to something we can
+    //delete later, not sure why can not be done before the append :S
+    $( "#localeList tr:last" ).attr( "id", "localeItem_" + intNewRowId );
+
+    //$( "#localeID_"+ intNewRowId).focus();
+}
+
+function removeVocabRow(id,strTableName){
+    var i = id.parentNode.parentNode.rowIndex,
+        alertSection = 'alert-locale-list';
+    
+    if($("#"+strTableName+" tbody tr").length == 1){
+        modalAlertMultiple('info',vocab['Unable_to_Delete_Required_Items'],alertSection);
+    }else{
+        document.getElementById(strTableName).deleteRow(i);
+    }
+}
+
+function validateVocabFields(){
+    var ret = [], aLocale=[], isNotSelected=0, localeExists=0,isEmpty=0,msg;
+
+    // check locale items
+    $("select[name='localeID[]']").each(function(index, element) {
+        if($(this).val()==""){
+            isNotSelected=1;
+        }else{   
+            if(jQuery.inArray($(this).val(), aLocale) !== -1)
+            {
+                localeExists=1;                        
+            }else{                
+                aLocale.push($(this).val());
+            } 
+        }
+        console.log($(this).val());
+    }); 
+                
+    if(isNotSelected==1){
+        ret.push([false],[vocab['one_more_not_select_locale']]);
+        return ret;
+    }
+
+    if(localeExists==1){
+        ret.push([false],[vocab['Duplicate_author']]);
+        return ret;
+    }
+
+    // check adquisiton date items
+    $("input[name='keyValue[]']").each(function(index, element) {
+        if($(this).val()==""){
+            isEmpty=1;
+        }           
+    });
+
+    if(isEmpty==1){
+        msg = vocab['one_more_no_key_value'];
+        ret.push([false],[msg]);
+        return ret;
+    }
+
+    ret.push([true],['']);
+    return ret;
 }
             
