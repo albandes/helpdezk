@@ -239,7 +239,7 @@ class TypePersonPermission extends Controller
         
         $params = $this->makeScreenTypePersonPerms('permission',$ret['push']['object']);
         $params['programId'] = $programId;
-        $params['lblProgramName'] = $ret['push']['object']->getName();
+        $params['lblProgramName'] = "{$ret['push']['object']->getModule()}/{$ret['push']['object']->getName()}";
       
         $this->view('admin','type-person-manage-permission',$params);
     }
