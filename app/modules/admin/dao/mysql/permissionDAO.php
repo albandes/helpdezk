@@ -13,7 +13,8 @@ class permissionDAO extends Database
     }
 
     /**
-     * en_us Returns an array with default permissions
+     * en_us Returns an array with programs list
+     * pt_br Retorna um array com a lista de programas
      *
      * @param  string $where
      * @param  string $group
@@ -24,16 +25,16 @@ class permissionDAO extends Database
      *                 push =  [message = PDO Exception message 
      *                          object = model's object]]
      */
-    /* public function querypermissions($where=null,$group=null,$order=null,$limit=null): array
+    public function queryPermissions($where=null,$group=null,$order=null,$limit=null): array
     {
         
-        $sql = "SELECT tbp.idpermission, tbp.name, pvoc.key_value name_fmt,
+        $sql = "SELECT DISTINCT tbp.idprogram, tbp.name, pvoc.key_value name_fmt,
                        tbm.name module, mvoc.key_value module_fmt, 
                        tbtp.name category, pcvoc.key_value category_fmt,  
-                       tbp.controller, tbp.status
-                  FROM tbpermission tbp
-                  JOIN tbpermissioncategory tbtp 
-                    ON tbtp.idpermissioncategory = tbp.idpermissioncategory
+                       tbp.controller, tbp.status, tperms.allow
+                  FROM tbprogram tbp
+                  JOIN tbprogramcategory tbtp 
+                    ON tbtp.idprogramcategory = tbp.idprogramcategory
                   JOIN tbmodule tbm
                     ON tbtp.idmodule = tbm.idmodule
                   JOIN tbvocabulary pvoc
@@ -50,7 +51,10 @@ class permissionDAO extends Database
                     ON pcvoc.key_name = tbtp.smarty
                   JOIN tblocale pcloc
                     ON (pcloc.idlocale = pcvoc.idlocale AND
-                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}')) 
+                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+       LEFT OUTER JOIN tbtypepersonpermission tperms
+                    ON (tperms.idprogram = tbp.idprogram AND
+			            idaccesstype = '1' AND idtypeperson = '1' AND allow = 'N')
                 $where $group $order $limit";
         
         try{
@@ -65,17 +69,18 @@ class permissionDAO extends Database
             $result = array("message"=>"","object"=>$permissionModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error getting permissions ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error getting programs for permission grid ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
         
         return array("status"=>$ret,"push"=>$result);
-    } */
+    }
 
     /**
-     * Return an array with total of permissions to display in grid
+     * en_us Returns an array with total of programs to display in grid
+     * pt_br Retorna um array com o total de programas para visualizar no grid
      *
      * @param  string $where
      * @return array Parameters returned in array: 
@@ -83,12 +88,12 @@ class permissionDAO extends Database
      *                push =  [message = PDO Exception message 
      *                         object = model's object]]
      */
-    /* public function countpermissions($where=null): array
+    public function countPermissions($where=null): array
     {        
-        $sql = "SELECT COUNT(tbp.idpermission) total
-                  FROM tbpermission tbp
-                  JOIN tbpermissioncategory tbtp 
-                    ON tbtp.idpermissioncategory = tbp.idpermissioncategory
+        $sql = "SELECT COUNT(DISTINCT tbp.idprogram) total
+                  FROM tbprogram tbp
+                  JOIN tbprogramcategory tbtp 
+                    ON tbtp.idprogramcategory = tbp.idprogramcategory
                   JOIN tbmodule tbm
                     ON tbtp.idmodule = tbm.idmodule
                   JOIN tbvocabulary pvoc
@@ -105,7 +110,10 @@ class permissionDAO extends Database
                     ON pcvoc.key_name = tbtp.smarty
                   JOIN tblocale pcloc
                     ON (pcloc.idlocale = pcvoc.idlocale AND
-                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}')) 
+                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+       LEFT OUTER JOIN tbtypepersonpermission tperms
+                    ON (tperms.idprogram = tbp.idprogram AND
+			            idaccesstype = '1' AND idtypeperson = '1' AND allow = 'N')
                 $where";
 
         try{
@@ -120,14 +128,14 @@ class permissionDAO extends Database
             $result = array("message"=>"","object"=>$permissionModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error counting permissions ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error counting programs for permission grid ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
         
         return array("status"=>$ret,"push"=>$result);
-    } */
+    }
 
     /**
      * en_us Returns default permissions
@@ -378,6 +386,86 @@ class permissionDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting user type permissions by program ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Returns default permissions
+     * pt_br Retorna permissões padrões
+     *
+     * @param  permissionModel $permissionModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getUserTypePermission(permissionModel $permissionModel): array
+    {        
+        $sql = "SELECT tbat.type AS accesstype, tbat.idaccesstype AS idaccess, tbperm.allow
+                  FROM tbtypeperson tbty, tbprogram tbpr, tbtypepersonpermission tbperm, tbaccesstype tbat
+                 WHERE tbpr.idprogram = :programId
+                   AND tbpr.idprogram = tbperm.idprogram
+                   AND tbty.idtypeperson = tbperm.idtypeperson
+                   AND tbat.idaccesstype = tbperm.idaccesstype
+                   AND tbperm.idtypeperson = :userTypeId
+                   AND tbperm.idaccesstype = :accessTypeId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':programId', $permissionModel->getProgramId());
+            $stmt->bindParam(':userTypeId', $permissionModel->getPersonTypeId());
+            $stmt->bindParam(':accessTypeId', $permissionModel->getAccessTypeId());
+            $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $permissionModel->setAccessType((!empty($aRet['accesstype']) && !is_null($aRet['accesstype'])) ? $aRet['accesstype'] : '')
+                            ->setAllow((!empty($aRet['allow']) && !is_null($aRet['allow'])) ? $aRet['allow'] : 'N');
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$permissionModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting user's type permissions by program ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Saves permission by user's type
+     * pt_br Grava permissão por tipo de usuário
+     *
+     * @param  permissionModel $permissionModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function grantUserTypePermission(permissionModel $permissionModel): array
+    {        
+        $sql = "CALL hdk_inserttypepersonpermission(:programId,:userTypeId,:accessTypeId,:allow)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':programId', $permissionModel->getProgramId());
+            $stmt->bindValue(':userTypeId', $permissionModel->getPersonTypeId());
+            $stmt->bindValue(':accessTypeId', $permissionModel->getAccessTypeId());
+            $stmt->bindValue(':allow', $permissionModel->getAllow());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$permissionModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error granting user's type permission", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

@@ -14,22 +14,31 @@ class userTypeDAO extends Database
     }
     
     /**
-     * Return an array with userType to display in grid
+     * en_us Returns an array with user's type to display in grid
+     * pt_br Retorna um array com os tipos de usuário para visualizar no grid
      *
      * @param  string $where
      * @param  string $group
      * @param  string $order
      * @param  string $limit
-     * @return array
+     * @return array  Parameters returned in array: 
+     *                [status = true/false
+     *                 push =  [message = PDO Exception message 
+     *                          object = model's object]]
      */  
     
     public function queryUserType($where=null,$group=null,$order=null,$limit=null): array
     {
         
-        $sql = "SELECT idtypeperson,`name`,permissiongroup , lang_key_name, `status`
-                FROM tbtypeperson 
+        $sql = "SELECT DISTINCT idtypeperson, a.name, b.key_value name_fmt, permissiongroup , lang_key_name, a.status
+                  FROM tbtypeperson a
+                  JOIN tbvocabulary b
+                    ON b.key_name = a.lang_key_name
+                  JOIN tblocale c
+                    ON (c.idlocale = b.idlocale AND
+                        LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}')) 
                 $where $group $order $limit";
-              // echo "{$sql}\n";
+              //echo "{$sql}\n";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -42,7 +51,7 @@ class userTypeDAO extends Database
             $result = array("message"=>"","object"=>$userType);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error query userType ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error query user's types ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
@@ -50,11 +59,26 @@ class userTypeDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * en_us Returns an array with total user's type to display in grid
+     * pt_br Retorna um array com o total dos tipos de usuário para visualizar no grid
+     *
+     * @param  string $where
+     * @return array  Parameters returned in array: 
+     *                [status = true/false
+     *                 push =  [message = PDO Exception message 
+     *                          object = model's object]]
+     */
     public function countUserType($where=null): array
     {        
-        $sql = "SELECT COUNT(idtypeperson) total
-                FROM tbtypeperson 
+        $sql = "SELECT COUNT(DISTINCT idtypeperson) total
+                  FROM tbtypeperson a
+                  JOIN tbvocabulary b
+                    ON b.key_name = a.lang_key_name
+                  JOIN tblocale c
+                    ON (c.idlocale = b.idlocale AND
+                        LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
                 $where";
     
         try{
@@ -69,7 +93,7 @@ class userTypeDAO extends Database
             $result = array("message"=>"","object"=>$userType);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error counting userType ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error counting user's types ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
