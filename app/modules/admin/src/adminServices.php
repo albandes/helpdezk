@@ -1110,7 +1110,7 @@ class adminServices
             foreach($categories as $k=>$v) {
                 $bus =  array(
                     "id" => $v['idprogramcategory'],
-                    "text" => $v['name_fmt']
+                    "text" => (!is_null($v['name_fmt']) && !empty($v['name_fmt'])) ? $v['name_fmt'] : $v['name']
                 );
 
                 array_push($aRet,$bus);

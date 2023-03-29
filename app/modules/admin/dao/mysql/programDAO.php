@@ -142,12 +142,13 @@ class programDAO extends Database
      */
     public function fetchCategoriesByModuleId(programModel $programModel): array
     {        
-        $sql = "SELECT idprogramcategory, a.name, b.key_value name_fmt 
-                  FROM tbprogramcategory a, tbvocabulary b, tblocale c 
-                 WHERE b.key_name = a.smarty
-                   AND (c.idlocale = b.idlocale AND
-                        LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
-                   AND a.idmodule = :moduleID 
+        $sql = "SELECT idprogramcategory, a.name, 
+                        (SELECT key_value FROM tbvocabulary b, tblocale c
+                          WHERE (c.idlocale = b.idlocale AND
+                                LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                            AND b.key_name = a.smarty) name_fmt
+                  FROM tbprogramcategory a
+                 WHERE a.idmodule = :moduleID
               ORDER BY name_fmt";
         
         try{
