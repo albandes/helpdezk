@@ -140,10 +140,11 @@ class moduleDAO extends Database
         if($moduleModel->getUserID() == 1 || $moduleModel->getUserType() == 1){
             $cond = " AND tp.idtypeperson = 1";
         }else{
-            $cond = " AND tp.idtypeperson IN
+            $cond = " AND (tp.idtypeperson IN
                         (SELECT idtypeperson
                            FROM tbpersontypes
-                          WHERE idperson = '{$moduleModel->getUserID()}')";
+                          WHERE idperson = '{$moduleModel->getUserID()}')
+                          OR tp.idtypeperson = p.idtypeperson)";
         }
         
         $sql = "SELECT category_id, category, cat_smarty, cat_printable FROM 
@@ -220,10 +221,11 @@ class moduleDAO extends Database
         if($moduleModel->getUserID() == 1 || $moduleModel->getUserType() == 1){
             $cond = " AND tp.idtypeperson = 1";
         }else{
-            $cond = " AND tp.idtypeperson IN
-                        (SELECT idtypeperson
-                           FROM tbpersontypes
-                          WHERE idperson = '{$moduleModel->getUserID()}')";
+            $cond = " AND (tp.idtypeperson IN
+                            (SELECT idtypeperson
+                               FROM tbpersontypes
+                              WHERE idperson = '{$moduleModel->getUserID()}')
+                           OR tp.idtypeperson = p.idtypeperson)";
         }
 
         $andModule = " m.idmodule = {$moduleModel->getIdModule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
@@ -377,7 +379,8 @@ class moduleDAO extends Database
                           UNION
                         (SELECT d.idmodule, d.name, d.index, d.path, d.smarty, d.class, d.headerlogo, d.reportslogo, d.tableprefix, v.key_value module_printable
                            FROM tbtypepersonpermission a, tbprogram b, tbprogramcategory c, tbmodule d, tbvocabulary v, tblocale l
-                          WHERE a.idtypeperson IN (SELECT idtypeperson FROM tbpersontypes WHERE idperson = :userID)
+                          WHERE (a.idtypeperson IN (SELECT idtypeperson FROM tbpersontypes WHERE idperson = :userID)
+                                 OR a.idtypeperson = (SELECT idtypeperson FROM tbperson WHERE idperson = :userID))
                             AND a.allow = 'Y'
                             AND d.status = 'A'
                             AND d.idmodule > 3
