@@ -2318,8 +2318,14 @@ class appServices
         }
 
         $permissions =  $ret['push']['object']->getUserPermissionList();
-        foreach($permissions as $key=>$val){
-            $aRet[$val['idaccesstype']] = $val['allow'];
+        if(count($permissions) > 0){
+            foreach($permissions as $key=>$val){
+                if(!isset($aRet[$val['idaccesstype']])){
+                    $aRet[$val['idaccesstype']] = $val['allow'];
+                }elseif(isset($aRet[$val['idaccesstype']]) && ($aRet[$val['idaccesstype']] == 'N' && $val['allow'] == 'Y')){
+                    $aRet[$val['idaccesstype']] = $val['allow'];
+                }
+            }
         }
 
         return $aRet;
@@ -2423,5 +2429,78 @@ class appServices
             $msg = $translator->translate($ret['push']['object']->getLanguageKeyName());
             return "[{$fmtCode}] {$msg}";
         }
+    }
+
+    /**
+     * en_us Returns the sql sintax, according filter sended by grid
+     * pt_br Retorna a sintáxe sql de acordo com o filtro enviado pelo grid
+     *
+     * @param string $oper Name of the grid operation
+     * @param string $column Field to search
+     * @param string $search Column to search
+     * @return bool|string    False is not exists operation
+     *
+     */
+    public function _formatOperation($oper, $column, $search)
+    {
+        switch ($oper) {
+            case 'eq' : // equal
+                $ret =  $column  . ' = ' . $search;
+                break;
+            case 'ne': // not equal
+                $ret =  $column  . ' != ' . $search;
+                break;
+            case 'lt': // less
+                $ret = $column . ' < ' . $search;
+                break;
+            case 'le': // less or equal
+                $ret = $column . ' <= ' . $search;
+                break;
+            case 'gt': // greater
+                $ret = $column . ' > ' . $search;
+                break;
+            case 'ge': // greater or equal
+                $ret = $column . ' >= ' . $search;
+                break;
+            case 'bw': // begins with
+                $search = str_replace("_", "\_", $search);
+                $ret =  $column  . ' LIKE ' . $search . '%';
+                break;
+            case 'bn': //does not begin with
+                $ret =  $column  . ' NOT LIKE ' . $search . '%';
+            case 'in': // is in
+                $ret =  $column  . ' IN (' . $search . ')';
+                break;
+            case 'ni': // is not in
+                $ret =  $column  . ' NOT IN (' . $search . ')';
+                break;
+            case 'ew': // ends with
+                $search = str_replace("_", "\_", $search);
+                $ret =  $column  . ' LIKE ' . '%' . rtrim($search);
+                break;
+            case 'en': // does not end with
+                $search = str_replace("_", "\_", $search);
+                $ret =  $column  . ' NOT LIKE ' . '%' . rtrim($search);
+                break;
+            case 'cn': // contains
+                $search = str_replace("_", "\_", $search);
+                $ret =  $column  . ' LIKE ' . '%' . $search . '%';
+                break;
+            case 'nc': // does not contain
+                $search = str_replace("_", "\_", $search);
+                $ret =  $column  . ' NOT LIKE ' . '%' . $search . '%';
+                break;
+            case 'nu': //is null
+                $ret = $column . ' IS NULL';
+                break;
+            case 'nn': // is not null
+                $ret = $column . ' IS NOT NULL';
+                break;
+            default:
+                die('Operator invalid in grid search !!!' . " File: " . __FILE__ . " Line: " . __LINE__);
+                break;
+        }
+
+        return $ret;
     }
 }
