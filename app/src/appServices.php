@@ -2307,9 +2307,13 @@ class appServices
 
         $userTypePerms =  $retType['push']['object']->getUserTypePermissionList();
         foreach($userTypePerms as $key=>$val){
-            $aRet[$val['idaccesstype']] = $val['allow'];
+            if(!isset($aRet[$val['idaccesstype']])){
+                $aRet[$val['idaccesstype']] = $val['allow'];
+            }elseif(isset($aRet[$val['idaccesstype']]) && ($aRet[$val['idaccesstype']] == 'N' && $val['allow'] == 'Y')){
+                $aRet[$val['idaccesstype']] = $val['allow'];
+            }
         }
-
+        
         // get permissions by user
         $ret = $permissionDAO->fetchUserPermissionsByProgram($permissionModel);
         if(!$ret['status']){
