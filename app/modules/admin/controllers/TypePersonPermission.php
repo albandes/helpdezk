@@ -196,7 +196,7 @@ class TypePersonPermission extends Controller
                     'flagNew'       => $flgNew
                 );
             }
-
+            
             $aRet = array(
                 "totalRecords" => $total_Records,
                 "curPage" => $pq_curPage,
