@@ -321,5 +321,26 @@ class Home extends Controller
         return array('status'=>$st,'message'=>$msg);
 
     }
+    
+    /**
+     * en_us Makes a html string to reload search options dropdown list
+     * pt_br Cria uma string html para recarregar o combo de ações de pesquisa
+     *
+     * @return string
+     */
+    public function reloadSearchOptions()
+    {
+        $searchOpts = trim(strip_tags($_POST['searchOpts']));
+        $searchOpts = explode(",",$searchOpts);
+
+        $ret = $this->appSrc->_comboFilterOpts($searchOpts);
+        
+        $select = "";
+        foreach ($ret as $k=>$v) {
+            $select .= "<option value='{$v['id']}'>{$v['text']}</option>";
+        }
+
+        echo $select;
+    }
 
 }
