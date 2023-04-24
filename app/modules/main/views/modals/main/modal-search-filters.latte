@@ -10,9 +10,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col col-sm-6">
                             <label for="filter-list" class="col-form-label">{='filter'|translate}</label>
-                            <select class="form-control input-sm" id="filter-list" name="filter-list" >
+                            <select class="form-control input-sm" id="filter-list" name="filter-list">
                             {foreach $cmbFilters as $k=>$v}
-                            <option value="{$v['id']}">{$v['text']}</option>
+                            <option value="{$v['id']}" data-optlist="{implode(',',$v['searchOpt'])}">{$v['text']}</option>
                             {/foreach}
                             </select>
                         </div>
