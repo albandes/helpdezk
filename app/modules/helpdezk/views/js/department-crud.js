@@ -99,7 +99,8 @@ $(document).ready(function () {
             department:{
                 required:true,
                 normalizer: function(value) {
-                    return value.replace(/<.*?>/gi, "");
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
                 },
                 minlength:2,
                 remote:{
@@ -129,7 +130,8 @@ $(document).ready(function () {
             department:{
                 required:true,
                 normalizer: function(value) {
-                    return value.replace(/<.*?>/gi, "");
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
                 },
                 minlength:2,
                 remote:{
