@@ -1,11 +1,28 @@
 $(document).ready(function () {
     countdown.start(timesession);
 
+    //set buttons (blocked, available)
+    setActionsBtn(aPermissions);
+
     /*
      * Select2
      */
-   $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
-   $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
+
+    /**
+     * reload action's combo
+     */
+    $('#filter-list').change(function(){
+        var searchOpts = $("#filter-list option:selected").data('optlist');
+
+        $.post(path+"/main/home/reloadSearchOptions",{searchOpts:searchOpts},
+            function(valor) {
+                $("#action-list").html(valor);
+                $("#action-list").trigger("change");
+                return false;
+            });
+    });
 
     /** 
      * Define a model for grid's columns
@@ -61,7 +78,7 @@ $(document).ready(function () {
     var sortModel = {
         cancel: false,
         type: "remote",
-        sorter:[ { dataIndx: "name", dir: "up" } ]
+        sorter:[ { dataIndx: "department", dir: "up" } ]
     };
 
     /** 
@@ -84,6 +101,7 @@ $(document).ready(function () {
     var obj = { 
         width: '100%', 
         height: 480,
+        wrap: false,
         dataModel: dataModel,
         colModel: colM,
         editable: false,
@@ -96,19 +114,21 @@ $(document).ready(function () {
         selectionModel: { mode: 'single', type: 'row' },
         collapsible: false,
         selectChange: function (evt, ui) {
-            var rowIndx = getRowIndx(),
+            var rowIndx = getRowIndx('grid_department'),
                 row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx}),
                 rowSt = row.status_val;
                 
-            $('#btnEnable').removeClass('disabled').addClass('active');
-            $('#btnDisable').removeClass('disabled').addClass('active');
-            if (rowSt == 'A')
-                $('#btnEnable').removeClass('active').addClass('disabled');
-            else
-                $('#btnDisable').removeClass('active').addClass('disabled');
+            if(aPermissions[2] == 'Y'){ // checks if the user has permission to edit
+                $('#btnEnable').removeClass('disabled').addClass('active').removeAttr('disabled');
+                $('#btnDisable').removeClass('disabled').addClass('active').removeAttr('disabled');
+                if (rowSt == 'A'){
+                    $('#btnEnable').removeClass('active').addClass('disabled').attr('disabled','disabled');
+                }else
+                    $('#btnDisable').removeClass('active').addClass('disabled').attr('disabled','disabled');
+            }
         },
         rowDblClick: function (evt, ui) {
-            var rowIndx = getRowIndx(),
+            var rowIndx = getRowIndx('grid_department'),
                 row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx});
                 
             location.href = path + "/helpdezk/hdkDepartment/formUpdate/"+row.id;
@@ -148,6 +168,7 @@ $(document).ready(function () {
         
         $("#grid_department").pqGrid("refreshDataAndView");
     });
+
     $('#txtSearch').keypress(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
@@ -160,7 +181,7 @@ $(document).ready(function () {
     });
 
     $("#btnUpdate").click(function(){
-        var rowIndx = getRowIndx(),msg="";
+        var rowIndx = getRowIndx('grid_department'),msg="";
         
         if (rowIndx != null) {
             var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx});
@@ -173,46 +194,58 @@ $(document).ready(function () {
 
     $("#btnEnable").click(function(){
         if(!$("#btnEnable").hasClass('disabled')){
-            var rowIndx = getRowIndx(),msg="";
-        
-            if (rowIndx != null) {
-                var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx});
-                postStatus(row.id,'A');
+            if(aPermissions[2] == 'N'){ // checks if the user has permission to edit
+                showAlert(vocab['no_permission_operation'],'danger');
             }else{
-                msg = vocab['Alert_select_one'];
-                showAlert(msg,'warning');
+                var rowIndx = getRowIndx('grid_department'),msg="";
+        
+                if (rowIndx != null) {
+                    var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx});
+                    postStatus(row.id,'A');
+                }else{
+                    msg = vocab['Alert_select_one'];
+                    showAlert(msg,'warning');
+                }
             }
         }      
     });
 
     $("#btnDisable").click(function(){
-        if(!$("#btnDisable").hasClass('enabled')){
-            var rowIndx = getRowIndx(),msg="";
-        
-            if (rowIndx != null) {
-                var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx});
-                postStatus(row.id,'I');
+        if(!$("#btnDisable").hasClass('disabled')){
+            if(aPermissions[2] == 'N'){ // checks if the user has permission to edit
+                showAlert(vocab['no_permission_operation'],'danger');
             }else{
-                msg = vocab['Alert_select_one'];
-                showAlert(msg,'warning');
+                var rowIndx = getRowIndx('grid_department'),msg="";
+        
+                if (rowIndx != null) {
+                    var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx});
+                    postStatus(row.id,'I');
+                }else{
+                    msg = vocab['Alert_select_one'];
+                    showAlert(msg,'warning');
+                }
             }
         }
     });
 
     $("#btnDelete").click(function(){
-        var rowIndx = getRowIndx(),msg="";
-        
-        if (rowIndx != null) {
-            var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx}),
-                flgDefault = row.default_val == 'Y' ? vocab['Yes'] : vocab['No'];
-            
-            $("#delete-id").val(row.id);          
-            $("#delete-department").val(row.department);
-            $("#delete-company").val(row.company);
-            $("#modal-department-delete").modal('show');
+        if(aPermissions[3] == 'N'){ // checks if the user has permission to delete
+            showAlert(vocab['no_permission_operation'],'danger');
         }else{
-            msg = vocab['Alert_select_one'];
-            showAlert(msg,'warning');
+            var rowIndx = getRowIndx('grid_department'),msg="";
+        
+            if (rowIndx != null) {
+                var row = $("#grid_department").pqGrid('getRowData', {rowIndx: rowIndx}),
+                    flgDefault = row.default_val == 'Y' ? vocab['Yes'] : vocab['No'];
+                
+                $("#delete-id").val(row.id);          
+                $("#delete-department").val(row.department);
+                $("#delete-company").val(row.company);
+                $("#modal-department-delete").modal('show');
+            }else{
+                msg = vocab['Alert_select_one'];
+                showAlert(msg,'warning');
+            }
         }
     });
   
@@ -259,6 +292,18 @@ $(document).ready(function () {
 
     });
 
+    $('#viewInactive').on('click', function() {
+        var quickValue = $("#txtSearch").val(),
+            quickSearch = quickValue == '' ? false :true, 
+            flg = $(this).is(':checked');
+
+        $("#grid_department").pqGrid( "option", "dataModel.postData", function(){
+            return {quickSearch:quickSearch,quickValue:quickValue,allRecords:flg};
+        });
+        
+        $("#grid_department").pqGrid("refreshDataAndView");     
+    });
+
     //close modal alert
     $('#modal-alert').on('hidden.bs.modal', function() { 
         location.href = path + "/helpdezk/hdkDepartment/index" ;        
@@ -270,22 +315,6 @@ $(document).ready(function () {
         $("#action-list").trigger("change");        
     });
 });
-
-/**
- * Returns ID of the row selected
- * 
- * @returns mixed
- */
-function getRowIndx() {
-    var arr = $("#grid_department").pqGrid("selection", { type: 'row', method: 'getSelection' });
-    
-    if (arr && arr.length > 0) {
-        return arr[0].rowIndx;                                
-    }
-    else {
-        return null;
-    }
-}
 
 /**
  * Change department's status

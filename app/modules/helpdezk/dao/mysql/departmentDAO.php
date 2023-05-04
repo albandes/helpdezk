@@ -20,9 +20,11 @@ class departmentDAO extends Database
      * @param  string $group
      * @param  string $order
      * @param  string $limit
-     * @return array
-     */  
-    
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
     public function queryDepartment($where=null,$group=null,$order=null,$limit=null): array
     {
         
@@ -53,6 +55,16 @@ class departmentDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
+    /**
+     * en_us Returns an array with a total of departments for grid's pagination
+     * pt_br Retorna um array com um total de departamentos para paginação do grid
+     *
+     * @param  string $where
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
     public function countDepartment($where=null): array
     {        
         $sql = "SELECT COUNT(iddepartment) total
@@ -114,12 +126,15 @@ class departmentDAO extends Database
     } 
 
     /**
-     * Insert department's data into the database
-     * @param  string $department
-     * @param  string $default
-     * @return departmentModel
+     * en_us Insert department's data
+     * pt_br Insere os dados do departamento
+     *
+     * @param  mixed $departmentModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
-
     public function insertDepartment(departmentModel $departmentModel): array
     {        
         $sql = "INSERT INTO hdk_tbdepartment(`idperson`,`name`)

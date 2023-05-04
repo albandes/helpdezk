@@ -611,28 +611,60 @@ class appServices
      *
      * @return array
      */
-    public function _comboFilterOpts(): array
+    public function _comboFilterOpts($optionsList=array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')): array
     {
         $translator = new localeServices();
+        
+        $aRet = array();
 
-        $aRet = array(
-            array("id" => 'eq',"text"=>$translator->translate('equal')), // equal
-            array("id" => 'ne',"text"=>$translator->translate('not_equal')), // not equal
-            array("id" => 'lt',"text"=>$translator->translate('less')), // less
-            array("id" => 'le',"text"=>$translator->translate('less_equal')), // less or equal
-            array("id" => 'gt',"text"=>$translator->translate('greater')), // greater
-            array("id" => 'ge',"text"=>$translator->translate('greater_equal')), // greater or equal
-            array("id" => 'bw',"text"=>$translator->translate('begin_with')), // begins with
-            array("id" => 'bn',"text"=>$translator->translate('not_begin_with')), //does not begin with
-            array("id" => 'in',"text"=>$translator->translate('in')), // is in
-            array("id" => 'ni',"text"=>$translator->translate('not_in')), // is not in
-            array("id" => 'ew',"text"=>$translator->translate('end_with')), // ends with
-            array("id" => 'en',"text"=>$translator->translate('not_end_with')), // does not end with
-            array("id" => 'cn',"text"=>$translator->translate('contain')), // contains
-            array("id" => 'nc',"text"=>$translator->translate('not_contain')), // does not contain
-            array("id" => 'nu',"text"=>$translator->translate('is_null')), //is null
-            array("id" => 'nn',"text"=>$translator->translate('is_not_null'))  // is not null
-        );
+        if(in_array('eq',$optionsList))
+            array_push($aRet,array("id" => 'eq',"text"=>$translator->translate('equal'))); // equal
+
+        if(in_array('ne',$optionsList))
+            array_push($aRet,array("id" => 'ne',"text"=>$translator->translate('not_equal'))); // not equal
+
+        if(in_array('lt',$optionsList))
+            array_push($aRet, array("id" => 'lt',"text"=>$translator->translate('less'))); // less
+
+        if(in_array('le',$optionsList))
+            array_push($aRet,array("id" => 'le',"text"=>$translator->translate('less_equal'))); // less or equal
+
+        if(in_array('gt',$optionsList))
+            array_push($aRet,array("id" => 'gt',"text"=>$translator->translate('greater'))); // greater
+
+        if(in_array('ge',$optionsList))
+            array_push($aRet,array("id" => 'ge',"text"=>$translator->translate('greater_equal'))); // greater or equal
+
+        if(in_array('bw',$optionsList))
+            array_push($aRet,array("id" => 'bw',"text"=>$translator->translate('begin_with'))); // begins with
+
+        if(in_array('bn',$optionsList))
+            array_push($aRet,array("id" => 'bn',"text"=>$translator->translate('not_begin_with'))); //does not begin with
+
+        if(in_array('in',$optionsList))
+            array_push($aRet,array("id" => 'in',"text"=>$translator->translate('in'))); // is in
+
+        if(in_array('ni',$optionsList))
+            array_push($aRet,array("id" => 'ni',"text"=>$translator->translate('not_in'))); // is not in
+
+        if(in_array('ew',$optionsList))
+            array_push($aRet,array("id" => 'ew',"text"=>$translator->translate('end_with'))); // ends with
+
+        if(in_array('en',$optionsList))
+            array_push($aRet,array("id" => 'en',"text"=>$translator->translate('not_end_with'))); // does not end with
+
+        if(in_array('cn',$optionsList))
+            array_push($aRet,array("id" => 'cn',"text"=>$translator->translate('contain'))); // contains
+
+        if(in_array('nc',$optionsList))
+            array_push($aRet,array("id" => 'nc',"text"=>$translator->translate('not_contain'))); // does not contain
+            
+        if(in_array('nu',$optionsList))
+            array_push($aRet,array("id" => 'nu',"text"=>$translator->translate('is_null'))); //is null
+
+        if(in_array('nn',$optionsList))
+            array_push($aRet,array("id" => 'nn',"text"=>$translator->translate('is_not_null')));  // is not null
+        
         
         return $aRet;
     }
@@ -1612,14 +1644,16 @@ class appServices
     }
     
     /**
-     * _request
+     * en_us Sends information to API
+     * pt_br Envia informação para a API
      *
      * @param  mixed $type
      * @param  mixed $request
      * @param  mixed $args
-     * @return void
+     * @param  mixed $endPointType
+     * @return array
      */
-    public function _request($type, $request, $args = false) {
+    public function _request($type, $request, $args = false,$endPointType = 1) {
         if (!$args) {
             $args = array();
         } elseif (!is_array($args)) {
@@ -1634,11 +1668,21 @@ class appServices
         curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($c, CURLOPT_URL, $url);
 
-        if (count($args)) curl_setopt($c, CURLOPT_POSTFIELDS , http_build_query($args));
+        if (count($args)){
+            if($endPointType == 1) {
+                curl_setopt($c, CURLOPT_POSTFIELDS , http_build_query($args));
+            } else {
+                $payload = json_encode($args);
+			    curl_setopt($c, CURLOPT_POSTFIELDS , $payload);       
+            }
+        }
 
         switch ($type) {
             case 'POST':
                 curl_setopt($c, CURLOPT_POST, 1);
+                if($endPointType == 2){
+                    curl_setopt($c, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+                }
                 break;
             case 'GET':
                 curl_setopt($c, CURLOPT_HTTPGET, 1);
@@ -1656,9 +1700,16 @@ class appServices
                 $arrayRet = array('success' => false, 'message' => $message, 'return' => '');
             } else {
                 $res = json_decode($data,true);
-                $st = $res['status'] ? true : false;
-                $aDat = $res['status'] ? $res['result'] : '';
-                $msg = $res['status'] ? '' : $res['message'];
+
+                if($endPointType == 1){
+                    $st = $res['status'] ? true : false;
+                    $aDat = $res['status'] ? $res['result'] : '';
+                    $msg = $res['status'] ? '' : $res['message'];
+                }else{
+                    $st = !isset($res['errors']) ? true : false;
+                    $aDat = !isset($res['errors']) ? $res : '';
+                    $msg = !isset($res['errors']) ? '' : $res['errors'];
+                }                
                 
                 $arrayRet = array('success' => $st, 'message' => $msg, 'return' => $aDat);
             }

@@ -8,15 +8,33 @@ use App\modules\helpdezk\models\mysql\departmentModel;
 
 class hdkDepartment extends Controller
 {           
+    /**
+     * @var int
+     */
+    protected $programId;
+
+    /**
+     * @var array
+     */
+    protected $aPermissions;
+
     public function __construct()
     {
         parent::__construct();
 
-        $this->appSrc->_sessionValidate();       
+        $this->appSrc->_sessionValidate();
+        
+        // set program permissions
+        $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
+        $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);
     }
     
     public function index()
     {
+        // blocks if the user does not have permission to access
+        if($this->aPermissions[1] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenDepartment();
 		
 		$this->view('helpdezk','department',$params);
@@ -30,12 +48,13 @@ class hdkDepartment extends Controller
         $params = $adminSrc->_makeNavAdm($params);
 
         // -- Companies --
-            $params['cmbCompany'] = $adminSrc->_comboCompany();       
+        $params['cmbCompany'] = $adminSrc->_comboCompany();
+        
         // -- Search action --
         if($option=='idx'){
-          $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
-          $params['cmbFilters'] = $this->comboDepartmentFilters();
-          $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
+            $params['cmbFilters'] = $this->comboDepartmentFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
+            $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
         // -- Others modals --
@@ -44,6 +63,9 @@ class hdkDepartment extends Controller
         
         // -- Token: to prevent attacks --
         $params['token'] = $this->appSrc->_makeToken();
+
+        // -- User's permissions --
+        $params['aPermissions'] = $this->aPermissions;
 
         if($option=='upd'){
             $params['id'] = $obj->getIdDepartment();
@@ -85,12 +107,17 @@ class hdkDepartment extends Controller
         } 
 
          //Search with params sended from quick search input
-         if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
-         {
-             $quickValue = trim($_POST['quickValue']);
-             $quickValue = str_replace(" ","%",$quickValue);
-             $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%')";
-         }
+        if(isset($_POST["quickSearch"]) && $_POST["quickSearch"])
+        {
+            $quickValue = trim($_POST['quickValue']);
+            $quickValue = str_replace(" ","%",$quickValue);
+            $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%')";
+        }
+
+        if(!isset($_POST["allRecords"]) || (isset($_POST["allRecords"]) && $_POST["allRecords"] != "true"))
+        {
+            $where .= " AND  a.status = 'A' ";
+        }
 
          //sort options
          $pq_sort = json_decode($_POST['pq_sort']);
@@ -149,31 +176,36 @@ class hdkDepartment extends Controller
     public function comboDepartmentFilters(): array
     {
         $aRet = array(
-            array("id" => 'department',"text"=>$this->translator->translate('Department')),
-            array("id" => 'company',"text"=>$this->translator->translate('Company')),
+            array("id" => 'department',"text"=>$this->translator->translate('Department'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'company',"text"=>$this->translator->translate('Company'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
         );
         
         return $aRet;
     }
 
-    /*
-     * en_us Renders the department add screen
+    /**
+     * en_us Renders the new record screen
+     * pt_br Renderiza a tela de novo cadastro
      *
-     * pt_br Renderiza o template da tela de novo cadastro
+     * @return void
      */
     public function formCreate()
     {
+        // blocks if the user does not have permission to add a new register
+        if($this->aPermissions[2] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenDepartment();
 
         $this->view('helpdezk','department-create',$params);
     }
 
     /**
-     * en_us Write the depertment information to the DB
-     *
+     * en_us Write the department information to the DB
      * pt_br Grava no BD as informações do departamento
-     */  
-
+     *
+     * @return void
+     */
     public function createDepartment()
     {
         if (!$this->appSrc->_checkToken()) {
@@ -184,8 +216,8 @@ class hdkDepartment extends Controller
         $departmentDAO = new departmentDAO();
         $departmentModel = new departmentModel();
    
-        $departmentModel->setDepartment(strip_tags(trim($_POST['department'])))
-                           ->setIdCompany($_POST['cmbCompany']);
+        $departmentModel->setDepartment(trim(strip_tags($_POST['department'])))
+                        ->setIdCompany($_POST['cmbCompany']);
 
         $ins = $departmentDAO->insertDepartment($departmentModel);
         if($ins['status']){
@@ -214,9 +246,20 @@ class hdkDepartment extends Controller
         );
         echo json_encode($aRet);
     }
-
+    
+    /**
+     * en_us Renders register's edit screen
+     * pt_br Renderiza a tela da edição do cadastro
+     *
+     * @param  mixed $departmentID
+     * @return void
+     */
     public function formUpdate($departmentID=null)
     {
+        // blocks if the user does not have permission to edit
+        if($this->aPermissions[3] != "Y")
+            $this->appSrc->_accessDenied();
+            
         $departmentDAO = new departmentDAO();
         $departmentModel = new departmentModel();
         $departmentModel->setIdDepartment($departmentID); 
@@ -228,7 +271,13 @@ class hdkDepartment extends Controller
       
         $this->view('helpdezk','department-update',$params);
     }
-
+    
+    /**
+     * en_us Update the department information to the DB
+     * pt_br Atualiza no BD as informações do departamento
+     *
+     * @return void
+     */
     public function updateDepartment()
     { 
         if (!$this->appSrc->_checkToken()) {
@@ -240,9 +289,8 @@ class hdkDepartment extends Controller
         $departmentModel = new departmentModel();
 
         $departmentModel->setIdDepartment($_POST['departmentID'])
-                            ->setDepartment(strip_tags(trim($_POST['department'])))
-                            ->setIdCompany($_POST['cmbCompany']);       
-           
+                        ->setDepartment(trim(strip_tags($_POST['department'])))
+                        ->setIdCompany($_POST['cmbCompany']);           
                
         $upd = $departmentDAO->updateDepartment($departmentModel);
         if($upd['status']){
@@ -268,8 +316,9 @@ class hdkDepartment extends Controller
 
     /**
      * en_us Changes department's status
+     * pt_br Altera o status do Departamento
      *
-     * pt_br Muda o status do Departamento
+     * @return void
      */
     function changeStatus()
     {
@@ -283,7 +332,7 @@ class hdkDepartment extends Controller
 
         //Setting up the model
         $departmentModel->setIdDepartment($_POST['departmentID'])
-                           ->setstatus($_POST['newstatus']);
+                        ->setstatus($_POST['newstatus']);
         
         $upd = $departmentDAO->updateStatus($departmentModel);
         if(!$upd['status']){
@@ -299,10 +348,10 @@ class hdkDepartment extends Controller
 
     /**
      * en_us Remove the department from the DB
-     *
      * pt_br Remove o Department do BD
+     *
+     * @return void
      */
-
     function deleteDepartment()
     {
         if (!$this->appSrc->_checkToken()) {
@@ -319,6 +368,7 @@ class hdkDepartment extends Controller
         if(!$del['status']){
             return false;
         } 
+        
         $aRet = array(
             "success"   => true,
         );
@@ -328,8 +378,9 @@ class hdkDepartment extends Controller
 
     /**
      * en_us Check if the department has already been registered before
-     *
      * pt_br Verifica se o Department já foi cadastrada anteriormente
+     *
+     * @return void
      */
     function checkExist(){
         
@@ -340,7 +391,8 @@ class hdkDepartment extends Controller
         
         $departmentDAO = new departmentDAO();
 
-        $department = strip_tags($_POST['department']);
+        $department = trim(strip_tags($_POST['department']));
+        $department = addslashes($_POST['department']);
         $company = strip_tags($_POST['idperson']);
 
         $where = "AND a.idperson = '$company'  AND pipeLatinToUtf8(UPPER(a.name)) = UPPER('$department')"; 

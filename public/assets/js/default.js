@@ -173,3 +173,44 @@ function showNextStep(list,msg,typeAlert,totalAttach,modalSize="")
     }
 }
 
+function setActionsBtn(aPermissions)
+{
+    if($('#btnCreate').length > 0 && aPermissions[1] == 'N'){// new 
+        $('#btnCreate').removeClass('active').addClass('disabled').attr('disabled','disabled');
+    }else{
+        $('#btnCreate').removeClass('disabled').addClass('active').removeAttr('disabled');
+    }
+
+    if($('#btnUpdate').length > 0 && aPermissions[2] == 'N'){// edit
+        $('#btnUpdate').removeClass('active').addClass('disabled').attr('disabled','disabled');
+    }else{
+        $('#btnUpdate').removeClass('disabled').addClass('active').removeAttr('disabled');
+    }
+
+    if($('#btnEnable').length > 0 && aPermissions[2] == 'N'){// activate
+        $('#btnEnable').removeClass('active').addClass('disabled').attr('disabled','disabled');
+    }else{
+        $('#btnEnable').removeAttr('disabled');
+    }
+
+    if($('#btnDisable').length > 0 && aPermissions[2] == 'N'){// deactivate
+        $('#btnDisable').removeClass('active').addClass('disabled').attr('disabled','disabled');
+    }else{
+        $('#btnDisable').removeAttr('disabled');
+    }
+
+    if($('#btnDefault').length > 0 && aPermissions[2] == 'N'){// make default
+        $('#btnDefault').removeClass('active').addClass('disabled').attr('disabled','disabled');
+    }else{
+        $('#btnDefault').removeClass('disabled').addClass('active').removeAttr('disabled');
+    }
+
+    if($('#btnDelete').length > 0 && aPermissions[3] == 'N'){// delete
+        $('#btnDelete').removeClass('active').addClass('disabled').attr('disabled','disabled');
+    }else{
+        $('#btnDelete').removeClass('disabled').addClass('active').removeAttr('disabled');
+    }
+
+    return false;
+}
+
