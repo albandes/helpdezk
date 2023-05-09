@@ -2105,4 +2105,45 @@ class personDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    /**
+     * en_us Returns a list with registered users by department
+     * pt_br Retorna uma lista com usuários cadastrados por departamento
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchPersonInDepartment($where=null,$group=null,$order=null,$limit=null): array
+    {        
+        $sql = "SELECT a.idperson, b.name 
+                  FROM hdk_tbdepartment_has_person a, tbperson b
+                 WHERE a.idperson = b.idperson
+                $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $personModel = new personModel();
+            $personModel->setPersonList((!empty($aRet) && !is_null($aRet)) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting department's persons", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

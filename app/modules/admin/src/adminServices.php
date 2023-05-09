@@ -1168,5 +1168,47 @@ class adminServices
         return $select;
     }
 
+    /**
+     * en_us Returns array with users data
+     * en_us Retorna array com os dados dos usuários
+     *
+     * @param  string $keyword  Keyword to search
+     * @return array
+     */
+    public function _searchUser($keyword): array
+    {
+        $personDAO = new personDAO();
+        $personModel = new personModel();
+
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(tbp.name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = "AND ($keyword OR pipeLatinToUtf8(tbp.login) LIKE pipeLatinToUtf8('%{$searchStr}%')) AND tbp.idtypeperson IN(2,3)";
+        $order = "ORDER BY tbp.name";
+        
+        $ret = $personDAO->queryPersons($where,null,$order);
+        
+        if($ret['status']){
+            $persons = $ret['push']['object']->getGridList();
+            $aRet = array();
+            foreach($persons as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idperson'],
+                    "name" => "{$v['name']}",
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
     
 }

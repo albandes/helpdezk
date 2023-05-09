@@ -393,6 +393,11 @@ final class personModel
      * @var array
      */
     private $permissionGroupsIdList;
+
+    /**
+     * @var array
+     */
+    private $personList;
     
 
     /**
@@ -2263,6 +2268,30 @@ final class personModel
     public function setPermissionGroupsIdList(array $permissionGroupsIdList)
     {
         $this->permissionGroupsIdList = $permissionGroupsIdList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personList
+     *
+     * @return  array
+     */ 
+    public function getPersonList()
+    {
+        return $this->personList;
+    }
+
+    /**
+     * Set the value of personList
+     *
+     * @param  array  $personList
+     *
+     * @return  self
+     */ 
+    public function setPersonList(array $personList)
+    {
+        $this->personList = $personList;
 
         return $this;
     }
