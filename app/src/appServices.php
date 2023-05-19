@@ -888,7 +888,7 @@ class appServices
                         $controller_path = 'app/modules/'. $path  .'/controllers/' . ucfirst($controllertmp)  . '.php';
                         
                         if (!file_exists($controller_path)) {
-                            $this->applogger->error("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                            $this->applogger->warning("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                         }else{
                             if ($allow == 'Y') {
                                 $aCategories[$cv['cat_smarty']][$prsmarty] = array("url"=>$_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index", "program_name"=>$prsmarty);
@@ -1027,10 +1027,10 @@ class appServices
             $this->applogger->error("No result returned",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             return array('status'=>false,"message"=>$ret['push']['message']);
         }
-
+        
         $aEmailSrv = $ret['push']['object']->getGridList();
         $params = array_merge($aEmailSrv[0],$params);
-
+        
         switch($aEmailSrv[0]['servertype']){
             case "SMTP"://STMP
                 $retSend = $this->_sendSMTP($params);
@@ -1111,7 +1111,7 @@ class appServices
         if($params['sender_name'] && $params['sender_name'] != ''){
             $mailTitle = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
         }
-
+        
         $mail->setFrom($mailSender, $mailTitle);
 
         if($mailHost)
@@ -1132,7 +1132,7 @@ class appServices
 
         $mail->AltBody 	= "HTML";
         $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
-
+        
         //$mail->SetLanguage('br', $this->helpdezkPath . "/includes/classes/phpMailer/language/");
 
         $paramsDone = array("msg" => $params['msg'],
@@ -1153,7 +1153,7 @@ class appServices
         }
 
         $normalProcedure = true;
-
+        
         if((isset($params['tracker']) && $params['tracker']) || (isset($params['tokenOperatorLink']) && $params['tokenOperatorLink'])) {
             
             $aEmail = $this->_makeArrayTracker($params['address']);
@@ -1198,7 +1198,7 @@ class appServices
 
             $normalProcedure = false;
         }
-
+        
         if ($normalProcedure){
             //Checks for more than 1 email address at recipient
             $this->_makeSentTo($mail,$params['address']);
@@ -1206,7 +1206,7 @@ class appServices
             // sent email
             $retSend = $this->_isEmailDone($mail,$paramsDone);
         }
-
+        
         $mail->ClearAttachments();
 
         if(!$retSend['status'])
@@ -1370,7 +1370,7 @@ class appServices
                 for ($i = 0; $i < count($aRecipient); $i++) {
                     // If the e-mail address is NOT in the array, it sends e-mail and puts it in the array
                     // If the email already has the array, do not send again, avoiding duplicate emails
-                    if (!in_array($aRecipient[$i], $aExist)) {
+                    if (!empty($aRecipient[$i]) && !in_array($aRecipient[$i], $aExist)) {
                         $mail->AddAddress($aRecipient[$i]);
                         $aExist[] = $aRecipient[$i];
                     }
