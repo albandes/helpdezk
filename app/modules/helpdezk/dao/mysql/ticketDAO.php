@@ -136,10 +136,10 @@ class ticketDAO extends Database
                         `req`.`serial_number` AS `serial_number`, `req`.`label` AS `label`, `req`.`description` AS `description`,
                         `comp`.`name` AS `company`, `stat`.`name` AS `status`, `rtype`.`name` AS `type`, `rtype`.`idtype` AS `idtype`,
                         `item`.`iditem` AS `iditem`, `item`.`name` AS `item`, `serv`.`idservice` AS `idservice`, `serv`.`name` AS `service`,
-                        `prio`.`name` AS `priority`, `prio`.`idpriority` AS `idpriority`, `inch`.`ind_in_charge` AS `ind_in_charge`,
-                        `inch`.`id_in_charge`  AS `id_in_charge`, `resp`.`name` AS `in_charge`, `prio`.`color` AS `priority_color`,
+                        `prio`.`name` AS `priority`, `prio`.`idpriority` AS `idpriority`, `tmp`.`ind_in_charge` AS `ind_in_charge`,
+                        `tmp`.`id_in_charge`  AS `id_in_charge`, `resp`.`name` AS `in_charge`, `prio`.`color` AS `priority_color`,
                         `pers`.`name` AS `personname`, `pers`.`email` AS `email`, `pers`.`phone_number` AS `phone`, `pers`.`branch_number` AS `branch`,
-                        `inch`.`type` AS `typeincharge`, `dep`.`name` AS `department`, `dep`.`iddepartment` AS `iddepartment`, 
+                        `tmp`.`type` AS `typeincharge`, `dep`.`name` AS `department`, `dep`.`iddepartment` AS `iddepartment`, 
                         `source`.`name` AS `source_name`, `are`.`idarea` AS `idarea`, `are`.`name` AS `area`, `reason`.`name` AS `reason`,
                         `req`.`idreason` AS `idreason`, `attway`.`way` AS `way_name`, `stat`.`color` AS `status_color`, `stat`.`idstatus_source`,
                         COUNT(`req_attach`.`idrequest_attachment`) total_attachs, `inch`.`ind_track`
@@ -150,9 +150,10 @@ class ticketDAO extends Database
                     ON `req`.`idperson_juridical` = `comp`.`idperson`
                   JOIN `hdk_tbrequest_in_charge` `inch`
                     ON `req`.`code_request` = `inch`.`code_request`
+                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
+                    ON req.code_request = tmp.code_request
                   JOIN `tbperson` `resp`
-                    ON `inch`.`id_in_charge` = `resp`.`idperson`/*  AND 
-                       `inch`.`ind_in_charge` = 1 */
+                    ON `tmp`.`id_in_charge` = `resp`.`idperson`
                   JOIN `tbperson` `cre`
                     ON `req`.`idperson_creator` = `cre`.`idperson`
                   JOIN `hdk_tbdepartment_has_person` `dep_pers`
@@ -218,7 +219,7 @@ class ticketDAO extends Database
     public function countAttendantTickets($where=null): array
     {
         
-        $sql = "SELECT COUNT(`req`.`code_request`) total
+        $sql = "SELECT COUNT(DISTINCT `req`.`code_request`) total
                   FROM hdk_tbrequest req
                   JOIN `tbperson` `pers`
                     ON `req`.`idperson_owner` = `pers`.`idperson`
@@ -226,9 +227,10 @@ class ticketDAO extends Database
                     ON `req`.`idperson_juridical` = `comp`.`idperson`
                   JOIN `hdk_tbrequest_in_charge` `inch`
                     ON `req`.`code_request` = `inch`.`code_request`
+                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
+                    ON req.code_request = tmp.code_request
                   JOIN `tbperson` `resp`
-                    ON `inch`.`id_in_charge` = `resp`.`idperson` AND 
-                    `inch`.`ind_in_charge` = 1
+                    ON `tmp`.`id_in_charge` = `resp`.`idperson`
                   JOIN `tbperson` `cre`
                     ON `req`.`idperson_creator` = `cre`.`idperson`
                   JOIN `hdk_tbdepartment_has_person` `dep_pers`
