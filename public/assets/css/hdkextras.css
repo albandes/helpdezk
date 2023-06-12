@@ -14,3 +14,7 @@ table.pq-grid-header-table {
     margin-bottom: -1px;
     background-color: #f8ac59;
 }
+
+.pq-grid {
+    font-size: 11px;
+}
