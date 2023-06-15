@@ -140,7 +140,7 @@ class ticketDAO extends Database
                         tmp.id_in_charge  AS id_in_charge, resp.name AS in_charge, prio.color AS priority_color,
                         pers.name AS personname, pers.email AS email, pers.phone_number AS phone, pers.branch_number AS branch,
                         tmp.type AS typeincharge, dep.name AS department, dep.iddepartment AS iddepartment, 
-                        source.name AS source_name, are.idarea AS idarea, are.name AS `area`, reason.name AS reason,
+                        source.name AS source_name, are.idarea AS idarea, are.name AS `area`,
                         req.idreason AS idreason, attway.way AS way_name, stat.color AS status_color, stat.idstatus_source,
                         (SELECT COUNT(idrequest_attachment) FROM hdk_tbrequest_attachment WHERE code_request = req.code_request) total_attachs, inch.ind_track
                   FROM hdk_tbrequest req
@@ -174,8 +174,6 @@ class ticketDAO extends Database
                     ON req.idstatus = stat.idstatus
                   JOIN hdk_tbsource `source`
                     ON req.idsource = source.idsource
-       LEFT OUTER JOIN hdk_tbcore_reason reason
-                    ON req.idreason = reason.idreason
                   JOIN hdk_tbattendance_way attway
                     ON attway.idattendanceway = req.idattendance_way
                 $where
@@ -247,8 +245,6 @@ class ticketDAO extends Database
                     ON req.idstatus = stat.idstatus
                   JOIN hdk_tbsource source
                     ON req.idsource = source.idsource
-       LEFT OUTER JOIN hdk_tbcore_reason reason
-                    ON req.idreason = reason.idreason
                   JOIN hdk_tbattendance_way attway
                     ON attway.idattendanceway = req.idattendance_way
                 $where";

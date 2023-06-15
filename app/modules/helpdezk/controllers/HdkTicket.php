@@ -398,6 +398,9 @@ class hdkTicket extends Controller
             case "inCharge":
                 $sortIndx = "in_charge";
                 break;
+            case "star":
+                $sortIndx = "flag_opened";
+                break;
             default:
                 $sortIndx = $sortIndx;
                 break;
@@ -617,6 +620,9 @@ class hdkTicket extends Controller
                 break;
             case "attachments":
                 $sortIndx = "total_attachs";
+                break;
+            case "star":
+                $sortIndx = "flag_opened";
                 break;
             default:
                 $sortIndx = $sortIndx;
