@@ -46,7 +46,7 @@ $(document).ready(function () {
             { title: "<b>N&deg;</b> ", width: '10%', dataIndx: "ticketCode", halign: "center", hidden:true  },
             { title: "<b>N&deg;</b> ", width: 95, dataIndx: "ticketCodeLink", halign: "center"  },
             { title: "<b>"+vocab["Grid_opening_date"]+"</b> ", width: 120, dataIndx: "entryDate", halign: "center", style: {'font-size':'10px'}  },
-            { title: "<b>"+vocab["Company"]+"</b> ", width: 100, dataIndx: "company", halign: "center", style: {"font-size":"10px"}  },
+            { title: "<b>"+vocab["Company"]+"</b> ", width: 100, dataIndx: "company", halign: "center", style: {"font-size":"10px"}, hidden: true  },
             { title: "<b>"+vocab["From"]+"</b> ", width: 200, dataIndx: "owner", halign: "center", style: {"font-size":"10px"}  },
             { title: "<b>"+vocab["Type"]+"</b> ", width: 130, dataIndx: "type", halign: "center"  },
             { title: "<b>"+vocab["Item"]+"</b> ", width: 140, dataIndx: "item", halign: "center"  },
