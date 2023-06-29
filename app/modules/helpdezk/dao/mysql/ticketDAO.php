@@ -127,64 +127,59 @@ class ticketDAO extends Database
      */
     public function queryAttendantTickets($where=null,$group=null,$order=null,$limit=null): array
     {        
-        $sql = "SELECT `req`.`code_request` AS `code_request`, `req`.`expire_date`  AS `expire_date`, `req`.`entry_date` AS `entry_date`,
-                        `req`.`flag_opened` AS `flag_opened`, `req`.`subject`  AS `subject`, `req`.`idperson_owner` AS `idperson_owner`,
-                        `req`.`idperson_creator` AS `idperson_creator`, `cre`.`name` AS `name_creator`, `cre`.`phone_number` AS `phone_number`,
-                        `cre`.`cel_phone` AS `cel_phone`, `cre`.`branch_number`  AS `branch_number`, `req`.`idperson_juridical` AS `idcompany`,
-                        `req`.`idsource` AS `idsource`, `req`.`extensions_number` AS `extensions_number`, `source`.`name` AS `source`,
-                        `req`.`idstatus` AS `idstatus`, `req`.`idattendance_way` AS `idattendance_way`, `req`.`os_number` AS `os_number`,
-                        `req`.`serial_number` AS `serial_number`, `req`.`label` AS `label`, `req`.`description` AS `description`,
-                        `comp`.`name` AS `company`, `stat`.`name` AS `status`, `rtype`.`name` AS `type`, `rtype`.`idtype` AS `idtype`,
-                        `item`.`iditem` AS `iditem`, `item`.`name` AS `item`, `serv`.`idservice` AS `idservice`, `serv`.`name` AS `service`,
-                        `prio`.`name` AS `priority`, `prio`.`idpriority` AS `idpriority`, `inch`.`ind_in_charge` AS `ind_in_charge`,
-                        `inch`.`id_in_charge`  AS `id_in_charge`, `resp`.`name` AS `in_charge`, `prio`.`color` AS `priority_color`,
-                        `pers`.`name` AS `personname`, `pers`.`email` AS `email`, `pers`.`phone_number` AS `phone`, `pers`.`branch_number` AS `branch`,
-                        `inch`.`type` AS `typeincharge`, `dep`.`name` AS `department`, `dep`.`iddepartment` AS `iddepartment`, 
-                        `source`.`name` AS `source_name`, `are`.`idarea` AS `idarea`, `are`.`name` AS `area`, `reason`.`name` AS `reason`,
-                        `req`.`idreason` AS `idreason`, `attway`.`way` AS `way_name`, `stat`.`color` AS `status_color`, `stat`.`idstatus_source`,
-                        COUNT(`req_attach`.`idrequest_attachment`) total_attachs, `inch`.`ind_track`
+        $sql = "SELECT req.code_request AS code_request, req.expire_date  AS expire_date, req.entry_date AS entry_date,
+                        req.flag_opened AS flag_opened, req.subject  AS `subject`, req.idperson_owner AS idperson_owner,
+                        req.idperson_creator AS idperson_creator, cre.name AS name_creator, cre.phone_number AS phone_number,
+                        cre.cel_phone AS cel_phone, cre.branch_number  AS branch_number, req.idperson_juridical AS idcompany,
+                        req.idsource AS idsource, req.extensions_number AS extensions_number, source.name AS `source`,
+                        req.idstatus AS idstatus, req.idattendance_way AS idattendance_way, req.os_number AS os_number,
+                        req.serial_number AS serial_number, req.label AS label, req.description AS `description`,
+                        comp.name AS company, stat.name AS `status`, rtype.name AS `type`, rtype.idtype AS idtype,
+                        item.iditem AS iditem, item.name AS item, serv.idservice AS idservice, serv.name AS service,
+                        prio.name AS priority, prio.idpriority AS idpriority, tmp.ind_in_charge AS ind_in_charge,
+                        tmp.id_in_charge  AS id_in_charge, resp.name AS in_charge, prio.color AS priority_color,
+                        pers.name AS personname, pers.email AS email, pers.phone_number AS phone, pers.branch_number AS branch,
+                        tmp.type AS typeincharge, dep.name AS department, dep.iddepartment AS iddepartment, 
+                        source.name AS source_name, are.idarea AS idarea, are.name AS `area`,
+                        req.idreason AS idreason, attway.way AS way_name, stat.color AS status_color, stat.idstatus_source,
+                        (SELECT COUNT(idrequest_attachment) FROM hdk_tbrequest_attachment WHERE code_request = req.code_request) total_attachs, inch.ind_track
                   FROM hdk_tbrequest req
-                  JOIN `tbperson` `pers`
-                    ON `req`.`idperson_owner` = `pers`.`idperson`
-                  JOIN `tbperson` `comp`
-                    ON `req`.`idperson_juridical` = `comp`.`idperson`
-                  JOIN `hdk_tbrequest_in_charge` `inch`
-                    ON `req`.`code_request` = `inch`.`code_request`
-                  JOIN `tbperson` `resp`
-                    ON `inch`.`id_in_charge` = `resp`.`idperson`/*  AND 
-                       `inch`.`ind_in_charge` = 1 */
-                  JOIN `tbperson` `cre`
-                    ON `req`.`idperson_creator` = `cre`.`idperson`
-                  JOIN `hdk_tbdepartment_has_person` `dep_pers`
-                    ON `pers`.`idperson` = `dep_pers`.`idperson`
-                  JOIN `hdk_tbdepartment` `dep`
-                    ON `dep`.`iddepartment` = `dep_pers`.`iddepartment`
-                  JOIN `hdk_tbcore_type` `rtype`
-                    ON `req`.`idtype` = `rtype`.`idtype`
-                  JOIN `hdk_tbcore_service` `serv`
-                    ON `req`.`idservice` = `serv`.`idservice`
-                  JOIN `hdk_tbcore_area` `are`
-                    ON `are`.`idarea` = `rtype`.`idarea`
-                  JOIN `hdk_tbpriority` `prio`
-                    ON `req`.`idpriority` = `prio`.`idpriority`
-                  JOIN `hdk_tbcore_item` `item`
-                    ON `req`.`iditem` = `item`.`iditem`
-                  JOIN `hdk_tbstatus` `stat`
-                    ON `req`.`idstatus` = `stat`.`idstatus`
-                  JOIN `hdk_tbsource` `source`
-                    ON `req`.`idsource` = `source`.`idsource`
-       LEFT OUTER JOIN `hdk_tbcore_reason` `reason`
-                    ON `req`.`idreason` = `reason`.`idreason`
-       LEFT OUTER JOIN `hdk_tbgroup` `grp`
-                    ON `resp`.`idperson` = `grp`.`idperson`
-                  JOIN `hdk_tbattendance_way` `attway`
-                    ON `attway`.`idattendanceway` = `req`.`idattendance_way`
-       LEFT OUTER JOIN `hdk_tbrequest_attachment` `req_attach`
-                    ON `req_attach`.`code_request` = `req`.`code_request`
+                  JOIN tbperson pers
+                    ON req.idperson_owner = pers.idperson
+                  JOIN tbperson comp
+                    ON req.idperson_juridical = comp.idperson
+                  JOIN hdk_tbrequest_in_charge inch
+                    ON req.code_request = inch.code_request
+                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
+                    ON req.code_request = tmp.code_request
+                  JOIN tbperson resp
+                    ON tmp.id_in_charge = resp.idperson
+                  JOIN tbperson cre
+                    ON req.idperson_creator = cre.idperson
+                  JOIN hdk_tbdepartment_has_person dep_pers
+                    ON pers.idperson = dep_pers.idperson
+                  JOIN hdk_tbdepartment dep
+                    ON dep.iddepartment = dep_pers.iddepartment
+                  JOIN hdk_tbcore_type rtype
+                    ON req.idtype = rtype.idtype
+                  JOIN hdk_tbcore_service serv
+                    ON req.idservice = serv.idservice
+                  JOIN hdk_tbcore_area are
+                    ON are.idarea = rtype.idarea
+                  JOIN hdk_tbpriority prio
+                    ON req.idpriority = prio.idpriority
+                  JOIN hdk_tbcore_item item
+                    ON req.iditem = item.iditem
+                  JOIN hdk_tbstatus stat
+                    ON req.idstatus = stat.idstatus
+                  JOIN hdk_tbsource `source`
+                    ON req.idsource = source.idsource
+                  JOIN hdk_tbattendance_way attway
+                    ON attway.idattendanceway = req.idattendance_way
                 $where
-              GROUP BY  `req`.`code_request` $group
+              GROUP BY  req.code_request $group
                 $order $limit";
-        
+        //echo "{$sql}\n";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -218,45 +213,40 @@ class ticketDAO extends Database
     public function countAttendantTickets($where=null): array
     {
         
-        $sql = "SELECT COUNT(`req`.`code_request`) total
+        $sql = "SELECT COUNT(DISTINCT req.code_request) total
                   FROM hdk_tbrequest req
-                  JOIN `tbperson` `pers`
-                    ON `req`.`idperson_owner` = `pers`.`idperson`
-                  JOIN `tbperson` `comp`
-                    ON `req`.`idperson_juridical` = `comp`.`idperson`
-                  JOIN `hdk_tbrequest_in_charge` `inch`
-                    ON `req`.`code_request` = `inch`.`code_request`
-                  JOIN `tbperson` `resp`
-                    ON `inch`.`id_in_charge` = `resp`.`idperson` AND 
-                    `inch`.`ind_in_charge` = 1
-                  JOIN `tbperson` `cre`
-                    ON `req`.`idperson_creator` = `cre`.`idperson`
-                  JOIN `hdk_tbdepartment_has_person` `dep_pers`
-                    ON `pers`.`idperson` = `dep_pers`.`idperson`
-                  JOIN `hdk_tbdepartment` `dep`
-                    ON `dep`.`iddepartment` = `dep_pers`.`iddepartment`
-                  JOIN `hdk_tbcore_type` `rtype`
-                    ON `req`.`idtype` = `rtype`.`idtype`
-                  JOIN `hdk_tbcore_service` `serv`
-                    ON `req`.`idservice` = `serv`.`idservice`
-                  JOIN `hdk_tbcore_area` `are`
-                    ON `are`.`idarea` = `rtype`.`idarea`
-                  JOIN `hdk_tbpriority` `prio`
-                    ON `req`.`idpriority` = `prio`.`idpriority`
-                  JOIN `hdk_tbcore_item` `item`
-                    ON `req`.`iditem` = `item`.`iditem`
-                  JOIN `hdk_tbstatus` `stat`
-                    ON `req`.`idstatus` = `stat`.`idstatus`
-                  JOIN `hdk_tbsource` `source`
-                    ON `req`.`idsource` = `source`.`idsource`
-       LEFT OUTER JOIN `hdk_tbcore_reason` `reason`
-                    ON `req`.`idreason` = `reason`.`idreason`
-       LEFT OUTER JOIN `hdk_tbgroup` `grp`
-                    ON `resp`.`idperson` = `grp`.`idperson`
-                  JOIN `hdk_tbattendance_way` `attway`
-                    ON `attway`.`idattendanceway` = `req`.`idattendance_way`
-       LEFT OUTER JOIN `hdk_tbrequest_attachment` `req_attach`
-                    ON `req_attach`.`code_request` = `req`.`code_request`
+                  JOIN tbperson pers
+                    ON req.idperson_owner = pers.idperson
+                  JOIN tbperson comp
+                    ON req.idperson_juridical = comp.idperson
+                  JOIN hdk_tbrequest_in_charge inch
+                    ON req.code_request = inch.code_request
+                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
+                    ON req.code_request = tmp.code_request
+                  JOIN tbperson resp
+                    ON tmp.id_in_charge = resp.idperson
+                  JOIN tbperson cre
+                    ON req.idperson_creator = cre.idperson
+                  JOIN hdk_tbdepartment_has_person dep_pers
+                    ON pers.idperson = dep_pers.idperson
+                  JOIN hdk_tbdepartment dep
+                    ON dep.iddepartment = dep_pers.iddepartment
+                  JOIN hdk_tbcore_type rtype
+                    ON req.idtype = rtype.idtype
+                  JOIN hdk_tbcore_service serv
+                    ON req.idservice = serv.idservice
+                  JOIN hdk_tbcore_area are
+                    ON are.idarea = rtype.idarea
+                  JOIN hdk_tbpriority prio
+                    ON req.idpriority = prio.idpriority
+                  JOIN hdk_tbcore_item item
+                    ON req.iditem = item.iditem
+                  JOIN hdk_tbstatus stat
+                    ON req.idstatus = stat.idstatus
+                  JOIN hdk_tbsource source
+                    ON req.idsource = source.idsource
+                  JOIN hdk_tbattendance_way attway
+                    ON attway.idattendanceway = req.idattendance_way
                 $where";
         
         try{

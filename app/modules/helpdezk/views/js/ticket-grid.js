@@ -41,21 +41,21 @@ $(document).ready(function () {
      * */ 
      if(typeUser == 3){
         var colM = [ 
-            { title: " ", width: '1%', dataIndx: "star", align: "center", halign: "center"  },
-            { title: "<i class='fa fa-paperclip'></i>", width: '1%', dataIndx: "attachments", align: "center", halign: "center"  },      
+            { title: " ", width: 20, dataIndx: "star", align: "center", halign: "center"  },
+            { title: "<i class='fa fa-paperclip'></i>", width: 20, dataIndx: "attachments", align: "center", halign: "center"  },      
             { title: "<b>N&deg;</b> ", width: '10%', dataIndx: "ticketCode", halign: "center", hidden:true  },
-            { title: "<b>N&deg;</b> ", width: '10%', dataIndx: "ticketCodeLink", halign: "center"  },
-            { title: "<b>"+vocab["Grid_opening_date"]+"</b> ", width: '10%', dataIndx: "entryDate", halign: "center"  },
-            { title: "<b>"+vocab["Company"]+"</b> ", width: '5%', dataIndx: "company", halign: "center"  },
-            { title: "<b>"+vocab["From"]+"</b> ", width: '5%', dataIndx: "owner", halign: "center"  },
-            { title: "<b>"+vocab["Type"]+"</b> ", width: '5%', dataIndx: "type", halign: "center"  },
-            { title: "<b>"+vocab["Item"]+"</b> ", width: '5%', dataIndx: "item", halign: "center"  },
-            { title: "<b>"+vocab["Service"]+"</b> ", width: '7%', dataIndx: "service", halign: "center"  },
-            { title: "<b>"+vocab["Grid_subject"]+"</b> ", width: '8%', dataIndx: "subject", halign: "center"  },
-            { title: "<b>"+vocab["Grid_expire_date"]+"</b> ", width: '10%', dataIndx: "expiryDate", halign: "center"  },
-            { title: "<b>"+vocab["status"]+"</b> ", width: '9%', dataIndx: "status", align: "left", halign: "center"  },
-            { title: "<b>"+vocab["Grid_incharge"]+"</b> ", width: '10%', dataIndx: "inCharge", halign: "center"  },
-            { title: "<b>"+vocab["Priority"]+"</b> ", width: '9%', dataIndx: "priority", align: "left", halign: "center"  },
+            { title: "<b>N&deg;</b> ", width: 95, dataIndx: "ticketCodeLink", halign: "center"  },
+            { title: "<b>"+vocab["Grid_opening_date"]+"</b> ", width: 120, dataIndx: "entryDate", halign: "center", style: {'font-size':'10px'}  },
+            { title: "<b>"+vocab["Company"]+"</b> ", width: 100, dataIndx: "company", halign: "center", style: {"font-size":"10px"}, hidden: true  },
+            { title: "<b>"+vocab["From"]+"</b> ", width: 200, dataIndx: "owner", halign: "center", style: {"font-size":"10px"}  },
+            { title: "<b>"+vocab["Type"]+"</b> ", width: 130, dataIndx: "type", halign: "center"  },
+            { title: "<b>"+vocab["Item"]+"</b> ", width: 140, dataIndx: "item", halign: "center"  },
+            { title: "<b>"+vocab["Service"]+"</b> ", width: 140, dataIndx: "service", halign: "center"  },
+            { title: "<b>"+vocab["Grid_subject"]+"</b> ", width: 200, dataIndx: "subject", halign: "center"  },
+            { title: "<b>"+vocab["Grid_expire_date"]+"</b> ", width: 112, dataIndx: "expiryDate", halign: "center"  },
+            { title: "<b>"+vocab["status"]+"</b> ", width: 100, dataIndx: "status", align: "left", halign: "center"  },
+            { title: "<b>"+vocab["Grid_incharge"]+"</b> ", width: 150, dataIndx: "inCharge", halign: "center"  },
+            { title: "<b>"+vocab["Priority"]+"</b> ", width: 75, dataIndx: "priority", align: "left", halign: "center"  },
             { title: "", width: '27%', dataIndx: "",  halign: "center", hidden:true  }  
         ];
         $orderBy = "expiryDate";
@@ -125,7 +125,7 @@ $(document).ready(function () {
         type: "remote",
         curPage: this.curPage,
         rPP: 10,
-        rPPOptions: [1, 10, 20, 30, 40, 50]
+        rPPOptions: [10, 20, 30, 40, 50]
     };
 
     var toolbar = {
@@ -194,20 +194,22 @@ $(document).ready(function () {
             filterOperation = $("#action-list").val();
             
         $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
-            return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation};
+            return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation,idStatus:'ALL'};
         } );
         
         $("#grid_ticket").pqGrid("refreshDataAndView");
+        makeActive("ALL");
     });
 
     $("#btnSearch").click(function(){
         var quickValue = $("#txtSearch").val();
             
         $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
-            return {quickSearch:true,quickValue:quickValue};
+            return {quickSearch:true,quickValue:quickValue,idStatus:'ALL'};
         });
         
         $("#grid_ticket").pqGrid("refreshDataAndView");
+        makeActive("ALL");
     });
 
     $('#txtSearch').keypress(function(event){

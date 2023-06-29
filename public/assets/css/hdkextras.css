@@ -14,3 +14,17 @@ table.pq-grid-header-table {
     margin-bottom: -1px;
     background-color: #f8ac59;
 }
+
+.pq-grid {
+    font-size: 11px;
+}
+
+.pq-grid-header-table>tbody>tr>.pq-grid-col {
+    line-height: 0.5;
+    vertical-align: middle;
+}
+
+.pq-grid-table>tbody>tr>.pq-grid-cell {
+    line-height: 0.8;
+    vertical-align: middle;
+}

@@ -142,8 +142,8 @@ class hdkTicket extends Controller
             }
 
             // -- Search action --
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = ($params['typeUser'] == 2) ? $this->comboUserTicketFilters() : $this->comboAttendantTicketFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }        
         
@@ -398,6 +398,9 @@ class hdkTicket extends Controller
             case "inCharge":
                 $sortIndx = "in_charge";
                 break;
+            case "star":
+                $sortIndx = "flag_opened";
+                break;
             default:
                 $sortIndx = $sortIndx;
                 break;
@@ -618,6 +621,9 @@ class hdkTicket extends Controller
             case "attachments":
                 $sortIndx = "total_attachs";
                 break;
+            case "star":
+                $sortIndx = "flag_opened";
+                break;
             default:
                 $sortIndx = $sortIndx;
                 break;
@@ -693,12 +699,12 @@ class hdkTicket extends Controller
     public function comboUserTicketFilters(): array
     {
         $aRet = array(
-            array("id" => 'ticketCode',"text"=>"Nº"),
-            array("id" => 'openingDate',"text"=>$this->translator->translate('Grid_opening_date')),
-            array("id" => 'subject',"text"=>$this->translator->translate('Grid_subject')),
-            array("id" => 'deadline',"text"=>$this->translator->translate('Grid_expire_date')),
-            array("id" => 'inCharge',"text"=>$this->translator->translate('Grid_incharge')),
-            array("id" => 'status',"text"=>$this->translator->translate('status'))
+            array("id" => 'ticketCode',"text"=>"Nº","searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'openingDate',"text"=>$this->translator->translate('Grid_opening_date'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'subject',"text"=>$this->translator->translate('Grid_subject'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'deadline',"text"=>$this->translator->translate('Grid_expire_date'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'inCharge',"text"=>$this->translator->translate('Grid_incharge'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'status',"text"=>$this->translator->translate('status'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
@@ -713,12 +719,12 @@ class hdkTicket extends Controller
     public function comboAttendantTicketFilters(): array
     {
         $aRet = array(
-            array("id" => 'ticketCode',"text"=>"Nº"),
-            array("id" => 'openingDate',"text"=>$this->translator->translate('Grid_opening_date')),
-            array("id" => 'company',"text"=>$this->translator->translate('Company')),
-            array("id" => 'owner',"text"=>$this->translator->translate('From')),
-            array("id" => 'subject',"text"=>$this->translator->translate('Grid_subject')),
-            array("id" => 'description',"text"=>$this->translator->translate('Description'))
+            array("id" => 'ticketCode',"text"=>"Nº","searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'openingDate',"text"=>$this->translator->translate('Grid_opening_date'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'company',"text"=>$this->translator->translate('Company'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'owner',"text"=>$this->translator->translate('From'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'subject',"text"=>$this->translator->translate('Grid_subject'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'description',"text"=>$this->translator->translate('Description'),"searchOpt"=>array('eq', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
