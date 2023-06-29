@@ -67,46 +67,160 @@ class featureDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
-    // It has not been standardized as it is not yet used in controllers or services
-    public function getArrayConfigs(int $confCategoryID): array
+        
+    /**
+     * fetchConfigsByCategory
+     * 
+     * en_us Returns array with settings data by category
+     * pt_br Retorna array com dados de configurações por categoria
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchConfigsByCategory(featureModel $featureModel): array
     {
         
-        $sql = "SELECT session_name, `value` FROM tbconfig WHERE idconfigcategory = :confCategoryID";
+        $sql = "SELECT session_name, `value` FROM tbconfig WHERE idconfigcategory = :settingCatId";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':confCategoryID', $confCategoryID);
+            $stmt->bindValue(':settingCatId', $featureModel->getSettingCatId());
             $stmt->execute();
+
+            while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+                $ses = $row['session_name'];
+                $val = $row['value'];
+                $confs[$ses] = $val;            
+            }
+
+            $featureModel->setSettingsList((!is_null($confs) && count($confs) > 0) ? $confs : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting settings by category ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = array();
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
-            $ses = $row['session_name'];
-            $val = $row['value'];
-            $confs[$ses] = $val;            
-        }
-
-        return array("success"=>true,"message"=>"","data"=>$confs);
+        return array("status"=>$ret,"push"=>$result);
     }
 
-    // It has not been standardized as it is not yet used in controllers or services
-    public function getConfigValue(string $confName): array
-    {        
-        $sql = "SELECT `value` FROM tbconfig WHERE session_name = :confName";
+    /**
+     * fetchConfigsByCategory
+     * 
+     * en_us Returns array with settings data by category
+     * pt_br Retorna array com dados de configurações por categoria
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchEmailTempSettings(featureModel $featureModel): array
+    {
+        
+        $sql = "SELECT session_name, `description` AS `value` FROM tbconfig WHERE idconfigcategory = 11";
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':confName', $confName);
             $stmt->execute();
+
+            while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+                $ses = $row['session_name'];
+                $val = $row['value'];
+                $confs[$ses] = $val;            
+            }
+
+            $featureModel->setSettingsList((!is_null($confs) && count($confs) > 0) ? $confs : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
         }catch(\PDOException $ex){
-            return array("success"=>false,"message"=>$ex->getMessage()." {$sql}");
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting email header and footer settings ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
         }
         
-        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * updateSettingValue
+     * 
+     * en_us Updates setting's changes in tbconfig table
+     * pt_br Grava as alterações das configurações na tabela tbconfig
+     *
+     * @param  mixed $featureModel
+     * @return array
+     */
+    public function updateSettingValue(featureModel $featureModel): array
+    {   
+        if(in_array($featureModel->getSessionName(),array("EM_HEADER","EM_FOOTER"))){
+            $sql = "UPDATE tbconfig SET `description` = :settingValue WHERE session_name = :sessionName";
+        }else{
+            $sql = "UPDATE tbconfig SET `value` = :settingValue WHERE session_name = :sessionName";
+        }        
 
-        return array("success"=>true,"message"=>"","data"=>$aRet);
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":settingValue",$featureModel->getSettingValue());
+        $stmt->bindValue(":sessionName",$featureModel->getSessionName());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$featureModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * saveSettingsChanges
+     * 
+     * en_us Saves setting's changes in DB
+     * pt_br Grava as alterações das configurações no BD
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function saveSettingsChanges(featureModel $featureModel): array
+    {        
+        $aSettings = $featureModel->getSettingsList();
+        try{
+            $this->db->beginTransaction();
+
+            foreach($aSettings as $k=>$v){
+                $featureModel->setSessionName($k)
+                             ->setSettingValue($v);
+
+                $this->updateSettingValue($featureModel);
+            }            
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error updating settings ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+
+            $this->db->rollBack();
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
     }
     
     /**
@@ -275,6 +389,155 @@ class featureDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting user's settings ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * fetchModuleSettingCategories
+     * 
+     * en_us Returns module's settings categories
+     * pt_br Retorna as categorias de configurações do módulo
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchModuleSettingCategories(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "SELECT idconfigcategory, `name`, smarty FROM $table WHERE flgsetup = 'Y' ORDER BY idconfigcategory";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $featureModel->setSettingsCatList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting module settings categories', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * fetchModuleSettings
+     * 
+     * en_us Returns module's settings by category
+     * pt_br Retorno as configurações do módulo pela categoria
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchModuleSettings(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "SELECT idconfig, `status`, `value`, `name`, smarty, field_type, allowremove 
+                  FROM $table 
+                 WHERE idconfigcategory = :settingCatId 
+              ORDER BY `name`";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':settingCatId', $featureModel->getSettingCatId());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $featureModel->setSettingsList($aRet);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting module settings categories', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * updateSettingValueById
+     *
+     * en_us Updates module's settings by id
+     * pt_br Atualiza a configuração do módulo pelo id
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function updateSettingValueById(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "UPDATE $table SET `value` = :newValue WHERE idconfig = :settingId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':newValue', $featureModel->getSettingValue());
+            $stmt->bindValue(':settingId', $featureModel->getSettingId());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error updating setting's value", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * deleteSetting
+     *
+     * en_us Removes module's settings
+     * pt_br Deleta a configuração do módulo
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function deleteSetting(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "DELETE FROM $table WHERE idconfig = :settingId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':settingId', $featureModel->getSettingId());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error deleting setting", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

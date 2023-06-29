@@ -11,11 +11,25 @@ use App\modules\admin\src\adminServices;
 
 class apiToken extends Controller
 {
+    /**
+     * @var int
+     */
+    protected $programId;
+
+    /**
+     * @var array
+     */
+    protected $aPermissions;
+    
     public function __construct()
     {
         parent::__construct();
         
         $this->appSrc->_sessionValidate();
+
+        // set program permissions
+        $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
+        $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);
         
     }
 
@@ -26,6 +40,10 @@ class apiToken extends Controller
      */
     public function index()
     {
+        // blocks if the user does not have permission to access
+        if($this->aPermissions[1] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenApiToken();
 		
 		$this->view('admin','apiToken',$params);
@@ -47,12 +65,14 @@ class apiToken extends Controller
 
         // -- Token: to prevent attacks --
         $params['token'] = $this->appSrc->_makeToken();
-        
+
+        // -- User's permissions --
+        $params['aPermissions'] = $this->aPermissions;        
         
         // -- Search action --
         if($option=='idx'){
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboApiTokenFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
 
@@ -176,9 +196,9 @@ class apiToken extends Controller
     public function comboApiTokenFilters(): array
     {
         $aRet = array(
-            array("id" => 'app',"text"=>$this->translator->translate('name_app')), // equal
-            array("id" => 'company',"text"=>$this->translator->translate('Company')),
-            array("id" => 'email',"text"=>$this->translator->translate('email'))
+            array("id" => 'app',"text"=>$this->translator->translate('name_app'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')), // equal
+            array("id" => 'company',"text"=>$this->translator->translate('Company'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'email',"text"=>$this->translator->translate('email'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
@@ -203,6 +223,10 @@ class apiToken extends Controller
      */
     public function formCreate()
     {
+        // blocks if the user does not have permission to add a new register
+        if($this->aPermissions[2] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenApiToken('add');
 
         $this->view('admin','apiToken-create',$params);
@@ -296,6 +320,10 @@ class apiToken extends Controller
 
     public function formUpdate($apiTokenID=null)
     {  
+        // blocks if the user does not have permission to edit
+        if($this->aPermissions[3] != "Y")
+            $this->appSrc->_accessDenied();
+            
         $apiTokenDAO = new apiTokenDAO();
         $apiTokenModel = new apiTokenModel();
         $apiTokenModel->setIdApiToken($apiTokenID); 

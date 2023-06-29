@@ -161,5 +161,65 @@ class emailServerDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * en_us Returns a list of emails to send
+     * pt_br Retorna uma lista de e-mails para enviar
+     *
+     * @param  emailServerModel $emailServerModel
+     * @return array
+     */
+    public function fetchEmailToSendByModule(emailServerModel $emailServerModel): array
+    {        
+        $sql = "SELECT idemailcron, code, date_in, date_out, send, tag
+                  FROM tbemailcron
+                 WHERE idmodule = :moduleID
+                   AND send = 0";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':moduleID', $emailServerModel->getIdModule());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $emailServerModel->setGridList((!is_null($aRet) && !empty($aRet)) ? $aRet :  array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailServerModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting emails to send", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    public function updateEmailCronStatus(emailServerModel $emailServerModel): array
+    {        
+        $sql = "UPDATE tbemailcron
+                   SET date_out = NOW(), 
+                       send = 1
+                 WHERE idemailcron = :emailCronId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':emailCronId', $emailServerModel->getIdEmailCron());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailServerModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error updating emails to send", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 
 }

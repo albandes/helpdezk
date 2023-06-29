@@ -57,6 +57,10 @@
 
 </body>
 
+    <script type="text/javascript">
+        var aPermissions = Object.values({$aPermissions});
+    </script>
+
     <!--ParamQuery Grid css files-->
     <link rel="stylesheet" href="{$path}/public/assets/css/plugins/paramquery/grid/pqgrid.min.css" /> 
     <!--add pqgrid.ui.css for jQueryUI theme support-->
@@ -67,7 +71,9 @@
     <!--ParamQuery Grid localization file-->
     <script src="{$path}/public/assets/js/plugins/paramquery/grid/localize/pq-localize-{str_replace('_','-',$_ENV['DEFAULT_LANG'])}.js"></script> 
     <!--Include jsZip file to support xlsx and zip export (optional)-->
-    <script type="text/javascript" src="{$path}/public/assets/js/plugins/paramquery/grid/jsZip-2.5.0/jszip.min.js" ></script> 
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/paramquery/grid/jsZip-2.5.0/jszip.min.js" ></script>
+    
+    <link rel="stylesheet" href="{$path}/public/assets/css/hdkextras.css" />
 
     <script src="{$path}/app/modules/admin/views/js/holidays-grid.js"></script>
 

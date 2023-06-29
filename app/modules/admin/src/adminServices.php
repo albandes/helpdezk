@@ -1210,5 +1210,39 @@ class adminServices
         
         return $aRet;
     }
+  
+    /**
+     * en_us Returns an array with ID and name of POP servers
+     * pt_br Retorna um array com ID e nome dos servidores POP
+     *
+     * @return array
+     */
+    public function _comboPopServer(): array
+    {
+        $aRet = array(
+            array("id"=>"POP","text"=>"POP"),
+            array("id"=>"IMAP","text"=>"IMAP"),
+            array("id"=>"GMAIL","text"=>"Gmail")
+        );
+
+        return $aRet;
+    }
+
+    /**
+     * en_us Returns an array with ID and name of LDAP servers
+     * pt_br Retorna um array com ID e nome dos servidores LDAP
+     *
+     * @return array
+     */
+    public function _comboLdapServer(): array
+    {
+        $aRet = array(
+            array("id"=>1,"text"=>"LDAP"),
+            array("id"=>2,"text"=>"AD")
+        );
+
+        return $aRet;
+    }
+    
     
 }

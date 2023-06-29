@@ -112,8 +112,8 @@ class Program extends Controller
         
         // -- Search action --
         if($option=='idx'){
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboProgramFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
@@ -146,8 +146,8 @@ class Program extends Controller
     public function comboProgramFilters(): array
     {
         $aRet = array(
-            array("id" => 'name',"text"=>$this->translator->translate('Name')),
-            array("id" => 'module',"text"=>$this->translator->translate('Module'))
+            array("id" => 'name',"text"=>$this->translator->translate('Name'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'module',"text"=>$this->translator->translate('Module'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
@@ -172,6 +172,18 @@ class Program extends Controller
             $filterIndx = $_POST["filterIndx"];
             $filterValue = $_POST["filterValue"];
             $filterOp = $_POST["filterOperation"];
+
+            switch($filterIndx){
+                case "name":
+                    $filterIndx = "tbp.name";
+                    break;
+                case "module":
+                    $filterIndx = "tbm.name module";
+                    break;
+                default:
+                    $filterIndx = $filterIndx;
+                    break;
+            }
 
             $where .= ((empty($where)) ? "WHERE " : " AND ") . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);          
         } 

@@ -1,11 +1,28 @@
 $(document).ready(function () {
     countdown.start(timesession);
+    
+    //set buttons (blocked, available)
+    setActionsBtn(aPermissions);
 
     /*
      * Select2
      */
-   $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
-   $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+   
+    /**
+     * reload action's combo
+     */
+    $('#filter-list').change(function(){
+        var searchOpts = $("#filter-list option:selected").data('optlist');
+       
+        $.post(path+"/main/home/reloadSearchOptions",{searchOpts:searchOpts},
+            function(valor) {
+                $("#action-list").html(valor);
+                $("#action-list").trigger("change");
+                return false;
+            });
+    });
 
     /** 
      * Define a model for grid's columns
@@ -79,7 +96,7 @@ $(document).ready(function () {
         type: "remote",
         curPage: this.curPage,
         rPP: 10,
-        rPPOptions: [1, 10, 20, 30, 40, 50]
+        rPPOptions: [10, 20, 30, 40, 50]
     };
     
     var obj = { 
