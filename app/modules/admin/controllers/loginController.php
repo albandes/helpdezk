@@ -375,7 +375,7 @@ class Login extends admCommon {
                 break;
 
             case '1': // Pop/Imap Server
-                if (function_exists('imap_open')) {
+                if (!function_exists('imap_open')) {
                     $login = false ;
                     $msg = "IMAP functions are not available!!!";
                     break;
