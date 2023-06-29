@@ -2134,6 +2134,11 @@ class System
                 // sent email
                 $error_send = $this->isEmailDone($mail, $paramsDone);
 
+                if ($error_send)
+                    $this->logIt("Can't send email to ".$sendEmailTo.", request #" . $params['code_request'] . ' - program: ' . $this->program, 3, 'email', __LINE__);
+                else
+                    $this->logIt("Email Succesfully Sent to ".$sendEmailTo.", ". $params['msg']  ,6,'email', __LINE__);
+
                 $mail->ClearAddresses();
 
             }
@@ -3303,7 +3308,7 @@ class System
 
     public function getIdStateDefault()
     {
-        return $_SESSION['hdk']['STATE_DEFAULT'] ;
+        return $_SESSION['STATE_DEFAULT'] ;
     }
 
     public function getIdCityDefault($idState)

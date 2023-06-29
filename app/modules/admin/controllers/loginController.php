@@ -514,7 +514,7 @@ class Login extends admCommon {
 					}else{
 						$success = array(
 										"success" => 1,
-										"redirect" => path . "/helpdezk/home/index"
+										"redirect" => path . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index"
 									);
 
 						echo json_encode($success);
