@@ -566,8 +566,9 @@ function duplicateVocabRow(){
     $( "#localeList" ).append( clonedRow );
 
     $('#localeID_' +intNewRowId + ' + span').remove();
+    $('#localeID_' +intNewRowId+' > option').removeAttr("data-select2-id","aria-hidden","tabindex");
     $('#localeID_' +intNewRowId).val("");
-    $('#localeID_' +intNewRowId).select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#localeList tbody')});
+    $('#localeID_' +intNewRowId).select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $('#modal-add-vocabulary-form')});
 
     // And finally change the ID of the last row to something we can
     //delete later, not sure why can not be done before the append :S

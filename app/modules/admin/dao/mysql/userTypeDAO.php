@@ -239,4 +239,37 @@ class userTypeDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * getUserTypeIdByName
+     * 
+     * en_us Returns person type id by name
+     * pt_br Retorna id do tipo de pessoa pelo nome
+     *
+     * @param  mixed $userTypeModel
+     * @return array
+     */
+    public function getUserTypeIdByName(userTypeModel $userTypeModel): array
+    {        
+        $sql = "SELECT idtypeperson FROM tbtypeperson WHERE `name` = :name";        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':name', $userTypeModel->getUserType());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $userTypeModel->setIdUserType((!is_null($aRet['idtypeperson']) && !empty($aRet['idtypeperson'])) ? $aRet['idtypeperson'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$userTypeModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting user type id ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

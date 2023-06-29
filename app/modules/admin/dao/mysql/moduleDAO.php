@@ -316,7 +316,7 @@ class moduleDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':moduleName', $moduleModel->getName());
+            $stmt->bindValue(':moduleName', $moduleModel->getName());
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             

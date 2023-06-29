@@ -1,11 +1,28 @@
 $(document).ready(function () {
     countdown.start(timesession);
+    
+    //set buttons (blocked, available)
+    setActionsBtn(aPermissions);
 
-    /*
+    /**
      * Select2
      */
-   $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
-   $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
+
+    /**
+     * reload action's combo
+     */
+    $('#filter-list').change(function(){
+        var searchOpts = $("#filter-list option:selected").data('optlist');
+        
+        $.post(path+"/main/home/reloadSearchOptions",{searchOpts:searchOpts},
+            function(valor) {
+                $("#action-list").html(valor);
+                $("#action-list").trigger("change");
+                return false;
+            });
+    });
 
     /** 
      * Define a model for grid's columns
@@ -21,7 +38,7 @@ $(document).ready(function () {
     var colM = [ 
         { title: vocab["ID"], width: '10%', dataIndx: "idUserType", hidden:true, halign: "center"  },        
         { title: "<b>"+vocab["Name"]+"</b> ", width: '50%', dataIndx: "userType", halign: "center"  },
-        { title: "<b>"+vocab["permissionGroup"]+"</b> ", width: '30%', dataIndx: "permissionGroup", halign: "center"  },
+        { title: "<b>"+vocab["permissionGroup"]+"</b> ", width: '30%', dataIndx: "permissionGroup", align: "center", halign: "center"  },
         { title: "<b>"+vocab["status"]+"</b> ", width: '19%', dataIndx: "status", align: "center", halign: "center"  },
         { title: "", width: '10%', dataIndx: "status_val", hidden:true, halign: "center"  },
         
@@ -78,12 +95,13 @@ $(document).ready(function () {
         type: "remote",
         curPage: this.curPage,
         rPP: 10,
-        rPPOptions: [1, 10, 20, 30, 40, 50]
+        rPPOptions: [10, 20, 30, 40, 50]
     };
     
     var obj = { 
         width: '100%', 
-        height: 480,
+        height: 500,
+        wrap:false,
         dataModel: dataModel,
         colModel: colM,
         editable: false,
@@ -148,6 +166,7 @@ $(document).ready(function () {
         
         $("#grid_userType").pqGrid("refreshDataAndView");
     });
+    
     $('#txtSearch').keypress(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){

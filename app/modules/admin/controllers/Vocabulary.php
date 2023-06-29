@@ -114,8 +114,8 @@ class Vocabulary extends Controller
         
         // -- Search action --
         if($option=='idx'){
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboModulesFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
@@ -277,10 +277,10 @@ class Vocabulary extends Controller
     public function comboModulesFilters(): array
     {
         $aRet = array(
-            array("id" => 'locale',"text"=>$this->translator->translate('vocabulary_locale')),
-            array("id" => 'module',"text"=>$this->translator->translate('Module')),
-            array("id" => 'key_name',"text"=>$this->translator->translate('vocabulary_key_name')),
-            array("id" => 'key_value',"text"=>$this->translator->translate('vocabulary_key_value'))
+            array("id" => 'locale',"text"=>$this->translator->translate('vocabulary_locale'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'module',"text"=>$this->translator->translate('Module'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'key_name',"text"=>$this->translator->translate('vocabulary_key_name'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'key_value',"text"=>$this->translator->translate('vocabulary_key_value'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;

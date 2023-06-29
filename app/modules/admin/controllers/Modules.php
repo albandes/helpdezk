@@ -31,11 +31,25 @@ class Modules extends Controller
      */
     protected $imgBucket;
     
+    /**
+     * @var int
+     */
+    protected $programId;
+
+    /**
+     * @var array
+     */
+    protected $aPermissions;
+    
     public function __construct()
     {
         parent::__construct();
 
 		$this->appSrc->_sessionValidate();
+
+        // set program permissions
+        $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
+        $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);
 
         //
         $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
@@ -65,6 +79,10 @@ class Modules extends Controller
      */
     public function index()
     {
+        // blocks if the user does not have permission to access
+        if($this->aPermissions[1] != "Y")
+            $this->appSrc->_accessDenied();
+        
         $params = $this->makeScreenModules();
 		
 		$this->view('admin','modules',$params);
@@ -88,11 +106,14 @@ class Modules extends Controller
 
         // -- Token: to prevent attacks --
         $params['token'] = $this->appSrc->_makeToken();
+
+        // -- User's permissions --
+        $params['aPermissions'] = $this->aPermissions;
         
         // -- Search action --
         if($option=='idx'){
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboModulesFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
@@ -243,7 +264,7 @@ class Modules extends Controller
     public function comboModulesFilters(): array
     {
         $aRet = array(
-            array("id" => 'name',"text"=>$this->translator->translate('Name'))
+            array("id" => 'name',"text"=>$this->translator->translate('Name'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
@@ -256,6 +277,10 @@ class Modules extends Controller
      */
     public function formCreate()
     {
+        // blocks if the user does not have permission to add a new register
+        if($this->aPermissions[2] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenModules('add');
         
         $this->view('admin','modules-create',$params);
@@ -341,6 +366,10 @@ class Modules extends Controller
      */
     public function formUpdate($idModule=null)
     {
+        // blocks if the user does not have permission to edit
+        if($this->aPermissions[3] != "Y")
+            $this->appSrc->_accessDenied();
+
         $moduleDAO = new moduleDAO();
         $moduleModel = new moduleModel();
         $moduleModel->setIdModule($idModule);
@@ -366,9 +395,9 @@ class Modules extends Controller
     }
 
     /**
-     * en_us Update the city information to the DB
+     * en_us Update the module information to the DB
      *
-     * pt_br Atualiza no BD as informações da cidade
+     * pt_br Atualiza no BD as informações do módulo
      */
     public function updateModule()
     { 
@@ -421,9 +450,9 @@ class Modules extends Controller
     }
 
     /**
-     * en_us Changes city's status
+     * en_us Changes module's status
      *
-     * pt_br Muda o status da cidade
+     * pt_br Muda o status do módulo
      */
     function changeStatus()
     {
@@ -454,9 +483,9 @@ class Modules extends Controller
     }
 
     /**
-     * en_us Remove the city from the DB
+     * en_us Remove the module from the DB
      *
-     * pt_br Remove a cidade do BD
+     * pt_br Remove o módulo do BD
      */
     function deleteModule()
     {

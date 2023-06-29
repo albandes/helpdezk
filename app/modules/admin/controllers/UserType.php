@@ -7,15 +7,33 @@ use App\modules\admin\models\mysql\userTypeModel;
 
 class userType extends Controller
 {           
+    /**
+     * @var int
+     */
+    protected $programId;
+
+    /**
+     * @var array
+     */
+    protected $aPermissions;
+    
     public function __construct()
     {
         parent::__construct();
 
-        $this->appSrc->_sessionValidate();       
+        $this->appSrc->_sessionValidate();
+
+        // set program permissions
+        $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
+        $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);       
     }
     
     public function index()
     {
+        // blocks if the user does not have permission to access
+        if($this->aPermissions[1] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenUserType();
 		
 		$this->view('admin','userType',$params);
@@ -29,8 +47,8 @@ class userType extends Controller
 
        
         if($option=='idx'){
-          $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
           $params['cmbFilters'] = $this->comboUserTypeFilters();
+          $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
           $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
@@ -40,6 +58,9 @@ class userType extends Controller
         
         // -- Token: to prevent attacks --
         $params['token'] = $this->appSrc->_makeToken();
+
+        // -- User's permissions --
+        $params['aPermissions'] = $this->aPermissions;
 
         if($option=='upd'){
             $params['id'] = $obj->getIdUserType();
@@ -92,6 +113,15 @@ class userType extends Controller
          //sort options
          $pq_sort = json_decode($_POST['pq_sort']);
          $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "name";
+
+         switch($sortIndx){
+            case "userType":
+                $sortIndx = "name"; 
+                break;
+            default:
+                $sortIndx = "{$sortIndx}";
+                break;
+        }
          
          $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
          $order = "ORDER BY {$sortIndx} {$sortDir}";
@@ -148,8 +178,8 @@ class userType extends Controller
     public function comboUserTypeFilters(): array
     {
         $aRet = array(
-            array("id" => 'userType',"text"=>$this->translator->translate('userType')),
-            array("id" => 'permissionGroup',"text"=>$this->translator->translate('permissionGroup')),
+            array("id" => 'userType',"text"=>$this->translator->translate('userType'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'permissionGroup',"text"=>$this->translator->translate('permissionGroup'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
         );
         
         return $aRet;
@@ -162,6 +192,10 @@ class userType extends Controller
      */
     public function formCreate()
     {
+        // blocks if the user does not have permission to add a new register
+        if($this->aPermissions[2] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenUserType();
 
         $this->view('admin','userType-create',$params);
@@ -214,6 +248,10 @@ class userType extends Controller
 
     public function formUpdate($userTypeID=null)
     {
+        // blocks if the user does not have permission to edit
+        if($this->aPermissions[3] != "Y")
+            $this->appSrc->_accessDenied();
+            
         $userTypeDAO = new userTypeDAO();
         $userTypeModel = new userTypeModel();
         $userTypeModel->setIdUserType($userTypeID); 

@@ -159,7 +159,7 @@ $(document).ready(function () {
         
                     if(obj.success){
                         $('#modal-vocabulary-module').val($("#cmbModule").find('option:selected').text());
-                        $('#modal-vocabulary-name').html(obj.vocabularyName);
+                        $('#modal-vocabulary-name').val(obj.vocabularyName);
         
                         $('#modal-vocabulary-create').modal('show');      
                     }else{
@@ -595,8 +595,10 @@ function duplicateVocabRow(){
 
     // Add to the new row to the original table
     $( "#localeList" ).append( clonedRow );
-
+   
+    
     $('#localeID_' +intNewRowId + ' + span').remove();
+    $('#localeID_' +intNewRowId+' > option').removeAttr("data-select2-id","aria-hidden","tabindex");
     $('#localeID_' +intNewRowId).val("");
     $('#localeID_' +intNewRowId).select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10});
 

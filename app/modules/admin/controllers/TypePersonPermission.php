@@ -77,8 +77,8 @@ class TypePersonPermission extends Controller
 
         // -- Search action --
         if($option == 'idx'){
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboUserTypePermFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
 
@@ -86,10 +86,6 @@ class TypePersonPermission extends Controller
         $params['modalAlert'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
         $params['modalError'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-error.latte';
 
-        /* if($option=='permission'){
-            echo "olaaaa";
-        } */
-      
         return $params;
     }
 
@@ -152,6 +148,9 @@ class TypePersonPermission extends Controller
                 break;
             case "category":
                 $sortIndx = "category_fmt";
+                break;
+            case "flagNew":
+                $sortIndx = "allow";
                 break;
             default:
                 $sortIndx = $sortIndx;
@@ -218,8 +217,8 @@ class TypePersonPermission extends Controller
     public function comboUserTypePermFilters(): array
     {
         $aRet = array(
-            array("id" => 'name',"text"=>$this->translator->translate('Name')),
-            array("id" => 'module',"text"=>$this->translator->translate('Module'))
+            array("id" => 'name',"text"=>$this->translator->translate('Name'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'module',"text"=>$this->translator->translate('Module'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;

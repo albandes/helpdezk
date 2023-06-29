@@ -17,11 +17,25 @@ use App\src\cpfServices;
 
 class Person extends Controller
 {
+    /**
+     * @var int
+     */
+    protected $programId;
+
+    /**
+     * @var array
+     */
+    protected $aPermissions;
+    
     public function __construct()
     {
         parent::__construct();
         
         $this->appSrc->_sessionValidate();
+
+        // set program permissions
+        $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
+        $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);
         
     }
 
@@ -32,6 +46,10 @@ class Person extends Controller
      */
     public function index()
     {
+        // blocks if the user does not have permission to access
+        if($this->aPermissions[1] != "Y")
+            $this->appSrc->_accessDenied();
+        
         $params = $this->makeScreenPerson();
 		
 		$this->view('admin','person',$params);
@@ -51,6 +69,9 @@ class Person extends Controller
 
         // -- Token: to prevent attacks --
         $params['token'] = $this->appSrc->_makeToken();
+
+        // -- User's permissions --
+        $params['aPermissions'] = $this->aPermissions;
         
         // -- Datepicker settings -- 
         $params = $this->appSrc->_datepickerSettings($params);
@@ -85,8 +106,8 @@ class Person extends Controller
 
         // -- Search action --
         if($option == 'idx'){
-            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
             $params['cmbFilters'] = $this->comboPersonFilters();
+            $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
             $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
 
@@ -202,12 +223,14 @@ class Person extends Controller
         
         switch($sortIndx){
             case "personType":
+            case "personIcon":
                 $sortIndx = "typeperson"; 
                 break;
             default:
                 $sortIndx = $sortIndx;
                 break;
         }
+        
         $sortDir = (isset($pq_sort[0]->dir) && $pq_sort[0]->dir =="up") ? "ASC" : "DESC";
         $order = "ORDER BY {$sortIndx} {$sortDir}";
         
@@ -288,11 +311,11 @@ class Person extends Controller
     public function comboPersonFilters(): array
     {
         $aRet = array(
-            array("id" => 'name',"text"=>$this->translator->translate('Name')),
-            array("id" => 'login',"text"=>$this->translator->translate('Login')),
-            array("id" => 'email',"text"=>$this->translator->translate('email')),
-            array("id" => 'company',"text"=>$this->translator->translate('Company')),
-            array("id" => 'department',"text"=>$this->translator->translate('Department'))
+            array("id" => 'name',"text"=>$this->translator->translate('Name'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'login',"text"=>$this->translator->translate('Login'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'email',"text"=>$this->translator->translate('email'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'company',"text"=>$this->translator->translate('Company'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'department',"text"=>$this->translator->translate('Department'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
@@ -305,6 +328,10 @@ class Person extends Controller
      */
     public function formCreate()
     {
+        // blocks if the user does not have permission to add a new register
+        if($this->aPermissions[2] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenPerson('add');
         
         $this->view('admin','person-create',$params);
@@ -316,6 +343,10 @@ class Person extends Controller
      */
     public function formUpdate($personId=null)
     {
+        // blocks if the user does not have permission to edit
+        if($this->aPermissions[3] != "Y")
+            $this->appSrc->_accessDenied();
+
         $personDAO = new personDAO();
         $personModel = new personModel();
         $personModel->setIdPerson($personId);
