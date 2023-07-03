@@ -1243,6 +1243,24 @@ class adminServices
 
         return $aRet;
     }
+    
+    /**
+     * _comboFieldType
+     * en_us Returns an array with ID and name of feature's field type
+     * pt_br Retorna um array com ID e nome dos tipos de campo de configuração
+     *
+     * @return array
+     */
+    public function _comboFieldType(): array
+    {
+        $aRet = array(
+            array("id"=>'checkbox',"text"=>"Checkbox"),
+            array("id"=>'input',"text"=>"Input"),
+            array("id"=>'link',"text"=>"Link")
+        );
+
+        return $aRet;
+    }
 
     
 }

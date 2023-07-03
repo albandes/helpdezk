@@ -412,7 +412,7 @@ class featureDAO extends Database
     public function fetchModuleSettingCategories(featureModel $featureModel): array
     {        
         $table = $featureModel->getTableName();
-        $sql = "SELECT idconfigcategory, `name`, smarty FROM $table WHERE flgsetup = 'Y' ORDER BY idconfigcategory";
+        $sql = "SELECT idconfigcategory, `name`, smarty FROM $table WHERE flgsetup = 'Y' ORDER BY `name`";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -538,6 +538,168 @@ class featureDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error deleting setting", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * getFeatureCategoryByName
+     *
+     * en_us Returns feature's category by name
+     * pt_br Retorna a categoria de configuração pelo nome
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getFeatureCategoryByName(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "SELECT idconfigcategory FROM $table WHERE `name` = :name";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':name', $featureModel->getSettingCatName());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $featureModel->setSettingCatId((!is_null($aRet['idconfigcategory']) && !empty($aRet['idconfigcategory'])) ? $aRet['idconfigcategory'] : 0);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting feature category', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * insertNewCategory
+     *
+     * en_us Saves feature's new category
+     * pt_br Grava a nova categoria de configuração
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertNewCategory(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "INSERT INTO $table (`name`,smarty,flgsetup) VALUES (:name,:langKey,:flgSetup)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':name', $featureModel->getSettingCatName());
+            $stmt->bindValue(':langKey', $featureModel->getSettingCatLangKey());
+            $stmt->bindValue(':flgSetup', $featureModel->getSettingCatFlgSetup());
+            $stmt->execute();
+
+            $featureModel->setSettingCatId($this->db->lastInsertId());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error inserting setting's category", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * getFeatureIdByField
+     *
+     * en_us Returns feature ID by field value
+     * pt_br Retorna o ID da configuração pelo valor do campo
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getFeatureIdByField(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $field = $featureModel->getFieldName();
+
+        $sql = "SELECT idconfig FROM $table WHERE $field = :fieldValue";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':fieldValue', $featureModel->getFieldValue());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $featureModel->setSettingId((!is_null($aRet['idconfig']) && !empty($aRet['idconfig'])) ? $aRet['idconfig'] : 0);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting feature by name', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * insertNewFeature
+     *
+     * en_us Saves feature's data
+     * pt_br Grava os dados da configuração
+     *
+     * @param  featureModel $featureModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function insertNewFeature(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+        $sql = "INSERT INTO $table (`name`,`description`,idconfigcategory,session_name,field_type,`status`,smarty,`value`,allowremove) 
+                     VALUES (:name,:description,:settingCatId,:sessionName,:fieldType,'A',:langKey,:settingValue,:default)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':name', $featureModel->getSettingName());
+            $stmt->bindValue(':description', $featureModel->getSettingDescription());
+            $stmt->bindValue(':settingCatId', $featureModel->getSettingCatId());
+            $stmt->bindValue(':sessionName', $featureModel->getSessionName());
+            $stmt->bindValue(':fieldType', $featureModel->getFieldType());
+            $stmt->bindValue(':langKey', $featureModel->getSettingLangKey());
+            $stmt->bindValue(':settingValue', $featureModel->getSettingValue());
+            $stmt->bindValue(':default', $featureModel->getFlagDefault());
+            $stmt->execute();
+
+            $featureModel->setSettingId($this->db->lastInsertId());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error inserting setting's data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

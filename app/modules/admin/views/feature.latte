@@ -1,0 +1,459 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / <strong>{='pgr_sys_features'|translate}</strong></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                <div class="col-sm-6">
+                                     <div class="row g-2">
+                                        <div class="col-sm-3 text-end">
+                                            <label for="cmbModule" class="hdk-label col-form-label text-end">{='Type'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-6">
+                                            <select class="form-control form-control-sm" id="cmbModule" name="cmbModule" >
+                                                <option hidden></option>
+                                                {foreach $cmbModules as $k=>$v}
+                                                    <option value="{$v['id']}" {if $v['id'] == $moduleSelected}selected=selected{/if}>{$v['text']}</option>
+                                                {/foreach}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="add-setting-line" class="col-sm-6 text-end d-none">
+                                    <button id="btnAddSetting" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;{='new_feature'|translate}</button>
+                                    <button id="btnAddCategory" type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;{='Add_category'|translate}</button>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 white-bg" style="height:20px;"></div>
+                            <!-- other modules features -->
+                            <div id="modulesFeatures" class="row d-none"></div>
+                            <!-- main features -->
+                            <!-- email features -->
+                            <div class="row main-features mb-3">
+                                <form method="post" id="email-feature-form" name="email-feature-form">
+                                    <div class="card card-primary">
+                                        <div class="card-header">
+                                            <i class="fa fa-at"></i>  {='pgr_email_config'|translate}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailTitle" class="hdk-label col-form-label text-end">{='Title'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailTitle" name="emailTitle" class="form-control form-control-sm" value="{$emTitle}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailHost" class="hdk-label col-form-label text-end">{='Email_host'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailHost" name="emailHost" class="form-control form-control-sm" value="{$emHost}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailDomain" class="hdk-label col-form-label text-end">{='Domain'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailDomain" name="emailDomain" class="form-control form-control-sm" value="{$emDomain}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailUser" class="hdk-label col-form-label text-end">{='User_login'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailUser" name="emailUser" class="form-control form-control-sm" value="{$emUser}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailPassword" class="hdk-label col-form-label text-end">{='Password'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailPassword" name="emailPassword" class="form-control form-control-sm" value="{$emPassword}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailSender" class="hdk-label col-form-label text-end">{='Email_sender'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailSender" name="emailSender" class="form-control form-control-sm" value="{$emSender}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailPort" class="hdk-label col-form-label text-end">{='Port'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="emailPort" name="emailPort" class="form-control form-control-sm" value="{$emPort}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailAuth" class="hdk-label col-form-label text-end">{='Requires_Autentication'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="emailAuth" name="emailAuth" value="" {$emAuth}>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailHeader" class="hdk-label col-form-label text-end">{='Header'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <div id="emailHeader">{=$emHeader|noescape}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailFooter" class="hdk-label col-form-label text-end">{='Footer'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <div id="emailFooter">{=$emFooter|noescape}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailSuccessLog" class="hdk-label col-form-label text-end">{='Success_logs'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="emailSuccessLog" name="emailSuccessLog" value="" {$emSuccessLog}>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailFailLog" class="hdk-label col-form-label text-end">{='Failure_logs'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="emailFailLog" name="emailFailLog" value="" {$emFailLog}>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailTracker" class="hdk-label col-form-label text-end">{='tracker_status'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="emailTracker" name="emailTracker" value="" {$emailTracker}>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="emailByCron" class="hdk-label col-form-label text-end">{='Email_byCron'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="emailByCron" name="emailByCron" value="" {$emByCon}>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="btnEmailFeatSave" type="button" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-save" aria-hidden="true"></i>&nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- pop server features -->
+                            <div class="row main-features mb-3">
+                                <form method="post" id="pop-feature-form" name="pop-feature-form">
+                                    <div class="card card-primary">
+                                        <div class="card-header">
+                                            <i class="fa fa-at"></i>  {='Pop_server'|translate}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="popHost" class="hdk-label col-form-label text-end">{='Host'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="popHost" name="popHost" class="form-control form-control-sm" value="{$popHost}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="cmbPopType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbPopType" name="cmbPopType" >
+                                                        <option hidden></option>
+                                                        {foreach $cmbPopTypes as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $popTypeSelected}selected=selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="popPort" class="hdk-label col-form-label text-end">{='Port'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="popPort" name="popPort" class="form-control form-control-sm" value="{$popPort}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="popDomain" class="hdk-label col-form-label text-end">{='Domain'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="popDomain" name="popDomain" class="form-control form-control-sm" value="{$popDomain}" >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="btnPopFeatSave" type="button" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-save" aria-hidden="true"></i>&nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- ldap integration features -->
+                            <div class="row main-features mb-3">
+                                <form method="post" id="ldap-feature-form" name="ldap-feature-form">
+                                    <div class="card card-primary">
+                                        <div class="card-header">
+                                            <i class="fa fa-network-wired"></i>  {='Integration_ldap'|translate}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="cmbLdapType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbLdapType" name="cmbLdapType" >
+                                                        <option hidden></option>
+                                                        {foreach $cmbLdapTypes as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $ldapTypeSelected}selected=selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="ldapServer" class="hdk-label col-form-label text-end">{='ldap_server'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="ldapServer" name="ldapServer" class="form-control form-control-sm" value="{$ldapServer}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="ldapDistName" class="hdk-label col-form-label text-end">{='ldap_dn'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="ldapDistName" name="ldapDistName" class="form-control form-control-sm" value="{$ldapDistName}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="ldapDomain" class="hdk-label col-form-label text-end">{='Domain'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="ldapDomain" name="ldapDomain" class="form-control form-control-sm" value="{$ldapDomain}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="ldapField" class="hdk-label col-form-label text-end">{='ldap_field'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="ldapField" name="ldapField" class="form-control form-control-sm" value="{$ldapField}" >
+                                                </div>
+
+                                                <div class="col-sm-1 text-start">
+                                                    <i class="fa fa-info-circle fa-2x lbltooltip text-primary" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='ldap_field_obs'|translate}" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="btnLdapFeatSave" type="button" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-save" aria-hidden="true"></i>&nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- maintenance features -->
+                            <div class="row main-features mb-3">
+                                <form method="post" id="maintenance-feature-form" name="maintenance-feature-form">
+                                    <div class="card card-primary">
+                                        <div class="card-header">
+                                            <i class="fa fa-tools"></i>  {='Maintenance'|translate}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="maintenanceFlag" class="hdk-label col-form-label text-end">{='Maintenance'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="maintenanceFlag" name="maintenanceFlag" value="" {$maintenanceFlag}>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="maintenanceMsg" class="hdk-label col-form-label text-end">{='Header'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <div id="maintenanceMsg">{=$maintenanceMsg|noescape}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="btnMaintenanceFeatSave" type="button" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-save" aria-hidden="true"></i>&nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- miscellaneous features -->
+                            <div class="row main-features mb-3">
+                                <form method="post" id="miscellaneous-feature-form" name="miscellaneous-feature-form">
+                                    <div class="card card-primary">
+                                        <div class="card-header">
+                                            <i class="fa fa-grip-vertical"></i>  {='Other_items'|translate}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="misc2FAuth" class="hdk-label col-form-label text-end">{='sys_2FAuthentication'|translate}?</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="misc2FAuth" name="misc2FAuth" value="" {$misc2FAuth}>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="cmbDefCountry" class="hdk-label col-form-label text-end">{='country_default'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbDefCountry" name="cmbDefCountry" >
+                                                        <option hidden></option>
+                                                        {foreach $cmbDefCountry as $k=>$v}
+                                                            <option value="{$v['id']}" {if $v['id'] == $miscCountrySelected}selected=selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-sm-4 text-end">
+                                                    <label for="miscTimeSession" class="hdk-label col-form-label text-end">{='sys_session_time_lbl'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="miscTimeSession" name="miscTimeSession" class="form-control form-control-sm" value="{$miscTimeSession}" >
+                                                </div>
+
+                                                <div class="col-sm-1 text-start">
+                                                    <i class="fa fa-info-circle fa-2x lbltooltip text-primary" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='sys_time_session'|translate}" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="btnMiscFeatSave" type="button" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-save" aria-hidden="true"></i>&nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    
+    <!-- Modals -->
+    {include 'modals/features/modal-add-feature.latte'}
+    {include 'modals/features/modal-add-category.latte'}
+
+</body>
+
+    <script type="text/javascript">
+		var aPermissions = Object.values({$aPermissions});
+	</script>
+
+    <!-- Summernote -->
+    <link rel="stylesheet" href="{$path}/public/assets/js/plugins/summernote/summernote-bs5.css" />
+    <script src="{$path}/public/assets/js/plugins/summernote/summernote-bs5.js"></script>
+
+    <script src="{$path}/app/modules/admin/views/js/feature-crud.js"></script>
+
+{/block}
