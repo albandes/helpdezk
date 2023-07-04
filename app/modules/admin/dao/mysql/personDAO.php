@@ -1487,7 +1487,8 @@ class personDAO extends Database
         $sql = "UPDATE tbnaturalperson 
                    SET ssn_cpf = :ssnCpf, 
                        dtbirth = :birthDt, 
-                       gender = :gender
+                       gender = :gender,
+                       rg = :cardId
                 WHERE idperson = :personId";
         
         $stmt = $this->db->prepare($sql);
@@ -1495,6 +1496,7 @@ class personDAO extends Database
         $stmt->bindValue(":birthDt",$personModel->getDtBirth());
         $stmt->bindValue(":gender",$personModel->getGender());
         $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":cardId",(!is_null($personModel->getRg()) && !empty($personModel->getRg())) ? $personModel->getRg() : '');
         $stmt->execute();
 
         $ret = true;
@@ -1591,7 +1593,8 @@ class personDAO extends Database
         $sql = "UPDATE tbjuridicalperson 
                    SET ein_cnpj = :einCnpj, 
                        contact_person = :contact, 
-                       observation = :observation
+                       observation = :observation,
+                       iestadual = :corpId
                  WHERE idperson = :personId";
         
         $stmt = $this->db->prepare($sql);
@@ -1599,6 +1602,7 @@ class personDAO extends Database
         $stmt->bindValue(":contact",$personModel->getContactName());
         $stmt->bindValue(":observation",$personModel->getObsevation());
         $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":corpId",(!is_null($personModel->getIestadual()) && !empty($personModel->getIestadual())) ? $personModel->getIestadual() : '');
         $stmt->execute();
 
         $ret = true;
