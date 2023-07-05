@@ -50,4 +50,30 @@ class logoDAO extends Database
 
         return array("status"=>$ret,"push"=>$result);
     }
+
+    public function updateLogo(logoModel $logoModel): array
+    {
+        
+        $sql = "UPDATE tblogos SET file_name = :fileName, height = :height, width = :width WHERE `name` = :name";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":fileName",$logoModel->getFileName());
+            $stmt->bindValue(":height",$logoModel->getHeight());
+            $stmt->bindValue(":width",$logoModel->getWidth());
+            $stmt->bindValue(":name",$logoModel->getName());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$logoModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error updating logo data ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
 }
