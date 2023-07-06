@@ -2603,4 +2603,78 @@ class appServices
         //Return rgb(a) color string
         return $output;
     }
+
+    public function _getSystemLogo($type): array 
+    {
+        $logoDAO = new logoDao(); 
+        $logoModel = new logoModel();
+        $awsSrc = new awsServices();
+
+        switch($type){
+            case 'header':
+                $width 	= "114";
+                $height = "35";
+                break;
+            case 'login':
+                $width 	= "227";
+                $height = "70";
+                break;
+            case 'reports':
+                $width 	= "130";
+                $height = "40";
+                break;
+        }
+
+        $logoModel->setName($type);
+        $logo = $logoDAO->getLogoByName($logoModel);
+        
+        if(!$logo['status']){ //(empty($objLogo->getFileName()) or !){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . "default/{$type}.png";
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . "default/{$type}.png");
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+        }else{
+            $objLogo = $logo['push']['object'];
+            
+            if(empty($objLogo->getFileName())){
+                $st = false;
+            }else{
+                if($this->saveMode == 'disk'){
+                    $pathLogoImage = $this->imgDir . $objLogo->getFileName();                
+                    $st = file_exists($pathLogoImage) ? true : false;
+                }elseif($this->saveMode == "aws-s3"){            
+                    $retLogoUrl = $awsSrc->_getFile($this->imgDir.$objLogo->getFileName());
+                    $pathLogoImage = $retLogoUrl['fileUrl'];
+                    $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+                }
+            }
+
+            if(!$st){
+                if($this->saveMode == 'disk'){
+                    $image 	= $this->imgBucket . "default/{$type}.png";
+                }elseif($this->saveMode == "aws-s3"){
+                    $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . "default/{$type}.png");
+                    $image = $retDefaultLogoUrl['fileUrl'];
+                }
+            }else{
+                if($this->saveMode == 'disk'){
+                    $image 	=$this->imgBucket . $objLogo->getFileName();
+                }elseif($this->saveMode == "aws-s3"){
+                    $image = $pathLogoImage;
+                }
+			    $width 	= $objLogo->getWidth();
+			    $height = $objLogo->getHeight();
+            }
+		}
+        
+        $aRet = array(
+            'image'  => $image,
+            'width'  => $width,
+            'height' => $height
+        );
+        
+		return $aRet;
+    }
 }

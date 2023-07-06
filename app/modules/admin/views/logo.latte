@@ -1,0 +1,125 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='Logos_Title'|translate} / <strong>{='Add'|translate}</strong></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <input type="hidden" name="_token" id= "_token" value="{$token}">
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                     <div class="row g-2">
+                                        <div class="col-sm-4 text-end">
+                                            <label for="lblHeaderLogo" class="hdk-label col-form-label text-end">{='Page_header_logo'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-8">
+                                            <div id="lblHeaderLogo" class="col-sm-12"><img src="{$headerLogo}" height="{$headerHeight}px" width="{$headerWidth}px"/></div>
+                                            <div class="col-sm-12 text-navy small">{='Info_header_logo'|translate}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="row g-2">
+                                        <div class="col-sm-2 text-end">
+                                            <label for="headerDropzone" class="hdk-label col-form-label text-end">{='File'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-10">
+                                            <div id="headerDropzone" class="dropzone dz-default dz-message" ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                     <div class="row g-2">
+                                        <div class="col-sm-4 text-end">
+                                            <label for="lblLoginLogo" class="hdk-label col-form-label text-end">{='Login_page_logo'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-8">
+                                            <div id="lblLoginLogo" class="col-sm-12"><img src="{$loginLogo}" height="{$loginHeight}px" width="{$loginWidth}px"/></div>
+                                            <div class="col-sm-12 text-navy small">{='Info_login_logo'|translate}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="row g-2">
+                                        <div class="col-sm-2 text-end">
+                                            <label for="loginDropzone" class="hdk-label col-form-label text-end">{='File'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-10">
+                                            <div id="loginDropzone" class="dropzone dz-default dz-message" ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                     <div class="row g-2">
+                                        <div class="col-sm-4 text-end">
+                                            <label for="lblReportLogo" class="hdk-label col-form-label text-end">{='Reports_logo'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-8">
+                                            <div id="lblReportLogo" class="col-sm-12"><img src="{$reportLogo}" height="{$reportHeight}px" width="{$reportWidth}px"/></div>
+                                            <div class="col-sm-12 text-navy small">{='Info_reports_logo'|translate}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="row g-2">
+                                        <div class="col-sm-2 text-end">
+                                            <label for="reportDropzone" class="hdk-label col-form-label text-end">{='File'|translate}: </label>
+                                        </div>
+                                        
+                                        <div class="col-sm-10">
+                                            <div id="reportDropzone" class="dropzone dz-default dz-message" ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    
+    <!-- Modals -->
+    {include $modalAlert}
+    {include 'modals/features/modal-add-feature.latte'}
+    {include 'modals/features/modal-add-category.latte'}
+
+</body>
+
+    <script type="text/javascript">
+		var aPermissions = Object.values({$aPermissions});
+	</script>
+
+    <script src="{$path}/app/modules/admin/views/js/logo-crud.js"></script>
+
+{/block}

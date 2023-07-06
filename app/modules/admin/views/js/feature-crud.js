@@ -169,7 +169,9 @@ $(document).ready(function () {
     $('#cmbPopType').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10});
     $('#cmbLdapType').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10});
     $('#cmbDefCountry').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10});
-
+    $('#cmbFeatureCat').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-feature-form')});
+    $('#cmbFeatureType').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-feature-form')});
+  
     /**
      * iCheck - checkboxes/radios styling
      */
@@ -249,6 +251,16 @@ $(document).ready(function () {
     /* $('#logHostType').change(function(){
         objFeatures.changeLogServer();
     }); */
+
+    $('#cmbFeatureType').change(function(){
+        if($(this).val() == 'checkbox'){
+            $("#check-field-line").removeClass('d-none');
+            $("#new-feature-value-input").addClass('d-none');
+        }else{
+            $("#new-feature-value-input").removeClass('d-none');
+            $("#check-field-line").addClass('d-none');
+        }
+    });
     
     /**
      * Buttons
@@ -383,23 +395,23 @@ $(document).ready(function () {
             data:$('#formLog').serialize() + '&_token=' + $('#_token').val(),
             dataType: 'json',
             error: function (ret) {
-                showAlert(makeSmartyLabel('Edit_failure'),'danger');
+                showAlert(vocab['Edit_failure'),'danger');
             },
             success: function(ret) {
 
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 //console.log(obj);
                 if(obj.status == 'OK') {
-                    showAlert(makeSmartyLabel('Edit_sucess'),'success');
+                    showAlert(vocab['Edit_sucess'),'success');
                 } else {
-                    showAlert(makeSmartyLabel('Edit_failure'),'danger');
+                    showAlert(vocab['Edit_failure'),'danger');
                 }
             },
             beforeSend: function(){
-                $("#btnSaveLog").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
+                $("#btnSaveLog").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing')).addClass('disabled');
             },
             complete: function(){
-                $("#btnSaveLog").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
+                $("#btnSaveLog").html("<i class='fa fa-save'></i> "+ vocab['Save')).removeClass('disabled');
             }
         });
 
@@ -433,475 +445,200 @@ $(document).ready(function () {
             });
         }
     });
-
+    
+    //show modal to add new setting
     $("#btnAddSetting").click(function(){
-        var moduleID = $("#cmbModule").val(), moduleName = $('#cmbModule').find(":selected").text(),
+        var moduleId = $("#cmbModule").val(), moduleName = $('#cmbModule').find(":selected").text(),
             _token = $("#_token").val();
         
-        
-        /* $.post(path + '/admin/features/ajaxFeatureCategory', {
-           moduleID: moduleID
-        }, function(response) {
-
-            if (response == false) {
-                showAlert(makeSmartyLabel('Alert_get_data'),'danger');
-            }else{
-                $("#idmoduleAddFeat").val(moduleID);
-                $("#moduleName").html(moduleName);
-                $("#cmbFeatureCat").html(response);
-                $("#cmbFeatureCat").trigger("chosen:updated");
-                $("#modal-add-feature").modal('show');
-            }
-        }); */
-        $("#modal-add-feature").modal('show');
-
-    });
-
-    $("#btnSaveNewFeat").click(function(){
-
-        if (!$("#feature-add-form").valid()) {
-            return false ;
-        }
-
-        $.ajax({
-            type: "POST",
-            url: path + '/admin/features/saveNewFeature',
-            dataType: 'json',
-            data: $('#feature-add-form').serialize() + "&_token=" + $('#_token').val(),
-            error: function (ret) {
-                modalAlertMultiple('danger', makeSmartyLabel('Alert_failure'),'alert-add-feature');
-            },
-            success: function(ret){
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                if($.isNumeric(obj.idfeature)) {
-                    modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-add-feature');
-
-                    setTimeout(function(){
-                        $('#modal-add-feature').modal('hide');
-                        $('#featureDefault').iCheck('unCheck');
-                        $('#feature-add-form').trigger('reset');
-                        objFeatures.viewConfigs();
-                    },2000);
-
-                } else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-add-feature');
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/features/modalNewFeature',
+                dataType: 'json',
+                data: {
+                    moduleId : moduleId,
+                    _token : _token = _token
+                },
+                error: function (ret) {
+                    showAlert(vocab['Permission_error'],'danger');
+                },
+                success: function(ret) {
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                
+                    if(!obj.success){       
+                        showAlert(vocab['Permission_error'],'danger');
+                    }else{
+                        $("#moduleId").val(moduleId);
+                        $("#new-feature-module").val(moduleName);
+                        $("#cmbFeatureCat").html(obj.catOptions);
+                        $("#cmbFeatureCat").trigger("change");
+                        $("#modal-add-feature").modal('show');
+                    }
                 }
-            },
-            beforeSend: function(){
-                $("#btnSaveNewFeat").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
-                $("#btnCancel").addClass('disabled');
-            },
-            complete: function(){
-                $("#btnSaveNewFeat").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
-                $("#btnCancel").removeClass('disabled');
-            }
-        });
+            });
     });
 
-    $("#btnAddConfCateg").click(function(){
-        var moduleID = $("#cmbModule").val(), moduleName = $('#cmbModule').find(":selected").text();
+    $("#btnAddFeatureSave").click(function(){
 
-        $("#idmoduleAddCateg").val(moduleID);
-        $("#moduleNameCateg").html(moduleName);
-        $("#modal-add-category").modal('show');
-
-    });
-
-    $("#btnSaveNewCateg").click(function(){
-
-        if (!$("#categ-feat-add-form").valid()) {
+        if (!$("#modal-add-feature-form").valid()) {
             return false ;
         }
 
-        $.ajax({
-            type: "POST",
-            url: path + '/admin/features/saveNewCategory',
-            dataType: 'json',
-            data: $('#categ-feat-add-form').serialize() + "&_token=" + $('#_token').val(),
-            error: function (ret) {
-                modalAlertMultiple('danger', makeSmartyLabel('Alert_failure'),'alert-add-category');
-            },
-            success: function(ret){
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-
-                if($.isNumeric(obj.idcategory)) {
-                    modalAlertMultiple('success',makeSmartyLabel('Alert_inserted'),'alert-add-category');
-
-                    setTimeout(function(){
-                        $('#modal-add-category').modal('hide');
-                        $('#categorySetup').iCheck('unCheck');
-                        $('#categ-feat-add-form').trigger('reset');
-                    },2000);
-
-                } else {
-                    modalAlertMultiple('danger',makeSmartyLabel('Alert_failure'),'alert-add-category');
+        if(!$("#btnAddFeatureSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/admin/features/saveNewFeature',
+                dataType: 'json',
+                data: $('#modal-add-feature-form').serialize() + "&_token=" + $('#_token').val(),
+                error: function (ret) {
+                    modalAlertMultiple('danger', vocab['Alert_failure'],'alert-modal-add-feature');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+    
+                    if(obj.success) {
+                        modalAlertMultiple('success',vocab['Alert_inserted'],'alert-modal-add-feature');
+    
+                        setTimeout(function(){
+                            $('#modal-add-feature').modal('hide');
+                            $('#new-feature-default').iCheck('unCheck');
+                            $('#new-feature-value-check').iCheck('unCheck');
+                            $('#modal-add-feature-form').trigger('reset');
+                            objFeatures.viewConfigs();
+                        },2000);
+    
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-feature');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnAddFeatureSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddFeatureCancel").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnAddFeatureSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddFeatureCancel").removeClass('disabled');
                 }
-            },
-            beforeSend: function(){
-                $("#btnSaveNewCateg").html("<i class='fa fa-spinner fa-spin'></i> "+ makeSmartyLabel('Processing')).addClass('disabled');
-                $("#btnCloseNewCateg").addClass('disabled');
-            },
-            complete: function(){
-                $("#btnSaveNewCateg").html("<i class='fa fa-save'></i> "+ makeSmartyLabel('Save')).removeClass('disabled');
-                $("#btnCloseNewCateg").removeClass('disabled');
-            }
-        });
+            });
+        }
     });
 
-    //show modal to add new module
-    $("#btnAddModule").click(function(){
-        $('#modal-add-module').modal('show');
-    });
-
-    $("#btnAddModuleSave").click(function(){
-
-        if (!$("#modal-add-module-form").valid()) {
-            return false ;
-        }
-        
-        if(hasRestrict == 1){
-            var checkFields = validateFields();        
-            if (!checkFields[0][0]) {
-                modalAlertMultiple('danger',checkFields[1][0],'alert-modal-add-module');
-                return false ;
-            }
-        }
-        if(!avaliableSave){
-            modalAlertMultiple('danger',vocab['restrict_fields_invalid_format'],'alert-modal-add-module');
-            return false;
-        }
-        
-        if(!$("#btnAddModuleSave").hasClass('disabled')){
-            $("#btnAddModuleSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
-
-            if (myDropzone.getQueuedFiles().length > 0) {
-                btnClicked = "1";
-                dropzonefiles = myDropzone.getQueuedFiles().length;
-                myDropzone.processQueue();
-            } else {
-                saveData(upname,'add');
-            }
-        }
-        
-    });
-
-    //show modal to add new program category
     $("#btnAddCategory").click(function(){
-        var moduleId = $('#cmbModule').val();
-        if(moduleId == 0 || moduleId == ""){
-            showAlert(vocab['Select_module'],'danger');
-        }else{
-            $('#moduleId').val($('#cmbModule').val());
-            $('#modal-module-name').val($("#cmbModule").find('option:selected').text());
-            
-            $('#modal-add-category').modal('show');
-        }
+        var moduleId = $("#cmbModule").val(), moduleName = $('#cmbModule').find(":selected").text();
+
+        $("#new-cat-module-id").val(moduleId);
+        $("#new-cat-module-name").val(moduleName);
+        $("#modal-add-category").modal('show');
     });
 
     $("#btnAddCategorySave").click(function(){
 
-        if (!$("#modal-add-category-form").valid()){
+        if (!$("#modal-add-category-form").valid()) {
             return false ;
         }
-        
+
         if(!$("#btnAddCategorySave").hasClass('disabled')){
             $.ajax({
                 type: "POST",
-                url: path + '/admin/program/createCategory',
+                url: path + '/admin/features/saveNewCategory',
                 dataType: 'json',
-                data: $("#modal-add-category-form").serialize() + "&_token=" + $("#_token").val(),
+                data: $('#modal-add-category-form').serialize() + "&_token=" + $('#_token').val(),
                 error: function (ret) {
-                    modalAlertMultiple('danger',vocab['Alert_failure'],"alert-modal-add-category");
+                    modalAlertMultiple('danger', vocab['Alert_failure'],'alert-modal-add-category');
                 },
                 success: function(ret){
-                    //console.log(ret);
                     var obj = jQuery.parseJSON(JSON.stringify(ret));
-        
-                    if(obj.success){
-                        modalAlertMultiple('success',vocab['Alert_sucess_category'],"alert-modal-add-category");
-                        objProgramData.changeCategory(obj.categoryId);
+    
+                    if(obj.success) {
+                        modalAlertMultiple('success',vocab['Alert_inserted'],'alert-modal-add-category');
+    
                         setTimeout(function(){
                             $('#modal-add-category').modal('hide');
+                            $('#modal-add-category-form').trigger('reset');
                         },2000);
-                    }else{
-                        modalAlertMultiple('danger',vocab['Alert_failure'],"alert-modal-add-category");
+    
+                    } else {
+                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-category');
                     }
                 },
                 beforeSend: function(){
                     $("#btnAddCategorySave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnAddCategoryClose").addClass('disabled');
                 },
                 complete: function(){
                     $("#btnAddCategorySave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
-                }
-            });
-        }        
-    });
-    
-    //show modal to add vocabulary key name
-    $("#btnAddKeyName").click(function(){
-        $("#modal-cmb-module").val($("#cmbModule").val());
-        $("#modal-cmb-module").trigger("change");
-        $("#modal-add-vocabulary").modal('show');
-    });
-
-    // -- add new row to locale list
-    $("#btnAddVocabRow").click(function(){
-        duplicateVocabRow();
-    });
-
-    $("#btnAddVocabSave").click(function(){
-
-        if (!$("#modal-add-vocabulary-form").valid()) {
-            return false ;
-        }
-        
-        var checkFields = validateVocabFields();
-        if (!checkFields[0][0]) {console.log(checkFields[0][0]);
-            modalAlertMultiple('danger',checkFields[1][0],'alert-modal-add-vocabulary');
-            return false ;
-        }
-        
-        if(!$("#btnAddVocabSave").hasClass('disabled')){
-            $.ajax({
-                type: "POST",
-                url: path + '/admin/vocabulary/createVocabulary',
-                dataType: 'json',
-                data: $("#modal-add-vocabulary-form").serialize() + "&_token=" + $("#_token").val(),
-                error: function (ret) {
-                    modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-vocabulary');
-                },
-                success: function(ret){
-                    //console.log(ret);
-                    var obj = jQuery.parseJSON(JSON.stringify(ret));
-        
-                    if(obj.success){
-                        modalAlertMultiple('success',vocab['Alert_inserted'],"alert-modal-add-vocabulary");
-                        setTimeout(function(){
-                            $("#modal-add-vocabulary").modal('hide');
-                        },2000);
-                    }else{
-                        modalAlertMultiple('danger',vocab['Alert_failure'],'alert-modal-add-vocabulary');
-                    }
-                },
-                beforeSend: function(){
-                    $("#btnAddVocabCancel").addClass('disabled');
-                    $("#btnAddVocabSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
-                },
-                complete: function(){
-                    $("#btnAddVocabCancel").removeClass('disabled');
-                    $("#btnAddVocabSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnAddCategoryClose").removeClass('disabled');
                 }
             });
         }
-        
     });
 
     /**
      * Validate
      */
-    $("#create-program-form").validate({
-        ignore:[],
-        rules: {
-            cmbCategory:   {
-                required: true
-            },
-            programName:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3,
-                remote: {
-                    url: path + "/admin/program/checkExist",
-                    type: "post",
-                    dataType:'json',
-                    data:{
-                        _token: function(element){return $('#_token').val();},
-                        categoryId: function(element){return $('#cmbCategory').val();}
-                    }
-                }
-            },
-            programController:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3
-            },
-            programKeyName:   {
-                required: true,
-                minlength: 3
-            }
-        },
-        messages: {
-            cmbCategory: {required:vocab['Alert_field_required']},
-            programName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            programController: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            programKeyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
-        }
-    });
-
-    $("#update-program-form").validate({
-        ignore:[],
-        rules: {
-            cmbCategory:   {
-                required: true
-            },
-            programName:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3,
-                remote: {
-                    url: path + "/admin/program/checkExist",
-                    type: "post",
-                    dataType:'json',
-                    data:{
-                        _token: function(element){return $('#_token').val();},
-                        categoryId: function(element){return $('#cmbCategory').val();},
-                        programId: function(element){return $('#programId').val();}
-                    }
-                }
-            },
-            programController:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3
-            },
-            programKeyName:   {
-                required: true,
-                minlength: 3
-            }
-        },
-        messages: {
-            cmbCategory: {required:vocab['Alert_field_required']},
-            programName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            programController: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            programKeyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
-        }
-    });
-
-    $("#modal-add-module-form").validate({
-        ignore:[],
-        rules: {
-            moduleName:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3,
-                remote: {
-                    url: path + "/admin/modules/checkModule",
-                    type: "post",
-                    dataType:'json',
-                    data:{
-                        _token: function(element){return $('#_token').val();}
-                    }
-                }
-            },
-            modulePath:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3,
-                remote: {
-                    url: path + "/admin/modules/checkModulePath",
-                    type: "post",
-                    dataType:'json',
-                    data:{
-                        _token: function(element){return $('#_token').val();}
-                    }
-                }
-            },
-            moduleKeyName:   {
-                required: true,
-                minlength: 3
-            }
-        },
-        messages: {
-            moduleName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            modulePath: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            moduleKeyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
-        }
-    });
-
     $("#modal-add-category-form").validate({
         ignore:[],
         rules: {
-            "modal-category-name":{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3,
-                remote: {
-                    url: path + "/admin/program/checkCategory",
-                    type: "post",
-                    dataType:'json',
-                    data:{
-                        _token: function(element){return $('#_token').val();},
-                        moduleId: function(element){return $('#moduleId').val();}
+            "new-cat-name":{
+                required:true,
+                remote:{
+                    url: path+"/admin/features/checkCategory",
+                    type: 'post',
+                    data: {
+                        moduleId:function(){return $('#new-cat-module-id').val();},
+                        _token:function(){return $('#_token').val();}
                     }
                 }
             },
-            "modal-category-keyname":   {
-                required: true,
-                minlength: 3
-            }
+            "new-cat-keyname":"required"
         },
         messages: {
-            "modal-category-name": {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']},
-            "modal-category-keyname": {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
+            "new-cat-name": {required: vocab['Alert_field_required']},
+            "new-cat-keyname": vocab['Alert_field_required']
+
         }
     });
 
-    $("#modal-add-vocabulary-form").validate({
+    $("#modal-add-feature-form").validate({
         ignore:[],
         rules: {
-            'modal-cmb-module':   {
-                required: true
-            },
-            keyName:{
-                normalizer: function(value) {
-                    value = value.replace(/<.*?>/gi, "");
-                    return value.replace(/(^\s+|\s+$)/gm, "");
-                },
-                required: true,
-                minlength: 3,
-                remote: {
-                    url: path + "/admin/vocabulary/checkKeyName",
-                    type: "post",
-                    dataType:'json',
-                    data:{
-                        _token: function(element){return $('#_token').val();},
-                        moduleId: function(element){return $('#modal-cmb-module').val();}
+            "new-feature-name":{
+                required:true,
+                remote:{
+                    url: path+"/admin/features/checkField",
+                    type: 'post',
+                    data: {
+                        moduleId:function(){return $('#moduleId').val();},
+                        fieldName:'name',
+                        _token:function(){return $('#_token').val();}
                     }
-                },
-                noAccent:true
-            }
+                }
+            },
+            "new-feature-session": {
+                required:true,
+                remote:{
+                    url: path+"/admin/features/checkField",
+                    type: 'post',
+                    data: {
+                        moduleId:function(){return $('#moduleId').val();},
+                        fieldName:'session_name',
+                        _token:function(){return $('#_token').val();}
+                    }
+                }
+            },
+            "new-feature-lang-key":"required",
+            cmbFeatureType:"required",
+            "new-feature-value-input":{required: function(e){return $('#cmbFeatureType').val() == 'input';}}
         },
         messages: {
-            'modal-cmb-module': {required:vocab['Alert_field_required']},
-            keyName: {required:vocab['Alert_field_required'], minlength: vocab['Alert_minimum_three_characters']}
+            "new-feature-name": {required:vocab['Alert_field_required']},
+            "new-feature-session": {required:vocab['Alert_field_required']},
+            "new-feature-lang-key": vocab['Alert_field_required'],
+            cmbFeatureType: vocab['Alert_field_required'],
+            "new-feature-value-input": {required:vocab['Alert_field_required']}
+
         }
     });
-
-    $.validator.addMethod('noAccent', function(strValue) {
-        var re = new RegExp("^[a-zA-Z0-9_]+$","i");
-        return re.test(strValue);
-    }, vocab['key_no_accents_no_whitespace']);
 
     /* when the modal is hidden */
     $('#modal-program-create').on('hidden.bs.modal', function() { 
@@ -933,8 +670,10 @@ $(document).ready(function () {
         $("#modal-add-category-form").trigger('reset');
     });
 
-    $('#modal-add-vocabulary').on('hidden.bs.modal', function() { 
-        $("#modal-add-vocabulary-form").trigger('reset');
+    $('#modal-add-feature').on('hidden.bs.modal', function() {
+        $('#new-feature-default').iCheck('unCheck');
+        $('#new-feature-value-check').iCheck('unCheck'); 
+        $("#modal-add-feature-form").trigger('reset');
     });
 
     $('.lbltooltip').tooltip();

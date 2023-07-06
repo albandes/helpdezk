@@ -1,0 +1,130 @@
+<div class="modal fade" id="modal-add-feature" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>{='add_new_feature'|translate}</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modal-add-feature-form" method="post">
+                    <input type="hidden" id="moduleId" name="moduleId" value=""/>
+                    <div class="row">
+                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">&nbsp;</div>
+
+                        <div class="row col-sm-12 col-md-10 b-l">
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-module" class="hdk-label col-form-label text-end">{='Module_name'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" readonly class="form-control-plaintext" id="new-feature-module" name="new-feature-module" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="cmbFeatureCat" class="hdk-label col-form-label text-end">{='Category'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <select class="form-control form-control-sm" id="cmbFeatureCat" name="cmbFeatureCat" >
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-name" class="hdk-label col-form-label text-end">{='Name'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" id="new-feature-name" name="new-feature-name" class="form-control form-control-sm" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-description" class="hdk-label col-form-label text-end">{='Description'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" id="new-feature-description" name="new-feature-description" class="form-control form-control-sm" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-session" class="hdk-label col-form-label text-end">{='lbl_session_name'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" id="new-feature-session" name="new-feature-session" class="form-control form-control-sm" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-lang-key" class="hdk-label col-form-label text-end">{='key_name_translate'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='Alert_add_feature_title'|translate}">
+                                    <input type="text" id="new-feature-lang-key" name="new-feature-lang-key" class="form-control" placeholder="{='plh_key_name_translate'|translate}" value="" >
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="cmbFeatureType" class="hdk-label col-form-label text-end">{='Type'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <select class="form-control form-control-sm" id="cmbFeatureType" name="cmbFeatureType" >
+                                        <option hidden></option>
+                                        {foreach $cmbFeatureTypes as $k=>$v}
+                                            <option value="{$v['id']}">{$v['text']}</option>
+                                        {/foreach}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-value" class="hdk-label col-form-label text-end">{='lbl_value'|translate}</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="text" id="new-feature-value-input" name="new-feature-value-input" class="form-control form-control-sm d-none" value="" >
+                                    <div id="check-field-line" class="d-none"><input type="checkbox" id="new-feature-value-check" name="new-feature-value-check" value=""></div>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-sm-3 text-end">
+                                    <label for="new-feature-default" class="hdk-label col-form-label text-end">{='Default'|translate}?</label>
+                                </div>
+                                
+                                <div class="col-sm-5">
+                                    <input type="checkbox" id="new-feature-default" name="new-feature-default" value=""  > <label class="col-form-label">{='Yes'|translate}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-feature"></div>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddFeatureCancel" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+                <button type="button" id="btnAddFeatureSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

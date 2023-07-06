@@ -1,0 +1,66 @@
+<div class="modal fade" id="modal-add-category" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Add'|translate} {='Category'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-category-form">
+                    <input type="hidden" id="new-cat-module-id" name="new-cat-module-id" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-4 text-end">
+                                <label for="new-cat-module-name" class="hdk-label col-form-label text-end">{='Module'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-8">
+                                <input type="text" readonly class="form-control-plaintext" id="new-cat-module-name" name="new-cat-module-name" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-4 text-end">
+                                <label for="new-cat-name" class="hdk-label col-form-label text-end">{='New_category'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="new-cat-name" name="new-cat-name" value="" placeholder="{='plh_category_description'|translate}" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="row col-sm-12 text-center">
+                            <div class="col-sm-4 text-end">
+                                <label for="new-cat-keyname" class="hdk-label col-form-label text-end">{='key_name_translate'|translate}:</label>
+                            </div>
+                            
+                            <div class="col-sm-8 lbltooltip" data-toggle="tooltip" data-placement="bottom" title="{='tt_lbl_add_vocabulary_category'|translate}" >
+                                <input type="text" class="form-control" id="new-cat-keyname" name="new-cat-keyname" placeholder="{='plh_key_name_translate'|translate}" value="" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-category"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddCategoryClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+                <button type="button" id="btnAddCategorySave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
