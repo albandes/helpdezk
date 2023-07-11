@@ -21,7 +21,7 @@ $(document).ready(function() {
             password    = $('[name=password]').val(),
             token       = $('[name=token]').val()    ;
 
-        $.post("login/auth/", {
+        $.post(path + "/admin/login/auth/", {
             login : login,
             password : password,
             token: token

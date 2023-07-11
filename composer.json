@@ -14,7 +14,8 @@
         "phpmailer/phpmailer": "^6.6",
         "firebase/php-jwt": "^6.1",
         "mpdf/mpdf": "^8.1",
-        "picqer/php-barcode-generator": "^2.2"
+        "picqer/php-barcode-generator": "^2.2",
+        "google/apiclient": "^2.12.1"
     },
     "config": {
         "platform-check": false
