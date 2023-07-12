@@ -53,8 +53,8 @@ class googleServices
     /**
      * init
      * 
-     * en_us 
-     * pt_br
+     * en_us Initializes the authentication client
+     * pt_br Inicializa o cliente de autenticação
      *
      * @return void
      */
@@ -64,8 +64,10 @@ class googleServices
 
         $guzzleClient = new GuzzleClient(['curl' => [CURLOPT_SSL_VERIFYPEER => false]]);
 
+        $credentials = ['client_id' => $_ENV['GOOGLE_OAUTH_CLIENT_ID'],'client_secret' => $_ENV['GOOGLE_OAUTH_CLIENT_SECRET']];
+        
         $this->client->setHttpClient($guzzleClient);
-        $this->client->setAuthConfig("{$appSrc->_getHelpdezkPath()}/storage/credentials/google_oauth_credentials.json");
+        $this->client->setAuthConfig($credentials);
         $this->client->setRedirectUri("{$_ENV['HDK_URL']}/admin/login/auth/");
         $this->client->addScope('email');
         $this->client->addScope('profile');
@@ -74,8 +76,8 @@ class googleServices
     /**
      * authorized
      * 
-     * en_us
-     * pt_br
+     * en_us Get authorized account data
+     * pt_br Obtem os dados da conta autorizada
      *
      * @return void
      */
@@ -86,14 +88,12 @@ class googleServices
         $googleService = new ServiceOauth2($this->client);
         
         $this->data = $googleService->userinfo->get();
-        /* echo "{$this->data}";
-        return $this->data; */
-        //echo"<pre>",print_r($this->data,true),"</pre>";
         return true;
     }
     
     /**
-     * Get the value of data
+     * en_us Get the value of data
+     * pt_br Retorna os valores do objeto data
      *
      * @return Userinfo
      */
@@ -105,8 +105,8 @@ class googleServices
     /**
      * generateAuthLink
      * 
-     * en_us
-     * pt_br
+     * en_us Generates the link to the authentication button
+     * pt_br Gera o link para o botão de autenticação
      *
      * @return void
      */
