@@ -2247,7 +2247,7 @@ class ticketDAO extends Database
             $this->db->beginTransaction();
 
             $retTicketLog = $this->insertTicketLog($ticketModel);
-
+            
             if($retTicketLog['status']){
                 // -- save notes
                 foreach($aNotes as $k=>$v){
@@ -2269,7 +2269,7 @@ class ticketDAO extends Database
                         $noteID = ($lastKey == $key) ? $insNote['push']['object']->getIdNote(): 0;
                     }
                 }
-
+                
                 if(isset($noteID) && $noteID > 0){
                     $insRepass = $this->insertRepassTicket($ticketModel);
                 }
@@ -2278,19 +2278,21 @@ class ticketDAO extends Database
                 
                 // -- save in charge
                 foreach($aInCharge as $k=>$v){
-                    $ticketModel->setTicketCode($ticketModel->getTicketCode())
-                                ->setIdInCharge($v['id'])
-                                ->setInChargeType($v['type'])
-                                ->setIsInCharge($v['isInCharge'])
-                                ->setIsRepass($v['isRepassed'])
-                                ->setIsTrack($v['isTrack']);
-
-                    $insInCharge = $this->insertTicketInCharge($ticketModel);
+                    if(count($v) > 0) {
+                        $ticketModel->setTicketCode($ticketModel->getTicketCode())
+                                    ->setIdInCharge($v['id'])
+                                    ->setInChargeType($v['type'])
+                                    ->setIsInCharge($v['isInCharge'])
+                                    ->setIsRepass($v['isRepassed'])
+                                    ->setIsTrack($v['isTrack']);
+                                    
+                        $insInCharge = $this->insertTicketInCharge($ticketModel);
+                    }
                 }                
-
+                
                 // -- changes status to in attendance
                 $upStatus = $this->updateTicketStatus($ticketModel);
-
+                
                 // -- update ticket action date
                 $ticketModel->setTicketDateField("forwarded_date");                    
                 $updTicketDate = $this->updateTicketDate($ticketModel);
@@ -3681,6 +3683,47 @@ class ticketDAO extends Database
             $this->db->rollBack();
         }         
         
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * getUrlTokenByUserId
+     * 
+     * en_us Returns url's token by user's id
+     * pt_br Retorna o token da url pelo id do usuário
+     *
+     * @param  ticketModel $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getUrlTokenByUserId(ticketModel $ticketModel): array
+    {        
+        $sql = "SELECT idviewbyurl,idperson,code_request,token,lifecycle
+                  FROM hdk_tbviewbyurl
+                 WHERE idperson = :personId
+                   AND code_request = :ticketCode";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':personId', $ticketModel->getIdOperator());
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $ticketModel->setTicketToken((isset($aRet['token']) && !is_null($aRet['token']) && !empty($aRet['token'])) ? $aRet['token'] : "");
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting url token by user id. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
         return array("status"=>$ret,"push"=>$result);
     }
 

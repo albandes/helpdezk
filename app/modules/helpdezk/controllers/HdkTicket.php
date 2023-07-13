@@ -17,12 +17,12 @@ use App\modules\helpdezk\models\mysql\evaluationModel;
 use Mpdf\Mpdf;
 
 class hdkTicket extends Controller
-{           
+{
     /**
      * @var string
      */
     protected $saveMode;
-    
+
     /**
      * @var string
      */
@@ -1649,8 +1649,8 @@ class hdkTicket extends Controller
            
             // search auxiliary attendants
             $retAuxiliaryAttendant = $hdkSrc->_comboAuxiliaryAttendant($ticketCode,true);
-            if(!$retAuxiliaryAttendant){
-                $this->logger->error("Can't get ticket's auxiliary attendants", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            if(!$retAuxiliaryAttendant && !is_array($retAuxiliaryAttendant)){
+                $this->logger->error("Can't get ticket's auxiliary attendants. ticket # {$ticketCode}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             }
 
             $auxiliaryAttendants = ($retAuxiliaryAttendant && count($retAuxiliaryAttendant) > 0) ? array_column($retAuxiliaryAttendant,"id"): array();
@@ -2319,7 +2319,7 @@ class hdkTicket extends Controller
             "isRepassed" => 'Y',
             "isTrack"=>0);
         array_push($aInCharge,$newInCharge);
-
+        
         //Setting up the model
         $ticketModel->setTicketCode($ticketCode)
                     ->setIdCreator($_SESSION['SES_COD_USUARIO'])
@@ -2328,7 +2328,7 @@ class hdkTicket extends Controller
                     ->setIdUserLog($_SESSION['SES_COD_USUARIO'])
                     ->setLogDate($noteDateTime)
                     ->setInChargeList($aInCharge);
-        
+                    
         $ret = $ticketDAO->saveRepassTicket($ticketModel);
         if($ret['status']){
             $st = true;
@@ -2339,7 +2339,7 @@ class hdkTicket extends Controller
             $msg = $ret['push']['message'];
             $this->logger->error("Error trying repass ticket # {$ticketCode} - Message: {$msg}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
-
+        
         if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $st) {
             $aParam = array(
                 'transaction' => "forward-ticket",
@@ -2349,7 +2349,7 @@ class hdkTicket extends Controller
 
             $hdkSrc->_sendNotification($aParam);
         }
-
+        
         $aRet = array(
             "success" => $st,
             "message" => $msg,

@@ -661,6 +661,13 @@ class hdkServices
                         }
                     }
                 }
+
+                if ($this->_existsViewByUrlTable()) {
+                    $this->_setUrlToken($ticketCode);
+                } else {
+                    $this->hdklogger->info("[hdk] hdk_tbviewbyurl table does not exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                }
+
                 break;
 
             // Sends notification to user when the request receives a note, created by operator
@@ -957,17 +964,28 @@ class hdkServices
         $ticketDAO = new ticketDAO();
         $ticketModel = new ticketModel();
 
-        $token =  hash('sha512',rand(100,1000));
         $ticketModel->setIdOperator($idPerson)
-                    ->setTicketCode($ticketCode)
-                    ->setTicketToken($token);
+                    ->setTicketCode($ticketCode);
         
-        $ret = $ticketDAO->saveViewByUrl($ticketModel);
-        if(!$ret['status']){
-            $this->hdklogger->error("[hdk] Error generating token for request preview authentication, idperson {$idPerson}, ticket code {$ticketCode}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
-        }else{
-            $this->hdklogger->info("[hdk] Generated token for request preview authentication, idperson {$idPerson}, ticket code {$ticketCode}!",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+        //check if user has token to view ticket
+        $check = $ticketDAO->getUrlTokenByUserId($ticketModel);
+
+        if(!$check['status']){
+            $this->hdklogger->error("[hdk] Error checking if token exists by user id, idperson {$idPerson}, ticket code {$ticketCode}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__,'Error' => $check['push']['message']]);
         }
+
+        if(!$check['status'] || (empty($check['push']['object']->getTicketToken()))){
+            $token =  hash('sha512',rand(100,1000));
+            $ticketModel->setTicketToken($token);
+            
+            $ret = $ticketDAO->saveViewByUrl($ticketModel);
+            if(!$ret['status']){
+                $this->hdklogger->error("[hdk] Error generating token for request preview authentication, idperson {$idPerson}, ticket code {$ticketCode}",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            }else{
+                $this->hdklogger->info("[hdk] Generated token for request preview authentication, idperson {$idPerson}, ticket code {$ticketCode}!",['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+            }
+        }
+        
         return;
     }
     
@@ -1632,9 +1650,10 @@ class hdkServices
                     ->setInCond($inCond);
 
         $ret = $ticketDAO->fetchAuxiliaryAttendant($ticketModel);
+        $aRet = array();
         if($ret['status']){
             $auxiliaryAttendants = $ret['push']['object']->getAuxiliaryAttendantList();
-            $aRet = array();
+            
             foreach($auxiliaryAttendants as $k=>$v) {
                 $bus =  array(
                     "id" => $v['idperson'],
@@ -1643,6 +1662,7 @@ class hdkServices
                 array_push($aRet,$bus);
             }
         }else{
+            $this->hdklogger->error("Can't get ticket's auxiliary attendants. ticket # {$ticketCode}.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $ret['push']['message']]);
             return false;
         }
 
