@@ -96,7 +96,7 @@ class Login extends Controller
         if($this->googleAuth){//if authentication is by google          
             $error = filter_input(INPUT_GET,"error",FILTER_SANITIZE_STRING);// get error returned from google
             $code = filter_input(INPUT_GET,"code",FILTER_SANITIZE_STRING);// get code returned from google
-
+            echo "google auth {$code}";
             if($error){
                 // display error message
                 $this->loginErrorMessage($this->translator->translate('require_authorization_login'));
