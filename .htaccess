@@ -17,4 +17,4 @@ RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/api
 RewriteCond %{REQUEST_URI} !^/tracker
 RewriteCond %{REQUEST_URI} !^/index\.php$
-RewriteRule ^(.*)$ index.php?url=$1
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
