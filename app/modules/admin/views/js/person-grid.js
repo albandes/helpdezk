@@ -190,20 +190,21 @@ $(document).ready(function () {
     $("#btnModalSearch").click(function(){
         var filterIndx = $("#filter-list").val(),
             filterValue = $("#filter-value").val(),
-            filterOperation = $("#action-list").val();
+            filterOperation = $("#action-list").val(), 
+            flg = $("#viewInactive").is(':checked');
             
         $("#grid_persons").pqGrid( "option", "dataModel.postData", function(){
-            return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation};
+            return {filterIndx:filterIndx,filterValue:filterValue,filterOperation:filterOperation,allRecords:flg};
         } );
         
         $("#grid_persons").pqGrid("refreshDataAndView");
     });
 
     $("#btnSearch").click(function(){
-        var quickValue = $("#txtSearch").val();
+        var quickValue = $("#txtSearch").val(), flg = $("#viewInactive").is(':checked');
             
         $("#grid_persons").pqGrid( "option", "dataModel.postData", function(){
-            return {quickSearch:true,quickValue:quickValue};
+            return {quickSearch:true,quickValue:quickValue,allRecords:flg};
         });
         
         $("#grid_persons").pqGrid("refreshDataAndView");
@@ -386,9 +387,12 @@ $(document).ready(function () {
     });
 
     $('#viewInactive').on('click', function() {
-        var flg = $(this).is(':checked');
+        var quickValue = $("#txtSearch").val(),
+            quickSearch = quickValue == '' ? false :true, 
+            flg = $(this).is(':checked');
+
         $("#grid_persons").pqGrid( "option", "dataModel.postData", function(){
-            return {allRecords:flg};
+            return {quickSearch:quickSearch,quickValue:quickValue,allRecords:flg};
         });
         
         $("#grid_persons").pqGrid("refreshDataAndView");     
