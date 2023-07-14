@@ -11,13 +11,30 @@ use App\modules\admin\models\mysql\popConfigModel;
 use App\modules\admin\models\mysql\featureModel;
 
 use App\modules\admin\src\loginServices;
+use App\src\googleServices;
 
 
 class Login extends Controller
 {
+    /**
+     * @var bool
+     */
+    protected $googleAuth;
+
+    /**
+     * @var object
+     */
+    protected $googleSrc;
+
     public function __construct()
     {
         parent::__construct();
+        
+        $this->googleAuth = $this->isGoogleAuthentication();//set if authentication is by google
+        if($this->googleAuth){
+            $this->googleSrc = new googleServices();
+            $this->googleSrc->init();
+        }
         
     }
 
@@ -33,7 +50,7 @@ class Login extends Controller
         session_destroy();
         
         $params = $this->makeScreenLogin();
-
+        
         $ip = $this->appSrc->_getUserIpAddress();
         $this->logger->info("User IP: {$ip}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         
@@ -48,12 +65,16 @@ class Login extends Controller
     public function makeScreenLogin()
     {
         $loginSrc = new loginServices();
+
         $aLogo = $loginSrc->_getLoginLogoData();
+        
         $params = $this->appSrc->_getDefaultParams();
         $params['warning'] = "";
         $params['loginLogoUrl'] = $aLogo['image'];
         $params['loginheight'] = $aLogo['height'];
         $params['loginwidth'] = $aLogo['width'];
+        $params['googleAuth'] = $this->googleAuth;
+        $params['googleAuthUrl'] = ($this->googleAuth) ? $this->googleSrc->generateAuthLink() : "";
 
         return $params;
     }
@@ -66,60 +87,91 @@ class Login extends Controller
     public function auth()
     {
         $loginDAO = new loginDAO();
+        $loginModel = new loginModel();
         $personDAO = new personDAO();
         $featDAO = new featureDAO();
         $loginSrc = new loginServices();
-
-        $loginModel = new loginModel();
-        $loginModel->setLogin($_POST['login'])
-                   ->setFrmPassword($_POST['password'])
-                   ->setPasswordEncrypted(md5($_POST['password']));
-        if(isset($_POST['token'])) 
-            $loginModel->setFrmToken($_POST['token']);
-
-        $loginType = $loginDAO->getLoginType($loginModel);
         
-        if(!$loginType['status'] || $loginType['push']['object']->getLoginType() == 0){
-            // Return with error message
-            $success = array(
-                "success" => 0,
-                "msg" => html_entity_decode($this->translator->translate('Login_user_not_exist'),ENT_COMPAT, 'UTF-8')
-            );
-            echo json_encode($success);
-            return;
-		}
-        
-        $loginTypeObj = $loginType['push']['object'];
-        switch ($loginTypeObj->getLoginType()) {
-            case '3': // HelpDEZk
-                
-                $isLogin = $this->helpdezkAuth($loginTypeObj); 
-                $loginUser = $loginDAO->getUser($loginTypeObj);
 
-                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdPerson() : '';
-                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdTypePerson() : '';
-                break;
+        if($this->googleAuth){//if authentication is by google          
+            $error = filter_input(INPUT_GET,"error",FILTER_SANITIZE_STRING);// get error returned from google
+            $code = filter_input(INPUT_GET,"code",FILTER_SANITIZE_STRING);// get code returned from google
             
-            case '1': // Pop/Imap Server
-                if (!function_exists('imap_open')) {
-                    $isLogin = false ;
-                    $msg = "IMAP functions are not available!!!";
-                    $success = array(
-                        "success" => 0,
-                        "msg" => html_entity_decode($msg,ENT_COMPAT, 'UTF-8')
-                    );
-                    echo json_encode($success);
-                    return;
-                    break;
-                }
-                
-                $isLogin = $this->imapAuth($loginTypeObj);
-                $loginUser = $loginDAO->getUserByLogin($loginTypeObj);
+            if($error){
+                // display error message
+                $this->loginErrorMessage($this->translator->translate('require_authorization_login'));
+                return;
+            }
 
-                $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdPerson() : '';
-                $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdTypePerson() : '';
-                break;
-        }
+            if($code){
+                $retAuth = $this->googleSrc->authorized($code);
+                $userData = $this->googleSrc->getData();
+                $loginModel->setUserEmail($userData->email);
+
+                //check if user exists in db
+                $checkUser = $loginDAO->getUserByEmail($loginModel);
+                if(!$checkUser['status'] || $checkUser['push']['object']->getIdPerson() == 0){
+                    // display error message
+                    $this->loginErrorMessage($this->translator->translate('user_not_exist_msg'));
+                }else{
+                    $loginTypeObj = $checkUser['push']['object'];
+                    $loginTypeObj->setLoginType(1);
+                    $isLogin = true; 
+                    $idperson = ($checkUser['status']) ? $checkUser['push']['object']->getIdPerson() : '';
+                    $idtypeperson = ($checkUser['status']) ? $checkUser['push']['object']->getIdTypePerson() : '';
+                }
+            }
+        }else{
+            $loginModel->setLogin($_POST['login'])
+                        ->setFrmPassword($_POST['password'])
+                        ->setPasswordEncrypted(md5($_POST['password']));
+            if(isset($_POST['token'])) 
+                $loginModel->setFrmToken($_POST['token']);
+
+            $loginType = $loginDAO->getLoginType($loginModel);
+            
+            if(!$loginType['status'] || $loginType['push']['object']->getLoginType() == 0){
+                // Return with error message
+                $success = array(
+                    "success" => 0,
+                    "msg" => html_entity_decode($this->translator->translate('Login_user_not_exist'),ENT_COMPAT, 'UTF-8')
+                );
+                echo json_encode($success);
+                return;
+            }
+            
+            $loginTypeObj = $loginType['push']['object'];
+            switch ($loginTypeObj->getLoginType()) {
+                case '3': // HelpDEZk
+                    
+                    $isLogin = $this->helpdezkAuth($loginTypeObj); 
+                    $loginUser = $loginDAO->getUser($loginTypeObj);
+
+                    $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdPerson() : '';
+                    $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdTypePerson() : '';
+                    break;
+                
+                case '1': // Pop/Imap Server
+                    if (!function_exists('imap_open')) {
+                        $isLogin = false ;
+                        $msg = "IMAP functions are not available!!!";
+                        $success = array(
+                            "success" => 0,
+                            "msg" => html_entity_decode($msg,ENT_COMPAT, 'UTF-8')
+                        );
+                        echo json_encode($success);
+                        return;
+                        break;
+                    }
+                    
+                    $isLogin = $this->imapAuth($loginTypeObj);
+                    $loginUser = $loginDAO->getUserByLogin($loginTypeObj);
+
+                    $idperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdPerson() : '';
+                    $idtypeperson = ($loginUser['status']) ? $loginUser['push']['object']->getIdTypePerson() : '';
+                    break;
+            }
+        }        
         
         if ($isLogin) {
             // inserts login details in DB
@@ -130,39 +182,57 @@ class Login extends Controller
             }else{
                 $this->logger->info("Login detail saved successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => ""]);
             }
-
+            
             switch  ($idtypeperson) {
                 case "1": // admin
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
-                    $success = array(
-                        "success" => 1,
-                        "redirect" => $this->appSrc->_getPath() .  "/admin/home"
-                    );
-                    echo json_encode($success);
-                    return;
+
+                    if($this->googleAuth){
+                        header("Location: {$this->appSrc->_getPath()}/admin/home");
+                        die();
+                    }else{
+                        $success = array(
+                            "success" => 1,
+                            "redirect" => $this->appSrc->_getPath() .  "/admin/home"
+                        );
+                        echo json_encode($success);
+                        return;
+                    }
+                    
                     break;
 
                 case "2": // user
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
-                        $maintenance = array(
-                            "success" => 0,
-                            "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
-                        );		
-                        echo json_encode($maintenance);
-                        return;
+                        if($this->googleAuth){
+                            // display error message
+                            $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
+                            die();
+                        }else{
+                            $maintenance = array(
+                                "success" => 0,
+                                "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
+                            );		
+                            echo json_encode($maintenance);
+                            return;
+                        }
                     }else{
-                        $redirect = $this->appSrc->_getPath() .  "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
+                        if($this->googleAuth){
+                            header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
+                            die();
+                        }else{
+                            $redirect = $this->appSrc->_getPath() .  "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
                         
-                        $success = array(
-                            "success" => 1,
-                            "redirect" => $redirect
-                        );
-                        echo json_encode($success);
+                            $success = array(
+                                "success" => 1,
+                                "redirect" => $redirect
+                            );
+                            echo json_encode($success);
 
-                        return;
+                            return;
+                        }
                     }
                     break;
 
@@ -170,20 +240,34 @@ class Login extends Controller
                     $loginSrc->_startSession($idperson);  
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
-						$maintenance = array(
-										"success" => 0,
-										"msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
-									);
-						echo json_encode($maintenance);
-					}else{
-						$success = array(
-										"success" => 1,
-										"redirect" => $this->appSrc->_getPath() . "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index"
-									);
+                        if($this->googleAuth){
+                            // display error message
+                            $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
+                            die();
+                        }else{
+                            $maintenance = array(
+                                "success" => 0,
+                                "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
+                            );		
+                            echo json_encode($maintenance);
+                            return;
+                        }
+                    }else{
+                        if($this->googleAuth){
+                            header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
+                            die();
+                        }else{
+                            $redirect = $this->appSrc->_getPath() .  "/" . $_SESSION['SES_ADM_MODULE_DEFAULT'] . "/home/index" ;
+                        
+                            $success = array(
+                                "success" => 1,
+                                "redirect" => $redirect
+                            );
+                            echo json_encode($success);
 
-						echo json_encode($success);
-						return;
-					}
+                            return;
+                        }
+                    }
                     break;
 
                 default: // others types
@@ -208,30 +292,44 @@ class Login extends Controller
                     if ($retPathModule['status']) {
                         $pathModule = $retPathModule['push']['object'];
                         $modPath = $pathModule->getPath();
-
                         if($_SESSION['SES_MAINTENANCE'] == 1){
-                            $maintenance = array(
-                                "success" => 0,
-                                "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
-                            );
-                            echo json_encode($maintenance);
+                            if($this->googleAuth){
+                                // display error message
+                                $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
+                                die();
+                            }else{
+                                $maintenance = array(
+                                    "success" => 0,
+                                    "msg" =>html_entity_decode($_SESSION['SES_MAINTENANCE_MSG'],ENT_COMPAT, 'UTF-8')
+                                );
+                                echo json_encode($maintenance);
+                            }
                         }else{
-                            $success = array(
-                                "success" => 1,
-                                "redirect" => $this->appSrc->_getPath() . "/{$modPath}/home/index"
+                            if($this->googleAuth){
+                                header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
+                                die();
+                            }else{
+                                $success = array(
+                                    "success" => 1,
+                                    "redirect" => $this->appSrc->_getPath() . "/{$modPath}/home/index"
+                                );
+                                echo json_encode($success);
+                                return;
+                            }
+                        }
+                    } else {
+                        if($this->googleAuth){
+                            // display error message
+                            $this->loginErrorMessage($this->translator->translate('User type has no linked module'));
+                            die();
+                        }else{
+                            $error = array(
+                                "success" => 0,
+                                "msg" =>html_entity_decode('User type has no linked module',ENT_COMPAT, 'UTF-8')
                             );
-                            echo json_encode($success);
+                            echo json_encode($error);
                             return;
                         }
-
-                    } else {
-                        $error = array(
-                            "success" => 0,
-                            "msg" =>html_entity_decode('User type has no linked module',ENT_COMPAT, 'UTF-8')
-                        );
-                        echo json_encode($error);
-                        return;
-
                     }
 					return;
                     break;
@@ -345,6 +443,50 @@ class Login extends Controller
             return false;
         }
 
+    }
+    
+    /**
+     * isGoogleAuthentication
+     * 
+     * en_us Checks if authentication is by Google API
+     * pt_br Verifica se a autenticação é por API do Google
+     *
+     * @return void
+     */
+    public function isGoogleAuthentication(){
+        $featureDAO = new featureDAO();
+        $featureDTO = new featureModel();
+        
+        //gets authentication method
+        $featureDTO->setSettingCatId(5);
+        $ret = $featureDAO->fetchConfigsByCategory($featureDTO);
+        if(!$ret['status']){
+            $this->logger->error("Can't get features data.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+            return false;
+        }else{
+            $this->logger->info("Features data got successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $aFeat = $ret['push']['object']->getSettingsList();
+            return (isset($aFeat['SES_AUTH_METHOD']) && $aFeat['SES_AUTH_METHOD'] == 'google') ? true : false;
+        }
+
+       
+    }
+    
+    /**
+     * loginErrorMessage
+     * 
+     * en_us Displays error screen
+     * pt_br Exibe a tela de erro
+     *
+     * @param  mixed $msgType
+     * @return void
+     */
+    public function loginErrorMessage($msgType)
+    {
+		$params = $this->makeScreenLogin();
+        $params['loginErrorMsg'] = $msgType;
+        
+        $this->view('admin','login-error-msg',$params);
     }
 
 }

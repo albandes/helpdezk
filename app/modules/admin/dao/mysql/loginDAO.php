@@ -473,4 +473,33 @@ class loginDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+
+    public function getUserByEmail(loginModel $loginModel): array
+    {
+        
+        $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson WHERE email = :email";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':email', $loginModel->getUserEmail());
+            $stmt->execute();
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $loginModel->setIdPerson($aRet['idperson'])
+                       ->setName($aRet['name'])
+                       ->setLogin($aRet['login'])
+                       ->setIdTypePerson($aRet['idtypeperson']);
+              
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

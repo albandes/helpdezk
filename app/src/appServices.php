@@ -1165,7 +1165,7 @@ class appServices
                 if($params['tokenOperatorLink']) {
                     $linkOperatorToken = $this->_makeLinkOperatorToken($sendEmailTo, $params['code_request']);
                     if(!$linkOperatorToken){
-                        $this->appEmailLogger->error("Error make link operator with token, ticket #{$params['code_request']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        $this->appEmailLogger->error("Error make link operator with token, recipient: {$sendEmailTo}, ticket #{$params['code_request']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     } else {
                         $newContent = $this->_replaceBetweenTags($params['contents'], $linkOperatorToken, 'pipegrep');
                         $body = $mailHeader . $newContent . $mailFooter;

@@ -40,6 +40,9 @@
                     <div id="response"></div>
 
                     <form class="m-t" role="form" id="frm-login" action="javascript:;" >
+                        {if $googleAuth}
+                        <button  type="button" class="btn btn-primary block full-width m-b" onclick="location.href={$googleAuthUrl}"><i class="fab fa-google"></i>&nbsp;&nbsp;&nbsp;Login</button>
+                        {else}
                         <div class="mb-3 form-group">
                             <input name="login" type="text" class="form-control" placeholder="{='Login'|translate}" required="">
                         </div>
@@ -54,6 +57,7 @@
                                 <small>{='Lost_password'|translate}?</small>
                             </a>
                         </p>
+                        {/if}
 
                         <!-- -->
                         {if $demoversion == 1}

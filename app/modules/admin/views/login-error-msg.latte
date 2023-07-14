@@ -1,0 +1,35 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+<body class="gray-bg">
+    
+    <div class="middle-box text-center animated fadeInDown">
+        <i class="fas fa-exclamation-triangle fa-5x text-danger"></i>
+
+        <div class="error-desc">
+            {$loginErrorMsg}
+            <br><br>
+            <!--<div class="row col-sm-12 text-end">
+                <div class="col-sm-4">&nbsp;</div>
+                <div class="col-sm-4">
+                    <a id="btn404Back" class="btn btn-primary" >
+                        <span class="fa fa-arrow-alt-circle-left"></span> &nbsp;
+                        {='Back_btn'|translate}
+                    </a>
+                </div>
+                <div class="col-sm-4">&nbsp;</div>
+            </div>-->           
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function(){
+            location.href = path + "/admin/login";
+        },3000);
+    });
+</script>
+
+{/block}

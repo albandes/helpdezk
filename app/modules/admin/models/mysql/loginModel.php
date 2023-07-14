@@ -95,6 +95,11 @@ final class loginModel
     private $loginDetailId;
 
     /**
+     * @var string
+     */
+    private $userEmail;
+
+    /**
      * Get the value of idPerson
      *
      * @return  int
@@ -512,6 +517,30 @@ final class loginModel
     public function setLoginDetailId(int $loginDetailId)
     {
         $this->loginDetailId = $loginDetailId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userEmail
+     *
+     * @return  string
+     */ 
+    public function getUserEmail()
+    {
+        return $this->userEmail;
+    }
+
+    /**
+     * Set the value of userEmail
+     *
+     * @param  string  $userEmail
+     *
+     * @return  self
+     */ 
+    public function setUserEmail(string $userEmail)
+    {
+        $this->userEmail = $userEmail;
 
         return $this;
     }
