@@ -40,9 +40,7 @@
                     <div id="response"></div>
 
                     <form class="m-t" role="form" id="frm-login" action="javascript:;" >
-                        {if $googleAuth}
-                        <button  type="button" class="btn btn-primary block full-width m-b" onclick="location.href={$googleAuthUrl}"><i class="fab fa-google"></i>&nbsp;&nbsp;&nbsp;Login</button>
-                        {else}
+                        
                         <div class="mb-3 form-group">
                             <input name="login" type="text" class="form-control" placeholder="{='Login'|translate}" required="">
                         </div>
@@ -52,12 +50,16 @@
                         
                         <button  type="submit" class="btn btn-primary block full-width m-b">Login</button>
 
+                        {if $googleAuth}
+                        <p class="text-center">{='or_lbl'|translate}</p>
+                        <button  type="button" class="btn btn-primary block full-width m-b" onclick="location.href={$googleAuthUrl}"><i class="fab fa-google"></i>&nbsp;&nbsp;&nbsp;{='login_with_google'|translate}</button>
+                        {/if}
+
                         <p class="text-muted text-end">
                             <a href="#modal-form-lost-password" data-toggle="modal"   id="lost_password">
                                 <small>{='Lost_password'|translate}?</small>
                             </a>
                         </p>
-                        {/if}
 
                         <!-- -->
                         {if $demoversion == 1}
@@ -109,6 +111,9 @@
 
         </div>
     </div>
+     <script type="text/javascript">
+        var googleAuth = {$googleAuth};
+    </script>
     <script src="{$path}/app/modules/admin/views/js/login.js"></script>
 </body>
 {/block}

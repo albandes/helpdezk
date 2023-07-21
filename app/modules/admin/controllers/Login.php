@@ -26,6 +26,11 @@ class Login extends Controller
      */
     protected $googleSrc;
 
+    /**
+     * @var string
+     */
+    protected $googleAuthLink;
+
     public function __construct()
     {
         parent::__construct();
@@ -34,6 +39,7 @@ class Login extends Controller
         if($this->googleAuth){
             $this->googleSrc = new googleServices();
             $this->googleSrc->init();
+            $this->googleAuthLink = $this->googleSrc->generateAuthLink();
         }
         
     }
@@ -74,7 +80,7 @@ class Login extends Controller
         $params['loginheight'] = $aLogo['height'];
         $params['loginwidth'] = $aLogo['width'];
         $params['googleAuth'] = $this->googleAuth;
-        $params['googleAuthUrl'] = ($this->googleAuth) ? $this->googleSrc->generateAuthLink() : "";
+        $params['googleAuthUrl'] = ($this->googleAuth) ? $this->googleAuthLink : "";
 
         return $params;
     }
@@ -93,7 +99,7 @@ class Login extends Controller
         $loginSrc = new loginServices();
         
 
-        if($this->googleAuth){//if authentication is by google          
+        if($this->googleAuth && $_POST['login'] != 'admin'){//if authentication is by google          
             $error = filter_input(INPUT_GET,"error",FILTER_SANITIZE_STRING);// get error returned from google
             $code = filter_input(INPUT_GET,"code",FILTER_SANITIZE_STRING);// get code returned from google
             
@@ -188,7 +194,7 @@ class Login extends Controller
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
 
-                    if($this->googleAuth){
+                    if($this->googleAuth && $_POST['login'] != 'admin'){
                         header("Location: {$this->appSrc->_getPath()}/admin/home");
                         die();
                     }else{
@@ -206,7 +212,7 @@ class Login extends Controller
                     $loginSrc->_startSession($idperson);
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
-                        if($this->googleAuth){
+                        if($this->googleAuth && $_POST['login'] != 'admin'){
                             // display error message
                             $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
                             die();
@@ -219,7 +225,7 @@ class Login extends Controller
                             return;
                         }
                     }else{
-                        if($this->googleAuth){
+                        if($this->googleAuth && $_POST['login'] != 'admin'){
                             header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
                             die();
                         }else{
@@ -240,7 +246,7 @@ class Login extends Controller
                     $loginSrc->_startSession($idperson);  
                     $loginSrc->_getConfigSession();
                     if($_SESSION['SES_MAINTENANCE'] == 1){
-                        if($this->googleAuth){
+                        if($this->googleAuth && $_POST['login'] != 'admin'){
                             // display error message
                             $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
                             die();
@@ -253,7 +259,7 @@ class Login extends Controller
                             return;
                         }
                     }else{
-                        if($this->googleAuth){
+                        if($this->googleAuth && $_POST['login'] != 'admin'){
                             header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
                             die();
                         }else{
@@ -293,7 +299,7 @@ class Login extends Controller
                         $pathModule = $retPathModule['push']['object'];
                         $modPath = $pathModule->getPath();
                         if($_SESSION['SES_MAINTENANCE'] == 1){
-                            if($this->googleAuth){
+                            if($this->googleAuth && $_POST['login'] != 'admin'){
                                 // display error message
                                 $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
                                 die();
@@ -305,7 +311,7 @@ class Login extends Controller
                                 echo json_encode($maintenance);
                             }
                         }else{
-                            if($this->googleAuth){
+                            if($this->googleAuth && $_POST['login'] != 'admin'){
                                 header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
                                 die();
                             }else{
@@ -318,7 +324,7 @@ class Login extends Controller
                             }
                         }
                     } else {
-                        if($this->googleAuth){
+                        if($this->googleAuth && $_POST['login'] != 'admin'){
                             // display error message
                             $this->loginErrorMessage($this->translator->translate('User type has no linked module'));
                             die();
@@ -487,6 +493,35 @@ class Login extends Controller
         $params['loginErrorMsg'] = $msgType;
         
         $this->view('admin','login-error-msg',$params);
+    }
+    
+    /**
+     * check
+     * 
+     * en_us Checks if login is admin when authentication with Google is enabled
+     * pt_br Verifica se o login é admin quando a autenticação com o Google está ativada
+     *
+     * @return void
+     */
+    public function check()
+    {
+        if($_POST['login'] == 'admin'){
+            $st = 1;
+            $msg = "";
+            $redirect = 'auth';
+        }else{
+            $st = 0;
+            $msg = $this->translator->translate('click_login_google');
+            $redirect = "";
+        }
+
+        $success = array(
+            "success" => $st,
+            "msg" => $msg,
+            "redirect" => $redirect
+        );
+        echo json_encode($success);
+        return;
     }
 
 }

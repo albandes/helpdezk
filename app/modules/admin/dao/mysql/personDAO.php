@@ -146,11 +146,11 @@ class personDAO extends Database
                         ctry.printablename AS country, ctry.idcountry, stt.name AS state, stt.abbr AS state_abbr, stt.idstate,
                         nbh.name AS neighborhood, nbh.idneighborhood, ct.name AS city, ct.idcity, tpstr.name AS typestreet,
                         tpstr.idtypestreet, st.name AS street, addr.number, addr.complement, addr.zipcode,
-                        pipeMask (addr.zipcode, '#####-###') AS zipcode_fmt, nat.ssn_cpf, pipeMask(nat.ssn_cpf,'###.###.###-##') AS cpf_fmt,
-                        pipeMask(nat.ssn_cpf,'###-##-####') AS ssn_fmt, IFNULL(nat.rg,'') rg, IFNULL(nat.rgoexp,'') rgoexp, nat.dtbirth, IFNULL(nat.mother,'') mother,
+                        /*pipeMask (addr.zipcode, '#####-###') AS zipcode_fmt,*/ nat.ssn_cpf, /*pipeMask(nat.ssn_cpf,'###.###.###-##') AS cpf_fmt,*/
+                        /*pipeMask(nat.ssn_cpf,'###-##-####') AS ssn_fmt,*/ IFNULL(nat.rg,'') rg, IFNULL(nat.rgoexp,'') rgoexp, nat.dtbirth, IFNULL(nat.mother,'') mother,
                         IFNULL(nat.father,'') father, nat.gender, a.iddepartment, b.name AS department,
                         (SELECT `name` FROM tbperson WHERE idperson = b.idperson ) AS company,
-                        b.idperson idcompany, tbp.idtypelogin, DATE_FORMAT(nat.dtbirth,'%d/%m/%Y') AS dtbirth_fmt,
+                        b.idperson idcompany, tbp.idtypelogin, DATE_FORMAT(IFNULL(nat.dtbirth,'0000-00-00'),'%d/%m/%Y') AS dtbirth_fmt,
                         addr.idstreet
                   FROM tbperson tbp, tbtypeperson tbtp, tbaddress addr, tbcity ct, tbcountry ctry, tbstate stt,
                         tbstreet st, tbneighborhood nbh, tbtypeaddress tpad, tbtypestreet tpstr, tbnaturalperson nat,
@@ -1643,7 +1643,7 @@ class personDAO extends Database
                     $updNatural = $this->updateNaturalData($upd['push']['object']);
                     if($updNatural['status'])
                         $this->loggerDB->info('Natural person data was updated', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-
+                    
                     // bind person with the department
                     if($upd['push']['object']->getIdDepartment() > 0){
                         $updInDepartment = $this->updateInDepartment($upd['push']['object']);
