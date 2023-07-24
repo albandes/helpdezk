@@ -49,7 +49,7 @@ final class priorityModel
      */
     private $status;
     
-     /**
+    /**
      * @var array
      */
     private $gridList; 
@@ -58,6 +58,16 @@ final class priorityModel
     * @var int
     */
     private $totalRows;
+
+     /**
+     * @var int
+     */
+    private $defaultId;
+
+    /**
+     * @var array
+     */
+    private $linkList;
 
     /**
      * Get the value of idPriority
@@ -319,6 +329,54 @@ final class priorityModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of defaultId
+     *
+     * @return  int
+     */ 
+    public function getDefaultId()
+    {
+        return $this->defaultId;
+    }
+
+    /**
+     * Set the value of defaultId
+     *
+     * @param  int  $defaultId
+     *
+     * @return  self
+     */ 
+    public function setDefaultId(int $defaultId)
+    {
+        $this->defaultId = $defaultId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of linkList
+     *
+     * @return  array
+     */ 
+    public function getLinkList()
+    {
+        return $this->linkList;
+    }
+
+    /**
+     * Set the value of linkList
+     *
+     * @param  array  $linkList
+     *
+     * @return  self
+     */ 
+    public function setLinkList(array $linkList)
+    {
+        $this->linkList = $linkList;
 
         return $this;
     }
