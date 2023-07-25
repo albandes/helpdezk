@@ -13,6 +13,7 @@ use App\modules\helpdezk\dao\mysql\groupDAO;
 use App\modules\helpdezk\dao\mysql\hdkEmailFeatureDAO;
 use App\modules\helpdezk\dao\mysql\priorityDAO;
 use App\modules\helpdezk\dao\mysql\attendanceTypeDAO;
+use App\modules\helpdezk\dao\mysql\hdkStatusDAO;
 
 use App\modules\admin\models\mysql\moduleModel;
 use App\modules\admin\models\mysql\featureModel;
@@ -25,6 +26,7 @@ use App\modules\helpdezk\models\mysql\groupModel;
 use App\modules\helpdezk\models\mysql\hdkEmailFeatureModel;
 use App\modules\helpdezk\models\mysql\priorityModel;
 use App\modules\helpdezk\models\mysql\attendanceTypeModel;
+use App\modules\helpdezk\models\mysql\hdkStatusModel;
 
 use App\src\appServices;
 use App\src\localeServices;
@@ -2171,6 +2173,39 @@ class hdkServices
         }
 
         return $select;
+    }
+    
+    /**
+     * _comboStatusSource
+     * 
+     * en_us Returns an array with status source data for dropdown list
+     * pt_br Retorna um array com dados de grupo de status para lista suspensa
+     *
+     * @return array
+     */
+    public function _comboStatusSource(): array
+    {
+        $hdkStatusDAO = new hdkStatusDAO();
+        $aRet = array();
+        
+        $ret = $hdkStatusDAO->queryHdkStatus("WHERE idstatus = idstatus_source",null, "ORDER BY `name`");        
+        if($ret['status']){
+            $this->hdklogger->info("Status data got successfully.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            
+            $aStatus = $ret['push']['object']->getGridList();
+            
+            foreach($aStatus as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idstatus'],
+                    "text" => "{$v['name']}"
+                );
+                array_push($aRet,$bus);
+            }
+        }else{
+            $this->hdklogger->error("Can't get status data.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $ret['push']['message']]);
+        }
+
+        return $aRet;
     }
 
 }
