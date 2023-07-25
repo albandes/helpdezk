@@ -280,7 +280,7 @@ class hdkPriority extends Controller
                     ->setDefault((isset($_POST['priorityDefault'])) ? 1 : 0)
                     ->setVip((isset($_POST['priorityVip'])) ? 1 : 0)
                     ->setLimitDays(trim(strip_tags($_POST['limitDays'])))
-                    ->setLimitHours(trim(strip_tags($_POST['limitDays'])));
+                    ->setLimitHours(trim(strip_tags($_POST['limitHours'])));
 
         $ins = $priorityDAO->savePriority($priorityDTO);
         if($ins['status']){
