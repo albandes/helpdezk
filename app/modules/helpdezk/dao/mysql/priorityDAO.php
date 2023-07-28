@@ -369,15 +369,15 @@ class priorityDAO extends Database
         $sql = "SELECT idpriority FROM hdk_tbpriority WHERE idpriority != :priorityId ORDER BY `order` LIMIT 1";
     
         $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(":priorityId",$priorityModel->getIdPriority());
-            $stmt->execute();
+        $stmt->bindValue(":priorityId",$priorityModel->getIdPriority());
+        $stmt->execute();
 
-            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-            
-            $priorityModel->setDefaultId((!is_null($aRet['idpriority']) && !empty($aRet['idpriority'])) ? $aRet['idpriority'] : 0);
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        $priorityModel->setDefaultId((!is_null($aRet['idpriority']) && !empty($aRet['idpriority'])) ? $aRet['idpriority'] : 0);
 
-            $ret = true;
-            $result = array("message"=>"","object"=>$priorityModel);
+        $ret = true;
+        $result = array("message"=>"","object"=>$priorityModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -409,6 +409,58 @@ class priorityDAO extends Database
     }
     
     /**
+     * checkExhibitionOrder
+     * 
+     * en_us Checks if the display order already exists
+     * pt_br Verifica se a ordem de exibição já existe
+     *
+     * @param  mixed $priorityModel
+     * @return array
+     */
+    public function checkExhibitionOrder(priorityModel $priorityModel): array
+    {        
+        $sql = "SELECT idpriority FROM hdk_tbpriority WHERE `order` = :order AND idpriority != :priorityId";
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":order",$priorityModel->getOrder());
+        $stmt->bindValue(":priorityId",$priorityModel->getIdPriority());
+        $stmt->execute();
+
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        $priorityModel->setPriorityIdTmp((!is_null($aRet['idpriority']) && !empty($aRet['idpriority'])) ? $aRet['idpriority'] : 0);
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$priorityModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * changeTmpOrder
+     * 
+     * en_us Updates display order's number
+     * pt_br Verifica se a ordem de exibição já existe
+     *
+     * @param  mixed $priorityModel
+     * @return array
+     */
+    public function changeTmpOrder(priorityModel $priorityModel): array
+    {        
+        $sql = "UPDATE hdk_tbpriority SET `order` = :orderTmp WHERE idpriority = :priorityIdTmp";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":orderTmp",$priorityModel->getOrderTmp());
+        $stmt->bindValue(":priorityIdTmp",$priorityModel->getPriorityIdTmp());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$priorityModel);      
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
      * saveUpdatePriority
      * 
      * en_us Updates priority data into DB
@@ -427,6 +479,12 @@ class priorityDAO extends Database
 
             if($priorityModel->getDefault() == 1){
                 $this->removeDefault($priorityModel);
+            }
+
+            //checks if the display number already exists
+            $check = $this->checkExhibitionOrder($priorityModel);
+            if($check['status'] && $check['push']['object']->getPriorityIdTmp() > 0){
+                $this->changeTmpOrder($check['push']['object']);
             }
 
             $upd = $this->updatePriority($priorityModel);

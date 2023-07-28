@@ -109,6 +109,7 @@ class hdkPriority extends Controller
             $params['priorityVip'] = $obj->getVip();
             $params['limitDays'] = $obj->getLimitDays();
             $params['limitHours'] = $obj->getLimitHours();
+            $params['curOrder'] = $obj->getOrder();
             
         }
         //echo "<br><pre>",print_r($params,true),"</pre>";
@@ -361,7 +362,8 @@ class hdkPriority extends Controller
                     ->setVip((isset($_POST['priorityVip'])) ? 1 : 0)
                     ->setLimitDays(trim(strip_tags($_POST['limitDays'])))
                     ->setLimitHours(trim(strip_tags($_POST['limitHours'])))
-                    ->setDefaultId(trim(strip_tags($_POST['defaultId'])));             
+                    ->setDefaultId(trim(strip_tags($_POST['defaultId'])))
+                    ->setOrderTmp($_POST['curOrder']);             
                
         $upd = $priorityDAO->saveUpdatePriority($priorityDTO);
         if($upd['status']){

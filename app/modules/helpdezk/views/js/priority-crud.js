@@ -137,15 +137,27 @@ $(document).ready(function () {
             },
             exhibitionOrder:{
                 required:true,
+                min:minExhibitionOrder,
+                max:999
             },
             priorityColor:{
                 required:true,
+            },
+            limitDays:{
+                min:0,
+                max:999
+            },
+            limitHours:{
+                min:0,
+                max:99
             }
         },
         messages: {            
             priorityName:{required:vocab['Alert_field_required']},
-            exhibitionOrder:{required:vocab['Alert_field_required']},
-            priorityColor:{required:vocab['Alert_field_required']}
+            exhibitionOrder:{required:vocab['Alert_field_required'],min:vocab['insert_min_value'] + " "+minExhibitionOrder,max:vocab['insert_max_value'] + " 999"},
+            priorityColor:{required:vocab['Alert_field_required']},
+            limitDays:{min:vocab['insert_min_value'] + " 0",max:vocab['insert_max_value'] + " 999"},
+            limitHours:{min:vocab['insert_min_value'] + " 0",max:vocab['insert_max_value'] + " 99"}
         }
     });
 
@@ -170,15 +182,27 @@ $(document).ready(function () {
             },
             exhibitionOrder:{
                 required:true,
+                min:1,
+                max:999
             },
             priorityColor:{
                 required:true,
+            },
+            limitDays:{
+                min:0,
+                max:999
+            },
+            limitHours:{
+                min:0,
+                max:99
             }
         },
         messages: {            
             priorityName:{required:vocab['Alert_field_required']},
-            exhibitionOrder:{required:vocab['Alert_field_required']},
-            priorityColor:{required:vocab['Alert_field_required']}
+            exhibitionOrder:{required:vocab['Alert_field_required'],min:vocab['insert_min_value'] + " 1",max:vocab['insert_max_value'] + " 999"},
+            priorityColor:{required:vocab['Alert_field_required']},
+            limitDays:{min:vocab['insert_min_value'] + " 0",max:vocab['insert_max_value'] + " 999"},
+            limitHours:{min:vocab['insert_min_value'] + " 0",max:vocab['insert_max_value'] + " 99"}
         }
     });
 

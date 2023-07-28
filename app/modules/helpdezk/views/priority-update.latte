@@ -15,7 +15,7 @@
                     <div class="ibox ">
 
                         <div class="ibox-title">
-                            <h5>{='cat_records'|translate} / {='pgr_priority'|translate} / <strong>{='Add'|translate}</strong></h5>
+                            <h5>{='cat_records'|translate} / {='pgr_priority'|translate} / <strong>{='Edit'|translate}</strong></h5>
 
                         </div>
 
@@ -28,6 +28,7 @@
                                     <input type="hidden" name="_token" id= "_token" value="{$token}">
                                     <input type="hidden" name="priorityId" id= "priorityId" value="{$priorityId}">
                                     <input type="hidden" name="defaultId" id= "defaultId" value="{$defaultId}">
+                                    <input type="hidden" name="curOrder" id= "curOrder" value="{$curOrder}">
 
                                     <div class="row white-bg">
 
@@ -50,7 +51,7 @@
                                                 </div>
                                                 
                                                 <div class="col-sm-2">
-                                                    <input type="number" id="exhibitionOrder" name="exhibitionOrder" class="form-control text-center" min="{$exibitionOrder}" max="999" value="{$priorityOrder}" >
+                                                    <input type="number" id="exhibitionOrder" name="exhibitionOrder" class="form-control text-center" min="1" max="999" value="{$priorityOrder}" >
                                                 </div>
                                             </div>
 
