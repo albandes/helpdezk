@@ -1,0 +1,164 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='pgr_priority'|translate} / <strong>{='Add'|translate}</strong></h5>
+
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="create-priority-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">&nbsp;</div>
+
+                                        <div class="row col-sm-12 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="priorityName" class="hdk-label col-form-label text-end">{='Name'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="priorityName" name="priorityName" class="form-control" value="" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="exhibitionOrder" class="hdk-label col-form-label text-end">{='Exhibition_order'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-2">
+                                                    <input type="number" id="exhibitionOrder" name="exhibitionOrder" class="form-control text-center" min="{$exibitionOrder}" max="999" value="{$exibitionOrder}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="priorityColor" class="hdk-label col-form-label text-end">{='exhibition_color'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <div id="color-picker-component" class="input-group colorpicker-component">
+                                                        <input type="text" id="priorityColor" name="priorityColor" class="form-control" value="#19aa8d" readonly >
+                                                        <span class="input-group-addon colorpicker-input-addon"><i></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="priorityDefault" class="hdk-label col-form-label text-end">{='Default'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-9">
+                                                    <input type="checkbox" id="priorityDefault" name="priorityDefault" value=""  > <label class="col-form-label">{='Default_text'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="priorityVip" class="hdk-label col-form-label text-end">{='VIP_user'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-9">
+                                                    <input type="checkbox" id="priorityVip" name="priorityVip" value=""> <label class="col-form-label">{='vip_user_text'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="limitDays" class="hdk-label col-form-label text-end">{='limit_time_att'|translate}:</label>
+                                                </div>
+
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="limitDays" class="hdk-label col-form-label text-end">{='Days'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-2">
+                                                    <input type="number" id="limitDays" name="limitDays" class="form-control text-center" min="0" max="999" value="0" >
+                                                </div>
+
+                                                <div class="col-sm-1 text-end">
+                                                    <label for="limitHours" class="hdk-label col-form-label text-end">{='Hours'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-2">
+                                                    <input type="number" id="limitHours" name="limitHours" class="form-control text-center" min="0" max="99" value="0" >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-priority"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreatePriority" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/priority/modal-alert-create.latte'}
+    {include $modalNextStep}
+</body>
+    <script type="text/javascript">
+        var minExhibitionOrder = {$exibitionOrder};
+    </script>
+
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+    <!-- Colorpicker-->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/bootstrap-colorpicker/bootstrap-colorpicker.css" />
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/bootstrap-colorpicker/bootstrap-colorpicker.js" ></script>
+
+    <script src="{$path}/app/modules/helpdezk/views/js/priority-crud.js"></script>
+
+
+{/block}

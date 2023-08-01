@@ -1,0 +1,60 @@
+<div class="modal fade" id="modal-priority-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>{='Notification'|translate}</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row alert alert-success">
+                    <div class="row g-2 text-center">
+                        <h3>{='Alert_inserted'|translate}</h3>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-priority-code" class="col-form-label text-end">{='record_code'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-priority-code" >
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-priority-name" class="col-form-label text-end">{='Name'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-priority-name" >
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-priority-order" class="col-form-label text-end">{='Exhibition_order'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-priority-order" >
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-priority-color" class="col-form-label text-end">{='exhibition_color'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-priority-color" >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnModalAlert" class="btn btn-primary" data-bs-dismiss="modal">{='Ok_btn'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

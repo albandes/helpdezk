@@ -49,7 +49,7 @@ final class priorityModel
      */
     private $status;
     
-     /**
+    /**
      * @var array
      */
     private $gridList; 
@@ -58,6 +58,26 @@ final class priorityModel
     * @var int
     */
     private $totalRows;
+
+     /**
+     * @var int
+     */
+    private $defaultId;
+
+    /**
+     * @var array
+     */
+    private $linkList;
+
+    /**
+    * @var int
+    */
+    private $priorityIdTmp;
+
+    /**
+     * @var int
+     */
+    private $orderTmp;
 
     /**
      * Get the value of idPriority
@@ -319,6 +339,102 @@ final class priorityModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of defaultId
+     *
+     * @return  int
+     */ 
+    public function getDefaultId()
+    {
+        return $this->defaultId;
+    }
+
+    /**
+     * Set the value of defaultId
+     *
+     * @param  int  $defaultId
+     *
+     * @return  self
+     */ 
+    public function setDefaultId(int $defaultId)
+    {
+        $this->defaultId = $defaultId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of linkList
+     *
+     * @return  array
+     */ 
+    public function getLinkList()
+    {
+        return $this->linkList;
+    }
+
+    /**
+     * Set the value of linkList
+     *
+     * @param  array  $linkList
+     *
+     * @return  self
+     */ 
+    public function setLinkList(array $linkList)
+    {
+        $this->linkList = $linkList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of priorityIdTmp
+     *
+     * @return  int
+     */ 
+    public function getPriorityIdTmp()
+    {
+        return $this->priorityIdTmp;
+    }
+
+    /**
+     * Set the value of priorityIdTmp
+     *
+     * @param  int  $priorityIdTmp
+     *
+     * @return  self
+     */ 
+    public function setPriorityIdTmp(int $priorityIdTmp)
+    {
+        $this->priorityIdTmp = $priorityIdTmp;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of orderTmp
+     *
+     * @return  int
+     */ 
+    public function getOrderTmp()
+    {
+        return $this->orderTmp;
+    }
+
+    /**
+     * Set the value of orderTmp
+     *
+     * @param  int  $orderTmp
+     *
+     * @return  self
+     */ 
+    public function setOrderTmp(int $orderTmp)
+    {
+        $this->orderTmp = $orderTmp;
 
         return $this;
     }

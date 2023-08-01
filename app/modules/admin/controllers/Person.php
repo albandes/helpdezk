@@ -418,7 +418,8 @@ class Person extends Controller
                     ->setAddressTypeId(($natureType == 1) ? 2 : 3)
                     ->setZipCode((isset($_POST['fillAddress'])) ? str_replace($charSearch,$charReplace,trim(strip_tags($_POST['zipcode']))) : '')
                     ->setNumber((isset($_POST['fillAddress'])) ? trim(strip_tags($_POST['number'])) : '')
-                    ->setComplement((isset($_POST['fillAddress'])) ? trim(strip_tags($_POST['complement'])) : '');
+                    ->setComplement((isset($_POST['fillAddress'])) ? trim(strip_tags($_POST['complement'])) : '')
+                    ->setRg('');
                     
         $ins = $personDAO->savePersonData($personModel);
         if($ins['status']){
@@ -521,7 +522,8 @@ class Person extends Controller
                     ->setIdStreet((!empty($_POST['street'])) ? $_POST['street'] : 1)
                     ->setZipCode((!empty($_POST['zipcode'])) ? str_replace($charSearch,$charReplace,trim(strip_tags($_POST['zipcode']))) : '')
                     ->setNumber((!empty($_POST['number'])) ? trim(strip_tags($_POST['number'])) : '')
-                    ->setComplement((!empty($_POST['complement'])) ? trim(strip_tags($_POST['complement'])) : '');
+                    ->setComplement((!empty($_POST['complement'])) ? trim(strip_tags($_POST['complement'])) : '')
+                    ->setRg('');
         
         $upd = $personDAO->updatePersonData($personModel);
         

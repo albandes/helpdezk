@@ -1,7 +1,7 @@
-var twoFactorAuth = false ;
+var twoFactorAuth = false, loginMethod = (googleAuth) ? 'check' : 'auth';
 $(document).ready(function() {
 
-    $('#username').val('')
+    $('#username').val('');
 
     $('#urlLostPasssword').click(function(){
         lostPasswordAjax();
@@ -21,7 +21,7 @@ $(document).ready(function() {
             password    = $('[name=password]').val(),
             token       = $('[name=token]').val()    ;
 
-        $.post(path + "/admin/login/auth/", {
+        $.post(path + "/admin/login/"+loginMethod+"/", {
             login : login,
             password : password,
             token: token
@@ -32,7 +32,11 @@ $(document).ready(function() {
                 $('[name=password]').val('');
                 $('[name=login]').val('');
             } else if(data.success == 1){
-                self.location = data.redirect;
+                if(data.redirect == 'auth'){
+                    loginAdmin(login,password,token);
+                }else{
+                    self.location = data.redirect;
+                }
             }
         },"json").done(function(){
             $(".loaderLogin").hide();
@@ -125,4 +129,24 @@ function lostPasswordAjax($ButtonSend)
         }
     });
 
+}
+
+function loginAdmin(login,password,token)
+{
+    $.post(path + "/admin/login/auth/", {
+        login : login,
+        password : password,
+        token: token
+    }, function(data) {
+        if(data.success == 0){
+            modalAlert('danger',data.msg);
+            $('[name=login]').val('');
+            $('[name=password]').val('');
+            $('[name=login]').val('');
+        } else if(data.success == 1){
+            self.location = data.redirect;
+        }
+    },"json").done(function(){
+        $(".loaderLogin").hide();
+    });
 }
