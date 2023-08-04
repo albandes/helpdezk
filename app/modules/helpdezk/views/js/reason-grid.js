@@ -1,11 +1,11 @@
 $(document).ready(function () {
     countdown.start(timesession);
 
-    /*
+    /**
      * Select2
      */
-   $('#filter-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
-   $('#action-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
+    $('#filter-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
+    $('#action-list').select2({dropdownParent: $(this).find('.modal-body-filters')});
 
     /** 
      * Define a model for grid's columns
@@ -29,7 +29,6 @@ $(document).ready(function () {
         { title: "", width: '10%', dataIndx: "status_val", hidden:true, halign: "center"  },
         
     ];
-
 
     /** 
      * Define a data model
@@ -86,7 +85,8 @@ $(document).ready(function () {
     
     var obj = { 
         width: '100%', 
-        height: 480,
+        height: 500,
+        wrap: false,
         dataModel: dataModel,
         colModel: colM,
         editable: false,
@@ -99,7 +99,7 @@ $(document).ready(function () {
         selectionModel: { mode: 'single', type: 'row' },
         collapsible: false,
         selectChange: function (evt, ui) {
-            var rowIndx = getRowIndx(),
+            var rowIndx = getRowIndx('grid_reason'),
                 row = $("#grid_reason").pqGrid('getRowData', {rowIndx: rowIndx}),
                 rowSt = row.status_val;
                 
@@ -111,7 +111,7 @@ $(document).ready(function () {
                 $('#btnDisable').removeClass('active').addClass('disabled');
         },
         rowDblClick: function (evt, ui) {
-            var rowIndx = getRowIndx(),
+            var rowIndx = getRowIndx('grid_reason'),
                 row = $("#grid_reason").pqGrid('getRowData', {rowIndx: rowIndx});
                 
             location.href = path + "/helpdezk/hdkReason/formUpdate/"+row.id;
@@ -163,7 +163,7 @@ $(document).ready(function () {
     });
 
     $("#btnUpdate").click(function(){
-        var rowIndx = getRowIndx(),msg="";
+        var rowIndx = getRowIndx('grid_reason'),msg="";
         
         if (rowIndx != null) {
             var row = $("#grid_reason").pqGrid('getRowData', {rowIndx: rowIndx});
@@ -177,7 +177,7 @@ $(document).ready(function () {
 
     $("#btnEnable").click(function(){
         if(!$("#btnEnable").hasClass('disabled')){
-            var rowIndx = getRowIndx(),msg="";
+            var rowIndx = getRowIndx('grid_reason'),msg="";
         
             if (rowIndx != null) {
                 var row = $("#grid_reason").pqGrid('getRowData', {rowIndx: rowIndx});
@@ -191,7 +191,7 @@ $(document).ready(function () {
 
     $("#btnDisable").click(function(){
         if(!$("#btnDisable").hasClass('enabled')){
-            var rowIndx = getRowIndx(),msg="";
+            var rowIndx = getRowIndx('grid_reason'),msg="";
         
             if (rowIndx != null) {
                 var row = $("#grid_reason").pqGrid('getRowData', {rowIndx: rowIndx});
@@ -214,22 +214,6 @@ $(document).ready(function () {
         $("#action-list").trigger("change");        
     });
 });
-
-/**
- * Returns ID of the row selected
- * 
- * @returns mixed
- */
-function getRowIndx() {
-    var arr = $("#grid_reason").pqGrid("selection", { type: 'row', method: 'getSelection' });
-    
-    if (arr && arr.length > 0) {
-        return arr[0].rowIndx;                                
-    }
-    else {
-        return null;
-    }
-}
 
 /**
  * Change reason's status

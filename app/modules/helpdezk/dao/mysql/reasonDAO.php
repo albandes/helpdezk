@@ -14,31 +14,26 @@ class reasonDAO extends Database
     }
     
     /**
-     * Return an array with reason to display in grid
+     * queryReason
+     * 
+     * en_us Returns an array with a reason list to display in the grid
+     * pt_br Retorna um array com uma lista de motivos para exibir no grid
      *
-     * @param  string $where
-     * @param  string $group
-     * @param  string $order
-     * @param  string $limit
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
      * @return array
-     */  
-    
+     */
     public function queryReason($where=null,$group=null,$order=null,$limit=null): array
     {        
-        $sql = "SELECT a.idreason, a.name reason, a.status, 
-                        b.idservice, b.name AS service, 
-                        c.iditem, c.name AS item, 
-                        d.idtype, d.name AS `type`, 
-                        e.idarea, e.name AS `area`  
-                FROM hdk_tbcore_reason a, 
-                    hdk_tbcore_service b, 
-                    hdk_tbcore_item c, 
-                    hdk_tbcore_type d, 
-                    hdk_tbcore_area e 
+        $sql = "SELECT a.idreason, a.name reason, a.status, b.idservice, b.name  service, c.iditem, c.name  item, d.idtype, d.name `type`, 
+                        e.idarea, e.name `area`  
+                  FROM hdk_tbcore_reason a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e 
                 WHERE b.idservice = a.idservice 
-                AND b.iditem = c.iditem
-                AND c.idtype = d.idtype
-                AND d.idarea = e.idarea  
+                  AND b.iditem = c.iditem
+                  AND c.idtype = d.idtype
+                  AND d.idarea = e.idarea  
                 $where $group $order $limit";
         try{
             $stmt = $this->db->prepare($sql);
@@ -60,19 +55,24 @@ class reasonDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * countReason
+     * 
+     * en_us Returns an array with rows total for grid pagination
+     * pt_br Retorna um array com o total de linhas para paginação do grid
+     *
+     * @param  mixed $where
+     * @return array
+     */
     public function countReason($where=null): array
     {        
         $sql = "SELECT COUNT(idreason) total
-                FROM hdk_tbcore_reason a, 
-                    hdk_tbcore_service b, 
-                    hdk_tbcore_item c, 
-                    hdk_tbcore_type d, 
-                    hdk_tbcore_area e 
-                WHERE b.idservice = a.idservice 
-                AND b.iditem = c.iditem
-                AND c.idtype = d.idtype
-                AND d.idarea = e.idarea 
+                  FROM hdk_tbcore_reason a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e 
+                 WHERE b.idservice = a.idservice 
+                   AND b.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea 
                 $where";
     
         try{
@@ -95,25 +95,26 @@ class reasonDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * getReason
+     * 
+     * en_us Returns reason's data
+     * pt_br Retorna os dados do motivo
+     *
+     * @param  reasonModel $reasonModel
+     * @return array
+     */
     public function getReason(reasonModel $reasonModel): array
-    {  
-
-        $sql = "SELECT a.idreason, a.name reason, a.status, 
-                        b.idservice, b.name AS service, 
-                        c.iditem, c.name AS item, 
-                        d.idtype, d.name AS `type`, 
-                        e.idarea, e.name AS `area`  
-                FROM hdk_tbcore_reason a, 
-                    hdk_tbcore_service b, 
-                    hdk_tbcore_item c, 
-                    hdk_tbcore_type d, 
-                    hdk_tbcore_area e 
-                WHERE b.idservice = a.idservice 
-                AND b.iditem = c.iditem
-                AND c.idtype = d.idtype
-                AND d.idarea = e.idarea 
-                AND idreason=:reasonID";
+    {
+        $sql = "SELECT a.idreason, a.name reason, a.status, b.idservice, b.name  service, c.iditem, c.name  item, d.idtype, d.name `type`, 
+                       e.idarea, e.name `area`  
+                  FROM hdk_tbcore_reason a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e 
+                 WHERE b.idservice = a.idservice 
+                   AND b.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea
+                   AND idreason = :reasonID";
                  
         try{
             $stmt = $this->db->prepare($sql);
@@ -121,12 +122,12 @@ class reasonDAO extends Database
             $stmt->execute();
            
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $reasonModel->setIdReason($aRet['idreason'])
-                                ->setReason($aRet['reason'])
-                                ->setIdArea($aRet['idarea'])
-                                ->setIdType($aRet['idtype'])
-                                ->setIdItem($aRet['iditem'])
-                                ->setIdService($aRet['idservice']);
+            $reasonModel->setIdReason((!is_null($aRet['idreason']) && !empty($aRet['idreason'])) ? $aRet['idreason'] : 0)
+                        ->setReason((!is_null($aRet['reason']) && !empty($aRet['reason'])) ? $aRet['reason'] : "")
+                        ->setIdArea((!is_null($aRet['idarea']) && !empty($aRet['idarea'])) ? $aRet['idarea'] : 0)
+                        ->setIdType((!is_null($aRet['idtype']) && !empty($aRet['idtype'])) ? $aRet['idtype'] : 0)
+                        ->setIdItem((!is_null($aRet['iditem']) && !empty($aRet['iditem'])) ? $aRet['iditem'] : 0)
+                        ->setIdService((!is_null($aRet['idservice']) && !empty($aRet['idservice'])) ? $aRet['idservice'] : 0);
 
             $ret = true;
             $result = array("message"=>"","object"=>$reasonModel);
@@ -138,14 +139,22 @@ class reasonDAO extends Database
         }
 
         return array("status"=>$ret,"push"=>$result);
-        
     }
-
+    
+    /**
+     * insertReason
+     * 
+     * en_us Saves reason's data into DB
+     * pt_br Grava os dados do motivo no BD
+     *
+     * @param  reasonModel $reasonModel
+     * @return array
+     */
     public function insertReason(reasonModel $reasonModel): array
     {        
         $sql = "INSERT INTO hdk_tbcore_reason(`idservice`,`name`)
                 VALUES(:service,:reason)";
-               // echo "{$sql}\n";
+                
         try{
             $stmt = $this->db->prepare($sql);            
             $stmt->bindParam(':service', $reasonModel->getIdService());
@@ -157,7 +166,7 @@ class reasonDAO extends Database
             $result = array("message"=>"","object"=>$reasonModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error("Error insert reason's", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error saving new reason's data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
@@ -165,13 +174,22 @@ class reasonDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * updateReason
+     * 
+     * en_us Updates reason's data into DB
+     * pt_br Atualiza os dados do motivo no BD
+     *
+     * @param  reasonModel $reasonModel
+     * @return array
+     */
     public function updateReason(reasonModel $reasonModel): array
     {        
         $sql = "UPDATE hdk_tbcore_reason
-                SET `idservice` = :service,
-                    `name` = :reason
-                WHERE idreason = :reasonID";  
+                   SET `idservice` = :service,
+                       `name` = :reason
+                 WHERE idreason = :reasonID";  
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':reasonID', $reasonModel->getIdReason());
@@ -183,7 +201,7 @@ class reasonDAO extends Database
             $result = array("message"=>"","object"=>$reasonModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error('Error update department', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error("Error updating reason's data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
@@ -191,12 +209,21 @@ class reasonDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * updateStatus
+     * 
+     * en_us Updates reason's status into DB
+     * pt_br Atualiza o status do motivo no BD
+     *
+     * @param  reasonModel $reasonModel
+     * @return array
+     */
     public function updateStatus(reasonModel $reasonModel): array
     {        
         $sql = "UPDATE hdk_tbcore_reason
-                SET status = :newStatus
-                WHERE idreason = :reasonID";
+                   SET `status` = :newStatus
+                 WHERE idreason = :reasonID";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':reasonID', $reasonModel->getIdReason());
@@ -232,7 +259,7 @@ class reasonDAO extends Database
                  WHERE idservice = :serviceID
                    AND `status` = 'A'
               ORDER BY `name` ASC";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':serviceID', $reasonModel->getIdService());

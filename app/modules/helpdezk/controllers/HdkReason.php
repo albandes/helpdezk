@@ -7,21 +7,57 @@ use App\modules\helpdezk\src\hdkServices;
 use App\modules\helpdezk\models\mysql\reasonModel;
 
 class hdkReason extends Controller
-{           
+{
+    /**
+     * @var int
+     */
+    protected $programId;
+
+    /**
+     * @var array
+     */
+    protected $aPermissions;
+
     public function __construct()
     {
         parent::__construct();
 
-        $this->appSrc->_sessionValidate();       
+        $this->appSrc->_sessionValidate();
+        
+        // set program permissions
+        $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
+        $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);       
     }
-    
+        
+    /**
+     * index
+     * 
+     * en_us Renders reason's home screen
+     * pt_br Renderiza a tela inicial do motivo de abertura
+     *
+     * @return void
+     */
     public function index()
     {
+        // blocks if the user does not have permission to access
+        if($this->aPermissions[1] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenReason();
 		
 		$this->view('helpdezk','reason',$params);
     }
-
+    
+    /**
+     * makeScreenReason
+     * 
+     * en_us Makes the necessary parameters to render the program's screens
+     * pt_br Cria os parâmetros necessários para renderizar as telas do programa
+     *
+     * @param  mixed $option Indicates the screen where the parameters will be made available
+     * @param  mixed $obj    Data object for the registration edit screen
+     * @return void
+     */
     public function makeScreenReason($option='idx',$obj=null)
     {
         $adminSrc = new adminServices();
@@ -34,17 +70,20 @@ class hdkReason extends Controller
 
         // -- Search action --
         if($option=='idx'){
-          $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts();
           $params['cmbFilters'] = $this->comboReasonFilters();
+          $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
           $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
         
         // -- Others modals --
         $params['modalAlert'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
-        $params['modalNextStep'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-next-step.latte'; //subir imagem
+        $params['modalNextStep'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-next-step.latte';//upload image modal
         
         // -- Token: to prevent attacks --
         $params['token'] = $this->appSrc->_makeToken();
+
+        // -- User's permissions --
+        $params['aPermissions'] = $this->aPermissions;
 
         if($option=='upd'){
             $params['idreason'] = $obj->getIdReason();            
@@ -52,20 +91,29 @@ class hdkReason extends Controller
             $params['areaID'] = $obj->getIdArea();
             $params['typeID'] = $obj->getIdType();
             $params['itemID'] = $obj->getIdItem();
-            $params['serviceID'] = $obj->getIdService(); 
+            $params['serviceID'] = $obj->getIdService();
+
             //-- Type --
             $params['cmbType']  = $hdkSrc->_comboType($obj->getIdArea());
+
             // -- Item --
             $params['cmbItem']  = $hdkSrc->_comboItem($obj->getIdType());
+
             // -- Service --
-            $params['cmbService']   = $hdkSrc->_comboService($obj->getIdItem());         
-            
+            $params['cmbService']   = $hdkSrc->_comboService($obj->getIdItem());            
         }
         
-        return $params;
-       
+        return $params;       
     }
-
+    
+    /**
+     * jsonGrid
+     * 
+     * en_us Returns status list to display in grid
+     * pt_br Retorna lista de status para exibir no grid
+     *
+     * @return void
+     */
     public function jsonGrid()
     {
         $reasonDAO = new reasonDAO(); 
@@ -110,7 +158,7 @@ class hdkReason extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(c.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(d.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(e.name) LIKE '%{$quickValue}%')";
+            $where .= " AND " . " (pipeLatinToUtf8(a.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(b.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(c.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(d.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(e.name) LIKE pipeLatinToUtf8('%{$quickValue}%'))";
         }
 
         //sort options
@@ -142,7 +190,6 @@ class hdkReason extends Controller
             
             foreach($reasonObj as $k=>$v) {
                 $status_fmt = ($v['status'] == 'A' ) ? '<span class="label label-info">A</span>' : '<span class="label label-danger">I</span>';
-               
 
                 $data[] = array(
                     'id'            => $v['idreason'],
@@ -152,8 +199,7 @@ class hdkReason extends Controller
                     'item'          => $v['item'],
                     'service'       => $v['service'],
                     'status'        => $status_fmt,
-                    'status_val'    => $v['status']   
-                    
+                    'status_val'    => $v['status']
                 );
             }
 
@@ -169,27 +215,42 @@ class hdkReason extends Controller
             echo json_encode(array());            
         }
     }
-
+    
+    /**
+     * comboReasonFilters
+     * 
+     * en_us Returns array with filters options to search data
+     * pt_br Retorna array com opções de filtros para pesquisar dados
+     *
+     * @return array
+     */
     public function comboReasonFilters(): array
     {
         $aRet = array(            
-            array("id" => 'reason',"text"=>$this->translator->translate('Reason')),
-            array("id" => 'area',"text"=>$this->translator->translate('Area')),
-            array("id" => 'type',"text"=>$this->translator->translate('Type')),
-            array("id" => 'item',"text"=>$this->translator->translate('Item')),
-            array("id" => 'service',"text"=>$this->translator->translate('Service')),
+            array("id" => 'reason',"text"=>$this->translator->translate('Reason'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'area',"text"=>$this->translator->translate('Area'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'type',"text"=>$this->translator->translate('Type'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'item',"text"=>$this->translator->translate('Item'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'service',"text"=>$this->translator->translate('Service'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
         );
         
         return $aRet;
     }
 
-     /*
+    /**
+     * formCreate
+     * 
      * en_us Renders the reason add screen
-     *
      * pt_br Renderiza o template da tela de novo cadastro
+     *
+     * @return void
      */
     public function formCreate()
     {
+        // blocks if the user does not have permission to add a new register
+        if($this->aPermissions[2] != "Y")
+            $this->appSrc->_accessDenied();
+
         $params = $this->makeScreenReason();
 
         $this->view('helpdezk','reason-create',$params);
@@ -199,8 +260,7 @@ class hdkReason extends Controller
      * en_us Write the reason information to the DB
      *
      * pt_br Grava no BD as informações do reason
-     */  
-
+     */
     public function createReason()
     {
         if (!$this->appSrc->_checkToken()) {
@@ -211,11 +271,11 @@ class hdkReason extends Controller
         $reasonDAO = new reasonDAO();
         $reasonModel = new reasonModel();
    
-        $reasonModel->setReason(strip_tags(trim($_POST['reason'])))
-                           ->setIdService($_POST['cmbService'])
-                           ->setIdArea($_POST['cmbArea'])
-                           ->setIdItem($_POST['cmbItem'])
-                           ->setIdType($_POST['cmbType']);
+        $reasonModel->setReason(trim(strip_tags($_POST['reason'])))
+                    ->setIdService($_POST['cmbService'])
+                    ->setIdArea($_POST['cmbArea'])
+                    ->setIdItem($_POST['cmbItem'])
+                    ->setIdType($_POST['cmbType']);
 
         $ins = $reasonDAO->insertReason($reasonModel);
         if($ins['status']){
@@ -235,8 +295,7 @@ class hdkReason extends Controller
         }else{
             $st = false;
             $msg = $ins['push']['message'];
-        }   
-              
+        }              
         
         $aRet = array(
             "success"               => $st,
@@ -249,7 +308,13 @@ class hdkReason extends Controller
         );
         echo json_encode($aRet);
     }
-
+    
+    /**
+     * formUpdate
+     *
+     * @param  mixed $reasonID
+     * @return void
+     */
     public function formUpdate($reasonID=null)
     {
         $reasonDAO = new reasonDAO();
@@ -262,7 +327,12 @@ class hdkReason extends Controller
         $params['reasonID'] = $reasonID;
         $this->view('helpdezk','reason-update',$params);
     }
-
+    
+    /**
+     * updateReason
+     *
+     * @return void
+     */
     public function updateReason()
     { 
         if (!$this->appSrc->_checkToken()) {
@@ -274,11 +344,11 @@ class hdkReason extends Controller
         $reasonModel = new reasonModel();
 
         $reasonModel->setIdReason($_POST['reasonID'])
-                            ->setreason(strip_tags(trim($_POST['reason'])))
-                            ->setIdService($_POST['cmbService'])
-                            ->setIdArea($_POST['cmbArea'])
-                            ->setIdItem($_POST['cmbItem'])
-                            ->setIdType($_POST['cmbType']);             
+                    ->setreason(trim(strip_tags($_POST['reason'])))
+                    ->setIdService($_POST['cmbService'])
+                    ->setIdArea($_POST['cmbArea'])
+                    ->setIdItem($_POST['cmbItem'])
+                    ->setIdType($_POST['cmbType']);             
                
         $upd = $reasonDAO->updateReason($reasonModel);
         if($upd['status']){
@@ -302,29 +372,13 @@ class hdkReason extends Controller
         echo json_encode($aRet);
     }
 
-
-    public function ajaxTypes()
-    {
-        $hdkSrc = new hdkServices();
-        echo $hdkSrc->_comboTypeHtml($_POST['areaID']);
-    }
-
-    public function ajaxItens()
-    {
-        $hdkSrc = new hdkServices();
-        echo $hdkSrc->_comboItemHtml($_POST['typeID']);
-    }
-
-    public function ajaxServices()
-    {
-        $hdkSrc = new hdkServices();
-        echo $hdkSrc->_comboServiceHtml($_POST['itemID']);
-    }
-
     /**
+     * changeStatus
+     * 
      * en_us Changes reason's status
-     *
      * pt_br Muda o status do motivo
+     *
+     * @return void
      */
     function changeStatus()
     {
@@ -352,10 +406,13 @@ class hdkReason extends Controller
         echo json_encode($aRet);
     }
 
-     /**
+    /**
+     * checkExist
+     * 
      * en_us Check if the reason has already been registered before
-     *
      * pt_br Verifica se o motivo já foi cadastrada anteriormente
+     *
+     * @return void
      */
     function checkExist(){
         

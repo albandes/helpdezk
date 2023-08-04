@@ -130,6 +130,11 @@ final class hdkServiceModel
     private $targetIdList;
 
     /**
+     * @var array
+     */
+    private $groupList;
+
+    /**
      * Get the value of idArea
      *
      * @return  int
@@ -725,6 +730,30 @@ final class hdkServiceModel
     public function setTargetIdList(string $targetIdList)
     {
         $this->targetIdList = $targetIdList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupList
+     *
+     * @return  array
+     */ 
+    public function getGroupList()
+    {
+        return $this->groupList;
+    }
+
+    /**
+     * Set the value of groupList
+     *
+     * @param  array  $groupList
+     *
+     * @return  self
+     */ 
+    public function setGroupList(array $groupList)
+    {
+        $this->groupList = $groupList;
 
         return $this;
     }
