@@ -1338,7 +1338,7 @@ $(document).ready(function () {
                         $("#closeTicketText").html(vocab['Alert_close_request']);
                         setTimeout(function(){
                             $('#modal-cancel-ticket').modal('hide');
-                            location.reload();
+                            location.href = path+"/helpdezk/hdkTicket/index";
                         },2000);
                     } else {
                         if($("#closeMessageLine").hasClass('alert-warning')){

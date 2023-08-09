@@ -2208,4 +2208,50 @@ class hdkServices
         return $aRet;
     }
 
+    /**
+     * _searchAttendant
+     * 
+     * en_us Returns array with products data found by the keyword
+     * pt_br Retorna array com dados de produtos encontrados pela palavra-chave
+     *
+     * @param  mixed $keyword
+     * @return array
+     */
+    public function _searchAttendant($keyword): array
+    {
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+        $aRet = array();
+        
+        $searchStr = str_replace(" ","%",addslashes(trim(strip_tags($keyword))));
+
+        $aSearch = explode("%",$searchStr);
+        $keyword = "";
+
+        foreach($aSearch as $k=>$v){
+            $keyword .= "pipeLatinToUtf8(tbp.name) LIKE pipeLatinToUtf8('%{$v}%') OR ";
+        }
+        $keyword = substr($keyword, 0, -4);
+        
+        $where = " AND ($keyword) AND tbp.idtypeperson = 3 AND tbp.status = 'A'";
+        $order = "ORDER BY tbp.name ASC";
+        
+        $ret = $personDAO->queryPersons($where,null,$order);
+        
+        if($ret['status']){
+            $aPersons = $ret['push']['object']->getGridList();
+            
+            foreach($aPersons as $k=>$v) {
+                $bus =  array(
+                    "id" => $v['idperson'],
+                    "name" => $v['name']
+                );
+
+                array_push($aRet,$bus);
+            }
+        }
+        
+        return $aRet;
+    }
+
 }

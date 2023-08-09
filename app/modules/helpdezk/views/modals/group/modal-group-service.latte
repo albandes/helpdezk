@@ -1,0 +1,95 @@
+<div class="modal fade" id="modal-group-service" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Groups_by_service'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-group-service-form">
+                    <input type="hidden" id="typeId" name="typeId" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-cmb-area" class="hdk-label col-form-label text-end">{='Area'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-area" name="modal-cmb-area">
+                                <option value="X" disabled hidden selected>{='Select'|translate}</option>
+                                {foreach $cmbArea as $k=>$v}
+                                <option value="{$v['id']}">{$v['text']}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-cmb-type" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-type" name="modal-cmb-type">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-cmb-item" class="hdk-label col-form-label text-end">{='Item'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-item" name="modal-cmb-item">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-4 text-end">
+                            <label for="modal-cmb-service" class="hdk-label col-form-label text-end">{='Service'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <select class="form-control input-sm" id="modal-cmb-service" name="modal-cmb-service">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+                    
+                    <div class="row white-bg g-2 text-center groupListView d-none">
+                        <hr class="hr-pipe-black"/>
+                    </div>
+
+                    <div class="col-xs-12 white-bg groupListView d-none" style="height:40px;"></div>
+
+                    <div class="row white-bg g-2 mb-3 groupListView d-none">
+                       <div class="row col-sm-12 text-center">
+                            <div class="card card-primary">
+                                <ul id="groupList" class="list-group list-group-flush scrollable-ul">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-group-service"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnGrpServiceClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

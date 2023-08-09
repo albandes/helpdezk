@@ -55,6 +55,21 @@ final class groupModel
     private $idUser;
 
     /**
+     * @var string
+     */
+    private $groupLevel;
+
+    /**
+     * @var int
+     */
+    private $personId;
+
+    /**
+     * @var int
+     */
+    private $inGroupFlag;
+
+    /**
      * Get the value of idGroup
      *
      * @return  int
@@ -290,6 +305,78 @@ final class groupModel
     public function setIdUser(int $idUser)
     {
         $this->idUser = $idUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupLevel
+     *
+     * @return  string
+     */ 
+    public function getGroupLevel()
+    {
+        return $this->groupLevel;
+    }
+
+    /**
+     * Set the value of groupLevel
+     *
+     * @param  string  $groupLevel
+     *
+     * @return  self
+     */ 
+    public function setGroupLevel(string $groupLevel)
+    {
+        $this->groupLevel = $groupLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personId
+     *
+     * @return  int
+     */ 
+    public function getPersonId()
+    {
+        return $this->personId;
+    }
+
+    /**
+     * Set the value of personId
+     *
+     * @param  int  $personId
+     *
+     * @return  self
+     */ 
+    public function setPersonId(int $personId)
+    {
+        $this->personId = $personId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inGroupFlag
+     *
+     * @return  int
+     */ 
+    public function getInGroupFlag()
+    {
+        return $this->inGroupFlag;
+    }
+
+    /**
+     * Set the value of inGroupFlag
+     *
+     * @param  int  $inGroupFlag
+     *
+     * @return  self
+     */ 
+    public function setInGroupFlag(int $inGroupFlag)
+    {
+        $this->inGroupFlag = $inGroupFlag;
 
         return $this;
     }

@@ -32,7 +32,7 @@
                                         <div class="row col-sm-10 b-l"> 
                                             <div class="row g-2">                                                 
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="area" class="col-form-label text-end">{='Area'|translate}:</label>
+                                                    <label for="area" class="hdk-label col-form-label text-end">{='Area'|translate}:</label>
                                                 </div>
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="cmbArea" name="cmbArea">
@@ -45,7 +45,7 @@
                                             </div>
                                             <div class="row g-2">                                                 
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="type" class="col-form-label text-end">{='Type'|translate}:</label>
+                                                    <label for="type" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
                                                 </div>
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="cmbType" name="cmbType">
@@ -58,7 +58,7 @@
                                             </div>
                                             <div class="row g-2">                                                 
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="item" class="col-form-label text-end">{='Item'|translate}:</label>
+                                                    <label for="item" class="hdk-label col-form-label text-end">{='Item'|translate}:</label>
                                                 </div>
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="cmbItem" name="cmbItem">
@@ -71,7 +71,7 @@
                                             </div>
                                             <div class="row g-2">                                                 
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="service" class="col-form-label text-end">{='Service'|translate}:</label>
+                                                    <label for="service" class="hdk-label col-form-label text-end">{='Service'|translate}:</label>
                                                 </div>
                                                 <div class="col-sm-5">
                                                     <select class="form-control input-sm" id="cmbService" name="cmbService">
@@ -84,7 +84,7 @@
                                             </div>                                                                                      
                                             <div class="row g-2">
                                                 <div class="col-sm-3 text-end">
-                                                    <label for="reason" class="col-form-label text-end">{='Reason'|translate}:</label>
+                                                    <label for="reason" class="hdk-label col-form-label text-end">{='Reason'|translate}:</label>
                                                 </div>
                                                 
                                                 <div class="col-sm-5">
@@ -131,24 +131,7 @@
     {include 'modals/reason/modal-alert-create.latte'}
     {include $modalNextStep}
 </body>
-    <script type="text/javascript">
-		var dtpFormat = {$dtpFormat},
-            dtpLanguage = {$dtpLanguage},
-            dtpAutoclose = {$dtpAutoclose},
-            dtpOrientation = {$dtpOrientation};
-	</script>
-
-    <!-- Datepicker -->
-    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/datepicker/bootstrap-datepicker.css" />
-    <script src="{$path}/public/assets/js/plugins/datepicker/bootstrap-datepicker.js"></script>
-    {if $dtpickerLocale != ''}
-    <script src="{$path}/public/assets/js/plugins/datepicker/locales/{$dtpickerLocale}"></script>
-    {/if}   
 
     <script src="{$path}/app/modules/helpdezk/views/js/reason-crud.js"></script>
-
-    
-
-
 
 {/block}

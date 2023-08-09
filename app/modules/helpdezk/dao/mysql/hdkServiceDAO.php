@@ -1927,4 +1927,47 @@ class hdkServiceDAO extends Database
 
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * fetchServiceGroup
+     * 
+     * en_us Returns a list of all service's groups
+     * pt_br Retorna uma lista de todos os grupos do servços
+     *
+     * @param  hdkServiceModel $hdkServiceModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchServiceGroup(hdkServiceModel $hdkServiceModel): array
+    {        
+        $sql = "SELECT b.idgroup, d.name group_name, c.level
+                  FROM hdk_tbcore_service a, hdk_tbgroup_has_service b, hdk_tbgroup c, tbperson d
+                 WHERE a.idservice = b.idservice
+                   AND b.idgroup = c.idgroup
+                   AND c.idperson = d.idperson
+                   AND a.idservice = :serviceId
+              ORDER BY group_name";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':serviceId', $hdkServiceModel->getIdService());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $hdkServiceModel->setGroupList(($aRet && !is_null($aRet)) ? $aRet : array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$hdkServiceModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting service's groups ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

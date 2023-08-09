@@ -4,43 +4,43 @@ var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[], flg
 
 $(document).ready(function () {
     countdown.start(timesession);
-    /*
+    
+    /**
      * Select2
      */
- $('#cmbArea').select2({width:"100%",placeholder:vocab['Select'],allowClear:true});
- $('#cmbType').select2({width:"100%",placeholder:vocab['Select'],allowClear:true}); 
- $('#cmbItem').select2({width:"100%",placeholder:vocab['Select'],allowClear:true}); 
- $('#cmbService').select2({width:"100%",placeholder:vocab['Select'],allowClear:true});  
+    $('#cmbArea').select2({width:"100%",placeholder:vocab['Select'],allowClear:true});
+    $('#cmbType').select2({width:"100%",placeholder:vocab['Select'],allowClear:true});
+    $('#cmbItem').select2({width:"100%",placeholder:vocab['Select'],allowClear:true});
+    $('#cmbService').select2({width:"100%",placeholder:vocab['Select'],allowClear:true});  
 
- 
-    /*
+    /**
      * Combos
      */
     var objRequestEmail = {
         changeArea: function() {
             var areaID = $("#cmbArea").val();
-            $.post(path+"/helpdezk/hdkReason/ajaxTypes",{areaID: areaID},
+            $.post(path+"/helpdezk/hdkTicket/ajaxTypes",{areaID: areaID},
                 function(valor){
                     $("#cmbType").html(valor);
-                    $("#cmbType").trigger("chosen:updated");
+                    $("#cmbType").trigger("change");
                     return objRequestEmail.changeItem();
                 })
         },
         changeItem: function(){
             var typeID = $("#cmbType").val();
-            $.post(path+"/helpdezk/hdkReason/ajaxItens",{typeID: typeID},
+            $.post(path+"/helpdezk/hdkTicket/ajaxItens",{typeID: typeID},
                 function(valor){
                     $("#cmbItem").html(valor);
-                    $("#cmbItem").trigger("chosen:updated");
+                    $("#cmbItem").trigger("change");
                     return objRequestEmail.changeService();
                 });
         },
         changeService: function(){
             var itemID = $("#cmbItem").val();
-            $.post(path+"/helpdezk/hdkReason/ajaxServices",{itemID: itemID},
+            $.post(path+"/helpdezk/hdkTicket/ajaxServices",{itemID: itemID},
                 function(valor){
                     $("#cmbService").html(valor);
-                    $("#cmbService").trigger("chosen:updated");
+                    $("#cmbService").trigger("change");
                 });
         }
     }
@@ -57,13 +57,11 @@ $(document).ready(function () {
         objRequestEmail.changeService();
     });
    
-    /*
+    /**
      * Buttons
      */
-    
     $("#btnCancel").attr("href", path + '/helpdezk/hdkReason/index');
     
-
     $("#btnCreateReason").click(function(){
 
         if (!$("#create-reason-form").valid()) {
@@ -141,7 +139,7 @@ $(document).ready(function () {
 
     });
 
-    /*
+    /**
      * Validate
      */
     $("#create-reason-form").validate({
