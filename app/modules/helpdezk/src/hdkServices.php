@@ -2254,4 +2254,48 @@ class hdkServices
         return $aRet;
     }
 
+    /**
+     * _comboServerType
+     * 
+     * en_us Returns an array with server type data for dropdown list
+     * pt_br Retorna um array com dados de tipo de servidor para lista suspensa
+     *
+     * @return void
+     */
+    public function _comboServerType()
+    {
+        $translator = new localeServices();
+        
+        $aRet = array(
+            array("id" => "","text" => $translator->translate('Select')),
+            array("id" => "pop","text" => "POP"),
+            array("id" => "imap","text" => "IMAP"),
+            array("id" => "pop-gmail","text" => "POP - Gmail"),
+            array("id" => "imap-gmail","text" => "IMAP - Gmail"),
+            array("id" => "imap-ssl","text" => "IMAP-SSL")
+        );
+        
+        return $aRet;
+    }
+    
+    /**
+     * _comboLoginLayout
+     * 
+     * en_us Returns an array with login layout data for dropdown list
+     * pt_br Retorna um array com dados de layout de login para lista suspensa
+     *
+     * @return void
+     */
+    public function _comboLoginLayout()
+    {
+        $translator = new localeServices();
+        
+        $aRet = array(
+            array("id" => "", "text" => $translator->translate('Select')),
+            array("id" => "U", "text" => $translator->translate('User')),
+            array("id" => "E", "text" => "Full E-mail")
+        );
+        
+        return $aRet;
+    }
 }
