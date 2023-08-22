@@ -7,7 +7,7 @@ use App\modules\helpdezk\src\hdkServices;
 use App\modules\helpdezk\models\mysql\priorityModel;
 
 class hdkPriority extends Controller
-{           
+{
     /**
      * @var int
      */

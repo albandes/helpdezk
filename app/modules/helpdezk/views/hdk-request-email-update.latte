@@ -1,0 +1,295 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='pgr_email_request'|translate} / <strong>{='Edit'|translate}</strong></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="update-request-email-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+                                    <input type="hidden" name="requestEmailId" id= "requestEmailId" value="{$requestEmailId}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-2 b-l g-2 text-center ms-1">&nbsp;</div>
+
+                                        <div class="row col-sm-12 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="serverUrl" class="hdk-label col-form-label text-end">{='Server'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="serverUrl" name="serverUrl" class="form-control" value="{$serverUrl}" >
+                                                    <div id="serverUrl_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbServerType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbServerType" name="cmbServerType" >
+                                                        {foreach $cmbServerType as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == ""}hidden disabled{/if} {if $v['id'] == $serverTypeId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbServerType_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="serverPort" class="hdk-label col-form-label text-end">{='Port'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="serverPort" name="serverPort" class="form-control" value="{$serverPort}" >
+                                                    <div id="serverPort_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="userEmail" class="hdk-label col-form-label text-end">{='email'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="userEmail" name="userEmail" class="form-control" value="{$userEmail}" >
+                                                    <div id="userEmail_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="userPassword" class="hdk-label col-form-label text-end">{='Password'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="password" id="userPassword" name="userPassword" class="form-control" value="{$userPassword}" >
+                                                    <div id="userPassword_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbArea" class="hdk-label col-form-label text-end">{='Area'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbArea" name="cmbArea" >
+                                                        <option value="" hidden disabled>{='Select'|translate}</option>
+                                                        {foreach $cmbArea as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $areaId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbType" class="hdk-label col-form-label text-end">{='Type'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbType" name="cmbType" >
+                                                        <option value="" hidden disabled>{='Select'|translate}</option>
+                                                        {foreach $cmbType as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $typeId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbItem" class="hdk-label col-form-label text-end">{='Item'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbItem" name="cmbItem" >
+                                                        <option value="" hidden disabled>{='Select'|translate}</option>
+                                                        {foreach $cmbItem as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $itemId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbService" class="hdk-label col-form-label text-end">{='Service'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbService" name="cmbService" >
+                                                        <option value="" hidden disabled>{='Select'|translate}</option>
+                                                        {foreach $cmbService as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $serviceId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbService_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="filterSender" class="hdk-label col-form-label text-end">{='Filter_by_sender'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="filterSender" name="filterSender" class="form-control" value="{$filterSender}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="filterSubject" class="hdk-label col-form-label text-end">{='Filter_by_subject'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="filterSubject" name="filterSubject" class="form-control" value="{$filterSubject}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="createUser" class="hdk-label col-form-label text-end">{='Create_user'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-9">
+                                                    <input type="checkbox" id="createUser" name="createUser" value="" {if $createUser == 1}checked{/if}>&nbsp;&nbsp;<label class="col-form-label">{='Create_user_msg'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 newUserLine {if $createUser == 0}d-none{/if}">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbCompany" class="hdk-label col-form-label text-end">{='Company'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbCompany" name="cmbCompany" >
+                                                        <option value="" hidden disabled >{='Select'|translate}</option>
+                                                        {foreach $cmbCompany as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $companyId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 newUserLine {if $createUser == 0}d-none{/if}">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbDepartment" class="hdk-label col-form-label text-end">{='Department'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbDepartment" name="cmbDepartment" >
+                                                        <option value="" hidden disabled >{='Select'|translate}</option>
+                                                        {foreach $cmbDepartment as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $departmentId}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbDepartment_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 newUserLine {if $createUser == 0}d-none{/if}">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbLoginLayout" class="hdk-label col-form-label text-end">{='Login_layout'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbLoginLayout" name="cmbLoginLayout" >
+                                                        {foreach $cmbLoginLayout as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == $loginLayout}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbLoginLayout_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="deleteEmail" class="hdk-label col-form-label text-end">{='Delete_emails'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-9">
+                                                    <input type="checkbox" id="deleteEmail" name="deleteEmail" value="" {if $deleteEmail == 1}checked{/if}>&nbsp;&nbsp;<label class="col-form-label">{='Delete_emails_msg'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="insertNote" class="hdk-label col-form-label text-end">{='Note'|translate}</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-9">
+                                                    <input type="checkbox" id="insertNote" name="insertNote" value="" {if $insertNote == 1}checked{/if}>&nbsp;&nbsp;<label class="col-form-label">{='Note_msg'|translate}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row wrapper border-bottom ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-update-request-email"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnUpdateRequestEmail" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include $modalAlert}
+</body>
+
+    <script src="{$path}/app/modules/helpdezk/views/js/hdk-request-email-crud.js"></script>
+
+
+{/block}
