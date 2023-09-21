@@ -291,6 +291,7 @@ class hdkRequestEmail extends Controller
 
         $serviceId = trim(strip_tags($_POST['cmbService']));
         $departmentId = trim(strip_tags($_POST['cmbDepartment']));
+        $loginLayout = trim(strip_tags($_POST['cmbLoginLayout']));
 
         $check = $ins = $requestEmailDAO->queryHdkRequestEmails("WHERE idservice = {$serviceId}");
         if(!$check['status']){
@@ -315,7 +316,7 @@ class hdkRequestEmail extends Controller
                         ->setFilterSubject(trim(strip_tags($_POST['filterSubject'])))
                         ->setAddUserFlag((isset($_POST['createUser'])) ? 1 : 0)
                         ->setDepartmentId((!empty($departmentId)) ? $departmentId : 0)
-                        ->setLoginLayout(trim(strip_tags($_POST['cmbLoginLayout'])))
+                        ->setLoginLayout((!empty($loginLayout)) ? $loginLayout : "E")
                         ->setDelFromServerFlag((isset($_POST['deleteEmail'])) ? 1 : 0)
                         ->setResponseNoteFlag((isset($_POST['insertNote'])) ? "1" : "0");
                         
@@ -392,6 +393,7 @@ class hdkRequestEmail extends Controller
 
         $serviceId = trim(strip_tags($_POST['cmbService']));
         $departmentId = trim(strip_tags($_POST['cmbDepartment']));
+        $loginLayout = trim(strip_tags($_POST['cmbLoginLayout']));
 
         $check = $ins = $requestEmailDAO->queryHdkRequestEmails("WHERE idservice = {$serviceId} AND idgetemail != {$_POST['requestEmailId']}");
         if(!$check['status']){
@@ -417,7 +419,7 @@ class hdkRequestEmail extends Controller
                         ->setFilterSubject(trim(strip_tags($_POST['filterSubject'])))
                         ->setAddUserFlag((isset($_POST['createUser'])) ? 1 : 0)
                         ->setDepartmentId((!empty($departmentId)) ? $departmentId : 0)
-                        ->setLoginLayout(trim(strip_tags($_POST['cmbLoginLayout'])))
+                        ->setLoginLayout((!empty($loginLayout)) ? $loginLayout : "E")
                         ->setDelFromServerFlag((isset($_POST['deleteEmail'])) ? 1 : 0)
                         ->setResponseNoteFlag((isset($_POST['insertNote'])) ? "1" : "0");   
         
