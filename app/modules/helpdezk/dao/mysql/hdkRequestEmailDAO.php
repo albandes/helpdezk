@@ -32,9 +32,13 @@ class hdkRequestEmailDAO extends Database
     public function queryHdkRequestEmails($where=null,$group=null,$order=null,$limit=null): array
     {
         
-        $sql = "SELECT idgetemail, serverurl, servertype, serverport, user, `password`, ind_create_user, ind_delete_server, idservice, filter_from, filter_subject, login_layout, 
-                        email_response_as_note  
-                  FROM hdk_tbgetemail
+        $sql = "SELECT idgetemail, serverurl, servertype, serverport, `user`, `password`, ind_create_user, ind_delete_server, a.idservice, filter_from, filter_subject, login_layout, 
+                       email_response_as_note, b.name service_name, c.name item_name, d.name type_name, e.name area_name  
+                  FROM hdk_tbgetemail a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e
+                 WHERE a.idservice = b.idservice
+                   AND b.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea
                 $where $group $order $limit";
 
         try{
@@ -71,7 +75,11 @@ class hdkRequestEmailDAO extends Database
     public function countHdkRequestEmails($where=null): array
     {        
         $sql = "SELECT COUNT(idgetemail) total 
-                  FROM hdk_tbgetemail
+                  FROM hdk_tbgetemail a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e
+                 WHERE a.idservice = b.idservice
+                   AND b.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea
                 $where";
     
         try{
