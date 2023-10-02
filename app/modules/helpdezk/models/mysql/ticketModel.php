@@ -685,6 +685,11 @@ final class ticketModel
     private $approverOrder;
 
     /**
+     * @var string
+     */
+    private $senderEmail;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -3920,6 +3925,30 @@ final class ticketModel
     public function setApproverOrder(int $approverOrder)
     {
         $this->approverOrder = $approverOrder;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of senderEmail
+     *
+     * @return  string
+     */ 
+    public function getSenderEmail()
+    {
+        return $this->senderEmail;
+    }
+
+    /**
+     * Set the value of senderEmail
+     *
+     * @param  string  $senderEmail
+     *
+     * @return  self
+     */ 
+    public function setSenderEmail(string $senderEmail)
+    {
+        $this->senderEmail = $senderEmail;
 
         return $this;
     }

@@ -156,7 +156,25 @@ class hdkRequestEmail extends Controller
             $filterValue = $_POST["filterValue"];
             $filterOp = $_POST["filterOperation"];
 
-            $where .=  ((empty($where)) ? "WHERE " : " AND ") . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
+            switch($filterIndx){
+                case "area":
+                    $filterIndx = "e.name";
+                    break;
+                case "type":
+                    $filterIndx = "d.name";
+                    break;
+                case "item":
+                    $filterIndx = "c.name";
+                    break;
+                case "service":
+                    $filterIndx = "b.name";
+                    break;
+                default:
+                    $filterIndx = $filterIndx;
+                    break;
+            }
+
+            $where .=  " AND " . $this->appSrc->_formatGridOperation($filterOp,$filterIndx,$filterValue);
         } 
 
         //Search with params sended from quick search input
@@ -164,7 +182,7 @@ class hdkRequestEmail extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= ((empty($where)) ? "WHERE" : " AND") . "  (pipeLatinToUtf8(serverurl) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(servertype) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(user) LIKE pipeLatinToUtf8('%{$quickValue}%'))";
+            $where .= " AND (pipeLatinToUtf8(b.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(c.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(d.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(e.name) LIKE pipeLatinToUtf8('%{$quickValue}%') OR pipeLatinToUtf8(user) LIKE pipeLatinToUtf8('%{$quickValue}%'))";
         }
 
         /* if(!isset($_POST["allRecords"]) || (isset($_POST["allRecords"]) && $_POST["allRecords"] != "true"))
@@ -174,14 +192,20 @@ class hdkRequestEmail extends Controller
 
         //sort options
         $pq_sort = json_decode($_POST['pq_sort']);
-        $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "`serverUrl`";
+        $sortIndx = isset($pq_sort[0]->dataIndx) ? $pq_sort[0]->dataIndx : "area";
         
         switch($sortIndx){
-            case "serverUrl":
-                $sortIndx = "`serverurl`";
+            case "area":
+                $sortIndx = "area_name";
                 break;
-            case "serverType":
-                $sortIndx = "`servertype`";
+            case "type":
+                $sortIndx = "type_name";
+                break;
+            case "item":
+                $sortIndx = "item_name";
+                break;
+            case "service":
+                $sortIndx = "service_name";
                 break;
             default:
                 $sortIndx = $sortIndx;
@@ -215,9 +239,11 @@ class hdkRequestEmail extends Controller
 
                 $data[] = array(
                     'idgetemail'    => $v['idgetemail'],
-                    'serverUrl'     => $v['serverurl'],
-                    'serverType'    => $v['servertype'],
-                    'user'          => $v['user']                    
+                    'user'          => $v['user'],
+                    'area'          => $v['area_name'],
+                    'type'          => $v['type_name'],
+                    'item'          => $v['item_name'],
+                    'service'       => $v['service_name']                   
                 );
             }
 
@@ -245,7 +271,10 @@ class hdkRequestEmail extends Controller
     public function comboHdkRequestEmailFilters(): array
     {
         $aRet = array(            
-            array("id" => 'serverurl',"text"=>$this->translator->translate('Server'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
+            array("id" => 'area',"text"=>$this->translator->translate('Area'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),            
+            array("id" => 'type',"text"=>$this->translator->translate('Type'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),            
+            array("id" => 'item',"text"=>$this->translator->translate('Item'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),            
+            array("id" => 'service',"text"=>$this->translator->translate('Service'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
             array("id" => 'user',"text"=>$this->translator->translate('email'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
@@ -291,6 +320,7 @@ class hdkRequestEmail extends Controller
 
         $serviceId = trim(strip_tags($_POST['cmbService']));
         $departmentId = trim(strip_tags($_POST['cmbDepartment']));
+        $loginLayout = trim(strip_tags($_POST['cmbLoginLayout']));
 
         $check = $ins = $requestEmailDAO->queryHdkRequestEmails("WHERE idservice = {$serviceId}");
         if(!$check['status']){
@@ -315,7 +345,7 @@ class hdkRequestEmail extends Controller
                         ->setFilterSubject(trim(strip_tags($_POST['filterSubject'])))
                         ->setAddUserFlag((isset($_POST['createUser'])) ? 1 : 0)
                         ->setDepartmentId((!empty($departmentId)) ? $departmentId : 0)
-                        ->setLoginLayout(trim(strip_tags($_POST['cmbLoginLayout'])))
+                        ->setLoginLayout((!empty($loginLayout)) ? $loginLayout : "E")
                         ->setDelFromServerFlag((isset($_POST['deleteEmail'])) ? 1 : 0)
                         ->setResponseNoteFlag((isset($_POST['insertNote'])) ? "1" : "0");
                         
@@ -392,6 +422,7 @@ class hdkRequestEmail extends Controller
 
         $serviceId = trim(strip_tags($_POST['cmbService']));
         $departmentId = trim(strip_tags($_POST['cmbDepartment']));
+        $loginLayout = trim(strip_tags($_POST['cmbLoginLayout']));
 
         $check = $ins = $requestEmailDAO->queryHdkRequestEmails("WHERE idservice = {$serviceId} AND idgetemail != {$_POST['requestEmailId']}");
         if(!$check['status']){
@@ -417,7 +448,7 @@ class hdkRequestEmail extends Controller
                         ->setFilterSubject(trim(strip_tags($_POST['filterSubject'])))
                         ->setAddUserFlag((isset($_POST['createUser'])) ? 1 : 0)
                         ->setDepartmentId((!empty($departmentId)) ? $departmentId : 0)
-                        ->setLoginLayout(trim(strip_tags($_POST['cmbLoginLayout'])))
+                        ->setLoginLayout((!empty($loginLayout)) ? $loginLayout : "E")
                         ->setDelFromServerFlag((isset($_POST['deleteEmail'])) ? 1 : 0)
                         ->setResponseNoteFlag((isset($_POST['insertNote'])) ? "1" : "0");   
         

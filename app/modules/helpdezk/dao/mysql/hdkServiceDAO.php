@@ -1970,4 +1970,61 @@ class hdkServiceDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * getServiceCore
+     * 
+     * en_us Returns service's core data
+     * pt_br Retorna os dados principais do serviço
+     *
+     * @param  mixed $hdkServiceModel
+     * @return array
+     */
+    public function getServiceCore(hdkServiceModel $hdkServiceModel): array
+    {        
+        $sql = "SELECT a.idservice, a.iditem, a.idpriority,a.name,a.status,a.selected,a.classify,
+                       time_attendance,hours_attendance,days_attendance,ind_hours_minutes, b.idgroup, c.name item_name,
+                       c.idtype, d.name type_name, d.idarea, e.name area_name
+                  FROM hdk_tbcore_service a, hdk_tbgroup_has_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e
+                 WHERE a.idservice = b.idservice
+                   AND a.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea
+                   AND a.idservice = :serviceId";
+        //echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':serviceId', $hdkServiceModel->getIdService());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $hdkServiceModel->setIdItem((!is_null($aRet['iditem'])) ? $aRet['iditem'] : 0)
+                            ->setIdPriority((!is_null($aRet['idpriority'])) ? $aRet['idpriority'] : 0)
+                            ->setServiceName((!is_null($aRet['name'])) ? $aRet['name'] : "")
+                            ->setStatus((!is_null($aRet['status'])) ? $aRet['status'] : "I")
+                            ->setFlagDefault((!is_null($aRet['selected'])) ? $aRet['selected'] : 0)
+                            ->setFlagClassify((!is_null($aRet['classify'])) ? $aRet['classify'] : 0)
+                            ->setAttendanceTime((!is_null($aRet['time_attendance'])) ? $aRet['time_attendance'] : 0)
+                            ->setLimitTime((!is_null($aRet['hours_attendance'])) ? $aRet['hours_attendance'] : 0)
+                            ->setLimitDays((!is_null($aRet['days_attendance'])) ? $aRet['days_attendance'] : 0)
+                            ->setTimeType((!is_null($aRet['ind_hours_minutes'])) ? $aRet['ind_hours_minutes'] : "H")
+                            ->setIdGroup((!is_null($aRet['idgroup'])) ? $aRet['idgroup'] : 0)
+                            ->setItemName((!is_null($aRet['item_name'])) ? $aRet['item_name'] : "")
+                            ->setIdType((!is_null($aRet['idtype'])) ? $aRet['idtype'] : 0)
+                            ->setTypeName((!is_null($aRet['type_name'])) ? $aRet['type_name'] : "")
+                            ->setIdArea((!is_null($aRet['idarea'])) ? $aRet['idarea'] : 0)
+                            ->setAreaName((!is_null($aRet['area_name'])) ? $aRet['area_name'] : "");
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$hdkServiceModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting service's core info.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

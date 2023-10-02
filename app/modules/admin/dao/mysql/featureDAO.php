@@ -707,4 +707,40 @@ class featureDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * getFeatureValueBySessionName
+     *
+     * en_us Returns feature value by session name variable
+     * pt_br Retorna o valor da configuração pelo nome da variável de sessão
+     *
+     * @param  featureModel $featureModel
+     * @return array
+     */
+    public function getFeatureValueBySessionName(featureModel $featureModel): array
+    {        
+        $table = $featureModel->getTableName();
+
+        $sql = "SELECT `value` FROM $table WHERE session_name = :sessionName";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':sessionName', $featureModel->getSessionName());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $featureModel->setSettingValue((!is_null($aRet['value']) && !empty($aRet['value'])) ? $aRet['value'] : "");
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$featureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting feature's value by session's name", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

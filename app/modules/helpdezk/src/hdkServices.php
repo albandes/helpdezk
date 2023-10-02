@@ -584,11 +584,12 @@ class hdkServices
      * @param  mixed $idGroup
      * @return void
      */
-    public function _getIdGroupOnlyRepass($idGroup){
+    public function _getIdGroupOnlyRepass($idGroup,$companyId=NULL){
+        $companyId = !($companyId) ? $_SESSION['SES_COD_EMPRESA'] : $companyId;
         $groupDAO = new groupDAO();
         $groupModel = new groupModel();        
         $groupModel->setIdGroup($idGroup)
-                   ->setIdCompany($_SESSION['SES_COD_EMPRESA']);
+                   ->setIdCompany($companyId);
 
         $ret = $groupDAO->checkGroupOnlyRepass($groupModel);
         if(!$ret['status'])
@@ -858,6 +859,29 @@ class hdkServices
 
                 break;
 
+            // Sends a notification to the requester when a request is opened by email
+            case 'new-ticket-system':
+                if($media == 'email'){
+                    if ($_SESSION['hdk']['SEND_EMAILS'] == '1' && $_SESSION['hdk']['SES_NEW_EMAIL_REQUEST'] == 1) {
+                        if ( $_SESSION['EM_BY_CRON'] == '1' ) {
+                            $cron = true;
+                        } else {
+                            $smtp = true;
+                        }
+                        $messageTo   = 'new-ticket-system';
+                        $messagePart = 'Inserted request # ';
+                    }
+                }
+
+                // Since November 20, 2020
+                if ($this->_existsViewByUrlTable()) {
+                    $this->_saveUrlToken($retTicket['push']['object']->getIdOwner(), $ticketCode); // ticket owner
+                } else {
+                    $this->hdklogger->info("[hdk] hdk_tbviewbyurl table does not exist",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                }
+
+                break;
+
             default:
                 return false;
         }
@@ -1042,6 +1066,7 @@ class hdkServices
         // Notes
         $table          = $this->_makeNotesTable($ticketCode);
         $NT_OPERATOR    = $table;
+        $sender = $ticket->getSenderEmail();
 
         switch ($operation) {
 
@@ -1419,6 +1444,29 @@ class hdkServices
                 $sentTo = $this->_setSendTo($ticketCode);
 
                 break;
+                
+            //Sends a email to the operator or group of operators when a request is opened
+            case "new-ticket-system":
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("SES_NEW_EMAIL_REQUEST");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
+                }
+
+                $template = $retTemplate['push']['object'];
+
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $template->getSubject();
+                eval("\$subject = \"$subject\";");
+
+                // Setups the list of recipients
+                $sentTo = $ticket->getOwnerEmail();
+
+                break;
 
         }
 
@@ -1437,8 +1485,8 @@ class hdkServices
                         "msg2"          => $msgLog2,
                         "customHeader"  => $customHeader,
                         "code_request"  => $REQUEST,
-                        "tokenOperatorLink"=> true);
-
+                        "tokenOperatorLink"=> true,
+                        "sender" => $sender);
 
         $done = $appSrc->_sendEmail($params);
 

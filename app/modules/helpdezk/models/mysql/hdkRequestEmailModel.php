@@ -110,6 +110,26 @@ final class hdkRequestEmailModel
     private $itemId;
 
     /**
+     * @var string
+     */
+    private $emailCode;
+
+    /**
+     * @var int
+     */
+    private $ticketId;
+
+    /**
+     * @var string
+     */
+    private $ticketCode;
+
+    /**
+     * @var string
+     */
+    private $ticketCodeTmp;
+
+    /**
      * Get the value of gridList
      *
      * @return  array
@@ -609,6 +629,102 @@ final class hdkRequestEmailModel
     public function setItemId(int $itemId)
     {
         $this->itemId = $itemId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of emailCode
+     *
+     * @return  string
+     */ 
+    public function getEmailCode()
+    {
+        return $this->emailCode;
+    }
+
+    /**
+     * Set the value of emailCode
+     *
+     * @param  string  $emailCode
+     *
+     * @return  self
+     */ 
+    public function setEmailCode(string $emailCode)
+    {
+        $this->emailCode = $emailCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketId
+     *
+     * @return  int
+     */ 
+    public function getTicketId()
+    {
+        return $this->ticketId;
+    }
+
+    /**
+     * Set the value of ticketId
+     *
+     * @param  int  $ticketId
+     *
+     * @return  self
+     */ 
+    public function setTicketId(int $ticketId)
+    {
+        $this->ticketId = $ticketId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketCode
+     *
+     * @return  string
+     */ 
+    public function getTicketCode()
+    {
+        return $this->ticketCode;
+    }
+
+    /**
+     * Set the value of ticketCode
+     *
+     * @param  string  $ticketCode
+     *
+     * @return  self
+     */ 
+    public function setTicketCode(string $ticketCode)
+    {
+        $this->ticketCode = $ticketCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ticketCodeTmp
+     *
+     * @return  string
+     */ 
+    public function getTicketCodeTmp()
+    {
+        return $this->ticketCodeTmp;
+    }
+
+    /**
+     * Set the value of ticketCodeTmp
+     *
+     * @param  string  $ticketCodeTmp
+     *
+     * @return  self
+     */ 
+    public function setTicketCodeTmp(string $ticketCodeTmp)
+    {
+        $this->ticketCodeTmp = $ticketCodeTmp;
 
         return $this;
     }

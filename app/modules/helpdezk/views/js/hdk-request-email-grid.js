@@ -1,88 +1,3 @@
-var objGroup = {
-    loadType: function() {
-        var areaID = $("#modal-cmb-area").val();
-        objGroup.emptyCombos('area');
-
-        $.post(path+"/helpdezk/hdkTicket/ajaxTypes",{areaID: areaID},
-            function(valor){
-                var attr = $("#modal-cmb-type").attr('disabled');
-                if(typeof attr !== 'undefined' && attr !== false)
-                    $("#modal-cmb-type").removeAttr('disabled');
-                
-                $("#modal-cmb-type").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>' + valor);
-                $("#modal-cmb-type").val('X');
-                $("#modal-cmb-type").trigger("change");
-            });
-    },
-    loadItem: function(){
-        var typeID = $("#modal-cmb-type").val();
-        objGroup.emptyCombos('type');
-        
-        if(typeID != 'X' && typeID){
-            $.post(path+"/helpdezk/hdkTicket/ajaxItens",{typeID: typeID},
-            function(valor){
-                var attr = $("#modal-cmb-item").attr('disabled');
-                if(typeof attr !== 'undefined' && attr !== false)
-                    $("#modal-cmb-item").removeAttr('disabled');
-                
-                $("#modal-cmb-item").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>' + valor);
-                $("#modal-cmb-item").val('X');
-                $("#modal-cmb-item").trigger("change");
-            });
-        }
-    },
-    loadService: function(){
-        var itemID = $("#modal-cmb-item").val();
-        objGroup.emptyCombos('item');
-
-        if(itemID != 'X' && itemID){
-            $.post(path+"/helpdezk/hdkTicket/ajaxServices",{itemID: itemID},
-            function(valor){
-                var attr = $("#modal-cmb-service").attr('disabled');
-                if(typeof attr !== 'undefined' && attr !== false)
-                    $("#modal-cmb-service").removeAttr('disabled');
-                
-                $("#modal-cmb-service").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>' + valor);
-                $("#modal-cmb-service").val('X');
-                $("#modal-cmb-service").trigger("change");
-            });
-        }
-    },
-    emptyCombos: function(type){
-        switch(type){
-            case 'area':
-                $("#modal-cmb-type").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>').attr('disabled','disabled');
-                $("#modal-cmb-type").trigger("change");
-                $("#modal-cmb-item").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>').attr('disabled','disabled');
-                $("#modal-cmb-item").trigger("change");                
-                $("#modal-cmb-service").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>').attr('disabled','disabled');
-                $("#modal-cmb-service").trigger("change");
-                if(!$(".groupListView").hasClass('d-none'))
-                    $(".groupListView").addClass('d-none');
-                break;
-            case 'type':
-                $("#modal-cmb-item").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>').attr('disabled','disabled');
-                $("#modal-cmb-item").trigger("change");
-                $("#modal-cmb-service").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>').attr('disabled','disabled');
-                $("#modal-cmb-service").trigger("change");
-                if(!$(".groupListView").hasClass('d-none'))
-                    $(".groupListView").addClass('d-none');
-                break;
-            case 'item':
-                $("#modal-cmb-service").html('<option value="X" disabled hidden selected>'+vocab['Select']+'</option>').attr('disabled','disabled');
-                $("#modal-cmb-service").trigger("change");
-                if(!$(".groupListView").hasClass('d-none'))
-                    $(".groupListView").addClass('d-none');
-                break;
-            case 'service':
-                if(!$(".groupListView").hasClass('d-none'))
-                    $(".groupListView").addClass('d-none');
-                break;
-
-        }        
-    }
-};
-
 $(document).ready(function () {
     countdown.start(timesession);
     
@@ -95,19 +10,19 @@ $(document).ready(function () {
     $('#filter-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
     $('#action-list').select2({width:"100%",dropdownParent: $(this).find('.modal-body-filters')});
 
-   /**
-    * reload action's combo
-    */
-   $('#filter-list').change(function(){
-       var searchOpts = $("#filter-list option:selected").data('optlist');
+    /**
+        * reload action's combo
+        */
+    $('#filter-list').change(function(){
+        var searchOpts = $("#filter-list option:selected").data('optlist');
 
-       $.post(path+"/main/home/reloadSearchOptions",{searchOpts:searchOpts},
-           function(valor) {
-               $("#action-list").html(valor);
-               $("#action-list").trigger("change");
-               return false;
-           });
-   });
+        $.post(path+"/main/home/reloadSearchOptions",{searchOpts:searchOpts},
+            function(valor) {
+                $("#action-list").html(valor);
+                $("#action-list").trigger("change");
+                return false;
+            });
+    });
 
     /** 
      * Define a model for grid's columns
@@ -120,14 +35,15 @@ $(document).ready(function () {
      * 
      * for more column's options see https://paramquery.com/api#option-column-hidden
      * */ 
-    var colM = [ 
+    var colM = [
         { title: vocab["ID"], width: '10%', dataIndx: "idgetemail", hidden:true, halign: "center"  },        
-        { title: "<b>"+vocab["Server"]+"</b> ", width: '50%', dataIndx: "serverUrl", halign: "center"  },
-        { title: "<b>"+vocab["Type"]+"</b> ", width: '20%', dataIndx: "serverType", align: "center", halign: "center"  },        
-        { title: "<b>"+vocab["email"]+"</b> ", width: '29%', dataIndx: "user", align: "center", halign: "center"  },
+        { title: "<b>"+vocab["email"]+"</b> ", width: '20%', dataIndx: "user", align: "left", halign: "center"  },
+        { title: "<b>"+vocab["Area"]+"</b> ", width: '20%', dataIndx: "area", align: "left", halign: "center"  },
+        { title: "<b>"+vocab["Type"]+"</b> ", width: '20%', dataIndx: "type", align: "left", halign: "center"  },
+        { title: "<b>"+vocab["Item"]+"</b> ", width: '20%', dataIndx: "item", align: "left", halign: "center"  },
+        { title: "<b>"+vocab["Service"]+"</b> ", width: '19%', dataIndx: "service", align: "left", halign: "center"  },
         { title: "", width: '10%', hidden:true, halign: "center"  }
     ];
-
 
     /** 
      * Define a data model

@@ -1183,7 +1183,7 @@ class ticketDAO extends Database
                         `pers`.`branch_number` AS `branch`, `inch`.`type` AS `typeincharge`, `dep`.`name` AS `department`, 
                         `dep`.`iddepartment` AS `iddepartment`, `source`.`name` AS `source_name`, `are`.`idarea` AS `idarea`,
                         `are`.`name` AS `area`, `reason`.`name`  AS `reason`, `req`.`idreason` AS `idreason`, `attway`.`way` AS `way_name`,
-                        `stat`.`color` AS `status_color`, `pers`.`idtypeperson` AS `owner_type`
+                        `stat`.`color` AS `status_color`, `pers`.`idtypeperson` AS `owner_type`, `rse`.`sender_email` AS `sender_email`
                   FROM hdk_tbrequest req
                   JOIN `tbperson` `pers`
                     ON `req`.`idperson_owner` = `pers`.`idperson`
@@ -1220,6 +1220,8 @@ class ticketDAO extends Database
                     ON `resp`.`idperson` = `grp`.`idperson`
                   JOIN `hdk_tbattendance_way` `attway`
                     ON `attway`.`idattendanceway` = `req`.`idattendance_way` 
+       LEFT OUTER JOIN `hdk_tbrequest_response_sender` `rse`
+                    ON `req`.`code_request` = `rse`.`code_request` 
                  WHERE `req`.`code_request` = :ticketCode";
         
         try{
@@ -1274,7 +1276,8 @@ class ticketDAO extends Database
                         ->setIdDepartment($aRet['iddepartment'])
                         ->setDepartment($aRet['department'])
                         ->setIdReason((isset($aRet['idreason']) && !is_null($aRet['idreason'])) ? $aRet['idreason'] : 0)
-                        ->setReason((isset($aRet['reason']) && !is_null($aRet['reason'])) ? $aRet['reason'] : "");
+                        ->setReason((isset($aRet['reason']) && !is_null($aRet['reason'])) ? $aRet['reason'] : "")
+                        ->setSenderEmail((!is_null($aRet['sender_email']) && !empty($aRet['sender_email'])) ? $aRet['sender_email'] : "");
 
             $ret = true;
             $result = array("message"=>"","object"=>$ticketModel);
@@ -3719,6 +3722,29 @@ class ticketDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting url token by user id. ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    public function insertResponseSender(ticketModel $ticketModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbrequest_response_sender (code_request,sender_email) VALUES (:ticketCode,:senderEmail)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->bindParam(':senderEmail', $ticketModel->getSenderEmail());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error saving ticket's response sender.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);

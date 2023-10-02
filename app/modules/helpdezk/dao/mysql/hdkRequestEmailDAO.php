@@ -32,9 +32,13 @@ class hdkRequestEmailDAO extends Database
     public function queryHdkRequestEmails($where=null,$group=null,$order=null,$limit=null): array
     {
         
-        $sql = "SELECT idgetemail, serverurl, servertype, serverport, user, `password`, ind_create_user, ind_delete_server, idservice, filter_from, filter_subject, login_layout, 
-                        email_response_as_note  
-                  FROM hdk_tbgetemail
+        $sql = "SELECT idgetemail, serverurl, servertype, serverport, `user`, `password`, ind_create_user, ind_delete_server, a.idservice, filter_from, filter_subject, login_layout, 
+                       email_response_as_note, b.name service_name, c.name item_name, d.name type_name, e.name area_name  
+                  FROM hdk_tbgetemail a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e
+                 WHERE a.idservice = b.idservice
+                   AND b.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea
                 $where $group $order $limit";
 
         try{
@@ -71,7 +75,11 @@ class hdkRequestEmailDAO extends Database
     public function countHdkRequestEmails($where=null): array
     {        
         $sql = "SELECT COUNT(idgetemail) total 
-                  FROM hdk_tbgetemail
+                  FROM hdk_tbgetemail a, hdk_tbcore_service b, hdk_tbcore_item c, hdk_tbcore_type d, hdk_tbcore_area e
+                 WHERE a.idservice = b.idservice
+                   AND b.iditem = c.iditem
+                   AND c.idtype = d.idtype
+                   AND d.idarea = e.idarea
                 $where";
     
         try{
@@ -451,6 +459,85 @@ class hdkRequestEmailDAO extends Database
             $result = array("message"=>$msg,"object"=>null);
             $this->db->rollBack();
         }         
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * getTicketByEmailCode
+     * 
+     * en_us Returns ticket's id and code
+     * pr_br Retorna o ID e o código do ticket
+     *
+     * @param  hdkRequestEmailModel $hdkRequestEmailModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getTicketByEmailCode(hdkRequestEmailModel $hdkRequestEmailModel): array
+    {
+        
+        $sql = "SELECT idrequest, code_request FROM hdk_tbrequest WHERE code_email = :emailCode";
+               // echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':emailCode', $hdkRequestEmailModel->getEmailCode());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $hdkRequestEmailModel->setTicketId((!is_null($aRet['idrequest']) && !empty($aRet['idrequest'])) ? $aRet['idrequest'] : 0)
+                                 ->setTicketCode((!is_null($aRet['code_request']) && !empty($aRet['code_request'])) ? $aRet['code_request'] : "");
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$hdkRequestEmailModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket data by email code", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * getCountTicket
+     * 
+     * en_us Returns ticket's total registers
+     * pr_br Retorna o total de registros do ticket
+     *
+     * @param  hdkRequestEmailModel $hdkRequestEmailModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function getCountTicket(hdkRequestEmailModel $hdkRequestEmailModel): array
+    {
+        
+        $sql = "SELECT COUNT(idrequest) as total FROM hdk_tbrequest WHERE code_request = :ticketCode";
+               // echo "{$sql}\n";
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':ticketCode', $hdkRequestEmailModel->getTicketCodeTmp());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $hdkRequestEmailModel->setTotalRows((!is_null($aRet['total']) && !empty($aRet['total'])) ? $aRet['total'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$hdkRequestEmailModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting ticket's total registers", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
