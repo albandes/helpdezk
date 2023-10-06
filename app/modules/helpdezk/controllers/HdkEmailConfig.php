@@ -67,7 +67,7 @@ class hdkEmailConfig extends Controller
         
         // -- Search action --
         if($option=='idx'){
-          $params['cmbFilters'] = $this->comboHdkRequestEmailFilters();
+          $params['cmbFilters'] = $this->comboEmailConfigFilters();
           $params['cmbFilterOpts'] = $this->appSrc->_comboFilterOpts($params['cmbFilters'][0]['searchOpt']);
           $params['modalFilters'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-search-filters.latte';
         }
@@ -196,21 +196,17 @@ class hdkEmailConfig extends Controller
     }
     
     /**
-     * comboHdkRequestEmailFilters
+     * comboEmailConfigFilters
      * 
      * en_us Renders the status add screen
      * pt_br Renderiza o template da tela de novo cadastro de status
      *
      * @return array
      */
-    public function comboHdkRequestEmailFilters(): array
+    public function comboEmailConfigFilters(): array
     {
         $aRet = array(            
-            array("id" => 'area',"text"=>$this->translator->translate('Area'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),            
-            array("id" => 'type',"text"=>$this->translator->translate('Type'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),            
-            array("id" => 'item',"text"=>$this->translator->translate('Item'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),            
-            array("id" => 'service',"text"=>$this->translator->translate('Service'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en')),
-            array("id" => 'user',"text"=>$this->translator->translate('email'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
+            array("id" => 'name',"text"=>$this->translator->translate('Name'),"searchOpt"=>array('eq', 'bw', 'bn', 'cn', 'nc', 'ew', 'en'))
         );
         
         return $aRet;
@@ -219,8 +215,8 @@ class hdkEmailConfig extends Controller
     /**
      * formCreate
      * 
-     * en_us Renders the status add screen
-     * pt_br Renderiza o template da tela de novo cadastro de status
+     * en_us Renders the template email add screen
+     * pt_br Renderiza a tela de novo cadastro de template email
      *
      * @return void
      */
@@ -509,7 +505,7 @@ class hdkEmailConfig extends Controller
      * ajaxEmailSettings
      * 
      * en_us Reloads options for email settings dropdown list
-     * pt_br Recarrega opções para o combo de configurações de e-mail
+     * pt_br Recarrega as opções para o combo de notificações de e-mail
      *
      * @return void
      */

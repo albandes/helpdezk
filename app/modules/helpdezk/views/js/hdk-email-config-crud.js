@@ -3,8 +3,8 @@ $(document).ready(function () {
     /**
      * Select2
      */
-    $('#cmbSetting').select2({width:"100%",height:"100%",placeholder:vocab['select'],allowClear:true,minimumResultsForSearch: 10});
-    $('#cmbLocale').select2({width:"100%",height:"100%",placeholder:vocab['select'],allowClear:true,minimumResultsForSearch: 10});
+    $('#cmbSetting').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10});
+    $('#cmbLocale').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10});
     $('#cmbFeatureType').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-add-feature-form')});
     
     /**
