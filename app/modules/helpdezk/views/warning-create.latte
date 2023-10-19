@@ -1,0 +1,222 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='pgr_warnings'|translate} / <strong>{='Add'|translate}</strong></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="create-warning-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-1 col-md-1 b-l g-2 text-center ms-1">&nbsp;</div>
+
+                                        <div class="row col-sm-11 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbTopic" class="hdk-label col-form-label text-end">{='Topic'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbTopic" name="cmbTopic" >
+                                                        <option hidden disabled selected>{='Select'|translate}</option>
+                                                        {foreach $cmbTopic as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == 1}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbTopic_validate_error" class="row"></div>
+                                                </div>
+
+                                                <div class="col-sm-1 text-end">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddTopic" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='add_new_topic'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="warning-title" class="hdk-label col-form-label text-end">{='Title'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="text" id="warning-title" name="warning-title" class="form-control" value="" >
+                                                    <div id="warning-title_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="warning-description" class="hdk-label col-form-label text-end">{='Description'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <textarea class="form-control input-sm" id="warning-description" name="warning-description" placeholder="{$plh_description}"></textarea>
+                                                    <div id="warning-description_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="start-date" class="hdk-label col-form-label text-end">{='Valid'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="row  col-sm-9 col-md-9 col-lg-5">
+                                                    <div class="col-sm-6">
+                                                        <div class="input-group date">
+                                                            <input type="text" id="start-date" name="start-date" class="form-control input-sm" value="{date('d/m/Y')}" readonly />
+                                                            <span class="input-group-addon"><i class="fa fa-calendar-alt mt-1"></i></span>
+                                                        </div>
+                                                        <div id="start-date_validate_error" class="row"></div>
+                                                    </div>
+                                                    <div class="col-sm-1 text-center">&nbsp;</div>
+                                                    <div class="col-sm-5 text-end">
+                                                        <div class="input-group">
+                                                            <input type="text" id="start-time" name="start-time" class="form-control form-control-sm" value="{date('H:i:s')}" readonly />
+                                                            <span id="btnStartTime" class="input-group-addon"><i class="fa fa-clock mt-1"></i></span>
+                                                        </div>
+                                                        <div id="start-time_validate_error" class="row text-start"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="end-date" class="hdk-label col-form-label text-end">{='Valid_until'|translate}:</label>
+                                                </div>
+                                                
+                                                <div id="valid-until-cell" class="row col-sm-9 col-md-9 col-lg-5 d-none">
+                                                    <div class="col-sm-6">
+                                                        <div class="input-group date">
+                                                            <input type="text" id="end-date" name="end-date" class="form-control input-sm" value="" readonly />
+                                                            <span class="input-group-addon"><i class="fa fa-calendar-alt mt-1"></i></span>
+                                                        </div>
+                                                        <div id="end-date_validate_error" class="row"></div>
+                                                    </div>
+                                                    <div class="col-sm-1 text-center">&nbsp;</div>
+                                                    <div class="col-sm-5 text-end">
+                                                        <div class="input-group">
+                                                            <input type="text" id="end-time" name="end-time" class="form-control form-control-sm" value="" readonly />
+                                                            <span id="btnEndTime" class="input-group-addon"><i class="fa fa-clock mt-1"></i></span>
+                                                        </div>
+                                                        <div id="end-time_validate_error" class="row text-end"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <input type="checkbox" id="flag-until-closed" name="flag-until-closed" value="" checked>&nbsp;&nbsp;<label class="col-form-label">{='until_closed'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="flag-send-alert" class="hdk-label col-form-label text-end">{='Send_email'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <input type="checkbox" id="flag-send-alert" name="flag-send-alert" value="">&nbsp;&nbsp;<label class="col-form-label">{='Send_alerts_email'|translate}</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbShowIn" class="hdk-label col-form-label text-end">{='Show_in'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbShowIn" name="cmbShowIn" >
+                                                        <option hidden disabled selected>{='Select'|translate}</option>
+                                                        {foreach $cmbShowIn as $k=>$v}
+                                                        <option value="{$v['id']}" {if $v['id'] == 1}selected{/if}>{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbShowIn_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row wrapper border-bottom ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-warning"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateWarning" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/warning/modal-alert-create.latte'}
+    {include 'modals/warning/modal-add-topic.latte'}
+</body>
+
+    <script type="text/javascript">
+		var dtpFormat = {$dtpFormat},
+            dtpLanguage = {$dtpLanguage},
+            dtpAutoclose = {$dtpAutoclose},
+            dtpOrientation = {$dtpOrientation}
+            momentFormat = {$momentFormat};
+	</script>
+    
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="{$path}/public/assets/css/plugins/datepicker/bootstrap-datepicker.css" />
+    <script src="{$path}/public/assets/js/plugins/datepicker/bootstrap-datepicker.js"></script>
+    {if $dtpickerLocale != ''}
+    <script src="{$path}/public/assets/js/plugins/datepicker/locales/{$dtpickerLocale}"></script>
+    {/if}
+
+    <!-- Moment -->
+    <script src="{$path}/public/assets/js/plugins/moment/moment-with-locales.js"></script>
+
+    <!-- Clockpicker -->
+    <link rel="stylesheet" type="text/css" href="{$path}/public/assets/css/plugins/mdtimepicker/mdtimepicker.css">
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/mdtimepicker/mdtimepicker.js"></script>
+    
+    <!-- Input Mask-->
+    <script type="text/javascript" src="{$path}/public/assets/js/plugins/jquery-mask/jquery.mask.js" ></script>
+
+    <script src="{$path}/app/modules/helpdezk/views/js/warning-crud.js"></script>
+
+{/block}
