@@ -31,7 +31,7 @@ class ticketDAO extends Database
      *                            object = model's object]]
      */
     public function queryTickets($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $sql = "SELECT DISTINCT a.code_request, a.subject, resp.name AS in_charge, inch.id_in_charge,
                         a.expire_date, a.entry_date, b.user_view AS statusview, a.idtype, a.idperson_owner AS owner,
                         b.idstatus AS status, b.color AS color_status, a.flag_opened, pers.name AS personname,
@@ -126,7 +126,7 @@ class ticketDAO extends Database
      *                            object = model's object]]
      */
     public function queryAttendantTickets($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $sql = "SELECT req.code_request AS code_request, req.expire_date  AS expire_date, req.entry_date AS entry_date,
                         req.flag_opened AS flag_opened, req.subject  AS `subject`, req.idperson_owner AS idperson_owner,
                         req.idperson_creator AS idperson_creator, cre.name AS name_creator, cre.phone_number AS phone_number,
@@ -280,7 +280,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getUrlTokenByEmail(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT b.token
                   FROM tbperson a, hdk_tbviewbyurl b 
                  WHERE a.idperson = b.idperson
@@ -319,7 +319,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getWaitingApprovalRequestsCount(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT COUNT(distinct req.code_request) AS total 
                   FROM (hdk_tbrequest req, hdk_tbstatus stat, tbperson pers,
                             tbperson resp, hdk_tbrequest_in_charge inch)
@@ -369,7 +369,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getLastTicketCode(ticketModel $ticketModel): array
-    {        
+    {
         $prefix = $ticketModel->getTablePrefix();
         $sql = "SELECT cod_request, cod_month FROM {$prefix}_tbrequest_code WHERE cod_month = DATE_FORMAT(NOW(),'%Y%m')";
         
@@ -403,7 +403,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function increaseTicketCode(ticketModel $ticketModel): array
-    {        
+    {
         $prefix = $ticketModel->getTablePrefix();
         $sql = "UPDATE {$prefix}_tbrequest_code 
                    SET cod_request = cod_request + 1  
@@ -437,7 +437,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function createTicketCode(ticketModel $ticketModel): array
-    {        
+    {
         $prefix = $ticketModel->getTablePrefix();
         $sql = "INSERT INTO {$prefix}_tbrequest_code (cod_request,cod_month)
                      VALUES (1,DATE_FORMAT(NOW(),'%Y%m'))";
@@ -469,7 +469,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function checksVipUser(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT user_vip FROM tbperson WHERE idperson = :ownerID";
         
         try{
@@ -503,7 +503,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function checksVipPriority(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT COUNT(idpriority) as total FROM hdk_tbpriority WHERE vip = 1 GROUP BY idpriority";
         
         try{
@@ -537,7 +537,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getVipPriority(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idpriority FROM hdk_tbpriority WHERE vip = 1";
         
         try{
@@ -570,7 +570,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getIdPriorityByService(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idpriority FROM hdk_tbcore_service WHERE idservice = :serviceID";
         
         try{
@@ -604,7 +604,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getDefaultPriority(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idpriority FROM hdk_tbpriority WHERE `default` = 1 AND `status` = 'A'";
         
         try{
@@ -637,7 +637,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getServiceGroup(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT grp.idperson
                   FROM hdk_tbgroup grp, hdk_tbcore_service serv, hdk_tbgroup_has_service grp_serv
                  WHERE grp.idgroup = grp_serv.idgroup
@@ -675,7 +675,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicket(ticketModel $ticketModel): array
-    {        
+    { 
         $sql = "INSERT INTO hdk_tbrequest  (code_request,`subject`,description,idtype,iditem,idservice,idreason,
                                             idpriority,idsource,idperson_creator,entry_date,os_number,label,
                                             serial_number,idperson_juridical,expire_date,idattendance_way,
@@ -724,7 +724,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketInCharge(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_in_charge (code_request,id_in_charge,type,ind_in_charge,ind_repass,ind_track,ind_operator_aux) 
                      VALUES (:ticketCode,:inChargeID,:type,:isInCharge,:isRepass,:isTrack,:isOperatorAux)";
         
@@ -754,7 +754,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketTimesNew(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_times (CODE_REQUEST,MIN_OPENING_TIME,MIN_ATTENDANCE_TIME,
                                                  MIN_EXPENDED_TIME,MIN_TELEPHONE_TIME,MIN_CLOSURE_TIME)
                      VALUES (:ticketCode,:minOpeningTime,:minAttendanceTime,:minExpendedTime,
@@ -785,7 +785,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketDate(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_dates (code_request,forwarded_date,approval_date,finish_date,
                                                  rejection_date,date_period_attendant,date_charging_period,
                                                  opening_date) 
@@ -820,7 +820,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketLog(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_log (cod_request,date,idstatus,idperson,reopened) 
                      VALUES (:ticketCode,:logDate,:statusID,:personID,:isReopened)";
         
@@ -848,7 +848,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketNote(ticketModel $ticketModel): array
-    {  
+    {
         $sql = "INSERT INTO hdk_tbnote (code_request,idperson,description,entry_date,minutes,start_hour,
                             finish_hour,execution_date,hour_type,service_value,public,idtype,
                             ip_adress,callback,flag_opened,code_email) 
@@ -894,7 +894,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveTicket(ticketModel $ticketModel): array
-    {   
+    {
         $ticketRulesDAO = new ticketRulesDAO();
         $ticketRulesModel = new ticketRulesModel();
         
@@ -992,7 +992,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getInChargeByTicketCode(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT id_in_charge, `name`, `type`, b.email
                   FROM hdk_tbrequest_in_charge a, tbperson b
                  WHERE b.idperson =  a.id_in_charge
@@ -1068,7 +1068,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function deleteTicketAttachment(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "DELETE FROM hdk_tbrequest_attachment WHERE idrequest_attachment = :attachmentID";
         
         try{
@@ -1099,7 +1099,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicketAttachmentName(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE lgp_tbrequest_attachment
                    SET file_uploaded = :newName 
                  WHERE idrequest_attachment = :attachmentID";
@@ -1167,7 +1167,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getTicket(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT `req`.`code_request` AS `code_request`, `req`.`expire_date` AS `expire_date`, `req`.`entry_date` AS `entry_date`,
                         `req`.`flag_opened` AS `flag_opened`, `req`.`subject` AS `subject`, `req`.`idperson_owner` AS `idperson_owner`,
                         `req`.`idperson_creator` AS `idperson_creator`, `cre`.`name` AS `name_creator`, `cre`.`phone_number` AS `phone_number`,
@@ -1302,7 +1302,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchTicketNotes(ticketModel $ticketModel): array
-    {        
+    {
         $sql = " SELECT nt.idnote, pers.idperson, pers.name, nt.description, nt.entry_date, nt.minutes, nt.start_hour, nt.finish_hour,
                         nt.execution_date, nt.public, nt.idtype, nt.ip_adress, nt.callback,
                         TIME_FORMAT(TIMEDIFF(nt.finish_hour, nt.start_hour), '%Hh %imin %ss') AS diferenca, nt.hour_type, nt.flag_opened
@@ -1342,7 +1342,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchTicketAttachments(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT file_name,idrequest_attachment 
                   FROM hdk_tbrequest_attachment 
                   WHERE code_request = :ticketCode";
@@ -1378,7 +1378,7 @@ class ticketDAO extends Database
      *                                   object = model's object]]
      */
     public function getIdStatusSource(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idstatus_source FROM hdk_tbstatus WHERE idstatus = :statusID";
         
         try{
@@ -1412,7 +1412,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchNoteAttachments(ticketModel $ticketModel): array
-    {        
+    {
         $sql = " SELECT b.idnote_attachments,b.filename
                    FROM hdk_tbnote_has_attachments a
              INNER JOIN hdk_tbnote_attachments b
@@ -1450,7 +1450,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchTicketApprover(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT a.idperson, a.`order` 
                   FROM hdk_tbrequest_approval a, hdk_tbrequest b 
                  WHERE a.request_code = b.code_request 
@@ -1491,7 +1491,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveCancelTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aNotes = $ticketModel->getNoteList();
         
         try{
@@ -1549,7 +1549,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicketStatus(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest SET idstatus = :statusID WHERE code_request = :ticketCode";
         
         $stmt = $this->db->prepare($sql);
@@ -1575,7 +1575,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicketDate(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest_dates SET ". $ticketModel->getTicketDateField() ." = NOW() WHERE code_request = :ticketCode";
         
         $stmt = $this->db->prepare($sql);
@@ -1599,7 +1599,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveReopenTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aNotes = $ticketModel->getNoteList();
         
         try{
@@ -1656,7 +1656,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchAuxiliaryAttendant(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idperson, TRIM(name) AS `name`
                   FROM tbperson
                  WHERE idperson ";
@@ -1702,7 +1702,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchNoteType(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idtypenote, b.key_value note_type_label
                   FROM hdk_tbnote_type a, tbvocabulary b, tblocale c
                  WHERE a.lang_key_name = b.key_name
@@ -1742,7 +1742,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchAttendantGroupRealID(ticketModel $ticketModel): array
-    {        
+    {
         $groupsID = $ticketModel->getIdGroupList();
         
         $sql = "SELECT idperson FROM hdk_tbgroup WHERE idgroup IN ({$groupsID})";
@@ -1778,7 +1778,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicketDeadline(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest SET extensions_number = :extensionNumber, expire_date = :newDeadline WHERE code_request = :ticketCode";
         
         $stmt = $this->db->prepare($sql);
@@ -1804,7 +1804,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketDeadlineChange(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_change_expire (code_request,reason,idperson,changedate) 
                      VALUES (:ticketCode,:reason,:personID,NOW())";
         
@@ -1831,7 +1831,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveChangeTicketDeadline(ticketModel $ticketModel): array
-    {   
+    {
         try{
             $this->db->beginTransaction();
 
@@ -1869,7 +1869,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicket(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest 
                    SET idtype = :typeID, 
                        iditem = :itemID,
@@ -1915,7 +1915,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function removeTicketInCharge(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest_in_charge SET ind_in_charge = '0' WHERE code_request = :ticketCode";
         
         $stmt = $this->db->prepare($sql);
@@ -1940,7 +1940,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicketTime(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest_times SET ". $ticketModel->getTicketTimeField() ." = :timeValue WHERE CODE_REQUEST = :ticketCode";
         
         $stmt = $this->db->prepare($sql);
@@ -1965,7 +1965,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveAssumeTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
         $aTimes = $ticketModel->getTimesList();
@@ -2047,7 +2047,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchAttendants(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idperson, TRIM(name) AS `name`
                   FROM tbperson
                  WHERE idtypeperson IN (1,3)
@@ -2086,7 +2086,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchPartners(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idperson, TRIM(name) AS `name`
                   FROM tbperson
                  WHERE idtypeperson IN (5)
@@ -2125,7 +2125,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchGroupAbilities(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT grpp.name, serv.name as service, grp.idgroup, serv.idservice
                   FROM hdk_tbcore_service  serv,
                        hdk_tbgroup  grp,
@@ -2168,7 +2168,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchAttendantAbilities(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT per.name, serv.name as service, per.idperson, serv.idservice, grpper.name
                   FROM hdk_tbcore_service serv,
                        hdk_tbgroup grp,
@@ -2214,7 +2214,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertRepassTicket(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_repassed (date,idnote,code_request) 
                      VALUES (:logDate,:noteID,:ticketCode)";
         
@@ -2241,7 +2241,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveRepassTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
         $lastKey = array_pop(array_keys($aNotes));
@@ -2328,7 +2328,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertAuxiliaryAttendant(ticketModel $ticketModel): array
-    {        
+    {
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
         
@@ -2391,7 +2391,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function deleteAuxiliaryAttendant(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "DELETE FROM hdk_tbrequest_in_charge WHERE id_in_charge = :attendantID AND code_request = :ticketCode AND ind_operator_aux = 1";
         
         try{
@@ -2424,7 +2424,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveTicketNote(ticketModel $ticketModel): array
-    {   
+    {
         $aNotes = $ticketModel->getNoteList();
         
         try{
@@ -2474,7 +2474,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertNoteAttachment(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "CALL hdk_insertnoteattachments(:noteID,:fileName,@id)";
         
         try{
@@ -2514,7 +2514,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function deleteNoteHasAttachment(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "DELETE FROM hdk_tbnote_has_attachments WHERE idnote_attachments = :attachmentID";
         
         $stmt = $this->db->prepare($sql);
@@ -2538,7 +2538,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function deleteNoteAttachmentData(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "DELETE FROM hdk_tbnote_attachments WHERE idnote_attachments = :attachmentID";
         
         $stmt = $this->db->prepare($sql);
@@ -2562,7 +2562,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function removeNoteAttachment(ticketModel $ticketModel): array
-    {        
+    {
         try{
             $rem = $this->deleteNoteHasAttachment($ticketModel);
             if($rem['status']){
@@ -2593,7 +2593,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getAssumedDate(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT `date` FROM hdk_tbrequest_log WHERE cod_request = :ticketCode AND idstatus = 3 ORDER BY id ASC LIMIT 1";
         
         try{
@@ -2628,7 +2628,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getExpendedDate(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT SUM(minutes) as minutes FROM hdk_tbnote WHERE code_request = :ticketCode";
         
         try{
@@ -2663,7 +2663,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveCloseTicket(ticketModel $ticketModel): array
-    {   
+    {
         $evaluationDAO = new evaluationDAO();
         $evaluationModel = new evaluationModel();
 
@@ -2748,7 +2748,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveRejectTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
         
@@ -2825,7 +2825,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchSources(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idsource, name, icon FROM hdk_tbsource ORDER BY name ASC";
         
         try{
@@ -2859,7 +2859,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveOpenRepassTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
         $aExtraFields = $ticketModel->getExtraFieldList();
@@ -2948,7 +2948,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveOpenFinishTicket(ticketModel $ticketModel): array
-    {   
+    {
         $aInCharge = $ticketModel->getInChargeList();
         $aNotes = $ticketModel->getNoteList();
         $aExtraFields = $ticketModel->getExtraFieldList();
@@ -3071,7 +3071,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getNoteAttachment(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT filename FROM hdk_tbnote_attachments WHERE idnote_attachments = :attachmentID";
         
         $stmt = $this->db->prepare($sql);
@@ -3098,7 +3098,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getTicketAttachment(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT file_name FROM hdk_tbrequest_attachment WHERE idrequest_attachment = :attachmentID";
         
         $stmt = $this->db->prepare($sql);
@@ -3125,7 +3125,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getAttachment(ticketModel $ticketModel): array
-    {   
+    {
         try{
             switch($ticketModel->getAttachmentType()){
                 case 'note':
@@ -3160,7 +3160,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function deleteTicketNote(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "CALL hdk_deletenote(:noteID)";
         
         $stmt = $this->db->prepare($sql);
@@ -3184,7 +3184,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function deleteNote(ticketModel $ticketModel): array
-    {   
+    {
         try{
             $this->db->beginTransaction();
 
@@ -3220,7 +3220,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getUserDataByToken(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT b.idperson, a.idtypeperson
                   FROM tbperson a, hdk_tbviewbyurl b 
                  WHERE a.idperson = b.idperson
@@ -3261,7 +3261,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateTicketFlag(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbrequest SET flag_opened = :ticketFlag WHERE code_request = :ticketCode";
         
         try{
@@ -3294,7 +3294,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function updateNoteFlag(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbnote 
                    SET flag_opened = :noteFlag
                  WHERE code_request = :ticketCode 
@@ -3331,7 +3331,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function fetchInChargeEmail(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT id_in_charge, `name`, `type`, b.email
                   FROM hdk_tbrequest_in_charge a, tbperson b
                  WHERE b.idperson =  a.id_in_charge
@@ -3409,7 +3409,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function insertTicketExtraField(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO `hdk_tbrequest_has_extra_field` (code_request,idextra_field,field_value)
                      VALUES (:ticketCode,:extraFieldId,:extraFieldName)";
         
@@ -3478,7 +3478,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveTicketApproval(ticketModel $ticketModel): array
-    {   
+    {
         $ticketRulesDAO = new ticketRulesDAO();
         $ticketRulesModel = new ticketRulesModel();
 
@@ -3569,7 +3569,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveApprovalReturn(ticketModel $ticketModel): array
-    {   
+    {
         $ticketRulesDAO = new ticketRulesDAO();
         $ticketRulesModel = new ticketRulesModel();
 
@@ -3639,7 +3639,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function saveTicketDisapproval(ticketModel $ticketModel): array
-    {   
+    {
         $ticketRulesDAO = new ticketRulesDAO();
         $ticketRulesModel = new ticketRulesModel();
 
@@ -3702,7 +3702,7 @@ class ticketDAO extends Database
      *                         object = model's object]]
      */
     public function getUrlTokenByUserId(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "SELECT idviewbyurl,idperson,code_request,token,lifecycle
                   FROM hdk_tbviewbyurl
                  WHERE idperson = :personId
@@ -3729,9 +3729,21 @@ class ticketDAO extends Database
 
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * insertResponseSender
+     * 
+     * en_us Saves response's sender email
+     * pt_br Grava o e-mail do remetente da resposta
+     *
+     * @param  mixed $ticketModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
     public function insertResponseSender(ticketModel $ticketModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbrequest_response_sender (code_request,sender_email) VALUES (:ticketCode,:senderEmail)";
         
         try{
@@ -3750,6 +3762,35 @@ class ticketDAO extends Database
             $result = array("message"=>$msg,"object"=>null);
         }
 
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    public function deleteTicket(ticketModel $ticketModel): array
+    {
+        $sql = "CALL hdk_deleterequest(:ticketCode,@msg)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(":ticketCode",$ticketModel->getTicketCode(),\PDO::PARAM_INT|\PDO::PARAM_INPUT_OUTPUT);
+            $stmt->execute();
+
+            $stmt = null;
+            $sql2 = "SELECT @msg delete_message";
+            $stmt2 = $this->db->prepare($sql2);
+            $stmt2->execute();
+            $aRet = $stmt2->fetch(\PDO::FETCH_ASSOC);
+            
+            $ticketModel->setProcedureMessage((!empty($aRet) && !is_null($aRet['delete_message'])) ? $aRet['delete_message'] : "");
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error trying delete ticket ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
         return array("status"=>$ret,"push"=>$result);
     }
 

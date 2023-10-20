@@ -690,6 +690,11 @@ final class ticketModel
     private $senderEmail;
 
     /**
+     * @var string
+     */
+    private $procedureMessage;
+
+    /**
      * Get the value of ticketCode
      *
      * @return  string
@@ -3949,6 +3954,30 @@ final class ticketModel
     public function setSenderEmail(string $senderEmail)
     {
         $this->senderEmail = $senderEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of procedureMessage
+     *
+     * @return  string
+     */ 
+    public function getProcedureMessage()
+    {
+        return $this->procedureMessage;
+    }
+
+    /**
+     * Set the value of procedureMessage
+     *
+     * @param  string  $procedureMessage
+     *
+     * @return  self
+     */ 
+    public function setProcedureMessage(string $procedureMessage)
+    {
+        $this->procedureMessage = $procedureMessage;
 
         return $this;
     }
