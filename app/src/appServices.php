@@ -1034,14 +1034,23 @@ class appServices
         switch($aEmailSrv[0]['servertype']){
             case "SMTP"://STMP
                 $retSend = $this->_sendSMTP($params);
+                
                 if(!$retSend['status']){
                     $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     return array('status'=>false,"message"=>"{$retSend['message']}","data"=>"");
                 }
-                $data = "";
+                $data = (isset($retSend['emailId'])) ? $retSend['emailId'] : "";
                 break;
             case "API"://API
-                $retSend = $this->_sendMandrill($params);
+                switch($aEmailSrv[0]['servername']){
+                    case "Mandrill":
+                        $retSend = $this->_sendMandrill($params);
+                        break;
+                    case "Amazon SES":
+                        $retSend = $this->_sendSes($params);
+                        break;
+                }
+                
                 if(!$retSend['status']){
                     $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                     return array('status'=>false,"message"=>"{$retSend['data']['message']}","data"=>"");
@@ -1312,9 +1321,9 @@ class appServices
     {
         $trackerDAO = new trackerDAO();
         $trackerModel = new trackerModel();
-        $trackerModel->setIdModule($idmodule)
+        $trackerModel->setIdModule($idModule)
                      ->setSender($mailSender)
-                     ->setRecipient($senTo)
+                     ->setRecipient($sentTo)
                      ->setSubject($subject)
                      ->setContent($body);
 
@@ -1322,7 +1331,7 @@ class appServices
         if(!$ret['status']) {
             return array('status'=>false,'message'=>$ret['push']['message'],'idEmail'=>'');
         } else {
-            return array('status'=>false,'message'=>'','idEmail'=>$ret['push']['object']->getIdEmail());
+            return array('status'=>true,'message'=>'','idEmail'=>$ret['push']['object']->getIdEmail());
         }
 
     }
@@ -1394,7 +1403,7 @@ class appServices
     {
         $endPoint = $params['apiendpoint'];
         $token = $params['apikey'];
-
+        
         $message = $this->_formatMandrillMessage($params);
         
         $params = array(
@@ -2677,6 +2686,217 @@ class appServices
         
 		return $aRet;
     }
-
     
+    /**
+     * _encodeString
+     * 
+     * en_us Encodes the string to send in the URL
+     * pt_br Codifica a string a ser enviada na URL
+     *
+     * @param  mixed $string
+     * @return string
+     */
+    public function _encodeString($string): string 
+    {
+        return urlencode(urlencode($string));
+    }
+    
+    /**
+     * _sendSes
+     * 
+     * en_us Sends an email using Amazon SES API
+     * pt_br Envia um e-mail usando a API do Amazon SES
+     *
+     * @param  mixed $params
+     * @return void
+     */
+    public function _sendSes(array $params)
+    {
+        $featureDAO = new featureDAO();
+        $emailSettingModel = new emailSettingsModel();
+
+        $ret = $featureDAO->getEmailSettings($emailSettingModel);
+
+        if(!$ret['status']){
+            return array("success"=>false,"message"=>"");
+        }
+        
+        $aEmailSrvObj = $ret['push']['object'];
+
+        $mailTitle     = '=?UTF-8?B?'.base64_encode($aEmailSrvObj->getTitle()).'?=';
+        $mailMethod    = 'smtp';
+        $mailHost      = $params['apiendpoint'];
+        $mailDomain    = $aEmailSrvObj->getDomain();
+        $mailAuth      = $aEmailSrvObj->getAuth();
+        $mailUsername  = $params['apikey'];
+        $mailPassword  = $params['apisecret'];
+        $mailSender    = $aEmailSrvObj->getSender();
+        $mailHeader    = $aEmailSrvObj->getHeader();
+        $mailFooter    = $aEmailSrvObj->getFooter();
+        $mailPort      = $params['port'];
+        
+        $mail = new PHPMailer(true);
+
+        $mail->CharSet = 'utf-8';
+
+        if($params['customHeader'] && $params['customHeader'] != ''){
+            $mail->addCustomHeader($params['customHeader']);
+        }
+
+        if($_ENV['DEMO']){
+            $mail->addCustomHeader('X-hdkLicence:' . 'demo');
+        }else{
+            $mail->addCustomHeader('X-hdkLicence:' . $_ENV['LICENSE']);
+        }
+
+        if($params['sender'] && $params['sender'] != ''){
+            $mailSender = $params['sender'];
+        }
+
+        if($params['sender_name'] && $params['sender_name'] != ''){
+            $mailTitle = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
+        }
+        
+        $mail->setFrom($mailSender, $mailTitle);
+
+        if($mailHost)
+            $mail->Host = $mailHost;
+
+        if(isset($mailPort) AND !empty($mailPort)) {
+            $mail->Port = $mailPort;
+        }
+
+        $mail->Mailer = $mailMethod;
+        $mail->SMTPAuth = $mailAuth;
+
+        if($aEmailSrvObj->getTls())
+            $mail->SMTPSecure = 'tls';
+
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+
+        $mail->AltBody 	= (isset($params['altcontents']) && !empty($params['altcontents'])) ? $params['altcontents'] : "HTML";
+        $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
+        
+        //$mail->SetLanguage('br', $this->helpdezkPath . "/includes/classes/phpMailer/language/");
+
+        $paramsDone = array("msg" => $params['msg'],
+                            "msg2" => $params['msg2'],
+                            "mailHost" => $mailHost,
+                            "mailDomain" => $mailDomain,
+                            "mailAuth" => $mailAuth,
+                            "mailPort" => $mailPort,
+                            "mailUsername" => $mailUsername,
+                            "mailPassword" => $mailPassword,
+                            "mailSender" => $mailSender
+                            );
+
+        if(sizeof($params['attachment']) > 0){
+            foreach($params['attachment'] as $key=>$value){
+                $mail->AddAttachment($value['filepath'], $value['filename']);  // optional name
+            }
+        }
+
+        $normalProcedure = true;
+        
+        if((isset($params['tracker']) && $params['tracker']) || (isset($params['tokenOperatorLink']) && $params['tokenOperatorLink'])) {
+            
+            $aEmail = $this->_makeArrayTracker($params['address']);
+            $body = $mailHeader . $params['contents'] . $mailFooter;
+
+            foreach ($aEmail as $key => $sendEmailTo) {
+                $mail->AddAddress($sendEmailTo);
+
+                if($params['tokenOperatorLink']) {
+                    $linkOperatorToken = $this->_makeLinkOperatorToken($sendEmailTo, $params['code_request']);
+                    if(!$linkOperatorToken){
+                        $this->appEmailLogger->error("Error make link operator with token, recipient: {$sendEmailTo}, ticket #{$params['code_request']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    } else {
+                        $newContent = $this->_replaceBetweenTags($params['contents'], $linkOperatorToken, 'pipegrep');
+                        $body = $mailHeader . $newContent . $mailFooter;
+                    }
+                }
+
+                if($params['tracker']) {
+                    $retTracker = $this->_saveTracker($params['idmodule'],$mailSender,$sendEmailTo,addslashes($params['subject']),addslashes($params['contents']));
+                    if(!$retTracker['status']) {
+                        $this->appEmailLogger->error("Error insert in tbtracker, {$retTracker['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    } else {
+                        $idEmail = $retTracker['idEmail'];
+                        $trackerID = "<img src='{$_ENV['HDK_URL']}/tracker/{$params['moduleName']}/{$idEmail}.png' height='1' width='1' />";
+                        $body = $body . $trackerID;
+                    }
+                }
+
+                $mail->Body = $body;
+                
+                //sent email
+                $retSend = $this->_isSesEmailDone($mail,$paramsDone);
+                if(!$retSend['status'])
+                    $this->appEmailLogger->error("Can't send email to {$sendEmailTo} Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                else
+                    $this->appEmailLogger->info("Email sent to {$sendEmailTo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+
+                $mail->ClearAddresses();
+            }
+
+            $normalProcedure = false;
+        }
+        
+        if ($normalProcedure){
+            //Checks for more than 1 email address at recipient
+            $this->_makeSentTo($mail,$params['address']);
+            $mail->Body = $mailHeader . $params['contents'] . $mailFooter;
+            // sent email
+            $retSend = $this->_isSesEmailDone($mail,$paramsDone);
+        }
+        
+        $mail->ClearAttachments();
+
+        if(!$retSend['status'])
+            return array("status"=>false,"message"=>"{$retSend['message']}","data"=>"");
+        else
+            return array("status"=>true,"message"=>"","data"=>$retSend['emailId']);       
+    }
+    
+    /**
+     * _isSesEmailDone
+     * 
+     * en_us Process email sending by Amazon SES API
+     * pt_br Processa o envio de e-mail pelo API do Amazon SES
+     *
+     * @param  mixed $mail
+     * @param  mixed $params
+     * @return void
+     */
+    public function _isSesEmailDone($mail,$params){
+        try{
+            
+            if($mail->preSend()){
+                // Create a new variable that contains the MIME message.
+                $message = $mail->getSentMIMEMessage();
+
+                $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+                $retSend = $awsSrc->_sendSesRawEmail($message);
+                if($retSend['success']){
+                    $this->appEmailLogger->info("Email Succesfully Sent, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $aRet = array("status"=>true,"message"=>"","emailId"=>$retSend['emailId']);
+                }else{
+                    $this->appEmailLogger->error("Error send email, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $this->appEmailLogger->error("Error send email, {$params['msg2']}. Erro: {$mail->ErrorInfo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $this->appEmailLogger->info("Error send email, request # {$params['request']}. HOST: {$params['mailHost']} DOMAIN: {$params['mailDomain']} AUTH: {$params['mailAuth']} PORT: {$params['mailPort']} USER: {$params['mailUserName']} PASS: {$params['mailPassword']} SENDER: {$params['mailSender']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $aRet = array("status"=>false,"message"=>$retSend['message'],"emailId"=>"");
+                }
+            }
+        }catch(Exception $e){
+            $this->appEmailLogger->error("Error send email, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $this->appEmailLogger->error("Error send email, {$params['msg2']}. Erro: {$mail->ErrorInfo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $this->appEmailLogger->info("Error send email, request # {$params['request']}. HOST: {$params['mailHost']} DOMAIN: {$params['mailDomain']} AUTH: {$params['mailAuth']} PORT: {$params['mailPort']} USER: {$params['mailUserName']} PASS: {$params['mailPassword']} SENDER: {$params['mailSender']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $aRet = array("status"=>false,"message"=>"{$mail->ErrorInfo}","emailId"=>"");
+        }
+
+        return $aRet;
+    }
+
 }

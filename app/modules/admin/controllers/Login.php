@@ -5,10 +5,12 @@ use App\core\Controller;
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\featureDAO;
 use App\modules\admin\dao\mysql\personDAO;
+use App\modules\helpdezk\dao\mysql\warningDAO;
 
 use App\modules\admin\models\mysql\loginModel;
 use App\modules\admin\models\mysql\popConfigModel;
 use App\modules\admin\models\mysql\featureModel;
+use App\modules\helpdezk\models\mysql\warningModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\googleServices;
@@ -75,12 +77,21 @@ class Login extends Controller
         $aLogo = $loginSrc->_getLoginLogoData();
         
         $params = $this->appSrc->_getDefaultParams();
-        $params['warning'] = "";
+        
         $params['loginLogoUrl'] = $aLogo['image'];
         $params['loginheight'] = $aLogo['height'];
         $params['loginwidth'] = $aLogo['width'];
         $params['googleAuth'] = $this->googleAuth;
         $params['googleAuthUrl'] = ($this->googleAuth) ? $this->googleAuthLink : "";
+
+        $params['warning'] = $this->getWarningList();
+
+        // -- modals --
+        $params['modalViewWarning'] = $this->appSrc->_getHelpdezkPath().'/app/modules/helpdezk/views/modals/warning/modal-warning-view.latte';
+        $params['modalAlert'] = $this->appSrc->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
+
+        //vocabulary
+        $params['vocab'] = $this->appSrc->_loadVocabulary();
 
         return $params;
     }
@@ -522,6 +533,84 @@ class Login extends Controller
         );
         echo json_encode($success);
         return;
+    }
+    
+    /**
+     * getWarningList
+     * 
+     * en_us Returns warnings list to show in login screen
+     * pt_br Retorna lista de avisos para mostrar na tela de login
+     *
+     * @return array
+     */
+    public function getWarningList(): array
+    {
+        $warningDAO = new warningDAO();
+
+        $aRet = array();
+        $where = "AND (a.dtend > NOW() AND a.dtstart <= NOW() OR a.dtend = '0000-00-00 00:00:00') AND a.showin IN (2,3)";
+        $order = "ORDER BY dtstart ASC";
+
+        $ret = $warningDAO->queryWarnings($where,null,$order);
+        if(!$ret['status']){
+            $this->logger->error("Can't get warnings list.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+        }else{
+            $this->logger->info("Warnings list got successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $aRet = $ret['push']['object']->getGridList();
+        }        
+        
+        return $aRet;
+    }
+    
+    /**
+     * viewWarning
+     * 
+     * en_us Returns warning data to show in modal
+     * pt_br Retorna lista de avisos para mostrar no modal
+     *
+     * @return void
+     */
+    public function viewWarning()
+    {
+        $warningDAO = new warningDAO();
+        $warningDTO = new warningModel();
+        $warningDTO->setWarningId($_POST['messageId']);
+        
+        $ret = $warningDAO->getWarning($warningDTO);
+        if(!$ret['status']){
+            $this->logger->error("Can't get warning data.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+
+            $st = false;
+            $topicTitle = "";
+            $warningTitle = "";
+            $warningDescription = "";
+            $validity = "";
+        }else{
+            $this->logger->info("Warning data got successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            
+            $st = true;
+            $topicTitle = $ret['push']['object']->getTopicTitle();
+            $warningTitle = $ret['push']['object']->getWarningTitle();
+            $warningDescription = $ret['push']['object']->getWarningDescription();
+            $startDate = $this->appSrc->_formatDateHour($ret['push']['object']->getStartDate());
+
+            $validity = "{$this->translator->translate('Valid')}: {$startDate} ";
+            if(empty($ret['push']['object']->getEndDate()) || $ret['push']['object']->getEndDate() == '0000-00-00 00:00:00'){
+                $validity .= "{$this->translator->translate('until_closed')}";
+            }else{
+                $validity .= "{$this->translator->translate('until')} {$this->appSrc->_formatDateHour($ret['push']['object']->getEndDate())}";
+            }            
+        }
+        
+        $aRet = array(
+            "success" => $st,
+            "topicTitle" => $topicTitle,
+            "warningTitle" => $warningTitle,
+            "warningDescription" => $warningDescription,
+            "validity" => $validity
+        );
+        
+        echo json_encode($aRet);
     }
 
 }

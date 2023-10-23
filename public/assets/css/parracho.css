@@ -2900,7 +2900,7 @@ ol.unstyled {
   bottom: 0;
   left: 0;
   padding: 10px 20px;
-  position: absolute;
+  position: fixed;
   right: 0;
 }
 .footer.fixed_full {

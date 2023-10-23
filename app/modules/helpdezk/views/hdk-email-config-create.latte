@@ -1,0 +1,268 @@
+{layout $layout}
+{block title}{$_ENV['PAGE_TITLE']}{/block}
+
+{block content}
+
+<body class="top-navigation">
+	<div id="page-wrapper" class="gray-bg">		
+		<div class="row border-bottom white-bg">
+            {include $navBar}
+        </div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+
+                        <div class="ibox-title">
+                            <h5>{='cat_records'|translate} / {='pgr_erp_emailtemplate'|translate} / <strong>{='Add'|translate}</strong></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <div class="row">
+                                <!-- Form area -->
+                                <form method="get" class="form-horizontal" id="create-email-config-form">
+
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="_token" id= "_token" value="{$token}">
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-1 col-md-1 b-l g-2 text-center ms-1">&nbsp;</div>
+
+                                        <div class="row col-sm-11 col-md-10 b-l">
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbSetting" class="hdk-label col-form-label text-end">{='lbl_notification'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-4">
+                                                    <select class="form-control form-control-sm" id="cmbSetting" name="cmbSetting" >
+                                                        <option hidden disabled selected></option>
+                                                        {foreach $cmbSetting as $k=>$v}
+                                                        <option value="{$v['id']}">{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbSetting_validate_error" class="row"></div>
+                                                </div>
+
+                                                <div class="col-sm-1 text-end">
+                                                    <button class="btn btn-default btn-sm lbltooltip" id="btnAddSetting" type="button" tabindex="-1" data-toggle="tooltip" data-placement="right" title="{='add_new_feature'|translate}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="cmbLocale" class="hdk-label col-form-label text-end">{='Locale'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-5">
+                                                    <select class="form-control form-control-sm" id="cmbLocale" name="cmbLocale" >
+                                                        <option hidden disabled selected></option>
+                                                        {foreach $cmbLocale as $k=>$v}
+                                                        <option value="{$v['id']}">{$v['text']}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                    <div id="cmbLocale_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-sm-3 text-end">
+                                                    <label for="template-subject" class="hdk-label col-form-label text-end">{='Subject'|translate}:</label>
+                                                </div>
+                                                
+                                                <div class="col-sm-9">
+                                                    <input type="text" id="template-subject" name="template-subject" class="form-control" value="" >
+                                                    <div id="template-subject_validate_error" class="row"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row white-bg">
+
+                                        <div class="row col-sm-12 col-md-6 col-lg-6 b-l ms-3">
+                                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                                <div id="template-body" name="template-body"></div>
+                                            </div>                                            
+                                        </div>
+
+                                        <div class="row col-sm-12 col-md-1 col-lg-1 b-l">&nbsp;</div>
+
+                                        <div class="row col-sm-12 col-md-5 col-lg-5 b-l">
+                                            <div class="card card-primary">
+                                                <ul class="list-group list-group-flush scrollable-ul">
+                                                    <table id='browser' class="table table-hover">
+                                                        <!--<thead>
+                                                            <colgroup>
+                                                                <col width='25%'/>
+                                                                <col width='75%'/>
+                                                            </colgroup>
+                                                        </thead>-->
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>$USER</td>
+                                                                <td>{='Var_user'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$PHONE</td>
+                                                                <td>{='Var_phone'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$BRANCH</td>
+                                                                <td>{='Var_branch'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$DATE</td>
+                                                                <td>{='Var_date'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                            <td>$REQUEST</td>
+                                                                <td>{='Var_request'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$SUBJECT</td>
+                                                                <td>{='Var_subject'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$DESCRIPTION</td>
+                                                                <td>{='Var_description'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$RECORD</td>
+                                                                <td>{='Var_record'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$EXPIRE_DATE</td>
+                                                                <td>{='Var_expire'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$ASSUME</td>
+                                                                <td>{='Var_assume'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$FINISH_DATE</td>
+                                                                <td>{='Var_finish'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$REJECTION</td>
+                                                                <td>{='Var_rejection'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$STATUS</td>
+                                                                <td>{='Var_status'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$REQUESTER</td>
+                                                                <td>{='Var_requester'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$INCHARGE</td>
+                                                                <td>{='Var_incharge'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$NT_OPERATOR</td>
+                                                                <td>{='Var_nt_operator'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$NT_USER</td>
+                                                                <td>{='Var_nt_user'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$LINK_OPERATOR</td>
+                                                                <td>{='Var_link_operator'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$LINK_USER</td>
+                                                                <td>{='Var_link_user'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$EVALUATION</td>
+                                                                <td>{='Var_evaluation'|translate}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>$LINK_EVALUATE</td>
+                                                                <td>{='Var_link_evaluation'|translate}</td>
+                                                            </tr>                                
+                                                        </tbody>
+                                                    </table>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 white-bg" style="height:20px;"></div>
+
+                                    <div class="row wrapper border-bottom ">&nbsp;</div>
+
+                                    <div class="row white-bg g-2">
+                                        <div class="col-sm-12 b-l mb-2">
+                                            <div id="alert-create-email-config"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                                    <div class="row wrapper  white-bg text-center">
+                                        <div class="col-sm-12 form-group">
+                                            <a href="" id="btnCancel" class="btn btn-white btn-sm" role="button"><i class="fa fa-arrow-alt-circle-left" aria-hidden="true"></i> {='Back_btn'|translate} </a>
+                                            <button type="button" class="btn btn-primary btn-sm" id="btnCreateEmailConfig" >
+                                                <span class="fa fa-save"></span>  &nbsp;{='Save'|translate}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <!-- End form area -->
+                            </div>                      
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {include $footer}	
+	</div>
+    {include 'modals/hdkemailconfig/modal-alert-create.latte'}
+    {include 'modals/hdkemailconfig/modal-add-feature.latte'}
+</body>
+
+    <style>
+        .scrollable-ul{
+            max-height: 490px;
+            overflow: auto;
+        }
+
+        .scrollable-ul::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        .scrollable-ul::-webkit-scrollbar-track {
+            background-color: #e4e4e4;
+            border-radius: 100px;
+        }
+
+        .scrollable-ul::-webkit-scrollbar-thumb {
+            background-color: #d4d4d4;
+            border-radius: 100px;
+        }
+
+        .form-control-plaintext{
+            outline: none;
+        }
+    </style>
+
+    <!-- Summernote -->
+    <link rel="stylesheet" href="{$path}/public/assets/js/plugins/summernote/summernote-bs5.css" />
+    <script src="{$path}/public/assets/js/plugins/summernote/summernote-bs5.js"></script>
+
+    <script src="{$path}/app/modules/helpdezk/views/js/hdk-email-config-crud.js"></script>
+
+
+{/block}

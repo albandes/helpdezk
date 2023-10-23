@@ -19,7 +19,7 @@ final class hdkEmailFeatureModel
      */
     private $idLocale;
 
-     /**
+    /**
      * @var string
      */
     private $localeName;
@@ -47,7 +47,27 @@ final class hdkEmailFeatureModel
     /**
     * @var int
     */
-    private $totalRows;    
+    private $totalRows;
+
+    /**
+     * @var int
+     */
+    private $featureId;
+
+    /**
+     * @var int
+     */
+    private $lastId;
+
+    /**
+     * @var string
+     */
+    private $settingName;
+
+    /**
+     * @var string
+     */
+    private $settingKeyLang;
 
     /**
      * Get the value of idEmailTemplate
@@ -261,6 +281,102 @@ final class hdkEmailFeatureModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of featureId
+     *
+     * @return  int
+     */ 
+    public function getFeatureId()
+    {
+        return $this->featureId;
+    }
+
+    /**
+     * Set the value of featureId
+     *
+     * @param  int  $featureId
+     *
+     * @return  self
+     */ 
+    public function setFeatureId(int $featureId)
+    {
+        $this->featureId = $featureId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of lastId
+     *
+     * @return  int
+     */ 
+    public function getLastId()
+    {
+        return $this->lastId;
+    }
+
+    /**
+     * Set the value of lastId
+     *
+     * @param  int  $lastId
+     *
+     * @return  self
+     */ 
+    public function setLastId(int $lastId)
+    {
+        $this->lastId = $lastId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of settingName
+     *
+     * @return  string
+     */ 
+    public function getSettingName()
+    {
+        return $this->settingName;
+    }
+
+    /**
+     * Set the value of settingName
+     *
+     * @param  string  $settingName
+     *
+     * @return  self
+     */ 
+    public function setSettingName(string $settingName)
+    {
+        $this->settingName = $settingName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of settingKeyLang
+     *
+     * @return  string
+     */ 
+    public function getSettingKeyLang()
+    {
+        return $this->settingKeyLang;
+    }
+
+    /**
+     * Set the value of settingKeyLang
+     *
+     * @param  string  $settingKeyLang
+     *
+     * @return  self
+     */ 
+    public function setSettingKeyLang(string $settingKeyLang)
+    {
+        $this->settingKeyLang = $settingKeyLang;
 
         return $this;
     }

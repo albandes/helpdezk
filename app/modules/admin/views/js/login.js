@@ -47,19 +47,19 @@ $(document).ready(function() {
 
 
     // I use $(".className") instead $('#id') because the page have 2 links href.
-    $('.just_for_reference').click(function(){
-
+    /*$('.show-warning').click(function(){
+        $("#modal-warning-view").modal('show');
         console.log( $(this).attr('href'));
-        var idWarning = $(this).attr('href') ;
 
+        var idWarning = $(this).attr('href') ;
         $.getJSON("login/getWarning/id/"+idWarning, function(jsonData) {
-            /*
+            
             $.each(jsonData, function(key, val) {
                 console.log(val.name);
             });
             */
 
-            $("#title_topic").html(jsonData[0].title_topic);
+            /*$("#title_topic").html(jsonData[0].title_topic);
             $("#title_warning").html(jsonData[0].title_warning);
             $("#description").html(jsonData[0].description);
             $("#valid_msg").html(jsonData[0].valid_msg);
@@ -79,9 +79,9 @@ $(document).ready(function() {
         .complete(function() {
 
         });
+ 
 
-
-    });
+    });*/
 
     /* reset modal's form */
     $('.modal').on('hidden.bs.modal', function() {
@@ -149,4 +149,33 @@ function loginAdmin(login,password,token)
     },"json").done(function(){
         $(".loaderLogin").hide();
     });
+}
+
+function showWarning(messageId)
+{
+    $.ajax({     
+        type: "POST",
+        url: path + '/admin/login/viewWarning',
+        dataType: 'json',
+        data: {
+            messageId:messageId
+        },
+        error: function (ret) {
+            showAlert(vocab['generic_error_msg'],'danger');
+        },
+        success: function(ret){    
+            var obj = jQuery.parseJSON(JSON.stringify(ret));    
+            if(obj.success) {
+                $("#view-topic-title").html(obj.topicTitle);
+                $("#view-warning-title").html(obj.warningTitle);
+                $("#view-warning-description").html(obj.warningDescription);
+                $("#validity-msg").html(obj.validity);
+                $("#modal-warning-view").modal('show');
+            } else {
+                console.log('asdasdasd123');
+                showAlert(vocab['generic_error_msg'],'danger');
+            }
+        }    
+    });
+    return false;
 }

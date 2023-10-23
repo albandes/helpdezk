@@ -19,12 +19,12 @@
 
                 {if ($warning|length) > 0}
                     {foreach $warning as $k=>$v}
-                        <div class="row">
+                        <div class="row mb-1">
                             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                                <a href="{$v->idmessage}" id="sign_up" data-toggle="modal" class="just_for_reference">{$v->title_topic}</a> &nbsp;
+                                <a href="javascript:void(0);" onclick="showWarning('{$v['idmessage']|noescape}');" class="show-warning">{$v['title_topic']}</a>
                             </div>
                             <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 text-start">
-                                <a href="{$v->idmessage}" id="sign_up-1" data-toggle="modal" class="just_for_reference">{$v->title_warning}</a>
+                                <a href="javascript:void(0);" onclick="showWarning('{$v['idmessage']|noescape}');" class="show-warning">{$v['title_warning']}</a>
                             </div>
                         </div>
                     {/foreach}
@@ -111,9 +111,14 @@
 
         </div>
     </div>
-     <script type="text/javascript">
-        var googleAuth = {$googleAuth};
+    {include $modalViewWarning}
+    {include $modalAlert}
+
+    <script type="text/javascript">
+        var googleAuth = {$googleAuth},
+            vocab = {$vocab};
     </script>
+    
     <script src="{$path}/app/modules/admin/views/js/login.js"></script>
 </body>
 {/block}

@@ -9,9 +9,11 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\LineFormatter;
 
 use Aws\Credentials\Credentials;
-use Aws\S3\S3Client;    
+use Aws\S3\S3Client;
+use Aws\Ses\SesClient;
 use Aws\Exception\AwsException;
 use Aws\S3\Exception\S3Exception;
+use Aws\Ses\Exception\SesException;
 
 class awsServices
 {
@@ -330,6 +332,141 @@ class awsServices
 
         return array("success"=>true, "message"=>"");       
     
+    }
+
+    /**
+     * _getSesClient
+     * 
+     * en_us Connects to AWS SES
+     * pt_br Conecta ao AWS SES API
+     * 
+     * @return object AWS SES Object
+     *
+     * @since 09.29.2023
+     *
+     * @author Valentin L Acosta <vilaxr@gmail.com>
+     */
+    public function _getSesClient()
+    {
+        try {
+
+            $client = new SesClient([
+                'version'     => 'latest',
+                'region'      => $this->_region,
+                'credentials' => $this->_credentials
+            ]);
+
+        } catch (SesException $e) {
+
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error connecting to AWS SES, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error connecting to AWS SES, Error Code: " . $eCode);
+
+        }
+        
+        return $client;                
+    }
+    
+    /**
+     * _sendEmailBySes
+     * 
+     * en_us Sends email by AWS SES
+     * pt_br Envia e-mail pelo AWS SES API
+     *
+     * @param  mixed $params
+     * @return array
+     *
+     * @since 09.29.2023
+     *
+     * @author Valentin L Acosta <vilaxr@gmail.com>
+     */
+    public function _sendEmailBySes($params): array
+    {
+        $sesObj = $this->_getSesClient();
+        $recipientEmails = array_column($params['address'],'to_address');
+
+        try{
+            $ret = $sesObj->sendEmail([
+                'Destination' => [
+                    'ToAddresses' => $recipientEmails,
+                ],
+                'ReplyToAddresses' => [$params['sender']],
+                'Source' => $params['sender'],
+                'Message' => [        
+                    'Body' => [
+                        'Html' => [
+                            'Charset' => $params['charset'],
+                            'Data' => $params['contents'],
+                        ],
+                        'Text' => [
+                            'Charset' => $params['charset'],
+                            'Data' => 'Escola Mario Quintana',
+                        ],
+                    ],
+                    'Subject' => [
+                        'Charset' => $params['charset'],
+                        'Data' => $params['subject'],
+                    ],
+                    'Attachments' => $params['attachment'],
+                ],
+            ]);
+
+            echo "",print_r($ret,true),"\n";
+            $st = true;
+            $msg = "";
+            $emailId = 0;
+        } catch (SesException $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Can't send email. Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
+            $st = false;
+            $msg = $eMessage;
+            $emailId = "";    
+        }
+
+        return array("success"=>$st, "message"=>$msg,"emailId"=>$emailId);    
+    }
+
+    /**
+     * _sendEmailBySes
+     * 
+     * en_us Sends email by AWS SES
+     * pt_br Envia e-mail pelo AWS SES API
+     *
+     * @param  mixed $message
+     * @return array
+     *
+     * @since 09.29.2023
+     *
+     * @author Valentin L Acosta <vilaxr@gmail.com>
+     */
+    public function _sendSesRawEmail($message): array
+    {
+        $sesObj = $this->_getSesClient();
+
+        try{
+            $ret = $sesObj->sendRawEmail([
+                'RawMessage' => [
+                    'Data' => $message
+                ]
+            ]);
+
+            $st = true;
+            $msg = "";
+            $emailId = $ret['MessageId'];
+        } catch (SesException $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Can't send email. Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
+            $st = false;
+            $msg = $eMessage;
+            $emailId = "";    
+        }
+
+        return array("success"=>$st, "message"=>$msg,"emailId"=>$emailId);    
     }
 
 }

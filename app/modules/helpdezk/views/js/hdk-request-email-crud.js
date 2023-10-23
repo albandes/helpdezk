@@ -169,14 +169,14 @@ $(document).ready(function () {
                 dataType: 'json',
                 data: $("#update-request-email-form").serialize(),
                 error: function (ret) {
-                    modalAlertMultiple('danger',vocab['Edit_failure'],'alert-update-group');
+                    modalAlertMultiple('danger',vocab['Edit_failure'],'alert-update-request-email');
                 },
                 success: function(ret){    
                     var obj = jQuery.parseJSON(JSON.stringify(ret));    
                     if(obj.success) {
                         showAlert(vocab['Edit_sucess'],'success');
                     } else {
-                        modalAlertMultiple('danger',vocab['Edit_failure'],'alert-update-group');
+                        modalAlertMultiple('danger',vocab['Edit_failure'],'alert-update-request-email');
                     }
                 },
                 beforeSend: function(){
@@ -265,5 +265,9 @@ $(document).ready(function () {
         $('#modal-alert').on('hidden.bs.modal', function() { 
             location.href = path + "/helpdezk/hdkRequestEmail/index" ;        
         });
+    }
+
+    if($("#create-request-email-form").length > 0 || ($("#update-request-email-form").length > 0 && !$("#createUser").is(":checked"))){
+        $("#cmbCompany").change();
     }
 })

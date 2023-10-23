@@ -1,0 +1,60 @@
+<div class="modal fade" id="modal-email-config-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{='Notification'|translate}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row alert alert-success">
+                    <div class="row g-2 text-center">
+                        <h3>{='Alert_inserted'|translate}</h3>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-2 text-end">
+                            <label for="modal-email-config-code" class="hdk-label col-form-label text-end">{='record_code'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-email-config-code" >
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-2 text-end">
+                            <label for="modal-notification-name" class="hdk-label col-form-label text-end">{='lbl_notification'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-notification-name" >
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-2 text-end">
+                            <label for="modal-locale-name" class="hdk-label col-form-label text-end">{='Locale'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-locale-name" >
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-sm-2 text-end">
+                            <label for="modal-subject" class="hdk-label col-form-label text-end">{='Subject'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="modal-subject" >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnModalAlert" class="btn btn-primary" data-bs-dismiss="modal">{='Ok_btn'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

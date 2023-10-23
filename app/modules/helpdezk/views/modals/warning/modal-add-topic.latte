@@ -1,0 +1,140 @@
+<div class="modal fade" id="modal-add-topic" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modal-add-topic-title" class="modal-title"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-add-topic-form">
+                    <input type="hidden" id="modal-topic-id" name="modal-topic-id" value=""/>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-topic-name" class="hdk-label col-form-label text-end">{='Title'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control input-sm" id="modal-topic-name" name="modal-topic-name" >
+                            <div id="modal-topic-name_validate_error" class="row"></div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-validity" class="hdk-label col-form-label text-end">{='Validity_Standard'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-7">
+                            <div class="row col-sm-12 mb-2">
+                                <div class="col-sm-5">
+                                    <input type="radio" value="1" class="col-sm-1 radio i-checks" name="modal-validity" id="modal-validity-1"> &nbsp;{='until_closed'|translate}
+                                </div>
+                            </div>
+
+                            <div class="row col-sm-12 mb-2">
+                                <div class="col-sm-1 mt-2">
+                                    <input type="radio" value="2" class="col-sm-1 radio i-checks" name="modal-validity" id="modal-validity-2"> &nbsp;
+                                </div>
+                                <div class="col-sm-2 text-start">
+                                    <input type="text" value="" id="modal-validity-hours" name="modal-validity-hours" class="col-sm-2 form-control input-sm" disabled>
+                                    <div id="modal-validity-hours_validate_error" class="row"></div>
+                                </div>
+                                <div class="col-sm-9 text-start mt-2">
+                                    {='Hours'|translate}
+                                </div>
+                            </div>
+                            
+                            <div class="row col-sm-12 mb-2">
+                                <div class="col-sm-1 mt-2">
+                                    <input type="radio" value="3" class="col-sm-1 radio i-checks" name="modal-validity" id="modal-validity-3"> &nbsp;
+                                </div>
+                                <div class="col-sm-2 text-start">
+                                    <input type="text" value="" id="modal-validity-days" name="modal-validity-days" class="col-sm-2 form-control input-sm" disabled>
+                                    <div id="modal-validity-days_validate_error" class="row"></div>
+                                </div>
+                                <div class="col-sm-9 text-start mt-2">
+                                    {='Days'|translate}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-topic-send-email" class="hdk-label col-form-label text-end">{='Send_email'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="i-checks" id="modal-topic-send-email" name="modal-topic-send-email" value="">&nbsp;&nbsp;<label class="col-form-label">{='Send_alerts_topic_email'|translate}</label>
+                        </div>
+                    </div>
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-3 text-end">
+                            <label for="modal-topic-available" class="hdk-label col-form-label text-end">{='Available_for'|translate}:</label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <div class="row col-sm-12">
+                                <div class="col-sm-2 text-end">
+                                    <label for="modal-topic-available" class="hdk-label col-form-label text-end">{='type_user_operator'|translate}:</label>
+                                </div>
+
+                                <div class="col-sm-2 text-start">
+                                    <label for="modal-topic-available" class="col-form-label text-end">{='By_group'|translate}</label>
+                                </div>
+
+                                <div class="row col-sm-8">
+                                    <div class="col-sm-12">
+                                        <input type="radio" name="topic-available-group" id="topic-available-group-1" value="1" class="radio-inline i-checks" checked=checked > <label class="col-form-label">{='all'|translate}</label>&nbsp;&nbsp;
+                                        <input type="radio" name="topic-available-group" id="topic-available-group-2" value="2" class="radio-inline i-checks"> <label class="col-form-label">{='Select'|translate}</label>
+                                    </div>
+
+                                    <div id="group-list" class="row col-sm-12 d-none mt-1">{$groupList|noescape}</div>
+                                </div>
+                            </div>
+
+                            <div class="row col-sm-12">
+                                <div class="col-sm-2 text-end">
+                                    <label for="modal-topic-available" class="hdk-label col-form-label text-end">{='type_user_user'|translate}:</label>
+                                </div>
+
+                                <div class="col-sm-2 text-start">
+                                    <label for="modal-topic-available" class="col-form-label text-end">{='By_company'|translate}</label>
+                                </div>
+
+                                <div class="row col-sm-8">
+                                    <div class="col-sm-12">
+                                        <input type="radio" name="topic-available-company" id="topic-available-company-1" value="1" class="radio-inline i-checks" checked=checked > <label class="col-form-label">{='all'|translate}</label>&nbsp;&nbsp;
+                                        <input type="radio" name="topic-available-company" id="topic-available-company-2" value="2" class="radio-inline i-checks"> <label class="col-form-label">{='Select'|translate}</label>
+                                    </div>
+
+                                    <div id="company-list" class="row col-sm-12 d-none mt-1">{$companyList|noescape}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg ">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-add-topic"></div>
+                        </div>
+                    </div>                    
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAddTopicSave" class="btn btn-primary btn-sm">
+                    <i class="fa fa-save"></i> {='Save'|translate}
+                </button>
+                <button type="button" id="btnAddTopicClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>

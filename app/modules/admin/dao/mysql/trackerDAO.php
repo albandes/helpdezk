@@ -29,11 +29,11 @@ class trackerDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':idmodule', $trackerModel->getIdState());
-            $stmt->bindParam(':from', $trackerModel->getName());
-            $stmt->bindParam(':to', $trackerModel->getDtFoundation());
-            $stmt->bindParam(':subject', $trackerModel->getIsDefault());
-            $stmt->bindParam(':body', $trackerModel->getIsDefault());
+            $stmt->bindParam(':idmodule', $trackerModel->getIdModule());
+            $stmt->bindParam(':from', $trackerModel->getSender());
+            $stmt->bindParam(':to', $trackerModel->getRecipient());
+            $stmt->bindParam(':subject', $trackerModel->getSubject());
+            $stmt->bindParam(':body', $trackerModel->getContent());
             $stmt->execute();
 
             $trackerModel->setIdEmail($this->db->lastInsertId());
