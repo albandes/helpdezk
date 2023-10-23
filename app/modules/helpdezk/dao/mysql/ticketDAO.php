@@ -3794,5 +3794,28 @@ class ticketDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
 
+    public function insertResponseSender(ticketModel $ticketModel): array
+    {        
+        $sql = "INSERT INTO hdk_tbrequest_response_sender (code_request,sender_email) VALUES (:ticketCode,:senderEmail)";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ticketCode', $ticketModel->getTicketCode());
+            $stmt->bindParam(':senderEmail', $ticketModel->getSenderEmail());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$ticketModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error saving ticket's response sender.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+    }
+
     
 }
