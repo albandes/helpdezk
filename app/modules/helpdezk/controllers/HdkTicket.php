@@ -348,22 +348,22 @@ class hdkTicket extends Controller
                    
             switch($filterIndx){
                 case "ticketCode":
-                    $filterIndx = "req.code_request";
+                    $filterIndx = "a.code_request";
                     break;
                 case "openingDate":
-                    $filterIndx = "req.entry_date";
+                    $filterIndx = "a.entry_date";
                     break;
                 case "subject":
-                    $filterIndx = "req.subject";
+                    $filterIndx = "a.subject";
                     break;
                 case "deadline":
-                    $filterIndx = "req.expire_date";
+                    $filterIndx = "a.expire_date";
                     break;
                 case "inCharge":
                     $filterIndx = "resp.name";
                     break;
                 case "status":
-                    $filterIndx = "stat.user_view";
+                    $filterIndx = "b.user_view";
                     break;
                 default:
                     $filterIndx = $filterIndx;
@@ -378,7 +378,7 @@ class hdkTicket extends Controller
         {
             $quickValue = trim($_POST['quickValue']);
             $quickValue = str_replace(" ","%",$quickValue);
-            $where .= " AND " . " (pipeLatinToUtf8(req.code_request) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.entry_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.expire_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(resp.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(req.subject) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(stat.user_view) LIKE '%{$quickValue}%')";
+            $where .= " AND " . " (pipeLatinToUtf8(a.code_request) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(a.entry_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(a.expire_date) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(resp.name) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(a.subject) LIKE '%{$quickValue}%' OR pipeLatinToUtf8(b.user_view) LIKE '%{$quickValue}%')";
         }
 
         //sort options
@@ -553,8 +553,7 @@ class hdkTicket extends Controller
                                 AND inch.ind_track = 1)) ";
                 break;
         }
-    
-
+        
         //Search with params sended from filter's modal
         $filterValue ="";
         if(isset($_POST["filterIndx"]) && isset($_POST["filterValue"]) )

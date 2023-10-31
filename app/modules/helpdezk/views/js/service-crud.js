@@ -1,3 +1,7 @@
+//Initial settings of Dropzone
+Dropzone.autoDiscover = false;
+var dropzonefiles = 0, filesended = 0, flgerror = 0, errorname=[], upname=[], flgDefault=0, btnClicked = 0;
+
 var objServices = {
     changeAreaStatus: function(areaId,newStatus,modal=false){
         $.post(path + '/helpdezk/hdkService/changeAreaStatus', {
@@ -943,6 +947,75 @@ $(document).ready(function () {
         }
     });
 
+    $("#btnImportCatalog").click(function(){
+        $("#modal-import-catalog").modal("show");
+    });
+
+    var importDropzone = new Dropzone("#import-catalog-dropzone", {
+        url: path + "/helpdezk/hdkService/importData",
+        method: "post",
+        dictDefaultMessage: "<br><i class='fa fa-file fa-2x' aria-hidden='true'></i><br>" + vocab['Drag_import_file_msg'],
+        createImageThumbnails: true,
+        maxFiles: 1,
+        acceptedFiles: '.csv, .txt',
+        parallelUploads: 1,
+        autoProcessQueue: false,
+        addRemoveLinks: true,
+        dictRemoveFile: vocab['hdk_remove_file'],
+        dictInvalidFileType: vocab['alert_file_type_invalid']+'.csv, .txt'
+    });
+
+    importDropzone.on("maxfilesexceeded", function(file) {
+        this.removeFile(file);
+    });
+
+    importDropzone.on('error', function(file, errorMessage) { //show alert modal's
+        $("#btnImportSave").html("<i class='fa fa-play'></i> "+ vocab['process']).removeClass('disabled');
+        $("#btnImportClose").removeClass('disabled');
+
+        modalAlertMultiple('danger',vocab['generic_error_msg'],'alert-modal-import-catalog');
+
+        importDropzone.removeAllFiles(true);
+    });
+
+    importDropzone.on("complete", function(file) {
+
+        var obj = JSON.parse(file.xhr.response);
+        if(obj.success) {
+            modalAlertMultiple('success',obj.message,'alert-modal-import-catalog');
+        } else {
+            modalAlertMultiple('danger',obj.message,'alert-modal-import-catalog');
+        }
+
+        $("#btnImportSave").html("<i class='fa fa-play'></i> "+ vocab['process']).removeClass('disabled');
+        $("#btnImportClose").removeClass('disabled');
+        
+        setTimeout(function(){
+            $('#modal-import-catalog').modal('hide');
+            importDropzone.removeAllFiles(true);
+            location.reload();
+        },5000);
+    });
+
+    importDropzone.on("queuecomplete", function (file) {
+        console.log('process concluded');
+    });
+
+    $("#btnImportSave").click(function(){
+        if(!$("#btnImportSave").hasClass('disabled')){
+            $("#btnImportSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+            $("#btnImportClose").addClass('disabled');
+
+            if(importDropzone.getQueuedFiles().length > 0){
+                dropzonefiles = importDropzone.getQueuedFiles().length;
+                importDropzone.options.params = {_token:$("#_token").val()};
+                importDropzone.processQueue();
+            }else{
+                modalAlertMultiple('danger',vocab['Alert_import_services_nofile_failure'],'alert-modal-import-catalog');
+            }
+        }
+    });
+
     /**
      * Validate
      */
@@ -1247,6 +1320,10 @@ $(document).ready(function () {
 
         $("#approverList tbody").html("");
         $(".approverListView").addClass('d-none');
+    });
+
+    $('#modal-import-catalog').on('hidden.bs.modal', function() {
+        importDropzone.removeAllFiles(true);
     });
 
 });

@@ -135,6 +135,11 @@ final class hdkServiceModel
     private $groupList;
 
     /**
+     * @var array
+     */
+    private $approverList;
+
+    /**
      * Get the value of idArea
      *
      * @return  int
@@ -754,6 +759,30 @@ final class hdkServiceModel
     public function setGroupList(array $groupList)
     {
         $this->groupList = $groupList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of approverList
+     *
+     * @return  array
+     */ 
+    public function getApproverList()
+    {
+        return $this->approverList;
+    }
+
+    /**
+     * Set the value of approverList
+     *
+     * @param  array  $approverList
+     *
+     * @return  self
+     */ 
+    public function setApproverList(array $approverList)
+    {
+        $this->approverList = $approverList;
 
         return $this;
     }

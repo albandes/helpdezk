@@ -1,0 +1,48 @@
+<div class="modal fade" id="modal-import-catalog" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Import'|translate}&nbsp;{='pgr_services'|translate}</strong></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-import-catalog-form">
+
+                    <div class="row white-bg g-2 mb-3">
+                        <div class="col-sm-5 text-center ">
+                            <a href="{$pathToFile}" target="_blank" title="{='Manage_layout_service'|translate}">
+                                <i id="btnPDF" class="far fa-file-pdf fa-5x" aria-hidden="true"></i>
+                            </a>
+                            <br>
+                            <small class="text-navy">{='Manage_instructions'|translate}</small>
+                        </div>
+
+                        <div class="col-sm-1 text-end">
+                            <label for="modal-area-name" class="hdk-label col-form-label text-end">{='File'|translate}:</label>
+                        </div>
+                        
+                        <div class="col-sm-5 text-center">
+                            <div id="import-catalog-dropzone" class="dropzone dz-default dz-message" ></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-import-catalog"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnImportClose" class="btn btn-default btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+                <button type="button" id="btnImportSave" class="btn btn-primary btn-sm"><i class="fa fa-play"></i> {='process'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
