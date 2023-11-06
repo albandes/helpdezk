@@ -1841,7 +1841,7 @@ class hdkService extends Controller
             $this->logger->error("Can't save data from file: {$targetFile} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             echo json_encode(array("success"=>false,"message"=>"{$ret['message']}"));          
         }else{
-            echo json_encode(array("success"=>true,"message"=>""));
+            echo json_encode(array("success"=>true,"message"=>$this->translator->translate('Import_services_success')));
         }
 
     }
