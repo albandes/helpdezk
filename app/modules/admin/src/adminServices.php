@@ -1190,7 +1190,7 @@ class adminServices
         }
         $keyword = substr($keyword, 0, -4);
         
-        $where = "AND ($keyword OR pipeLatinToUtf8(tbp.login) LIKE pipeLatinToUtf8('%{$searchStr}%')) AND tbp.idtypeperson IN(2,3)";
+        $where = "AND ($keyword OR pipeLatinToUtf8(tbp.login) LIKE pipeLatinToUtf8('%{$searchStr}%') OR pipeLatinToUtf8(tbp.email) LIKE pipeLatinToUtf8('%{$searchStr}%')) AND tbp.idtypeperson IN(2,3)";
         $order = "ORDER BY tbp.name";
         
         $ret = $personDAO->queryPersons($where,null,$order);
@@ -1202,6 +1202,8 @@ class adminServices
                 $bus =  array(
                     "id" => $v['idperson'],
                     "name" => "{$v['name']}",
+                    "login" => $v['login'],
+                    "email" => $v['email']
                 );
 
                 array_push($aRet,$bus);

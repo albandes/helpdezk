@@ -2898,5 +2898,75 @@ class appServices
 
         return $aRet;
     }
+    
+    /**
+     * _comboDaysPeriod
+     * 
+     * en_us Returns an array with ID and name of days period options
+     * pt_br Retorna um array com ID e nome das opções de período de dias
+     *
+     * @return array
+     */
+    public function _comboDaysPeriod(): array
+    {
+        $translator = new localeServices();
+
+        $aRet =  array(
+            array("id"=>1,"text"=>"1 {$translator->translate('Day')}"),
+            array("id"=>2,"text"=>"2 {$translator->translate('Days')}"),
+            array("id"=>3,"text"=>"3 {$translator->translate('Days')}"),
+            array("id"=>4,"text"=>"4 {$translator->translate('Days')}"),
+            array("id"=>5,"text"=>"5 {$translator->translate('Days')}"),
+            array("id"=>10,"text"=>"10 {$translator->translate('Days')}"),
+            array("id"=>15,"text"=>"15 {$translator->translate('Days')}"),
+            array("id"=>20,"text"=>"20 {$translator->translate('Days')}"),
+            array("id"=>30,"text"=>"30 {$translator->translate('Days')}"),
+            array("id"=>60,"text"=>"60 {$translator->translate('Days')}"),
+            array("id"=>90,"text"=>"90 {$translator->translate('Days')}"),
+            array("id"=>120,"text"=>"120 {$translator->translate('Days')}")
+        );
+
+        return $aRet;
+    }
+    
+    /**
+     * _makeFileUploadError
+     * 
+     * en_us Returns the error message corresponding to the code
+     * pt_br Retorna a mensagem de erro correspondente ao código
+     *
+     * @param  mixed $errorCode
+     * @return string
+     */
+    public function _makeFileUploadError($errorCode): string
+    {
+        $translator = new localeServices();
+
+        switch($errorCode){
+            case 1:
+                $msg = $translator->translate('exceed_upload_file_directive');
+                break;
+            case 2:
+                $msg = $translator->translate('exceed_max_file_size_form');
+                break;
+            case 3:
+                $msg = $translator->translate('file_partially_uploaded');
+                break;
+            case 4:
+                $msg = $translator->translate('no_file_uploaded');
+                break;
+            case 6:
+                $msg = $translator->translate('missing_temporary_folder');
+                break;
+            case 7:
+                $msg = $translator->translate('write_disk_failure');
+                break;
+            case 8:
+                $msg = $translator->translate('php_extension_stop_upload');
+                break;
+        }
+
+        return $msg;
+    }
 
 }
