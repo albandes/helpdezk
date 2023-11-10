@@ -5265,3 +5265,13 @@ select, #btnTimer,
   font-weight: bold;
   background-color: #e7eaec;
 }
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+  color: #fff;
+  background-color: #1ab394;
+}
+
+.nav-pills .nav-link {
+  color: #1ab394;
+  font-weight: bold;
+}
