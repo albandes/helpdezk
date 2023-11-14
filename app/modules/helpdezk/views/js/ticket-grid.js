@@ -223,7 +223,7 @@ $(document).ready(function () {
     $("#cmbTypeExpireDate").change(function(){
        var deadlineType = $(this).val();
         $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
-            return {deadlineType:deadlineType};
+            return {deadlineType:deadlineType,viewType:$("#cmbViewType").val(),idStatus:$("#gridStatusId").val()};
         });
         
         $("#grid_ticket").pqGrid("refreshDataAndView");
@@ -238,39 +238,39 @@ $(document).ready(function () {
     $("#cmbViewType").change(function(){
         var viewType = $(this).val();
          $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
-             return {viewType:viewType};
+             return {viewType:viewType,deadlineType:$("#cmbTypeExpireDate").val(),idStatus:$("#gridStatusId").val()};
          });
          
          $("#grid_ticket").pqGrid("refreshDataAndView");
      });
 
     $("#btnAll").click(function(){
-        getDataByStatus("ALL","<b>"+vocab['Grid_all_tickets'].toUpperCase()+"</b>");
+        getDataByStatus("ALL","<b>"+vocab['Grid_all_tickets'].toUpperCase()+"</b>",1);
         makeActive("ALL");
     });
 
     $("#btnListNew").click(function(){
-        getDataByStatus("1","<b>"+vocab['Grid_new_tickets'].toUpperCase()+"</b>");
+        getDataByStatus("1","<b>"+vocab['Grid_new_tickets'].toUpperCase()+"</b>",1);
         makeActive("1");
     });
 
     $("#btnListAttended").click(function(){
-        getDataByStatus("3","<b>"+vocab['Grid_being_attended_tickets'].toUpperCase()+"</b>");
+        getDataByStatus("3","<b>"+vocab['Grid_being_attended_tickets'].toUpperCase()+"</b>",2);
         makeActive("3");
     });
 
     $("#btnListWaiting").click(function(){
-        getDataByStatus("4","<b>"+vocab['Grid_waiting_my_approval_tickets'].toUpperCase()+"</b>");
+        getDataByStatus("4","<b>"+vocab['Grid_waiting_my_approval_tickets'].toUpperCase()+"</b>",1);
         makeActive("4");
     });
 
     $("#btnListFinished").click(function(){
-        getDataByStatus("5","<b>"+vocab['Grid_finished_tickets'].toUpperCase()+"</b>");
+        getDataByStatus("5","<b>"+vocab['Grid_finished_tickets'].toUpperCase()+"</b>",1);
         makeActive("5");
     });
 
     $("#btnListRejected").click(function(){
-        getDataByStatus("6","<b>"+vocab['Grid_rejected_tickets'].toUpperCase()+"</b>");
+        getDataByStatus("6","<b>"+vocab['Grid_rejected_tickets'].toUpperCase()+"</b>",1);
         makeActive("6");
     });
 
@@ -286,14 +286,20 @@ $(document).ready(function () {
     });
 });
 
-function getDataByStatus(statusID,titleLabel) {
-    $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
-        return {idStatus:statusID};
-    });
+function getDataByStatus(statusID,titleLabel,viewTypeId) {
+    if(typeUser == 3){
+        $("#gridStatusId").val(statusID);
+        $("#cmbViewType").val(viewTypeId);
+        $("#cmbViewType").trigger("change");
+    }else{
+        $("#grid_ticket").pqGrid( "option", "dataModel.postData", function(){
+            return {idStatus:statusID};
+        });
+
+        $("#grid_ticket").pqGrid("refreshDataAndView");
+    }
     
     $("#grid_ticket").pqGrid( "option", "title", titleLabel );
-    
-    $("#grid_ticket").pqGrid("refreshDataAndView");
 }
 
 function goTicket(ticketCode)

@@ -179,7 +179,7 @@ class ticketDAO extends Database
                 $where
               GROUP BY  req.code_request $group
                 $order $limit";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();

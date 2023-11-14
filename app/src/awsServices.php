@@ -412,10 +412,9 @@ class awsServices
                 ],
             ]);
 
-            echo "",print_r($ret,true),"\n";
             $st = true;
             $msg = "";
-            $emailId = 0;
+            $emailId = $ret['MessageId'];
         } catch (SesException $e) {
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();

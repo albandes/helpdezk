@@ -3,20 +3,25 @@
 use App\core\Controller;
 use App\modules\helpdezk\dao\mysql\hdkServiceDAO;
 use App\modules\helpdezk\dao\mysql\ticketRulesDAO;
+use App\modules\helpdezk\dao\mysql\priorityDAO;
+use App\modules\helpdezk\dao\mysql\groupDAO;
 use App\modules\admin\dao\mysql\personDAO;
 
 use App\modules\helpdezk\models\mysql\hdkServiceModel;
 use App\modules\helpdezk\models\mysql\ticketRulesModel;
+use App\modules\helpdezk\models\mysql\priorityModel;
+use App\modules\helpdezk\models\mysql\groupModel;
 use App\modules\admin\models\mysql\personModel;
 
 use App\modules\admin\src\adminServices;
 use App\modules\helpdezk\src\hdkServices;
+use App\src\awsServices;
 
 /**
  * hdkService
  */
 class hdkService extends Controller
-{           
+{
     /**
      * @var int
      */
@@ -27,6 +32,21 @@ class hdkService extends Controller
      */
     protected $aPermissions;
 
+    /**
+     * @var string
+     */
+    protected $saveMode;
+    
+    /**
+     * @var string
+     */
+    protected $fileDir;
+
+    /**
+     * @var string
+     */
+    protected $fileBucket;
+
     public function __construct()
     {
         parent::__construct();
@@ -35,6 +55,26 @@ class hdkService extends Controller
         
         $this->programId = $this->appSrc->_getProgramIdByName(__CLASS__);
         $this->aPermissions = $this->appSrc->_getUserPermissionsByProgram($_SESSION['SES_COD_USUARIO'],$this->programId);
+
+        // -- file directory
+        $this->saveMode = $_ENV['S3BUCKET_STORAGE'] ? "aws-s3" : 'disk';
+        if($this->saveMode == "aws-s3"){
+            $bucket = $_ENV['S3BUCKET_NAME'];
+            $this->fileDir = "helpdezk/import/";
+            $this->fileBucket = "https://{$bucket}.s3.amazonaws.com/".$this->fileDir;            
+        }else{
+            if($_ENV['EXTERNAL_STORAGE']){
+                $modDir = $this->appSrc->_setFolder($_ENV['EXTERNAL_STORAGE_PATH'].'/helpdezk/');
+                $this->fileDir = $this->appSrc->_setFolder($modDir.'import/');
+                $this->fileBucket = $_ENV['EXTERNAL_STORAGE_URL'].'helpdezk/import/';
+            }else{
+                $storageDir = $this->appSrc->_setFolder($this->appSrc->_getHelpdezkPath().'/storage/');
+                $upDir = $this->appSrc->_setFolder($storageDir.'uploads/');
+                $modDir = $this->appSrc->_setFolder($upDir.'helpdezk/');
+                $this->fileDir = $this->appSrc->_setFolder($modDir.'import/');
+                $this->fileBucket = $_ENV['HDK_URL']."/storage/uploads/helpdezk/import/";
+            }
+        }
     }
         
     /**
@@ -54,7 +94,14 @@ class hdkService extends Controller
 		
 		$this->view('helpdezk','service',$params);
     }
-
+    
+    /**
+     * makeScreenService
+     *
+     * @param  mixed $option
+     * @param  mixed $obj
+     * @return void
+     */
     public function makeScreenService($option='idx',$obj=null)
     {
         $adminSrc = new adminServices();
@@ -77,6 +124,15 @@ class hdkService extends Controller
             $params['department'] = $obj->getDepartment();
             $params['idcompany'] = $obj->getIdCompany();
         }
+
+        if($this->saveMode == 'aws-s3') {
+            $aws = new awsServices();
+            $retUrl = $aws->_getFile($this->fileDir . $this->translator->translate("Manage_layout_service_file"));
+            
+            $params['pathToFile'] = $retUrl['fileUrl'];
+        } else {
+            $params['pathToFile'] = $this->fileBucket . $this->translator->translate("Manage_layout_service_file");
+        } 
         
         return $params;
     }
@@ -1670,8 +1726,8 @@ class hdkService extends Controller
                         $content .= "<tr><td colspan='4' class='text-service text-start' style='background-color: #e7eaec;'>{$val['area_name']}</td></tr>";
                     }
 
-                    if($val['service_name'] != $curService){
-                        $curService = $val['service_name'];
+                    if("{$val['type_name']} {$val['item_name']} {$val['service_name']}" != $curService){
+                        $curService = "{$val['type_name']} {$val['item_name']} {$val['service_name']}";
                         $approverList = "";
                         
                         $ticketRulesModel->setItemId($val['iditem'])
@@ -1713,6 +1769,620 @@ class hdkService extends Controller
 
         echo json_encode($aRet);
     }
+    
+    /**
+     * importData
+     * 
+     * en_us Upload the file and process the data
+     * pt_br Carrega o arquivo e processa os dados
+     *
+     * @return void
+     */
+    function importData()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            return false;
+        }
 
+        $char_search	= array("ã", "á", "à", "â", "é", "ê", "í", "õ", "ó", "ô", "ú", "ü", "ç", "ñ", "Ã", "Á", "À", "Â", "É", "Ê", "Í", "Õ", "Ó", "Ô", "Ú", "Ü", "Ç", "Ñ", "ª", "º", " ", ";", ",");
+        $char_replace	= array("a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c", "n", "A", "A", "A", "A", "E", "E", "I", "O", "O", "O", "U", "U", "C", "N", "_", "_", "_", "_", "_");
+
+        if (!empty($_FILES) && ($_FILES['file']['error'] == 0)){
+            $fileName = $_FILES['file']['name'];
+            $tempFile = $_FILES['file']['tmp_name'];
+            $extension = strrchr($fileName, ".");
+            $fileSize = $_FILES['file']['size'];
+
+            $fileName = str_replace($char_search, $char_replace, $fileName);
+
+            if($this->saveMode == 'disk') {
+                $targetFile =  $this->fileDir.$fileName;
+    
+                if (move_uploaded_file($tempFile,$targetFile)){
+                    $this->logger->info("Services file saved", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                } else {
+                    $this->logger->error("Error trying to save Services file: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Manage_fail_import_file')}"));
+                    exit;
+                }                    
+            }elseif($this->saveMode == "aws-s3"){                
+                $aws = new awsServices();
+                
+                $arrayRet = $aws->_copyToBucket($tempFile,$this->fileDir.$fileName);
+                
+                if($arrayRet['success']) {
+                    $this->logger->info("Save temp attachment file {$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);    
+                } else {
+                    $this->logger->error("I could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Manage_fail_import_file')}"));
+                    exit;
+                }
+
+                $targetFile =  $this->fileDir.$fileName;
+            }
+        }else{
+            echo json_encode(array("success"=>false,"message"=>"{$this->translator->translate('Alert_failure')}"));
+            exit;
+        }
+
+        $arrayData = $this->readFile($targetFile);
+        
+        if ($arrayData['error']) {
+            $this->logger->error("Can't import file: {$targetFile}, layout error", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            echo json_encode(array("success"=>false,"message"=>"{$arrayData['message']}"));
+            exit;
+        } else {
+            $arrayImport = $arrayData['return'];
+        }
+        
+        $ret = $this->writeDataBase($arrayImport,$companyID);
+        if (!$ret['success']) {
+            $this->logger->error("Can't save data from file: {$targetFile} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            echo json_encode(array("success"=>false,"message"=>"{$ret['message']}"));          
+        }else{
+            echo json_encode(array("success"=>true,"message"=>$this->translator->translate('Import_services_success')));
+        }
+
+    }
+    
+    /**
+     * readFile
+     * 
+     * en_us Read data from file
+     * pt_br Lê os dados do arquivo
+     *
+     * @param  mixed $targetFile File name where to read data
+     * @return array
+     */
+    function readFile($targetFile): array
+    {
+        $error = false;
+        
+        if($this->saveMode == 'aws-s3') {
+            $aws = new awsServices();
+            $retUrl = $aws->_getFile($targetFile);
+            $url = $retUrl['fileUrl'];
+            
+            $csvData = file_get_contents($url);      // Get the csv data from Amazon S3 bucket
+        } else {
+            $csvData = file_get_contents($targetFile);      // Get the csv data
+        }
+
+        $array = explode(PHP_EOL, $csvData);            // separate each line
+        
+        foreach ($array as $line) {                     // test number os columns
+            $aExplode = explode(';',$line);
+
+            $count = count($aExplode);
+            if ($count > 10) {
+                $error = true;
+            } elseif ($count < 9 && ($count == 1 && $aExplode[0] != '')) {
+                $error = true;
+            }
+        }
+
+        if ($error) {
+            $aRet = array("error" => true,
+                              "message" => $this->translator->translate('Import_layout_error'),
+                              "return" => "");
+        } else {
+            $aRet = array("error" => false,
+                              "message" => "",
+                              "return" => $array);
+        }
+
+        return $aRet;
+    }
+    
+    /**
+     * writeDataBase
+     * 
+     * en_us Writes file data to the DB
+     * pt_br Grava os dados do arquivo no BD
+     *
+     * @param  mixed $array         Data to insert into DB
+     * @param  mixed $companyID
+     * @return array
+     */
+    function writeDataBase($array,$companyID): array
+    {
+        $serviceDTO = new hdkServiceModel();
+
+        $lineNumber = 1; 
+
+        foreach ($array as $line) {
+
+            $aExplode = explode(';', $line);
+            
+            if(count($aExplode) > 1 && $aExplode[0] != ''){
+                // --- Area ---
+                $retArea = $this->makeAreaId($aExplode[0],$lineNumber);
+                if(!$retArea['success']){
+                    return $retArea;
+                }
+                $areaId = $retArea['areaId'];
+
+                // --- Type ---
+                $retType = $this->makeTypeId($areaId,$aExplode[1],$lineNumber);
+                if(!$retType['success']){
+                    return $retType;
+                }
+                $typeId = $retType['typeId'];
+
+                // --- Item ---
+                $retItem = $this->makeItemId($typeId,$aExplode[2],$lineNumber);
+                if(!$retItem['success']){
+                    return $retItem;
+                }
+                $itemId = $retItem['itemId'];
+
+                // --- Priority ---
+                $retPriority = $this->makePriorityId($aExplode[5],$lineNumber);
+                if(!$retPriority['success']){
+                    return $retPriority;
+                }
+                $priorityId = $retPriority['priorityId'];
+                
+                // --- Group ---
+                $retGroup = $this->makeGroupId($aExplode[8],$aExplode[4],$lineNumber);
+                if(!$retGroup['success']){
+                    return $retGroup;
+                }
+                $groupId = $retGroup['groupId'];
+                
+                //Setting up the model
+                $serviceDTO->setIdItem($itemId)
+                            ->setServiceName(trim(strip_tags(utf8_encode($aExplode[3]))))
+                            ->setIdGroup($groupId)
+                            ->setIdPriority($priorityId)
+                            ->setLimitDays($aExplode[6])
+                            ->setLimitTime(substr($aExplode[7],0,-1))
+                            ->setTimeType(substr($aExplode[7],-1))
+                            ->setAttendanceTime(0)
+                            ->setStatus('A')
+                            ->setFlagDefault(0)
+                            ->setFlagClassify(0);
+                            
+                // If the file contains filled column 10, we will have the approver name
+                $aApprovers = trim($aExplode[9]);
+                if (isset($aApprovers) AND !empty($aApprovers)) {
+                    $this->logger->info("Import Services, file line {$lineNumber}. Service has approver(s): {$aApprovers}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $serviceDTO->setApproverList(explode("|",$aApprovers));
+                }else{
+                    $serviceDTO->setApproverList(array());
+                }                            
+                
+                $retInsService = $this->processService($serviceDTO,$lineNumber);
+                if(!$retInsService['success']){
+                    return $retInsService;
+                }              
+
+                $lineNumber++;
+            }
+        }
+
+        return array("success"=>true,"message"=>"{$this->translator->translate('Import_services_success')}");
+    }
+    
+    /**
+     * makeAreaId
+     * 
+     * en_us Returns service's area ID
+     * pt_br Retorna o ID da área do serviço
+     *
+     * @param  mixed $value         Area's name
+     * @param  mixed $lineNumber    File line to process
+     * @return array
+     */
+    public function makeAreaId($value,$lineNumber): array
+    {
+        $serviceDAO = new hdkServiceDAO();
+        $serviceDTO = new hdkServiceModel();
+        $valSearch = trim(utf8_encode($value));
+        
+        $ret = $serviceDAO->queryAreas("WHERE `name` LIKE '{$valSearch}'");
+        if(!$ret['status']){
+            $this->logger->error("Import Services. Error saving service's area data. Area: {$valSearch}. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+
+            $st = false;
+            $msg = "{$this->translator->translate('Manage_service_area_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+        }else{
+            $aAreas = $ret['push']['object']->getAreaList();
+            if(count($aAreas) <= 0){  
+                $serviceDTO->setAreaName($valSearch)
+                           ->setFlagDefault(0);
+
+                $ins = $serviceDAO->saveArea($serviceDTO);
+                if($ins['status']){
+                    $st = true;
+                    $msg = "";
+                    $areaId = $ins['push']['object']->getIdArea();
+                    $this->logger->info("Import Services, file line {$lineNumber}. Area included: {$valSearch}, idarea: {$areaId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);               
+                }else{
+                    $st = false;
+                    $msg = "{$this->translator->translate('Manage_service_area_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                    $areaId = "";
+                    $this->logger->info("Import Services, file line {$lineNumber}. Can't include area: {$valSearch} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ins['push']['message']]);
+                }
+            } else { 
+                $this->logger->info("Import Services, file line {$lineNumber}. Area already exists, no need to import: {$valSearch}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $st = true;
+                $msg = "";
+                $areaId = $aAreas[0]['idarea'];
+            }
+        }
+        
+        return array("success"=>$st,"message"=>$msg,"areaId"=>$areaId);
+    }
+    
+    /**
+     * makeTypeId
+     * 
+     * en_us Returns service's type ID
+     * pt_br Retorna o ID do tipo de serviço
+     *
+     * @param  mixed $areaId        Area's ID
+     * @param  mixed $value         Type's name
+     * @param  mixed $lineNumber    File line to process
+     * @return array
+     */
+    public function makeTypeId($areaId,$value,$lineNumber): array
+    {
+        $serviceDAO = new hdkServiceDAO();
+        $serviceDTO = new hdkServiceModel();
+        $valSearch = trim(utf8_encode($value));
+        
+        $ret = $serviceDAO->queryTypes("WHERE idarea = {$areaId} AND `name` LIKE '{$valSearch}'");
+        if(!$ret['status']){
+            $this->logger->error("Import Services. Error saving service's type data. Type: {$valSearch}. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+
+            $st = false;
+            $msg = "{$this->translator->translate('Manage_service_type_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+        }else{
+            $aTypes = $ret['push']['object']->getTypeList();
+            if(count($aTypes) <= 0){  
+                $serviceDTO->setIdArea($areaId)
+                            ->setTypeName($valSearch)
+                            ->setStatus('A')
+                            ->setFlagDefault(0)
+                            ->setFlagClassify(0);
+
+                $ins = $serviceDAO->saveType($serviceDTO);
+                if($ins['status']){
+                    $st = true;
+                    $msg = "";
+                    $typeId = $ins['push']['object']->getIdType();
+                    $this->logger->info("Import Services, file line {$lineNumber}. Type included: {$valSearch}, idtype: {$typeId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);               
+                }else{
+                    $st = false;
+                    $msg = "{$this->translator->translate('Manage_service_type_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                    $typeId = "";
+                    $this->logger->info("Import Services, file line {$lineNumber}. Can't include type: {$valSearch} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ins['push']['message']]);
+                }
+            } else { 
+                $this->logger->info("Import Services, file line {$lineNumber}. Type already exists, no need to import: {$valSearch}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $st = true;
+                $msg = "";
+                $typeId = $aTypes[0]['idtype'];
+            }
+        }
+        
+        return array("success"=>$st,"message"=>$msg,"typeId"=>$typeId);
+    }
+    
+    /**
+     * makeItemId
+     * 
+     * en_us Returns service's item ID
+     * pt_br Retorna o ID do item de serviço
+     *
+     * @param  mixed $typeId        Type's ID
+     * @param  mixed $value         Item's name
+     * @param  mixed $lineNumber    File line to process
+     * @return array
+     */
+    public function makeItemId($typeId,$value,$lineNumber): array
+    {
+        $serviceDAO = new hdkServiceDAO();
+        $serviceDTO = new hdkServiceModel();
+        $valSearch = trim(utf8_encode($value));
+        
+        $ret = $serviceDAO->queryItems("WHERE idtype = {$typeId} AND `name` LIKE '{$valSearch}'");
+        if(!$ret['status']){
+            $this->logger->error("Import Services. Error saving service's item data. Item: {$valSearch}. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+
+            $st = false;
+            $msg = "{$this->translator->translate('Manage_service_item_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+        }else{
+            $aItems = $ret['push']['object']->getItemList();
+            if(count($aItems) <= 0){  
+                $serviceDTO->setIdType($typeId)
+                            ->setItemName($valSearch)
+                            ->setStatus('A')
+                            ->setFlagDefault(0)
+                            ->setFlagClassify(0);
+
+                $ins = $serviceDAO->saveItem($serviceDTO);
+                if($ins['status']){
+                    $st = true;
+                    $msg = "";
+                    $itemId = $ins['push']['object']->getIdItem();
+                    $this->logger->info("Import Services, file line {$lineNumber}. Item included: {$valSearch}, iditem: {$itemId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);               
+                }else{
+                    $st = false;
+                    $msg = "{$this->translator->translate('Manage_service_item_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                    $itemId = "";
+                    $this->logger->info("Import Services, file line {$lineNumber}. Can't include item: {$valSearch} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ins['push']['message']]);
+                }
+            } else { 
+                $this->logger->info("Import Services, file line {$lineNumber}. Item already exists, no need to import: {$valSearch}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $st = true;
+                $msg = "";
+                $itemId = $aItems[0]['iditem'];
+            }
+        }
+        
+        return array("success"=>$st,"message"=>$msg,"itemId"=>$itemId);
+    }
+    
+    /**
+     * makePriorityId
+     * 
+     * en_us Returns service's priority level ID
+     * pt_br Retorna o ID do nível de prioridade do serviço
+     *
+     * @param  mixed $value         Priority's name
+     * @param  mixed $lineNumber    File line to process
+     * @return array
+     */
+    public function makePriorityId($value,$lineNumber): array
+    {
+        $priorityDAO = new priorityDAO();
+        $priorityDTO = new priorityModel();
+        $valSearch = trim(utf8_encode($value));
+        
+        $ret = $priorityDAO->queryPriorities("WHERE UPPER(`name`) LIKE UPPER('{$valSearch}')");
+        if(!$ret['status']){
+            $this->logger->error("Import Services. Error getting service's priority data. Priority: {$valSearch}. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+
+            $st = false;
+            $msg = "{$this->translator->translate('manage_search_priority_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+        }else{
+            $aPriorities = $ret['push']['object']->getGridList();
+            if(count($aPriorities) <= 0){  
+                $retDefault = $priorityDAO->queryPriorities("WHERE `default` = 1");
+
+                if($retDefault['status']){
+                    $st = true;
+                    $msg = "";
+                    $aDefault = $retDefault['push']['object']->getGridList();
+                    $priorityId = $aDefault[0]['idpriority'];
+                    $this->logger->info("Import Services, file line {$lineNumber}. It was associated with default priority, because the priority informed does not exist in the system. Priority: {$valSearch}, default idpriority: {$priorityId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);               
+                }else{
+                    $st = false;
+                    $msg = "{$this->translator->translate('manage_service_get_default_priority')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                    $priorityId = "";
+                    $this->logger->info("Import Services, file line {$lineNumber}. Can't get priority {$valSearch} data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $retDefault['push']['message']]);
+                }
+            } else { 
+                $this->logger->info("Import Services, file line {$lineNumber}. Priority {$valSearch} already exists.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $st = true;
+                $msg = "";
+                $priorityId = $aPriorities[0]['idpriority'];
+            }
+        }
+        
+        return array("success"=>$st,"message"=>$msg,"priorityId"=>$priorityId);
+    }
+    
+    /**
+     * makeGroupId
+     * 
+     * en_us Returns group's ID in charge of service
+     * pt_br Retorna o ID do grupo responsável pelo serviço
+     *
+     * @param  mixed $company       Company's name
+     * @param  mixed $value         Group's name
+     * @param  mixed $lineNumber    File line to process
+     * @return array
+     */
+    public function makeGroupId($company,$value,$lineNumber): array
+    {
+        $groupDAO = new groupDAO();
+        $groupDTO = new groupModel();
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+
+        $company = trim(utf8_encode($company));
+        $valSearch = trim(utf8_encode($value));
+
+        $retCompany = $personDAO->queryPersons("AND UPPER(tbp.name) LIKE UPPER('{$company}')");
+        if(!$retCompany['status']){
+            $this->logger->error("Import Services. Error getting company data. Company: {$company}. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $retCompany['push']['message']]);
+            $msg = str_replace("%", $company, $this->translator->translate('Manage_service_company_fail'));
+            return array("success"=>false,"message"=>$msg,"groupId"=>"");
+        }
+
+        $aCompany = $retCompany['push']['object']->getGridList();
+        if(count($aCompany) <= 0){
+            $this->logger->info("Import Services. Company {$company} not found. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $msg = str_replace("%", $company, $this->translator->translate('Manage_service_company_fail'));
+            return array("success"=>false,"message"=>$msg,"groupId"=>"");
+        }
+        $companyId = $aCompany[0]['idperson'];
+        
+        $ret = $groupDAO->queryGroups("AND tbg.idcustomer = {$companyId} AND tbp.name LIKE '{$valSearch}'");
+        if(!$ret['status']){
+            $this->logger->error("Import Services. Error saving service's group data. Group: {$valSearch}. File line {$lineNumber}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+
+            $st = false;
+            $msg = "{$this->translator->translate('Manage_service_group_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+        }else{
+            $aGroups = $ret['push']['object']->getGridList();
+            if(count($aGroups) <= 0){  
+                $groupDTO->setIdCompany($companyId)
+                         ->setGroupName($valSearch)
+                         ->setGroupLevel(2)
+                         ->setIsRepassOnly("N");
+
+                $ins = $groupDAO->saveGroup($groupDTO);
+                if($ins['status']){
+                    $st = true;
+                    $msg = "";
+                    $groupId = $ins['push']['object']->getIdGroup();
+                    $this->logger->info("Import Services, file line {$lineNumber}. Group included: {$valSearch}, idgroup: {$groupId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }else{
+                    $st = false;
+                    $msg = "{$this->translator->translate('Manage_service_group_fail')}: {$valSearch}, {$this->translator->translate('Manage_service_inf_line')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                    $groupId = "";
+                    $this->logger->info("Import Services, file line {$lineNumber}. Can't include group: {$valSearch} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ins['push']['message']]);
+                }
+            } else { 
+                $this->logger->info("Import Services, file line {$lineNumber}. Group already exists, no need to import: {$valSearch}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $st = true;
+                $msg = "";
+                $groupId = $aGroups[0]['idgroup'];
+            }
+        }
+        
+        return array("success"=>$st,"message"=>$msg,"groupId"=>$groupId);
+    }
+    
+    /**
+     * processService
+     * 
+     * en_us Writes service data imported from the file
+     * pt_br Grava os dados do serviço importado do arquivo
+     *
+     * @param  hdkServiceModel $serviceDTO  hdkSerrviceModel instance
+     * @param  mixed $lineNumber            File line to process
+     * @return array
+     */
+    public function processService(hdkServiceModel $serviceDTO,$lineNumber): array
+    {
+        $serviceDAO = new hdkServiceDAO();
+        
+        $valSearch = addslashes($serviceDTO->getServiceName());
+        $itemId = $serviceDTO->getIdItem();
+        $where = "AND iditem = {$itemId} AND `name` = '{$valSearch}'";
+
+        $ret = $serviceDAO->queryServices($where);
+        if(!$ret['status']){
+            $this->logger->error("Import Services, file line {$lineNumber}. Failed to determine the service code. Service: {$valSearch}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+            $msg = "{$this->translator->translate('Manage_service_fail_code')} {$valSearch} {$this->translator->translate('Manage_service_on_line')} {$lineNumber} {$this->translator->translate('Manage_service_imp_canceled')}";
+            return array("success"=>false,"message"=>$msg,"serviceId"=>"");
+        }        
+        $aServices = $ret['push']['object']->getServiceList();
+        
+        if(count($aServices) == 0){
+            $ins = $serviceDAO->saveService($serviceDTO);
+            if($ins['status']){
+                $st = true;
+                $msg = "";
+                $serviceId = $ins['push']['object']->getIdService();
+                $this->logger->info("Import Services, file line {$lineNumber}. Service included: {$valSearch}, idservice: {$serviceId} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);               
+            }else{
+                $st = false;
+                $msg = "{$this->translator->translate('Manage_service_fail_code')} {$valSearch} {$this->translator->translate('Manage_service_on_line')} {$lineNumber} {$this->translator->translate('Manage_service_imp_canceled')}";
+                $serviceId = "";
+                $this->logger->error("Import Services, file line {$lineNumber}. Can't include service: {$valSearch} ", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            }
+        }else{
+            $st = true;
+            $msg = "";
+            $serviceId = $aServices[0]['idservice'];
+            $this->logger->info("Import Services, file line {$lineNumber}. Service already exists, no need to import: {$valSearch}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+        }
+        
+        if(!empty($serviceId) && count($serviceDTO->getApproverList()) > 0){
+            $serviceDTO->setIdService($serviceId);
+            $insApprovers = $this->saveServiceApprovers($serviceDTO,$lineNumber);
+            if(!$insApprovers['success']){
+                return $insApprovers;
+            }
+        }
+
+        return array("success"=>$st,"message"=>$msg,"serviceId"=>$serviceId);
+    }
+    
+    /**
+     * saveServiceApprovers
+     * 
+     * en_us Links the imported service to approvers
+     * pt_br Vincula o serviço importado aos aprovadores
+     *
+     * @param  hdkServiceModel $serviceDTO  hdkSerrviceModel instance
+     * @param  mixed $lineNumber            File line to process
+     * @return array
+     */
+    public function saveServiceApprovers(hdkServiceModel $serviceDTO,$lineNumber): array
+    {
+        
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+        $ticketRulesDAO = new ticketRulesDAO();
+        $ticketRulesDTO = new ticketRulesModel();
+        $aApprovers = array();
+
+        // checks if all approvers exists in DB
+        $aCheck = $serviceDTO->getApproverList();
+        foreach($aCheck as $key=>$val){
+            $attendantName = trim(utf8_encode($val));
+
+            $retAttendant = $personDAO->queryPersons("AND pipeLatinToUtf8(tbp.name) LIKE pipeLatinToUtf8('{$attendantName}') AND tbtp.idtypeperson = 3");
+            if(!$retAttendant['status']){
+                $this->logger->error("Import Services. Can't get attenndant {$attendantName} data.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $retAttendant['push']['message']]);
+                $msg = "{$attendantName}. {$this->translator->translate('Manage_service_not_registered')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                return array("success"=>false,"message"=>$msg);
+            }else{
+                $aTemp = $retAttendant['push']['object']->getGridList();
+
+                if(count($aTemp) <= 0){
+                    $this->logger->info("Import Services. New is not registered or is not attendant. Attendant: {$attendantName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    $msg = "{$attendantName}. {$this->translator->translate('Manage_service_not_registered')} {$lineNumber}. {$this->translator->translate('Manage_service_imp_canceled')}";
+                    return array("success"=>false,"message"=>$msg);
+                }else{
+                    array_push($aApprovers,$aTemp[0]['idperson']);
+                }                
+            }
+        }
+        //echo "",print_r($serviceDTO->getIdService(),true),"\n";
+        $ticketRulesDTO->setItemId($serviceDTO->getIdItem())
+                       ->setServiceId($serviceDTO->getIdService())
+                       ->setApproverList($aApprovers)
+                       ->setIsRecalculate(0);
+
+        $ret = $ticketRulesDAO->saveApprovalRule($ticketRulesDTO);
+        if(!$ret['status']){
+            $this->logger->error("Import Services, file line {$lineNumber}. Failed to save service's approvers. Service ID: {$serviceDTO->getIdService()}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $ret['push']['message']]);
+            $msg = str_replace('%','hdk_tbapproval_rule',$this->translator->translate('insert_table_failure')) .". {$this->translator->translate('Manage_service_on_line')} {$lineNumber} {$this->translator->translate('Manage_service_imp_canceled')}";
+            return array("success"=>false,"message"=>$msg,"serviceId"=>"");
+        }
+
+        $this->logger->info("Import Services, file line {$lineNumber}. Service's approvers included successfully. Service ID: {$serviceDTO->getIdService()}. Approvers Id: ".implode(",",$aApprovers), ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+        return array("success"=>true,"message"=>"");
+    }
     
 }
