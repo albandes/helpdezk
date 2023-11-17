@@ -1714,6 +1714,7 @@ class hdkServiceDAO extends Database
 
             if(!empty($servicesIds)){
                 $hdkServiceModel->setTargetIdList($servicesIds);
+                $delRules = $this->deleteServiceRules($hdkServiceModel);
                 $delServiceGroup = $this->deleteServiceGroup($hdkServiceModel);
                 $delService = $this->deleteService($hdkServiceModel);
             }
@@ -1778,6 +1779,7 @@ class hdkServiceDAO extends Database
 
             if(!empty($servicesIds)){
                 $hdkServiceModel->setTargetIdList($servicesIds);
+                $delRules = $this->deleteServiceRules($hdkServiceModel);
                 $delServiceGroup = $this->deleteServiceGroup($hdkServiceModel);
                 $delService = $this->deleteService($hdkServiceModel);
             }
@@ -1831,6 +1833,7 @@ class hdkServiceDAO extends Database
             
             if(!empty($servicesIds)){
                 $hdkServiceModel->setTargetIdList($servicesIds);
+                $delRules = $this->deleteServiceRules($hdkServiceModel);
                 $delServiceGroup = $this->deleteServiceGroup($hdkServiceModel);
                 $delService = $this->deleteService($hdkServiceModel);
             }
@@ -1871,6 +1874,7 @@ class hdkServiceDAO extends Database
             $serviceId = $hdkServiceModel->getIdService();
 
             $hdkServiceModel->setTargetIdList($serviceId);
+            $delRules = $this->deleteServiceRules($hdkServiceModel);
             $delServiceGroup = $this->deleteServiceGroup($hdkServiceModel);
             $delService = $this->deleteService($hdkServiceModel);
  
@@ -2024,6 +2028,29 @@ class hdkServiceDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * deleteServiceRules
+     * 
+     * en_us Removes service's approval rules
+     * pt_br Deleta as regras de aprovação do serviço
+     *
+     * @param  mixed $hdkServiceModel
+     * @return array
+     */
+    public function deleteServiceRules(hdkServiceModel $hdkServiceModel): array
+    {        
+        $serviceList = $hdkServiceModel->getTargetIdList();
+        $sql = "DELETE FROM hdk_tbapproval_rule WHERE idservice IN ({$serviceList})";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$hdkServiceModel);      
         
         return array("status"=>$ret,"push"=>$result);
     }
