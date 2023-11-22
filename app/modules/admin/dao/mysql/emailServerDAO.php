@@ -221,5 +221,49 @@ class emailServerDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * getEmailServer
+     *
+     * @param  mixed $emailServerModel
+     * @return array
+     */
+    public function getEmailServer(emailServerModel $emailServerModel): array
+    {        
+        $sql = "SELECT a.idservertype,b.name server_type,a.name,`user`,`password`,`port`,apikey,apisecret,apiendpoint,a.status,`default`
+                  FROM tbemailserver a, tbservertype b
+                 WHERE a.idservertype = b.idservertype
+                   AND idemailserver = :emailServerId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':emailServerId', $emailServerModel->getIdEmailServer());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $emailServerModel->setIdServerType((!is_null($aRet['idservertype']) && !empty($aRet['idservertype'])) ? $aRet['idservertype'] : 0)
+                             ->setServerType((!is_null($aRet['server_type']) && !empty($aRet['server_type'])) ? $aRet['server_type'] : "")
+                             ->setName((!is_null($aRet['name']) && !empty($aRet['name'])) ? $aRet['name'] : "")
+                             ->setUser((!is_null($aRet['user']) && !empty($aRet['user'])) ? $aRet['user'] : "")
+                             ->setPassword((!is_null($aRet['password']) && !empty($aRet['password'])) ? $aRet['password'] : "")
+                             ->setPort((!is_null($aRet['port']) && !empty($aRet['port'])) ? $aRet['port'] : "")
+                             ->setApiKey((!is_null($aRet['apikey']) && !empty($aRet['apikey'])) ? $aRet['apikey'] : "")
+                             ->setApiSecret((!is_null($aRet['apisecret']) && !empty($aRet['apisecret'])) ? $aRet['apisecret'] : "")
+                             ->setApiEndpoint((!is_null($aRet['apiendpoint']) && !empty($aRet['apiendpoint'])) ? $aRet['apiendpoint'] : "")
+                             ->setStatus((!is_null($aRet['status']) && !empty($aRet['status'])) ? $aRet['status'] : "")
+                             ->setDefault((!is_null($aRet['default']) && !empty($aRet['default'])) ? $aRet['default'] : "");
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailServerModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting email server data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 
 }
