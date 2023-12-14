@@ -1169,13 +1169,16 @@ class adminServices
     }
 
     /**
+     * _searchUser
+     * 
      * en_us Returns array with users data
      * en_us Retorna array com os dados dos usuários
      *
-     * @param  string $keyword  Keyword to search
+     * @param  mixed $keyword
+     * @param  mixed $all
      * @return array
      */
-    public function _searchUser($keyword): array
+    public function _searchUser($keyword,$all=false): array
     {
         $personDAO = new personDAO();
         $personModel = new personModel();
@@ -1191,6 +1194,7 @@ class adminServices
         $keyword = substr($keyword, 0, -4);
         
         $where = "AND ($keyword OR pipeLatinToUtf8(tbp.login) LIKE pipeLatinToUtf8('%{$searchStr}%') OR pipeLatinToUtf8(tbp.email) LIKE pipeLatinToUtf8('%{$searchStr}%')) AND tbp.idtypeperson IN(2,3)";
+        $where .= (!$all) ? " AND tbp.status = 'A' " : "";
         $order = "ORDER BY tbp.name";
         
         $ret = $personDAO->queryPersons($where,null,$order);
