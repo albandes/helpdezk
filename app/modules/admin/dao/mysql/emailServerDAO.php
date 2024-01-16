@@ -20,7 +20,10 @@ class emailServerDAO extends Database
      * @param  string $group
      * @param  string $order
      * @param  string $limit
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function queryEmailServers($where=null,$group=null,$order=null,$limit=null): array
     {
@@ -56,7 +59,10 @@ class emailServerDAO extends Database
      * Return an array with rows total for grid pagination 
      *
      * @param  string $where
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function countEmailServers($where=null): array
     {
@@ -91,7 +97,10 @@ class emailServerDAO extends Database
      * Inserts email data to send in DB
      *
      * @param  mixed $emailSrvModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function insertEmailCron(emailServerModel $emailServerModel): array
     {        
@@ -124,7 +133,10 @@ class emailServerDAO extends Database
      * Returns email template data
      *
      * @param  mixed $emailSrvModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function getEmailTemplate(emailServerModel $emailServerModel): array
     {        
@@ -167,7 +179,10 @@ class emailServerDAO extends Database
      * pt_br Retorna uma lista de e-mails para enviar
      *
      * @param  emailServerModel $emailServerModel
-     * @return array
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function fetchEmailToSendByModule(emailServerModel $emailServerModel): array
     {        
@@ -196,7 +211,16 @@ class emailServerDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * updateEmailCronStatus
+     *
+     * @param  emailServerModel $emailServerModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
     public function updateEmailCronStatus(emailServerModel $emailServerModel): array
     {        
         $sql = "UPDATE tbemailcron
@@ -225,8 +249,11 @@ class emailServerDAO extends Database
     /**
      * getEmailServer
      *
-     * @param  mixed $emailServerModel
-     * @return array
+     * @param  emailServerModel $emailServerModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
      */
     public function getEmailServer(emailServerModel $emailServerModel): array
     {        
@@ -258,6 +285,46 @@ class emailServerDAO extends Database
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
             $this->loggerDB->error("Error getting email server data", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * fetchEmailToSend
+     * 
+     * en_us Returns a list of emails to send
+     * pt_br Retorna uma lista de e-mails para enviar
+     *
+     * @param  emailServerModel $emailServerModel
+     * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+     */
+    public function fetchEmailToSend(emailServerModel $emailServerModel): array
+    {        
+        $sql = "SELECT idemailcron, a.idmodule, code, date_in, date_out, send, tag, tableprefix
+                  FROM tbemailcron a, tbmodule b
+                 WHERE a.idmodule = b.idmodule
+                   AND send = 0";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':moduleID', $emailServerModel->getIdModule());
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $emailServerModel->setGridList((!is_null($aRet) && !empty($aRet)) ? $aRet :  array());
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$emailServerModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting emails to send", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
