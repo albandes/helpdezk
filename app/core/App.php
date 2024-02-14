@@ -2,6 +2,11 @@
 
 namespace App\core;
 
+use App\src\appServices;
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
 
 /**
 * en_us This class is responsible for getting the controller, method (action) and parameters from the URL and verifying their existence.
@@ -16,9 +21,33 @@ class App
     protected $page404 = false;
     protected $params = [];
     
+    /**
+     * @var object
+     */
+    protected $coreLogger;
+    
+    /**
+     * @var object
+     */
+    protected $coreEmailLogger;
+    
     // constructor method
     public function __construct()
     {
+        $appSrc = new appServices();
+
+        // create a log channel
+        $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
+        
+        $stream = $appSrc->_getStreamHandler();
+        $stream->setFormatter($formatter);
+
+        $this->coreLogger  = new Logger('helpdezk');
+        $this->coreLogger->pushHandler($stream);
+        
+        // Clone the first one to only change the channel
+        $this->coreEmailLogger = $this->coreLogger->withName('email');
+
         $this->setUrl();
         $URL_ARRAY = $this->parseUrl();
         $this->setModule($URL_ARRAY);
@@ -45,6 +74,8 @@ class App
         $dirName = str_replace("\\","/",dirname(__DIR__,PATHINFO_BASENAME));
         //The following code snippet is used to resolve the default path in virtual host     
         $path_default = ($docRoot == $dirName) ? end(explode("/",$dirName)) : str_replace($docRoot,'',$dirName);
+        
+        $this->coreLogger->info("{$path_default}",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
         
         if ($_GET['url'] == 'admin/' || $_GET['url'] == '/admin/') {            
             
