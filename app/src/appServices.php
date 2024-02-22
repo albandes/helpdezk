@@ -3268,5 +3268,86 @@ class appServices
 
         return $html;
     }
+    
+    /**
+     * _getBankLogo
+     * 
+     * en_us Returns bank's logo
+     * pt_br Retorna a logo do banco
+     *
+     * @param  mixed $logoFile
+     * @return string
+     */
+    public function _getBankLogo($logoFile='logosicredi.jpg'): string
+    {
+        $awsSrc = new awsServices();
+        $logoName = "fin/billet/{$logoFile}";
+        
+        if($this->saveMode == 'disk'){
+            $pathLogoImage = $this->imgDir . $logoName;                
+            $st = file_exists($pathLogoImage) ? true : false;
+        }elseif($this->saveMode == "aws-s3"){            
+            $retLogoUrl = $awsSrc->_getFile($this->imgDir.$logoName);
+            $pathLogoImage = $retLogoUrl['fileUrl'];
+            $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+        }
+		
+        if(!$st){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/reports.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/reports.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+        }else{
+            if($this->saveMode == 'disk'){
+                $image 	=$this->imgBucket . $objLogo->getFileName();
+            }elseif($this->saveMode == "aws-s3"){
+                $image = $pathLogoImage;
+            }
+        }
+        
+		return $image;
+    }
+    
+    /**
+     * _getBilletCompanyLogo
+     * 
+     * en_us Returns company's logo
+     * pt_br Retorna a logo da empresa
+     *
+     * @return string
+     */
+    public function _getBilletCompanyLogo(): string
+    {
+        $awsSrc = new awsServices();
+        $logoName = "fin/billet/emq.png";
+        
+        if($this->saveMode == 'disk'){
+            $pathLogoImage = $this->imgDir . $logoName;                
+            $st = file_exists($pathLogoImage) ? true : false;
+        }elseif($this->saveMode == "aws-s3"){            
+            $retLogoUrl = $awsSrc->_getFile($this->imgDir.$logoName);
+            $pathLogoImage = $retLogoUrl['fileUrl'];
+            $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+        }
+		
+        if(!$st){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/reports.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/reports.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+        }else{
+            if($this->saveMode == 'disk'){
+                $image 	=$this->imgBucket . $objLogo->getFileName();
+            }elseif($this->saveMode == "aws-s3"){
+                $image = $pathLogoImage;
+            }
+        }
+        
+		return $image;
+    }
 
 }

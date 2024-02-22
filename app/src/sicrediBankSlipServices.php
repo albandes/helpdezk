@@ -142,8 +142,8 @@ class sicrediBankSlipServices
 		$aRet["codigo_banco_com_dv"] = $codigo_banco_com_dv;
 
 		$aRet["cod_febraban"] = $this->data['banco'];
-        $aRet['bank_logo'] = $appSrc->_getHelpdezkPath() . "/storage/uploads/logos/billet/logosicredi.jpg" ;
-        $aRet['company_logo'] = $appSrc->_getHelpdezkPath() . "/storage/uploads/logos/billet/emq.png";
+        $aRet['bank_logo'] = $appSrc->_getBankLogo() ;
+        $aRet['company_logo'] = $appSrc->_getBilletCompanyLogo();
         $aRet['payment_local'] = 'Pagável preferencialmente nas Coop. de Crédito do SICREDI';
 
         if(isset($this->data['valor_desconto']))
