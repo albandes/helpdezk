@@ -2509,10 +2509,10 @@ class appServices
     {
         switch ($oper) {
             case 'eq' : // equal
-                $ret =  $column  . ' = ' . $search;
+                $ret =  $column  . ' = ' . "'{$search}'";
                 break;
             case 'ne': // not equal
-                $ret =  $column  . ' != ' . $search;
+                $ret =  $column  . ' != ' . "'{$search}'";
                 break;
             case 'lt': // less
                 $ret = $column . ' < ' . $search;
@@ -2548,11 +2548,11 @@ class appServices
                 break;
             case 'cn': // contains
                 $search = str_replace("_", "\_", $search);
-                $ret =  $column  . ' LIKE ' . '%' . $search . '%';
+                $ret =  $column  . " LIKE '%{$search}%'";
                 break;
             case 'nc': // does not contain
                 $search = str_replace("_", "\_", $search);
-                $ret =  $column  . ' NOT LIKE ' . '%' . $search . '%';
+                $ret =  $column  . ' NOT LIKE ' . "'%{$search}%'";
                 break;
             case 'nu': //is null
                 $ret = $column . ' IS NULL';
