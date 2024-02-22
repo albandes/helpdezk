@@ -1053,7 +1053,7 @@ class appServices
                 
                 if(!$retSend['status']){
                     $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    return array('status'=>false,"message"=>"{$retSend['data']['message']}","data"=>"");
+                    return array('status'=>false,"message"=>"{$retSend['message']}","data"=>"");
                 }
                 $data = $retSend['data'];
                 break;
