@@ -1053,7 +1053,7 @@ class appServices
                 
                 if(!$retSend['status']){
                     $this->applogger->error("Error trying send email. Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                    return array('status'=>false,"message"=>"{$retSend['data']['message']}","data"=>"");
+                    return array('status'=>false,"message"=>"{$retSend['message']}","data"=>"");
                 }
                 $data = $retSend['data'];
                 break;
@@ -2509,10 +2509,10 @@ class appServices
     {
         switch ($oper) {
             case 'eq' : // equal
-                $ret =  $column  . ' = ' . $search;
+                $ret =  $column  . ' = ' . "'{$search}'";
                 break;
             case 'ne': // not equal
-                $ret =  $column  . ' != ' . $search;
+                $ret =  $column  . ' != ' . "'{$search}'";
                 break;
             case 'lt': // less
                 $ret = $column . ' < ' . $search;
@@ -2548,11 +2548,11 @@ class appServices
                 break;
             case 'cn': // contains
                 $search = str_replace("_", "\_", $search);
-                $ret =  $column  . ' LIKE ' . '%' . $search . '%';
+                $ret =  $column  . " LIKE '%{$search}%'";
                 break;
             case 'nc': // does not contain
                 $search = str_replace("_", "\_", $search);
-                $ret =  $column  . ' NOT LIKE ' . '%' . $search . '%';
+                $ret =  $column  . ' NOT LIKE ' . "'%{$search}%'";
                 break;
             case 'nu': //is null
                 $ret = $column . ' IS NULL';
@@ -3267,6 +3267,87 @@ class appServices
                     </html>";
 
         return $html;
+    }
+    
+    /**
+     * _getBankLogo
+     * 
+     * en_us Returns bank's logo
+     * pt_br Retorna a logo do banco
+     *
+     * @param  mixed $logoFile
+     * @return string
+     */
+    public function _getBankLogo($logoFile='logosicredi.jpg'): string
+    {
+        $awsSrc = new awsServices();
+        $logoName = "fin/billet/{$logoFile}";
+        
+        if($this->saveMode == 'disk'){
+            $pathLogoImage = $this->imgDir . $logoName;                
+            $st = file_exists($pathLogoImage) ? true : false;
+        }elseif($this->saveMode == "aws-s3"){            
+            $retLogoUrl = $awsSrc->_getFile($this->imgDir.$logoName);
+            $pathLogoImage = $retLogoUrl['fileUrl'];
+            $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+        }
+		
+        if(!$st){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/reports.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/reports.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+        }else{
+            if($this->saveMode == 'disk'){
+                $image 	=$this->imgBucket . $objLogo->getFileName();
+            }elseif($this->saveMode == "aws-s3"){
+                $image = $pathLogoImage;
+            }
+        }
+        
+		return $image;
+    }
+    
+    /**
+     * _getBilletCompanyLogo
+     * 
+     * en_us Returns company's logo
+     * pt_br Retorna a logo da empresa
+     *
+     * @return string
+     */
+    public function _getBilletCompanyLogo(): string
+    {
+        $awsSrc = new awsServices();
+        $logoName = "fin/billet/emq.png";
+        
+        if($this->saveMode == 'disk'){
+            $pathLogoImage = $this->imgDir . $logoName;                
+            $st = file_exists($pathLogoImage) ? true : false;
+        }elseif($this->saveMode == "aws-s3"){            
+            $retLogoUrl = $awsSrc->_getFile($this->imgDir.$logoName);
+            $pathLogoImage = $retLogoUrl['fileUrl'];
+            $st = (@fopen($pathLogoImage, 'r')) ? true : false; 
+        }
+		
+        if(!$st){
+            if($this->saveMode == 'disk'){
+                $image 	= $this->imgBucket . 'default/reports.png';
+            }elseif($this->saveMode == "aws-s3"){
+                $retDefaultLogoUrl = $awsSrc->_getFile($this->imgDir . 'default/reports.png');
+                $image = $retDefaultLogoUrl['fileUrl'];
+            }
+        }else{
+            if($this->saveMode == 'disk'){
+                $image 	=$this->imgBucket . $objLogo->getFileName();
+            }elseif($this->saveMode == "aws-s3"){
+                $image = $pathLogoImage;
+            }
+        }
+        
+		return $image;
     }
 
 }
