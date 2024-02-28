@@ -2515,16 +2515,16 @@ class appServices
                 $ret =  $column  . ' != ' . "'{$search}'";
                 break;
             case 'lt': // less
-                $ret = $column . ' < ' . $search;
+                $ret = $column . ' < ' . "'{$search}'";
                 break;
             case 'le': // less or equal
-                $ret = $column . ' <= ' . $search;
+                $ret = $column . ' <= ' . "'{$search}'";
                 break;
             case 'gt': // greater
-                $ret = $column . ' > ' . $search;
+                $ret = $column . ' > ' . "'{$search}'";
                 break;
             case 'ge': // greater or equal
-                $ret = $column . ' >= ' . $search;
+                $ret = $column . ' >= ' . "'{$search}'";
                 break;
             case 'bw': // begins with
                 $search = str_replace("_", "\_", $search);
