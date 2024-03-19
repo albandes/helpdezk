@@ -39,31 +39,44 @@
 
                     <div id="response"></div>
 
-                    <form class="m-t" role="form" id="frm-login" action="javascript:;" >
+                    <form class="m-t" role="form" id="frm-login" action="javascript:;" >                   
+
+                        {if $googleAuth}
+                        <!--<p class="text-center">{='or_lbl'|translate}</p>-->
+                        <button type="button" class="btn btn-primary block full-width m-b google-access" onclick="location.href={$googleAuthUrl}"><i class="fab fa-google"></i>&nbsp;&nbsp;&nbsp;{='login_with_google'|translate}</button>
+                        <p class="text-muted text-center google-access">
+                            <a href="javascript:;" id="btn-admin-access">{='admin_access'|translate}</a>
+                        </p>
+                        {/if}
                         
-                        <div class="mb-3 form-group">
+                        <div class="mb-3 form-group password-access {if $googleAuth}d-none{/if}">
                             <input name="login" type="text" class="form-control" placeholder="{='Login'|translate}" required="">
                         </div>
-                        <div class="mb-3 form-group">
+                        <div class="mb-3 form-group password-access {if $googleAuth}d-none{/if}">
                             <input name="password" type="password" class="form-control" placeholder="{='Password'|translate}" required="">
                         </div>
                         
-                        <button  type="submit" class="btn btn-primary block full-width m-b">Login</button>
+                        <button type="submit" class="btn btn-primary block full-width m-b password-access {if $googleAuth}d-none{/if}">Login</button>
 
-                        {if $googleAuth}
-                        <p class="text-center">{='or_lbl'|translate}</p>
-                        <button  type="button" class="btn btn-primary block full-width m-b" onclick="location.href={$googleAuthUrl}"><i class="fab fa-google"></i>&nbsp;&nbsp;&nbsp;{='login_with_google'|translate}</button>
-                        {/if}
-
-                        <p class="text-muted text-end">
+                        <p class="text-muted text-end password-access {if $googleAuth}d-none{/if}">
                             <a href="#modal-form-lost-password" data-toggle="modal"   id="lost_password">
                                 <small>{='Lost_password'|translate}?</small>
                             </a>
                         </p>
+                        
+                        {if $googleAuth}
+                        <p class="text-muted text-center password-access d-none">
+                            <a href="javascript:;" id="btn-google-access">{='use_google_access'|translate}</a>
+                        </p>
+                        {/if}
 
                         <!-- -->
                         {if $demoversion == 1}
-                        <div>
+                        {if $googleAuth}
+                        <div id="demo-info-line" class="d-none">
+                        {else}
+                        <div id="demo-info-line">
+                        {/if}
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="panel panel-success">

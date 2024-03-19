@@ -88,6 +88,22 @@ $(document).ready(function() {
         $('#username').val('');
     });
 
+    $("#btn-admin-access").click(function(){
+        if($(".password-access").hasClass('d-none'))
+            $(".password-access").removeClass('d-none');
+
+        if(!$(".google-access").hasClass('d-none'))
+            $(".google-access").addClass('d-none');
+    });
+
+    $("#btn-google-access").click(function(){
+        if(!$(".password-access").hasClass('d-none'))
+            $(".password-access").addClass('d-none');
+
+        if($(".google-access").hasClass('d-none'))
+            $(".google-access").removeClass('d-none');
+    });
+
 });
 
 function lostPasswordAjax($ButtonSend)
