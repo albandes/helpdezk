@@ -1214,6 +1214,10 @@ class appServices
             $mail->Body = $mailHeader . $params['contents'] . $mailFooter;
             // sent email
             $retSend = $this->_isEmailDone($mail,$paramsDone);
+            if(!$retSend['status'])
+                $this->appEmailLogger->error("Can't send email to {$params['address']} Error: {$retSend['message']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            else
+                $this->appEmailLogger->info("Email sent to {$params['address']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
         
         $mail->ClearAttachments();
@@ -3348,6 +3352,69 @@ class appServices
         }
         
 		return $image;
+    }
+
+    public function _sendSESV2(array $params): array
+    {   
+        $message = $this->_buildMIMEMessage($params);
+        try{
+            $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+            $retSend = $awsSrc->_sendEmailSesV2($message);
+            /* if($retSend['success']){
+                $this->appEmailLogger->info("Email Succesfully Sent, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $aRet = array("status"=>true,"message"=>"","emailId"=>$retSend['emailId']);
+            }else{
+                $this->appEmailLogger->error("Error send email, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $this->appEmailLogger->error("Error send email, {$params['msg2']}. Erro: {$mail->ErrorInfo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $this->appEmailLogger->info("Error send email, request # {$params['request']}. HOST: {$params['mailHost']} DOMAIN: {$params['mailDomain']} AUTH: {$params['mailAuth']} PORT: {$params['mailPort']} USER: {$params['mailUserName']} PASS: {$params['mailPassword']} SENDER: {$params['mailSender']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $aRet = array("status"=>false,"message"=>$retSend['message'],"emailId"=>"");
+            } */
+        }catch(Exception $e){
+            $this->appEmailLogger->error("Error send email, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $this->appEmailLogger->error("Error send email, {$params['msg2']}. Erro: {$mail->ErrorInfo}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $this->appEmailLogger->info("Error send email, request # {$params['request']}. HOST: {$params['mailHost']} DOMAIN: {$params['mailDomain']} AUTH: {$params['mailAuth']} PORT: {$params['mailPort']} USER: {$params['mailUserName']} PASS: {$params['mailPassword']} SENDER: {$params['mailSender']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            $aRet = array("status"=>false,"message"=>"{$mail->ErrorInfo}","emailId"=>"");
+        }
+
+        return array();//return $aRet;
+    }
+
+    public function _buildMIMEMessage($params): string
+    {
+        $mimeMessage = "To: {$params['address']}\n";
+        $mimeMessage .= "From: \"{$params['sender_name']}\" <{$params['sender']}>\n";
+        $mimeMessage .= "Subject: {$params['subject']}\n";
+        $mimeMessage .= "MIME-Version: 1.0\n";
+        $mimeMessage .= "Content-Type: multipart/mixed; boundary=\"MixedBoundaryString\"\n\n";
+        $mimeMessage .= "--MixedBoundaryString\n";
+        $mimeMessage .= "Content-Type: multipart/alternative; boundary=\"AlternativeBoundaryString\"\n\n";
+        $mimeMessage .= "--AlternativeBoundaryString\n";
+        $mimeMessage .= "Content-Type: text/plain; charset=UTF-8\n";
+        $mimeMessage .= "Content-Transfer-Encoding: 7bit\n\n";
+        $mimeMessage .= "{$params['altcontents']}\n\n";
+        $mimeMessage .= "--AlternativeBoundaryString\n";
+        $mimeMessage .= "Content-Type: text/html; charset=UTF-8\n";
+        $mimeMessage .= "Content-Transfer-Encoding: 7bit\n\n";
+        $mimeMessage .= "{$params['contents']}\n\n";
+        $mimeMessage .= "--AlternativeBoundaryString--\n\n";
+
+        foreach ($params['attachment'] as $attachment) {
+            $attachmentFilePath = $attachment['filepath'];
+            $attachmentContent = file_get_contents($attachmentFilePath);
+            $attachmentData = base64_encode($attachmentContent);
+            $attachmentName = $attachment['filename'];
+            $attachmentType = mime_content_type($attachmentFilePath);
+
+            $mimeMessage .= "--MixedBoundaryString\n";
+            $mimeMessage .= "Content-Type: {$attachmentType}; name=\"$attachmentName\"\n";
+            $mimeMessage .= "Content-Disposition: attachment; filename=\"$attachmentName\"\n";
+            $mimeMessage .= "Content-Transfer-Encoding: base64\n\n";
+            $mimeMessage .= "$attachmentData\n";
+        }
+
+        $mimeMessage .= "--MixedBoundaryString--\n";
+        //echo "{$mimeMessage}\n"; die();
+        return $mimeMessage;
     }
 
 }

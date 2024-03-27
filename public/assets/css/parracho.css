@@ -5275,3 +5275,13 @@ select, #btnTimer,
   color: #1ab394;
   font-weight: bold;
 }
+
+.bg-navy {
+  --bs-bg-opacity: 1;
+    background-color: #1ab394 !important;
+}
+
+.bg-hdk-warning {
+  --bs-bg-opacity: 1;
+    background-color: #f8ac59 !important;
+}
