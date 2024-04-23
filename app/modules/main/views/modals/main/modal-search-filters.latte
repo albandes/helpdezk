@@ -2,22 +2,22 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{='advanced_filtering'|translate}</h5>
+                <h5 class="modal-title"><strong>{='advanced_filtering'|translate}</strong></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body modal-body-filters">
                 <form id="search-modal-form" action="javascript:;">
                     <div class="row g-2 mb-3">
                         <div class="col col-sm-6">
-                            <label for="filter-list" class="col-form-label">{='filter'|translate}</label>
+                            <label for="filter-list" class="hdk-label col-form-label">{='filter'|translate}</label>
                             <select class="form-control input-sm" id="filter-list" name="filter-list">
                             {foreach $cmbFilters as $k=>$v}
-                            <option value="{$v['id']}" data-optlist="{implode(',',$v['searchOpt'])}">{$v['text']}</option>
+                            <option value="{$v['id']}" data-optlist="{implode(',',$v['searchOpt'])}" {if isset($v['type'])}data-opttype="{$v['type']}"{/if}>{$v['text']}</option>
                             {/foreach}
                             </select>
                         </div>
                         <div class="col col-sm-6">
-                            <label for="action-list" class="col-form-label">{='action'|translate}</label>
+                            <label for="action-list" class="hdk-label col-form-label">{='action'|translate}</label>
                             <select class="form-control input-sm" id="action-list" name="action-list" >
                             {foreach $cmbFilterOpts as $k=>$v}
                             <option value="{$v['id']}">{$v['text']}</option>
@@ -28,8 +28,13 @@
                     </div>
                     <div class="row g-2">
                         <div id="filter-value-line" class="col g-2 mb-3">
-                            <label for="message-text" class="col-form-label">{='filter_value'|translate}</label>
-                            <input type="text" class="form-control" id="filter-value" name="filter-value">
+                            <label for="message-text" class="hdk-label col-form-label">{='filter_value'|translate}</label>
+                            <div id='filter-value-field' class="row">
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="filter-value" name="filter-value">
+                                    <div id="filter-value_validate_error" class='row'></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>

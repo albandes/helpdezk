@@ -214,3 +214,106 @@ function setActionsBtn(aPermissions)
     return false;
 }
 
+function makeFilterValueField(fieldType)
+{
+    if($("#filter-value").length > 0){
+        $("#filter-value").maskMoney('destroy');
+        $("#filter-value").unmask();
+    }
+
+    switch(fieldType){
+        case 'date':
+            if($("#action-list").val() == 'rg'){
+                $("#filter-value-field").html("<div class='col-sm-5'>"
+                                        +"<div class='input-group date'>"
+                                            +"<input type='text' id='filter-date-start' name='filter-date-start' class='form-control input-sm' value='' readonly />"
+                                            +"<span class='input-group-addon'><i class='fa fa-calendar-alt'></i></span>"
+                                        +"</div>"
+                                        +"<div id='filter-date-start_validate_error' class='row'></div>"
+                                    +"</div>"
+                                    +"<div class='col-sm-2 text-center'>"
+                                        +"<label for='filter-date-end' class='hdk-label col-form-label text-end'>"+vocab['until']+"</label>"
+                                    +"</div>"
+                                    +"<div class='col-sm-5'>"
+                                        +"<div class='input-group date'>"
+                                            +"<input type='text' id='filter-date-end' name='filter-date-end' class='form-control input-sm' value='' readonly />"
+                                            +"<span class='input-group-addon'><i class='fa fa-calendar-alt'></i></span>"
+                                        +"</div>"
+                                        +"<div id='filter-date-end_validate_error' class='row'></div>"
+                                    +"</div>");
+            }else{
+                $("#filter-value-field").html("<div class='col-sm-8'>"
+                                        +"<div class='input-group date'>"
+                                            +"<input type='text' id='filter-date-start' name='filter-date-start' class='form-control input-sm' value='' readonly />"
+                                            +"<span class='input-group-addon'><i class='fa fa-calendar-alt'></i></span>"
+                                        +"</div>"
+                                        +"<div id='filter-date-start_validate_error' class='row'></div>"
+                                    +"</div>");
+            }
+
+            if (dtpLanguage == '' || dtpLanguage === 'undefined' || !dtpLanguage) {
+                // Default language en (English)
+                var dpOptions = {
+                    format: dtpFormat,
+                    autoclose: dtpAutoclose,
+                    orientation: dtpOrientation,
+                    endDate: "Od"
+                };
+            } else {
+                var dpOptions = {
+                    format: dtpFormat,
+                    language: dtpLanguage,
+                    autoclose: dtpAutoclose,
+                    orientation: dtpOrientation,
+                    endDate: "Od"
+                };
+            }
+        
+            $('.input-group.date').datepicker(dpOptions);
+
+            break;
+        case 'text':
+            if($('#filter-value').length <= 0)
+                $("#filter-value-field").html("<div class='col-sm-12'><input type='text' class='form-control' id='filter-value' name='filter-value'><div id='filter-value_validate_error' class='row'></div></div>");
+            break;
+        case 'money':
+            if($('#filter-value').length <= 0)
+                $("#filter-value-field").html("<div class='col-sm-12'><input type='text' class='form-control' id='filter-value' name='filter-value'><div id='filter-value_validate_error' class='row'></div></div>");
+            
+            $('#filter-value').maskMoney({thousands:'.', decimal:',', allowZero:false, prefix: moneyPrefix+' '});
+            break;
+    }
+}
+
+$(document).ready(function () {
+    // -- Date validation methods --
+    $.validator.addMethod('checkStartDate', function(startDate, element, params) {
+        var paramsTmp = $(params).val();
+        if(paramsTmp && paramsTmp.trim() !== ""){
+            var parts = startDate.split('/') , endDate = $(params).val(), partsFinish = endDate.split('/');
+
+            startDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            endDate = new Date(partsFinish[2], partsFinish[1] - 1, partsFinish[0]);
+
+            return startDate <= endDate;
+        }
+
+        return true;
+
+    }, vocab['Alert_start_date_error']);
+
+    $.validator.addMethod('checkEndDate', function(endDate, element, params) {
+        var paramsTmp = $(params).val();
+        if(paramsTmp && paramsTmp.trim() !== ""){
+            var parts = endDate.split('/') , startDate = $(params).val(), partsStart = startDate.split('/');
+    
+            endDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            startDate = new Date(partsStart[2], partsStart[1] - 1, partsStart[0]);
+    
+            return endDate >= startDate;
+        }
+
+        return true;
+
+    }, vocab['Alert_finish_date_error']);
+});

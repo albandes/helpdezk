@@ -664,6 +664,9 @@ class appServices
 
         if(in_array('nn',$optionsList))
             array_push($aRet,array("id" => 'nn',"text"=>$translator->translate('is_not_null')));  // is not null
+
+        if(in_array('rg',$optionsList))
+            array_push($aRet,array("id" => 'rg',"text"=>$translator->translate('date_interval')));  // date interval
         
         
         return $aRet;
