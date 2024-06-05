@@ -202,7 +202,7 @@ function setActionsBtn(aPermissions)
     if($('#btnDefault').length > 0 && aPermissions[2] == 'N'){// make default
         $('#btnDefault').removeClass('active').addClass('disabled').attr('disabled','disabled');
     }else{
-        $('#btnDefault').removeClass('disabled').addClass('active').removeAttr('disabled');
+        $('#btnDefault').removeAttr('disabled');
     }
 
     if($('#btnDelete').length > 0 && aPermissions[3] == 'N'){// delete
@@ -256,16 +256,14 @@ function makeFilterValueField(fieldType)
                 var dpOptions = {
                     format: dtpFormat,
                     autoclose: dtpAutoclose,
-                    orientation: dtpOrientation,
-                    endDate: "Od"
+                    orientation: dtpOrientation
                 };
             } else {
                 var dpOptions = {
                     format: dtpFormat,
                     language: dtpLanguage,
                     autoclose: dtpAutoclose,
-                    orientation: dtpOrientation,
-                    endDate: "Od"
+                    orientation: dtpOrientation
                 };
             }
         
