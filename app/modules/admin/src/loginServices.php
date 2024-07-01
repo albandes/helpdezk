@@ -163,6 +163,7 @@ class loginServices
         $_SESSION['SES_ENTERPRISE'] = $_ENV['ENTERPRISE'];
         
         $_SESSION['SES_ADM_MODULE_DEFAULT'] = $this->_pathModuleDefault();
+        $_SESSION['SES_CURRENT_PROGRAM_ID'] = "";
         
         if ($_SESSION['SES_COD_USUARIO'] != 1) {
 

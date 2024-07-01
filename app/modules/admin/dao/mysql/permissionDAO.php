@@ -474,5 +474,117 @@ class permissionDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
     
+    /**
+     * insertProgramAccessDetail
+     * 
+     * en_us Insert program's access detail into tbprogramaccessdetail table
+     * pt_br Grava o detalhe de acesso do programa na tabela tbprogramaccessdetail
+     *
+     * @param  permissionModel $permissionDTO
+     * @return array
+     */
+    public function insertProgramAccessDetail(permissionModel $permissionDTO): array
+    {        
+        $sql = "INSERT INTO tbprogramaccessdetail (idprogram,idperson,access_start) VALUES (:programId,:personId,NOW())";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':programId', $permissionDTO->getProgramId());
+        $stmt->bindValue(':personId', $permissionDTO->getPersonId());
+        $stmt->execute();
+        
+        $permissionDTO->setProgramAccessId($this->db->lastInsertId());
+        
+        $ret = true;
+        $result = array("message"=>"","object"=>$permissionDTO);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
     
+    /**
+     * updateProgramAccessDetail
+     * 
+     * en_us Updates program's access end date into tbprogramaccessdetail table
+     * pt_br Atualiza a data final de acesso do programa na tabela tbprogramaccessdetail
+     *
+     * @param  permissionModel $permissionDTO
+     * @return array
+     */
+    public function updateProgramAccessDetail(permissionModel $permissionDTO): array
+    {        
+        $sql = "UPDATE tbprogramaccessdetail SET access_end = NOW() WHERE idprogramaccessdetail = :programAccessId";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':programAccessId', $permissionDTO->getOldProgramAccessId());
+        $stmt->execute();
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$permissionDTO);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+        
+    /**
+     * saveProgramAccess
+     * 
+     * en_us Saves program's access detail into DB
+     * pt_br Grava o detalhe de acesso do programa no BD
+     *
+     * @param  permissionModel $permissionDTO
+     * @return array
+     */
+    public function saveProgramAccess(permissionModel $permissionDTO): array
+    {        
+        try{
+            $this->db->beginTransaction();
+
+            $ins = $this->insertProgramAccessDetail($permissionDTO);
+            if($ins['status'] && (!is_null($permissionDTO->getOldProgramAccessId()) && !empty($permissionDTO->getOldProgramAccessId()))){
+                $this->updateProgramAccessDetail($ins['push']['object']);
+            }
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$permissionDTO);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error saving program's access detail.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+        
+    /**
+     * closeProgramAccess
+     * 
+     * en_us Close program's access in DB
+     * pt_br Encerra o acesso do programa no BD
+     *
+     * @param  mixed $permissionDTO
+     * @return array
+     */
+    public function closeProgramAccess(permissionModel $permissionDTO): array
+    {        
+        try{
+            $this->db->beginTransaction();
+
+            $this->updateProgramAccessDetail($permissionDTO);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$permissionDTO);
+            $this->db->commit();
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error closing program's access in DB.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+            $this->db->rollBack();
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

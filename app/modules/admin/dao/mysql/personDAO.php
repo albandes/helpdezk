@@ -1261,7 +1261,7 @@ class personDAO extends Database
                         GROUP_CONCAT(DISTINCT c.idtypeperson) idpermission_groups,
                         GROUP_CONCAT(DISTINCT d.name) permission_groups,
                         GROUP_CONCAT(DISTINCT f.idgroup) idgroups,
-                        GROUP_CONCAT(DISTINCT pgroup.name) groups,
+                        GROUP_CONCAT(DISTINCT pgroup.name) `groups`,
                         ptvoc.key_value persontype_fmt, tbp.idnatureperson, np.name natureperson,
                         tbp.time_value,tbp.overtime,tbp.cod_location
                   FROM tbperson tbp
