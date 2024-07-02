@@ -91,6 +91,10 @@ class hdkTicket extends Controller
         $this->tmp = $this->appSrc->_setFolder($downDir.'tmp/'); // temporary directory
         $this->downloadDir = "{$_ENV['HDK_URL']}/storage/downloads/tmp/"; // url to download pdf
 
+        // set program permissions
+        $this->programId = $this->appSrc->_getKernelProgramIdByName(__CLASS__);
+        $this->appSrc->_saveProgramAccess($_SESSION['SES_COD_USUARIO'],$this->programId);
+
     }
     
     public function index($myTickets=null)

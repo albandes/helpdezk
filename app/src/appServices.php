@@ -3518,5 +3518,28 @@ class appServices
             }
         }
     }
-
+    
+    /**
+     * _getKernelProgramIdByName
+     * 
+     * en_us Returns kernel's program ID by name
+     * pt_br Retorna o ID do program do core pelo nome
+     *
+     * @param  mixed $programName
+     * @return int
+     */
+    public function _getKernelProgramIdByName(string $programName): int
+    {
+        $programDAO = new programDAO();
+        $programModel = new programModel();
+        
+        $ret = $programDAO->queryKernelPrograms("WHERE LOWER(controller) = LOWER('{$programName}')");
+        if(!$ret['status']){
+            $this->applogger->error("Can't get kernel's program data. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return 0;
+        }
+        
+        $programData = $ret['push']['object']->getGridList();
+        return (count($programData) > 0 && !empty($programData[0]['idkernelprogram'])) ? $programData[0]['idkernelprogram'] : 0;
+    }
 }

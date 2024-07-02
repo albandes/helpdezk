@@ -678,5 +678,52 @@ class programDAO extends Database
         return array("status"=>$ret,"push"=>$result);
     }
     
+    /**
+     * queryKernelPrograms
+     * 
+     * en_us Return an array with kernel's programs categories to display in grid
+     * pt_br Retorna um array com programas do core para mostrar no grid
+     *
+     * @param  mixed $where
+     * @param  mixed $group
+     * @param  mixed $order
+     * @param  mixed $limit
+     * @return array Parameters returned in array: 
+     *                [status = true/false
+     *                 push =  [message = PDO Exception message 
+     *                          object = model's object]]
+     */
+    public function queryKernelPrograms($where=null,$group=null,$order=null,$limit=null): array
+    {
+        
+        $sql = "SELECT tbp.idkernelprogram, tbp.name, tbm.name module, tbtp.name category, tbp.controller, tbp.status
+                  FROM tbkernelprogram tbp
+                  JOIN tbprogramcategory tbtp 
+                    ON tbtp.idprogramcategory = tbp.idprogramcategory
+                  JOIN tbmodule tbm
+                    ON tbtp.idmodule = tbm.idmodule 
+                $where $group $order $limit";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $programModel = new programModel();
+            $programModel->setGridList($aRet);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$programModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting kernel's programs.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
     
 }
