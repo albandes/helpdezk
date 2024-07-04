@@ -332,15 +332,23 @@ class Home extends Controller
     {
         $searchOpts = trim(strip_tags($_POST['searchOpts']));
         $searchOpts = explode(",",$searchOpts);
+        $optionDefault = (isset($_POST['optionDefault']) && !empty($_POST['optionDefault'])) ? $_POST['optionDefault'] : 'cn';
 
         $ret = $this->appSrc->_comboFilterOpts($searchOpts);
         
         $select = "";
         foreach ($ret as $k=>$v) {
-            $select .= "<option value='{$v['id']}'>{$v['text']}</option>";
+            $selected = ($v['id'] == $optionDefault) ? "selected" : "";
+            $select .= "<option value='{$v['id']}' {$selected}>{$v['text']}</option>";
         }
 
         echo $select;
+    }    
+
+	public function closeBrowser()
+    {
+        $this->appSrc->_sessionDestroy();
+        echo "ok";
     }
 
 }

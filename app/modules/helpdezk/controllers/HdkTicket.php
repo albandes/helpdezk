@@ -93,7 +93,7 @@ class hdkTicket extends Controller
 
         // set program permissions
         $this->programId = $this->appSrc->_getKernelProgramIdByName(__CLASS__);
-        $this->appSrc->_saveProgramAccess($_SESSION['SES_COD_USUARIO'],$this->programId);
+        $this->appSrc->_saveProgramAccess($_SESSION['SES_COD_USUARIO'],$this->programId,1);
 
     }
     

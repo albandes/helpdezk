@@ -475,6 +475,55 @@ class permissionDAO extends Database
     }
     
     /**
+     * getProgramReferenceId
+     *
+     * @param  mixed $permissionDTO
+     * @return array
+     */
+    public function getProgramReferenceId(permissionModel $permissionDTO): array
+    {        
+        $sql = "SELECT idprogramreference FROM tbprogramreference WHERE programtype = :programType AND (idprogram = :programId OR idkernelprogram = :programId)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':programType', $permissionDTO->getProgramTypeId());
+        $stmt->bindValue(':programId', $permissionDTO->getProgramId());
+        $stmt->execute();
+
+        $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        $permissionDTO->setProgramReferenceId((!is_null($aRet['idprogramreference']) && !empty($aRet['idprogramreference'])) ? $aRet['idprogramreference'] : 0);
+        
+        $ret = true;
+        $result = array("message"=>"","object"=>$permissionDTO);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * insertProgramReference
+     *
+     * @param  mixed $permissionDTO
+     * @return array
+     */
+    public function insertProgramReference(permissionModel $permissionDTO): array
+    {        
+        $sql = "INSERT INTO tbprogramreference (programtype,idprogram,idkernelprogram) VALUES (:programType,NULLIF(:programId,'NULL'),NULLIF(:kernelProgramId,'NULL'))";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':programType', $permissionDTO->getProgramTypeId());
+        $stmt->bindValue(':programId', ($permissionDTO->getProgramTypeId() == 2) ? $permissionDTO->getProgramId() : 'NULL');
+        $stmt->bindValue(':kernelProgramId', ($permissionDTO->getProgramTypeId() == 1) ? $permissionDTO->getProgramId() : 'NULL');
+        $stmt->execute();
+        
+        $permissionDTO->setProgramReferenceId($this->db->lastInsertId());
+        
+        $ret = true;
+        $result = array("message"=>"","object"=>$permissionDTO);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
      * insertProgramAccessDetail
      * 
      * en_us Insert program's access detail into tbprogramaccessdetail table
@@ -485,10 +534,10 @@ class permissionDAO extends Database
      */
     public function insertProgramAccessDetail(permissionModel $permissionDTO): array
     {        
-        $sql = "INSERT INTO tbprogramaccessdetail (idprogram,idperson,access_start) VALUES (:programId,:personId,NOW())";
+        $sql = "INSERT INTO tbprogramaccessdetail (idprogramreference,idperson,access_start) VALUES (:programReferenceId,:personId,NOW())";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':programId', $permissionDTO->getProgramId());
+        $stmt->bindValue(':programReferenceId', $permissionDTO->getProgramReferenceId());
         $stmt->bindValue(':personId', $permissionDTO->getPersonId());
         $stmt->execute();
         
@@ -537,8 +586,13 @@ class permissionDAO extends Database
         try{
             $this->db->beginTransaction();
 
-            $ins = $this->insertProgramAccessDetail($permissionDTO);
-            if($ins['status'] && (!is_null($permissionDTO->getOldProgramAccessId()) && !empty($permissionDTO->getOldProgramAccessId()))){
+            $check = $this->getProgramReferenceId($permissionDTO);
+            if($check['status'] && $permissionDTO->getProgramReferenceId() <= 0){
+                $this->insertProgramReference($check['push']['object']);
+            }
+
+            $ins = $this->insertProgramAccessDetail($check['push']['object']);
+            if($ins['status'] && (!is_null($check['push']['object']->getOldProgramAccessId()) && !empty($check['push']['object']->getOldProgramAccessId()))){
                 $this->updateProgramAccessDetail($ins['push']['object']);
             }
 

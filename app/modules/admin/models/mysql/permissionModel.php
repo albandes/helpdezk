@@ -105,6 +105,16 @@ final class permissionModel
     private $oldProgramAccessId;
 
     /**
+     * @var int
+     */
+    private $programTypeId;
+
+    /**
+     * @var int
+     */
+    private $programReferenceId;
+
+    /**
      * Get the value of permissionId
      *
      * @return  int
@@ -580,6 +590,54 @@ final class permissionModel
     public function setOldProgramAccessId(int $oldProgramAccessId)
     {
         $this->oldProgramAccessId = $oldProgramAccessId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of programTypeId
+     *
+     * @return  int
+     */ 
+    public function getProgramTypeId()
+    {
+        return $this->programTypeId;
+    }
+
+    /**
+     * Set the value of programTypeId
+     *
+     * @param  int  $programTypeId
+     *
+     * @return  self
+     */ 
+    public function setProgramTypeId(int $programTypeId)
+    {
+        $this->programTypeId = $programTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of programReferenceId
+     *
+     * @return  int
+     */ 
+    public function getProgramReferenceId()
+    {
+        return $this->programReferenceId;
+    }
+
+    /**
+     * Set the value of programReferenceId
+     *
+     * @param  int  $programReferenceId
+     *
+     * @return  self
+     */ 
+    public function setProgramReferenceId(int $programReferenceId)
+    {
+        $this->programReferenceId = $programReferenceId;
 
         return $this;
     }

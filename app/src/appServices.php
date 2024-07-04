@@ -244,7 +244,8 @@ class appServices
             "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
             "modalUserSettings" => $this->_getUserSettingsTemplate(),
             "vocabulary"        => $this->_loadVocabulary(),
-            "lang"              => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"])
+            "lang"              => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
+            "closeBrowserUrl"   => $_ENV['HDK_URL'].'/main/home/closeBrowser'
         );
     }
     
@@ -3488,12 +3489,13 @@ class appServices
      * @param  mixed $programId
      * @return void
      */
-    public function _saveProgramAccess($userId,$programId)
+    public function _saveProgramAccess($userId,$programId,$programType=2)
     {
         $permissionDAO = new permissionDAO();
         $permissionDTO = new permissionModel();
         $permissionDTO->setProgramId($programId)
-                      ->setPersonId($userId);
+                      ->setPersonId($userId)
+                      ->setProgramTypeId($programType);
 
         if(empty($_SESSION['SES_CURRENT_PROGRAM_ID'])){
             $_SESSION['SES_CURRENT_PROGRAM_ID'] = $programId;
