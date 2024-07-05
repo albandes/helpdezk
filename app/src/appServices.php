@@ -244,7 +244,8 @@ class appServices
             "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
             "modalUserSettings" => $this->_getUserSettingsTemplate(),
             "vocabulary"        => $this->_loadVocabulary(),
-            "lang"              => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"])
+            "lang"              => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
+            "closeBrowserUrl"   => $_ENV['HDK_URL'].'/main/home/closeBrowser'
         );
     }
     
@@ -428,6 +429,19 @@ class appServices
      */
     public function _sessionDestroy()
     {
+        if(!empty($_SESSION['SES_CURRENT_PROGRAM_ACCESS'])){
+            $permissionDAO = new permissionDAO();
+            $permissionDTO = new permissionModel();
+            $permissionDTO->setOldProgramAccessId($_SESSION['SES_CURRENT_PROGRAM_ACCESS']);
+
+            $ret = $permissionDAO->closeProgramAccess($permissionDTO);
+            if(!$ret['status']){
+                $this->applogger->error("Can't update program's access detail. Program ID: {$_SESSION['SES_CURRENT_PROGRAM_ID']}. Program's access ID: {$permissionDTO->getOldProgramAccessId()}",['Class' => __CLASS__, 'Method' => __METHOD__, 'Error' => $ret['push']['message']]);
+            }else{
+                $this->applogger->info("Program's access detail was updated successfully. Program ID: {$_SESSION['SES_CURRENT_PROGRAM_ID']}. Program's access ID: {$permissionDTO->getOldProgramAccessId()}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            }
+        }
+
         session_start();
         session_unset();
         session_destroy();
@@ -2118,7 +2132,13 @@ class appServices
 
         return trim($newString);
     }
-
+    
+    /**
+     * _monthInLetterBrPortuguese
+     *
+     * @param  mixed $month
+     * @return void
+     */
     public function _monthInLetterBrPortuguese($month){
         switch($month){
             case '01':
@@ -2397,6 +2417,10 @@ class appServices
                     $aRet[$val['idaccesstype']] = $val['allow'];
                 }
             }
+        }
+        
+        if($aRet[1] == "Y"){
+            $this->_saveProgramAccess($userId,$programId);
         }
 
         return $aRet;
@@ -3419,5 +3443,105 @@ class appServices
         //echo "{$mimeMessage}\n"; die();
         return $mimeMessage;
     }
+    
+    /**
+     * _formatBrazilianPhone
+     * 
+     * en_us Formats a string to Brazilian phone format
+     * pt_br Formata uma string para o formato telefônico brasileiro
+     *
+     * @param  string $phone
+     * @return string
+     */
+    public function _formatBrazilianPhone($phone) 
+    {
+        // Remove non-numeric characters
+        $phone = preg_replace('/\D/', '', $phone);
+    
+        // Checks if the number has 10 or 11 digits (DDD + number)
+        if (strlen($phone) == 10 || strlen($phone) == 11) {
+            // Extract DDD
+            $ddd = substr($phone, 0, 2);
+            // Extract the main number
+            $mainNumber = substr($phone, 2);
+    
+            // Format the number
+            if (strlen($mainNumber) == 9) {
+                $formattedNumber = substr($mainNumber, 0, 5) . '-' . substr($mainNumber, 5);
+            } else {
+                $formattedNumber = substr($mainNumber, 0, 4) . '-' . substr($mainNumber, 4);
+            }
+    
+            // Returns the formatted number
+            return "({$ddd}) {$formattedNumber}";
+        } else {
+            return "";
+        }
+    }
+    
+    /**
+     * _saveProgramAccess
+     * 
+     * en_us Save program's access detail into DB
+     * pt_br Grava detalhes de acesso ao programa no BD
+     *
+     * @param  mixed $userId
+     * @param  mixed $programId
+     * @return void
+     */
+    public function _saveProgramAccess($userId,$programId,$programType=2)
+    {
+        $permissionDAO = new permissionDAO();
+        $permissionDTO = new permissionModel();
+        $permissionDTO->setProgramId($programId)
+                      ->setPersonId($userId)
+                      ->setProgramTypeId($programType);
 
+        if(empty($_SESSION['SES_CURRENT_PROGRAM_ID'])){
+            $_SESSION['SES_CURRENT_PROGRAM_ID'] = $programId;
+            $process = true;
+        }else{
+            if($_SESSION['SES_CURRENT_PROGRAM_ID'] != $programId){
+                $permissionDTO->setOldProgramAccessId($_SESSION['SES_CURRENT_PROGRAM_ACCESS']);            
+                $_SESSION['SES_CURRENT_PROGRAM_ID'] = $programId;
+                $process = true;
+            }else{
+                $process = false;
+            }            
+        }
+
+        if($process){
+            $ret = $permissionDAO->saveProgramAccess($permissionDTO);
+            if(!$ret['status']){
+                $this->applogger->error("Can't save program's access detail. Program ID: {$programId}." . ((!is_null($permissionDTO->getOldProgramId()) && !empty($permissionDTO->getOldProgramId())) ? "Old program ID: {$permissionDTO->getOldProgramId()}" : ""),['Class' => __CLASS__, 'Method' => __METHOD__, 'Error' => $ret['push']['message']]);
+            }else{
+                $_SESSION['SES_CURRENT_PROGRAM_ACCESS'] = $ret['push']['object']->getProgramAccessId();
+                $this->applogger->info("Program's access detail was saved successfully. Program ID: {$programId}." . ((!is_null($permissionDTO->getOldProgramId()) && !empty($permissionDTO->getOldProgramId())) ? "Old program ID: {$permissionDTO->getOldProgramId()}" : ""),['Class' => __CLASS__, 'Method' => __METHOD__]);
+            }
+        }
+    }
+    
+    /**
+     * _getKernelProgramIdByName
+     * 
+     * en_us Returns kernel's program ID by name
+     * pt_br Retorna o ID do program do core pelo nome
+     *
+     * @param  mixed $programName
+     * @return int
+     */
+    public function _getKernelProgramIdByName(string $programName): int
+    {
+        $programDAO = new programDAO();
+        $programModel = new programModel();
+        
+        $ret = $programDAO->queryKernelPrograms("WHERE LOWER(controller) = LOWER('{$programName}')");
+        if(!$ret['status']){
+            $this->applogger->error("Can't get kernel's program data. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return 0;
+        }
+        
+        $programData = $ret['push']['object']->getGridList();
+        return (count($programData) > 0 && !empty($programData[0]['idkernelprogram'])) ? $programData[0]['idkernelprogram'] : 0;
+    }
 }

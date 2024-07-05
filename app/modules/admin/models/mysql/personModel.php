@@ -398,7 +398,61 @@ final class personModel
      * @var array
      */
     private $personList;
-    
+
+    /**
+     * @var int
+     */
+    private $personNaturalId;
+
+    /**
+     * @var string
+     */
+    private $socialName;
+
+    /**
+     * @var string
+     */
+    private $fantasyName;
+
+    /**
+     * @var int
+     */
+    private $naturality;
+
+    /**
+     * @var int
+     */
+    private $nationality;
+
+    /**
+     * @var array
+     */
+    private $phones;
+
+    /**
+     * @var array
+     */
+    private $profiles;
+
+    /**
+     * @var int
+     */
+    private $idstudent;
+
+    /**
+     * @var int
+     */
+    private $idparent;
+
+    /**
+     * @var array
+     */
+    private $filiations;
+
+    /**
+     * @var int
+     */
+    private $enrollmentNumber;    
 
     /**
      * Get the value of idPerson
@@ -2292,6 +2346,270 @@ final class personModel
     public function setPersonList(array $personList)
     {
         $this->personList = $personList;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of personNaturalId
+     *
+     * @return  int
+     */ 
+    public function getPersonNaturalId()
+    {
+        return $this->personNaturalId;
+    }
+
+    /**
+     * Set the value of personNaturalId
+     *
+     * @param  int  $personNaturalId
+     *
+     * @return  self
+     */ 
+    public function setPersonNaturalId(int $personNaturalId)
+    {
+        $this->personNaturalId = $personNaturalId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of socialName
+     *
+     * @return  string
+     */ 
+    public function getSocialName()
+    {
+        return $this->socialName;
+    }
+
+    /**
+     * Set the value of socialName
+     *
+     * @param  string  $socialName
+     *
+     * @return  self
+     */ 
+    public function setSocialName(string $socialName)
+    {
+        $this->socialName = $socialName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fantasyName
+     *
+     * @return  string
+     */ 
+    public function getFantasyName()
+    {
+        return $this->fantasyName;
+    }
+
+    /**
+     * Set the value of fantasyName
+     *
+     * @param  string  $fantasyName
+     *
+     * @return  self
+     */ 
+    public function setFantasyName(string $fantasyName)
+    {
+        $this->fantasyName = $fantasyName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of naturality
+     *
+     * @return  int
+     */ 
+    public function getNaturality()
+    {
+        return $this->naturality;
+    }
+
+    /**
+     * Set the value of naturality
+     *
+     * @param  int  $naturality
+     *
+     * @return  self
+     */ 
+    public function setNaturality(int $naturality)
+    {
+        $this->naturality = $naturality;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nationality
+     *
+     * @return  int
+     */ 
+    public function getNationality()
+    {
+        return $this->nationality;
+    }
+
+    /**
+     * Set the value of nationality
+     *
+     * @param  int  $nationality
+     *
+     * @return  self
+     */ 
+    public function setNationality(int $nationality)
+    {
+        $this->nationality = $nationality;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of phones
+     *
+     * @return  array
+     */ 
+    public function getPhones()
+    {
+        return $this->phones;
+    }
+
+    /**
+     * Set the value of phones
+     *
+     * @param  array  $phones
+     *
+     * @return  self
+     */ 
+    public function setPhones(array $phones)
+    {
+        $this->phones = $phones;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of profiles
+     *
+     * @return  array
+     */ 
+    public function getProfiles()
+    {
+        return $this->profiles;
+    }
+
+    /**
+     * Set the value of profiles
+     *
+     * @param  array  $profiles
+     *
+     * @return  self
+     */ 
+    public function setProfiles(array $profiles)
+    {
+        $this->profiles = $profiles;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idstudent
+     *
+     * @return  int
+     */ 
+    public function getIdstudent()
+    {
+        return $this->idstudent;
+    }
+
+    /**
+     * Set the value of idstudent
+     *
+     * @param  int  $idstudent
+     *
+     * @return  self
+     */ 
+    public function setIdstudent(int $idstudent)
+    {
+        $this->idstudent = $idstudent;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idparent
+     *
+     * @return  int
+     */ 
+    public function getIdparent()
+    {
+        return $this->idparent;
+    }
+
+    /**
+     * Set the value of idparent
+     *
+     * @param  int  $idparent
+     *
+     * @return  self
+     */ 
+    public function setIdparent(int $idparent)
+    {
+        $this->idparent = $idparent;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of filiations
+     *
+     * @return  array
+     */ 
+    public function getFiliations()
+    {
+        return $this->filiations;
+    }
+
+    /**
+     * Set the value of filiations
+     *
+     * @param  array  $filiations
+     *
+     * @return  self
+     */ 
+    public function setFiliations(array $filiations)
+    {
+        $this->filiations = $filiations;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of enrollmentNumber
+     *
+     * @return  int
+     */ 
+    public function getEnrollmentNumber()
+    {
+        return $this->enrollmentNumber;
+    }
+
+    /**
+     * Set the value of enrollmentNumber
+     *
+     * @param  int  $enrollmentNumber
+     *
+     * @return  self
+     */ 
+    public function setEnrollmentNumber(int $enrollmentNumber)
+    {
+        $this->enrollmentNumber = $enrollmentNumber;
 
         return $this;
     }

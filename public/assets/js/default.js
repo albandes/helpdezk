@@ -202,7 +202,7 @@ function setActionsBtn(aPermissions)
     if($('#btnDefault').length > 0 && aPermissions[2] == 'N'){// make default
         $('#btnDefault').removeClass('active').addClass('disabled').attr('disabled','disabled');
     }else{
-        $('#btnDefault').removeClass('disabled').addClass('active').removeAttr('disabled');
+        $('#btnDefault').removeAttr('disabled');
     }
 
     if($('#btnDelete').length > 0 && aPermissions[3] == 'N'){// delete
@@ -256,16 +256,14 @@ function makeFilterValueField(fieldType)
                 var dpOptions = {
                     format: dtpFormat,
                     autoclose: dtpAutoclose,
-                    orientation: dtpOrientation,
-                    endDate: "Od"
+                    orientation: dtpOrientation
                 };
             } else {
                 var dpOptions = {
                     format: dtpFormat,
                     language: dtpLanguage,
                     autoclose: dtpAutoclose,
-                    orientation: dtpOrientation,
-                    endDate: "Od"
+                    orientation: dtpOrientation
                 };
             }
         
@@ -316,4 +314,35 @@ $(document).ready(function () {
         return true;
 
     }, vocab['Alert_finish_date_error']);
+
+    // -- Time validation methods --
+    $.validator.addMethod('checkStartTime', function(startTime, element, params) {
+        var paramsTmp = $(params).val();
+        if(paramsTmp && paramsTmp.trim() !== ""){
+            var parts = startTime.split(':') , endTime = $(params).val(), partsFinish = endTime.split(':');
+
+            var startMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            var endMinutes = parseInt(partsFinish[0]) * 60 + parseInt(partsFinish[1]);
+
+            return startMinutes <= endMinutes;
+        }
+
+        return true;
+
+    }, vocab['Alert_start_time_error']);
+
+    $.validator.addMethod('checkEndTime', function(endTime, element, params) {
+        var paramsTmp = $(params).val();
+        if(paramsTmp && paramsTmp.trim() !== ""){
+            var parts = endTime.split(':') , startTime = $(params).val(), partsStart = startTime.split(':');
+    
+            var endMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            var startMinutes = parseInt(partsStart[0]) * 60 + parseInt(partsStart[1]);
+    
+            return endMinutes >= startMinutes;
+        }
+
+        return true;
+
+    }, vocab['Alert_finish_time_error']);
 });

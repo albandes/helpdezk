@@ -80,6 +80,41 @@ final class permissionModel
     private $totalRows;
 
     /**
+     * @var int
+     */
+    private $oldProgramId;
+
+    /**
+     * @var string
+     */
+    private $accessStart;
+
+    /**
+     * @var string
+     */
+    private $accessEnd;
+
+    /**
+     * @var int
+     */
+    private $programAccessId;
+
+    /**
+     * @var int
+     */
+    private $oldProgramAccessId;
+
+    /**
+     * @var int
+     */
+    private $programTypeId;
+
+    /**
+     * @var int
+     */
+    private $programReferenceId;
+
+    /**
      * Get the value of permissionId
      *
      * @return  int
@@ -435,6 +470,174 @@ final class permissionModel
     public function setTotalRows(int $totalRows)
     {
         $this->totalRows = $totalRows;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of oldProgramId
+     *
+     * @return  int
+     */ 
+    public function getOldProgramId()
+    {
+        return $this->oldProgramId;
+    }
+
+    /**
+     * Set the value of oldProgramId
+     *
+     * @param  int  $oldProgramId
+     *
+     * @return  self
+     */ 
+    public function setOldProgramId(int $oldProgramId)
+    {
+        $this->oldProgramId = $oldProgramId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of accessStart
+     *
+     * @return  string
+     */ 
+    public function getAccessStart()
+    {
+        return $this->accessStart;
+    }
+
+    /**
+     * Set the value of accessStart
+     *
+     * @param  string  $accessStart
+     *
+     * @return  self
+     */ 
+    public function setAccessStart(string $accessStart)
+    {
+        $this->accessStart = $accessStart;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of accessEnd
+     *
+     * @return  string
+     */ 
+    public function getAccessEnd()
+    {
+        return $this->accessEnd;
+    }
+
+    /**
+     * Set the value of accessEnd
+     *
+     * @param  string  $accessEnd
+     *
+     * @return  self
+     */ 
+    public function setAccessEnd(string $accessEnd)
+    {
+        $this->accessEnd = $accessEnd;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of programAccessId
+     *
+     * @return  int
+     */ 
+    public function getProgramAccessId()
+    {
+        return $this->programAccessId;
+    }
+
+    /**
+     * Set the value of programAccessId
+     *
+     * @param  int  $programAccessId
+     *
+     * @return  self
+     */ 
+    public function setProgramAccessId(int $programAccessId)
+    {
+        $this->programAccessId = $programAccessId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of oldProgramAccessId
+     *
+     * @return  int
+     */ 
+    public function getOldProgramAccessId()
+    {
+        return $this->oldProgramAccessId;
+    }
+
+    /**
+     * Set the value of oldProgramAccessId
+     *
+     * @param  int  $oldProgramAccessId
+     *
+     * @return  self
+     */ 
+    public function setOldProgramAccessId(int $oldProgramAccessId)
+    {
+        $this->oldProgramAccessId = $oldProgramAccessId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of programTypeId
+     *
+     * @return  int
+     */ 
+    public function getProgramTypeId()
+    {
+        return $this->programTypeId;
+    }
+
+    /**
+     * Set the value of programTypeId
+     *
+     * @param  int  $programTypeId
+     *
+     * @return  self
+     */ 
+    public function setProgramTypeId(int $programTypeId)
+    {
+        $this->programTypeId = $programTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of programReferenceId
+     *
+     * @return  int
+     */ 
+    public function getProgramReferenceId()
+    {
+        return $this->programReferenceId;
+    }
+
+    /**
+     * Set the value of programReferenceId
+     *
+     * @param  int  $programReferenceId
+     *
+     * @return  self
+     */ 
+    public function setProgramReferenceId(int $programReferenceId)
+    {
+        $this->programReferenceId = $programReferenceId;
 
         return $this;
     }

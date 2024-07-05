@@ -20,7 +20,7 @@
                             <label for="action-list" class="hdk-label col-form-label">{='action'|translate}</label>
                             <select class="form-control input-sm" id="action-list" name="action-list" >
                             {foreach $cmbFilterOpts as $k=>$v}
-                            <option value="{$v['id']}">{$v['text']}</option>
+                            <option value="{$v['id']}" {if $v['id'] == "$optionDefault"}selected{/if}>{$v['text']}</option>
                             {/foreach}
                             </select>
                         </div>
