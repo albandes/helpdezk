@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function(){
 }); 
 // DOMContentLoaded  end
 
-
 function showAlert(msg,typeAlert)
 {
     $('#modal-notification').html(msg);
@@ -283,6 +282,7 @@ function makeFilterValueField(fieldType)
     }
 }
 
+
 $(document).ready(function () {
     // -- Date validation methods --
     $.validator.addMethod('checkStartDate', function(startDate, element, params) {
@@ -345,4 +345,41 @@ $(document).ready(function () {
         return true;
 
     }, vocab['Alert_finish_time_error']);
+
+    /* let isNavigatingInternally = false;
+
+    // Detect any changes in the URL (includes clicks on links and buttons)
+    $(document).on('click', function(e) {
+        // Use event delegation to handle all clicks and detect internal links and buttons
+        const target = $(e.target).closest('a, button');
+        if (target.length > 0) {
+            const href = target.attr('href') || target.data('href');
+            if (href && href.startsWith(window.location.origin)) {
+                isNavigatingInternally = true;
+            }
+        }
+    });
+
+    // Detect changes in history (e.g. back/forward buttons)
+    $(window).on('popstate', function(e) {
+        isNavigatingInternally = true;
+    });
+
+    // Before downloading the page
+    $(window).on('beforeunload', function(e) {
+        if (!isNavigatingInternally) {
+            // Send a request using sendBeacon
+            navigator.sendBeacon(path+"/main/home/closeBrowser");
+        } else {
+            // Reset the flag after a short delay for the next page load
+            setTimeout(function() {
+                isNavigatingInternally = false;
+            }, 0);
+        }
+    });
+
+    // Ensure the flag is reset when a new page is loaded
+    $(window).on('load', function() {
+        isNavigatingInternally = false;
+    }); */
 });
