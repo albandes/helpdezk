@@ -167,7 +167,7 @@ class hdkTicket extends Controller
             $params['equipment'] = isset($_SESSION['hdk']['SES_IND_EQUIPMENT']) ? $_SESSION['hdk']['SES_IND_EQUIPMENT'] : 0;
         }
 
-        if($option == 'add'){            
+        if($option == 'add'){
             if($_SESSION['SES_TYPE_PERSON'] == 3){
                 $params['owner'] = "";
                 $params['cmbUser'] = $hdkSrc->_comboUsers();

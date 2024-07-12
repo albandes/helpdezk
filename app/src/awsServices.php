@@ -11,9 +11,11 @@ use Monolog\Formatter\LineFormatter;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Aws\Ses\SesClient;
+use Aws\SesV2\SesV2Client;
 use Aws\Exception\AwsException;
 use Aws\S3\Exception\S3Exception;
 use Aws\Ses\Exception\SesException;
+use Aws\SesV2\Exception\SesV2Exception;
 
 class awsServices
 {
@@ -468,4 +470,161 @@ class awsServices
         return array("success"=>$st, "message"=>$msg,"emailId"=>$emailId);    
     }
 
+    /**
+     * _getSesV2Client
+     * 
+     * en_us Connects to AWS SES V2 API
+     * pt_br Conecta ao AWS SES V2 API
+     * 
+     * @return object AWS SES V2 Object
+     *
+     * @since 03.06.2023
+     *
+     * @author Valentin L Acosta <valentin.acosta@marioquintana.com.br>
+     */
+    public function _getSesV2Client()
+    {
+        try {
+
+            $client = new SesV2Client([
+                'version'     => 'latest',
+                'region'      => $this->_region,
+                'credentials' => $this->_credentials
+            ]);
+
+        } catch (SesV2Exception $e) {
+
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error connecting to AWS SES V2, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error connecting to AWS SES V2, Error Code: " . $eCode);
+
+        }
+        
+        return $client;                
+    }
+    
+    /**
+     * _sendEmailSesV2
+     *
+     * @param  mixed $message
+     * @return array
+     */
+    public function _sendEmailSesV2($message): array
+    {
+        $sesObj = $this->_getSesV2Client();
+        
+        try{
+            $ret = $sesObj->sendEmail([
+                'Content' => [
+                    'Raw' => [
+                        'Data' => base64_encode($message),
+                    ],
+                ],
+            ]);
+            echo "",print_r($ret,true),"\n";
+            $st = true;
+            $msg = "";
+            $emailId = $ret['MessageId'];
+        } catch (SesV2Exception $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Can't send email. Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
+            $st = false;
+            $msg = $eMessage;
+            $emailId = "";    
+        }
+
+        return array("success"=>$st, "message"=>$msg,"emailId"=>$emailId);    
+    }
+    
+    /**
+     * _renameDirectory
+     * 
+     * en_us Rename directory in S3.
+     * pt_br Renomear diretório no S3.
+     *
+     * @param  mixed $oldDirectory
+     * @param  mixed  $newDirectory
+     * @return void
+     */
+    public function _renameDirectory($oldDirectory, $newDirectory)
+    {
+        $s3Obj = $this->_getS3Connection();
+        
+        try{ 
+            // List all objects in the old directory
+            $objects = $s3Obj->listObjectsV2([
+                'Bucket' => $this->_bucket,
+                'Prefix' => $oldDirectory
+            ]);
+
+            foreach ($objects['Contents'] as $object) {
+                $oldKey = $object['Key'];
+                $newKey = str_replace($oldDirectory, $newDirectory, $oldKey);
+
+                // Copy the object to the new directory
+                $s3Obj->copyObject([
+                    'Bucket'     => $this->_bucket,
+                    'CopySource' => "{$this->_bucket}/{$oldKey}",
+                    'Key'        => $newKey,
+                ]);
+
+                // Eliminar el objeto del directorio antiguo
+                $s3Obj->deleteObject([
+                    'Bucket' => $this->_bucket,
+                    'Key'    => $oldKey,
+                ]);
+            }
+        } catch (S3Exception $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error renaming directory in AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error renaming directory in AWS S3, Error Code: " . $eCode);    
+        }
+        
+        return array("success"=>true, "message"=>"");
+
+    }
+    
+    /**
+     * _removeDirectory
+     * 
+     * en_us Remove directory from S3 bucket.
+     * pt_br Exclui o diretório do bucket S3.
+     *
+     * @param  mixed $directory
+     * @return void
+     */
+    public function _removeDirectory($directory)
+    {
+        $s3Obj = $this->_getS3Connection();
+        
+        try{ 
+            // List all objects in the old directory
+            $objects = $s3Obj->listObjectsV2([
+                'Bucket' => $this->_bucket,
+                'Prefix' => $directory
+            ]);
+
+            if (isset($objects['Contents'])) {
+                foreach ($objects['Contents'] as $object) {
+                    // Delete each object
+                    $s3Obj->deleteObject([
+                        'Bucket' => $this->_bucket,
+                        'Key' => $object['Key'],
+                    ]);
+                }
+            }
+        } catch (S3Exception $e) {
+            $eCode = $e->getAwsErrorCode();
+            $eMessage = $e->getAwsErrorMessage();
+            $this->awslogger->error("Error removing directory in AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error removing directory in AWS S3, Error Code: " . $eCode);    
+        }
+        
+        return array("success"=>true, "message"=>"");
+
+    }
 }

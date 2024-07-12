@@ -347,7 +347,18 @@ class Home extends Controller
 
 	public function closeBrowser()
     {
-        $this->appSrc->_sessionDestroy();
+        if(!empty($_SESSION['SES_CURRENT_PROGRAM_ACCESS'])){
+            $permissionDAO = new permissionDAO();
+            $permissionDTO = new permissionModel();
+            $permissionDTO->setOldProgramAccessId($_SESSION['SES_CURRENT_PROGRAM_ACCESS']);
+
+            $ret = $permissionDAO->closeProgramAccess($permissionDTO);
+            if(!$ret['status']){
+                $this->applogger->error("Can't update program's access detail. Program ID: {$_SESSION['SES_CURRENT_PROGRAM_ID']}. Program's access ID: {$permissionDTO->getOldProgramAccessId()}",['Class' => __CLASS__, 'Method' => __METHOD__, 'Error' => $ret['push']['message']]);
+            }else{
+                $this->applogger->info("Program's access detail was updated successfully. Program ID: {$_SESSION['SES_CURRENT_PROGRAM_ID']}. Program's access ID: {$permissionDTO->getOldProgramAccessId()}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            }
+        }
         echo "ok";
     }
 
