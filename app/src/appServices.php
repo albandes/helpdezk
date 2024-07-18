@@ -3491,6 +3491,10 @@ class appServices
      */
     public function _saveProgramAccess($userId,$programId,$programType=2)
     {
+        if(!$userId){
+            $this->_accessDenied();
+        }
+
         $permissionDAO = new permissionDAO();
         $permissionDTO = new permissionModel();
         $permissionDTO->setProgramId($programId)
@@ -3544,4 +3548,124 @@ class appServices
         $programData = $ret['push']['object']->getGridList();
         return (count($programData) > 0 && !empty($programData[0]['idkernelprogram'])) ? $programData[0]['idkernelprogram'] : 0;
     }
+    
+    /**
+     * _deleteDirectory
+     * 
+     * en_us Delete the directory and its contents
+     * pt_br Deleta o diretório e seu conteúdo
+     *
+     * @param  mixed $dir
+     * @return void
+     */
+    public function _deleteDirectory($dir) {
+        if (!file_exists($dir)) {
+            $this->applogger->error("The directory '{$dir}' doesn't exist.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"The directory '{$dir}' doesn't exist.");
+        }
+    
+        // Open the directory
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+    
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                // Delete subdirectory recursively
+                deleteDirectory($path);
+            } else {
+                // Delete file
+                unlink($path);
+            }
+        }
+    
+        // Delete the directory itself
+        if (rmdir($dir)) {
+            $this->applogger->info("The directory '{$dir}' has been successfully deleted.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>true,"message"=>"");
+        } else {
+            $this->applogger->error("Error trying to delete directory '{$dir}'.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            return array("success"=>false,"message"=>"Error trying to delete directory '{$dir}'.");
+        }
+    }
+    
+    /**
+     * _getPortugueseDayNameByDate
+     * 
+     * en_us Returns the name of the day in Portuguese
+     * pt_br Retorna o nome do dia em português
+     *
+     * @param  mixed $date
+     * @return string
+     */
+    public function _getPortugueseDayNameByDate($date): string 
+    {
+        // Convert date to timestamp
+        $timestamp = strtotime($date);
+    
+        // Get the name of the day of the week in English
+        $englishWeekday = date('l', $timestamp);
+    
+        // Get the name of the day of the week in English
+        $aWeedays = array(
+            'Sunday' => 'Domingo',
+            'Monday' => 'Segunda-feira',
+            'Tuesday' => 'Terça-feira',
+            'Wednesday' => 'Quarta-feira',
+            'Thursday' => 'Quinta-feira',
+            'Friday' => 'Sexta-feira',
+            'Saturday' => 'Sábado'
+        );
+    
+        // Returns the name of the day of the week in Portuguese
+        return $aWeedays[$englishWeekday];
+    }
+    
+    /**
+     * _makeDateCondition
+     * 
+     * en_us Returns the sql statement for date search
+     * pt_br Retorna a setença sql para pesquisa de data
+     *
+     * @param  mixed $date
+     * @param  mixed $fieldName
+     * @return string
+     */
+    function _makeDateCondition($date,$fieldName): string
+    {
+        $condition = "";
+    
+        // Checks if input is in dd/mm or mm/dd format
+        if (preg_match("/^\d{2}\/\d{2}$/", $date)) {
+            $aDate = explode('/', $date);
+            if($_ENV['DEFAULT_LANG'] == 'pt_br'){
+                $condition = "(DAY({$fieldName}) = " . (int)$aDate[0] . " AND " . "MONTH({$fieldName}) = " . (int)$aDate[1].")";
+            }else{
+                $condition = "(MONTH({$fieldName}) = " . (int)$aDate[0] . " AND " . "DAY({$fieldName}) = " . (int)$aDate[1].")";
+            }            
+        }
+        // Checks if input is in mm/yyyy format
+        elseif (preg_match("/^\d{2}\/\d{4}$/", $date)) {
+            $aDate = explode('/', $date);
+            $condition = "(MONTH({$fieldName}) = " . (int)$aDate[0] . " AND " . "YEAR({$fieldName}) = " . (int)$aDate[1].")";
+        }
+        // Checks if input is in dd or mm format
+        elseif (preg_match("/^\d{2}$/", $date)) {
+            $dia = (int)$date;
+            $condition = "(DAY({$fieldName}) = {$dia} OR " . "MONTH({$fieldName}) = {$dia})";
+        }
+        // Checks if input is in yyyy format
+        elseif (preg_match("/^\d{4}$/", $date)) {
+            $year = (int)$date;
+            $condition = "YEAR(({$fieldName}) = " . $year;
+        }
+        // Checks if input is in dd/mm/yyyy or mm/dd/yyyy format
+        elseif (preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $date)) {
+            $condition = "{$fieldName} = '{$this->_formatSaveDate($date)}'";
+        }
+    
+        return $condition;
+    }    
 }
