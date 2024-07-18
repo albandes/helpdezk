@@ -3491,6 +3491,10 @@ class appServices
      */
     public function _saveProgramAccess($userId,$programId,$programType=2)
     {
+        if(!$userId){
+            $this->_accessDenied();
+        }
+
         $permissionDAO = new permissionDAO();
         $permissionDTO = new permissionModel();
         $permissionDTO->setProgramId($programId)
