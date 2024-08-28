@@ -17,7 +17,8 @@
         "picqer/php-barcode-generator": "^2.2",
         "google/apiclient": "^2.12.1",
         "mpdf/qrcode": "^1.2",
-        "marioquintana/sicredi-pix-api": "^1.1.3"
+        "marioquintana/sicredi-pix-api": "^1.1.3",
+        "phpoffice/phpexcel": "^1.8"
     },
     "config": {
         "platform-check": false
