@@ -3633,7 +3633,7 @@ class appServices
      * @param  mixed $fieldName
      * @return string
      */
-    function _makeDateCondition($date,$fieldName): string
+    public function _makeDateCondition($date,$fieldName): string
     {
         $condition = "";
     
@@ -3667,5 +3667,36 @@ class appServices
         }
     
         return $condition;
-    }    
+    }
+    
+    public function _makDayweekNameByNumber($dayNumber): string
+    {
+        $translator = new localeServices();
+
+        switch($dayNumber){
+            case 1:
+                $dayweekName = $translator->translate('monday_lbl');
+                break;
+            case 2:
+                $dayweekName = $translator->translate('tuesday_lbl');            
+                break;
+            case 3:
+                $dayweekName = $translator->translate('wednesday_lbl');            
+                break;
+            case 4:
+                $dayweekName = $translator->translate('thursday_lbl');            
+                break;
+            case 5:
+                $dayweekName = $translator->translate('friday_lbl');            
+                break;
+            case 6:
+                $dayweekName = $translator->translate('saturday_lbl');            
+                break;
+            default:
+                $dayweekName = $translator->translate('sunday_lbl');            
+                break;
+        }
+
+        return $dayweekName;
+    }
 }
