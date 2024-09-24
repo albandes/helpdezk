@@ -3699,4 +3699,37 @@ class appServices
 
         return $dayweekName;
     }
+    
+    /**
+     * _comboYear
+     * 
+     * en_us Returns an array with the years to use in the dropdown
+     * pt_br Retorna um array com os anos para utilizar no combo
+     *
+     * @param  int $start           Start year
+     * @param  int $end             End year     
+     * @param  string $direction    Array sorting
+     * @return array
+     */
+    public function _comboYear($start,$end=null,$direction='up'): array
+    {
+        $end = !$end ? date("Y") : $end;
+        $start = ($start > $end) ? ($end - 5) : $start;
+        $aRet = array();
+
+        for($i = $start; $i <= $end; $i++){
+            $bus =  array(
+                "id" => $i,
+                "text" => $i,
+            );
+
+            array_push($aRet,$bus);
+        }
+
+        if ($direction == 'down') {  // Sort descending
+            $aRet = array_reverse($aRet);
+        }
+
+        return $aRet;
+    }
 }
