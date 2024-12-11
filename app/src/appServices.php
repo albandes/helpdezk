@@ -1683,7 +1683,7 @@ class appServices
      * @param  mixed $endPointType
      * @return array
      */
-    public function _request($type, $request, $args = false,$endPointType = 1) {
+    public function _request($type, $request, $args = false,$endPointType = 1, $headers = []) {
         if (!$args) {
             $args = array();
         } elseif (!is_array($args)) {
@@ -1703,7 +1703,7 @@ class appServices
                 curl_setopt($c, CURLOPT_POSTFIELDS , http_build_query($args));
             } else {
                 $payload = json_encode($args);
-			    curl_setopt($c, CURLOPT_POSTFIELDS , $payload);       
+			    curl_setopt($c, CURLOPT_POSTFIELDS , $payload);
             }
         }
 
@@ -1711,7 +1711,7 @@ class appServices
             case 'POST':
                 curl_setopt($c, CURLOPT_POST, 1);
                 if($endPointType == 2){
-                    curl_setopt($c, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+                    curl_setopt($c, CURLOPT_HTTPHEADER, array_merge(array('Content-Type:application/json'), $headers));
                 }
                 break;
             case 'GET':
@@ -1739,7 +1739,9 @@ class appServices
                     $st = !isset($res['errors']) ? true : false;
                     $aDat = !isset($res['errors']) ? $res : '';
                     $msg = !isset($res['errors']) ? '' : $res['errors'];
-                }                
+                }
+
+                $this->applogger->info("API request made successfully, request method: {$type}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 
                 $arrayRet = array('success' => $st, 'message' => $msg, 'return' => $aDat);
             }
@@ -1747,6 +1749,8 @@ class appServices
         } else {
             $message = 'Error making API request, curl error: ' . $this->_getCurlErrorCode(curl_error($c));
             $arrayRet = array('success' => false, 'message' => $message, 'return' => '');
+
+            $this->applogger->info("API request made successfully, request method: {$type}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
         }
 
         curl_close($c);
@@ -3669,7 +3673,7 @@ class appServices
         return $condition;
     }
     
-    public function _makDayweekNameByNumber($dayNumber): string
+    public function _makeDayweekNameByNumber($dayNumber): string
     {
         $translator = new localeServices();
 
