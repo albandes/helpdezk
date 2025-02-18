@@ -227,11 +227,17 @@ class sicrediBankSlipServices
 	}
 
 	function fator_vencimento($data) {
+		$due = $data;
 		$data = explode("/",$data);
 		$ano = $data[2];
 		$mes = $data[1];
 		$dia = $data[0];
-		return(abs(($this->_dateToDays("1997","10","07")) - ($this->_dateToDays($ano, $mes, $dia))));
+
+		if(strtotime($due) >= strtotime('22/02/2025')){//Na data base, a partir de 22.02.2025, o fator retorna para “1000” adicionando-se “1” a cada dia subsequente a esse fator (Comunicado FB - 082 e FB - 122)
+			return ((abs(($this->_dateToDays("2025","02","22")) - ($this->_dateToDays($ano, $mes, $dia)))) + 1000);
+		}else{
+			return(abs(($this->_dateToDays("1997","10","07")) - ($this->_dateToDays($ano, $mes, $dia))));
+		}
 	}
 
 	function _dateToDays($year,$month,$day) {
