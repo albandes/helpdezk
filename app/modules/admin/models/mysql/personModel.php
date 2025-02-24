@@ -452,7 +452,12 @@ final class personModel
     /**
      * @var int
      */
-    private $enrollmentNumber;    
+    private $enrollmentNumber;
+
+    /**
+     * @var int
+     */
+    private $idProfile;
 
     /**
      * Get the value of idPerson
@@ -2610,6 +2615,30 @@ final class personModel
     public function setEnrollmentNumber(int $enrollmentNumber)
     {
         $this->enrollmentNumber = $enrollmentNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idProfile
+     *
+     * @return  int
+     */ 
+    public function getIdProfile()
+    {
+        return $this->idProfile;
+    }
+
+    /**
+     * Set the value of idProfile
+     *
+     * @param  int  $idProfile
+     *
+     * @return  self
+     */ 
+    public function setIdProfile(int $idProfile)
+    {
+        $this->idProfile = $idProfile;
 
         return $this;
     }
