@@ -1006,13 +1006,15 @@ class personDAO extends Database
      */
     public function insertNaturalData(personModel $personModel): array
     {        
-        $sql = "INSERT INTO tbnaturalperson (idperson, ssn_cpf, dtbirth, gender) VALUES (:personId, :ssnCpf, :birthDt, :gender)";
+        $sql = "INSERT INTO tbnaturalperson (idperson, ssn_cpf, dtbirth, gender, idcountry, idcity) VALUES (:personId, :ssnCpf, :birthDt, :gender, NULLIF(:idcountry,NULL), NULLIF(:idcity,NULL))";
         
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":personId",$personModel->getIdPerson());
         $stmt->bindValue(":ssnCpf",$personModel->getSsnCpf());
         $stmt->bindValue(":birthDt",$personModel->getDtBirth());
         $stmt->bindValue(":gender",$personModel->getGender());
+        $stmt->bindValue(":idcountry",(!is_null($personModel->getNationality()) && !empty($personModel->getNationality())) ? $personModel->getNationality() : null);
+        $stmt->bindValue(":idcity",(!is_null($personModel->getNaturality()) && !empty($personModel->getNaturality())) ? $personModel->getNaturality() : null);
         $stmt->execute();
 
         $ret = true;
@@ -1488,7 +1490,9 @@ class personDAO extends Database
                    SET ssn_cpf = :ssnCpf, 
                        dtbirth = :birthDt, 
                        gender = :gender,
-                       rg = :cardId
+                       rg = :cardId,
+                       idcountry  = NULLIF(:idcountry,NULL),
+                       idcity = NULLIF(:idcity,NULL)
                 WHERE idperson = :personId";
         
         $stmt = $this->db->prepare($sql);
@@ -1497,6 +1501,8 @@ class personDAO extends Database
         $stmt->bindValue(":gender",$personModel->getGender());
         $stmt->bindValue(":personId",$personModel->getIdPerson());
         $stmt->bindValue(":cardId",(!is_null($personModel->getRg()) && !empty($personModel->getRg())) ? $personModel->getRg() : '');
+        $stmt->bindValue(":idcountry",(!is_null($personModel->getNationality()) && !empty($personModel->getNationality())) ? $personModel->getNationality() : null);
+        $stmt->bindValue(":idcity",(!is_null($personModel->getNaturality()) && !empty($personModel->getNaturality())) ? $personModel->getNaturality() : null);
         $stmt->execute();
 
         $ret = true;

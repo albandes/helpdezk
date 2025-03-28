@@ -3736,4 +3736,30 @@ class appServices
 
         return $aRet;
     }
+    
+    /**
+     * _getDates
+     * 
+     * en_us Returns an array with dates in a range
+     * pt_br Retorna um array com as datas em um intervalo
+     *
+     * @param  mixed $day       Name of the day of the week
+     * @param  mixed $startdate Start date in timestamp
+     * @param  mixed $enddate   End date in timestamp
+     * @param  mixed $aDates
+     * @return array
+     */
+    public function _getDates($day, $startdate, $enddate, $aDates = array()): array 
+    {
+        if ($startdate > $enddate) {
+            return $aDates;
+        }
+    
+        // Checks if the date matches the desired day of the week
+        if (date('l', $startdate) === $day) {
+            $aDates[] = date("Y-m-d", $startdate);
+        }
+    
+        return $this->_getDates($day, strtotime("next " . $day, $startdate), $enddate, $aDates);
+    }
 }
