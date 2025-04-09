@@ -1639,9 +1639,18 @@ class personDAO extends Database
 
             if($upd['status']){
                 //update person address
-                $updAddress = $this->updateAddress($upd['push']['object']);
-                if($updAddress['status'])
-                    $this->loggerDB->info('Person address was updated', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                $checkAddress = $this->checkAddress($upd['push']['object']);
+                if($checkAddress['push']['object']->getAddressId() > 0){
+                    // update address
+                    $updAddress = $this->updateAddress($upd['push']['object']);
+                    if($updAddress['status'])
+                        $this->loggerDB->info('Person address was updated', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }else{
+                    // insert address
+                    $insAddress = $this->insertAddress($upd['push']['object']);
+                    if($insAddress['status'])
+                        $this->loggerDB->info('Person address was included', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }                
                 
                 // update natural person data
                 if($upd['push']['object']->getPersonNatureId() == 1){
@@ -2153,6 +2162,30 @@ class personDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
         }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+
+    /**
+     * en_us Check if exists address
+     * pt_br Checa se existe um endereço cadastrado
+     *
+     * @param  mixed $personModel
+     * @return array
+     */
+    public function checkAddress(personModel $personModel): array
+    {
+        $sql = "SELECT idaddress FROM tbaddress WHERE idperson = :personId";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->execute();
+
+        $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $personModel->setAddressId((!is_null($rows['idaddress']) && !empty($rows['idaddress'])) ? $rows['idaddress'] : 0);
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
