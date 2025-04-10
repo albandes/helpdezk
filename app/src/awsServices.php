@@ -54,6 +54,11 @@ class awsServices
      */
     protected $_credentials;
 
+    /**
+     * @var string
+     */
+    protected $_awsCredentialsType;
+
     public function __construct($region=null,$bucket=null,$key=null,$secret=null)
     {
         $appSrc = new appServices();
@@ -69,6 +74,7 @@ class awsServices
         // Clone the first one to only change the channel
         $this->awsEmailLogger = $this->awslogger->withName('email');
 
+        $this->_awsCredentialsType = (isset($_ENV['AWS_CREDENTIALS_TYPE']) && !empty($_ENV['AWS_CREDENTIALS_TYPE'])) ? $_ENV['AWS_CREDENTIALS_TYPE'] : 'ENV_FILE';
         $region = (!is_null($region)) ? $region : $_ENV['S3BUCKET_REGION'];
         $bucket = (!is_null($bucket)) ? $bucket : $_ENV['S3BUCKET_NAME'];
 
@@ -76,9 +82,9 @@ class awsServices
         $this->_region      = $region;
         $this->_bucket      = $bucket;
         
-        if(in_array($_ENV['AWS_CREDENTIALS_TYPE'],array('ENV_FILE','ENV_SERVER'))){
-            $key    = (!is_null($key)) ? $key : (($_ENV['AWS_CREDENTIALS_TYPE'] == 'ENV_FILE') ? $_ENV['AWS_ACCESS_KEY'] : getenv('AWS_ACCESS_KEY_ID'));
-            $secret = (!is_null($secret)) ? $secret : (($_ENV['AWS_CREDENTIALS_TYPE'] == 'ENV_FILE') ? $_ENV['AWS_SECRET_KEY'] : getenv('AWS_SECRET_ACCESS_KEY'));
+        if(in_array($this->_awsCredentialsType,array('ENV_FILE','ENV_SERVER'))){
+            $key    = (!is_null($key)) ? $key : (($this->_awsCredentialsType == 'ENV_FILE') ? $_ENV['AWS_ACCESS_KEY'] : getenv('AWS_ACCESS_KEY_ID'));
+            $secret = (!is_null($secret)) ? $secret : (($this->_awsCredentialsType == 'ENV_FILE') ? $_ENV['AWS_SECRET_KEY'] : getenv('AWS_SECRET_ACCESS_KEY'));
             
             $this->_credentials = new Credentials($key,$secret);
         } 
@@ -101,7 +107,7 @@ class awsServices
         // Establish connection with DreamObjects with an S3 client.        
         try {
 
-            if(in_array($_ENV['AWS_CREDENTIALS_TYPE'],array('ENV_FILE','ENV_SERVER'))){
+            if(in_array($this->_awsCredentialsType,array('ENV_FILE','ENV_SERVER'))){
                 $client = new S3Client([
                     'version'     => 'latest',
                     'region'      => $this->_region,
@@ -364,7 +370,7 @@ class awsServices
     {
         try {
 
-            if(in_array($_ENV['AWS_CREDENTIALS_TYPE'],array('ENV_FILE','ENV_SERVER'))){
+            if(in_array($this->_awsCredentialsType,array('ENV_FILE','ENV_SERVER'))){
                 $client = new SesClient([
                     'version'     => 'latest',
                     'region'      => $this->_region,
