@@ -39,7 +39,7 @@ $bucket = $_ENV['S3BUCKET_NAME'];
 
 
 // Establish connection with DreamObjects with an S3 client.        
-try {
+/* try {
 
     $client = new S3Client([
         'version'     => 'latest',
@@ -66,7 +66,7 @@ try{
     ]);
     
     $objectList = (!empty($ret['CommonPrefixes'])) ? array_column($ret['CommonPrefixes'],'Prefix') : "";
-    echo "<pre>",print_r($objectList,true),"</pre>";
+    echo "",print_r($objectList,true),"\n";
     $awslogger->info(print_r($objectList),['Program' => __FILE__, 'Line' => __LINE__]);
 
 } catch (S3Exception $e) {
@@ -74,6 +74,8 @@ try{
     $eMessage = $e->getAwsErrorMessage();
     $awslogger->error("Error getting objects from {$bucket}, Error Code: " . $eCode . " Error Message: " . $eMessage,['Program' => __FILE__, 'Line' => __LINE__]);
     exit;
-}
+} */
+
+echo getenv('AWS_ACCESS_KEY_ID') ."\n" . getenv('AWS_SECRET_ACCESS_KEY') ."\n";
 
 exit;
