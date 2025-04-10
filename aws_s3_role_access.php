@@ -38,12 +38,36 @@ $awslogger->pushHandler($stream);
 $bucket = $_ENV['S3BUCKET_NAME'];
 
 
-// Establish connection with DreamObjects with an S3 client.        
+// Establish connection with DreamObjects with an S3 client.
+// With IAM Role
 /* try {
 
     $client = new S3Client([
         'version'     => 'latest',
         'region'      => $_ENV['S3BUCKET_REGION']
+    ]);
+
+    $awslogger->info("AWS S3 connection successful",['Program' => __FILE__, 'Line' => __LINE__]);
+
+} catch (S3Exception $e) {
+
+    $eCode = $e->getAwsErrorCode();
+    $eMessage = $e->getAwsErrorMessage();
+    $awslogger->error("Error connecting to AWS S3, Error Code: " . $eCode . " Error Message: " . $eMessage,['Program' => __FILE__, 'Line' => __LINE__]);
+    exit;
+
+} */
+
+//With Linux enviroment 
+$key = getenv('AWS_ACCESS_KEY_ID');
+$secret = getenv('AWS_SECRET_ACCESS_KEY');
+$credentials = new Credentials($key,$secret);
+try {
+
+    $client = new S3Client([
+        'version'     => 'latest',
+        'region'      => $_ENV['S3BUCKET_REGION'],
+        'credentials' => $credentials
     ]);
 
     $awslogger->info("AWS S3 connection successful",['Program' => __FILE__, 'Line' => __LINE__]);
@@ -74,8 +98,6 @@ try{
     $eMessage = $e->getAwsErrorMessage();
     $awslogger->error("Error getting objects from {$bucket}, Error Code: " . $eCode . " Error Message: " . $eMessage,['Program' => __FILE__, 'Line' => __LINE__]);
     exit;
-} */
-
-echo getenv('AWS_ACCESS_KEY_ID') ."\n" . getenv('AWS_SECRET_ACCESS_KEY') ."\n";
+}
 
 exit;

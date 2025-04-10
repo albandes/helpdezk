@@ -71,13 +71,18 @@ class awsServices
 
         $region = (!is_null($region)) ? $region : $_ENV['S3BUCKET_REGION'];
         $bucket = (!is_null($bucket)) ? $bucket : $_ENV['S3BUCKET_NAME'];
-        $key    = (!is_null($key)) ? $key : $_ENV['S3BUCKET_ACCESS_KEY'];
-        $secret = (!is_null($secret)) ? $secret : $_ENV['S3BUCKET_SECRET_KEY'];
 
         //access aws s3 settings
         $this->_region      = $region;
         $this->_bucket      = $bucket;
-        $this->_credentials = new Credentials($key,$secret);
+        
+        if(in_array($_ENV['AWS_CREDENTIALS_TYPE'],array('ENV_FILE','ENV_SERVER'))){
+            $key    = (!is_null($key)) ? $key : (($_ENV['AWS_CREDENTIALS_TYPE'] == 'ENV_FILE') ? $_ENV['AWS_ACCESS_KEY'] : getenv('AWS_ACCESS_KEY_ID'));
+            $secret = (!is_null($secret)) ? $secret : (($_ENV['AWS_CREDENTIALS_TYPE'] == 'ENV_FILE') ? $_ENV['AWS_SECRET_KEY'] : getenv('AWS_SECRET_ACCESS_KEY'));
+            
+            $this->_credentials = new Credentials($key,$secret);
+        } 
+        
 
     }
 
@@ -96,11 +101,18 @@ class awsServices
         // Establish connection with DreamObjects with an S3 client.        
         try {
 
-            $client = new S3Client([
-                'version'     => 'latest',
-                'region'      => $this->_region,
-                'credentials' => $this->_credentials
-            ]);
+            if(in_array($_ENV['AWS_CREDENTIALS_TYPE'],array('ENV_FILE','ENV_SERVER'))){
+                $client = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => $this->_region,
+                    'credentials' => $this->_credentials
+                ]);
+            }else{
+                $client = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => $this->_region
+                ]);
+            }
 
         } catch (S3Exception $e) {
 
@@ -352,11 +364,18 @@ class awsServices
     {
         try {
 
-            $client = new SesClient([
-                'version'     => 'latest',
-                'region'      => $this->_region,
-                'credentials' => $this->_credentials
-            ]);
+            if(in_array($_ENV['AWS_CREDENTIALS_TYPE'],array('ENV_FILE','ENV_SERVER'))){
+                $client = new SesClient([
+                    'version'     => 'latest',
+                    'region'      => $this->_region,
+                    'credentials' => $this->_credentials
+                ]);
+            }else{
+                $client = new SesClient([
+                    'version'     => 'latest',
+                    'region'      => $this->_region
+                ]);
+            }
 
         } catch (SesException $e) {
 
