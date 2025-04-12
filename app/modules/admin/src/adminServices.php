@@ -56,7 +56,7 @@ class adminServices
          * LOG
          */
         // create a log channel
-        $formatter = new LineFormatter(null, $_ENV['LOG_DATE_FORMAT']);
+        $formatter = new LineFormatter("%datetime% | %channel%.%level_name%: %message% %context% %extra%\n", $_ENV['LOG_DATE_FORMAT']);
         
         $stream = $this->appSrc->_getStreamHandler();
         $stream->setFormatter($formatter);
