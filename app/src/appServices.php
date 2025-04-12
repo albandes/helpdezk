@@ -2763,8 +2763,8 @@ class appServices
         $mailHost      = $params['apiendpoint'];
         $mailDomain    = $aEmailSrvObj->getDomain();
         $mailAuth      = $aEmailSrvObj->getAuth();
-        $mailUsername  = $params['apikey'];
-        $mailPassword  = $params['apisecret'];
+        $mailUsername  = (!is_null($params['apikey']) && !empty($params['apikey'])) ? $params['apikey'] : null;
+        $mailPassword  = (!is_null($params['apisecret']) && !empty($params['apisecret'])) ? $params['apisecret'] : null;
         $mailSender    = $aEmailSrvObj->getSender();
         $mailHeader    = $aEmailSrvObj->getHeader();
         $mailFooter    = $aEmailSrvObj->getFooter();
