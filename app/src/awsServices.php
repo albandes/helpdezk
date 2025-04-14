@@ -490,7 +490,7 @@ class awsServices
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
             $this->awslogger->error("Can't send email. Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
+            //echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
             $st = false;
             $msg = $eMessage;
             $emailId = "";    

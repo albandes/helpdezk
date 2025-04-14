@@ -2806,9 +2806,11 @@ class appServices
 
         if($aEmailSrvObj->getTls())
             $mail->SMTPSecure = 'tls';
-
-        $mail->Username = $mailUsername;
-        $mail->Password = $mailPassword;
+        
+        if(isset($_ENV['AWS_CREDENTIALS_TYPE']) && $_ENV['AWS_CREDENTIALS_TYPE'] != "IAM_ROLE"){
+            $mail->Username = $mailUsername;
+            $mail->Password = $mailPassword;
+        }
 
         $mail->AltBody 	= (isset($params['altcontents']) && !empty($params['altcontents'])) ? $params['altcontents'] : "HTML";
         $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
@@ -2912,7 +2914,12 @@ class appServices
                 // Create a new variable that contains the MIME message.
                 $message = $mail->getSentMIMEMessage();
 
-                $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+                if(isset($_ENV['AWS_CREDENTIALS_TYPE']) && $_ENV['AWS_CREDENTIALS_TYPE'] != "IAM_ROLE"){
+                    $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+                }else{
+                    $awsSrc = new awsServices();
+                }
+                
                 $retSend = $awsSrc->_sendSesRawEmail($message);
                 if($retSend['success']){
                     $this->appEmailLogger->info("Email Succesfully Sent, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
