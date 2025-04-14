@@ -805,7 +805,7 @@ class appServices
     public function _getStreamHandler()
     { 
         $logFile = (!isset($_ENV['LOG_REMOTE']) || !$_ENV['LOG_REMOTE']) ? $this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'] : $_ENV['LOG_FILE'];
-        echo "{$logFile}"; die();
+        echo "{$_ENV['S3BUCKET_NAME']}"; die();
         switch($_ENV['LOG_LEVEL']){
             case 'INFO':
                 $stream = new StreamHandler($logFile, Logger::INFO);
