@@ -1146,7 +1146,7 @@ class appServices
         if(isset($mailPort) AND !empty($mailPort)) {
             $mail->Port = $mailPort;
         }
-
+        
         $mail->Mailer = $mailMethod;
         $mail->SMTPAuth = $mailAuth;
 
@@ -2916,8 +2916,10 @@ class appServices
 
                 if(isset($_ENV['AWS_CREDENTIALS_TYPE']) && $_ENV['AWS_CREDENTIALS_TYPE'] != "IAM_ROLE"){
                     $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+                    $this->appEmailLogger->info("Try send email by ENV credentials",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 }else{
                     $awsSrc = new awsServices();
+                    $this->appEmailLogger->info("Try send email by IAM Role credentials",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
                 }
                 
                 $retSend = $awsSrc->_sendSesRawEmail($message);
