@@ -1487,16 +1487,21 @@ class hdkServices
                         "code_request"  => $REQUEST,
                         "tokenOperatorLink"=> true,
                         "sender" => $sender);
+        $this->hdkEmailLogger->info("[hdk] Ticket # {$REQUEST}. Email recipients: {$sentTo}", ['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+        if(!empty($sentTo)){
+            $done = $appSrc->_sendEmail($params);
 
-        $done = $appSrc->_sendEmail($params);
-
-        if (!$done['status']) {
-            $this->hdkEmailLogger->error("[hdk] E-mail not sent. Ticket # {$REQUEST}. Error: {$done['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            if (!$done['status']) {
+                $this->hdkEmailLogger->error("[hdk] E-mail not sent. Ticket # {$REQUEST}. Error: {$done['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                return false ;
+            } else {
+                $this->hdkEmailLogger->info("[hdk] E-mail sent. Ticket # {$REQUEST}.", ['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
+                return true ;
+            }
+        }else{
+            $this->hdkEmailLogger->error("[hdk] E-mail not sent. Ticket # {$REQUEST}. No recipient found.",['Class' => __CLASS__, 'Method' => __METHOD__]);
             return false ;
-        } else {
-            $this->hdkEmailLogger->info("[hdk] E-mail sent. Ticket # {$REQUEST}.", ['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__]);
-            return true ;
-        }
+        }        
 
     }
     
@@ -1520,7 +1525,7 @@ class hdkServices
 
         $sentTo = '';
         foreach($ret['push']['object']->getGridList() as $key=>$val){
-            $inChargeType   = $val['type']; 
+            $inChargeType   = $val['type'];
             $inChargeID     = $val['id_in_charge'];
             $inChargeEmail  = $val['email'];
     
