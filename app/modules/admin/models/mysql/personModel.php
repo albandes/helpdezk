@@ -354,7 +354,7 @@ final class personModel
      */
     private $personGroupsList;
 
-     /**
+    /**
      * @var int
      */
     private $addressTypeId;
@@ -458,6 +458,11 @@ final class personModel
      * @var int
      */
     private $idProfile;
+
+    /**
+     * @var int
+     */
+    private $addressId;
 
     /**
      * Get the value of idPerson
@@ -2639,6 +2644,30 @@ final class personModel
     public function setIdProfile(int $idProfile)
     {
         $this->idProfile = $idProfile;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of addressId
+     *
+     * @return  int
+     */ 
+    public function getAddressId()
+    {
+        return $this->addressId;
+    }
+
+    /**
+     * Set the value of addressId
+     *
+     * @param  int  $addressId
+     *
+     * @return  self
+     */ 
+    public function setAddressId(int $addressId)
+    {
+        $this->addressId = $addressId;
 
         return $this;
     }

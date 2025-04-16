@@ -805,7 +805,7 @@ class appServices
     public function _getStreamHandler()
     { 
         $logFile = (!isset($_ENV['LOG_REMOTE']) || !$_ENV['LOG_REMOTE']) ? $this->_getHelpdezkPath() ."/". $_ENV['LOG_FILE'] : $_ENV['LOG_FILE'];
-        
+        //echo "{$_ENV['S3BUCKET_NAME']}"; die();
         switch($_ENV['LOG_LEVEL']){
             case 'INFO':
                 $stream = new StreamHandler($logFile, Logger::INFO);
@@ -1146,7 +1146,7 @@ class appServices
         if(isset($mailPort) AND !empty($mailPort)) {
             $mail->Port = $mailPort;
         }
-
+        
         $mail->Mailer = $mailMethod;
         $mail->SMTPAuth = $mailAuth;
 
@@ -2763,8 +2763,8 @@ class appServices
         $mailHost      = $params['apiendpoint'];
         $mailDomain    = $aEmailSrvObj->getDomain();
         $mailAuth      = $aEmailSrvObj->getAuth();
-        $mailUsername  = $params['apikey'];
-        $mailPassword  = $params['apisecret'];
+        $mailUsername  = (!is_null($params['apikey']) && !empty($params['apikey'])) ? $params['apikey'] : null;
+        $mailPassword  = (!is_null($params['apisecret']) && !empty($params['apisecret'])) ? $params['apisecret'] : null;
         $mailSender    = $aEmailSrvObj->getSender();
         $mailHeader    = $aEmailSrvObj->getHeader();
         $mailFooter    = $aEmailSrvObj->getFooter();
@@ -2806,9 +2806,11 @@ class appServices
 
         if($aEmailSrvObj->getTls())
             $mail->SMTPSecure = 'tls';
-
-        $mail->Username = $mailUsername;
-        $mail->Password = $mailPassword;
+        
+        if(isset($_ENV['AWS_CREDENTIALS_TYPE']) && $_ENV['AWS_CREDENTIALS_TYPE'] != "IAM_ROLE"){
+            $mail->Username = $mailUsername;
+            $mail->Password = $mailPassword;
+        }
 
         $mail->AltBody 	= (isset($params['altcontents']) && !empty($params['altcontents'])) ? $params['altcontents'] : "HTML";
         $mail->Subject 	= '=?UTF-8?B?'.base64_encode($params['subject']).'?=';
@@ -2912,7 +2914,14 @@ class appServices
                 // Create a new variable that contains the MIME message.
                 $message = $mail->getSentMIMEMessage();
 
-                $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+                if(isset($_ENV['AWS_CREDENTIALS_TYPE']) && $_ENV['AWS_CREDENTIALS_TYPE'] != "IAM_ROLE"){
+                    $awsSrc = new awsServices(null,null,$params['mailUsername'],$params['mailPassword']);
+                    $this->appEmailLogger->info("Try send email by ENV credentials",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }else{
+                    $awsSrc = new awsServices();
+                    $this->appEmailLogger->info("Try send email by IAM Role credentials",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                }
+                
                 $retSend = $awsSrc->_sendSesRawEmail($message);
                 if($retSend['success']){
                     $this->appEmailLogger->info("Email Succesfully Sent, {$params['msg']}",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
@@ -3735,5 +3744,31 @@ class appServices
         }
 
         return $aRet;
+    }
+    
+    /**
+     * _getDates
+     * 
+     * en_us Returns an array with dates in a range
+     * pt_br Retorna um array com as datas em um intervalo
+     *
+     * @param  mixed $day       Name of the day of the week
+     * @param  mixed $startdate Start date in timestamp
+     * @param  mixed $enddate   End date in timestamp
+     * @param  mixed $aDates
+     * @return array
+     */
+    public function _getDates($day, $startdate, $enddate, $aDates = array()): array 
+    {
+        if ($startdate > $enddate) {
+            return $aDates;
+        }
+    
+        // Checks if the date matches the desired day of the week
+        if (date('l', $startdate) === $day) {
+            $aDates[] = date("Y-m-d", $startdate);
+        }
+    
+        return $this->_getDates($day, strtotime("next " . $day, $startdate), $enddate, $aDates);
     }
 }

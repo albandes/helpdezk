@@ -54,6 +54,11 @@ class awsServices
      */
     protected $_credentials;
 
+    /**
+     * @var string
+     */
+    protected $_awsCredentialsType;
+
     public function __construct($region=null,$bucket=null,$key=null,$secret=null)
     {
         $appSrc = new appServices();
@@ -69,15 +74,21 @@ class awsServices
         // Clone the first one to only change the channel
         $this->awsEmailLogger = $this->awslogger->withName('email');
 
+        $this->_awsCredentialsType = (isset($_ENV['AWS_CREDENTIALS_TYPE']) && !empty($_ENV['AWS_CREDENTIALS_TYPE'])) ? $_ENV['AWS_CREDENTIALS_TYPE'] : 'ENV_FILE';
         $region = (!is_null($region)) ? $region : $_ENV['S3BUCKET_REGION'];
         $bucket = (!is_null($bucket)) ? $bucket : $_ENV['S3BUCKET_NAME'];
-        $key    = (!is_null($key)) ? $key : $_ENV['S3BUCKET_ACCESS_KEY'];
-        $secret = (!is_null($secret)) ? $secret : $_ENV['S3BUCKET_SECRET_KEY'];
 
         //access aws s3 settings
         $this->_region      = $region;
         $this->_bucket      = $bucket;
-        $this->_credentials = new Credentials($key,$secret);
+        
+        if(in_array($this->_awsCredentialsType,array('ENV_FILE','ENV_SERVER'))){
+            $key    = (!is_null($key)) ? $key : (($this->_awsCredentialsType == 'ENV_FILE') ? $_ENV['AWS_ACCESS_KEY'] : getenv('AWS_ACCESS_KEY_ID'));
+            $secret = (!is_null($secret)) ? $secret : (($this->_awsCredentialsType == 'ENV_FILE') ? $_ENV['AWS_SECRET_KEY'] : getenv('AWS_SECRET_ACCESS_KEY'));
+            
+            $this->_credentials = new Credentials($key,$secret);
+        } 
+        $this->awslogger->info("CREDENTIALS TYPE: {$this->_awsCredentialsType}",['Class' => __CLASS__, 'Method' => __METHOD__]);
 
     }
 
@@ -96,11 +107,20 @@ class awsServices
         // Establish connection with DreamObjects with an S3 client.        
         try {
 
-            $client = new S3Client([
-                'version'     => 'latest',
-                'region'      => $this->_region,
-                'credentials' => $this->_credentials
-            ]);
+            if(in_array($this->_awsCredentialsType,array('ENV_FILE','ENV_SERVER'))){
+                $client = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => $this->_region,
+                    'credentials' => $this->_credentials
+                ]);
+                
+                $this->awslogger->info("CREDENTIALS TYPE: {$this->_awsCredentialsType}. Connection successful.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            }else{
+                $client = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => $this->_region
+                ]);
+            }
 
         } catch (S3Exception $e) {
 
@@ -352,11 +372,20 @@ class awsServices
     {
         try {
 
-            $client = new SesClient([
-                'version'     => 'latest',
-                'region'      => $this->_region,
-                'credentials' => $this->_credentials
-            ]);
+            if(in_array($this->_awsCredentialsType,array('ENV_FILE','ENV_SERVER'))){
+                $client = new SesClient([
+                    'version'     => 'latest',
+                    'region'      => $this->_region,
+                    'credentials' => $this->_credentials
+                ]);
+                
+                $this->awslogger->info("CREDENTIALS TYPE: {$this->_awsCredentialsType}. Connection successful.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+            }else{
+                $client = new SesClient([
+                    'version'     => 'latest',
+                    'region'      => $this->_region
+                ]);
+            }
 
         } catch (SesException $e) {
 
@@ -461,7 +490,7 @@ class awsServices
             $eCode = $e->getAwsErrorCode();
             $eMessage = $e->getAwsErrorMessage();
             $this->awslogger->error("Can't send email. Error Code: " . $eCode . " Error Message: " . $eMessage,['Class' => __CLASS__, 'Method' => __METHOD__]);
-            echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
+            //echo "Can't send email.  Error Code: " . $eCode . " Error Message: " . $eMessage . "\n";
             $st = false;
             $msg = $eMessage;
             $emailId = "";    

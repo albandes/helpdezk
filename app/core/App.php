@@ -70,22 +70,29 @@ class App
     {
         $_GET['url'] = (isset($_GET['url']) ? $_GET['url'] : '/admin/');
         
-        $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
-        $dirName = str_replace("\\","/",dirname(__DIR__,PATHINFO_BASENAME));
-        //The following code snippet is used to resolve the default path in virtual host     
-        $path_default = ($docRoot == $dirName) ? end(explode("/",$dirName)) : str_replace($docRoot,'',$dirName);
-        
-        $this->coreLogger->info("{$path_default}",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
-        
-        if ($_GET['url'] == 'admin/' || $_GET['url'] == '/admin/') {            
-            
-            if (substr($path_default, 0, 1) != '/') {
-                $path_default = '/' . $path_default;
-            }
-            if ($path_default == "/..") {
-                $path_default = "";
-            }
-            header('Location:' . $path_default . '/admin/home');
+        $docRoot = rtrim(filter_input(INPUT_SERVER, 'DOCUMENT_ROOT'), '/');
+        $dirName = str_replace("\\", "/", dirname(__DIR__));
+
+        // Check if $dirName starts with $docRoot
+        if (strpos($dirName, $docRoot) === 0) {
+            $path_default = substr($dirName, strlen($docRoot));
+        } else {
+            // Fallback: Use basename of directory
+            $path_default = '/' . basename($dirName);
+        }
+
+        // Clean and normalize
+        $path_default = rtrim($path_default, '/');
+        if ($path_default == '/..' || $path_default == '.') {
+            $path_default = '';
+        }
+
+        $this->coreLogger->info("{$path_default}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+
+        // Redirect if we are in /admin or /admin/
+        if ($_GET['url'] === 'admin/' || $_GET['url'] === '/admin/') {
+            header('Location: ' . $path_default . '/admin/home');
+            exit;
         }
     }
     
