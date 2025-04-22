@@ -88,7 +88,7 @@ class awsServices
             
             $this->_credentials = new Credentials($key,$secret);
         } 
-        $this->awslogger->info("CREDENTIALS TYPE: {$this->_awsCredentialsType}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+        $this->awslogger->debug("CREDENTIALS TYPE: {$this->_awsCredentialsType}",['Class' => __CLASS__, 'Method' => __METHOD__]);
 
     }
 
@@ -114,7 +114,7 @@ class awsServices
                     'credentials' => $this->_credentials
                 ]);
                 
-                $this->awslogger->info("CREDENTIALS TYPE: {$this->_awsCredentialsType}. Connection successful.",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                $this->awslogger->debug("CREDENTIALS TYPE: {$this->_awsCredentialsType}. Connection successful.",['Class' => __CLASS__, 'Method' => __METHOD__]);
             }else{
                 $client = new S3Client([
                     'version'     => 'latest',
