@@ -2909,7 +2909,6 @@ class appServices
      */
     public function _isSesEmailDone($mail,$params){
         try{
-            $this->appEmailLogger->debug("Email settings: " . print_r($params,true),['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
             if($mail->preSend()){
                 // Create a new variable that contains the MIME message.
                 $message = $mail->getSentMIMEMessage();
