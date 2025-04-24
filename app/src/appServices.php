@@ -217,35 +217,37 @@ class appServices
 
         
         return array(
-            "path"			    => $this->_getPath(),
-            "lang_default"	    => $_ENV["DEFAULT_LANG"],
-            "layout"		    => $this->_getLayoutTemplate(),
-            "version" 		    => $this->_getHelpdezkVersion(),
-            "navBar"		    => $this->_getNavbarTemplate(),
-            "footer"		    => $this->_getFooterTemplate(),
-            "demoVersion" 	    => empty($_ENV['DEMO']) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
-            "isroot"            => ($_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
-            "hasadmin"          => ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) ? true : false,
-            "navlogin"          => ($_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
-            "adminhome"         => $_ENV['HDK_URL'].'/admin/home/index',
-            "adminlogo"         => $admImgSrc,
-            "hashelpdezk"       => $loginSrc->_isActiveHelpdezk(),
-            "helpdezkhome"      => $_ENV['HDK_URL'].'/helpdezk/home/index',
-            "hdklogo"           => $aHeader['image'],
-            "logout"            => $_ENV['HDK_URL'].'/main/home/logout',
-            "id_mask"           => $_ENV['ID_MASK'],
-            "ein_mask"          => $_ENV['EIN_MASK'],
-            "zip_mask"          => $_ENV['ZIP_MASK'],
-            "phone_mask"        => $_ENV['PHONE_MASK'],
-            "cellphone_mask"    => $_ENV['CELLPHONE_MASK'],
-            "mascdatetime"      => str_replace('%', '', "{$_ENV['DATE_FORMAT']} {$_ENV['HOUR_FORMAT']}"),
-            "mascdate"          => str_replace('%', '', $_ENV['DATE_FORMAT']),
-            "timesession"       => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
-            "modules"           => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
-            "modalUserSettings" => $this->_getUserSettingsTemplate(),
-            "vocabulary"        => $this->_loadVocabulary(),
-            "lang"              => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
-            "closeBrowserUrl"   => $_ENV['HDK_URL'].'/main/home/closeBrowser'
+            "path"			            => $this->_getPath(),
+            "lang_default"	            => $_ENV["DEFAULT_LANG"],
+            "layout"		            => $this->_getLayoutTemplate(),
+            "version" 		            => $this->_getHelpdezkVersion(),
+            "navBar"		            => $this->_getNavbarTemplate(),
+            "footer"		            => $this->_getFooterTemplate(),
+            "demoVersion" 	            => empty($_ENV['DEMO']) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
+            "isroot"                    => ($_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
+            "hasadmin"                  => ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) ? true : false,
+            "navlogin"                  => ($_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
+            "adminhome"                 => $_ENV['HDK_URL'].'/admin/home/index',
+            "adminlogo"                 => $admImgSrc,
+            "hashelpdezk"               => $loginSrc->_isActiveHelpdezk(),
+            "helpdezkhome"              => $_ENV['HDK_URL'].'/helpdezk/home/index',
+            "hdklogo"                   => $aHeader['image'],
+            "logout"                    => $_ENV['HDK_URL'].'/main/home/logout',
+            "id_mask"                   => $_ENV['ID_MASK'],
+            "ein_mask"                  => $_ENV['EIN_MASK'],
+            "zip_mask"                  => $_ENV['ZIP_MASK'],
+            "phone_mask"                => $_ENV['PHONE_MASK'],
+            "cellphone_mask"            => $_ENV['CELLPHONE_MASK'],
+            "mascdatetime"              => str_replace('%', '', "{$_ENV['DATE_FORMAT']} {$_ENV['HOUR_FORMAT']}"),
+            "mascdate"                  => str_replace('%', '', $_ENV['DATE_FORMAT']),
+            "timesession"               => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
+            "modules"                   => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
+            "modalUserSettings"         => $this->_getUserSettingsTemplate(),
+            "modalChangeUserPassword"   => $this->_getChangeUserPasswordTemplate(),
+            "vocabulary"                => $this->_loadVocabulary(),
+            "lang"                      => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
+            "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
+            "navUserId"                 => $_SESSION['SES_COD_USUARIO']
         );
     }
     
@@ -3769,5 +3771,18 @@ class appServices
         }
     
         return $this->_getDates($day, strtotime("next " . $day, $startdate), $enddate, $aDates);
+    }
+    
+    /**
+     * _getChangeUserPasswordTemplate
+     * 
+     * en_us Returns the path of the template for changing the password
+     * pt_br Retorna o caminho do template para troca de senha
+     *
+     * @return void
+     */
+    public function _getChangeUserPasswordTemplate()
+    {
+        return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-change-user-password.latte';
     }
 }
