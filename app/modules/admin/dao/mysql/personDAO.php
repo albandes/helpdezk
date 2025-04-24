@@ -805,11 +805,11 @@ class personDAO extends Database
      */
     public function queryCities($where=null,$group=null,$order=null,$limit=null): array
     {        
-        $where = !$where ? "WHERE idcity != 1" : $where;
-        $order = !$order ? "ORDER BY `name` ASC" : $order;
+        $where = (is_null($where)) ? "WHERE idcity != 1" : $where;
+        $order = (is_null($order)) ? "ORDER BY `name` ASC" : $order;
 
         $sql = "SELECT idcity, `name` FROM tbcity $where $group $order $limit";
-        
+        //echo "{$sql}\n";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -931,7 +931,7 @@ class personDAO extends Database
     {        
         $sql = "INSERT INTO tbperson (idtypelogin,idtypeperson,idnatureperson,idtheme,name,login,password,email,dtcreate,user_vip,
                                       phone_number,branch_number,cel_phone,fax,cod_location,time_value,overtime,change_pass) 
-                              VALUES (:loginTypeId,:personTypeId,:personNature,:themeId,:name,:login,:password,:email,NOW(),:isUserVip,:phone,
+                              VALUES (:loginTypeId,:personTypeId,:personNature,:themeId,:name,:login,MD5(:password),:email,NOW(),:isUserVip,:phone,
                                       :branchNumber,:mobile,:fax,:locationId,:timeValue,:overtime,:changePassword)";
         
         $stmt = $this->db->prepare($sql);
@@ -2183,6 +2183,33 @@ class personDAO extends Database
 
         $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
         $personModel->setAddressId((!is_null($rows['idaddress']) && !empty($rows['idaddress'])) ? $rows['idaddress'] : 0);
+
+        $ret = true;
+        $result = array("message"=>"","object"=>$personModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * checkUserPass
+     * 
+     * en_us Check if exists address
+     * pt_br Checa se existe um endereço cadastrado
+     *
+     * @param  mixed $personModel
+     * @return array
+     */
+    public function checkUserPass(personModel $personModel): array
+    {
+        $sql = "SELECT idperson, password FROM tbperson WHERE idperson = :personId AND password = MD5(:password)";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":password",$personModel->getPassword());
+        $stmt->execute();
+
+        $rows = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $personModel->setUserPasswordExist((!is_null($rows['idperson']) && !empty($rows['idperson'])) ? 1 : 0);
 
         $ret = true;
         $result = array("message"=>"","object"=>$personModel);

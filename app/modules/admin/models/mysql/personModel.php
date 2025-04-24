@@ -465,6 +465,11 @@ final class personModel
     private $addressId;
 
     /**
+     * @var int
+     */
+    private $userPasswordExist;
+
+    /**
      * Get the value of idPerson
      *
      * @return  int
@@ -2668,6 +2673,30 @@ final class personModel
     public function setAddressId(int $addressId)
     {
         $this->addressId = $addressId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userPasswordExist
+     *
+     * @return  int
+     */ 
+    public function getUserPasswordExist()
+    {
+        return $this->userPasswordExist;
+    }
+
+    /**
+     * Set the value of userPasswordExist
+     *
+     * @param  int  $userPasswordExist
+     *
+     * @return  self
+     */ 
+    public function setUserPasswordExist(int $userPasswordExist)
+    {
+        $this->userPasswordExist = $userPasswordExist;
 
         return $this;
     }

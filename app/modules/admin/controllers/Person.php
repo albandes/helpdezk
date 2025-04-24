@@ -603,7 +603,7 @@ class Person extends Controller
     function searchCity()
     {
         $adminSrc = new adminServices();
-        
+                
         echo json_encode($adminSrc->_searchCity($_POST['keyword'],$_POST['stateId']));
     }
 
@@ -616,7 +616,7 @@ class Person extends Controller
     function searchNeighborhood()
     {
         $adminSrc = new adminServices();
-        
+                
         echo json_encode($adminSrc->_searchNeighborhood($_POST['keyword'],$_POST['cityId']));
     }
 

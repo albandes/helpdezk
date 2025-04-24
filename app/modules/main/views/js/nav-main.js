@@ -69,36 +69,38 @@ $(document).ready(function () {
         //countdown.start(timesession);
     });
 
-    $(".btnEditUserPass").click(function(){
-
-        $('#modal-change-user-password').modal('show');
-        $.ajax({
-            type: "POST",
-            url:  path + '/helpdezk/home/getTypeLogin',
-            dataType: 'json',
-            data: {
-                    idperson: $('#hidden-idperson').val()
-            },
-            error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
-            },
-            success: function(ret){
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-                if($.isNumeric(obj.idtypelogin)) {
-                    if(obj.idtypelogin != 3 ) {
-                        $('#new-pass').hide();
-                        $('#confirm-pass').hide();
-                        modalAlertMultiple('danger',vocab['Alert_nt_allowedchangepass'],'alert-change-user-pass');
-                        setTimeout(function(){
-                            $('#modal-change-user-password').modal('hide');
-                            location.href = "" ;
-                        },5000);
+    $("#btnEditUserPass").click(function(){
+        if(!$("#btnEditUserPass").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url:  path + '/main/home/getLoginType',
+                dataType: 'json',
+                data: {
+                    userId: $('#nav-user-id').val()
+                },
+                error: function (ret) {
+                    showAlert(vocab['generic_error_msg'],'danger');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        if(obj.loginTypeId != 3) {
+                            showAlert(vocab['not_allow_password_change'],'danger');
+                        }else{
+                            $('#modal-change-user-password').modal('show');
+                        }
+                    } else {
+                        showAlert(obj.success,'danger');
                     }
-                } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure_usertypelogin'],'alert-change-user-pass');
+                },
+                beforeSend: function(){
+                    $("#btnEditUserPass").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnEditUserPass").removeClass('disabled');
                 }
-            }
-        });
+            });
+        }
     });
 
     $(".btnEditRootPass").click(function(){
@@ -327,14 +329,10 @@ $(document).ready(function () {
 
     });
 
-
-
-
-    /* btnEditRootPass
+    /**
      * Dropzone
-     */
-    
-    var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
+     */    
+    /* var userPhotoDropzone = new Dropzone("#userPhotoDropzone", {  url: path + "/helpdezk/home/savePhoto",
         method: "post",
         dictDefaultMessage: "<i class='fa fa-file-image fa-2x' aria-hidden='true'></i><br>" + vocab['dropzon_user_photot_message'],
         createImageThumbnails: true,
@@ -374,108 +372,105 @@ $(document).ready(function () {
             // and call it either with or without error in the `thumbnail` event
             // callback, but I think that this is cleaner.
         }
-    });
+    }); */
 
     // user - change password
-    $("#change_user_pwd_form").validate({
+    $("#modal-change-user-password-form").validate({
         ignore:[],
         rules: {
-            userconf_password:{
+            "modal-new-user-password":{
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
                 required:true,
                 remote:{
-                    url: path+"/helpdezk/home/checkUserPass",
+                    url: path+"/main/home/checkUserPass",
                     type: 'post',
                     data: {
-                        personId:function(){return $('#hidden-idperson').val();}
+                        personId:function(){return $('#nav-user-id').val();}
                     }
                 }
             },
-            userconf_cpassword:  {equalTo: "#userconf_password"}
+            "modal-confirm-new-user-pass":  {
+                normalizer: function(value) {
+                    value = value.replace(/<.*?>/gi, "");
+                    return value.replace(/(^\s+|\s+$)/gm, "");
+                },
+                equalTo: "#modal-new-user-password"
+            }
         },
         messages: {
-            userconf_password:{required:vocab['Alert_feld_required']},
-            userconf_cpassword:{equalTo: vocab['Alert_dfferent_passwords']}
+            "modal-new-user-password":{required:vocab['Alert_field_required']},
+            "modal-confirm-new-user-pass":{equalTo: vocab['Alert_different_passwords']}
+        },
+        errorPlacement: function (error, element) {
+            var name = $(element).attr("name");
+            error.appendTo($("#" + name + "_validate_error"));
         }
     });
 
-    $("#btnSaveChangeUserPass").click(function(){
-
-        if (!$("#change_user_pwd_form").valid()) {
+    $("#btnChangeUserPassSave").click(function(){
+        if (!$("#modal-change-user-password-form").valid()) {
             return false;
         }
 
-        $.ajax({
-            type: "POST",
-            url: path + '/helpdezk/home/changeUserPassword',
-            dataType: 'json',
-            data: { idperson:$('#hidden-idperson').val(),
-                    newpassword:$('#userconf_password').val()
-            },
-            error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
-            },
-            success: function(ret){
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-                if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',vocab['Alert_cange_password'],'alert-change-user-pass');
-                    setTimeout(function(){
-                        $('#modal-change-user-password').modal('hide');
-                        location.href = "" ;
-                    },2000);
-
-                } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
+        if(!$("#btnChangeUserPassSave").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url: path + '/main/home/changeUserPassword',
+                dataType: 'json',
+                data: { 
+                    personId:$('#nav-user-id').val(),
+                    newPassword:$('#modal-new-user-password').val()
+                },
+                error: function (ret) {
+                    modalAlertMultiple('danger',vocab['generic_error_msg'],'alert-modal-change-user-password');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        modalAlertMultiple('success',vocab['Alert_change_password'],'alert-modal-change-user-password');
+                        setTimeout(function(){
+                            $('#modal-change-user-password').modal('hide');
+                        },2000);    
+                    } else {
+                        modalAlertMultiple('danger',obj.message,'alert-modal-change-user-password');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnChangeUserPassSave").html("<i class='fa fa-spinner fa-spin'></i> "+ vocab['Processing']).addClass('disabled');
+                    $("#btnChangeUserPassClose").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnChangeUserPassSave").html("<i class='fa fa-save'></i> "+ vocab['Save']).removeClass('disabled');
+                    $("#btnChangeUserPassClose").removeClass('disabled');
                 }
-            }
-        });
-    });
-    // user - change password - end
-
-    // admin - change password
-    $("#change_root_pwd_form").validate({
-        ignore:[],
-        rules: {
-               rootconf_cpassword:  {equalTo: "#rootconf_password"}
-        },
-        messages: {
-            rootconf_password:{required:vocab['Alert_feld_required']},
-            rootconf_cpassword:{equalTo: vocab['Alert_dfferent_passwords']}
+            });
         }
     });
-
-    $("#btnSaveChangeRootPass").click(function(){
-
-        if (!$("#change_root_pwd_form").valid()) {
-            return false;
-        }
-
-        $.ajax({
-            type: "POST",
-            url: path + '/helpdezk/home/changeRootPassword',
-            dataType: 'json',
-            data: { idperson:       $('#hidden-idperson').val(),
-                    newpassword:    $('#rootconf_password').val()
-            },
-            error: function (ret) {
-                modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
-            },
-            success: function(ret){
-                var obj = jQuery.parseJSON(JSON.stringify(ret));
-                if($.isNumeric(obj.idperson)) {
-                    modalAlertMultiple('success',vocab['Alert_cange_password'],'alert-change-root-pass');
-                    setTimeout(function(){
-                        $('#modal-change-root-password').modal('hide');
-                        location.href = "" ;
-                    },2000);
-
-                } else {
-                    modalAlertMultiple('danger',vocab['Alert_filure'],'alert-change-user-pass');
-                }
-            }
-        });
-    });
-
-    // admin - change password - end
     
+    /* when the modal is hidden */
+    $('#modal-change-user-password').on('hidden.bs.modal', function() { 
+        $('#modal-change-user-password-form').trigger('reset');
+        
+        if($("#modal-new-user-password").hasClass('error')){
+            $("#modal-new-user-password").removeClass('error');
+        }
+
+        if($("#modal-new-user-password_validate_error").hasClass('error')){
+            $("#modal-new-user-password_validate_error").removeClass('error');
+        }
+        $("#modal-new-user-password_validate_error").html('');
+        
+        if($("#modal-confirm-new-user-pass").hasClass('error')){
+            $("#modal-confirm-new-user-pass").removeClass('error');
+        }
+
+        if($("#modal-confirm-new-user-pass_validate_error").hasClass('error')){
+            $("#modal-confirm-new-user-pass_validate_error").removeClass('error');
+        }
+        $("#modal-confirm-new-user-pass_validate_error").html('');
+    });
 
 });

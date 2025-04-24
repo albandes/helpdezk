@@ -70,24 +70,25 @@ class App
     {
         $_GET['url'] = (isset($_GET['url']) ? $_GET['url'] : '/admin/');
         
-        $docRoot = rtrim(filter_input(INPUT_SERVER, 'DOCUMENT_ROOT'), '/');
-        $dirName = str_replace("\\", "/", dirname(__DIR__));
+        // Get the current directory of the script
+        $currentDir = str_replace("\\", "/", __DIR__);
 
-        // Check if $dirName starts with $docRoot
-        if (strpos($dirName, $docRoot) === 0) {
-            $path_default = substr($dirName, strlen($docRoot));
-        } else {
-            // Fallback: Use basename of directory
-            $path_default = '/' . basename($dirName);
+        // Determine the project root directory
+        $projectRoot = dirname($currentDir, 2); // Assuming this script is in 'app/core', we go up two levels
+
+        // Build the path_default based on the known structure
+        $path_default = str_replace($_SERVER['DOCUMENT_ROOT'], '', $projectRoot);
+
+        // Make sure $path_default starts with '/'
+        if (substr($path_default, 0, 1) !== '/') {
+            $path_default = '/' . $path_default;
         }
 
         // Clean and normalize
         $path_default = rtrim($path_default, '/');
-        if ($path_default == '/..' || $path_default == '.') {
-            $path_default = '';
-        }
 
-        $this->coreLogger->info("{$path_default}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+        // Log information for debugging
+        //$this->coreLogger->debug("{$path_default}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
 
         // Redirect if we are in /admin or /admin/
         if ($_GET['url'] === 'admin/' || $_GET['url'] === '/admin/') {
