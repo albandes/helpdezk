@@ -156,13 +156,14 @@
                 <li class="nav-item nav-text"><a class="nav-link" href="#">{='timeouttext'|translate}: <span id="numberCountdown"></span></a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><strong>{$navlogin}</strong></a>
+                    <input type="hidden" name="nav-user-id" id="nav-user-id" value="{$navUserId}">
                     <ul class="dropdown-menu dropdown-menu-end">
                         {if !$isroot}
                             <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
                             <li><a href="javascript:;" id="btnEditUserSettings" role="button" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_settings'|translate}</a></li>
                             <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
                         {else}
-                            <li><a href="#" id="btnEditRootPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                            <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
                             <li>&nbsp;</li>
                         {/if}
                         <li><hr class="dropdown-divider"></li>

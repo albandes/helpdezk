@@ -2,14 +2,18 @@
 
 use App\core\Controller;
 
+use App\modules\main\src\mainServices;
+
+use App\modules\admin\dao\mysql\loginDAO;
+use App\modules\admin\dao\mysql\personDAO;
 use App\modules\main\dao\mysql\externalappDAO;
 use App\modules\main\dao\mysql\usersettingsDAO;
 
+use App\modules\admin\models\mysql\loginModel;
+use App\modules\admin\models\mysql\personModel;
 use App\modules\main\models\mysql\externalappModel;
-use App\modules\main\models\mysql\usersettingsModel;
 use App\modules\main\models\mysql\externalappfieldModel;
-
-use App\modules\main\src\mainServices;
+use App\modules\main\models\mysql\usersettingsModel;
 
 class Home extends Controller
 {
@@ -360,6 +364,112 @@ class Home extends Controller
             }
         }
         echo "ok";
+    }
+    
+    /**
+     * getLoginType
+     *
+     * en_us Returns the user's login type ID
+     * pt_br Retorna o ID do tipo de login do usuário
+     *
+     * @return void
+     */
+    public function getLoginType()
+    {        
+        $loginDAO = new loginDAO();
+        $loginDTO = new loginModel();        
+        $loginDTO->setIdPerson($_POST['userId']);
+        
+        $retLoginType = $loginDAO->getLoginTypeByUserId($loginDTO);
+        
+        if(!$retLoginType['status']){
+            $this->logger->error("Can't get login type. User ID: {$_POST['userId']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $retLoginType['push']['message']]);
+            $st = false;
+            $msg = $this->translator->translate('generic_error_msg');
+            $loginTypeId = "";
+        }else{
+            $this->logger->info("Login type got successfully. User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            
+            $loginTypeId = $retLoginType['push']['object']->getLoginType();
+            if($loginTypeId > 0){
+                $st = true;
+                $msg = "";                
+            }else{
+                $st = false;
+                $msg = $this->translator->translate('generic_error_msg');
+            }
+        }
+
+        echo json_encode(array('success'=>$st,'message'=>$msg,'loginTypeId'=>$loginTypeId));
+    }
+    
+    /**
+     * checkUserPass
+     *
+     * en_us Checks if the password is the same as the one registered in the DB
+     * pt_br Verifica se a senha é igual à registrada no BD
+     *
+     * @return void
+     */
+    public function checkUserPass()
+    {
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+        
+        $personDTO->setIdPerson($_POST['personId'])
+                  ->setPassword(trim(strip_tags($_POST['modal-new-user-password'])));
+
+        $check =  $personDAO->checkUserPass($personDTO);
+        if(!$check['status']){
+            $this->logger->error("Can't check user password. User ID: {$_POST['personId']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $check['push']['message']]);
+            return false;
+        }
+
+        $this->logger->info("User password check successfully. User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);        
+        if($check['push']['object']->getUserPasswordExist() > 0){
+            echo json_encode($this->translator->translate('Alert_not_match_new_pass'));
+        }else{
+            echo json_encode(true);
+        }
+    }
+    
+    /**
+     * changeUserPassword
+     *
+     * en_us Change the user's password in DB
+     * pt_br Altera a senha do usuário no BD
+     *
+     * @return void
+     */
+    public function changeUserPassword()
+    {
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+
+        //Setting up the model
+        $personDTO->setIdPerson($_POST['personId'])
+                  ->setPassword(trim(strip_tags($_POST['newPassword'])))
+                  ->setChangePasswordFlag(0);
+        
+        $upd = $personDAO->updatePassword($personDTO);
+        if(!$upd['status']){
+            $this->logger->error("Could not save the new password. User ID: {$_POST['personId']}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $upd['push']['message']]);
+
+            $st = false;
+            $msg = $this->translator->translate('generic_error_msg');
+        }else{
+            $this->logger->info("The new password was saved successfully.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+            $st = true;
+            $msg = "";
+        }
+
+        $aRet = array(
+            "success" => $st,
+            "message" => $msg
+        );
+
+        echo json_encode($aRet);
     }
 
 }
