@@ -1468,8 +1468,35 @@ class hdkServices
 
                 break;
 
-        }
+            // Sends an email to the user when a request is closed due to inactivity.
+            case 'waiting-response-note':
+                // Get email template
+                $hdkEmailFeatureModel->setSessionName("SES_WAITING_RESPONSE");
+                $retTemplate = $hdkEmailFeatureDAO->getEmailTemplateBySession($hdkEmailFeatureModel);
+                if(!$retTemplate['status']) {
+                    $this->hdklogger->error("[hdk] Send email, request # {$REQUEST}, do not get Template. Error: {$retTemplate['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
+                    return false;
+                }
 
+                $template = $retTemplate['push']['object'];
+                $userType = $ticket->getOwnerTypeId();
+
+                $table = $this->_makeNotesTable($ticketCode);
+                $NT_USER = $table;
+
+                $contents = str_replace('"', "'", $template->getBody()) . "<br/>";
+                eval("\$contents = \"$contents\";");
+
+                $subject = $template->getSubject();
+                eval("\$subject = \"$subject\";");
+
+                // Setups the list of recipients
+                $sentTo = $ticket->getOwnerEmail();
+
+                break;
+
+        }
+        
         $customHeader = 'X-hdkRequest: '. $REQUEST;
 
         $msgLog = "request # ".$REQUEST." - Operation: ".$operation;
