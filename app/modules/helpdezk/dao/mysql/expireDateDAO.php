@@ -72,8 +72,8 @@ class expireDateDAO extends Database
 
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
             $expireDateModel->setIdCustomer($aRet['idcustomer'])
-                            ->setAttendanceDays($aRet['hours_attendance'])
-                            ->setAttendanceHours($aRet['days_attendance'])
+                            ->setAttendanceDays($aRet['days_attendance'])
+                            ->setAttendanceHours($aRet['hours_attendance'])
                             ->setTimeType($aRet['ind_hours_minutes']);
 
             $ret = true;
