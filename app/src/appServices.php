@@ -15,6 +15,7 @@ use App\modules\helpdezk\dao\mysql\expireDateDAO;
 use App\modules\admin\dao\mysql\programDAO;
 use App\modules\admin\dao\mysql\permissionDAO;
 use App\modules\admin\dao\mysql\errorMessageDAO;
+use App\modules\admin\dao\mysql\personDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
@@ -28,6 +29,7 @@ use App\modules\helpdezk\models\mysql\expireDateModel;
 use App\modules\admin\models\mysql\programModel;
 use App\modules\admin\models\mysql\permissionModel;
 use App\modules\admin\models\mysql\errorMessageModel;
+use App\modules\admin\models\mysql\personModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
@@ -244,6 +246,7 @@ class appServices
             "modules"                   => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
             "modalUserSettings"         => $this->_getUserSettingsTemplate(),
             "modalChangeUserPassword"   => $this->_getChangeUserPasswordTemplate(),
+            "modalUpdateUserProfile"    => $this->_getUpdateUserProfileTemplate(),
             "vocabulary"                => $this->_loadVocabulary(),
             "lang"                      => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
             "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
@@ -3784,5 +3787,78 @@ class appServices
     public function _getChangeUserPasswordTemplate()
     {
         return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-change-user-password.latte';
+    }
+    
+    /**
+     * _getUpdateUserProfileTemplate
+     * 
+     * en_us Returns the path of the template for updating the user profile
+     * pt_br Retorna o caminho do template para atualização de perfil do usuário
+     *
+     * @return void
+     */
+    public function _getUpdateUserProfileTemplate()
+    {
+        return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-update-user-profile.latte';
+    }
+    
+    /**
+     * _getPersonTypeIdByName
+     * 
+     * en_us Returns the person type ID
+     * pt_br Retorna o ID do tipo de pessoa
+     *
+     * @param  mixed $personTypeName
+     * @return void
+     */
+    public function _getPersonTypeIdByName($personTypeName)
+    {
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+
+        $personDTO->setTypePerson($personTypeName);
+        $retPersonType = $personDAO->getPersonTypeByName($personDTO);
+
+        if(!$retPersonType['status']){
+            $this->applogger->error("Error getting person type {$personTypeName} ID.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $retPersonType['push']['message']]);
+            $personTypeId = 0;
+        }else{
+            $this->applogger->info("Person type {$personTypeName} ID got successfully.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $personTypeId = $retPersonType['push']['object']->getIdTypePerson();
+        }
+
+        return $personTypeId;
+    }
+    
+    /**
+     * _parsePhoneNumbers
+     * 
+     * en_us Returns an array with telephone numbers formatted for saving in DB
+     * pt_br Retorna um array com os numéros de telefone formatados para gravar em BD
+     *
+     * @param  string $input
+     * @param  int $type
+     * @return array
+     */
+    public function _parsePhoneNumbers(string $input, int $type): array 
+    {
+        $result = [];
+        
+        // Separate by delimiter /
+        $parts = explode('/', $input);
+        
+        foreach ($parts as $part) {
+            // Remove all non-number characters
+            $number = preg_replace('/\D+/', '', $part);
+
+            if (!empty($number)) {
+                $result[] = [
+                    'number' => $number,
+                    'type' => $type
+                ];
+            }
+        }
+
+        return $result;
     }
 }

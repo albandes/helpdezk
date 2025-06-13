@@ -9,7 +9,7 @@ class personDAO extends Database
 {
     public function __construct()
     {
-        parent::__construct(); 
+        parent::__construct();
     }
 
     /**
@@ -19,9 +19,9 @@ class personDAO extends Database
      * @param  string $group
      * @param  string $order
      * @param  string $limit
-     * @return array  Parameters returned in array: 
+     * @return array  Parameters returned in array:
      *                [status = true/false
-     *                 push =  [message = PDO Exception message 
+     *                 push =  [message = PDO Exception message
      *                          object = model's object]]
      */
     public function queryPersons($where=null,$group=null,$order=null,$limit=null): array
@@ -56,7 +56,7 @@ class personDAO extends Database
        LEFT OUTER JOIN tbnaturalperson d
                     ON d.idperson = tbp.idperson
                  WHERE tbp.idperson != 1
-                   AND tbp.idtypeperson < 6 
+                   AND tbp.idtypeperson < 6
                 $where $group $order $limit";
         
         try{
@@ -84,9 +84,9 @@ class personDAO extends Database
      * Return an array with total of persons to display in grid
      *
      * @param  string $where
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function countPersons($where=null): array
@@ -106,7 +106,7 @@ class personDAO extends Database
        LEFT OUTER JOIN tbnaturalperson d
                     ON d.idperson = tbp.idperson
                  WHERE tbp.idperson != 1
-                   AND tbp.idtypeperson < 6 
+                   AND tbp.idtypeperson < 6
                 $where";
 
         try{
@@ -134,15 +134,15 @@ class personDAO extends Database
      * Returns user's data
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function getPersonByID(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT tbp.idperson, tbp.name, tbp.login, tbp.email, tbp.status, tbp.user_vip, tbp.phone_number AS telephone,
-                        tbp.branch_number, tbp.cel_phone AS cellphone, tbtp.name AS typeperson, tbtp.idtypeperson, 
+                        tbp.branch_number, tbp.cel_phone AS cellphone, tbtp.name AS typeperson, tbtp.idtypeperson,
                         ctry.printablename AS country, ctry.idcountry, stt.name AS state, stt.abbr AS state_abbr, stt.idstate,
                         nbh.name AS neighborhood, nbh.idneighborhood, ct.name AS city, ct.idcity, tpstr.name AS typestreet,
                         tpstr.idtypestreet, st.name AS street, addr.number, addr.complement, addr.zipcode,
@@ -235,13 +235,13 @@ class personDAO extends Database
      * Returns a list with registered companies
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchCompanies(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (4) ORDER BY name ASC";
         
         try{
@@ -269,13 +269,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com países cadastrdos
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchCountries(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT idcountry, iso, printablename FROM tbcountry WHERE idcountry != 1 ORDER BY name";
         
         try{
@@ -305,13 +305,13 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function queryStates($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $where = !$where ? "WHERE idstate != 1" : $where;
         $order = !$order ? "ORDER BY `name`" : $order;
 
@@ -322,7 +322,7 @@ class personDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
-            $personModel = new personModel(); 
+            $personModel = new personModel();
             $personModel->setStateList($aRet);
 
             $ret = true;
@@ -343,13 +343,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com cidades cadastradas
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchCities(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT idcity, `name` FROM tbcity WHERE idstate = :stateID ORDER BY `name`";
         
         try{
@@ -378,13 +378,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com bairros cadastrados
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchNeighborhoods(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT idneighborhood, `name` FROM tbneighborhood WHERE idcity = :cityID ORDER BY `name`";
         
         try{
@@ -413,17 +413,17 @@ class personDAO extends Database
      * pt_br Retorna uma lista com tipos de logradouros cadastrados
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchStreetTypes(personModel $personModel): array
-    {        
-        $sql = "SELECT idtypestreet, `name` 
-                  FROM tbtypestreet 
-                 WHERE idtypestreet != 1 
-                   AND UPPER(location) = UPPER(:location) 
+    {
+        $sql = "SELECT idtypestreet, `name`
+                  FROM tbtypestreet
+                 WHERE idtypestreet != 1
+                   AND UPPER(location) = UPPER(:location)
               ORDER BY `name` ASC";
         
         try{
@@ -452,13 +452,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com endereços cadastrados
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchStreets(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT idstreet,idtypestreet,`name` FROM tbstreet WHERE idtypestreet = :streetTypeID ORDER BY `name` ASC";
         
         try{
@@ -487,22 +487,22 @@ class personDAO extends Database
      * pt_br Retorna os dados da empresa
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function getCompanyByID(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT a.idperson, a.idnatureperson, b.name naturetype, a.name, phone_number, cel_phone, contact_person, a.status,
                         c.ein_cnpj, h.idcountry,  i.printablename country, f.idstate, h.name state, h.abbr uf,
                         e.idcity, f.name city, e.idneighborhood, g.name neighborhood, j.idtypestreet, k.name type_street, e.idstreet,
-                        j.name street, e.number, e.complement, e.zipcode                       
+                        j.name street, e.number, e.complement, e.zipcode
                   FROM tbperson a
                   JOIN tbnatureperson b
                     ON b.idnatureperson = a.idnatureperson
        LEFT OUTER JOIN tbjuridicalperson c
-                    ON c.idperson = a.idperson 
+                    ON c.idperson = a.idperson
        LEFT OUTER JOIN tbaddress e
                     ON e.idperson = a.idperson
        LEFT OUTER JOIN tbcity f
@@ -566,13 +566,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com os tipos de login cadastrados
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchLoginTypes(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT idtypelogin, `name` FROM tbtypelogin ORDER BY name ASC";
         
         try{
@@ -600,14 +600,14 @@ class personDAO extends Database
      * pt_br Retorna uma lista com os tipos de nível de acessos cadastrados para pessoas físicas
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchNaturalPersonTypes(personModel $personModel): array
-    {        
-        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status 
+    {
+        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status
                   FROM tbtypeperson a, tbvocabulary b, tblocale c
                  WHERE a.lang_key_name = b.key_name
                    AND b.idlocale = c.idlocale
@@ -640,14 +640,14 @@ class personDAO extends Database
      * pt_br Retorna uma lista com os tipos de nível de acessos cadastrados para pessoas jurídicas
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchJuridicalPersonTypes(personModel $personModel): array
-    {        
-        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status 
+    {
+        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status
                   FROM tbtypeperson a, tbvocabulary b, tblocale c
                  WHERE a.lang_key_name = b.key_name
                    AND b.idlocale = c.idlocale
@@ -680,14 +680,14 @@ class personDAO extends Database
      * pt_br Retorna uma lista com os tipos de nível de acessos cadastrados para pessoas jurídicas
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchPermissionGroups(personModel $personModel): array
-    {        
-        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status 
+    {
+        $sql = "SELECT idtypeperson, a.name, permissiongroup, lang_key_name, b.key_value name_fmt, a.status
                   FROM tbtypeperson a, tbvocabulary b, tblocale c
                  WHERE a.lang_key_name = b.key_name
                    AND b.idlocale = c.idlocale
@@ -720,13 +720,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com as localizações cadastradas
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchLocations(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT idlocation, `name` FROM tblocation ORDER BY name ASC";
         
         try{
@@ -757,13 +757,13 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function queryCountries($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $where = !$where ? "WHERE idcountry != 1" : $where;
         $order = !$order ? "ORDER BY `name`" : $order;
 
@@ -774,7 +774,7 @@ class personDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
-            $personModel = new personModel(); 
+            $personModel = new personModel();
             $personModel->setCountryList($aRet);
 
             $ret = true;
@@ -798,24 +798,24 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function queryCities($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $where = (is_null($where)) ? "WHERE idcity != 1" : $where;
         $order = (is_null($order)) ? "ORDER BY `name` ASC" : $order;
 
         $sql = "SELECT idcity, `name` FROM tbcity $where $group $order $limit";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
-            $personModel = new personModel(); 
+            $personModel = new personModel();
             $personModel->setCitiesList($aRet);
 
             $ret = true;
@@ -839,13 +839,13 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function queryNeighborhoods($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $where = !$where ? "WHERE idneighborhood != 1" : $where;
         $order = !$order ? "ORDER BY `name` ASC" : $order;
 
@@ -856,7 +856,7 @@ class personDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
-            $personModel = new personModel(); 
+            $personModel = new personModel();
             $personModel->setNeighborhoodList($aRet);
 
             $ret = true;
@@ -880,20 +880,20 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function queryStreets($where=null,$group=null,$order=null,$limit=null): array
-    {        
+    {
         $where = !$where ? "AND idstreet != 1" : $where;
         $order = !$order ? "ORDER BY `name` ASC" : $order;
 
-        $sql = "SELECT a.idstreet,a.idtypestreet,a.name, b.name type_street 
+        $sql = "SELECT a.idstreet,a.idtypestreet,a.name, b.name type_street
                   FROM tbstreet a, tbtypestreet b
                   WHERE a.idtypestreet = b.idtypestreet
-                    AND UPPER(b.location) = UPPER('{$_ENV['DEFAULT_LANG']}')  
+                    AND UPPER(b.location) = UPPER('{$_ENV['DEFAULT_LANG']}')
                   $where $group $order $limit";
         
         try{
@@ -901,7 +901,7 @@ class personDAO extends Database
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
-            $personModel = new personModel(); 
+            $personModel = new personModel();
             $personModel->setStreetList($aRet);
 
             $ret = true;
@@ -922,17 +922,21 @@ class personDAO extends Database
      * pt_br Insere os dados da pessoa na tabela tbperson
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertPerson(personModel $personModel): array
-    {        
+    {
         $sql = "INSERT INTO tbperson (idtypelogin,idtypeperson,idnatureperson,idtheme,name,login,password,email,dtcreate,user_vip,
-                                      phone_number,branch_number,cel_phone,fax,cod_location,time_value,overtime,change_pass) 
-                              VALUES (:loginTypeId,:personTypeId,:personNature,:themeId,:name,:login,MD5(:password),:email,NOW(),:isUserVip,:phone,
-                                      :branchNumber,:mobile,:fax,:locationId,:timeValue,:overtime,:changePassword)";
+                                      phone_number,branch_number,cel_phone,fax,cod_location,time_value,overtime,change_pass)
+                              VALUES (:loginTypeId,:personTypeId,:personNature,:themeId,:name,:login,
+                                      CASE
+                                        WHEN NULLIF(:password, '') IS NULL THEN NULL
+                                        ELSE MD5(:password)
+                                      END,
+                                      :email,NOW(),:isUserVip,:phone,:branchNumber,:mobile,:fax,:locationId,:timeValue,:overtime,:changePassword)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":loginTypeId",$personModel->getIdTypeLogin());
@@ -957,7 +961,7 @@ class personDAO extends Database
         $personModel->setIdPerson($this->db->lastInsertId());
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -967,14 +971,14 @@ class personDAO extends Database
      * pt_br Insere o endereço da pessoa na tabela tbaddress
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertAddress(personModel $personModel): array
-    {        
-        $sql = "INSERT INTO tbaddress (idperson,idcity,idneighborhood,idstreet,idtypeaddress,number,complement,zipcode)  
+    {
+        $sql = "INSERT INTO tbaddress (idperson,idcity,idneighborhood,idstreet,idtypeaddress,number,complement,zipcode)
                      VALUES (:personId,:cityId,:neighborhoodId,:streetId,:addressTypeId,:number,:complement,:zipcode)";
         
         $stmt = $this->db->prepare($sql);
@@ -989,7 +993,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -999,17 +1003,18 @@ class personDAO extends Database
      * pt_br Insere os dados da pessoa física na tabela tbnaturalperson
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertNaturalData(personModel $personModel): array
-    {        
-        $sql = "INSERT INTO tbnaturalperson (idperson, ssn_cpf, dtbirth, gender, idcountry, idcity) VALUES (:personId, :ssnCpf, :birthDt, :gender, NULLIF(:idcountry,NULL), NULLIF(:idcity,NULL))";
+    {
+        $sql = "INSERT INTO tbnaturalperson (idperson, `name`, ssn_cpf, dtbirth, gender, idcountry, idcity) VALUES (:personId, NULLIF(:name,NULL), :ssnCpf, :birthDt, :gender, NULLIF(:idcountry,NULL), NULLIF(:idcity,NULL))";
         
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":personId",$personModel->getIdPerson());
+        $stmt->bindValue(":name",(!is_null($personModel->getSocialName()) && !empty($personModel->getSocialName())) ? $personModel->getSocialName() : null);
         $stmt->bindValue(":ssnCpf",$personModel->getSsnCpf());
         $stmt->bindValue(":birthDt",$personModel->getDtBirth());
         $stmt->bindValue(":gender",$personModel->getGender());
@@ -1018,7 +1023,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1028,13 +1033,13 @@ class personDAO extends Database
      * pt_br Insere o vínculo da pessoa com o departamento
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertInDepartment(personModel $personModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbdepartment_has_person (idperson, iddepartment) VALUES (:personId, :departmentId)";
         
         $stmt = $this->db->prepare($sql);
@@ -1043,7 +1048,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1053,13 +1058,13 @@ class personDAO extends Database
      * pt_br Insere o vínculo da pessoa com o departamento
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertPermissionGroup(personModel $personModel): array
-    {        
+    {
         $sql = "INSERT INTO tbpersontypes (idperson, idtypeperson) VALUES (:personId, :permissionGroupId)";
         
         $stmt = $this->db->prepare($sql);
@@ -1068,23 +1073,23 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * en_us Inserts the bind of the person with group(s)
-     * pt_br Insere o vínculo da pessoa com o(s) grupo(s) 
+     * pt_br Insere o vínculo da pessoa com o(s) grupo(s)
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertGroup(personModel $personModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbgroup_has_person (idgroup,idperson) VALUES (:groupId,:personId)";
         
         $stmt = $this->db->prepare($sql);
@@ -1093,7 +1098,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1103,13 +1108,13 @@ class personDAO extends Database
      * pt_br Insere os dados da pessoa física na tabela tbnaturalperson
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertJuridicalData(personModel $personModel): array
-    {        
+    {
         $sql = "INSERT INTO tbjuridicalperson (idperson, ein_cnpj, contact_person, observation) VALUES (:personId, :einCnpj, :contact, :observation)";
         
         $stmt = $this->db->prepare($sql);
@@ -1120,7 +1125,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1130,13 +1135,13 @@ class personDAO extends Database
      * pt_br Insere o vínculo da pessoa com o departamento
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertDepartment(personModel $personModel): array
-    {        
+    {
         $sql = "INSERT INTO hdk_tbdepartment (idperson, cod_area, `name`) VALUES (:personId, 0, :departmentName)";
         
         $stmt = $this->db->prepare($sql);
@@ -1145,7 +1150,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1155,13 +1160,13 @@ class personDAO extends Database
      * pt_br Grava a nova pessoa no banco de dados
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function savePersonData(personModel $personModel): array
-    {   
+    {
         $aPermissionGroups = $personModel->getPermissionGroupsList();
         $aGroups = $personModel->getPersonGroupsList();
         
@@ -1234,7 +1239,7 @@ class personDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
             $this->db->rollBack();
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1244,18 +1249,18 @@ class personDAO extends Database
      * pt_br Retorna os dados da pessoa
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function getPerson(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT tbp.idperson, tbp.name, tbp.login, tbp.email, tbp.status, tbp.user_vip, tbp.phone_number,
-                        tbp.branch_number, tbp.cel_phone, tbp.fax, tbtp.name AS typeperson, tbtp.idtypeperson, 
+                        tbp.branch_number, tbp.cel_phone, tbp.fax, tbtp.name AS typeperson, tbtp.idtypeperson,
                         ctry.printablename AS country, ctry.idcountry, stt.name AS state, stt.abbr AS state_abbr, stt.idstate,
                         nbh.name AS neighborhood, nbh.idneighborhood, ct.name AS city, ct.idcity, tpstr.name AS typestreet,
-                        tpstr.idtypestreet, st.name AS street, addr.idstreet, addr.number, addr.complement, addr.zipcode, nat.ssn_cpf, 
+                        tpstr.idtypestreet, st.name AS street, addr.idstreet, addr.number, addr.complement, addr.zipcode, nat.ssn_cpf,
                         IFNULL(nat.rg,'') rg, IFNULL(nat.rgoexp,'') rgoexp, nat.dtbirth, IFNULL(nat.mother,'') mother,
                         IFNULL(nat.father,'') father, nat.gender, a.iddepartment, b.name AS department,
                         pcomp.name AS company, b.idperson idcompany, tbp.idtypelogin,
@@ -1285,7 +1290,7 @@ class personDAO extends Database
                     ON tpstr.idtypestreet = st.idtypestreet
        LEFT OUTER JOIN tbstate stt
                     ON stt.idstate = ct.idstate
-       LEFT OUTER JOIN tbcountry ctry 
+       LEFT OUTER JOIN tbcountry ctry
                     ON ctry.idcountry = stt.idcountry
        LEFT OUTER JOIN tbnaturalperson nat
                     ON nat.idperson = tbp.idperson
@@ -1393,14 +1398,14 @@ class personDAO extends Database
      * pt_br Atualiza os dados da pessoa na tabela tbperson
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updatePerson(personModel $personModel): array
-    {        
-        $sql = "UPDATE tbperson 
+    {
+        $sql = "UPDATE tbperson
                    SET idtypelogin = :loginTypeId,
                        idtypeperson = :personTypeId,
                        `name` = :name,
@@ -1432,7 +1437,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1442,14 +1447,14 @@ class personDAO extends Database
      * pt_br Atualiza o endereço da pessoa na tabela tbaddress
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updateAddress(personModel $personModel): array
-    {        
-        $sql = "UPDATE tbaddress 
+    {
+        $sql = "UPDATE tbaddress
                    SET idcity = :cityId,
                        idneighborhood = :neighborhoodId,
                        idstreet = :streetId,
@@ -1469,7 +1474,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1479,16 +1484,17 @@ class personDAO extends Database
      * pt_br Atualiza os dados da pessoa física na tabela tbnaturalperson
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updateNaturalData(personModel $personModel): array
-    {        
-        $sql = "UPDATE tbnaturalperson 
-                   SET ssn_cpf = :ssnCpf, 
-                       dtbirth = :birthDt, 
+    {
+        $sql = "UPDATE tbnaturalperson
+                   SET ssn_cpf = :ssnCpf,
+                       dtbirth = :birthDt,
+                       name = NULLIF(:name,NULL),
                        gender = :gender,
                        rg = :cardId,
                        idcountry  = NULLIF(:idcountry,NULL),
@@ -1497,6 +1503,7 @@ class personDAO extends Database
         
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":ssnCpf",$personModel->getSsnCpf());
+        $stmt->bindValue(":name",(!is_null($personModel->getSocialName()) && !empty($personModel->getSocialName())) ? $personModel->getSocialName() : null);
         $stmt->bindValue(":birthDt",$personModel->getDtBirth());
         $stmt->bindValue(":gender",$personModel->getGender());
         $stmt->bindValue(":personId",$personModel->getIdPerson());
@@ -1506,7 +1513,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1516,13 +1523,13 @@ class personDAO extends Database
      * pt_br Atualiza o vínculo da pessoa com o departamento
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updateInDepartment(personModel $personModel): array
-    {        
+    {
         $sql = "UPDATE hdk_tbdepartment_has_person SET iddepartment = :departmentId WHERE idperson = :personId";
         
         $stmt = $this->db->prepare($sql);
@@ -1531,7 +1538,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1541,13 +1548,13 @@ class personDAO extends Database
      * pt_br Elimina o vínculo da pessoa com o grupo de permissões
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function deletePermissionGroup(personModel $personModel): array
-    {        
+    {
         $sql = "DELETE FROM tbpersontypes WHERE idperson = :personId";
         
         $stmt = $this->db->prepare($sql);
@@ -1555,23 +1562,23 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
 
     /**
      * en_us Removes the bind of the person with group(s)
-     * pt_br Elimina o vínculo da pessoa com o(s) grupo(s) 
+     * pt_br Elimina o vínculo da pessoa com o(s) grupo(s)
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function deleteGroup(personModel $personModel): array
-    {        
+    {
         $sql = "DELETE FROM hdk_tbgroup_has_person WHERE idperson = :personId";
         
         $stmt = $this->db->prepare($sql);
@@ -1579,7 +1586,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1589,16 +1596,16 @@ class personDAO extends Database
      * pt_br Atualiza os dados da pessoa física na tabela tbnaturalperson
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updateJuridicalData(personModel $personModel): array
-    {        
-        $sql = "UPDATE tbjuridicalperson 
-                   SET ein_cnpj = :einCnpj, 
-                       contact_person = :contact, 
+    {
+        $sql = "UPDATE tbjuridicalperson
+                   SET ein_cnpj = :einCnpj,
+                       contact_person = :contact,
                        observation = :observation,
                        iestadual = :corpId
                  WHERE idperson = :personId";
@@ -1612,7 +1619,7 @@ class personDAO extends Database
         $stmt->execute();
 
         $ret = true;
-        $result = array("message"=>"","object"=>$personModel);      
+        $result = array("message"=>"","object"=>$personModel);
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1622,13 +1629,13 @@ class personDAO extends Database
      * pt_br Atualiza os dados da pessoa
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updatePersonData(personModel $personModel): array
-    {   
+    {
         $aPermissionGroups = $personModel->getPermissionGroupsList();
         $aGroups = $personModel->getPersonGroupsList();
         
@@ -1650,7 +1657,7 @@ class personDAO extends Database
                     $insAddress = $this->insertAddress($upd['push']['object']);
                     if($insAddress['status'])
                         $this->loggerDB->info('Person address was included', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
-                }                
+                }
                 
                 // update natural person data
                 if($upd['push']['object']->getPersonNatureId() == 1){
@@ -1715,7 +1722,7 @@ class personDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
             $this->db->rollBack();
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1725,13 +1732,13 @@ class personDAO extends Database
      * pt_br Atualiza o status da pessoa
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function changePersonStatus(personModel $personModel): array
-    {   
+    {
         $sql = "UPDATE tbperson SET `status` = :status  WHERE idperson = :personId";
 
         try{
@@ -1748,7 +1755,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1758,14 +1765,14 @@ class personDAO extends Database
      * pt_br Retorna uma lista com os grupos do atendente
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchAttendantGroups(personModel $personModel): array
-    {        
-        $sql = "SELECT b.idgroup, c.idperson, c.name, d.name company_name 
+    {
+        $sql = "SELECT b.idgroup, c.idperson, c.name, d.name company_name
                   FROM hdk_tbgroup_has_person a, hdk_tbgroup b, tbperson c, tbperson d
                  WHERE a.idgroup = b.idgroup
                    AND b.idperson = c.idperson
@@ -1799,13 +1806,13 @@ class personDAO extends Database
      * pt_br Vincula o grupo ao atendente
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function linkAttendantGroup(personModel $personModel): array
-    {   
+    {
         try{
             $this->db->beginTransaction();
 
@@ -1825,7 +1832,7 @@ class personDAO extends Database
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
             $this->db->rollBack();
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1835,13 +1842,13 @@ class personDAO extends Database
      * pt_br Deleta o vincula entre o grupo e o atendente
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function deleteAttendantGroup(personModel $personModel): array
-    {   
+    {
         $sql = "DELETE FROM hdk_tbgroup_has_person WHERE idgroup = :groupId AND idperson = :personId";
 
         try{
@@ -1858,7 +1865,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1868,13 +1875,13 @@ class personDAO extends Database
      * pt_br Atualiza a senha do usuário
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function updatePassword(personModel $personModel): array
-    {   
+    {
         $sql = "UPDATE tbperson SET `password` = MD5(:password), change_pass = :changePassword WHERE idperson = :personId";
 
         try{
@@ -1892,7 +1899,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1902,13 +1909,13 @@ class personDAO extends Database
      * pt_br Insere os dados do estado em tbstate
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertLocation(personModel $personModel): array
-    {   
+    {
         $sql = "INSERT INTO tblocation (name) VALUES (:name)";
 
         try{
@@ -1926,7 +1933,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1936,13 +1943,13 @@ class personDAO extends Database
      * pt_br Insere os dados do estado em tbstate
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertState(personModel $personModel): array
-    {   
+    {
         $sql = "INSERT INTO tbstate (idcountry,name,abbr) VALUES (:countryId,:name,NULLIF(:abbreviation,NULL))";
 
         try{
@@ -1962,7 +1969,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -1972,13 +1979,13 @@ class personDAO extends Database
      * pt_br Insere os dados da cidade em tbcity
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertCity(personModel $personModel): array
-    {   
+    {
         $sql = "CALL hdk_updatecity(:stateId,:name,@id);";
 
         try{
@@ -2003,7 +2010,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -2013,13 +2020,13 @@ class personDAO extends Database
      * pt_br Insere os dados do bairro em tbneighborhood
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertNeighborhood(personModel $personModel): array
-    {   
+    {
         $sql = "CALL hdk_updateneighborhood(:cityId,:name,@id);";
 
         try{
@@ -2044,7 +2051,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -2054,13 +2061,13 @@ class personDAO extends Database
      * pt_br Insere os dados do bairro em tbstreet
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function insertStreet(personModel $personModel): array
-    {   
+    {
         $sql = "CALL hdk_updatestreet(:cityId,:streetTypeId,:name,@id);";
 
         try{
@@ -2086,7 +2093,7 @@ class personDAO extends Database
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
-        }         
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
@@ -2096,13 +2103,13 @@ class personDAO extends Database
      * pt_br Retorna uma lista com as empresas cadastradas
      *
      * @param  personModel $personModel
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchERPCompanies(personModel $personModel): array
-    {        
+    {
         $sql = "SELECT  idperson as idcompany, name FROM tbperson WHERE idtypeperson IN (7) ORDER BY name ASC";
         
         try{
@@ -2133,14 +2140,14 @@ class personDAO extends Database
      * @param  mixed $group
      * @param  mixed $order
      * @param  mixed $limit
-     * @return array Parameters returned in array: 
+     * @return array Parameters returned in array:
      *               [status = true/false
-     *                push =  [message = PDO Exception message 
+     *                push =  [message = PDO Exception message
      *                         object = model's object]]
      */
     public function fetchPersonInDepartment($where=null,$group=null,$order=null,$limit=null): array
-    {        
-        $sql = "SELECT a.idperson, b.name 
+    {
+        $sql = "SELECT a.idperson, b.name
                   FROM hdk_tbdepartment_has_person a, tbperson b
                  WHERE a.idperson = b.idperson
                 $where $group $order $limit";
@@ -2170,7 +2177,7 @@ class personDAO extends Database
      * en_us Check if exists address
      * pt_br Checa se existe um endereço cadastrado
      *
-     * @param  mixed $personModel
+     * @param  personModel $personModel
      * @return array
      */
     public function checkAddress(personModel $personModel): array
@@ -2193,10 +2200,10 @@ class personDAO extends Database
     /**
      * checkUserPass
      * 
-     * en_us Check if exists address
-     * pt_br Checa se existe um endereço cadastrado
+     * en_us Check a user's password
+     * pt_br Verifica a senha de um usuário
      *
-     * @param  mixed $personModel
+     * @param  personModel $personModel
      * @return array
      */
     public function checkUserPass(personModel $personModel): array
@@ -2213,6 +2220,79 @@ class personDAO extends Database
 
         $ret = true;
         $result = array("message"=>"","object"=>$personModel);
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * getStreetTypeId
+     * 
+     * en_us Returns the ID of the street type searched for by name
+     * pt_br Retorna o ID do tipo de rua pesquisado pelo nome
+     *
+     * @param  personModel $personModel
+     * @return array
+     */
+    public function getStreetTypeId(personModel $personModel): array
+    {
+        $sql = "SELECT idtypestreet
+                  FROM tbtypestreet 
+                 WHERE pipeLatinToUtf8(`name`) = :streetTypeName 
+                   AND UPPER(location) = UPPER(:location) 
+              ORDER BY `name` ASC";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":streetTypeName",$personModel->getTypeStreet());
+            $stmt->bindValue(":location",$personModel->getLocation());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $personModel->setIdTypeStreet((!is_null($aRet['idtypestreet']) && !empty($aRet['idtypestreet'])) ? $aRet['idtypestreet'] : 106);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting street type ID.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
+    
+    /**
+     * getPersonTypeByName
+     * 
+     * en_us Returns the ID of the person type searched for by name
+     * pt_br Retorna o ID do tipo de pessoa pesquisado pelo nome
+     *
+     * @param  mixed $personModel
+     * @return array
+     */
+    public function getPersonTypeByName(personModel $personModel): array
+    {
+        $sql = "SELECT idtypeperson FROM tbtypeperson WHERE `name` = :typeperson";
+
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':typeperson', $personModel->getTypePerson());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $personModel->setIdTypePerson($aRet['idtypeperson']);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$personModel);
+        }catch(\PDOException $ex){ $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting person's type ID.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+        
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
         
         return array("status"=>$ret,"push"=>$result);
     }
