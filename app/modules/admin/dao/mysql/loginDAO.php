@@ -477,7 +477,7 @@ class loginDAO extends Database
     public function getUserByEmail(loginModel $loginModel): array
     {
         
-        $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson WHERE email = :email";
+        $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson WHERE email = :email AND idtypeperson IN(2,3)";
         
         try{
             $stmt = $this->db->prepare($sql);
