@@ -5,6 +5,19 @@ AddDefaultCharset UTF-8
 AddType 'text/css; charset=UTF-8' css
 AddType 'application/x-javascript; charset=UTF-8' js
 
+#SEGURANÇA ADICIONAL
+#Bloqueia acesso ao .env e arquivos ocultos (.git, .htaccess, etc.)
+<FilesMatch "^\..*">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+#Protege arquivos de configuração comuns
+<FilesMatch "(composer.json|composer.lock|package.json|yarn.lock|.gitignore|README.md)">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
 RewriteEngine on
 
 # E-mail Tracker
