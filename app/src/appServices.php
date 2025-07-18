@@ -225,10 +225,10 @@ class appServices
             "version" 		            => $this->_getHelpdezkVersion(),
             "navBar"		            => $this->_getNavbarTemplate(),
             "footer"		            => $this->_getFooterTemplate(),
-            "demoVersion" 	            => empty($_ENV['DEMO']) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
-            "isroot"                    => ($_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
-            "hasadmin"                  => ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) ? true : false,
-            "navlogin"                  => ($_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
+            "demoVersion" 	            => (!isset($_ENV['DEMO']) || empty($_ENV['DEMO'])) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
+            "isroot"                    => (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
+            "hasadmin"                  => ((isset($_SESSION['SES_TYPE_PERSON']) && $_SESSION['SES_TYPE_PERSON'] == 1) && (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] != 1)) ? true : false,
+            "navlogin"                  => (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
             "adminhome"                 => $_ENV['HDK_URL'].'/admin/home/index',
             "adminlogo"                 => $admImgSrc,
             "hashelpdezk"               => $loginSrc->_isActiveHelpdezk(),
@@ -1125,7 +1125,7 @@ class appServices
 
         $mail->CharSet = 'utf-8';
 
-        if($params['customHeader'] && $params['customHeader'] != ''){
+        if(isset($params['customHeader']) && !empty($params['customHeader'])){
             $mail->addCustomHeader($params['customHeader']);
         }
 
@@ -1135,11 +1135,11 @@ class appServices
             $mail->addCustomHeader('X-hdkLicence:' . $_ENV['LICENSE']);
         }
 
-        if($params['sender'] && $params['sender'] != ''){
+        if(isset($params['sender']) && !empty($params['sender'])){
             $mailSender = $params['sender'];
         }
 
-        if($params['sender_name'] && $params['sender_name'] != ''){
+        if(isset($params['sender_name']) && !empty($params['sender_name'])){
             $mailTitle = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
         }
         
