@@ -2,8 +2,6 @@
 
 use App\core\Controller;
 
-use App\modules\main\src\mainServices;
-
 use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\main\dao\mysql\externalappDAO;
@@ -14,6 +12,9 @@ use App\modules\admin\models\mysql\personModel;
 use App\modules\main\models\mysql\externalappModel;
 use App\modules\main\models\mysql\externalappfieldModel;
 use App\modules\main\models\mysql\usersettingsModel;
+
+use App\modules\main\src\mainServices;
+use App\src\mfaServices;
 
 class Home extends Controller
 {
@@ -471,5 +472,35 @@ class Home extends Controller
 
         echo json_encode($aRet);
     }
+    
+    /**
+     * saveAuthenticatorSecret
+     *
+     * en_us Saves the 2FA secret to the database.
+     * pt_br Grava em BD o valor do secret para a autenticação em dois fatores.
+     *
+     * @return void
+     */
+    public function saveAuthenticatorSecret(){
+        $secret = $_POST['secret'];
+        $idperson = $_SESSION['SES_COD_USUARIO'];
+        $mfaServices = new mfaServices();
 
+        $check = $mfaServices->checkAuthCode($_POST['code'], $_POST['secret']);
+        if(!$check['isValid']){
+            $this->logger->error("Error saving authenticator", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            echo json_encode(['success' => false, 'message' => $this->translator->translate('invalid_authenticator_code')]);
+            return;
+        }
+
+        $signatureDAO = new \App\modules\main\dao\mysql\signatureDAO();
+        $aret = $signatureDAO->saveAuthenticatorSecret($idperson, $secret);
+        if(!$aret['status']){
+            $this->logger->error("Error saving authenticator secret", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            echo json_encode(['success' => false, 'message' => $aret['push']['message']]);
+            return;
+        }
+        
+        echo json_encode(['success' => true, 'message' => $this->translator->translate('secret_saved')]);
+    }
 }
