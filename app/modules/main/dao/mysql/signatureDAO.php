@@ -94,13 +94,12 @@ class signatureDAO extends Database
 
 		return array("status" => $aret, "push" => $result);
 	}
-
-		/**
+	
+	/**
 	 * Verifica se o usuário possui secret_authenticator cadastrado
 	 * @param int $idperson
-	 * @return string
 	 */
-	public function hasAuthenticatorSecret(int $idperson): string
+	public function hasAuthenticatorSecret(int $idperson)
 	{
 			$sql = "SELECT secret_authenticator FROM tbperson WHERE idperson = :idperson LIMIT 1";
 			$stmt = $this->db->prepare($sql);
@@ -112,29 +111,29 @@ class signatureDAO extends Database
 	}
 
 	/**
- * Salva o secret_authenticator para o usuário
- * @param int $idperson
- * @param string $secret
- * @return array
- */
-public function saveAuthenticatorSecret(int $idperson, string $secret): array
-{
-    try {
-        $sql = "UPDATE tbperson SET secret_authenticator = :secret WHERE idperson = :idperson";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':secret', $secret);
-        $stmt->bindValue(':idperson', $idperson);
-        $stmt->execute();
+	 * Salva o secret_authenticator para o usuário
+	 * @param int $idperson
+	 * @param string $secret
+	 * @return array
+	 * */
+	public function saveAuthenticatorSecret(int $idperson, string $secret): array
+	{
+		try {
+			$sql = "UPDATE tbperson SET secret_authenticator = :secret WHERE idperson = :idperson";
+			$stmt = $this->db->prepare($sql);
+			$stmt->bindValue(':secret', $secret);
+			$stmt->bindValue(':idperson', $idperson);
+			$stmt->execute();
 
-        $aret = true;
-        $result = ["message" => "", "object" => null];
-    } catch (\PDOException $ex) {
-        $msg = $ex->getMessage();
-        $this->loggerDB->error("Error saving secret_authenticator.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'DB Message' => $msg]);
-        $aret = false;
-        $result = ["message" => $msg, "object" => null];
-    }
+			$aret = true;
+			$result = ["message" => "", "object" => null];
+		} catch (\PDOException $ex) {
+			$msg = $ex->getMessage();
+			$this->loggerDB->error("Error saving secret_authenticator.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'DB Message' => $msg]);
+			$aret = false;
+			$result = ["message" => $msg, "object" => null];
+		}
 
-    return ["status" => $aret, "push" => $result];
-}
+		return ["status" => $aret, "push" => $result];
+	}
 }
