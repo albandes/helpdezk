@@ -473,10 +473,18 @@ class loginDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
-
+    
+    /**
+     * getUserByEmail
+     * 
+     * en_us Retrieves user data based on the provided email address.
+     * pt_br Retorna os dados do usuário pesquisando pelo endereço de e-mail
+     *
+     * @param  mixed $loginModel
+     * @return array
+     */
     public function getUserByEmail(loginModel $loginModel): array
     {
-        
         $sql = "SELECT idperson, `name`, login, idtypeperson FROM tbperson WHERE email = :email AND idtypeperson IN(2,3)";
         
         try{
@@ -484,17 +492,17 @@ class loginDAO extends Database
             $stmt->bindParam(':email', $loginModel->getUserEmail());
             $stmt->execute();
             $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-            $loginModel->setIdPerson($aRet['idperson'])
-                       ->setName($aRet['name'])
-                       ->setLogin($aRet['login'])
-                       ->setIdTypePerson($aRet['idtypeperson']);
+            
+            $loginModel->setIdPerson((!is_null($aRet['idperson']) && !empty($aRet['idperson'])) ? $aRet['idperson'] : 0)
+                       ->setName((!is_null($aRet['name']) && !empty($aRet['name'])) ? $aRet['name'] : "")
+                       ->setLogin((!is_null($aRet['login']) && !empty($aRet['login'])) ? $aRet['login'] : "")
+                       ->setIdTypePerson((!is_null($aRet['idtypeperson']) && !empty($aRet['idtypeperson'])) ? $aRet['idtypeperson'] : 0);
               
             $ret = true;
             $result = array("message"=>"","object"=>$loginModel);
         }catch(\PDOException $ex){
             $msg = $ex->getMessage();
-            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            $this->loggerDB->error('Error getting user data by email.', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
             
             $ret = false;
             $result = array("message"=>$msg,"object"=>null);
