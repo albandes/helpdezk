@@ -217,6 +217,11 @@ class appServices
             $admImgSrc = $this->imgBucket.'adm_header.png';
         }
 
+        if(isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1){
+            $navLogin = (isset($_SESSION['SES_NAME_PERSON'])) ? $_SESSION['SES_NAME_PERSON'] : "";
+        }else{
+            $navLogin = (isset($_SESSION['SES_LOGIN_PERSON'])) ? $_SESSION['SES_LOGIN_PERSON'] : "";
+        }
         
         return array(
             "path"			            => $this->_getPath(),
@@ -228,7 +233,7 @@ class appServices
             "demoVersion" 	            => (!isset($_ENV['DEMO']) || empty($_ENV['DEMO'])) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
             "isroot"                    => (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
             "hasadmin"                  => ((isset($_SESSION['SES_TYPE_PERSON']) && $_SESSION['SES_TYPE_PERSON'] == 1) && (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] != 1)) ? true : false,
-            "navlogin"                  => (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
+            "navlogin"                  => $navLogin,
             "adminhome"                 => $_ENV['HDK_URL'].'/admin/home/index',
             "adminlogo"                 => $admImgSrc,
             "hashelpdezk"               => $loginSrc->_isActiveHelpdezk(),
@@ -242,15 +247,15 @@ class appServices
             "cellphone_mask"            => $_ENV['CELLPHONE_MASK'],
             "mascdatetime"              => str_replace('%', '', "{$_ENV['DATE_FORMAT']} {$_ENV['HOUR_FORMAT']}"),
             "mascdate"                  => str_replace('%', '', $_ENV['DATE_FORMAT']),
-            "timesession"               => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
-            "modules"                   => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
+            "timesession"               => (!isset($_SESSION['SES_TIME_SESSION']) || empty($_SESSION['SES_TIME_SESSION'])) ? 600 : $_SESSION['SES_TIME_SESSION'],
+            "modules"                   => (!isset($_SESSION['SES_COD_USUARIO']) || empty($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
             "modalUserSettings"         => $this->_getUserSettingsTemplate(),
             "modalChangeUserPassword"   => $this->_getChangeUserPasswordTemplate(),
             "modalUpdateUserProfile"    => $this->_getUpdateUserProfileTemplate(),
             "vocabulary"                => $this->_loadVocabulary(),
             "lang"                      => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
             "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
-            "navUserId"                 => $_SESSION['SES_COD_USUARIO']
+            "navUserId"                 => (isset($_SESSION['SES_COD_USUARIO']) && !empty($_SESSION['SES_COD_USUARIO'])) ? $_SESSION['SES_COD_USUARIO'] : 0
         );
     }
     
@@ -3860,5 +3865,41 @@ class appServices
         }
 
         return $result;
+    }
+    
+    /**
+     * _verifyJwt
+     * 
+     * en_us Verifies the JWT token and returns an array with the submitted data.
+     * pt_br Verifica o token JWT e retorna array com os dados enviados
+     *
+     * @param  string $jwt The JWT token to verify.
+     * @return array The data extracted from the token payload.
+     */
+    public function _verifyJwt(string $jwt): ?array 
+    {
+        // Get the secret key used to sign the token from environment variables.
+        $key = $_ENV['JWT_SECRET_KEY'];
+        // Split the JWT into its three parts: header, payload, and signature.
+        [$header, $payload, $signature] = explode('.', $jwt);
+
+        // Recalculate the signature using the header and payload, then base64url-encode it.
+        $validSig = rtrim(strtr(base64_encode(hash_hmac('sha256', "$header.$payload", $key, true)), '+/', '-_'), '=');
+        // Compare the calculated signature with the provided signature. If they don't match, the token is invalid.
+        if ($validSig !== $signature){
+            $this->applogger->info("Signature mismatch: the calculated value differs from the provided signature.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            return null;
+        }
+
+        // Decode the payload from base64url to JSON.
+        $decoded = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+        // Check if the token has expired based on the 'exp' field in the payload.
+        if ($decoded['exp'] < time()){
+            $this->applogger->info("The token has expired. Name: {$decoded['name']}. Email: {$decoded['email']}.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            return null;
+        }
+
+        // If signature is valid and token is not expired, return the payload data.
+        return $decoded;
     }
 }
