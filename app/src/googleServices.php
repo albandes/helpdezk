@@ -63,12 +63,13 @@ class googleServices
         $appSrc = new appServices();
 
         $guzzleClient = new GuzzleClient(['curl' => [CURLOPT_SSL_VERIFYPEER => false]]);
-
+                
         $credentials = ['client_id' => $_ENV['GOOGLE_OAUTH_CLIENT_ID'],'client_secret' => $_ENV['GOOGLE_OAUTH_CLIENT_SECRET']];
+        $redirectUri = (isset($_ENV['GOOGLE_OAUTH_REDIRECT_URI']) && (!is_null($_ENV['GOOGLE_OAUTH_REDIRECT_URI']) && !empty($_ENV['GOOGLE_OAUTH_REDIRECT_URI']))) ? $_ENV['GOOGLE_OAUTH_REDIRECT_URI'] : "{$_ENV['HDK_URL']}/admin/login/auth/";
         
         $this->client->setHttpClient($guzzleClient);
         $this->client->setAuthConfig($credentials);
-        $this->client->setRedirectUri("{$_ENV['HDK_URL']}/admin/login/auth/");
+        $this->client->setRedirectUri($redirectUri);
         $this->client->addScope('email');
         $this->client->addScope('profile');
     }
