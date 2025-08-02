@@ -544,4 +544,38 @@ class loginDAO extends Database
         
         return array("status"=>$ret,"push"=>$result);
     }
+    
+    /**
+     * getLoginTypeByUserId
+     * 
+     * en_us Returns email's template by a session variable
+     * pt_br Retorna o modelo de email por uma variável de sessão
+     *
+     * @param  loginModel $loginModel
+     * @return array
+     */
+    public function getLoginTypeByUserId(loginModel $loginModel): array
+    {
+        $sql = "SELECT idtypelogin FROM tbperson WHERE idperson = :personId";
+        
+        try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':personId', $loginModel->getIdPerson());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $loginModel->setLoginType((!is_null($aRet['idtypelogin']) && !empty($aRet['idtypelogin'])) ? $aRet['idtypelogin'] : 0);
+
+            $ret = true;
+            $result = array("message"=>"","object"=>$loginModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error('Error getting login type ', ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+        
+        return array("status"=>$ret,"push"=>$result);
+    }
 }

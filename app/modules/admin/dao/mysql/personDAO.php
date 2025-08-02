@@ -809,7 +809,7 @@ class personDAO extends Database
         $order = (is_null($order)) ? "ORDER BY `name` ASC" : $order;
 
         $sql = "SELECT idcity, `name` FROM tbcity $where $group $order $limit";
-        
+        //echo "{$sql}\n";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
