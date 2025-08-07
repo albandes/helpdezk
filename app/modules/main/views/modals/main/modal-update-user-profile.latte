@@ -1,0 +1,206 @@
+<div class="modal fade" id="modal-update-user-profile" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>{='Login'|translate}</strong>: {$navlogin}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form area -->
+                <form method="get" class="form-horizontal" id="modal-update-user-profile-form">
+
+                    <div class="row white-bg g-2 ms-1">
+                        <div class="row col-sm-12 profile-card">
+                            <div class="profile-image-container" id="profile-dropzone">
+                                <img src="dropzone_user_photo.png" alt="Foto de perfil" class="profile-image" id="profileImage">
+                                <div class="hover-overlay">
+                                    <i class="fas fa-pen fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-8">
+                                <label for="modal-update-user-name" class="row hdk-label col-form-label">{='Name'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-name" name="modal-update-user-name" value="" >
+                                <div id="modal-update-user-name_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-ssn" class="row hdk-label col-form-label">{='cpf'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-ssn" name="modal-update-user-ssn" value="" >
+                                <div id="modal-update-user-ssn_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-3">
+                                <label for="modal-update-user-gender" class="row hdk-label col-form-label">{='Gender'|translate}</label>
+                                <select class="form-control form-control-sm" id="modal-update-user-gender" name="modal-update-user-gender">
+                                </select>
+                                <div id="modal-update-user-gender_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <label for="modal-update-user-birth-date" class="hdk-label col-form-label">{='Birth_date'|translate}</label>
+                                <div class="input-group date" style="width:95%">
+                                    <input type="text" id="modal-update-user-birth-date" name="modal-update-user-birth-date" class="form-control input-sm" value="" readonly />
+                                    <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
+                                </div>
+                                <div id="modal-update-user-birth-date_validate_error"></div>
+                            </div>
+                            
+                            <div class="col-sm-6">
+                                <label for="modal-update-user-email" class="row hdk-label col-form-label">{='email'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-email" name="modal-update-user-email" value="" >
+                                <div id="modal-update-user-email_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-phone" class="row hdk-label col-form-label">{='Phone'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-phone" name="modal-update-user-phone" value="" >
+                                <div id="modal-update-user-phone_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-branch" class="row hdk-label col-form-label">{='Branch'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-branch" name="modal-update-user-branch" value="" >
+                                <div id="modal-update-user-branch_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-mobile" class="row hdk-label col-form-label">{='Mobile_phone'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-mobile" name="modal-update-user-mobile" value="" >
+                                <div id="modal-update-user-mobile_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-country" class="row hdk-label col-form-label">{='Country'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-country" name="modal-update-user-country" value="" >
+                                <div id="modal-update-user-country_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-state" class="row hdk-label col-form-label">{='State'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-state" name="modal-update-user-state" value="" >
+                                <div id="modal-update-user-state_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-4">
+                                <label for="modal-update-user-city" class="row hdk-label col-form-label">{='City'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-city" name="modal-update-user-city" value="" >
+                                <div id="modal-update-user-city_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-6">
+                                <label for="modal-update-user-neighborhood" class="row hdk-label col-form-label">{='Neighborhood'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-neighborhood" name="modal-update-user-neighborhood" value="" >
+                                <div id="modal-update-user-neighborhood_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-2">
+                                <label for="modal-update-user-zipcode" class="row hdk-label col-form-label">{='Zipcode'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-zipcode" name="modal-update-user-zipcode" value="" >
+                                <div id="modal-update-user-zipcode_validate_error" class="row"></div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <label for="modal-update-user-address-type" class="row hdk-label col-form-label">{='Type_adress'|translate}</label>
+                                <select class="form-control form-control-sm" id="modal-update-user-address-type" name="modal-update-user-address-type">
+                                </select>
+                                <div id="modal-update-user-address-type_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-5">
+                                <label for="modal-update-user-address" class="row hdk-label col-form-label">{='Adress'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-address" name="modal-update-user-address" value="" >
+                                <div id="modal-update-user-address_validate_error" class="row"></div>
+                            </div>
+                            
+                            <div class="col-sm-2">
+                                <label for="modal-update-user-address-number" class="row hdk-label col-form-label">{='Number'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-address-number" name="modal-update-user-address-number" value="" >
+                                <div id="modal-update-user-address-number_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row col-sm-12">
+                            <div class="col-sm-6">
+                                <label for="modal-update-user-address-complement" class="row hdk-label col-form-label">{='Complement'|translate}</label>
+                                <input type="text" class="row form-control" id="modal-update-user-address-complement" name="modal-update-user-address-complement" value="" >
+                                <div id="modal-update-user-address-complement_validate_error" class="row"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row wrapper border-bottom white-bg">&nbsp;</div>
+
+                    <div class="row white-bg g-2">
+                        <div class="col-sm-12 b-l mb-2">
+                            <div id="alert-modal-update-user-profile"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 white-bg" style="height:10px;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnUpdateUserDataSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {='Save'|translate}</button>
+                <button type="button" id="btnUpdateUserDataClose" class="btn btn-danger btn-sm" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i> {='Close'|translate}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-card {
+      width: 250px;
+      margin: 1px auto;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .profile-image-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 10px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .profile-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hover-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 14px;
+    }
+
+    .profile-image-container:hover .hover-overlay {
+      opacity: 1;
+    }
+</style>

@@ -314,7 +314,6 @@ class emailServerDAO extends Database
         
         try{
             $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(':moduleID', $emailServerModel->getIdModule());
             $stmt->execute();
 
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);

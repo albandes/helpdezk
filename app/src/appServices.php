@@ -15,6 +15,7 @@ use App\modules\helpdezk\dao\mysql\expireDateDAO;
 use App\modules\admin\dao\mysql\programDAO;
 use App\modules\admin\dao\mysql\permissionDAO;
 use App\modules\admin\dao\mysql\errorMessageDAO;
+use App\modules\admin\dao\mysql\personDAO;
 
 use App\modules\admin\models\mysql\logoModel;
 use App\modules\admin\models\mysql\moduleModel;
@@ -28,6 +29,7 @@ use App\modules\helpdezk\models\mysql\expireDateModel;
 use App\modules\admin\models\mysql\programModel;
 use App\modules\admin\models\mysql\permissionModel;
 use App\modules\admin\models\mysql\errorMessageModel;
+use App\modules\admin\models\mysql\personModel;
 
 use App\modules\admin\src\loginServices;
 use App\src\localeServices;
@@ -215,6 +217,11 @@ class appServices
             $admImgSrc = $this->imgBucket.'adm_header.png';
         }
 
+        if(isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1){
+            $navLogin = (isset($_SESSION['SES_NAME_PERSON'])) ? $_SESSION['SES_NAME_PERSON'] : "";
+        }else{
+            $navLogin = (isset($_SESSION['SES_LOGIN_PERSON'])) ? $_SESSION['SES_LOGIN_PERSON'] : "";
+        }
         
         return array(
             "path"			            => $this->_getPath(),
@@ -223,10 +230,10 @@ class appServices
             "version" 		            => $this->_getHelpdezkVersion(),
             "navBar"		            => $this->_getNavbarTemplate(),
             "footer"		            => $this->_getFooterTemplate(),
-            "demoVersion" 	            => empty($_ENV['DEMO']) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
-            "isroot"                    => ($_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
-            "hasadmin"                  => ($_SESSION['SES_TYPE_PERSON'] == 1 && $_SESSION['SES_COD_USUARIO'] != 1) ? true : false,
-            "navlogin"                  => ($_SESSION['SES_COD_USUARIO'] == 1) ? $_SESSION['SES_NAME_PERSON'] : $_SESSION['SES_LOGIN_PERSON'],
+            "demoVersion" 	            => (!isset($_ENV['DEMO']) || empty($_ENV['DEMO'])) ? 0 : $_ENV['DEMO'], // Demo version - Since January 29, 2020
+            "isroot"                    => (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] == 1) ? true : false,
+            "hasadmin"                  => ((isset($_SESSION['SES_TYPE_PERSON']) && $_SESSION['SES_TYPE_PERSON'] == 1) && (isset($_SESSION['SES_COD_USUARIO']) && $_SESSION['SES_COD_USUARIO'] != 1)) ? true : false,
+            "navlogin"                  => $navLogin,
             "adminhome"                 => $_ENV['HDK_URL'].'/admin/home/index',
             "adminlogo"                 => $admImgSrc,
             "hashelpdezk"               => $loginSrc->_isActiveHelpdezk(),
@@ -240,14 +247,15 @@ class appServices
             "cellphone_mask"            => $_ENV['CELLPHONE_MASK'],
             "mascdatetime"              => str_replace('%', '', "{$_ENV['DATE_FORMAT']} {$_ENV['HOUR_FORMAT']}"),
             "mascdate"                  => str_replace('%', '', $_ENV['DATE_FORMAT']),
-            "timesession"               => (!$_SESSION['SES_TIME_SESSION']) ? 600 : $_SESSION['SES_TIME_SESSION'],
-            "modules"                   => (!isset($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
+            "timesession"               => (!isset($_SESSION['SES_TIME_SESSION']) || empty($_SESSION['SES_TIME_SESSION'])) ? 600 : $_SESSION['SES_TIME_SESSION'],
+            "modules"                   => (!isset($_SESSION['SES_COD_USUARIO']) || empty($_SESSION['SES_COD_USUARIO'])) ? array() :$this->_getModulesByUser($_SESSION['SES_COD_USUARIO']),
             "modalUserSettings"         => $this->_getUserSettingsTemplate(),
             "modalChangeUserPassword"   => $this->_getChangeUserPasswordTemplate(),
+            "modalUpdateUserProfile"    => $this->_getUpdateUserProfileTemplate(),
             "vocabulary"                => $this->_loadVocabulary(),
             "lang"                      => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
             "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
-            "navUserId"                 => $_SESSION['SES_COD_USUARIO']
+            "navUserId"                 => (isset($_SESSION['SES_COD_USUARIO']) && !empty($_SESSION['SES_COD_USUARIO'])) ? $_SESSION['SES_COD_USUARIO'] : 0
         );
     }
     
@@ -1122,7 +1130,7 @@ class appServices
 
         $mail->CharSet = 'utf-8';
 
-        if($params['customHeader'] && $params['customHeader'] != ''){
+        if(isset($params['customHeader']) && !empty($params['customHeader'])){
             $mail->addCustomHeader($params['customHeader']);
         }
 
@@ -1132,11 +1140,11 @@ class appServices
             $mail->addCustomHeader('X-hdkLicence:' . $_ENV['LICENSE']);
         }
 
-        if($params['sender'] && $params['sender'] != ''){
+        if(isset($params['sender']) && !empty($params['sender'])){
             $mailSender = $params['sender'];
         }
 
-        if($params['sender_name'] && $params['sender_name'] != ''){
+        if(isset($params['sender_name']) && !empty($params['sender_name'])){
             $mailTitle = '=?UTF-8?B?'.base64_encode($params['sender_name']).'?=';
         }
         
@@ -3784,5 +3792,114 @@ class appServices
     public function _getChangeUserPasswordTemplate()
     {
         return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-change-user-password.latte';
+    }
+    
+    /**
+     * _getUpdateUserProfileTemplate
+     * 
+     * en_us Returns the path of the template for updating the user profile
+     * pt_br Retorna o caminho do template para atualização de perfil do usuário
+     *
+     * @return void
+     */
+    public function _getUpdateUserProfileTemplate()
+    {
+        return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-update-user-profile.latte';
+    }
+    
+    /**
+     * _getPersonTypeIdByName
+     * 
+     * en_us Returns the person type ID
+     * pt_br Retorna o ID do tipo de pessoa
+     *
+     * @param  mixed $personTypeName
+     * @return void
+     */
+    public function _getPersonTypeIdByName($personTypeName)
+    {
+        $personDAO = new personDAO();
+        $personDTO = new personModel();
+
+        $personDTO->setTypePerson($personTypeName);
+        $retPersonType = $personDAO->getPersonTypeByName($personDTO);
+
+        if(!$retPersonType['status']){
+            $this->applogger->error("Error getting person type {$personTypeName} ID.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $retPersonType['push']['message']]);
+            $personTypeId = 0;
+        }else{
+            $this->applogger->info("Person type {$personTypeName} ID got successfully.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $personTypeId = $retPersonType['push']['object']->getIdTypePerson();
+        }
+
+        return $personTypeId;
+    }
+    
+    /**
+     * _parsePhoneNumbers
+     * 
+     * en_us Returns an array with telephone numbers formatted for saving in DB
+     * pt_br Retorna um array com os numéros de telefone formatados para gravar em BD
+     *
+     * @param  string $input
+     * @param  int $type
+     * @return array
+     */
+    public function _parsePhoneNumbers(string $input, int $type): array 
+    {
+        $result = [];
+        
+        // Separate by delimiter /
+        $parts = explode('/', $input);
+        
+        foreach ($parts as $part) {
+            // Remove all non-number characters
+            $number = preg_replace('/\D+/', '', $part);
+
+            if (!empty($number)) {
+                $result[] = [
+                    'number' => $number,
+                    'type' => $type
+                ];
+            }
+        }
+
+        return $result;
+    }
+    
+    /**
+     * _verifyJwt
+     * 
+     * en_us Verifies the JWT token and returns an array with the submitted data.
+     * pt_br Verifica o token JWT e retorna array com os dados enviados
+     *
+     * @param  string $jwt The JWT token to verify.
+     * @return array The data extracted from the token payload.
+     */
+    public function _verifyJwt(string $jwt): ?array 
+    {
+        // Get the secret key used to sign the token from environment variables.
+        $key = $_ENV['JWT_SECRET_KEY'];
+        // Split the JWT into its three parts: header, payload, and signature.
+        [$header, $payload, $signature] = explode('.', $jwt);
+
+        // Recalculate the signature using the header and payload, then base64url-encode it.
+        $validSig = rtrim(strtr(base64_encode(hash_hmac('sha256', "$header.$payload", $key, true)), '+/', '-_'), '=');
+        // Compare the calculated signature with the provided signature. If they don't match, the token is invalid.
+        if ($validSig !== $signature){
+            $this->applogger->info("Signature mismatch: the calculated value differs from the provided signature.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            return null;
+        }
+
+        // Decode the payload from base64url to JSON.
+        $decoded = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+        // Check if the token has expired based on the 'exp' field in the payload.
+        if ($decoded['exp'] < time()){
+            $this->applogger->info("The token has expired. Name: {$decoded['name']}. Email: {$decoded['email']}.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            return null;
+        }
+
+        // If signature is valid and token is not expired, return the payload data.
+        return $decoded;
     }
 }

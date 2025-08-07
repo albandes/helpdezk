@@ -612,5 +612,165 @@ class Login extends Controller
         
         echo json_encode($aRet);
     }
+        
+    /**
+     * checkToken
+     * 
+     * en_us Token-based login validation
+     * pt_br Validação de login baseada em token.
+     *
+     * @param  mixed $jwtToken
+     * @return void
+     */
+    public function checkToken($jwtToken)
+    {
+        $loginDAO = new loginDAO();
+        $loginModel = new loginModel();
+        $personDAO = new personDAO();
+        $featDAO = new featureDAO();
+        $loginSrc = new loginServices();
 
+        //Validates the JWT token
+        $aToken = $this->appSrc->_verifyJwt($jwtToken);
+        if($aToken && is_array($aToken)){
+            $loginModel->setUserEmail($aToken['email']);
+
+            //check if user exists in db
+            $checkUser = $loginDAO->getUserByEmail($loginModel);
+            if(!$checkUser['status'] || $checkUser['push']['object']->getIdPerson() == 0){
+                $this->logger->info("User not found. Name: {$aToken['name']}. Email: {$aToken['email']}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                // display error message
+                $this->loginErrorMessage($this->translator->translate('user_not_exist_msg'));
+                exit;
+            }else{
+                $loginTypeObj = $checkUser['push']['object'];
+                $loginTypeObj->setLoginType(1);
+                $isLogin = true; 
+                $idperson = ($checkUser['status']) ? $checkUser['push']['object']->getIdPerson() : '';
+                $idtypeperson = ($checkUser['status']) ? $checkUser['push']['object']->getIdTypePerson() : '';
+            }
+        }else{
+            // display error message
+            $this->loginErrorMessage($this->translator->translate('invalid_access'));
+            exit;
+        }
+
+        if ($isLogin) {
+            $this->logger->info("User successfully logged in. User: {$loginTypeObj->getLogin()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+            // inserts login details in DB
+            $loginTypeObj->setLoginStatus(1);
+            $insDetail = $loginDAO->insertLoginDetail($loginTypeObj);
+            if(!$insDetail['status']){
+                $this->logger->error("Can't insert login detail. User: {$loginTypeObj->getLogin()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $insDetail['push']['message']]);
+            }else{
+                $this->logger->debug("Login detail saved successfully. User: {$loginTypeObj->getLogin()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+            }
+            
+            switch  ($idtypeperson) {
+                case "1": // admin
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
+
+                    if($this->googleAuth && $_POST['login'] != 'admin'){
+                        header("Location: {$this->appSrc->_getPath()}/admin/home");
+                        die();
+                    }else{
+                        $success = array(
+                            "success" => 1,
+                            "redirect" => $this->appSrc->_getPath() .  "/admin/home"
+                        );
+                        echo json_encode($success);
+                        return;
+                    }
+                    
+                    break;
+
+                case "2": // user
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
+                    if($_SESSION['SES_MAINTENANCE'] == 1){
+                        // display error message
+                        $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
+                        die();
+                    }else{
+                        header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
+                        die();
+                    }
+                    break;
+
+                case "3": // operator
+                    $loginSrc->_startSession($idperson);  
+                    $loginSrc->_getConfigSession();
+                    if($_SESSION['SES_MAINTENANCE'] == 1){
+                        // display error message
+                        $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
+                        die();
+                    }else{
+                        header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
+                        die();
+                    }
+                    break;
+
+                default: // others types
+                
+                    $loginSrc->_startSession($idperson);
+                    $loginSrc->_getConfigSession();
+                    $featModel = new featureModel();
+                    $featModel->setTableName('tbtypeperson_has_module');
+                    
+                    $retExistsTable = $featDAO->tableExists($featModel);
+                    
+                    if (!$retExistsTable['status'] || !$retExistsTable['push']['object']->getExistTable()) {
+                        // display error message
+                        $this->loginErrorMessage($this->translator->translate('no_table_typeperson_module'));
+                        die();
+                    }
+                    
+                    $featModel->setUserType($idtypeperson);
+                    $retPathModule = $featDAO->getPathModuleByTypePerson( $featModel);
+                    if ($retPathModule['status']) {
+                        $pathModule = $retPathModule['push']['object'];
+                        $modPath = $pathModule->getPath();
+                        if($_SESSION['SES_MAINTENANCE'] == 1){
+                            // display error message
+                            $this->loginErrorMessage($this->translator->translate($_SESSION['SES_MAINTENANCE_MSG']));
+                            die();
+                        }else{
+                           header("Location: {$this->appSrc->_getPath()}/{$_SESSION['SES_ADM_MODULE_DEFAULT']}/home/index");
+                            die();
+                        }
+                    } else {
+                       // display error message
+                        $this->loginErrorMessage($this->translator->translate('user_type_no_linked_module'));
+                        die();
+                    }
+                    break;
+            }
+        } else {
+            if (in_array($loginType['push']['object']->getLoginType(),array(1,3,4))) { // Pop, HD  ou REQUEST login
+				$retUserSt = $loginDAO->checkUser($loginType['push']['object']); 
+                if (!$retUserSt['status'] || $retUserSt['push']['object']->getUserStatus() == 'I'){
+                    $this->logger->info("Access denied: user is inactive. User: {$retUserSt['push']['object']->getLogin()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+
+                    $msg = $this->translator->translate('Login_user_inactive');
+				}elseif($retUserSt['push']['object']->getUserStatus() == "A"){ 
+                    $msg = $this->translator->translate('Login_error_error');
+
+                    // inserts login details in DB
+                    $retUserSt['push']['object']->setLoginStatus(0);
+                    $insDetail = $loginDAO->insertLoginDetail($retUserSt['push']['object']);
+                    if(!$insDetail['status']){
+                        $this->logger->error("Can't insert login detail. User: {$retUserSt['push']['object']->getLogin()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'Error' => $insDetail['push']['message']]);
+                    }else{
+                        $this->logger->debug("Login detail saved successfully. User: {$retUserSt['push']['object']->getLogin()}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                    }
+                }
+			}
+
+			// display error message
+            $this->loginErrorMessage($msg);
+			exit;
+        }
+    }
 }

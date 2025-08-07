@@ -25,6 +25,8 @@ $(document).ready(function () {
     $("#person_city").select2({placeholder:vocab['Select'],allowClear:true});
     $("#person_neighborhood").select2({placeholder:vocab['Select'],allowClear:true});
     $("#person_typestreet").select2({placeholder:vocab['Select'],allowClear:true});
+    $('#modal-update-user-gender').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-update-user-profile-form')});
+    $('#modal-update-user-address-type').select2({width:"100%",height:"100%",placeholder:vocab['Select'],allowClear:true,minimumResultsForSearch: 10,dropdownParent: $(this).find('#modal-update-user-profile-form')});
 
     /*
      * iCheck - checkboxes/radios styling
@@ -55,9 +57,10 @@ $(document).ready(function () {
     });*/
 
     // Buttons
-    $("#btnUpdateUserData,.btnEditUserProfile").click(function(){
-        $('#modal-form-persondata').modal('show');
-        //countdown.start(timesession);
+    $("#btnEditUserProfile").click(function(){
+        
+        $('#modal-update-user-profile').modal('show');
+        
     });
 
     $("#btnEditUserSettings").click(function(){
@@ -90,7 +93,7 @@ $(document).ready(function () {
                             $('#modal-change-user-password').modal('show');
                         }
                     } else {
-                        showAlert(obj.success,'danger');
+                        showAlert(obj.message,'danger');
                     }
                 },
                 beforeSend: function(){
@@ -473,4 +476,53 @@ $(document).ready(function () {
         $("#modal-confirm-new-user-pass_validate_error").html('');
     });
 
+    // Salva secret via AJAX
+    $('#btnConfirmAuthenticator').on('click', function () {
+        var secret = $('#secret').val();
+        var code = $('#authenticator-code').val();
+        $(this).prop('disabled', true);
+        $.ajax({
+            type: 'POST',
+            url: path + '/main/home/saveAuthenticatorSecret',
+            dataType: 'json',
+            data: { secret: secret, code: code },
+            success: function (ret) {
+                var obj = jQuery.parseJSON(JSON.stringify(ret));
+                if (obj.success) {
+                    $('#modal-authenticator').modal('hide');
+                    $('#modal-signature').modal('show');
+                } else {
+                    modalAlertMultiple('danger', obj.message || vocab['generic_error_msg'], 'alert-authenticator');
+                }
+            },
+            error: function () {
+                modalAlertMultiple('danger', vocab['generic_error_msg'], 'alert-authenticator');
+            },
+            complete: function () {
+                $('#btnConfirmAuthenticator').prop('disabled', false);
+            }
+        });
+    });
 });
+
+function showModalSignature(qrcode, secret ) {
+    if(qrcode) {
+        $('#qrcode-img').attr('src', qrcode);
+        $('#modal-authenticator').modal('show');
+        $('#authenticator-code').on('input', function () {
+            var val = $(this).val();
+            if (val.length === 6 && /^\d{6}$/.test(val)) {
+                $('#btnConfirmAuthenticator').prop('disabled', false);
+            } else {
+                $('#btnConfirmAuthenticator').prop('disabled', true);
+            }
+        });
+    } else{
+        $('#modal-signature').modal('show');
+        $('#signature-auth-code').on('input', function () {
+            var val = $(this).val();
+            $('#btnSign').prop('disabled', !(val.length === 6 && /^\d{6}$/.test(val)));
+        });
+    }
+    $('#secret').val(secret);
+}
