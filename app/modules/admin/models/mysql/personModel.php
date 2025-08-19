@@ -470,7 +470,7 @@ final class personModel
     private $userPasswordExist;
 
     /**
-     * @var string
+     * @var int
      */
     private $idInep;
 
@@ -2709,7 +2709,7 @@ final class personModel
     /**
      * Get the value of idInep
      *
-     * @return  string
+     * @return  int
      */ 
     public function getIdInep()
     {
@@ -2719,11 +2719,11 @@ final class personModel
     /**
      * Set the value of idInep
      *
-     * @param  string  $idInep
+     * @param  int  $idInep
      *
      * @return  self
      */ 
-    public function setIdInep(string $idInep)
+    public function setIdInep(int $idInep)
     {
         $this->idInep = $idInep;
 

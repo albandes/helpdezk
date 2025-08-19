@@ -809,7 +809,7 @@ class personDAO extends Database
         $order = (is_null($order)) ? "ORDER BY `name` ASC" : $order;
 
         $sql = "SELECT idcity, `name` FROM tbcity $where $group $order $limit";
-        //echo "{$sql}\n";
+        
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
@@ -2295,5 +2295,37 @@ class personDAO extends Database
         }
         
         return array("status"=>$ret,"push"=>$result);
+    }    
+    
+    /**
+     * updateInep
+     * 
+     * en_us Update the student’s INEP ID
+     * pt_br Atualiza o INEP Id do aluno
+     *
+     * @param  mixed $personModel
+     * @return array
+     */
+    public function updateInep(personModel $personModel): array
+    {
+        $sql = "UPDATE acd_tbstudent SET idinep = :inep WHERE idperson = :personId";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":inep", $personModel->getIdInep());
+            $stmt->bindValue(":personId", $personModel->getIdPerson());
+            $stmt->execute();
+
+            $ret = true;
+            $result = array("message" => "", "object" => $personModel);
+        } catch (\PDOException $ex) {
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error updating INEP", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'DB Message' => $msg]);
+
+            $ret = false;
+            $result = array("message" => $msg, "object" => null);
+        }
+
+        return array("status" => $ret, "push" => $result);
     }
 }
