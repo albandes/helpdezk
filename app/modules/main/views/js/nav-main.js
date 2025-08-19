@@ -491,6 +491,14 @@ $(document).ready(function () {
                 if (obj.success) {
                     $('#modal-authenticator').modal('hide');
                     $('#modal-signature').modal('show');
+                    $('#authenticator-code').on('input', function () {
+                        var val = $(this).val();
+                        if (val.length === 6 && /^\d{6}$/.test(val)) {
+                            $('#btnConfirmAuthenticator').prop('disabled', false);
+                        } else {
+                            $('#btnConfirmAuthenticator').prop('disabled', true);
+                        }
+                    });
                 } else {
                     modalAlertMultiple('danger', obj.message || vocab['generic_error_msg'], 'alert-authenticator');
                 }
