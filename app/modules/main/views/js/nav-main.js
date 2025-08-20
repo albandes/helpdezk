@@ -454,7 +454,7 @@ $(document).ready(function () {
     });
     
     /* when the modal is hidden */
-    $('#modal-change-user-password').on('hidden.bs.modal', function() { 
+    $('#modal-change-user-password').on('hidden.bs.modal', function() {
         $('#modal-change-user-password-form').trigger('reset');
         
         if($("#modal-new-user-password").hasClass('error')){
@@ -491,14 +491,6 @@ $(document).ready(function () {
                 if (obj.success) {
                     $('#modal-authenticator').modal('hide');
                     $('#modal-signature').modal('show');
-                    $('#authenticator-code').on('input', function () {
-                        var val = $(this).val();
-                        if (val.length === 6 && /^\d{6}$/.test(val)) {
-                            $('#btnConfirmAuthenticator').prop('disabled', false);
-                        } else {
-                            $('#btnConfirmAuthenticator').prop('disabled', true);
-                        }
-                    });
                 } else {
                     modalAlertMultiple('danger', obj.message || vocab['generic_error_msg'], 'alert-authenticator');
                 }
@@ -511,20 +503,27 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Listener global para o input do autenticador
+    $(document).on('input', '#authenticator-code', function () {
+        var val = $(this).val();
+        if (val.length === 6 && /^\d{6}$/.test(val)) {
+            $('#btnConfirmAuthenticator').prop('disabled', false);
+        } else {
+            $('#btnConfirmAuthenticator').prop('disabled', true);
+        }
+    });
+    // Listener global para o input do código de assinatura
+    $(document).on('input', '#signature-auth-code', function () {
+        var val = $(this).val();
+        $('#btnSign').prop('disabled', !(val.length === 6 && /^\d{6}$/.test(val)));
+    });
 });
 
 function showModalSignature(qrcode, secret ) {
     if(qrcode) {
         $('#qrcode-img').attr('src', qrcode);
         $('#modal-authenticator').modal('show');
-        $('#authenticator-code').on('input', function () {
-            var val = $(this).val();
-            if (val.length === 6 && /^\d{6}$/.test(val)) {
-                $('#btnConfirmAuthenticator').prop('disabled', false);
-            } else {
-                $('#btnConfirmAuthenticator').prop('disabled', true);
-            }
-        });
     } else{
         $('#modal-signature').modal('show');
         $('#signature-auth-code').on('input', function () {
