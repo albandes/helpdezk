@@ -34,6 +34,11 @@ final class signatureModel
 	 */
 	private $signature_date;
 
+	/**
+	 * @var string|null
+	 */
+	private $userSecret2FA;
+
 	// Getters e Setters
 
 	public function getIdSignature()
@@ -99,6 +104,30 @@ final class signatureModel
 	public function setSignatureDate(?string $signature_date)
 	{
 		$this->signature_date = $signature_date;
+		return $this;
+	}
+
+	/**
+	 * Get the value of userSecret2FA
+	 *
+	 * @return  string|null
+	 */ 
+	public function getUserSecret2FA()
+	{
+		return $this->userSecret2FA;
+	}
+
+	/**
+	 * Set the value of userSecret2FA
+	 *
+	 * @param  string|null  $userSecret2FA
+	 *
+	 * @return  self
+	 */ 
+	public function setUserSecret2FA($userSecret2FA)
+	{
+		$this->userSecret2FA = $userSecret2FA;
+
 		return $this;
 	}
 }
