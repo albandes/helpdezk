@@ -489,8 +489,11 @@ $(document).ready(function () {
             success: function (ret) {
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if (obj.success) {
-                    $('#modal-authenticator').modal('hide');
-                    $('#modal-signature').modal('show');
+                    modalAlertMultiple('success', vocab['set_up_2FA_success'], 'alert-authenticator');
+
+                    setTimeout(function(){
+                        $('#modal-authenticator').modal('hide');
+                    },2000);
                 } else {
                     modalAlertMultiple('danger', obj.message || vocab['generic_error_msg'], 'alert-authenticator');
                 }

@@ -10,9 +10,14 @@ use RobThree\Auth\Providers\Qr\EndroidQrCodeWithLogoProvider;
 
 class mfaServices
 {
+    /**
+     * @var string
+     */
+    protected $appName;
 
     public function __construct()
     {
+        $this->appName = $_SESSION['SES_APP_NAME_INTEGRATIONS'];
     }
 
     /**
@@ -25,16 +30,15 @@ class mfaServices
      */
     public function generateQRCode()
     {
-
         $idperson = $_SESSION['SES_COD_USUARIO'];
         $signatureDAO = new \App\modules\main\dao\mysql\signatureDAO();
         $secret = $signatureDAO->hasAuthenticatorSecret($idperson);
         $qrcode = null;
         if (!$secret) {
             $qrcodeProvider = new EndroidQrCodeWithLogoProvider();
-            $tfa = new TwoFactorAuth('helpdezk auth',6,30,'sha512',$qrcodeProvider);
+            $tfa = new TwoFactorAuth($this->appName,6,30,'sha512',$qrcodeProvider);
             $secret = $tfa->createSecret();
-            $qrcode = $tfa->getQRCodeImageAsDataUri('user-'.$idperson,$secret);
+            $qrcode = $tfa->getQRCodeImageAsDataUri($_SESSION['SES_LOGIN_PERSON'],$secret);
         }
 
         return [
@@ -46,7 +50,7 @@ class mfaServices
     public function checkAuthCode($code, $secret)
     {
         $qrcodeProvider = new EndroidQrCodeWithLogoProvider();
-        $tfa = new TwoFactorAuth('helpdezk auth',6,30,'sha512',$qrcodeProvider);
+        $tfa = new TwoFactorAuth($this->appName,6,30,'sha512',$qrcodeProvider);
         $isValid = $tfa->verifyCode($secret, $code);
         return [
             'isValid' => $isValid
