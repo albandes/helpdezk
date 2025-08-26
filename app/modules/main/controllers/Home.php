@@ -545,9 +545,9 @@ class Home extends Controller
                 $msg = "";
 
                 $qrcodeProvider = new EndroidQrCodeWithLogoProvider();
-                $tfa = new TwoFactorAuth('helpdezk auth',6,30,'sha512',$qrcodeProvider);
+                $tfa = new TwoFactorAuth($_SESSION['SES_APP_NAME_INTEGRATIONS'],6,30,'sha512',$qrcodeProvider);
                 $secret = $tfa->createSecret();
-                $qrcode = $tfa->getQRCodeImageAsDataUri('user-'.$idperson,$secret);
+                $qrcode = $tfa->getQRCodeImageAsDataUri($_SESSION['SES_LOGIN_PERSON'],$secret);
             }
         }
 
