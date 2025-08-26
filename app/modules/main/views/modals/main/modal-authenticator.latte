@@ -24,10 +24,12 @@
                 </div>
                 
                 <div class="row g2 text-center">
-                    <label for="authenticator-code" class="col-form-label text-start">{='authenticator_code'|translate}</label>
-                    <input type="hidden" name="code" id="secret" class="form-control form-control-sm" placeholder="{='authenticator_code'|translate}" />
+                    <div class="row col-sm-5 mx-auto">
+                        <label for="authenticator-code" class="hdk-label col-form-label text-center">{='authenticator_code'|translate}</label>
+                        <input type="hidden" name="code" id="secret" class="form-control form-control-sm" placeholder="{='authenticator_code'|translate}" />
+                    </div>
                     <div class="col-sm-4 mx-auto">
-                        <input type="text" name="secret" id="authenticator-code" class="form-control form-control-sm" placeholder="{='authenticator_code'|translate}" />
+                        <input type="text" name="secret" id="authenticator-code" class="form-control form-control-sm" placeholder="000000" />
                     </div>
                 </div>
 
