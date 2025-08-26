@@ -255,7 +255,8 @@ class appServices
             "vocabulary"                => $this->_loadVocabulary(),
             "lang"                      => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
             "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
-            "navUserId"                 => (isset($_SESSION['SES_COD_USUARIO']) && !empty($_SESSION['SES_COD_USUARIO'])) ? $_SESSION['SES_COD_USUARIO'] : 0
+            "navUserId"                 => (isset($_SESSION['SES_COD_USUARIO']) && !empty($_SESSION['SES_COD_USUARIO'])) ? $_SESSION['SES_COD_USUARIO'] : 0,
+            "modalUser2FASetup"         => $this->_getUser2FASetupTemplate()
         );
     }
     
@@ -723,11 +724,12 @@ class appServices
      * @return void
      */
     public function _pageHelper(&$pq_curPage, $pq_rPP, $total_Records){
+        $pq_curPage = ($pq_curPage == 0 ) ? 1 : $pq_curPage;
         $skip = ($pq_curPage > 0) ? ($pq_rPP * ($pq_curPage - 1)) : 0;
 
         if ($skip >= $total_Records)
         {        
-            $pq_curPage = ceil($total_Records / $pq_rPP);
+            $pq_curPage = ($total_Records > 0) ? ceil($total_Records / $pq_rPP) : 1;
             $skip = ($pq_curPage > 0) ? ($pq_rPP * ($pq_curPage - 1)) : 0;
         }    
         return $skip;
@@ -3901,5 +3903,19 @@ class appServices
 
         // If signature is valid and token is not expired, return the payload data.
         return $decoded;
+    }
+    
+    
+    /**
+     * _getUser2FASetupTemplate
+     * 
+     * en_us Returns the template path for the user’s 2FA setup.
+     * pt_br Retorna o caminho do template para configuração da 2FA do usuário.
+     *
+     * @return void
+     */
+    public function _getUser2FASetupTemplate()
+    {
+        return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-authenticator.latte';
     }
 }
