@@ -136,4 +136,41 @@ class signatureDAO extends Database
 
 		return ["status" => $aret, "push" => $result];
 	}
+	
+	/**
+	 * getUser2FASecret
+	 * 
+	 * en_us Returns the user’s 2FA secret
+	 * pt_br Retorna o secret 2FA do usuário
+	 *
+	 * @param  signatureModel $signatureModel
+	 * @return array Parameters returned in array: 
+     *               [status = true/false
+     *                push =  [message = PDO Exception message 
+     *                         object = model's object]]
+	 */
+	public function getUser2FASecret(signatureModel $signatureModel): array
+	{
+		$sql = "SELECT secret_authenticator FROM tbperson WHERE idperson = :personId";
+		
+		try{
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":personId",$signatureModel->getIdPerson());
+            $stmt->execute();
+
+            $aRet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $signatureModel->setUserSecret2FA((!is_null($aRet['secret_authenticator']) && !empty($aRet['secret_authenticator'])) ? $aRet['secret_authenticator'] : null);
+            
+            $ret = true;
+            $result = array("message"=>"","object"=>$signatureModel);
+        }catch(\PDOException $ex){
+            $msg = $ex->getMessage();
+            $this->loggerDB->error("Error getting user's 2FA secret", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__, 'DB Message' => $msg]);
+            
+            $ret = false;
+            $result = array("message"=>$msg,"object"=>null);
+        }
+
+        return array("status"=>$ret,"push"=>$result);
+	}
 }

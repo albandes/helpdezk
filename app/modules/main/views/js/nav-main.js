@@ -513,10 +513,45 @@ $(document).ready(function () {
             $('#btnConfirmAuthenticator').prop('disabled', true);
         }
     });
+
     // Listener global para o input do código de assinatura
     $(document).on('input', '#signature-auth-code', function () {
         var val = $(this).val();
         $('#btnSign').prop('disabled', !(val.length === 6 && /^\d{6}$/.test(val)));
+    });
+
+    $("#btnSetUser2FA").click(function(){
+        if(!$("#btnSetUser2FA").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url:  path + '/main/home/isTwoFactorSetupRequired',
+                dataType: 'json',
+                data: {
+                    userId: $('#nav-user-id').val()
+                },
+                error: function (ret) {
+                    showAlert(vocab['generic_error_msg'],'danger');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        if(obj.needsSetup) {
+                            showModalSignature(obj.qrCode, obj.secret);
+                        }else{
+                            showAlert(obj.message,'warning');
+                        }
+                    } else {
+                        showAlert(obj.message,'danger');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnSetUser2FA").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnSetUser2FA").removeClass('disabled');
+                }
+            });
+        }
     });
 });
 

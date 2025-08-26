@@ -6,14 +6,18 @@ use App\modules\admin\dao\mysql\loginDAO;
 use App\modules\admin\dao\mysql\personDAO;
 use App\modules\main\dao\mysql\externalappDAO;
 use App\modules\main\dao\mysql\usersettingsDAO;
+use App\modules\main\dao\mysql\signatureDAO;
 
 use App\modules\admin\models\mysql\loginModel;
 use App\modules\admin\models\mysql\personModel;
 use App\modules\main\models\mysql\externalappModel;
 use App\modules\main\models\mysql\externalappfieldModel;
 use App\modules\main\models\mysql\usersettingsModel;
+use App\modules\main\models\mysql\signatureModel;
 
 use App\modules\main\src\mainServices;
+use RobThree\Auth\TwoFactorAuth;
+use RobThree\Auth\Providers\Qr\EndroidQrCodeWithLogoProvider;
 use App\src\mfaServices;
 
 class Home extends Controller
@@ -502,5 +506,51 @@ class Home extends Controller
         }
         
         echo json_encode(['success' => true, 'message' => $this->translator->translate('secret_saved')]);
+    }
+    
+    /**
+     * isTwoFactorSetupRequired
+     *
+     * en_us Checks if the user needs to set up 2FA
+     * pt_br Verifica se o usuário precisa configurar a 2FA.
+     *
+     * @return void
+     */
+    public function isTwoFactorSetupRequired()
+    {        
+        $signatureDAO = new signatureDAO();
+        $signatureDTO = new signatureModel();        
+        $signatureDTO->setIdPerson($_POST['userId']);
+        
+        $retSecret = $signatureDAO->getUser2FASecret($signatureDTO);
+        
+        if(!$retSecret['status']){
+            $this->logger->error("Can't get user's 2FA secret. User ID: {$_POST['userId']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $retSecret['push']['message']]);
+            $st = false;
+            $msg = $this->translator->translate('generic_error_msg');
+            $qrcode = "";
+            $secret = "";
+        }else{
+            $this->logger->debug("User's 2FA secret got successfully. User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $st = true;
+            
+            $secret = $retSecret['push']['object']->getUserSecret2FA();
+            if(!is_null($secret)){
+                $needsSetup = false;
+                $msg = "{$this->translator->translate('no_need_2FA_setup')}";
+                $qrcode = "";
+                $secret = "";
+            }else{
+                $needsSetup = true;
+                $msg = "";
+
+                $qrcodeProvider = new EndroidQrCodeWithLogoProvider();
+                $tfa = new TwoFactorAuth('helpdezk auth',6,30,'sha512',$qrcodeProvider);
+                $secret = $tfa->createSecret();
+                $qrcode = $tfa->getQRCodeImageAsDataUri('user-'.$idperson,$secret);
+            }
+        }
+
+        echo json_encode(array('success'=>$st,'message'=>$msg,'needsSetup'=>$needsSetup,'qrCode'=>$qrcode,'secret'=>$secret));
     }
 }
