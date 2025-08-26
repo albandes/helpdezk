@@ -256,7 +256,8 @@ class appServices
             "lang"                      => $this->_formatLanguageParam($_ENV["DEFAULT_LANG"]),
             "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
             "navUserId"                 => (isset($_SESSION['SES_COD_USUARIO']) && !empty($_SESSION['SES_COD_USUARIO'])) ? $_SESSION['SES_COD_USUARIO'] : 0,
-            "modalUser2FASetup"         => $this->_getUser2FASetupTemplate()
+            "modalUser2FASetup"         => $this->_getUser2FASetupTemplate(),
+            "modalAlert"                => $this->_getAlertModalTemplate()
         );
     }
     
@@ -3903,8 +3904,7 @@ class appServices
 
         // If signature is valid and token is not expired, return the payload data.
         return $decoded;
-    }
-    
+    }    
     
     /**
      * _getUser2FASetupTemplate
@@ -3917,5 +3917,18 @@ class appServices
     public function _getUser2FASetupTemplate()
     {
         return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-authenticator.latte';
+    }    
+    
+    /**
+     * _getAlertModalTemplate
+     * 
+     * en_us Returns the template path for the notifications modal.
+     * pt_br Retorna o caminho do template do modal de notificações.
+     *
+     * @return void
+     */
+    public function _getAlertModalTemplate()
+    {
+        return $this->_getHelpdezkPath().'/app/modules/main/views/modals/main/modal-alert.latte';
     }
 }
