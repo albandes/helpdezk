@@ -548,6 +548,7 @@ class Home extends Controller
                 $tfa = new TwoFactorAuth($_SESSION['SES_APP_NAME_INTEGRATIONS'],6,30,'sha512',$qrcodeProvider);
                 $secret = $tfa->createSecret();
                 $qrcode = $tfa->getQRCodeImageAsDataUri($_SESSION['SES_LOGIN_PERSON'],$secret);
+
             }
         }
 
