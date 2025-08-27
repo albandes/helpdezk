@@ -454,7 +454,7 @@ $(document).ready(function () {
     });
     
     /* when the modal is hidden */
-    $('#modal-change-user-password').on('hidden.bs.modal', function() { 
+    $('#modal-change-user-password').on('hidden.bs.modal', function() {
         $('#modal-change-user-password-form').trigger('reset');
         
         if($("#modal-new-user-password").hasClass('error')){
@@ -489,8 +489,11 @@ $(document).ready(function () {
             success: function (ret) {
                 var obj = jQuery.parseJSON(JSON.stringify(ret));
                 if (obj.success) {
-                    $('#modal-authenticator').modal('hide');
-                    $('#modal-signature').modal('show');
+                    modalAlertMultiple('success', vocab['set_up_2FA_success'], 'alert-authenticator');
+
+                    setTimeout(function(){
+                        $('#modal-authenticator').modal('hide');
+                    },2000);
                 } else {
                     modalAlertMultiple('danger', obj.message || vocab['generic_error_msg'], 'alert-authenticator');
                 }
@@ -503,20 +506,62 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Listener global para o input do autenticador
+    $(document).on('input', '#authenticator-code', function () {
+        var val = $(this).val();
+        if (val.length === 6 && /^\d{6}$/.test(val)) {
+            $('#btnConfirmAuthenticator').prop('disabled', false);
+        } else {
+            $('#btnConfirmAuthenticator').prop('disabled', true);
+        }
+    });
+
+    // Listener global para o input do código de assinatura
+    $(document).on('input', '#signature-auth-code', function () {
+        var val = $(this).val();
+        $('#btnSign').prop('disabled', !(val.length === 6 && /^\d{6}$/.test(val)));
+    });
+
+    $("#btnSetUser2FA").click(function(){
+        if(!$("#btnSetUser2FA").hasClass('disabled')){
+            $.ajax({
+                type: "POST",
+                url:  path + '/main/home/isTwoFactorSetupRequired',
+                dataType: 'json',
+                data: {
+                    userId: $('#nav-user-id').val()
+                },
+                error: function (ret) {
+                    showAlert(vocab['generic_error_msg'],'danger');
+                },
+                success: function(ret){
+                    var obj = jQuery.parseJSON(JSON.stringify(ret));
+                    if(obj.success) {
+                        if(obj.needsSetup) {
+                            showModalSignature(obj.qrCode, obj.secret);
+                        }else{
+                            showAlert(obj.message,'warning');
+                        }
+                    } else {
+                        showAlert(obj.message,'danger');
+                    }
+                },
+                beforeSend: function(){
+                    $("#btnSetUser2FA").addClass('disabled');
+                },
+                complete: function(){
+                    $("#btnSetUser2FA").removeClass('disabled');
+                }
+            });
+        }
+    });
 });
 
 function showModalSignature(qrcode, secret ) {
     if(qrcode) {
         $('#qrcode-img').attr('src', qrcode);
         $('#modal-authenticator').modal('show');
-        $('#authenticator-code').on('input', function () {
-            var val = $(this).val();
-            if (val.length === 6 && /^\d{6}$/.test(val)) {
-                $('#btnConfirmAuthenticator').prop('disabled', false);
-            } else {
-                $('#btnConfirmAuthenticator').prop('disabled', true);
-            }
-        });
     } else{
         $('#modal-signature').modal('show');
         $('#signature-auth-code').on('input', function () {

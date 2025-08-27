@@ -254,7 +254,7 @@ class adminServices
             $aRet = array();
             foreach($countries as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idcountry'],
+                    "id" => "{$v['idcountry']}",
                     "text" => $v['printablename']
                 );
 
@@ -285,7 +285,7 @@ class adminServices
             $aRet = array();
             foreach($states as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idstate'],
+                    "id" => "{$v['idstate']}",
                     "text" => $v['name']
                 );
 
@@ -386,7 +386,7 @@ class adminServices
             $aRet = array();
             foreach($neighborhoods as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idneighborhood'],
+                    "id" => "{$v['idneighborhood']}",
                     "text" => $v['name']
                 );
 
@@ -435,7 +435,7 @@ class adminServices
             $aRet = array();
             foreach($streetTypes as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idtypestreet'],
+                    "id" => (string)$v['idtypestreet'],
                     "text" => $v['name']
                 );
 
@@ -466,7 +466,7 @@ class adminServices
             $aRet = array();
             foreach($streets as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idstreet'],
+                    "id" => "{$v['idstreet']}",
                     "text" => $v['name']
                 );
 
@@ -662,7 +662,7 @@ class adminServices
             $aRet = array();
             foreach($locations as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idlocation'],
+                    "id" =>  (string)$v['idlocation'],
                     "text" => $v['name']
                 );
 
@@ -705,7 +705,7 @@ class adminServices
             $aRet = array();
             foreach($countries as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idcountry'],
+                    "id" => (string)$v['idcountry'],
                     "name" => $v['printablename'],
                 );
 
@@ -749,7 +749,7 @@ class adminServices
             
             foreach($states as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idstate'],
+                    "id" => (string)$v['idstate'],
                     "name" => $v['name'],
                 );
 
@@ -793,7 +793,7 @@ class adminServices
 
             foreach($cities as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idcity'],
+                    "id" => (string)$v['idcity'],
                     "name" => $v['name'],
                 );
 
@@ -837,7 +837,7 @@ class adminServices
             
             foreach($neighborhoods as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idneighborhood'],
+                    "id" => (string) $v['idneighborhood'],
                     "name" => $v['name'],
                 );
 
@@ -881,7 +881,7 @@ class adminServices
             
             foreach($neighborhoods as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idstreet'],
+                    "id" => (string)$v['idstreet'],
                     "name" => $v['name'],
                     "typeStreetId" => $v['idtypestreet']
                 );
@@ -1008,7 +1008,7 @@ class adminServices
             
             foreach($groups as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idgroup'],
+                    "id" => "{$v['idgroup']}",
                     "name" => $v['name'],
                     "company" => $v['company']
                 );
@@ -1204,7 +1204,7 @@ class adminServices
             $aRet = array();
             foreach($persons as $k=>$v) {
                 $bus =  array(
-                    "id" => $v['idperson'],
+                    "id" => "{$v['idperson']}",
                     "name" => "{$v['name']}",
                     "login" => $v['login'],
                     "email" => $v['email']
