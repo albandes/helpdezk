@@ -19,6 +19,7 @@ class signatureDAO extends Database
 	 */
 	public function createSignature(signatureModel $model): array
 	{
+		$this->db->beginTransaction();
 		try {
 
 			$hash = hash(
@@ -30,13 +31,22 @@ class signatureDAO extends Database
 			);
 			$model->setHash($hash);
 
-			$sql = "INSERT INTO tbsignatures (idperson, type, type_id, hash, signature_date)
-                    VALUES (:idperson, :type, :type_id, :hash, NOW())";
+			$deleteSql = "DELETE FROM tbsignatures WHERE idperson = :idperson AND type = :type AND type_id = :type_id AND filename = :filename";
+			$deleteStmt = $this->db->prepare($deleteSql);
+			$deleteStmt->bindValue(':idperson', $model->getIdPerson());
+			$deleteStmt->bindValue(':type', $model->getType());
+			$deleteStmt->bindValue(':type_id', $model->getTypeId());
+			$deleteStmt->bindValue(':filename', $model->getFilename());
+			$deleteStmt->execute();
+
+			$sql = "INSERT INTO tbsignatures (idperson, type, type_id, hash, signature_date, filename)
+						VALUES (:idperson, :type, :type_id, :hash, NOW(), :filename)";
 			$stmt = $this->db->prepare($sql);
 			$stmt->bindValue(':idperson', $model->getIdPerson());
 			$stmt->bindValue(':type', $model->getType());
 			$stmt->bindValue(':type_id', $model->getTypeId());
 			$stmt->bindValue(':hash', $model->getHash());
+			$stmt->bindValue(':filename', $model->getFilename());
 			$stmt->execute();
 
 			$model->setIdSignature($this->db->lastInsertId());
@@ -46,6 +56,7 @@ class signatureDAO extends Database
 				"message" => "",
 				"object" => $model
 			];
+			$this->db->commit();
 		} catch (\PDOException $ex) {
 			$msg = $ex->getMessage();
 			$this->loggerDB->error("Error saving signature with single model.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'DB Message' => $msg]);
@@ -54,6 +65,7 @@ class signatureDAO extends Database
 				"message" => $msg,
 				"object" => null
 			];
+			$this->db->rollBack();
 		}
 
 		return array("status" => $aret, "push" => $result);
