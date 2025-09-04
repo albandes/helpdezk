@@ -2376,7 +2376,7 @@ class appServices
         $programDAO = new programDAO();
         $programModel = new programModel();
         
-        $ret = $programDAO->queryPrograms("WHERE LOWER(controller) = LOWER('{$programName}')");
+        $ret = $programDAO->queryPrograms("WHERE controller_lower = LOWER('{$programName}')");
         if(!$ret['status']){
             $this->applogger->error("Can't get program's data. Error: {$ret['push']['message']}",['Class' => __CLASS__, 'Method' => __METHOD__]);
             return 0;
