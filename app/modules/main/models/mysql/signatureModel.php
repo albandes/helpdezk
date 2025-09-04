@@ -38,6 +38,11 @@ final class signatureModel
 	 * @var string|null
 	 */
 	private $userSecret2FA;
+	
+	/**
+	 * @var string|null
+	 */
+	private $filename;
 
 	// Getters e Setters
 
@@ -127,6 +132,30 @@ final class signatureModel
 	public function setUserSecret2FA($userSecret2FA)
 	{
 		$this->userSecret2FA = $userSecret2FA;
+
+		return $this;
+	}
+
+	/**
+	 * Get the value of filename
+	 *
+	 * @return  string|null
+	 */ 
+	public function getFilename()
+	{
+		return $this->filename;
+	}
+
+	/**
+	 * Set the value of filename
+	 *
+	 * @param  string|null  $filename
+	 *
+	 * @return  self
+	 */ 
+	public function setFilename($filename)
+	{
+		$this->filename = $filename;
 
 		return $this;
 	}

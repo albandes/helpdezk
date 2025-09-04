@@ -41,17 +41,17 @@ class programDAO extends Database
                     ON pvoc.key_name = tbp.smarty
                   JOIN tblocale ploc
                     ON (ploc.idlocale = pvoc.idlocale AND
-                        LOWER(ploc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        ploc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                   JOIN tbvocabulary mvoc
                     ON mvoc.key_name = tbm.smarty
                   JOIN tblocale mloc
                     ON (mloc.idlocale = mvoc.idlocale AND
-                        LOWER(mloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        mloc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                   JOIN tbvocabulary pcvoc
                     ON pcvoc.key_name = tbtp.smarty
                   JOIN tblocale pcloc
                     ON (pcloc.idlocale = pcvoc.idlocale AND
-                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}')) 
+                        pcloc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')) 
                 $where $group $order $limit";
         
         try{
@@ -96,17 +96,17 @@ class programDAO extends Database
                     ON pvoc.key_name = tbp.smarty
                   JOIN tblocale ploc
                     ON (ploc.idlocale = pvoc.idlocale AND
-                        LOWER(ploc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        ploc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                   JOIN tbvocabulary mvoc
                     ON mvoc.key_name = tbm.smarty
                   JOIN tblocale mloc
                     ON (mloc.idlocale = mvoc.idlocale AND
-                        LOWER(mloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        mloc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                   JOIN tbvocabulary pcvoc
                     ON pcvoc.key_name = tbtp.smarty
                   JOIN tblocale pcloc
                     ON (pcloc.idlocale = pcvoc.idlocale AND
-                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}')) 
+                        pcloc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')) 
                 $where";
 
         try{
@@ -145,7 +145,7 @@ class programDAO extends Database
         $sql = "SELECT idprogramcategory, a.name, 
                         (SELECT key_value FROM tbvocabulary b, tblocale c
                           WHERE (c.idlocale = b.idlocale AND
-                                LOWER(c.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                                c.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                             AND b.key_name = a.smarty) name_fmt
                   FROM tbprogramcategory a
                  WHERE a.idmodule = :moduleID
@@ -378,17 +378,17 @@ class programDAO extends Database
                     ON pvoc.key_name = tbp.smarty
                   JOIN tblocale ploc
                     ON (ploc.idlocale = pvoc.idlocale AND
-                        LOWER(ploc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        ploc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                   JOIN tbvocabulary mvoc
                     ON mvoc.key_name = tbm.smarty
                   JOIN tblocale mloc
                     ON (mloc.idlocale = mvoc.idlocale AND
-                        LOWER(mloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        mloc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
                   JOIN tbvocabulary pcvoc
                     ON pcvoc.key_name = tbtp.smarty
                   JOIN tblocale pcloc
                     ON (pcloc.idlocale = pcvoc.idlocale AND
-                        LOWER(pcloc.name) = LOWER('{$_ENV['DEFAULT_LANG']}'))
+                        pcloc.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}'))
        LEFT OUTER JOIN tbdefaultpermission dp
                     ON dp.idprogram = tbp.idprogram
                  WHERE tbp.idprogram = :programId";
