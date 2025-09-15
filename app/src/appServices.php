@@ -3965,7 +3965,7 @@ class appServices
             if ($unit === 0) {
                 return $tens[$ten];
             } else {
-                return $tens[$ten] . " e " . $units[$unit]; // em inglês usa-se hífen entre dezenas e unidades
+                return $tens[$ten] . " e " . $units[$unit];
             }
         } else {
             return "Number out of range (0-99)";
