@@ -51,104 +51,103 @@ class docuSignServices
     }
 
     private function _authenticate(): void
-{
-    // Lê a chave privada
-    $privateKey = file_get_contents($this->privateKeyPath);
-    if ($privateKey === false) {
-        $this->docuSignLogger->error("Não foi possível ler a chave privada", [
-            'privateKeyPath' => $this->privateKeyPath
-        ]);
-        throw new \Exception("Não foi possível ler a chave privada: {$this->privateKeyPath}");
-    }
-
-    // Configuração do client com o host correto
-    $config = new Configuration();
-    $config->setHost('https://demo.docusign.net/restapi'); // base URI default, será atualizado dinamicamente depois do login
-    $this->apiClient = new ApiClient($config);
-
-    // Define o ambiente OAuth
-    $this->apiClient->getOAuth()->setOAuthBasePath($this->oauthHost);
-
-    $scopes = ["signature", "impersonation"];
-    $expiresIn = 3600;
-
-    $this->docuSignLogger->debug("Tentando autenticar", [
-        'clientId' => $this->clientId,
-        'impersonatedUserId' => $this->impersonatedUserId,
-        'oauthHost' => $this->oauthHost,
-        'privateKeyPath' => $this->privateKeyPath
-    ]);
-
-    try {
-        // Solicita o token JWT
-        $oauthTokenArray = $this->apiClient->requestJWTUserToken(
-            $this->clientId,
-            $this->impersonatedUserId,
-            $privateKey,
-            $scopes,
-            $expiresIn
-        );
-    } catch (\Exception $ex) {
-        $this->docuSignLogger->error("Falha ao gerar token JWT", [
-            'message' => $ex->getMessage(),
-            'trace' => $ex->getTraceAsString()
-        ]);
-        throw new \Exception("Falha ao gerar token JWT: " . $ex->getMessage());
-    }
-
-    // Extrai o access token
-    if (is_array($oauthTokenArray) && isset($oauthTokenArray[0]) && $oauthTokenArray[0] instanceof \DocuSign\eSign\Client\Auth\OAuthToken) {
-        $accessToken = $oauthTokenArray[0]->getAccessToken();
-    } else {
-        $this->docuSignLogger->error("Não foi possível extrair access_token do JWT", [
-            'oauthToken' => $oauthTokenArray
-        ]);
-        throw new \Exception("Não foi possível extrair access_token do JWT");
-    }
-
-    // Configura o access token no client
-    $this->apiClient->getConfig()->setAccessToken($accessToken, $expiresIn);
-
-    // Obtém informações do usuário
-    try {
-        $userInfo = $this->apiClient->getUserInfo($accessToken);
-        $account = $userInfo[0]["accounts"][0] ?? null;
-
-        if (empty($account['account_id']) || empty($account['base_uri'])) {
-            throw new \Exception("account_id ou base_uri não encontrados na conta do usuário");
+    {
+        // Lê a chave privada
+        $privateKey = file_get_contents($this->privateKeyPath);
+        if ($privateKey === false) {
+            $this->docuSignLogger->error("Não foi possível ler a chave privada", [
+                'privateKeyPath' => $this->privateKeyPath
+            ]);
+            throw new \Exception("Não foi possível ler a chave privada: {$this->privateKeyPath}");
         }
 
-        $this->accountId = $account['account_id'];
+        // Configuração do client com o host correto
+        $config = new Configuration();
+        $config->setHost('https://demo.docusign.net/restapi'); // base URI default, será atualizado dinamicamente depois do login
+        $this->apiClient = new ApiClient($config);
 
-        // Atualiza dinamicamente o host do ApiClient para a conta real
-        $this->apiClient->getConfig()->setHost(rtrim($account['base_uri'], '/') . '/restapi');
+        // Define o ambiente OAuth
+        $this->apiClient->getOAuth()->setOAuthBasePath($this->oauthHost);
 
-        // Logging seguro das contas
-        $safeAccounts = array_map(function($acc) {
-            return [
-                'account_id' => $acc['account_id'] ?? null,
-                'account_name' => $acc['account_name'] ?? null,
-                'base_uri' => $acc['base_uri'] ?? null
-            ];
-        }, $userInfo[0]["accounts"]);
+        $scopes = ["signature", "impersonation"];
+        $expiresIn = 3600;
 
-        $this->docuSignLogger->info("Autenticação DocuSign concluída com sucesso", [
-            'accountId' => $this->accountId,
-            'baseUri' => $account['base_uri'],
-            'total_accounts' => count($safeAccounts)
+        $this->docuSignLogger->debug("Tentando autenticar", [
+            'clientId' => $this->clientId,
+            'impersonatedUserId' => $this->impersonatedUserId,
+            'oauthHost' => $this->oauthHost,
+            'privateKeyPath' => $this->privateKeyPath
         ]);
 
-    } catch (\Exception $ex) {
-        $this->docuSignLogger->error("Falha ao obter informações do usuário", [
-            'message' => $ex->getMessage(),
-            'trace' => $ex->getTraceAsString()
-        ]);
-        throw new \Exception("Falha ao obter informações do usuário: " . $ex->getMessage());
+        try {
+            // Solicita o token JWT
+            $oauthTokenArray = $this->apiClient->requestJWTUserToken(
+                $this->clientId,
+                $this->impersonatedUserId,
+                $privateKey,
+                $scopes,
+                $expiresIn
+            );
+        } catch (\Exception $ex) {
+            $this->docuSignLogger->error("Falha ao gerar token JWT", [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString()
+            ]);
+            throw new \Exception("Falha ao gerar token JWT: " . $ex->getMessage());
+        }
+
+        // Extrai o access token
+        if (is_array($oauthTokenArray) && isset($oauthTokenArray[0]) && $oauthTokenArray[0] instanceof \DocuSign\eSign\Client\Auth\OAuthToken) {
+            $accessToken = $oauthTokenArray[0]->getAccessToken();
+        } else {
+            $this->docuSignLogger->error("Não foi possível extrair access_token do JWT", [
+                'oauthToken' => $oauthTokenArray
+            ]);
+            throw new \Exception("Não foi possível extrair access_token do JWT");
+        }
+
+        // Configura o access token no client
+        $this->apiClient->getConfig()->setAccessToken($accessToken, $expiresIn);
+
+        // Obtém informações do usuário
+        try {
+            $userInfo = $this->apiClient->getUserInfo($accessToken);
+            $account = $userInfo[0]["accounts"][0] ?? null;
+
+            if (empty($account['account_id']) || empty($account['base_uri'])) {
+                throw new \Exception("account_id ou base_uri não encontrados na conta do usuário");
+            }
+
+            $this->accountId = $account['account_id'];
+
+            // Atualiza dinamicamente o host do ApiClient para a conta real
+            $this->apiClient->getConfig()->setHost(rtrim($account['base_uri'], '/') . '/restapi');
+
+            // Logging seguro das contas
+            $safeAccounts = array_map(function($acc) {
+                return [
+                    'account_id' => $acc['account_id'] ?? null,
+                    'account_name' => $acc['account_name'] ?? null,
+                    'base_uri' => $acc['base_uri'] ?? null
+                ];
+            }, $userInfo[0]["accounts"]);
+
+            $this->docuSignLogger->info("Autenticação DocuSign concluída com sucesso", [
+                'accountId' => $this->accountId,
+                'baseUri' => $account['base_uri'],
+                'total_accounts' => count($safeAccounts)
+            ]);
+
+        } catch (\Exception $ex) {
+            $this->docuSignLogger->error("Falha ao obter informações do usuário", [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString()
+            ]);
+            throw new \Exception("Falha ao obter informações do usuário: " . $ex->getMessage());
+        }
     }
-}
 
-
-    public function _sendEnvelope(string $pdfPath, array $signers): string
+    public function _sendEnvelope(string $pdfPath, array $signers, string $emailSubject): string
     {
         if (!file_exists($pdfPath)) {
             $message = "Arquivo não encontrado: $pdfPath";
@@ -199,7 +198,7 @@ class docuSignServices
 
         $recipients = new Recipients(['signers' => $signerObjs]);
         $envelopeDefinition = new EnvelopeDefinition([
-            'email_subject' => 'Por favor assinem o documento',
+            'email_subject' => $emailSubject,
             'documents'     => [$document],
             'recipients'    => $recipients,
             'status'        => 'sent'
