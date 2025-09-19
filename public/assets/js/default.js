@@ -282,6 +282,95 @@ function makeFilterValueField(fieldType)
     }
 }
 
+/**
+ * enableTableNavigation(className)
+ * 
+ * en_us Allows arrow-key navigation between inputs inside the same HTML table.
+ *       It scans each table that contains inputs with the provided class and builds
+ *       a logical grid numbering only the rows that actually contain inputs.
+ *       Works with single-column tables and with rows that have different numbers of inputs.
+ *       Call it after the table is in the DOM (re-call if you add/remove rows dynamically).
+ * 
+ * pt_br Permite navegação com as setas do teclado entre inputs dentro da mesma tabela HTML.
+ *       A função varre cada tabela que contenha inputs com a classe fornecida e cria
+ *       uma grade lógica numerando apenas as linhas que possuem inputs.
+ *       Funciona para tabelas com uma única coluna e para linhas com quantidade variável de inputs.
+ *       Chame a função após a tabela existir no DOM (re-chame se inserir/remover linhas dinamicamente).
+ */
+function enableTableNavigation(className) {
+  // Remove previous key handler for this class to avoid duplicate handlers when re-initializing
+  $(document).off('keydown', '.' + className);
+
+  // Build logical grid: for each table that contains inputs with the class
+  $("." + className).closest("table").each(function() {
+    var $table = $(this);
+    var logicalRow = 0;
+
+    // Iterate rows and only assign row numbers to rows that have at least one input of the class
+    $table.find("tr").each(function() {
+      var $row = $(this);
+      var $rowInputs = $row.find("." + className);
+
+      if ($rowInputs.length === 0) return; // skip rows without matching inputs
+
+      // remove any old attributes and assign new data attributes
+      $rowInputs.removeAttr("data-tbl-row data-tbl-col");
+      $rowInputs.each(function(colIdx) {
+        $(this).attr("data-tbl-row", logicalRow).attr("data-tbl-col", colIdx);
+      });
+
+      logicalRow++;
+    });
+  });
+
+  // Helper: get input in the same table at logical (row, col).
+  // If exact column doesn't exist in that row, clamp to the nearest available (last).
+  function getInputInTable($table, row, col) {
+    var selector = "." + className + '[data-tbl-row="' + row + '"]';
+    var $rowInputs = $table.find(selector);
+
+    if ($rowInputs.length === 0) return $(); // empty jQuery set
+
+    if (col >= 0 && col < $rowInputs.length) return $rowInputs.eq(col);
+    return $rowInputs.eq(Math.max(0, Math.min(col, $rowInputs.length - 1)));
+  }
+
+  // Bind keydown handler (delegated) to handle current and future inputs (attributes should be re-assigned if new rows are added)
+  $(document).on("keydown", "." + className, function(e) {
+    // Read logical coordinates from data attrs
+    var $current = $(this);
+    var row = parseInt($current.attr("data-tbl-row"), 10);
+    var col = parseInt($current.attr("data-tbl-col"), 10);
+    var $table = $current.closest("table");
+
+    // If attributes missing, do nothing (safe guard)
+    if (Number.isNaN(row) || Number.isNaN(col)) return;
+
+    var $target;
+    switch (e.which) {
+      case 37: // left
+        $target = getInputInTable($table, row, col - 1);
+        if ($target.length) { $target.focus(); e.preventDefault(); }
+        break;
+
+      case 39: // right
+        $target = getInputInTable($table, row, col + 1);
+        if ($target.length) { $target.focus(); e.preventDefault(); }
+        break;
+
+      case 38: // up
+        $target = getInputInTable($table, row - 1, col);
+        if ($target.length) { $target.focus(); e.preventDefault(); }
+        break;
+
+      case 40: // down
+        $target = getInputInTable($table, row + 1, col);
+        if ($target.length) { $target.focus(); e.preventDefault(); }
+        break;
+    }
+  });
+}
+
 
 $(document).ready(function () {
     // -- Date validation methods --
