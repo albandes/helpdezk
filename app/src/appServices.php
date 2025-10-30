@@ -772,6 +772,7 @@ class appServices
                 break;
             case 'bn': //does not begin with
                 $ret = "pipeLatinToUtf8(" . $column . ")" . ' NOT LIKE ' . "pipeLatinToUtf8('" . $search . '%' . "')";
+                break;
             case 'in': // is in
                 $ret = "pipeLatinToUtf8(" . $column . ")" . ' IN (' . "pipeLatinToUtf8('" . $search . "')" . ')';
                 break;

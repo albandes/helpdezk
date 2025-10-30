@@ -20,7 +20,8 @@
         "marioquintana/sicredi-pix-api": "^1.1.6",
         "robthree/twofactorauth": "^1.8",
         "endroid/qr-code": "^4.8",
-        "docusign/esign-client": "^8.4"
+        "docusign/esign-client": "^8.4",
+        "vinicinbgs/autentique-v2": "^4.3"
     },
     "config": {
         "platform-check": false
