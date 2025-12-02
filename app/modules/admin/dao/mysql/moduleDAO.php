@@ -140,50 +140,60 @@ class moduleDAO extends Database
         if($moduleModel->getUserID() == 1 || $moduleModel->getUserType() == 1){
             $cond = " AND tp.idtypeperson = 1";
         }else{
-            $cond = " AND (tp.idtypeperson IN
+            /* $cond = " AND (tp.idtypeperson IN
                         (SELECT idtypeperson
                            FROM tbpersontypes
                           WHERE idperson = '{$moduleModel->getUserID()}')
-                          OR tp.idtypeperson = p.idtypeperson)";
+                          OR tp.idtypeperson = p.idtypeperson)"; */
+            $cond = " AND (tp.idtypeperson = p.idtypeperson 
+                            OR tp.idtypeperson IN (SELECT idtypeperson 
+                                                     FROM tbpersontypes 
+                                                    WHERE idperson = '{$moduleModel->getUserID()}'))";
         }
         
-        $sql = "SELECT category_id, category, cat_smarty, cat_printable FROM 
-                ((SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty, v.key_value cat_printable
-                   FROM tbperson p, tbtypepersonpermission g, tbaccesstype a, tbprogram pr, tbmodule m,
-                        tbprogramcategory cat, tbtypeperson tp, tbvocabulary v, tblocale l
-                  WHERE g.idaccesstype = a.idaccesstype
-                    AND g.idprogram = pr.idprogram
-                    AND m.idmodule = cat.idmodule
-                    AND cat.idprogramcategory = pr.idprogramcategory
-                    AND tp.idtypeperson = g.idtypeperson
-                    AND cat.smarty = v.key_name
-                    AND v.idlocale = l.idlocale
-                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                    AND m.status = 'A'
-                    AND pr.status = 'A'
-                    AND p.idperson = :userID
-                    $cond
-                    AND g.idaccesstype = '1'
-                    AND g.allow = 'Y'
-                    AND m.idmodule = :moduleID)
-                  UNION
-                (SELECT DISTINCT cat.name AS category, cat.idprogramcategory AS category_id, cat.smarty AS cat_smarty, v.key_value cat_printable
-                   FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc, tbvocabulary v, tblocale l
-                  WHERE m.idmodule = cat.idmodule
-                    AND pr.idprogramcategory = cat.idprogramcategory
-                    AND per.idperson = p.idperson
-                    AND pr.idprogram = p.idprogram
-                    AND cat.smarty = v.key_name
-                    AND v.idlocale = l.idlocale
-                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                    AND m.status = 'A'
-                    AND pr.status = 'A'
-                    AND p.idperson = :userID
-                    AND p.idaccesstype = acc.idaccesstype
-                    AND p.idaccesstype = '1'
-                    AND p.allow = 'Y'
-                    AND m.idmodule = :moduleID)) AS tmp
-                    ORDER BY cat_printable";
+        $sql = "SELECT category_id, category, cat_smarty, cat_printable
+                  FROM (
+                        -- A) Permissões por grupo (tbtypepersonpermission)
+                        SELECT cat.idprogramcategory AS category_id, cat.name AS category, cat.smarty AS cat_smarty, v.key_value AS cat_printable
+                          FROM tbprogramcategory cat
+                          JOIN tbmodule m ON m.idmodule = cat.idmodule
+                          JOIN tbprogram pr ON pr.idprogramcategory = cat.idprogramcategory
+                          JOIN tbtypepersonpermission g ON g.idprogram = pr.idprogram
+                          JOIN tbtypeperson tp ON tp.idtypeperson = g.idtypeperson
+                          JOIN tbaccesstype a ON a.idaccesstype = g.idaccesstype
+                          JOIN tbperson p ON p.idperson = :userID
+                          JOIN tbvocabulary v ON v.key_name = cat.smarty
+                          JOIN tblocale l ON l.idlocale = v.idlocale
+                         WHERE l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                           AND m.status = 'A'
+                           AND pr.status = 'A'
+                           AND g.idaccesstype = '1'
+                           AND g.allow = 'Y'
+                           AND m.idmodule = :moduleID
+                           {$cond}
+
+                     UNION ALL
+                     
+                        -- B) Permissões diretas (tbpermission)
+                        SELECT cat.idprogramcategory AS category_id, cat.name AS category, cat.smarty AS cat_smarty, v.key_value AS cat_printable
+                          FROM tbprogramcategory cat
+                          JOIN tbmodule m ON m.idmodule = cat.idmodule
+                          JOIN tbprogram pr ON pr.idprogramcategory = cat.idprogramcategory
+                          JOIN tbpermission p ON p.idprogram = pr.idprogram
+                          JOIN tbaccesstype acc ON acc.idaccesstype = p.idaccesstype
+                          JOIN tbperson per ON per.idperson = p.idperson
+                          JOIN tbvocabulary v ON v.key_name = cat.smarty
+                          JOIN tblocale l ON l.idlocale = v.idlocale
+                         WHERE per.idperson = :userID
+                           AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                           AND m.status = 'A'
+                           AND pr.status = 'A'
+                           AND p.idaccesstype = '1'
+                           AND p.allow = 'Y'
+                           AND m.idmodule = :moduleID
+                        ) AS combined
+              GROUP BY category_id, category, cat_smarty, cat_printable
+              ORDER BY cat_printable";
         
         try{
             $stmt = $this->db->prepare($sql);
@@ -230,51 +240,71 @@ class moduleDAO extends Database
 
         $andModule = " m.idmodule = {$moduleModel->getIdModule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
         
-        $sql = "SELECT idmodule_pai, module, path, idmodule_origem, category, category_pai, cat_smarty, idcategory_origem, program, controller,
-                        pr_smarty, idprogram, allow,pr_printable
-                  FROM 
-                ((SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
-                        cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
-                        pr.idprogramcategory as idcategory_origem, pr.name as program, pr.controller as controller,
-                        pr.smarty   as pr_smarty, pr.idprogram as idprogram, g.allow, v.key_value pr_printable
-                   FROM tbperson p, tbtypepersonpermission g, tbaccesstype a, tbprogram pr, tbmodule m,
-                        tbprogramcategory cat, tbtypeperson tp, tbvocabulary v, tblocale l
-                  WHERE g.idaccesstype = a.idaccesstype
-                    AND g.idprogram = pr.idprogram
-                    AND m.idmodule = cat.idmodule
-                    AND cat.idprogramcategory = pr.idprogramcategory
-                    AND tp.idtypeperson = g.idtypeperson
-                    AND pr.smarty = v.key_name
-                    AND v.idlocale = l.idlocale
-                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                    AND m.status = 'A'
-                    AND pr.status = 'A'
-                    AND p.idperson = :userID
-                    $cond
-                    AND g.idaccesstype = '1'
-                    AND g.allow = 'Y'
-                    AND $andModule)
-                  UNION
-                (SELECT m.idmodule as idmodule_pai, m.name as module, m.path as path, cat.idmodule as idmodule_origem,
-                        cat.name as category, cat.idprogramcategory as category_pai, cat.smarty as cat_smarty,
-                        pr.idprogramcategory as idcategory_origem, pr.name as program, pr.controller as controller,
-                        pr.smarty as pr_smarty, pr.idprogram as idprogram, p.allow, v.key_value pgr_printable
-                   FROM tbperson per, tbpermission p, tbprogram  pr, tbmodule  m, tbprogramcategory  cat, tbaccesstype  acc,
-                        tbvocabulary v, tblocale l
-                  WHERE m.idmodule = cat.idmodule
-                    AND pr.idprogramcategory = cat.idprogramcategory
-                    AND per.idperson = p.idperson
-                    AND pr.idprogram = p.idprogram
-                    AND pr.smarty = v.key_name
-                    AND v.idlocale = l.idlocale
-                    AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                    AND m.status = 'A'
-                    AND pr.status = 'A'
-                    AND p.idperson = :userID
-                    AND p.idaccesstype = acc.idaccesstype
-                    AND p.idaccesstype = '1'
-                    AND $andModule)) AS tmp
-                    ORDER BY pr_printable";
+        $sql = "SELECT idmodule_pai, module, `path`, idmodule_origem, category, category_pai, cat_smarty, idcategory_origem, program, controller, pr_smarty, idprogram, allow, pr_printable
+                  FROM (
+                      /* ============================================================================
+                           BRANCH 1 — PERMISSIONS BY TYPE (tbtypepersonpermission)
+                      ============================================================================ */
+                      SELECT m.idmodule AS idmodule_pai, m.name AS module, m.path AS `path`, cat.idmodule AS idmodule_origem, cat.name AS category, cat.idprogramcategory AS category_pai,
+                             cat.smarty AS cat_smarty, pr.idprogramcategory AS idcategory_origem, pr.name AS program, pr.controller AS controller, pr.smarty AS pr_smarty, pr.idprogram AS idprogram,
+                             g.allow AS allow, v.key_value AS pr_printable
+                        FROM tbperson p
+                      /* Primary User Type */
+                        JOIN tbtypeperson tp
+                          ON tp.idtypeperson = p.idtypeperson
+                      /* Type-Based Permissions */
+                        JOIN tbtypepersonpermission g
+                          ON g.idtypeperson = tp.idtypeperson
+                        JOIN tbprogram pr 
+                          ON pr.idprogram = g.idprogram
+                        JOIN tbprogramcategory cat 
+                          ON cat.idprogramcategory = pr.idprogramcategory
+                        JOIN tbmodule m 
+                          ON m.idmodule = cat.idmodule
+                        JOIN tbvocabulary v 
+                          ON v.key_name = pr.smarty
+                        JOIN tblocale l 
+                          ON l.idlocale = v.idlocale
+                         AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                       WHERE p.idperson = :userID
+                     {$cond}
+                         AND g.idaccesstype = 1
+                         AND g.allow = 'Y'
+                         AND pr.status = 'A'
+                         AND m.status = 'A'
+                         AND {$andModule}
+
+                    UNION ALL
+
+                    /* ============================================================================
+                    BRANCH 2 — User-Specific Direct Permissions (tbpermission)
+                    ============================================================================ */
+                       SELECT m.idmodule AS idmodule_pai, m.name AS module, m.path AS `path`, cat.idmodule AS idmodule_origem, cat.name AS category, cat.idprogramcategory AS category_pai,
+                              cat.smarty AS cat_smarty, pr.idprogramcategory AS idcategory_origem, pr.name AS program, pr.controller AS controller, pr.smarty AS pr_smarty, pr.idprogram AS idprogram,
+                              perm.allow AS allow, v.key_value AS pr_printable
+                         FROM tbpermission perm
+                         JOIN tbperson per 
+                           ON per.idperson = perm.idperson
+                         JOIN tbprogram pr 
+                           ON pr.idprogram = perm.idprogram
+                         JOIN tbprogramcategory cat 
+                           ON cat.idprogramcategory = pr.idprogramcategory
+                         JOIN tbmodule m 
+                           ON m.idmodule = cat.idmodule
+                         JOIN tbvocabulary v 
+                           ON v.key_name = pr.smarty
+                         JOIN tblocale l 
+                           ON l.idlocale = v.idlocale
+                          AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                        WHERE perm.idperson = :userID
+                          AND perm.idaccesstype = 1
+                          AND perm.allow = 'Y'
+                          AND pr.status = 'A'
+                          AND m.status = 'A'
+                          AND {$andModule}
+
+                        ) AS tmp
+                ORDER BY pr_printable";
         
         try{
             $stmt = $this->db->prepare($sql);
