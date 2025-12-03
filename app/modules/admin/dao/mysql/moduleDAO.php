@@ -229,86 +229,86 @@ class moduleDAO extends Database
     public function fetchPermissionMenu(moduleModel $moduleModel): array
     {        
         if($moduleModel->getUserID() == 1 || $moduleModel->getUserType() == 1){
-            $cond = " AND tp.idtypeperson = 1";
+            $cond = "SELECT p.idtypeperson
+                       FROM tbperson p
+                      WHERE p.idperson = {$moduleModel->getUserID()}";
         }else{
-            $cond = " AND (tp.idtypeperson IN
-                            (SELECT idtypeperson
-                               FROM tbpersontypes
-                              WHERE idperson = '{$moduleModel->getUserID()}')
-                           OR tp.idtypeperson = p.idtypeperson)";
+            /* pega todos os tipos do usuário, incluindo o tipo principal */
+            $cond = "SELECT idtypeperson
+                       FROM tbpersontypes
+                      WHERE idperson = {$moduleModel->getUserID()}
+             UNION DISTINCT
+                     SELECT p.idtypeperson
+                       FROM tbperson p
+                      WHERE p.idperson = {$moduleModel->getUserID()}";
         }
 
-        $andModule = " m.idmodule = {$moduleModel->getIdModule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
+        //$andModule = " m.idmodule = {$moduleModel->getIdModule()} AND cat.idprogramcategory = {$moduleModel->getCategoryID()}";
         
-        $sql = "SELECT idmodule_pai, module, `path`, idmodule_origem, category, category_pai, cat_smarty, idcategory_origem, program, controller, pr_smarty, idprogram, allow, pr_printable
+        $sql = "WITH user_types AS ({$cond})
+                SELECT idmodule_pai, module, `path`, idmodule_origem, category, category_pai, cat_smarty, idcategory_origem, program, controller, pr_smarty,
+                       idprogram, allow, pr_printable
                   FROM (
-                      /* ============================================================================
-                           BRANCH 1 — PERMISSIONS BY TYPE (tbtypepersonpermission)
-                      ============================================================================ */
-                      SELECT m.idmodule AS idmodule_pai, m.name AS module, m.path AS `path`, cat.idmodule AS idmodule_origem, cat.name AS category, cat.idprogramcategory AS category_pai,
-                             cat.smarty AS cat_smarty, pr.idprogramcategory AS idcategory_origem, pr.name AS program, pr.controller AS controller, pr.smarty AS pr_smarty, pr.idprogram AS idprogram,
-                             g.allow AS allow, v.key_value AS pr_printable
-                        FROM tbperson p
-                      /* Primary User Type */
-                        JOIN tbtypeperson tp
-                          ON tp.idtypeperson = p.idtypeperson
-                      /* Type-Based Permissions */
-                        JOIN tbtypepersonpermission g
-                          ON g.idtypeperson = tp.idtypeperson
-                        JOIN tbprogram pr 
-                          ON pr.idprogram = g.idprogram
-                        JOIN tbprogramcategory cat 
-                          ON cat.idprogramcategory = pr.idprogramcategory
-                        JOIN tbmodule m 
-                          ON m.idmodule = cat.idmodule
-                        JOIN tbvocabulary v 
-                          ON v.key_name = pr.smarty
-                        JOIN tblocale l 
-                          ON l.idlocale = v.idlocale
-                         AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
-                       WHERE p.idperson = :userID
-                     {$cond}
-                         AND g.idaccesstype = 1
-                         AND g.allow = 'Y'
-                         AND pr.status = 'A'
-                         AND m.status = 'A'
-                         AND {$andModule}
+                        /* ============================================================
+                            BRANCH 1 — PERMISSÕES POR TIPO
+                        ============================================================ */
+                        SELECT m.idmodule AS idmodule_pai, m.name AS module, m.path AS `path`, cat.idmodule AS idmodule_origem, cat.name AS category, cat.idprogramcategory AS category_pai, cat.smarty AS cat_smarty,
+                               pr.idprogramcategory AS idcategory_origem, pr.name AS program, pr.controller AS controller, pr.smarty AS pr_smarty, pr.idprogram AS idprogram, g.allow AS allow, v.key_value AS pr_printable
+                          FROM user_types ut
+                          JOIN tbtypepersonpermission g
+                            ON g.idtypeperson = ut.idtypeperson
+                           AND g.idaccesstype = 1
+                           AND g.allow = 'Y'
+                          JOIN tbprogram pr 
+                            ON pr.idprogram = g.idprogram
+                           AND pr.status = 'A'
+                          JOIN tbprogramcategory cat 
+                            ON cat.idprogramcategory = pr.idprogramcategory
+                           AND cat.idprogramcategory = :programCategoryId
+                          JOIN tbmodule m 
+                            ON m.idmodule = cat.idmodule
+                           AND m.idmodule = :moduleId
+                           AND m.status = 'A'
+                          JOIN tbvocabulary v 
+                            ON v.key_name = pr.smarty
+                          JOIN tblocale l 
+                            ON l.idlocale = v.idlocale
+                           AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
 
-                    UNION ALL
+                      UNION ALL
 
-                    /* ============================================================================
-                    BRANCH 2 — User-Specific Direct Permissions (tbpermission)
-                    ============================================================================ */
-                       SELECT m.idmodule AS idmodule_pai, m.name AS module, m.path AS `path`, cat.idmodule AS idmodule_origem, cat.name AS category, cat.idprogramcategory AS category_pai,
-                              cat.smarty AS cat_smarty, pr.idprogramcategory AS idcategory_origem, pr.name AS program, pr.controller AS controller, pr.smarty AS pr_smarty, pr.idprogram AS idprogram,
-                              perm.allow AS allow, v.key_value AS pr_printable
-                         FROM tbpermission perm
-                         JOIN tbperson per 
-                           ON per.idperson = perm.idperson
-                         JOIN tbprogram pr 
-                           ON pr.idprogram = perm.idprogram
-                         JOIN tbprogramcategory cat 
-                           ON cat.idprogramcategory = pr.idprogramcategory
-                         JOIN tbmodule m 
-                           ON m.idmodule = cat.idmodule
-                         JOIN tbvocabulary v 
-                           ON v.key_name = pr.smarty
-                         JOIN tblocale l 
-                           ON l.idlocale = v.idlocale
-                          AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
-                        WHERE perm.idperson = :userID
-                          AND perm.idaccesstype = 1
-                          AND perm.allow = 'Y'
-                          AND pr.status = 'A'
-                          AND m.status = 'A'
-                          AND {$andModule}
-
-                        ) AS tmp
-                ORDER BY pr_printable";
-        
+                        /* ============================================================
+                            BRANCH 2 — PERMISSÕES DIRETAS DO USUÁRIO
+                        ============================================================ */
+                        SELECT m.idmodule AS idmodule_pai, m.name AS module,  m.path AS `path`, cat.idmodule AS idmodule_origem, cat.name AS category, cat.idprogramcategory AS category_pai, cat.smarty AS cat_smarty,
+                               pr.idprogramcategory AS idcategory_origem, pr.name AS program, pr.controller AS controller, pr.smarty AS pr_smarty, pr.idprogram AS idprogram, perm.allow AS allow,  v.key_value AS pr_printable
+                          FROM tbpermission perm
+                          JOIN tbprogram pr 
+                            ON pr.idprogram = perm.idprogram
+                           AND pr.status = 'A'
+                          JOIN tbprogramcategory cat 
+                            ON cat.idprogramcategory = pr.idprogramcategory
+                           AND cat.idprogramcategory = :programCategoryId
+                          JOIN tbmodule m 
+                            ON m.idmodule = cat.idmodule
+                           AND m.idmodule = :moduleId
+                           AND m.status = 'A'
+                          JOIN tbvocabulary v 
+                            ON v.key_name = pr.smarty
+                          JOIN tblocale l 
+                            ON l.idlocale = v.idlocale
+                           AND l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                         WHERE perm.idperson = :userID
+                           AND perm.idaccesstype = 1
+                           AND perm.allow = 'Y'
+                    ) AS tmp
+                    ORDER BY pr_printable";
+        //echo "<br><br><br><pre>{$sql}</pre>";
         try{
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':userID', $moduleModel->getUserID());
+            $stmt->bindParam(':programCategoryId', $moduleModel->getCategoryID());
+            $stmt->bindParam(':moduleId', $moduleModel->getIdModule());
             $stmt->execute();
             $aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
