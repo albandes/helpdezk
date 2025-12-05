@@ -153,7 +153,7 @@ class AutentiqueServices
             $response = $this->documents->create($attributes);
             return $response ?? [];
         } catch (\Throwable $e) {
-            $this->autentiqueLogger->error("No file path provided.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $this->autentiqueLogger->error("No file path provided.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $e->getMessage()]);
             throw new \Exception("Erro ao criar documento: " . $e->getMessage());
         }
     }
@@ -171,12 +171,13 @@ class AutentiqueServices
     public function _listDocuments(int $page = 1, int $limit = 20): array
     {
         try {
-            return $this->documents->listAll([
+            /* return $this->documents->listAll([
                 'page'  => $page,
                 'limit' => $limit
-            ]);
+            ]); */
+            return $this->documents->listAll(1);
         } catch (\Throwable $e) {
-            $this->autentiqueLogger->error("No file path provided.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $this->autentiqueLogger->error("Failed to retrieve the document data.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $e->getMessage()]);
             throw new \Exception("Erro ao listar documentos: " . $e->getMessage());
         }
     }
@@ -259,6 +260,7 @@ class AutentiqueServices
             $baseName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $docData['name']);
             $filename = sprintf('%s_signed_%s.pdf', $baseName, date('Ymd_His'));
             $filePath = $this->downloadPath . $filename;
+            $fileUrl = $_ENV['HDK_URL'] . '/storage/downloads/tmp/signed-documents/' . $filename;
 
             // Faz o download do PDF assinado
             $pdfContent = @file_get_contents($url);
@@ -275,9 +277,10 @@ class AutentiqueServices
 
             // Retorna os dados do arquivo baixado
             return [
-                'document_id' => $id,
-                'document_name' => $docData['name'] ?? 'sem_nome',
-                'signed_file' => $filePath,
+                'documentId' => $id,
+                'documentName' => $docData['name'] ?? 'sem_nome',
+                'signedFilePath' => $filePath,
+                'signedFileUrl' => $fileUrl
             ];
 
         } catch (\Throwable $e) {
@@ -287,6 +290,33 @@ class AutentiqueServices
         }
     }
 
+    /**
+     * _resendSignatures
+     *
+     * Reenvia os e-mails de assinatura para um ou mais signatários.
+     *
+     * @param  array  $publicIds
+     * @return array
+     */
+    public function _resendSignatures(array $publicIds): array
+    {
+        try {
+
+            if (empty($publicIds)) {
+                throw new \Exception("publicIds cannot be empty");
+            }
+
+            return $this->documents->resendSignatures($publicIds);
+
+        } catch (\Throwable $e) {
+            $this->autentiqueLogger->error("Falha ao reenviar assinaturas", [
+                'error'     => $e->getMessage(),
+                'publicIds' => $publicIds
+            ]);
+
+            throw new \Exception("Erro ao reenviar assinaturas: " . $e->getMessage());
+        }
+    }
 
     /** ====== FOLDERS ====== */
     
