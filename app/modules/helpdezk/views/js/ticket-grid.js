@@ -8,8 +8,8 @@ $(document).ready(function () {
     $('#action-list').select2({width:'100%',dropdownParent: $(this).find('.modal-body-filters')});
 
     if(typeUser == 3){
-        $('#cmbTypeExpireDate').select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
-        $('#cmbViewType').select2({width:'100%',placeholder:vocab['Select'],allowClear:true});
+        $('#cmbTypeExpireDate').select2({width:'100%',placeholder:vocab['Select'],allowClear:false,minimumResultsForSearch: 10});
+        $('#cmbViewType').select2({width:'100%',placeholder:vocab['Select'],allowClear:false,minimumResultsForSearch: 10});
 
         var btnWaitApp = vocab['Waiting_for_approval'],
             modelUrl =  path + '/helpdezk/hdkTicket/jsonGridAttendant',
