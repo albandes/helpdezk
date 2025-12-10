@@ -153,7 +153,7 @@ class AutentiqueServices
             $response = $this->documents->create($attributes);
             return $response ?? [];
         } catch (\Throwable $e) {
-            $this->autentiqueLogger->error("No file path provided.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $this->autentiqueLogger->error("No file path provided.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $e->getMessage()]);
             throw new \Exception("Erro ao criar documento: " . $e->getMessage());
         }
     }
@@ -171,12 +171,13 @@ class AutentiqueServices
     public function _listDocuments(int $page = 1, int $limit = 20): array
     {
         try {
-            return $this->documents->listAll([
+            /* return $this->documents->listAll([
                 'page'  => $page,
                 'limit' => $limit
-            ]);
+            ]); */
+            return $this->documents->listAll(1);
         } catch (\Throwable $e) {
-            $this->autentiqueLogger->error("No file path provided.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $this->autentiqueLogger->error("Failed to retrieve the document data.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $e->getMessage()]);
             throw new \Exception("Erro ao listar documentos: " . $e->getMessage());
         }
     }
@@ -232,61 +233,144 @@ class AutentiqueServices
     public function _downloadSignedDocument(string $id): array
     {
         try {
-            // Obtém o documento pelo ID
+            // Obtém o documento
             $document = $this->documents->listById($id);
 
             if (empty($document['data']['document'])) {
-                $this->autentiqueLogger->error("Documento não encontrado para o ID {$id}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
-                throw new \Exception("Documento não encontrado para o ID: {$id}");
+                return [
+                    'success' => false,
+                    'status'  => 'not_found',
+                    'message' => "Documento não encontrado para o ID: {$id}",
+                    'data'    => null
+                ];
             }
 
             $docData = $document['data']['document'];
-            $files = $docData['files'] ?? [];
+            $files   = $docData['files'] ?? [];
 
-            // Verifica se o arquivo assinado existe
-            if (empty($files['signed'])) {
-                $this->autentiqueLogger->error("'Signed' file not found for document ID {$id}", ['Class' => __CLASS__, 'Method' => __METHOD__,'Line' => __LINE__,'files' => $files]);
-                throw new \Exception("'Signed' file not found for document ID {$id}");
+            // Verifica se TODAS as assinaturas estão concluídas
+            $allSigned = true;
+            foreach ($docData['signatures'] as $sig) {
+                // Assinaturas que NÃO exigem ação devem ser ignoradas
+                if (empty($sig['action']) || empty($sig['action']['name'])) {
+                    continue;
+                }
+
+                // Se exige ação e não está assinada → documento ainda não concluído
+                if (empty($sig['signed'])) {
+                    $allSigned = false;
+                    break;
+                }
             }
 
-            $url = $files['signed'];
+            if (!$allSigned) {
+                return [
+                    'success' => false,
+                    'status'  => 'not_signed',
+                    'message' => "Documento ainda não está totalmente assinado.",
+                    'data'    => null
+                ];
+            }
+
+            // A URL do assinado pode existir mas não estar disponível ainda
+            $url = $files['signed'] ?? '';
             if (!$url) {
-                $this->autentiqueLogger->error("Download URL not found for document ID {$id}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
-                throw new \Exception("Download URL not found for document ID {$id}");
+                return [
+                    'success' => false,
+                    'status'  => 'url_missing',
+                    'message' => "URL do arquivo assinado não está disponível.",
+                    'data'    => null
+                ];
+            }
+
+            // Tenta baixar o PDF assinado
+            $pdfContent = @file_get_contents($url);
+            if ($pdfContent === false) {
+                return [
+                    'success' => false,
+                    'status'  => 'download_failed',
+                    'message' => "Falha ao baixar o arquivo assinado.",
+                    'data'    => null
+                ];
             }
 
             // Gera o nome do arquivo
             $baseName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $docData['name']);
             $filename = sprintf('%s_signed_%s.pdf', $baseName, date('Ymd_His'));
             $filePath = $this->downloadPath . $filename;
+            $fileUrl  = $_ENV['HDK_URL'] . '/storage/downloads/tmp/signed-documents/' . $filename;
 
-            // Faz o download do PDF assinado
-            $pdfContent = @file_get_contents($url);
-            if ($pdfContent === false) {
-                $this->autentiqueLogger->error("Falha ao baixar arquivo assinado", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'url' => $url, 'document_id' => $id]);
-                throw new \Exception("Falha ao baixar o arquivo assinado para o documento ID: {$id}");
-            }
-
-            // Salva localmente
+            // Salva o arquivo
             if (@file_put_contents($filePath, $pdfContent) === false) {
-                $this->autentiqueLogger->error("Falha ao salvar arquivo localmente", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'filePath' => $filePath]);
-                throw new \Exception("Falha ao salvar o arquivo assinado localmente: {$filePath}");
+                return [
+                    'success' => false,
+                    'status'  => 'save_failed',
+                    'message' => "Falha ao salvar o arquivo assinado localmente.",
+                    'data'    => null
+                ];
             }
 
-            // Retorna os dados do arquivo baixado
+            // Retorno em caso de sucesso
             return [
-                'document_id' => $id,
-                'document_name' => $docData['name'] ?? 'sem_nome',
-                'signed_file' => $filePath,
+                'success' => true,
+                'status'  => 'ok',
+                'message' => 'Arquivo assinado baixado com sucesso.',
+                'data'    => [
+                    'documentId'     => $id,
+                    'documentName'   => $docData['name'] ?? 'sem_nome',
+                    'signedFilePath' => $filePath,
+                    'signedFileUrl'  => $fileUrl
+                ]
             ];
 
         } catch (\Throwable $e) {
-            $this->autentiqueLogger->error("Erro ao baixar documento assinado", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'id' => $id, 'mensagem' => $e->getMessage(),'trace' => $e->getTraceAsString()]);
 
-            throw new \Exception("Erro ao baixar documento assinado: " . $e->getMessage());
+            // Erro inesperado (ex.: rede, parse, servidor)
+            $this->autentiqueLogger->error("Erro inesperado ao baixar documento assinado", [
+                'ex'        => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
+                'id'        => $id,
+                'Class'     => __CLASS__,
+                'Method'    => __METHOD__,
+                'Line'      => __LINE__
+            ]);
+
+            return [
+                'success' => false,
+                'status'  => 'exception',
+                'message' => "Erro inesperado: " . $e->getMessage(),
+                'data'    => null
+            ];
+        }
+}
+
+    /**
+     * _resendSignatures
+     *
+     * Reenvia os e-mails de assinatura para um ou mais signatários.
+     *
+     * @param  array  $publicIds
+     * @return array
+     */
+    public function _resendSignatures(array $publicIds): array
+    {
+        try {
+
+            if (empty($publicIds)) {
+                throw new \Exception("publicIds cannot be empty");
+            }
+
+            return $this->documents->resendSignatures($publicIds);
+
+        } catch (\Throwable $e) {
+            $this->autentiqueLogger->error("Falha ao reenviar assinaturas", [
+                'error'     => $e->getMessage(),
+                'publicIds' => $publicIds
+            ]);
+
+            throw new \Exception("Erro ao reenviar assinaturas: " . $e->getMessage());
         }
     }
-
 
     /** ====== FOLDERS ====== */
     

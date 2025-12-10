@@ -125,56 +125,49 @@ class ticketDAO extends Database
      *                   push =  [message = PDO Exception message 
      *                            object = model's object]]
      */
-    public function queryAttendantTickets($where=null,$group=null,$order=null,$limit=null): array
+    public function queryAttendantTickets($where=null,$group=null,$order=null,$limit=null,$joinCondition): array
     {
-        $sql = "SELECT req.code_request AS code_request, req.expire_date  AS expire_date, req.entry_date AS entry_date,
-                        req.flag_opened AS flag_opened, req.subject  AS `subject`, req.idperson_owner AS idperson_owner,
-                        req.idperson_creator AS idperson_creator, cre.name AS name_creator, cre.phone_number AS phone_number,
-                        cre.cel_phone AS cel_phone, cre.branch_number  AS branch_number, req.idperson_juridical AS idcompany,
-                        req.idsource AS idsource, req.extensions_number AS extensions_number, source.name AS `source`,
-                        req.idstatus AS idstatus, req.idattendance_way AS idattendance_way, req.os_number AS os_number,
-                        req.serial_number AS serial_number, req.label AS label, req.description AS `description`,
-                        comp.name AS company, stat.name AS `status`, rtype.name AS `type`, rtype.idtype AS idtype,
-                        item.iditem AS iditem, item.name AS item, serv.idservice AS idservice, serv.name AS service,
-                        prio.name AS priority, prio.idpriority AS idpriority, tmp.ind_in_charge AS ind_in_charge,
-                        tmp.id_in_charge  AS id_in_charge, resp.name AS in_charge, prio.color AS priority_color,
-                        pers.name AS personname, pers.email AS email, pers.phone_number AS phone, pers.branch_number AS branch,
-                        tmp.type AS typeincharge, dep.name AS department, dep.iddepartment AS iddepartment, 
-                        source.name AS source_name, are.idarea AS idarea, are.name AS `area`,
-                        req.idreason AS idreason, attway.way AS way_name, stat.color AS status_color, stat.idstatus_source,
-                        (SELECT COUNT(idrequest_attachment) FROM hdk_tbrequest_attachment WHERE code_request = req.code_request) total_attachs, inch.ind_track
+        $sql = "SELECT req.code_request, req.expire_date, req.entry_date, req.flag_opened, req.subject, req.idperson_owner, req.idperson_creator, cre.name AS name_creator, cre.phone_number,
+                       cre.cel_phone, cre.branch_number, req.idperson_juridical AS idcompany, req.idsource, req.extensions_number, source.name AS `source`, req.idstatus, req.idattendance_way,
+                       req.os_number, req.serial_number, req.label, req.description, comp.name AS company, stat.name AS `status`, rtype.name AS `type`, rtype.idtype, item.iditem, item.name AS item,
+                       serv.idservice, serv.name AS service, prio.name AS priority, prio.idpriority, tmp.ind_in_charge, tmp.id_in_charge, resp.name AS in_charge, prio.color AS priority_color,
+                       pers.name AS personname, pers.email, pers.phone_number AS phone, pers.branch_number AS branch, tmp.type AS typeincharge, dep.name AS department, dep.iddepartment, 
+                       source.name AS source_name, are.idarea, are.name AS AREA, req.idreason, attway.way AS way_name, stat.color AS status_color, stat.idstatus_source,
+                       (SELECT COUNT(idrequest_attachment) FROM hdk_tbrequest_attachment att WHERE att.code_request = req.code_request) AS total_attachs, inch.ind_track
                   FROM hdk_tbrequest req
-                  JOIN tbperson pers
-                    ON req.idperson_owner = pers.idperson
-                  JOIN tbperson comp
-                    ON req.idperson_juridical = comp.idperson
-                  JOIN hdk_tbrequest_in_charge inch
-                    ON req.code_request = inch.code_request
-                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
-                    ON req.code_request = tmp.code_request
-                  JOIN tbperson resp
-                    ON tmp.id_in_charge = resp.idperson
-                  JOIN tbperson cre
-                    ON req.idperson_creator = cre.idperson
-                  JOIN hdk_tbdepartment_has_person dep_pers
-                    ON pers.idperson = dep_pers.idperson
-                  JOIN hdk_tbdepartment dep
-                    ON dep.iddepartment = dep_pers.iddepartment
-                  JOIN hdk_tbcore_type rtype
-                    ON req.idtype = rtype.idtype
-                  JOIN hdk_tbcore_service serv
-                    ON req.idservice = serv.idservice
-                  JOIN hdk_tbcore_area are
+         STRAIGHT_JOIN ($joinCondition) inch_filtered
+                    ON inch_filtered.code_request = req.code_request
+         STRAIGHT_JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
+                    ON tmp.code_request = req.code_request
+         STRAIGHT_JOIN hdk_tbrequest_in_charge inch
+                    ON inch.code_request = req.code_request
+         STRAIGHT_JOIN hdk_tbcore_type rtype
+                    ON rtype.idtype = req.idtype
+         STRAIGHT_JOIN hdk_tbcore_area are
                     ON are.idarea = rtype.idarea
-                  JOIN hdk_tbpriority prio
-                    ON req.idpriority = prio.idpriority
-                  JOIN hdk_tbcore_item item
-                    ON req.iditem = item.iditem
-                  JOIN hdk_tbstatus stat
-                    ON req.idstatus = stat.idstatus
-                  JOIN hdk_tbsource `source`
-                    ON req.idsource = source.idsource
-                  JOIN hdk_tbattendance_way attway
+         STRAIGHT_JOIN hdk_tbcore_service serv
+                    ON serv.idservice = req.idservice
+         STRAIGHT_JOIN hdk_tbcore_item item
+                    ON item.iditem = req.iditem
+         STRAIGHT_JOIN hdk_tbpriority prio
+                    ON prio.idpriority = req.idpriority
+         STRAIGHT_JOIN tbperson pers
+                    ON pers.idperson = req.idperson_owner
+         STRAIGHT_JOIN hdk_tbdepartment_has_person dep_pers
+                    ON dep_pers.idperson = pers.idperson
+         STRAIGHT_JOIN hdk_tbdepartment dep
+                    ON dep.iddepartment = dep_pers.iddepartment
+         STRAIGHT_JOIN tbperson comp
+                    ON comp.idperson = req.idperson_juridical
+         STRAIGHT_JOIN tbperson cre
+                    ON cre.idperson = req.idperson_creator
+         STRAIGHT_JOIN tbperson resp
+                    ON resp.idperson = tmp.id_in_charge
+         STRAIGHT_JOIN hdk_tbsource `source`
+                    ON source.idsource = req.idsource
+         STRAIGHT_JOIN hdk_tbstatus stat
+                    ON stat.idstatus = req.idstatus
+         STRAIGHT_JOIN hdk_tbattendance_way attway
                     ON attway.idattendanceway = req.idattendance_way
                 $where
               GROUP BY  req.code_request $group
@@ -210,21 +203,24 @@ class ticketDAO extends Database
      *                   push =  [message = PDO Exception message 
      *                            object = model's object]]
      */
-    public function countAttendantTickets($where=null): array
+    public function countAttendantTickets($where=null,$joinCondition): array
     {
-        
         $sql = "SELECT COUNT(DISTINCT req.code_request) total
                   FROM hdk_tbrequest req
+                  -- set of code_request values that satisfy any of the three conditions (UNION used to allow index usage on each SELECT)
+                  JOIN ($joinCondition) AS inch_filtered
+                    ON req.code_request = inch_filtered.code_request
+                  -- derived only to retrieve the id_in_charge of the responsible user (ind_in_charge = 1)
+                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge
+                          FROM hdk_tbrequest_in_charge
+                         WHERE ind_in_charge = 1) AS tmp
+                    ON tmp.code_request = req.code_request
+                  JOIN tbperson resp
+                    ON tmp.id_in_charge = resp.idperson
                   JOIN tbperson pers
                     ON req.idperson_owner = pers.idperson
                   JOIN tbperson comp
                     ON req.idperson_juridical = comp.idperson
-                  JOIN hdk_tbrequest_in_charge inch
-                    ON req.code_request = inch.code_request
-                  JOIN (SELECT code_request, id_in_charge, `type`, ind_in_charge FROM hdk_tbrequest_in_charge WHERE ind_in_charge = 1) tmp
-                    ON req.code_request = tmp.code_request
-                  JOIN tbperson resp
-                    ON tmp.id_in_charge = resp.idperson
                   JOIN tbperson cre
                     ON req.idperson_creator = cre.idperson
                   JOIN hdk_tbdepartment_has_person dep_pers
@@ -243,7 +239,7 @@ class ticketDAO extends Database
                     ON req.iditem = item.iditem
                   JOIN hdk_tbstatus stat
                     ON req.idstatus = stat.idstatus
-                  JOIN hdk_tbsource source
+                  JOIN hdk_tbsource `source`
                     ON req.idsource = source.idsource
                   JOIN hdk_tbattendance_way attway
                     ON attway.idattendanceway = req.idattendance_way

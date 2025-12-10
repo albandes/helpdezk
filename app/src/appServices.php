@@ -1748,7 +1748,7 @@ class appServices
                 if($endPointType == 1){
                     $st = $res['status'] ? true : false;
                     $aDat = $res['status'] ? $res['result'] : '';
-                    $msg = $res['status'] ? '' : $res['message'];
+                    $msg = $res['status'] ? '' : ($res['message'] ?? $res['error']);
                 }else{
                     $st = !isset($res['errors']) ? true : false;
                     $aDat = !isset($res['errors']) ? $res : '';
@@ -2049,7 +2049,7 @@ class appServices
         $ret = $ticketDAO->getLastTicketCode($ticketModel);
 
         if(!$ret['status'])
-           return $false;
+           return false;
           
         $lastCode = $ret['push']['object']->getLastTicketCode();
 
@@ -3358,7 +3358,7 @@ class appServices
             }
         }else{
             if($this->saveMode == 'disk'){
-                $image 	=$this->imgBucket . $objLogo->getFileName();
+                $image 	=$this->imgBucket . $logoName;
             }elseif($this->saveMode == "aws-s3"){
                 $image = $pathLogoImage;
             }
@@ -3398,7 +3398,7 @@ class appServices
             }
         }else{
             if($this->saveMode == 'disk'){
-                $image 	=$this->imgBucket . $objLogo->getFileName();
+                $image 	=$this->imgBucket . $logoName;
             }elseif($this->saveMode == "aws-s3"){
                 $image = $pathLogoImage;
             }
@@ -3600,7 +3600,7 @@ class appServices
             $path = $dir . DIRECTORY_SEPARATOR . $item;
             if (is_dir($path)) {
                 // Delete subdirectory recursively
-                deleteDirectory($path);
+                $this->_deleteDirectory($path);
             } else {
                 // Delete file
                 unlink($path);
@@ -3832,7 +3832,7 @@ class appServices
             $this->applogger->error("Error getting person type {$personTypeName} ID.",['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'Error' => $retPersonType['push']['message']]);
             $personTypeId = 0;
         }else{
-            $this->applogger->info("Person type {$personTypeName} ID got successfully.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            $this->applogger->debug("Person type {$personTypeName} ID got successfully.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
             $personTypeId = $retPersonType['push']['object']->getIdTypePerson();
         }
 
@@ -3972,4 +3972,48 @@ class appServices
             return "Number out of range (0-99)";
         }
     }
+
+    /**
+     * _formatTitleCase
+     * 
+     * en_us Converts a string to Title Case while preserving:
+     *          - lowercase prepositions/conjunctions (except when first word)
+     *          - Roman numerals (e.g., II, III, IV, etc.)
+     *          - proper UTF-8 accents
+     */
+    function _formatTitleCase(string $text): string
+    {
+        // Normalize: trim spaces and convert to lowercase
+        $text = trim(mb_strtolower($text, 'UTF-8'));
+
+        // Convert to Title Case
+        $text = mb_convert_case($text, MB_CASE_TITLE, 'UTF-8');
+
+        // Common prepositions and conjunctions to keep lowercase
+        $lowercaseWords = [
+            'do', 'da', 'dos', 'das', 'de', 'em', 'no', 'na', 'nos', 'nas',
+            'a', 'e', 'o', 'ou', 'por', 'para', 'com', 'ao', 'às', 'à', 'pelos', 'pelas'
+        ];
+
+        $words = explode(' ', $text);
+
+        foreach ($words as $index => &$word) {
+            $wordLower = mb_strtolower($word, 'UTF-8');
+
+            // Keep prepositions/conjunctions lowercase unless it's the first word
+            if ($index > 0 && in_array($wordLower, $lowercaseWords, true)) {
+                $word = $wordLower;
+            }
+
+            // Preserve Roman numerals (I, II, III, IV, V, etc.)
+            if (preg_match('/^(?=[MDCLXVI]+$)(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$/i', $word)) {
+                $word = strtoupper($word);
+            }
+        }
+
+        unset($word); // good practice to unset reference
+
+        return implode(' ', $words);
+    }
+
 }

@@ -535,26 +535,63 @@ class hdkTicket extends Controller
 
         switch ($viewType) {
             case 2:
-                $where .= ((empty($where)) ? "WHERE " : "AND ") ."((inch.ind_in_charge = 1
+                /* $where .= ((empty($where)) ? "WHERE " : "AND ") ."((inch.ind_in_charge = 1
 										AND inch.id_in_charge IN({$_SESSION['SES_COD_USUARIO']}))
 										OR (inch.ind_operator_aux = 1
 											AND inch.id_in_charge = {$_SESSION['SES_COD_USUARIO']})
 										OR (inch.id_in_charge IN({$_SESSION['SES_COD_USUARIO']} )
-											and inch.ind_track = 1))";
+											and inch.ind_track = 1))"; */
+                $attendantJoin = "SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE ind_in_charge = 1
+                                     AND id_in_charge IN ({$_SESSION['SES_COD_USUARIO']})
+                                   UNION
+                                  SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE ind_operator_aux = 1
+                                     AND id_in_charge = {$_SESSION['SES_COD_USUARIO']}
+                                   UNION
+                                  SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE id_in_charge IN ({$_SESSION['SES_COD_USUARIO']})
+                                     AND ind_track = 1";
                 break;
             case 3:
-                $where .= ((empty($where)) ? "WHERE " : "AND ") .	"((inch.ind_in_charge = 1 AND inch.id_in_charge IN($attendantGroups))
+                /* $where .= ((empty($where)) ? "WHERE " : "AND ") .	"((inch.ind_in_charge = 1 AND inch.id_in_charge IN($attendantGroups))
 								OR (inch.id_in_charge in($attendantGroups)
-											AND inch.ind_track = 1))";
+											AND inch.ind_track = 1))"; */
+                $attendantJoin = "SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE ind_in_charge = 1
+                                     AND id_in_charge IN ({$attendantGroups})
+                                   UNION
+                                  SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE id_in_charge IN ({$attendantGroups})
+                                     AND ind_track = 1";
                 break;
             default:
                 $cond = (!empty($_SESSION['SES_COD_USUARIO'])) ? "{$_SESSION['SES_COD_USUARIO']},$attendantGroups" : $_SESSION['SES_COD_USUARIO'];
-                $where .= ((empty($where)) ? "WHERE " : "AND ") ."((inch.ind_in_charge = 1
+                /* $where .= ((empty($where)) ? "WHERE " : "AND ") ."((inch.ind_in_charge = 1
                             AND inch.id_in_charge IN($cond))
                             OR (inch.ind_operator_aux = 1
                                 AND inch.id_in_charge = {$_SESSION['SES_COD_USUARIO']})
                             OR (inch.id_in_charge IN($cond)
-                                AND inch.ind_track = 1)) ";
+                                AND inch.ind_track = 1)) "; */
+                $attendantJoin = "SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE ind_in_charge = 1
+                                     AND id_in_charge IN ({$cond})
+                                   UNION
+                                  SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE ind_operator_aux = 1
+                                     AND id_in_charge = {$_SESSION['SES_COD_USUARIO']}
+                                   UNION
+                                  SELECT code_request
+                                    FROM hdk_tbrequest_in_charge
+                                   WHERE id_in_charge IN ({$cond})
+                                     AND ind_track = 1";
                 break;
         }
         
@@ -640,7 +677,7 @@ class hdkTicket extends Controller
         $pq_rPP = $_POST["pq_rpp"];
         
         //Count records
-        $countTicket = $ticketDAO->countAttendantTickets($where); 
+        $countTicket = $ticketDAO->countAttendantTickets($where,$attendantJoin); 
         if($countTicket['status']){
             $total_Records = $countTicket['push']['object']->getTotalRows();
         }else{
@@ -650,7 +687,7 @@ class hdkTicket extends Controller
         $skip = $this->appSrc->_pageHelper($pq_curPage, $pq_rPP, $total_Records);
         $limit = "LIMIT {$skip},$pq_rPP";
 
-        $ticket = $ticketDAO->queryAttendantTickets($where,$group,$order,$limit);
+        $ticket = $ticketDAO->queryAttendantTickets($where,$group,$order,$limit,$attendantJoin);
         
         if($ticket['status']){     
             $ticketObj = $ticket['push']['object']->getGridList();     
