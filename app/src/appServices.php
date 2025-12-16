@@ -1008,7 +1008,7 @@ class appServices
         $vocabModel = new vocabularyModel();
         $aRet = array();
 
-        $ret = $vocabDAO->queryVocabularies("AND UPPER(b.name) = UPPER('{$_ENV['DEFAULT_LANG']}')",null,"ORDER BY key_name");
+        $ret = $vocabDAO->queryVocabularies("AND b.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')",null,"ORDER BY key_name");
 
         if($ret['status']){
             $vocabularies = $ret['push']['object']->getGridList();
