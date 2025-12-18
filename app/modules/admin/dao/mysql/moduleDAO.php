@@ -386,42 +386,58 @@ class moduleDAO extends Database
      */
     public function fetchExtraModulesPerson(moduleModel $moduleModel): array
     {        
-        $sql = "SELECT DISTINCT temp.idmodule, temp.name, temp.index, temp.path, temp.smarty, temp.class, temp.headerlogo,
-                        temp.reportslogo, temp.tableprefix
-                  FROM ((SELECT m.idmodule, m.name, m.index, m.path, m.smarty, m.class, m.headerlogo, m.reportslogo,  m.tableprefix, v.key_value module_printable
-                           FROM tbperson per, tbpermission p, tbprogram pr, tbmodule m, tbprogramcategory cat, tbaccesstype acc,
-                                tbvocabulary v, tblocale l
-                          WHERE m.idmodule = cat.idmodule
-                            AND pr.idprogramcategory = cat.idprogramcategory
-                            AND per.idperson = p.idperson
-                            AND pr.idprogram = p.idprogram
-                            AND m.smarty = v.key_name
-                            AND v.idlocale = l.idlocale
-                            AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                            AND m.status = 'A'
-                            AND pr.status = 'A'
-                            AND p.idperson = :userID
-                            AND p.allow = 'Y'
-                            AND p.idaccesstype = acc.idaccesstype
-                            AND p.idaccesstype = '1'
-                            AND m.idmodule > 3
-                       GROUP BY m.idmodule)
-                          UNION
-                        (SELECT d.idmodule, d.name, d.index, d.path, d.smarty, d.class, d.headerlogo, d.reportslogo, d.tableprefix, v.key_value module_printable
-                           FROM tbtypepersonpermission a, tbprogram b, tbprogramcategory c, tbmodule d, tbvocabulary v, tblocale l
-                          WHERE (a.idtypeperson IN (SELECT idtypeperson FROM tbpersontypes WHERE idperson = :userID)
-                                 OR a.idtypeperson = (SELECT idtypeperson FROM tbperson WHERE idperson = :userID))
-                            AND a.allow = 'Y'
-                            AND d.status = 'A'
-                            AND d.idmodule > 3
-                            AND a.idprogram = b.idprogram
-                            AND c.idprogramcategory = b.idprogramcategory
-                            AND d.idmodule = c.idmodule
-                            AND d.smarty = v.key_name
-                            AND v.idlocale = l.idlocale
-                            AND LOWER(l.name) = LOWER('{$_ENV['DEFAULT_LANG']}')
-                       GROUP BY d.idmodule)) AS temp
-                       ORDER BY module_printable";
+        $sql = "SELECT temp.idmodule, temp.name, temp.`index`, temp.path, temp.smarty, temp.class, temp.headerlogo, temp.reportslogo, temp.tableprefix
+                  FROM (SELECT m.idmodule, m.name, m.`index`, m.path, m.smarty, m.class, m.headerlogo, m.reportslogo, m.tableprefix, v.key_value AS module_printable
+                          FROM tbpermission p
+                          JOIN tbperson per
+                            ON per.idperson = p.idperson
+                          JOIN tbprogram pr
+                            ON pr.idprogram = p.idprogram
+                           AND pr.status = 'A'
+                          JOIN tbprogramcategory cat
+                            ON cat.idprogramcategory = pr.idprogramcategory
+                          JOIN tbmodule m
+                            ON m.idmodule = cat.idmodule
+                           AND m.status = 'A'
+                           AND m.idmodule > 3
+                          JOIN tbaccesstype acc
+                            ON acc.idaccesstype = p.idaccesstype
+                          JOIN tblocale l
+                            ON l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                          JOIN tbvocabulary v
+                            ON v.idlocale = l.idlocale
+                           AND v.key_name = m.smarty
+                         WHERE p.idperson = :userID
+                           AND p.allow = 'Y'
+                           AND p.idaccesstype = 1
+                    UNION ALL
+                        SELECT d.idmodule, d.name, d.`index`, d.path, d.smarty, d.class, d.headerlogo, d.reportslogo, d.tableprefix, v.key_value AS module_printable
+                          FROM (SELECT idtypeperson
+                                  FROM tbpersontypes
+                                 WHERE idperson = :userID
+                                 UNION
+                                SELECT idtypeperson
+                                  FROM tbperson
+                                 WHERE idperson = :userID) tp
+                          JOIN tbtypepersonpermission a
+                            ON a.idtypeperson = tp.idtypeperson
+                           AND a.allow = 'Y'
+                           AND a.idaccesstype = 1
+                          JOIN tbprogram b
+                            ON b.idprogram = a.idprogram
+                          JOIN tbprogramcategory c
+                            ON c.idprogramcategory = b.idprogramcategory
+                          JOIN tbmodule d
+                            ON d.idmodule = c.idmodule
+                           AND d.status = 'A'
+                           AND d.idmodule > 3
+                          JOIN tblocale l
+                            ON l.name_lower = LOWER('{$_ENV['DEFAULT_LANG']}')
+                          JOIN tbvocabulary v
+                            ON v.idlocale = l.idlocale
+                            AND v.key_name = d.smarty) temp
+              GROUP BY temp.idmodule
+              ORDER BY temp.module_printable";
         
         try{
             $stmt = $this->db->prepare($sql);
