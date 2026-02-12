@@ -4015,5 +4015,201 @@ class appServices
 
         return implode(' ', $words);
     }
+    
+    /**
+     * _convertAmountToWords
+     *
+     * @param  mixed $amount
+     * @return string
+     */
+    public function _convertAmountToWords(float|string $amount): string
+    {
+        $amount = $this->_normalizeAmount($amount);
+
+        $reais = (int) floor($amount);
+        $cents = (int) round(($amount - $reais) * 100);
+
+        // Corrige estouro de centavos
+        if ($cents === 100) {
+            $reais++;
+            $cents = 0;
+        }
+
+        $result = [];
+
+        if ($reais > 0) {
+            $result[] = $this->_convertNumberToWords($reais);
+            $result[] = ($reais === 1) ? 'real' : 'reais';
+        } else {
+            $result[] = 'zero reais';
+        }
+
+        if ($cents > 0) {
+            $result[] = 'e';
+            $result[] = $this->_convertNumberToWords($cents);
+            $result[] = ($cents === 1) ? 'centavo' : 'centavos';
+        }
+
+        return implode(' ', $result);
+    }
+
+    
+    /**
+     * _normalizeAmount
+     *
+     * @param  mixed $amount
+     * @return float
+     */
+    private function _normalizeAmount(float|string $amount): float
+    {
+        if (is_string($amount)) {
+            $amount = str_replace(['R$', ' '], '', $amount);
+
+            // Formato brasileiro: 1.234,56
+            if (str_contains($amount, ',') && str_contains($amount, '.')) {
+                $amount = str_replace('.', '', $amount);
+                $amount = str_replace(',', '.', $amount);
+
+            // Apenas vírgula: 1234,56
+            } elseif (str_contains($amount, ',')) {
+                $amount = str_replace(',', '.', $amount);
+            }
+        }
+
+        return round((float) $amount, 2);
+    }
+
+    
+    /**
+     * _convertNumberToWords
+     *
+     * @param  int $number
+     * @return string
+     */
+    function _convertNumberToWords(int $number): string
+    {
+        if ($number === 0) {
+            return 'zero';
+        }
+
+        $units = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
+
+        $teens = [
+            'dez', 'onze', 'doze', 'treze', 'quatorze',
+            'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'
+        ];
+
+        $tens = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+
+        $hundreds = [
+            '', 'cento', 'duzentos', 'trezentos', 'quatrocentos',
+            'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'
+        ];
+
+        $scales = [
+            ['', ''],
+            ['mil', 'mil'],
+            ['milhão', 'milhões'],
+            ['bilhão', 'bilhões'],
+            ['trilhão', 'trilhões'],
+        ];
+
+        $numberStr = str_pad((string) $number, ceil(strlen((string) $number) / 3) * 3, '0', STR_PAD_LEFT);
+        $groups = str_split($numberStr, 3);
+
+        $words = [];
+
+        foreach ($groups as $index => $group) {
+            $groupNumber = (int) $group;
+
+            if ($groupNumber === 0) {
+                continue;
+            }
+
+            $hundred = (int) $group[0];
+            $ten = (int) $group[1];
+            $unit = (int) $group[2];
+
+            $groupWords = [];
+
+            if ($groupNumber === 100) {
+                $groupWords[] = 'cem';
+            } else {
+                if ($hundred > 0) {
+                    $groupWords[] = $hundreds[$hundred];
+                }
+
+                if ($ten === 1) {
+                    $groupWords[] = $teens[$unit];
+                } else {
+                    if ($ten > 1) {
+                        $groupWords[] = $tens[$ten];
+                    }
+
+                    if ($unit > 0) {
+                        $groupWords[] = $units[$unit];
+                    }
+                }
+            }
+
+            $scaleIndex = count($groups) - $index - 1;
+            if ($scaleIndex > 0) {
+                $groupWords[] = $groupNumber > 1
+                    ? $scales[$scaleIndex][1]
+                    : $scales[$scaleIndex][0];
+            }
+
+            $words[] = implode(' e ', $groupWords);
+        }
+
+        return implode(' e ', $words);
+    }
+    
+    /**
+     * _convertHoursToWords
+     *
+     * @param  mixed $hours
+     * @return string
+     */
+    function _convertHoursToWords(float|string $hours): string
+    {
+        $hours = $this->_normalizeDecimalValue($hours);
+
+        $integerPart = (int) $hours;
+        $decimalPart = (int) round(($hours - $integerPart) * 100);
+
+        $result = [];
+
+        if ($integerPart > 0) {
+            $result[] = $this->_convertNumberToWords($integerPart);
+        }
+
+        if ($decimalPart > 0) {
+            $result[] = 'com';
+            $result[] = $this->_convertNumberToWords($decimalPart);
+        }
+
+        $result[] = 'horas';
+
+        return implode(' ', $result);
+    }
+    
+    /**
+     * _normalizeDecimalValue
+     *
+     * @param  mixed $value
+     * @return float
+     */
+    function _normalizeDecimalValue(float|string $value): float
+    {
+        if (is_string($value)) {
+            $value = str_replace(' ', '', $value);
+            $value = str_replace(',', '.', $value);
+        }
+
+        return round((float) $value, 2);
+    }
+
+
 
 }
