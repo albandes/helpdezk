@@ -4022,7 +4022,7 @@ class appServices
      * @param  mixed $amount
      * @return string
      */
-    public function _convertAmountToWords(float|string $amount): string
+    public function _convertAmountToWords(string $amount): string
     {
         $amount = $this->_normalizeAmount($amount);
 
@@ -4060,7 +4060,7 @@ class appServices
      * @param  mixed $amount
      * @return float
      */
-    private function _normalizeAmount(float|string $amount): float
+    private function _normalizeAmount(string $amount): float
     {
         if (is_string($amount)) {
             $amount = str_replace(['R$', ' '], '', $amount);
@@ -4171,7 +4171,7 @@ class appServices
      * @param  mixed $hours
      * @return string
      */
-    function _convertHoursToWords(float|string $hours): string
+    function _convertHoursToWords(string $hours): string
     {
         $hours = $this->_normalizeDecimalValue($hours);
 
@@ -4200,7 +4200,7 @@ class appServices
      * @param  mixed $value
      * @return float
      */
-    function _normalizeDecimalValue(float|string $value): float
+    function _normalizeDecimalValue(string $value): float
     {
         if (is_string($value)) {
             $value = str_replace(' ', '', $value);
