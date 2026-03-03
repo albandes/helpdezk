@@ -517,7 +517,7 @@ class Home extends Controller
      * @return void
      */
     public function isTwoFactorSetupRequired()
-    {        
+    {
         $signatureDAO = new signatureDAO();
         $signatureDTO = new signatureModel();        
         $signatureDTO->setIdPerson($_POST['userId']);
@@ -553,5 +553,74 @@ class Home extends Controller
         }
 
         echo json_encode(array('success'=>$st,'message'=>$msg,'needsSetup'=>$needsSetup,'qrCode'=>$qrcode,'secret'=>$secret));
+    }
+
+    /**
+     * save2FAAttempts
+     * 
+     * en_us 
+     * pt_br 
+     *
+     * @return void
+     */
+    public function save2FAAttempts()
+    {
+        if (!$this->appSrc->_checkToken()) {
+            $this->logger->error("Error Token - User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__]);
+            echo json_encode(['status' => false, 'message' => $this->translator->translate('acd_invalid_token')]);
+            exit;
+        }
+        
+        $authenticatorDAO = new signatureDAO();
+        $authenticatorDTO = new signatureModel();
+        $authenticatorDTO->setIdPerson($_SESSION['SES_COD_USUARIO'])
+                         ->setIdProgram($_POST['programId'])
+                         ->setSessionId(session_id())
+                         ->setBlockWindowMinutes($_SESSION['SES_BLOCK_WINDOW_MINUTES'])
+                         ->setMaxAttempts($_SESSION['SES_MAX_2FA_ATTEMPTS']);
+        
+        // 🔎 1️⃣ Verifica falhas recentes (últimos X minutos)
+        $retRecentFailures = $authenticatorDAO->getRecentFailedAttempts($authenticatorDTO);
+        if(!$retRecentFailures['status']){
+            $this->logger->error("Failed to retrieve recent failed attempts. User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,"Error" => $retRecentFailures['push']['message']]);
+            
+            echo json_encode(array('success'=>false,'message'=>$this->translator->translate('generic_error_msg'),'blocked'=>false,'remainingAttempts' => $_SESSION['SES_MAX_2FA_ATTEMPTS']));
+            exit;
+        }
+        
+        if (count($retRecentFailures['push']['object']->getRecentFailedAttemptsList()) >= $_SESSION['SES_MAX_2FA_ATTEMPTS']) {
+            $this->logger->warning("2FA temporarily blocked due to consecutive failures.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,"User" => $_SESSION['SES_LOGIN_PERSON']]);
+
+            echo json_encode(array('success'=>false,'message'=>$this->translator->translate('too_many_attempts'),'blocked'=>true,'remainingAttempts' => 0));
+            exit;
+        }
+
+        // 🔐 2️⃣ Valida TOTP (Google Authenticator)
+        $mfaServices = new mfaServices();
+        $isValid = $mfaServices->checkAuthCode($_POST['code'], $_POST['secret']);
+        
+        // 📝 3️⃣ Registra tentativa
+        $authenticatorDTO->setWasSuccessful($isValid['isValid'] ? 1 : 0);
+        $insAttempt = $authenticatorDAO->insert2FAAttempt($authenticatorDTO);
+        if(!$insAttempt['status']){
+            $this->logger->error("Failed saving attempt data. User: {$_SESSION['SES_LOGIN_PERSON']}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,"Error" => $insAttempt['push']['message']]);
+            
+            echo json_encode(array('success'=>false,'message'=>$this->translator->translate('generic_error_msg'),'blocked'=>false,'remainingAttempts' => $_SESSION['SES_MAX_2FA_ATTEMPTS']));
+            exit;
+        }
+        
+        if ($isValid['isValid']) {
+            $this->logger->info("2FA validated successfully.",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,"User" => $_SESSION['SES_LOGIN_PERSON']]);
+
+            echo json_encode(array('success'=>true,'message'=>$this->translator->translate('two_factor_auth_success'),'blocked'=>false,'remainingAttempts' => $_SESSION['SES_MAX_2FA_ATTEMPTS']));
+            exit;
+        }
+
+        $this->logger->info("Invalid authentication code.",['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,"User" => $_SESSION['SES_LOGIN_PERSON']]);
+
+        $remainingAttempts = $_SESSION['SES_MAX_2FA_ATTEMPTS'] - (count($retRecentFailures['push']['object']->getRecentFailedAttemptsList()) + 1);
+        $msg = "{$this->translator->translate('invalid_code_alert')}. ". str_replace('{{remaining_attempts}}',$remainingAttempts,$this->translator->translate('remaining_attempts_msg')).".";
+        echo json_encode(array('success'=>false,'message'=>$msg,'blocked'=>false,'remainingAttempts' => $remainingAttempts));
+        exit;
     }
 }
