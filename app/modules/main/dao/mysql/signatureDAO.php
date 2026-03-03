@@ -19,7 +19,6 @@ class signatureDAO extends Database
 	 */
 	public function createSignature(signatureModel $model): array
 	{
-		$this->db->beginTransaction();
 		try {
 
 			$hash = hash(
@@ -31,22 +30,13 @@ class signatureDAO extends Database
 			);
 			$model->setHash($hash);
 
-			$deleteSql = "DELETE FROM tbsignatures WHERE idperson = :idperson AND type = :type AND type_id = :type_id AND filename = :filename";
-			$deleteStmt = $this->db->prepare($deleteSql);
-			$deleteStmt->bindValue(':idperson', $model->getIdPerson());
-			$deleteStmt->bindValue(':type', $model->getType());
-			$deleteStmt->bindValue(':type_id', $model->getTypeId());
-			$deleteStmt->bindValue(':filename', $model->getFilename());
-			$deleteStmt->execute();
-
-			$sql = "INSERT INTO tbsignatures (idperson, type, type_id, hash, signature_date, filename)
-						VALUES (:idperson, :type, :type_id, :hash, NOW(), :filename)";
+			$sql = "INSERT INTO tbsignatures (idperson, type, type_id, hash, signature_date)
+                    VALUES (:idperson, :type, :type_id, :hash, NOW())";
 			$stmt = $this->db->prepare($sql);
 			$stmt->bindValue(':idperson', $model->getIdPerson());
 			$stmt->bindValue(':type', $model->getType());
 			$stmt->bindValue(':type_id', $model->getTypeId());
 			$stmt->bindValue(':hash', $model->getHash());
-			$stmt->bindValue(':filename', $model->getFilename());
 			$stmt->execute();
 
 			$model->setIdSignature($this->db->lastInsertId());
@@ -56,7 +46,6 @@ class signatureDAO extends Database
 				"message" => "",
 				"object" => $model
 			];
-			$this->db->commit();
 		} catch (\PDOException $ex) {
 			$msg = $ex->getMessage();
 			$this->loggerDB->error("Error saving signature with single model.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__, 'DB Message' => $msg]);
@@ -65,7 +54,6 @@ class signatureDAO extends Database
 				"message" => $msg,
 				"object" => null
 			];
-			$this->db->rollBack();
 		}
 
 		return array("status" => $aret, "push" => $result);
@@ -184,5 +172,115 @@ class signatureDAO extends Database
         }
 
         return array("status"=>$ret,"push"=>$result);
+	}
+	
+	/**
+	 * checkUser2FAValidated
+	 *
+	 * @param  mixed $signatureModel
+	 * @return array
+	 */
+	public function checkUser2FAValidated(signatureModel $signatureModel): array
+	{
+		$sql = "SELECT 1 FROM tbtwo_factor_attempts WHERE idperson = :userId AND idprogram = :programId AND session_id = :sessionId AND was_successful = 1 LIMIT 1";
+
+		try{
+			$stmt = $this->db->prepare($sql);
+			$stmt->bindValue(":userId", $signatureModel->getIdPerson());
+			$stmt->bindValue(":programId", $signatureModel->getIdProgram());
+			$stmt->bindValue(":sessionId", $signatureModel->getSessionId());
+			$stmt->execute();
+
+			$validated = $stmt->fetchColumn() ? true : false;
+
+			// seta no model se já validou ou não
+			$signatureModel->setTwoFactorValidated($validated);
+
+			$ret = true;
+			$result = array("message"=>"","object"=>$signatureModel);
+		}catch(\PDOException $ex){
+			$msg = $ex->getMessage();
+			$this->loggerDB->error("Error checking user's 2FA validation", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__,'DB Message' => $msg]);
+
+			$ret = false;
+			$result = array("message"=>$msg,"object"=>null);
+		}
+
+		return array("status"=>$ret,"push"=>$result);
+	}
+	
+	/**
+	 * insert2FAAttempt
+	 *
+	 * @param  mixed $signatureModel
+	 * @return array
+	 */
+	public function insert2FAAttempt(signatureModel $signatureModel): array
+	{
+		$sql = "INSERT INTO tbtwo_factor_attempts (idperson, idprogram, attempted_at, was_successful, session_id)
+										   VALUES (:userId, :programId, NOW(), :wasSuccessful, :sessionId)";
+
+		try{
+			$stmt = $this->db->prepare($sql);
+			$stmt->bindValue(":userId", $signatureModel->getIdPerson());
+			$stmt->bindValue(":programId", $signatureModel->getIdProgram());
+			$stmt->bindValue(":sessionId", $signatureModel->getSessionId());
+			$stmt->bindValue(":wasSuccessful", $signatureModel->getWasSuccessful());
+			$stmt->execute();
+
+			$ret = true;
+			$result = array("message"=>"","object"=>$signatureModel);
+
+		}catch(\PDOException $ex){
+			$msg = $ex->getMessage();
+			$this->loggerDB->error("Error saving the two-factor authentication attempt.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__,'DB Message' => $msg]);
+
+			$ret = false;
+			$result = array("message"=>$msg,"object"=>null);
+		}
+
+		return array("status"=>$ret,"push"=>$result);
+	}
+	
+	/**
+	 * getRecentFailedAttempts
+	 *
+	 * @param  mixed $signatureModel
+	 * @return array
+	 */
+	public function getRecentFailedAttempts(signatureModel $signatureModel): array
+	{
+		$sql = "SELECT idtwo_factor_attempts
+        		  FROM tbtwo_factor_attempts
+        		 WHERE idperson = :userId
+        		   AND idprogram = :programId
+        		   AND session_id = :sessionId
+        		   AND was_successful = 0
+        		   AND attempted_at >= (NOW() - INTERVAL {$signatureModel->getBlockWindowMinutes()} MINUTE)
+        	  ORDER BY attempted_at DESC
+        		 LIMIT {$signatureModel->getMaxAttempts()}";
+
+		try{
+			$stmt = $this->db->prepare($sql);
+			$stmt->bindValue(":userId", $signatureModel->getIdPerson());
+			$stmt->bindValue(":programId", $signatureModel->getIdProgram());
+			$stmt->bindValue(":sessionId", $signatureModel->getSessionId());
+			$stmt->execute();
+
+			$aRet = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+			$signatureModel->setRecentFailedAttemptsList(($aRet && is_array($aRet)) ? $aRet : array());
+
+			$ret = true;
+			$result = array("message"=>"","object"=>$signatureModel);
+		}catch(\PDOException $ex){
+			$msg = $ex->getMessage();
+			$this->loggerDB->error("Error fetching recent failures.", ['Class' => __CLASS__, 'Method' => __METHOD__, 'Line' => __LINE__,'DB Message' => $msg]);
+
+			$ret = false;
+			$result = array("message"=>$msg,"object"=>null);
+		}
+
+		return array("status"=>$ret,"push"=>$result);
 	}
 }
