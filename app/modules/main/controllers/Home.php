@@ -591,7 +591,8 @@ class Home extends Controller
         if (count($retRecentFailures['push']['object']->getRecentFailedAttemptsList()) >= $_SESSION['SES_MAX_2FA_ATTEMPTS']) {
             $this->logger->warning("2FA temporarily blocked due to consecutive failures.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,"User" => $_SESSION['SES_LOGIN_PERSON']]);
 
-            echo json_encode(array('success'=>false,'message'=>$this->translator->translate('too_many_attempts'),'blocked'=>true,'remainingAttempts' => 0));
+            $tooManyAttemptsMsg = str_replace('{{release_attempt_minutes}}',$_SESSION['SES_BLOCK_WINDOW_MINUTES'],$this->translator->translate('too_many_attempts'));
+            echo json_encode(array('success'=>false,'message'=>$tooManyAttemptsMsg,'blocked'=>true,'remainingAttempts' => 0));
             exit;
         }
 
