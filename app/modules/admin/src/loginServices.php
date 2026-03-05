@@ -155,6 +155,7 @@ class loginServices
         $loginModel->setIdPerson($idperson);
 
         session_start();
+        session_regenerate_id(true);
         $_SESSION['SES_COD_USUARIO'] = $idperson;
         $_SESSION['REFRESH']         = false;
 

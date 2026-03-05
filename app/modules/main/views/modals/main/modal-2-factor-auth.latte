@@ -1,0 +1,38 @@
+<div class="modal fade" id="modal-2-factor-auth" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalSignatureLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-2-factor-auth-title">{='two_factor_auth_title'|translate}</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{='Close'|translate}"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2 alert-info">
+          <div class="col g-2 col-sm-3 align-self-center text-center">
+            <i class="fas fa-info-circle fa-2x"></i>
+          </div>
+          <div class="col g-2 col-sm-9">
+            <h5>{='two_factor_auth_message'|translate}</h5>
+          </div>
+        </div>
+        <div class="row">&nbsp;</div>
+        <div class="row">
+          <div class="form-group col-lg-12" style="padding-right: 5px;">
+            <label for="modal-2-factor-auth-code" class="form-label">{='authenticator_code'|translate}</label>
+            <input type="text" maxlength="6" class="form-control text-center" id="modal-2-factor-auth-code" name="modal-2-factor-auth-code" autocomplete="one-time-code" pattern="\d{6}" inputmode="numeric" placeholder="000000">
+            <input type="hidden" class="form-control text-center" id="modal-2-factor-auth-secret" name="modal-2-factor-auth-secret">
+            <input type="hidden" class="form-control text-center" id="modal-2-factor-auth-program-id" name="modal-2-factor-auth-program-id">
+            <div class="mt-2" id="alert-modal-2-factor-auth"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
+          <i class="fa fa-times-circle"></i> {='Cancel'|translate}
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn2FAConfirm" disabled>
+          <i class="fa fa-check"></i> {='APP_btnConfirm'|translate}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
