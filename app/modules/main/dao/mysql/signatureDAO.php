@@ -19,6 +19,8 @@ class signatureDAO extends Database
 	 */
 	public function createSignature(signatureModel $model): array
 	{
+		$this->db->beginTransaction();
+		
 		try {
 
 			$hash = hash(
