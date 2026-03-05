@@ -78,6 +78,7 @@ final class signatureModel
 	 * @var array
 	 */
 	private $recentFailedAttemptsList;
+	
 
 	// Getters e Setters
 
