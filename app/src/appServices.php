@@ -4172,13 +4172,18 @@ class appServices
             }
 
             $scaleIndex = count($groups) - $index - 1;
+
+            $numberPart = implode(' e ', $groupWords);
+
             if ($scaleIndex > 0) {
-                $groupWords[] = $groupNumber > 1
+                $scaleWord = $groupNumber > 1
                     ? $scales[$scaleIndex][1]
                     : $scales[$scaleIndex][0];
-            }
 
-            $words[] = implode(' e ', $groupWords);
+                $words[] = trim($numberPart . ' ' . $scaleWord);
+            } else {
+                $words[] = $numberPart;
+            }
         }
 
         return implode(' e ', $words);
