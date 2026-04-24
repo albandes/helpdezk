@@ -342,7 +342,7 @@ class AutentiqueServices
                 'data'    => null
             ];
         }
-}
+    }
 
     /**
      * _resendSignatures
@@ -356,11 +356,52 @@ class AutentiqueServices
     {
         try {
 
-            if (empty($publicIds)) {
-                throw new \Exception("publicIds cannot be empty");
+            $url = "https://api.autentique.com.br/v2/graphql";
+
+            // Monta array JSON dos public_ids
+            $publicIdsJson = json_encode($publicIds);
+
+            // Monta a mutation EXATA que a API aceita
+            $query = <<<GRAPHQL
+                mutation {
+                resendSignatures(public_ids: $publicIdsJson)
+                }
+            GRAPHQL;
+
+            // Monta o payload JSON final
+            $payload = json_encode([
+                "query" => $query
+            ]);
+
+            // Inicializa CURL
+            $ch = curl_init();
+
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => $url,
+                CURLOPT_POST           => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER     => [
+                    "Authorization: Bearer $this->token",
+                    "Content-Type: application/json"
+                ],
+                CURLOPT_POSTFIELDS     => $payload
+            ]);
+
+            // Executa e obtém resposta
+            $response = curl_exec($ch);
+
+            // Verifica erros de transporte
+            if (curl_errno($ch)) {
+                $this->autentiqueLogger->error("CURL error", [
+                    'error'     =>  curl_error($ch),
+                    'publicIds' => $publicIds
+                ]);
+                throw new \Exception("Erro CURL: " . curl_error($ch));
             }
 
-            return $this->documents->resendSignatures($publicIds);
+            curl_close($ch);
+            // Converte para array
+            return json_decode($response, true);
 
         } catch (\Throwable $e) {
             $this->autentiqueLogger->error("Falha ao reenviar assinaturas", [
