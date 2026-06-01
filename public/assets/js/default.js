@@ -99,17 +99,18 @@ var inactivityTimer = null;
 
 countdown = {
 
-    time: 0,
+    originalTime: 0,
+    currentTime: 0,
     started: false,
 
     start: function(seconds){
-        this.time = seconds;
+        this.currentTime = seconds;
         this.started = true;
 
         var tempo = seconds;
 
         // Opens the modal only once
-        if (!Swal.isVisible()) {
+        if(typeof Swal !== 'undefined' && !Swal.isVisible()){
             Swal.fire({
                 title: vocab['inactive_session'],
                 html: `
@@ -120,26 +121,20 @@ countdown = {
                     </h2>
                 `,
                 icon: 'warning',
-
                 allowOutsideClick: false,
                 allowEscapeKey: false,
-
                 confirmButtonText: vocab['continue_session'],
-
-                confirmButtonColor: '#3085d6',
-
-                timerProgressBar: true
+                confirmButtonColor: '#3085d6'
             }).then((result) => {
-                if (result.isConfirmed) {
-
+                if(result.isConfirmed){
                     sessionControl.reset();
                 }
             });
         }
 
         if((tempo - 1) >= 0){
-            var min = parseInt(tempo / 60),
-                hor = parseInt(min / 60);
+            var min = parseInt(tempo / 60);
+            var hor = parseInt(min / 60);
 
             min = min % 60;
 
@@ -149,56 +144,46 @@ countdown = {
                 min = "0" + min;
             }
 
-            if(seg <= 9){
+            if(seg < 10){
                 seg = "0" + seg;
             }
 
-            if(hor <= 9){
+            if(hor < 10){
                 hor = "0" + hor;
             }
 
             var horaImprimivel = '';
 
-            if(hor > 0){
+            if(parseInt(hor) > 0){
                 horaImprimivel = hor + 'h ' + min + 'm ' + seg + 's';
-            }else if(min > 0){
+            }else if(parseInt(min) > 0){
                 horaImprimivel = min + 'm ' + seg + 's';
             }else{
                 horaImprimivel = seg + 's';
             }
 
             $("#numberCountdown").html(horaImprimivel);
-
             $("#swalCountdown").html(horaImprimivel);
 
-            // Changes colors dynamically
+            // Changes the color when 1 minute remains
             if(tempo <= 60){
-                $("#swalCountdown").css({
-                    "color": "#dc3545"
-                });
+                $("#swalCountdown").css("color", "#dc3545");
 
-                $(".swal2-timer-progress-bar").css({
-                    "background": "#dc3545"
-                });
-
-            } else {
-                $("#swalCountdown").css({
-                    "color": "#3085d6"
-                });
-
-                $(".swal2-timer-progress-bar").css({
-                    "background": "#3085d6"
-                });
+            }else{
+                $("#swalCountdown").css("color", "#3085d6");
             }
 
             tempo--;
 
             timer = setTimeout(function(){
                 countdown.start(tempo);
+
             }, 1000);
 
-        } else {
-            Swal.close();
+        }else{
+            if(typeof Swal !== 'undefined'){
+                Swal.close();
+            }
 
             window.location = path + "/main/home/lockscreen";
         }
@@ -211,9 +196,12 @@ countdown = {
 
         $("#numberCountdown").html('');
 
-        Swal.close();
+        if(typeof Swal !== 'undefined'){
+            Swal.close();
+        }
     }
 };
+
 
 /**
  * Session Inactivity Control
@@ -222,7 +210,7 @@ var sessionControl = {
     eventsBinded: false,
 
     init: function(seconds, inactivityLimit = 300){
-        countdown.time = seconds;
+        countdown.originalTime = seconds;
 
         this.inactivityLimit = inactivityLimit;
 
@@ -243,7 +231,9 @@ var sessionControl = {
         }
 
         inactivityTimer = setTimeout(function(){
-            countdown.start(countdown.time);
+            // Always restarts from the original value
+            countdown.start(countdown.originalTime);
+
         }, sessionControl.inactivityLimit * 1000);
     },
 
@@ -251,6 +241,7 @@ var sessionControl = {
         $(document).on(
             'mousemove keydown click scroll touchstart',
             function(){
+
                 sessionControl.reset();
             }
         );
@@ -259,8 +250,9 @@ var sessionControl = {
             sessionControl.reset();
         });
 
-        document.addEventListener("visibilitychange", function () {
-            if (!document.hidden) {
+        document.addEventListener("visibilitychange", function(){
+            if(!document.hidden){
+
                 sessionControl.reset();
             }
         });
