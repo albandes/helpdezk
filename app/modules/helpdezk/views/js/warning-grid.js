@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    countdown.start(timesession);
+     
     
     //set buttons (blocked, available)
     setActionsBtn(aPermissions);

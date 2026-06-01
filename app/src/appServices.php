@@ -257,7 +257,8 @@ class appServices
             "closeBrowserUrl"           => $_ENV['HDK_URL'].'/main/home/closeBrowser',
             "navUserId"                 => (isset($_SESSION['SES_COD_USUARIO']) && !empty($_SESSION['SES_COD_USUARIO'])) ? $_SESSION['SES_COD_USUARIO'] : 0,
             "modalUser2FASetup"         => $this->_getUser2FASetupTemplate(),
-            "modalAlert"                => $this->_getAlertModalTemplate()
+            "modalAlert"                => $this->_getAlertModalTemplate(),
+            "inactivityLimit"           => (!isset($_SESSION['SES_TIME_INACTIVITY_LIMIT']) || empty($_SESSION['SES_TIME_INACTIVITY_LIMIT'])) ? 300 : $_SESSION['SES_TIME_INACTIVITY_LIMIT']
         );
     }
     
@@ -4233,7 +4234,4 @@ class appServices
 
         return round((float) $value, 2);
     }
-
-
-
 }

@@ -69,7 +69,7 @@ $(document).ready(function () {
 
     $("#btnUpdatePhoto").click(function(){
         $('#modal-person-photo').modal('show');
-        //countdown.start(timesession);
+        // 
     });
 
     $("#btnEditUserPass").click(function(){

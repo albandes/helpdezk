@@ -62,7 +62,6 @@ var objRequestEmail = {
 }
 
 $(document).ready(function () {
-    countdown.start(timesession);
     /**
      * Select2
      */
