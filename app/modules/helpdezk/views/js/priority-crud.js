@@ -3,7 +3,6 @@ Dropzone.autoDiscover = false;
 var dropzonefiles = 0,filesended = 0, flgerror = 0, errorname=[], upname=[], flgDefault=0, btnClicked = 0;
 
 $(document).ready(function () {
-    countdown.start(timesession);
     /**
      * Select2
      */

@@ -151,8 +151,6 @@ var objFeatures = {
 }
 
 $(document).ready(function () {
-    countdown.start(timesession);
-
     /**
      * Demo version
      */
