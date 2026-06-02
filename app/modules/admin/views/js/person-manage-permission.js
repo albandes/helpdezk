@@ -1,6 +1,4 @@
 $(document).ready(function () {
-    countdown.start(timesession);
-
     /** 
      * Define a model for grid's columns
      * 

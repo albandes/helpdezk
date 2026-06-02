@@ -263,7 +263,7 @@ if(dtpLanguage == '' || dtpLanguage === 'undefined' || !dtpLanguage){
 $('.input-group.date').datepicker(dpOptions);
 
 $(document).ready(function () {
-    countdown.start(timesession);
+     
 
     /**
      * Select2

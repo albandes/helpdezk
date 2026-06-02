@@ -94,55 +94,170 @@ function translateLabel(label){
 
 }
 
+var timer = null;
+var inactivityTimer = null;
+
 countdown = {
+
+    originalTime: 0,
+    currentTime: 0,
+    started: false,
+
     start: function(seconds){
-        if(typeof  this.time == "undefined"){
-            this.time = seconds;
-        }
+        this.currentTime = seconds;
+        this.started = true;
+
         var tempo = seconds;
 
+        // Opens the modal only once
+        if(typeof Swal !== 'undefined' && !Swal.isVisible()){
+            Swal.fire({
+                title: vocab['inactive_session'],
+                html: `
+                    <p>${vocab['session_locked_in']}</p>
+
+                    <h2 id="swalCountdown" style="color:#3085d6;">
+                        00:00
+                    </h2>
+                `,
+                icon: 'warning',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                confirmButtonText: vocab['continue_session'],
+                confirmButtonColor: '#3085d6'
+            }).then((result) => {
+                if(result.isConfirmed){
+                    sessionControl.reset();
+                }
+            });
+        }
+
         if((tempo - 1) >= 0){
-            var min = parseInt(tempo/60),
-                hor = parseInt(min/60),
-                min = min%60,
-                seg = tempo%60;
+            var min = parseInt(tempo / 60);
+            var hor = parseInt(min / 60);
+
+            min = min % 60;
+
+            var seg = tempo % 60;
 
             if(min < 10){
-                min = "0"+min;
-                min = min.substr(0, 2);
-            }
-            if(seg <=9){
-                seg = "0"+seg;
-            }
-            if(hor <=9){
-                hor = "0"+hor;
+                min = "0" + min;
             }
 
-            if(hor > 0)
-                horaImprimivel = hor+'h ' + min + 'm ' + seg + 's';
-            else if(min > 0)
+            if(seg < 10){
+                seg = "0" + seg;
+            }
+
+            if(hor < 10){
+                hor = "0" + hor;
+            }
+
+            var horaImprimivel = '';
+
+            if(parseInt(hor) > 0){
+                horaImprimivel = hor + 'h ' + min + 'm ' + seg + 's';
+            }else if(parseInt(min) > 0){
                 horaImprimivel = min + 'm ' + seg + 's';
-            else
+            }else{
                 horaImprimivel = seg + 's';
-            $(document.getElementById("numberCountdown")).html(horaImprimivel);
+            }
+
+            $("#numberCountdown").html(horaImprimivel);
+            $("#swalCountdown").html(horaImprimivel);
+
+            // Changes the color when 1 minute remains
+            if(tempo <= 60){
+                $("#swalCountdown").css("color", "#dc3545");
+
+            }else{
+                $("#swalCountdown").css("color", "#3085d6");
+            }
+
             tempo--;
+
             timer = setTimeout(function(){
                 countdown.start(tempo);
-            },1000);
-        } else {
+
+            }, 1000);
+
+        }else{
+            if(typeof Swal !== 'undefined'){
+                Swal.close();
+            }
 
             window.location = path + "/main/home/lockscreen";
         }
     },
+
     stop: function(){
         clearTimeout(timer);
-    },
-    refresh: function(){
-        countdown.stop();
-        countdown.start(this.time);
-    }
 
-}
+        this.started = false;
+
+        $("#numberCountdown").html('');
+
+        if(typeof Swal !== 'undefined'){
+            Swal.close();
+        }
+    }
+};
+
+
+/**
+ * Session Inactivity Control
+ */
+var sessionControl = {
+    eventsBinded: false,
+
+    init: function(seconds, inactivityLimit = 300){
+        countdown.originalTime = seconds;
+
+        this.inactivityLimit = inactivityLimit;
+
+        if(!this.eventsBinded){
+            this.bindEvents();
+
+            this.eventsBinded = true;
+        }
+
+        this.reset();
+    },
+
+    reset: function(){
+        clearTimeout(inactivityTimer);
+
+        if(countdown.started){
+            countdown.stop();
+        }
+
+        inactivityTimer = setTimeout(function(){
+            // Always restarts from the original value
+            countdown.start(countdown.originalTime);
+
+        }, sessionControl.inactivityLimit * 1000);
+    },
+
+    bindEvents: function(){
+        $(document).on(
+            'mousemove keydown click scroll touchstart',
+            function(){
+
+                sessionControl.reset();
+            }
+        );
+
+        $(document).ajaxComplete(function(){
+            sessionControl.reset();
+        });
+
+        document.addEventListener("visibilitychange", function(){
+            if(!document.hidden){
+
+                sessionControl.reset();
+            }
+        });
+    }
+};
 
 function showNextStep(list,msg,typeAlert,totalAttach,modalSize="")
 {
@@ -373,67 +488,69 @@ function enableTableNavigation(className) {
 
 
 $(document).ready(function () {
-    // -- Date validation methods --
-    $.validator.addMethod('checkStartDate', function(startDate, element, params) {
-        var paramsTmp = $(params).val();
-        if(paramsTmp && paramsTmp.trim() !== ""){
-            var parts = startDate.split('/') , endDate = $(params).val(), partsFinish = endDate.split('/');
+    if($("#frm-login").length <= 0 && $("#lockscreen").length <= 0){
+        // -- Date validation methods --
+        $.validator.addMethod('checkStartDate', function(startDate, element, params) {
+            var paramsTmp = $(params).val();
+            if(paramsTmp && paramsTmp.trim() !== ""){
+                var parts = startDate.split('/') , endDate = $(params).val(), partsFinish = endDate.split('/');
 
-            startDate = new Date(parts[2], parts[1] - 1, parts[0]);
-            endDate = new Date(partsFinish[2], partsFinish[1] - 1, partsFinish[0]);
+                startDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                endDate = new Date(partsFinish[2], partsFinish[1] - 1, partsFinish[0]);
 
-            return startDate <= endDate;
-        }
+                return startDate <= endDate;
+            }
 
-        return true;
+            return true;
 
-    }, vocab['Alert_start_date_error']);
+        }, vocab['Alert_start_date_error']);
 
-    $.validator.addMethod('checkEndDate', function(endDate, element, params) {
-        var paramsTmp = $(params).val();
-        if(paramsTmp && paramsTmp.trim() !== ""){
-            var parts = endDate.split('/') , startDate = $(params).val(), partsStart = startDate.split('/');
-    
-            endDate = new Date(parts[2], parts[1] - 1, parts[0]);
-            startDate = new Date(partsStart[2], partsStart[1] - 1, partsStart[0]);
-    
-            return endDate >= startDate;
-        }
+        $.validator.addMethod('checkEndDate', function(endDate, element, params) {
+            var paramsTmp = $(params).val();
+            if(paramsTmp && paramsTmp.trim() !== ""){
+                var parts = endDate.split('/') , startDate = $(params).val(), partsStart = startDate.split('/');
+        
+                endDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                startDate = new Date(partsStart[2], partsStart[1] - 1, partsStart[0]);
+        
+                return endDate >= startDate;
+            }
 
-        return true;
+            return true;
 
-    }, vocab['Alert_finish_date_error']);
+        }, vocab['Alert_finish_date_error']);
 
-    // -- Time validation methods --
-    $.validator.addMethod('checkStartTime', function(startTime, element, params) {
-        var paramsTmp = $(params).val();
-        if(paramsTmp && paramsTmp.trim() !== ""){
-            var parts = startTime.split(':') , endTime = $(params).val(), partsFinish = endTime.split(':');
+        // -- Time validation methods --
+        $.validator.addMethod('checkStartTime', function(startTime, element, params) {
+            var paramsTmp = $(params).val();
+            if(paramsTmp && paramsTmp.trim() !== ""){
+                var parts = startTime.split(':') , endTime = $(params).val(), partsFinish = endTime.split(':');
 
-            var startMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-            var endMinutes = parseInt(partsFinish[0]) * 60 + parseInt(partsFinish[1]);
+                var startMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                var endMinutes = parseInt(partsFinish[0]) * 60 + parseInt(partsFinish[1]);
 
-            return startMinutes <= endMinutes;
-        }
+                return startMinutes <= endMinutes;
+            }
 
-        return true;
+            return true;
 
-    }, vocab['Alert_start_time_error']);
+        }, vocab['Alert_start_time_error']);
 
-    $.validator.addMethod('checkEndTime', function(endTime, element, params) {
-        var paramsTmp = $(params).val();
-        if(paramsTmp && paramsTmp.trim() !== ""){
-            var parts = endTime.split(':') , startTime = $(params).val(), partsStart = startTime.split(':');
-    
-            var endMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-            var startMinutes = parseInt(partsStart[0]) * 60 + parseInt(partsStart[1]);
-    
-            return endMinutes >= startMinutes;
-        }
+        $.validator.addMethod('checkEndTime', function(endTime, element, params) {
+            var paramsTmp = $(params).val();
+            if(paramsTmp && paramsTmp.trim() !== ""){
+                var parts = endTime.split(':') , startTime = $(params).val(), partsStart = startTime.split(':');
+        
+                var endMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                var startMinutes = parseInt(partsStart[0]) * 60 + parseInt(partsStart[1]);
+        
+                return endMinutes >= startMinutes;
+            }
 
-        return true;
+            return true;
 
-    }, vocab['Alert_finish_time_error']);
+        }, vocab['Alert_finish_time_error']);
+    }
 
     /* let isNavigatingInternally = false;
 
