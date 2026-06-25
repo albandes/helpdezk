@@ -4234,4 +4234,68 @@ class appServices
 
         return round((float) $value, 2);
     }
+    
+    /**
+     * _makeModuleMenu
+     *
+     * @param  mixed $moduleModel
+     * @return void
+     */
+    public function _makeModuleMenu($moduleModel)
+    {
+        $moduleDAO = new moduleDAO();
+        $retCategories = $moduleDAO->fetchModuleActiveCategories($moduleModel);
+        $aCategories = array();
+        
+        if($retCategories['status']){
+            $categoriesObj = $retCategories['push']['object'];
+            $categories = $categoriesObj->getCategoriesList();
+            
+            foreach($categories as $ck=>$cv) {
+                $categoriesObj->setCategoryID($cv['category_id']);
+                
+                $retPermissions = $moduleDAO->fetchPermissionModuleMenu($categoriesObj);
+                
+                if($retPermissions['status']){
+                    $permissionsObj = $retPermissions['push']['object'];
+                    $permissionsMod = $permissionsObj->getPermissionsList();
+                    
+                    foreach($permissionsMod as $permidx=>$permval) {
+                        $allow = $permval['allow'];
+                        $path  = $permval['path'];
+                        $program = $permval['program'];
+                        $controller = $permval['controller'];
+                        $prsmarty = $permval['pr_smarty'];
+                        $pgrOrderNumber = $permval['index'];
+                        $pgrIcon = $permval['icon'];
+                        $programId = $permval['idprogram'];
+
+                        $checkbar = substr($permval['controller'], -1);
+                        if($checkbar != "/") $checkbar = "/";
+                        else $checkbar = "";
+
+                        $controllertmp = ($checkbar != "") ? $controller : substr($controller,0,-1);
+                        $controller_path = 'app/modules/'. $path  .'/controllers/' . ucfirst($controllertmp)  . '.php';
+                        
+                        if (!file_exists($controller_path)) {
+                            $this->applogger->error("The controller does not exist: {$controller_path}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__]);
+                        }else{
+                            if ($allow == 'Y') {
+                                $aCategories[$cv['cat_smarty']][$prsmarty] = array(
+                                    "url"=>$_ENV['HDK_URL'] . "/".$path."/" . $controller . $checkbar."index", 
+                                    "program_name"=>$prsmarty,
+                                    "order_number"=>$pgrOrderNumber,
+                                    "icon"=>$pgrIcon,
+                                    "programId"=>$programId
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $aCategories;
+
+    }
 }
