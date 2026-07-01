@@ -417,6 +417,11 @@ textarea.form-ctrl { height:90px; padding:8px 10px; resize:none; line-height:1.5
     position: relative !important;
 }
 
+.emq-form-check-input:checked {
+   background-color: #1949A4;
+    border-color: #1949A4;
+}
+
 @media(max-width:1100px) { .painel-cols { grid-template-columns:1fr; } .prof-detail { width:100%; } }
 @media(max-width:800px)  { .sidebar { width:52px; } .sidebar .sidebar-item span, .sidebar-section, .sidebar-footer { display:none; } .metrics { grid-template-columns:repeat(2,1fr); } }
 @media(max-width:600px)  { .meses-grid.cols-4,.eventos-grid.cols-4 { grid-template-columns:repeat(2,1fr); } .rodape-grid { grid-template-columns:1fr; } }
