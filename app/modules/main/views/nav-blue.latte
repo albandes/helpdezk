@@ -1,0 +1,124 @@
+<!-- Select2 -->
+<link rel="stylesheet" href="{$path}/public/assets/css/plugins/select2/select2.min.css" />
+<script src="{$path}/public/assets/js/plugins/select2/select2.min.js"></script>
+<script src="{$path}/public/assets/js/plugins/select2/i18n/{$lang}.js"></script>
+
+<!-- Validation -->
+<script src="{$path}/public/assets/js/plugins/validation/jquery.validate.min.js"></script>  
+
+<!-- iCheck -->
+<link rel="stylesheet" href="{$path}/public/assets/css/plugins/icheck/all.css" />
+<script src="{$path}/public/assets/js/plugins/icheck/icheck.min.js"></script>
+
+<!-- Dropzone -->
+<link rel="stylesheet" href="{$path}/public/assets/css/plugins/dropzone/dropzone.min.css" />
+<script src="{$path}/public/assets/js/plugins/dropzone/dropzone.js"></script>
+
+<!-- SweetAlert2 -->
+<link rel="stylesheet" href="{$path}/public/assets/css/plugins/sweetalert2/sweetalert2.min.css" />
+<script src="{$path}/public/assets/js/plugins/sweetalert2/sweetalert2.min.js"></script>
+
+<!-- SweetAlert2 -->
+<link rel="stylesheet" href="{$path}/public/assets/css/plugins/sweetalert2/sweetalert2.min.css" />
+<script src="{$path}/public/assets/js/plugins/sweetalert2/sweetalert2.min.js"></script>
+
+<!-- menu -->
+<link rel="stylesheet" href="{$path}/public/assets/css/gnmenu/gnmenu-blue.css" rel="stylesheet" />
+
+<link rel="stylesheet" href="{$path}/public/assets/css/emq-css/emq-blue.css" rel="stylesheet" />
+
+<style>
+    .dropzone .dz-preview .dz-progress {
+        top: 70%;
+    }
+
+    .bg-blue {
+       background: #1949A4;
+       color: #fff;
+    }
+</style>
+
+<script type="text/javascript">
+    var vocab = {$vocabulary}; 
+</script>
+
+<script src="{$path}/app/modules/main/views/js/nav-main.js"></script>
+
+<div id="sideNav" class="scrollable-gnmenu">
+    <ul class="navbar-nav">
+    {if $isroot}
+        <li>
+            <a href="{$adminhome}">
+                <img style="max-width:60px;" src="{$adminlogo}"  >
+                &nbsp;&nbsp;<span>Admin</span>
+            </a>
+        </li>
+    {else}
+        {if $hashelpdezk }
+        <li>
+            <a href="{$helpdezkhome}">
+                <img style="max-width:60px;" src="{$hdklogo}"  >
+                &nbsp;&nbsp;<span>HelpDEZK</span>
+            </a>
+        </li>
+        {/if}
+        {if $hasadmin }
+        <li>
+            <a href="{$adminhome}">
+                <img style="max-width:60px;" src="{$adminlogo}"  >
+                &nbsp;&nbsp;<span>Admin</span>
+            </a>
+        </li>
+        {/if}
+        {foreach $modules as $myId=>$i}
+        <li class="text-start">
+            <a href="{$path}/{$i['path']}/home">
+                <img style="max-width:60px;" src="{$i['headerlogo']}"  >
+                &nbsp;&nbsp;<span>{=$i['varsmarty']|translate}</span>
+            </a>
+        </li>
+        {/foreach}
+
+    {/if}
+    </ul>
+</div>
+
+<nav class="navbar fixed-top navbar-expand-lg bg-blue" role="navigation">
+    <div class="container-fluid">
+        <i class="btn fa fa-bars fa-2x" id="btn-menu"></i>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbar">            
+
+            <!-- active module -->
+            &nbsp;&nbsp;<strong style="font-size: 15px">{$moduleName}</strong>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item nav-text"><a id="numberCountdown" class="nav-link" href="#"></a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><strong>{$navlogin}</strong></a>
+                    <input type="hidden" name="nav-user-id" id="nav-user-id" value="{$navUserId}">
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {if !$isroot}
+                            <li><a href="#" id="btnEditUserProfile" class="dropdown-item"><i class="far fa-user"></i> {='user_profile'|translate}</a></li>
+                            <li><a href="javascript:;" id="btnEditUserSettings" role="button" class="dropdown-item"><i class="fas fa-user-cog"></i> {='user_settings'|translate}</a></li>
+                            <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                            <li><a href="#" id="btnSetUser2FA" class="dropdown-item"><i class="fa fa-shield-alt"></i> {='set_user_2fa'|translate}</a></li>
+                        {else}
+                            <li><a href="#" id="btnEditUserPass" class="dropdown-item"><i class="fa fa-key"></i> {='Change_password'|translate}</a></li>
+                            <li>&nbsp;</li>
+                        {/if}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a href="{$logout}" class="dropdown-item"> <i class="fa fa-sign-out-alt"></i> {='logout'|translate}</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+        </div>
+    </div>    
+
+</nav>

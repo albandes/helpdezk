@@ -589,3 +589,42 @@ $(document).ready(function () {
         isNavigatingInternally = false;
     }); */
 });
+
+function showToast(message, type = 'success')
+{
+    const toastEl = document.getElementById('app-toast');
+    const toastMsg = document.getElementById('toast-message');
+
+    toastMsg.textContent = message;
+
+    // Remove cores anteriores
+    toastEl.classList.remove(
+        'bg-success',
+        'bg-danger',
+        'bg-warning',
+        'bg-info'
+    );
+
+    switch(type) {
+        case 'error':
+            toastEl.classList.add('bg-danger');
+            break;
+
+        case 'warning':
+            toastEl.classList.add('bg-warning');
+            toastEl.classList.remove('text-white');
+            toastEl.classList.add('text-dark');
+            break;
+
+        default:
+            toastEl.classList.add('bg-success');
+            toastEl.classList.remove('text-dark');
+            toastEl.classList.add('text-white');
+    }
+
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl, {
+        delay: 4000
+    });
+
+    toast.show();
+}
