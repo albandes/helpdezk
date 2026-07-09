@@ -72,6 +72,11 @@ class appServices
      */
     protected $imgBucket;
 
+    /**
+     * @var string
+     */
+    protected $storagePath;
+
     public function __construct()
     {
         // create a log channel
@@ -4297,5 +4302,62 @@ class appServices
         
         return $aCategories;
 
+    }
+
+    /**
+     * _uploadFile
+     *
+     * @param  array $aFiles
+     * @param  string $dirPath
+     * @return void
+     */
+    public function _uploadFile($aFiles,$dirPath)
+    {
+        if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
+            $fileName = $_FILES['file']['name'];
+            $tempFile = $_FILES['file']['tmp_name'];
+            $extension = strrchr($fileName, ".");
+            $fileSize = $_FILES['file']['size'];
+            $fileTypeName = $_FILES['file']['type'];
+
+            $aFileName = explode($extension,$fileName);
+            $uploadFile = $this->_clearAccent(trim($aFileName[0]));
+            $uploadFileTmp = $uploadFile."_".time();
+            $uploadFile = $uploadFileTmp.$extension;
+
+            if($this->saveMode == 'disk'){
+                $targetFile =  $dirPath.$uploadFile;
+
+                if (move_uploaded_file($tempFile,$targetFile)){
+                    $this->applogger->info("File saved. {$targetFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+                    return array("success"=>true,"message"=>"","fileName"=>$fileName,"uploadedName"=>$uploadFileTmp,"fileUploaded"=>$uploadFile);
+                } else {
+                    $this->applogger->error("Error saving file: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+                    return array("success"=>false,"message"=>"{$this->translator->translate('file_upload_failure')}","fileName"=>"","uploadedName"=>"","fileUploaded"=>"");
+                }
+            }elseif($this->saveMode == "aws-s3"){
+                $aws = new awsServices();
+
+                $retUpload = $aws->_copyToBucket($tempFile,$dirPath.$uploadFile);
+
+                if($retUpload['success']) {
+                    $this->applogger->info("Save temp attachment file {$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+
+                    return array("success"=>true,"message"=>"","fileName"=>$fileName,"uploadedName"=>$uploadFileTmp,"fileUploaded"=>$uploadFile);
+                } else {
+                    $this->applogger->error("I could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'],'Error' => $retUpload['message']]);
+                    return array("success"=>false,"message"=>"{$this->translator->translate('file_upload_failure')}","fileName"=>"","uploadedName"=>"","fileUploaded"=>"");
+                }
+            }
+        }else{
+            if(empty($_FILES)){
+                $msg = $this->translator->translate('no_file_upload');
+                $this->applogger->error("Error trying save file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'],'Error' => $msg]);
+            }else{
+                $msg = $this->_makeFileUploadError($_FILES['file']['error']);
+                $this->applogger->error("Error trying save file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'],'Error' => $msg]);
+            }
+            return array("success"=>false,"message"=>$msg,"fileName"=>"","uploadedName"=>"");
+        }
     }
 }
