@@ -4311,8 +4311,10 @@ class appServices
      * @param  string $dirPath
      * @return void
      */
-    public function _uploadFile($aFiles,$dirPath)
+    public function _uploadFile($aFiles,$dirPath,$controllerName)
     {
+        $this->applogger->info("Method called from the {$controllerName} controller", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+
         if (!empty($_FILES) && ($_FILES['file']['error'] == 0)) {
             $fileName = $_FILES['file']['name'];
             $tempFile = $_FILES['file']['tmp_name'];
@@ -4329,10 +4331,10 @@ class appServices
                 $targetFile =  $dirPath.$uploadFile;
 
                 if (move_uploaded_file($tempFile,$targetFile)){
-                    $this->applogger->info("File saved. {$targetFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+                    $this->applogger->info("File saved. {$targetFile}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'], 'From' => $controllerName]);
                     return array("success"=>true,"message"=>"","fileName"=>$fileName,"uploadedName"=>$uploadFileTmp,"fileUploaded"=>$uploadFile);
                 } else {
-                    $this->applogger->error("Error saving file: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+                    $this->applogger->error("Error saving file: {$fileName}.", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'], 'From' => $controllerName]);
                     return array("success"=>false,"message"=>"{$this->translator->translate('file_upload_failure')}","fileName"=>"","uploadedName"=>"","fileUploaded"=>"");
                 }
             }elseif($this->saveMode == "aws-s3"){
@@ -4341,21 +4343,21 @@ class appServices
                 $retUpload = $aws->_copyToBucket($tempFile,$dirPath.$uploadFile);
 
                 if($retUpload['success']) {
-                    $this->applogger->info("Save temp attachment file {$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON']]);
+                    $this->applogger->info("Save temp attachment file {$fileName}", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'], 'From' => $controllerName]);
 
                     return array("success"=>true,"message"=>"","fileName"=>$fileName,"uploadedName"=>$uploadFileTmp,"fileUploaded"=>$uploadFile);
                 } else {
-                    $this->applogger->error("I could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'],'Error' => $retUpload['message']]);
+                    $this->applogger->error("I could not save the temp file: {$fileName} in S3 bucket !!", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'], 'From' => $controllerName,'Error' => $retUpload['message']]);
                     return array("success"=>false,"message"=>"{$this->translator->translate('file_upload_failure')}","fileName"=>"","uploadedName"=>"","fileUploaded"=>"");
                 }
             }
         }else{
             if(empty($_FILES)){
                 $msg = $this->translator->translate('no_file_upload');
-                $this->applogger->error("Error trying save file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'],'Error' => $msg]);
+                $this->applogger->error("Error trying save file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'], 'From' => $controllerName,'Error' => $msg]);
             }else{
                 $msg = $this->_makeFileUploadError($_FILES['file']['error']);
-                $this->applogger->error("Error trying save file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'],'Error' => $msg]);
+                $this->applogger->error("Error trying save file", ['Class' => __CLASS__,'Method' => __METHOD__,'Line' => __LINE__,'User' => $_SESSION['SES_LOGIN_PERSON'], 'From' => $controllerName,'Error' => $msg]);
             }
             return array("success"=>false,"message"=>$msg,"fileName"=>"","uploadedName"=>"");
         }
