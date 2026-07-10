@@ -37,7 +37,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; font
 /* ── CONTENT AREA ── */
 .content { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
 .content-toolbar { padding:.875rem 1.5rem; background:#fff; border-bottom:1px solid #e5e7eb; }
-.content-main { padding:1.25rem 1.5rem; flex:1; }
+.content-main { padding:1.25rem 1.5rem; flex:1; min-height: 600px;}
 
 /* ── BOTÕES ── */
 .btn-emq { padding:6px 14px; font-size:13px; border-radius:8px; cursor:pointer;
